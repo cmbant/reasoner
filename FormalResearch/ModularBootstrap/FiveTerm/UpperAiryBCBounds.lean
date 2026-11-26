@@ -848,13 +848,174 @@ private lemma tail_consts :
       _ = M * (2 ^ (5 / 4 : ℝ) * X ^ (-(5 / 4) : ℝ)) * (2 * (2 ^ (1 / 2 : ℝ) * X ^ (1 / 4 : ℝ))) +
           2 ^ (3 / 2 : ℝ) * X ^ (-(3 / 2) : ℝ) * M * (∫ t : ℝ, (1 + |t|) ^ (-(5 / 4) : ℝ)) := by
           rw [hI32, hh12, hx54, hx32]
-          ring
-      _ ≤ K3 * X ^ (-1 : ℝ) := by
-          rw [key1]
-          nlinarith [key2]
-  · sorry
+      _ ≤ (M * (2 ^ (5 / 4 : ℝ) * 2 * 2 ^ (1 / 2 : ℝ)) + 2 ^ (3 / 2 : ℝ) * (M * |∫ t : ℝ, (1 + |t|) ^ (-(5 / 4) : ℝ)|)) *
+            X ^ (-1 : ℝ) := by
+          rw [key1, add_mul]
+          linarith [key2]
+  · have key1' : M * (2 ^ (5 / 4 : ℝ) * X ^ (-(5 / 4) : ℝ)) * ((2 / 3) * (2 ^ (3 / 2 : ℝ) * X ^ (3 / 4 : ℝ))) =
+        (M * (2 ^ (5 / 4 : ℝ) * ((2 / 3) * 2 ^ (3 / 2 : ℝ)))) * X ^ (-(1 / 2) : ℝ) := by
+      rw [← hXe2]
+      ring
+    have key2' : 2 ^ (5 / 2 : ℝ) * X ^ (-(5 / 2) : ℝ) * M * (∫ t : ℝ, (1 + |t|) ^ (-(5 / 4) : ℝ)) ≤
+        (2 ^ (5 / 2 : ℝ) * (M * |∫ t : ℝ, (1 + |t|) ^ (-(5 / 4) : ℝ)|)) * X ^ (-(1 / 2) : ℝ) := by
+      calc 2 ^ (5 / 2 : ℝ) * X ^ (-(5 / 2) : ℝ) * M * (∫ t : ℝ, (1 + |t|) ^ (-(5 / 4) : ℝ))
+          = (2 ^ (5 / 2 : ℝ) * X ^ (-(5 / 2) : ℝ)) * (M * ∫ t : ℝ, (1 + |t|) ^ (-(5 / 4) : ℝ)) := by
+            ring
+        _ ≤ (2 ^ (5 / 2 : ℝ) * X ^ (-(5 / 2) : ℝ)) * (M * |∫ t : ℝ, (1 + |t|) ^ (-(5 / 4) : ℝ)|) :=
+            mul_le_mul_of_nonneg_left hMG (mul_nonneg (by positivity) hXp5)
+        _ ≤ (2 ^ (5 / 2 : ℝ) * X ^ (-(1 / 2) : ℝ)) * (M * |∫ t : ℝ, (1 + |t|) ^ (-(5 / 4) : ℝ)|) :=
+            mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hXe4 (by positivity))
+              (mul_nonneg hM hG0)
+        _ = (2 ^ (5 / 2 : ℝ) * (M * |∫ t : ℝ, (1 + |t|) ^ (-(5 / 4) : ℝ)|)) * X ^ (-(1 / 2) : ℝ) := by
+            ring
+    calc ∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), s ^ (-(5 / 2) : ℝ) * |airyPrimC (s - X)|
+        ≤ M * (X / 2) ^ (-(5 / 4) : ℝ) * (∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), s ^ (-(5 / 2) : ℝ)) +
+          (X / 2) ^ (-(5 / 2) : ℝ) * M * (∫ t : ℝ, (1 + |t|) ^ (-(5 / 4) : ℝ)) := hT52
+      _ = M * (2 ^ (5 / 4 : ℝ) * X ^ (-(5 / 4) : ℝ)) * ((2 / 3) * (2 ^ (3 / 2 : ℝ) * X ^ (3 / 4 : ℝ))) +
+          2 ^ (5 / 2 : ℝ) * X ^ (-(5 / 2) : ℝ) * M * (∫ t : ℝ, (1 + |t|) ^ (-(5 / 4) : ℝ)) := by
+          rw [hI52, hh32, hx54, hx52]
+      _ ≤ (M * (2 ^ (5 / 4 : ℝ) * ((2 / 3) * 2 ^ (3 / 2 : ℝ))) +
+            2 ^ (5 / 2 : ℝ) * (M * |∫ t : ℝ, (1 + |t|) ^ (-(5 / 4) : ℝ)|)) * X ^ (-(1 / 2) : ℝ) := by
+          rw [key1', add_mul]
+          linarith [key2']
 
-end FormalResearch.ModularBootstrap.FiveTerm
+/-- The tail pointwise bound `s^{-p}|C(s-X)| ≤ M(X/2)^{-5/4}s^{-p} + (X/2)^{-p}M(1+|s-X|)^{-5/4}` on `(h,∞)`. -/
+private lemma tail_pointwise {X h p M : ℝ} (hp : 0 ≤ p) (hh : 0 < h) (hhX : h ≤ X / 2) (hM : 0 ≤ M)
+    (hC : ∀ t : ℝ, |airyPrimC t| ≤ M * (1 + |t|) ^ (-(5 / 4) : ℝ)) (s : ℝ) (hs : s ∈ Ioi h) :
+    s ^ (-p) * |airyPrimC (s - X)| ≤
+      M * (X / 2) ^ (-(5 / 4) : ℝ) * s ^ (-p) + (X / 2) ^ (-p) * M * (1 + |s - X|) ^ (-(5 / 4) : ℝ) := by
+  have hX2 : 0 < X / 2 := by linarith
+  have hs0 : 0 < s := hh.trans hs
+  have hsp : 0 ≤ s ^ (-p) := Real.rpow_nonneg hs0.le _
+  have hA : 0 ≤ (1 + |s - X|) ^ (-(5 / 4) : ℝ) := Real.rpow_nonneg (by positivity) _
+  have hF : s ^ (-p) * |airyPrimC (s - X)| ≤ s ^ (-p) * (M * (1 + |s - X|) ^ (-(5 / 4) : ℝ)) :=
+    mul_le_mul_of_nonneg_left (hC (s - X)) hsp
+  have hB : 0 ≤ (X / 2) ^ (-p) * M * (1 + |s - X|) ^ (-(5 / 4) : ℝ) :=
+    mul_nonneg (mul_nonneg (Real.rpow_nonneg hX2.le _) hM) hA
+  rcases le_total s (X / 2) with hsX | hsX
+  · have hle : (1 + |s - X|) ^ (-(5 / 4) : ℝ) ≤ (X / 2) ^ (-(5 / 4) : ℝ) := by
+      apply Real.rpow_le_rpow_of_nonpos hX2
+      · rw [abs_of_nonpos (by linarith)]
+        linarith
+      · norm_num
+    calc s ^ (-p) * |airyPrimC (s - X)| ≤ s ^ (-p) * (M * (1 + |s - X|) ^ (-(5 / 4) : ℝ)) := hF
+      _ ≤ s ^ (-p) * (M * (X / 2) ^ (-(5 / 4) : ℝ)) :=
+          mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hle hM) hsp
+      _ = M * (X / 2) ^ (-(5 / 4) : ℝ) * s ^ (-p) := by ring
+      _ ≤ _ := by linarith
+  · have hle2 : s ^ (-p) ≤ (X / 2) ^ (-p) := Real.rpow_le_rpow_of_nonpos hX2 hsX (by linarith)
+    have hnn : 0 ≤ M * (X / 2) ^ (-(5 / 4) : ℝ) * s ^ (-p) :=
+      mul_nonneg (mul_nonneg hM (Real.rpow_nonneg hX2.le _)) hsp
+    calc s ^ (-p) * |airyPrimC (s - X)| ≤ s ^ (-p) * (M * (1 + |s - X|) ^ (-(5 / 4) : ℝ)) := hF
+      _ ≤ (X / 2) ^ (-p) * (M * (1 + |s - X|) ^ (-(5 / 4) : ℝ)) :=
+          mul_le_mul_of_nonneg_right hle2 (mul_nonneg hM hA)
+      _ = (X / 2) ^ (-p) * M * (1 + |s - X|) ^ (-(5 / 4) : ℝ) := by ring
+      _ ≤ _ := by linarith
+
+/-- Integrability of `s^{-p}|C(s-X)|` on `(h,∞)` for `p ≥ 0`, `0 < h ≤ X/2`. -/
+private lemma tail_integrable_rpow {X h p M : ℝ} (hp : 1 < p) (hh : 0 < h) (hhX : h ≤ X / 2) (hM : 0 ≤ M)
+    (hC : ∀ t : ℝ, |airyPrimC t| ≤ M * (1 + |t|) ^ (-(5 / 4) : ℝ)) :
+    IntegrableOn (fun s : ℝ => s ^ (-p) * |airyPrimC (s - X)|) (Ioi h) := by
+  have hX2 : 0 < X / 2 := by linarith
+  have hG2 : Integrable (fun s : ℝ => (X / 2) ^ (-p) * M * (1 + |s - X|) ^ (-(5 / 4) : ℝ)) :=
+    (integrable_japanese_five_quarter.comp_sub_right X).const_mul _
+  have hG1 : IntegrableOn (fun s : ℝ => M * (X / 2) ^ (-(5 / 4) : ℝ) * s ^ (-p)) (Ioi h) :=
+    (integrableOn_Ioi_rpow_of_lt (by linarith : -p < -1) hh).const_mul _
+  have hsum : IntegrableOn (fun s : ℝ => M * (X / 2) ^ (-(5 / 4) : ℝ) * s ^ (-p) +
+      (X / 2) ^ (-p) * M * (1 + |s - X|) ^ (-(5 / 4) : ℝ)) (Ioi h) :=
+    hG1.add hG2.integrableOn
+  refine Integrable.mono' hsum ?_ ?_
+  · exact (Measurable.mul (Measurable.pow_const measurable_id _)
+      (continuous_abs.measurable.comp (airyPrimC_measurable.comp (measurable_id.sub measurable_const)))
+      ).aestronglyMeasurable
+  · refine (ae_restrict_iff' measurableSet_Ioi).2 (Eventually.of_forall fun s hs => ?_)
+    rw [Real.norm_eq_abs, abs_of_nonneg (mul_nonneg (Real.rpow_nonneg (hh.trans hs).le _) (abs_nonneg _))]
+    exact tail_pointwise (by linarith) hh hhX hM hC s hs
+
+/-- `s^{1/2} ≤ 1 + s` for `s ≥ 0`. -/
+private lemma rpow_half_le_poly {s : ℝ} (hs : 0 ≤ s) : s ^ (1 / 2 : ℝ) ≤ 1 + s := by
+  have h1 : s ^ (1 / 2 : ℝ) ≤ (1 + s) ^ (1 / 2 : ℝ) := Real.rpow_le_rpow hs (by linarith) (by norm_num)
+  have h2 : (1 + s) ^ (1 / 2 : ℝ) ≤ (1 + s) ^ (1 : ℝ) :=
+    Real.rpow_le_rpow_of_exponent_le (by linarith) (by norm_num)
+  rw [Real.rpow_one] at h2
+  linarith
+
+/-- Interval integrability from a continuous integrable majorant on `(0,h]`. -/
+private lemma intervalIntegrable_of_dom {f g : ℝ → ℝ} {h : ℝ} (hh : 0 < h) (hf : ContinuousOn f (Ioi 0))
+    (hg : IntervalIntegrable g volume 0 h) (hfg : ∀ s ∈ Ioc 0 h, |f s| ≤ g s) :
+    IntervalIntegrable f volume 0 h := by
+  rw [intervalIntegrable_iff_integrableOn_Ioc_of_le hh.le] at hg ⊢
+  refine Integrable.mono' hg ((hf.mono Ioc_subset_Ioi_self).aestronglyMeasurable measurableSet_Ioc) ?_
+  exact (ae_restrict_iff' measurableSet_Ioc).2 (Eventually.of_forall fun s hs => by
+    rw [Real.norm_eq_abs]
+    exact hfg s hs)
+
+/-- `∫_0^h |f| ≤ C h` when `|f| ≤ C` on `(0,h]`. -/
+private lemma integral_abs_le_const {f : ℝ → ℝ} {h C : ℝ} (hh : 0 < h) (hf : ∀ s ∈ Ioc 0 h, |f s| ≤ C) :
+    ∫ s in (0 : ℝ)..h, |f s| ≤ C * h := by
+  have h1 := intervalIntegral.norm_integral_le_of_norm_le_const (a := 0) (b := h) (C := C)
+    (f := fun s => |f s|) (fun x hx => by
+      rw [uIoc_of_le hh.le] at hx
+      rw [Real.norm_eq_abs, abs_abs]
+      exact hf x hx)
+  have hnn : 0 ≤ ∫ s in (0 : ℝ)..h, |f s| :=
+    intervalIntegral.integral_nonneg hh.le (fun s _ => abs_nonneg _)
+  rw [Real.norm_eq_abs, abs_of_nonneg hnn, sub_zero, abs_of_pos hh] at h1
+  exact h1
+
+/-- `∫_0^h |w_1| ≤ 2 τ h^{1/2}`. -/
+private lemma integral_abs_stepW1_le {τ h : ℝ} (hτ : 0 ≤ τ) (hh : 0 < h) :
+    ∫ s in (0 : ℝ)..h, |stepW1 τ s| ≤ 2 * τ * h ^ (1 / 2 : ℝ) := by
+  have hcont : ContinuousOn (fun s => |stepW1 τ s|) (Ioi 0) := by
+    intro s hs
+    have hc : ContinuousAt (stepW1 τ) s := (hasDerivAt_stepW1 hs).continuousAt
+    exact (hc.abs).continuousWithinAt
+  have hint : IntervalIntegrable (fun s : ℝ => τ * s ^ (-(1 / 2) : ℝ)) volume 0 h :=
+    (intervalIntegral.intervalIntegrable_rpow' (by norm_num)).const_mul τ
+  have hcontW1 : ContinuousOn (stepW1 τ) (Ioi 0) := fun s hs =>
+    (hasDerivAt_stepW1 hs).continuousAt.continuousWithinAt
+  have hf0 : IntervalIntegrable (stepW1 τ) volume 0 h :=
+    intervalIntegrable_of_dom hh hcontW1 hint (fun s hs => stepW1_bound hτ hs.1)
+  have hf : IntervalIntegrable (fun s => |stepW1 τ s|) volume 0 h := hf0.abs
+  have hmono := intervalIntegral.integral_mono_on hh.le hf hint (fun x hx => by
+    rcases eq_or_lt_of_le hx.1 with h0 | h0
+    · subst h0
+      simp [stepW1, Real.zero_rpow]
+    · exact stepW1_bound hτ h0)
+  have hI : ∫ s in (0 : ℝ)..h, s ^ (-(1 / 2) : ℝ) = 2 * h ^ (1 / 2 : ℝ) := by
+    rw [integral_rpow (Or.inl (by norm_num))]
+    have e : (-(1 / 2) : ℝ) + 1 = 1 / 2 := by norm_num
+    rw [e, Real.zero_rpow (by norm_num)]
+    ring
+  have hτI : ∫ s in (0 : ℝ)..h, τ * s ^ (-(1 / 2) : ℝ) = τ * (2 * h ^ (1 / 2 : ℝ)) := by
+    rw [intervalIntegral.integral_const_mul, hI]
+  linarith [hmono, hτI]
+
+/-- The paper's split point: `h = X^{-1/2}/2` lies in `(0, 1/2]` and below `X` for `X ≥ 1`. -/
+private lemma split_point_facts {X : ℝ} (hX : 1 ≤ X) :
+    0 < X ^ (-(1 / 2) : ℝ) / 2 ∧ X ^ (-(1 / 2) : ℝ) / 2 ≤ 1 / 2 ∧ X ^ (-(1 / 2) : ℝ) / 2 < X := by
+  have hX0 : 0 < X := by linarith
+  have hsmall : X ^ (-(1 / 2) : ℝ) ≤ 1 := Real.rpow_le_one_of_one_le_of_nonpos hX (by norm_num)
+  have hpos : 0 < X ^ (-(1 / 2) : ℝ) := Real.rpow_pos_of_pos hX0 _
+  refine ⟨by linarith, by linarith, by linarith⟩
+
+/-- **Identity plus bound.** For a family satisfying the hypotheses of `airyBC_id` at the paper's `h`, the
+distance of `∫ w Ai(·-X)` from `w(X)` is bounded by the four-term right side of `airyBC_rhs_bound_paper`. -/
+private lemma gen_bound {X h : ℝ} (hX : 1 ≤ X) (hh : h = X ^ (-(1 / 2) : ℝ) / 2) {w w1 w2 : ℝ → ℝ}
+    (hw : ∀ s, 0 < s → HasDerivAt w (w1 s) s) (hw1 : ∀ s, 0 < s → HasDerivAt w1 (w2 s) s)
+    (hw2c : ContinuousOn w2 (Ioi 0)) (hwint : IntervalIntegrable w volume 0 h)
+    (hpoly : ∃ (K : ℝ) (N : ℕ), ∀ s, h ≤ s →
+      |w s| ≤ K * (1 + s) ^ N ∧ |w1 s| ≤ K * (1 + s) ^ N ∧ |w2 s| ≤ K * (1 + s) ^ N) :
+    |(∫ s in Ioi 0, w s * airyAi (s - X)) - w X| ≤
+      40 * (X ^ (-(1 / 4) : ℝ) * (∫ s in (0 : ℝ)..h, |w s|) + X ^ (-(3 / 4) : ℝ) * |w h| +
+        X ^ (-(5 / 4) : ℝ) * |w1 h| + ∫ s in Ioi h, |w2 s| * |airyPrimC (s - X)|) := by
+  obtain ⟨hh0, hh2, hhX⟩ := split_point_facts (X := X) hX
+  rw [← hh] at hh0 hh2 hhX
+  obtain ⟨K, N, hK⟩ := hpoly
+  have hid := airyBC_id hh0 hhX hw hw1 hw2c hwint ⟨K, N, fun s hs => hK s hs⟩
+  have hb := (airyBC_rhs_bound_paper (w1 := w1) hX hh hwint hw2c ⟨K, N, fun s hs => (hK s hs).2.2⟩).2
+  rw [hid]
+  exact hb
 
 /-- Continuity of `w_3` on `(0,∞)`. -/
 theorem stepW3_continuousOn (τ : ℝ) : ContinuousOn (stepW3 τ) (Ioi 0) := by
@@ -943,5 +1104,521 @@ theorem stepV2_bound {τ s : ℝ} (hτ : 0 ≤ τ) (hs : 0 < s) :
     _ = 4 * ((s ^ (1 / 2 : ℝ) * s⁻¹) * s⁻¹) := by ring
     _ = 4 * (s ^ (-(1 / 2) : ℝ) * s⁻¹) := by rw [rpow_half_mul_inv hs]
     _ = 4 * s ^ (-(3 / 2) : ℝ) := by rw [rpow_neg_half_mul_inv hs]
+
+/-- The split-point powers: `h^{1/2}`, `h^{-1/2}`, `h^{-3/2}` at `h = X^{-1/2}/2`. -/
+private lemma split_facts {X : ℝ} (hX : 1 ≤ X) :
+    (X ^ (-(1 / 2) : ℝ) / 2) ^ (1 / 2 : ℝ) = 2 ^ (-(1 / 2) : ℝ) * X ^ (-(1 / 4) : ℝ) ∧
+    (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) = 2 ^ (1 / 2 : ℝ) * X ^ (1 / 4 : ℝ) ∧
+    (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) = 2 ^ (3 / 2 : ℝ) * X ^ (3 / 4 : ℝ) := by
+  have hX0 : 0 < X := by linarith
+  refine ⟨?_, ?_, ?_⟩
+  · rw [rpow_h_eq hX0]
+    norm_num
+  · rw [rpow_h_eq hX0]
+    norm_num
+  · rw [rpow_h_eq hX0]
+    norm_num
+
+/-- The power identities `X^{-1/4}X^{-1/4}X^{-1/2} = X^{-1}`, `X^{-3/4}X^{-1/4} = X^{-1}`, `X^{-5/4}X^{1/4} = X^{-1}`. -/
+private lemma pow_identities {X : ℝ} (hX : 1 ≤ X) :
+    X ^ (-(1 / 4) : ℝ) * X ^ (-(1 / 4) : ℝ) * X ^ (-(1 / 2) : ℝ) = X ^ (-1 : ℝ) ∧
+    X ^ (-(3 / 4) : ℝ) * X ^ (-(1 / 4) : ℝ) = X ^ (-1 : ℝ) ∧
+    X ^ (-(5 / 4) : ℝ) * X ^ (1 / 4 : ℝ) = X ^ (-1 : ℝ) := by
+  have hX0 : 0 < X := by linarith
+  refine ⟨?_, ?_, ?_⟩
+  · rw [← Real.rpow_add hX0, ← Real.rpow_add hX0]
+    norm_num
+  · rw [← Real.rpow_add hX0]
+    norm_num
+  · rw [← Real.rpow_add hX0]
+    norm_num
+
+/-- **`cts:BC-bnds`, first bound**: `|∫ w_0 Ai(·-X) - w_0(X)| ≤ C τ/v` for `τ ∈ (0,1]`, `v ≥ 1`, `X = 2^{2/3} v`. -/
+theorem airyBC_bnd_W0 :
+    ∃ C : ℝ, ∀ τ v : ℝ, 0 < τ → τ ≤ 1 → 1 ≤ v →
+      |(∫ s in Ioi 0, stepW0 τ s * airyAi (s - 2 ^ (2 / 3 : ℝ) * v)) -
+        stepW0 τ (2 ^ (2 / 3 : ℝ) * v)| ≤ C * τ / v := by
+  obtain ⟨K3, K5, hK3, hK5, hT⟩ := tail_consts
+  obtain ⟨M, hM, hC⟩ := airyBC_primC_dom
+  refine ⟨40 * (2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * K3), ?_⟩
+  intro τ v hτ0 hτ1 hv
+  have hv0 : 0 < v := by linarith
+  have h23 : (1 : ℝ) ≤ 2 ^ (2 / 3 : ℝ) := Real.one_le_rpow (by norm_num) (by norm_num)
+  have hvX : v ≤ 2 ^ (2 / 3 : ℝ) * v := le_mul_of_one_le_left hv0.le h23
+  have hX1 : 1 ≤ 2 ^ (2 / 3 : ℝ) * v := le_trans hv hvX
+  obtain ⟨hh0, hh2, hhX⟩ := split_point_facts hX1
+  obtain ⟨hA, hG, hB'⟩ := split_facts hX1
+  obtain ⟨P1, P2, P3⟩ := pow_identities hX1
+  set X := 2 ^ (2 / 3 : ℝ) * v with hXdef
+  have hX0 : 0 < X := by linarith
+  have hvX' : v ≤ X := hvX
+  have hcont0 : ContinuousOn (stepW0 τ) (Ioi 0) := fun s hs =>
+    (hasDerivAt_stepW0 hs).continuousAt.continuousWithinAt
+  have hwint : IntervalIntegrable (stepW0 τ) volume 0 (X ^ (-(1 / 2) : ℝ) / 2) := by
+    refine intervalIntegrable_of_dom (g := fun _ => (1 : ℝ)) hh0 hcont0 intervalIntegrable_const
+      (fun s hs => ?_)
+    have hs1 : s ≤ 1 := le_trans hs.2 (le_trans hh2 (by norm_num))
+    calc |stepW0 τ s| ≤ τ * s ^ (1 / 2 : ℝ) := stepW0_bound hτ0.le hs.1
+      _ ≤ 1 * 1 := mul_le_mul hτ1 (Real.rpow_le_one hs.1.le hs1 (by norm_num))
+          (Real.rpow_nonneg hs.1.le _) zero_le_one
+      _ = 1 := by ring
+  have hw2c : ContinuousOn (stepW2 τ) (Ioi 0) := fun s hs =>
+    (hasDerivAt_stepW2 hs).continuousAt.continuousWithinAt
+  have hpoly : ∃ (K : ℝ) (N : ℕ), ∀ s, X ^ (-(1 / 2) : ℝ) / 2 ≤ s →
+      |stepW0 τ s| ≤ K * (1 + s) ^ N ∧ |stepW1 τ s| ≤ K * (1 + s) ^ N ∧
+        |stepW2 τ s| ≤ K * (1 + s) ^ N := by
+    have hu1 : 0 ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) := Real.rpow_nonneg hh0.le _
+    have hu3 : 0 ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) := Real.rpow_nonneg hh0.le _
+    refine ⟨1 + (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) + 3 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ),
+      1, fun s hs => ?_⟩
+    have hs0 : 0 < s := lt_of_lt_of_le hh0 hs
+    have hpos1 : (1 : ℝ) ≤ 1 + s := by linarith
+    have hK : 0 ≤ 1 + (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) + 3 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) := by
+      linarith
+    have hKs : 1 + (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) + 3 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) ≤
+        (1 + (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) + 3 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ)) *
+          (1 + s) := le_mul_of_one_le_right hK hpos1
+    have hs12 : s ^ (1 / 2 : ℝ) ≤ 1 + s := rpow_half_le_poly hs0.le
+    have hsm1 : s ^ (-(1 / 2) : ℝ) ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) :=
+      Real.rpow_le_rpow_of_nonpos hh0 hs (by norm_num)
+    have hsm3 : s ^ (-(3 / 2) : ℝ) ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) :=
+      Real.rpow_le_rpow_of_nonpos hh0 hs (by norm_num)
+    have hτ0' : 0 ≤ τ := hτ0.le
+    rw [pow_one]
+    refine ⟨?_, ?_, ?_⟩
+    · calc |stepW0 τ s| ≤ τ * s ^ (1 / 2 : ℝ) := stepW0_bound hτ0' hs0
+        _ ≤ s ^ (1 / 2 : ℝ) := mul_le_of_le_one_left (Real.rpow_nonneg hs0.le _) hτ1
+        _ ≤ 1 + s := hs12
+        _ ≤ _ := le_mul_of_one_le_left (by linarith) (by linarith)
+    · calc |stepW1 τ s| ≤ τ * s ^ (-(1 / 2) : ℝ) := stepW1_bound hτ0' hs0
+        _ ≤ s ^ (-(1 / 2) : ℝ) := mul_le_of_le_one_left (Real.rpow_nonneg hs0.le _) hτ1
+        _ ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) := hsm1
+        _ ≤ 1 + (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) + 3 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) := by
+            linarith
+        _ ≤ _ := hKs
+    · calc |stepW2 τ s| ≤ 3 * τ * s ^ (-(3 / 2) : ℝ) := stepW2_bound hτ0' hs0
+        _ ≤ 3 * s ^ (-(3 / 2) : ℝ) := by
+            have h2 := mul_le_mul_of_nonneg_right hτ1 (Real.rpow_nonneg hs0.le (-(3 / 2) : ℝ))
+            linarith
+        _ ≤ 3 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) := by linarith
+        _ ≤ 1 + (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) + 3 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) := by
+            linarith
+        _ ≤ _ := hKs
+  have hgen := gen_bound hX1 rfl (fun s hs => hasDerivAt_stepW0 hs) (fun s hs => hasDerivAt_stepW1 hs)
+    hw2c hwint hpoly
+  -- the four terms
+  have hTa : ∫ s in (0 : ℝ)..(X ^ (-(1 / 2) : ℝ) / 2), |stepW0 τ s| ≤
+      τ * (X ^ (-(1 / 2) : ℝ) / 2) ^ (1 / 2 : ℝ) * (X ^ (-(1 / 2) : ℝ) / 2) := by
+    refine integral_abs_le_const hh0 (fun s hs => ?_)
+    calc |stepW0 τ s| ≤ τ * s ^ (1 / 2 : ℝ) := stepW0_bound hτ0.le hs.1
+      _ ≤ τ * (X ^ (-(1 / 2) : ℝ) / 2) ^ (1 / 2 : ℝ) :=
+          mul_le_mul_of_nonneg_left (Real.rpow_le_rpow hs.1.le hs.2 (by norm_num)) hτ0.le
+  have hTb : |stepW0 τ (X ^ (-(1 / 2) : ℝ) / 2)| ≤ τ * (X ^ (-(1 / 2) : ℝ) / 2) ^ (1 / 2 : ℝ) :=
+    stepW0_bound hτ0.le hh0
+  have hTc : |stepW1 τ (X ^ (-(1 / 2) : ℝ) / 2)| ≤ τ * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) :=
+    stepW1_bound hτ0.le hh0
+  have hTd : ∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), |stepW2 τ s| * |airyPrimC (s - X)| ≤
+      3 * τ * (K3 * X ^ (-1 : ℝ)) := by
+    have hint := tail_integrable_rpow (X := X) (h := X ^ (-(1 / 2) : ℝ) / 2) (p := 3 / 2) (M := M)
+      (by norm_num) hh0 (by linarith only [hh2, hX1]) hM hC
+    have hK := (hT X hX1).1
+    calc ∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), |stepW2 τ s| * |airyPrimC (s - X)|
+        ≤ ∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), (3 * τ) * (s ^ (-(3 / 2) : ℝ) * |airyPrimC (s - X)|) := by
+          refine integral_mono_of_nonneg ?_ (hint.const_mul (3 * τ)) ?_
+          · exact (ae_restrict_iff' measurableSet_Ioi).2
+              (Eventually.of_forall fun s _ => mul_nonneg (abs_nonneg _) (abs_nonneg _))
+          · refine (ae_restrict_iff' measurableSet_Ioi).2 (Eventually.of_forall fun s hs => ?_)
+            have hs0 : 0 < s := lt_of_lt_of_le hh0 (Set.mem_Ioi.1 hs).le
+            calc |stepW2 τ s| * |airyPrimC (s - X)|
+                ≤ (3 * τ * s ^ (-(3 / 2) : ℝ)) * |airyPrimC (s - X)| :=
+                  mul_le_mul_of_nonneg_right (stepW2_bound hτ0.le hs0) (abs_nonneg _)
+              _ = (3 * τ) * (s ^ (-(3 / 2) : ℝ) * |airyPrimC (s - X)|) := by ring
+      _ = (3 * τ) * ∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), s ^ (-(3 / 2) : ℝ) * |airyPrimC (s - X)| :=
+          MeasureTheory.integral_const_mul _ _
+      _ ≤ (3 * τ) * (K3 * X ^ (-1 : ℝ)) := mul_le_mul_of_nonneg_left hK (by linarith)
+      _ = 3 * τ * (K3 * X ^ (-1 : ℝ)) := by ring
+  -- the exact identities at the split point
+  have e1 : X ^ (-(1 / 4) : ℝ) * (τ * (X ^ (-(1 / 2) : ℝ) / 2) ^ (1 / 2 : ℝ) * (X ^ (-(1 / 2) : ℝ) / 2)) =
+      τ * (2 ^ (-(1 / 2) : ℝ) / 2) * X ^ (-1 : ℝ) := by
+    rw [hA]
+    calc X ^ (-(1 / 4) : ℝ) * (τ * (2 ^ (-(1 / 2) : ℝ) * X ^ (-(1 / 4) : ℝ)) * (X ^ (-(1 / 2) : ℝ) / 2))
+        = τ * (2 ^ (-(1 / 2) : ℝ) / 2) * (X ^ (-(1 / 4) : ℝ) * X ^ (-(1 / 4) : ℝ) * X ^ (-(1 / 2) : ℝ)) := by
+          ring
+      _ = τ * (2 ^ (-(1 / 2) : ℝ) / 2) * X ^ (-1 : ℝ) := by rw [P1]
+  have e2 : X ^ (-(3 / 4) : ℝ) * (τ * (X ^ (-(1 / 2) : ℝ) / 2) ^ (1 / 2 : ℝ)) =
+      τ * 2 ^ (-(1 / 2) : ℝ) * X ^ (-1 : ℝ) := by
+    rw [hA]
+    calc X ^ (-(3 / 4) : ℝ) * (τ * (2 ^ (-(1 / 2) : ℝ) * X ^ (-(1 / 4) : ℝ)))
+        = τ * 2 ^ (-(1 / 2) : ℝ) * (X ^ (-(3 / 4) : ℝ) * X ^ (-(1 / 4) : ℝ)) := by ring
+      _ = τ * 2 ^ (-(1 / 2) : ℝ) * X ^ (-1 : ℝ) := by rw [P2]
+  have e3 : X ^ (-(5 / 4) : ℝ) * (τ * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ)) =
+      τ * 2 ^ (1 / 2 : ℝ) * X ^ (-1 : ℝ) := by
+    rw [hG]
+    calc X ^ (-(5 / 4) : ℝ) * (τ * (2 ^ (1 / 2 : ℝ) * X ^ (1 / 4 : ℝ)))
+        = τ * 2 ^ (1 / 2 : ℝ) * (X ^ (-(5 / 4) : ℝ) * X ^ (1 / 4 : ℝ)) := by ring
+      _ = τ * 2 ^ (1 / 2 : ℝ) * X ^ (-1 : ℝ) := by rw [P3]
+  have hA0 : 0 ≤ X ^ (-(1 / 4) : ℝ) := Real.rpow_nonneg hX0.le _
+  have hB0 : 0 ≤ X ^ (-(3 / 4) : ℝ) := Real.rpow_nonneg hX0.le _
+  have hC0 : 0 ≤ X ^ (-(5 / 4) : ℝ) := Real.rpow_nonneg hX0.le _
+  have h1 := mul_le_mul_of_nonneg_left hTa hA0
+  have h2 := mul_le_mul_of_nonneg_left hTb hB0
+  have h3 := mul_le_mul_of_nonneg_left hTc hC0
+  have hcomb : X ^ (-(1 / 4) : ℝ) * (∫ s in (0 : ℝ)..(X ^ (-(1 / 2) : ℝ) / 2), |stepW0 τ s|) +
+      X ^ (-(3 / 4) : ℝ) * |stepW0 τ (X ^ (-(1 / 2) : ℝ) / 2)| +
+      X ^ (-(5 / 4) : ℝ) * |stepW1 τ (X ^ (-(1 / 2) : ℝ) / 2)| +
+      (∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), |stepW2 τ s| * |airyPrimC (s - X)|) ≤
+      τ * (2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * K3) * X ^ (-1 : ℝ) := by
+    linarith only [h1, h2, h3, hTd, e1, e2, e3]
+  have hfin : |(∫ s in Ioi 0, stepW0 τ s * airyAi (s - X)) - stepW0 τ X| ≤
+      40 * (τ * (2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * K3) * X ^ (-1 : ℝ)) :=
+    le_trans hgen (mul_le_mul_of_nonneg_left hcomb (by norm_num))
+  have hXinv : X ^ (-1 : ℝ) ≤ v⁻¹ := by
+    rw [Real.rpow_neg_one]
+    exact inv_anti₀ hv0 hvX'
+  have hKpos : 0 ≤ τ * (2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * K3) := by
+    have := Real.rpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) (-(1 / 2) : ℝ)
+    have := Real.rpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) (1 / 2 : ℝ)
+    have : 0 ≤ τ := hτ0.le
+    positivity
+  calc |(∫ s in Ioi 0, stepW0 τ s * airyAi (s - X)) - stepW0 τ X|
+      ≤ 40 * (τ * (2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * K3) * X ^ (-1 : ℝ)) :=
+        hfin
+    _ ≤ 40 * (τ * (2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * K3) * v⁻¹) :=
+        mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hXinv hKpos) (by norm_num)
+    _ = 40 * (2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * K3) * τ / v := by
+        ring
+
+
+/-- Further power identities: `X^{-1/4}X^{-1/4} = X^{-1/2}`, `X^{-3/4}X^{1/4} = X^{-1/2}`, `X^{-5/4}X^{3/4} = X^{-1/2}`. -/
+private lemma pow_identities2 {X : ℝ} (hX : 1 ≤ X) :
+    X ^ (-(1 / 4) : ℝ) * X ^ (-(1 / 4) : ℝ) = X ^ (-(1 / 2) : ℝ) ∧
+    X ^ (-(3 / 4) : ℝ) * X ^ (1 / 4 : ℝ) = X ^ (-(1 / 2) : ℝ) ∧
+    X ^ (-(5 / 4) : ℝ) * X ^ (3 / 4 : ℝ) = X ^ (-(1 / 2) : ℝ) := by
+  have hX0 : 0 < X := by linarith
+  refine ⟨?_, ?_, ?_⟩
+  · rw [← Real.rpow_add hX0]
+    norm_num
+  · rw [← Real.rpow_add hX0]
+    norm_num
+  · rw [← Real.rpow_add hX0]
+    norm_num
+
+set_option maxHeartbeats 1000000 in
+/-- **`cts:BC-bnds`, third bound**: `|∫ w_1 Ai(·-X)| ≤ C τ v^{-1/2}` for `τ ∈ (0,1]`, `v ≥ 1`, `X = 2^{2/3} v`. -/
+theorem airyBC_bnd_W1 :
+    ∃ C : ℝ, ∀ τ v : ℝ, 0 < τ → τ ≤ 1 → 1 ≤ v →
+      |∫ s in Ioi 0, stepW1 τ s * airyAi (s - 2 ^ (2 / 3 : ℝ) * v)| ≤ C * τ * v ^ (-(1 / 2) : ℝ) := by
+  obtain ⟨K3, K5, hK3, hK5, hT⟩ := tail_consts
+  obtain ⟨M, hM, hC⟩ := airyBC_primC_dom
+  refine ⟨1 + 40 * (2 * 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * 2 ^ (3 / 2 : ℝ) + 6 * K5), ?_⟩
+  intro τ v hτ0 hτ1 hv
+  have hv0 : 0 < v := by linarith
+  have h23 : (1 : ℝ) ≤ 2 ^ (2 / 3 : ℝ) := Real.one_le_rpow (by norm_num) (by norm_num)
+  have hvX : v ≤ 2 ^ (2 / 3 : ℝ) * v := le_mul_of_one_le_left hv0.le h23
+  have hX1 : 1 ≤ 2 ^ (2 / 3 : ℝ) * v := le_trans hv hvX
+  obtain ⟨hh0, hh2, hhX⟩ := split_point_facts hX1
+  obtain ⟨hA, hG, hB'⟩ := split_facts hX1
+  obtain ⟨P4, P5, P6⟩ := pow_identities2 hX1
+  set X := 2 ^ (2 / 3 : ℝ) * v with hXdef
+  have hX0 : 0 < X := by linarith
+  have hvX' : v ≤ X := hvX
+  have hcontW1 : ContinuousOn (stepW1 τ) (Ioi 0) := fun s hs =>
+    (hasDerivAt_stepW1 hs).continuousAt.continuousWithinAt
+  have hwint : IntervalIntegrable (stepW1 τ) volume 0 (X ^ (-(1 / 2) : ℝ) / 2) := by
+    have hint : IntervalIntegrable (fun s : ℝ => τ * s ^ (-(1 / 2) : ℝ)) volume 0
+        (X ^ (-(1 / 2) : ℝ) / 2) :=
+      (intervalIntegral.intervalIntegrable_rpow' (by norm_num)).const_mul τ
+    exact intervalIntegrable_of_dom hh0 hcontW1 hint (fun s hs => stepW1_bound hτ0.le hs.1)
+  have hw2c : ContinuousOn (stepW3 τ) (Ioi 0) := stepW3_continuousOn τ
+  have hpoly : ∃ (K : ℝ) (N : ℕ), ∀ s, X ^ (-(1 / 2) : ℝ) / 2 ≤ s →
+      |stepW1 τ s| ≤ K * (1 + s) ^ N ∧ |stepW2 τ s| ≤ K * (1 + s) ^ N ∧
+        |stepW3 τ s| ≤ K * (1 + s) ^ N := by
+    have hu1 : 0 ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) := Real.rpow_nonneg hh0.le _
+    have hu3 : 0 ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) := Real.rpow_nonneg hh0.le _
+    have hu5 : 0 ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(5 / 2) : ℝ) := Real.rpow_nonneg hh0.le _
+    set Kc : ℝ := (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) + 3 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) +
+      6 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(5 / 2) : ℝ) with hKc
+    have hK : 0 ≤ Kc := by rw [hKc]; linarith
+    refine ⟨Kc, 1, fun s hs => ?_⟩
+    have hs0 : 0 < s := lt_of_lt_of_le hh0 hs
+    have hpos1 : (1 : ℝ) ≤ 1 + s := by linarith
+    have hKs : Kc ≤ Kc * (1 + s) := le_mul_of_one_le_right hK hpos1
+    have hsm1 : s ^ (-(1 / 2) : ℝ) ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) :=
+      Real.rpow_le_rpow_of_nonpos hh0 hs (by norm_num)
+    have hsm3 : s ^ (-(3 / 2) : ℝ) ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) :=
+      Real.rpow_le_rpow_of_nonpos hh0 hs (by norm_num)
+    have hsm5 : s ^ (-(5 / 2) : ℝ) ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(5 / 2) : ℝ) :=
+      Real.rpow_le_rpow_of_nonpos hh0 hs (by norm_num)
+    have hK1 : (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) ≤ Kc := by rw [hKc]; linarith
+    have hK3' : 3 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) ≤ Kc := by rw [hKc]; linarith
+    have hK5' : 6 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(5 / 2) : ℝ) ≤ Kc := by rw [hKc]; linarith
+    have hτ0' : 0 ≤ τ := hτ0.le
+    rw [pow_one]
+    refine ⟨?_, ?_, ?_⟩
+    · calc |stepW1 τ s| ≤ τ * s ^ (-(1 / 2) : ℝ) := stepW1_bound hτ0' hs0
+        _ ≤ s ^ (-(1 / 2) : ℝ) := mul_le_of_le_one_left (Real.rpow_nonneg hs0.le _) hτ1
+        _ ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) := hsm1
+        _ ≤ Kc := hK1
+        _ ≤ Kc * (1 + s) := hKs
+    · calc |stepW2 τ s| ≤ 3 * τ * s ^ (-(3 / 2) : ℝ) := stepW2_bound hτ0' hs0
+        _ ≤ 3 * s ^ (-(3 / 2) : ℝ) := by
+            have h2 := mul_le_mul_of_nonneg_right hτ1 (Real.rpow_nonneg hs0.le (-(3 / 2) : ℝ))
+            linarith
+        _ ≤ 3 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) := by linarith
+        _ ≤ Kc := by linarith
+        _ ≤ Kc * (1 + s) := hKs
+    · calc |stepW3 τ s| ≤ 6 * τ * s ^ (-(5 / 2) : ℝ) := stepW3_bound hτ0' hs0
+        _ ≤ 6 * s ^ (-(5 / 2) : ℝ) := by
+            have h2 := mul_le_mul_of_nonneg_right hτ1 (Real.rpow_nonneg hs0.le (-(5 / 2) : ℝ))
+            linarith
+        _ ≤ 6 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(5 / 2) : ℝ) := by linarith
+        _ ≤ Kc := by linarith
+        _ ≤ Kc * (1 + s) := hKs
+  have hgen := gen_bound hX1 rfl (fun s hs => hasDerivAt_stepW1 hs) (fun s hs => hasDerivAt_stepW2 hs)
+    hw2c hwint hpoly
+  have hTa : ∫ s in (0 : ℝ)..(X ^ (-(1 / 2) : ℝ) / 2), |stepW1 τ s| ≤
+      2 * τ * (X ^ (-(1 / 2) : ℝ) / 2) ^ (1 / 2 : ℝ) := integral_abs_stepW1_le hτ0.le hh0
+  have hTb : |stepW1 τ (X ^ (-(1 / 2) : ℝ) / 2)| ≤ τ * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) :=
+    stepW1_bound hτ0.le hh0
+  have hTc : |stepW2 τ (X ^ (-(1 / 2) : ℝ) / 2)| ≤ 3 * τ * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) :=
+    stepW2_bound hτ0.le hh0
+  have hTd : ∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), |stepW3 τ s| * |airyPrimC (s - X)| ≤
+      6 * τ * (K5 * X ^ (-(1 / 2) : ℝ)) := by
+    have hint := tail_integrable_rpow (X := X) (h := X ^ (-(1 / 2) : ℝ) / 2) (p := 5 / 2) (M := M)
+      (by norm_num) hh0 (by linarith only [hh2, hX1]) hM hC
+    have hK := (hT X hX1).2
+    calc ∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), |stepW3 τ s| * |airyPrimC (s - X)|
+        ≤ ∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), (6 * τ) * (s ^ (-(5 / 2) : ℝ) * |airyPrimC (s - X)|) := by
+          refine integral_mono_of_nonneg ?_ (hint.const_mul (6 * τ)) ?_
+          · exact (ae_restrict_iff' measurableSet_Ioi).2
+              (Eventually.of_forall fun s _ => mul_nonneg (abs_nonneg _) (abs_nonneg _))
+          · refine (ae_restrict_iff' measurableSet_Ioi).2 (Eventually.of_forall fun s hs => ?_)
+            have hs0 : 0 < s := lt_of_lt_of_le hh0 (Set.mem_Ioi.1 hs).le
+            calc |stepW3 τ s| * |airyPrimC (s - X)|
+                ≤ (6 * τ * s ^ (-(5 / 2) : ℝ)) * |airyPrimC (s - X)| :=
+                  mul_le_mul_of_nonneg_right (stepW3_bound hτ0.le hs0) (abs_nonneg _)
+              _ = (6 * τ) * (s ^ (-(5 / 2) : ℝ) * |airyPrimC (s - X)|) := by ring
+      _ = (6 * τ) * ∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), s ^ (-(5 / 2) : ℝ) * |airyPrimC (s - X)| :=
+          MeasureTheory.integral_const_mul _ _
+      _ ≤ (6 * τ) * (K5 * X ^ (-(1 / 2) : ℝ)) := mul_le_mul_of_nonneg_left hK (by linarith)
+      _ = 6 * τ * (K5 * X ^ (-(1 / 2) : ℝ)) := by ring
+  have e1 : X ^ (-(1 / 4) : ℝ) * (2 * τ * (X ^ (-(1 / 2) : ℝ) / 2) ^ (1 / 2 : ℝ)) =
+      2 * τ * 2 ^ (-(1 / 2) : ℝ) * X ^ (-(1 / 2) : ℝ) := by
+    rw [hA]
+    calc X ^ (-(1 / 4) : ℝ) * (2 * τ * (2 ^ (-(1 / 2) : ℝ) * X ^ (-(1 / 4) : ℝ)))
+        = 2 * τ * 2 ^ (-(1 / 2) : ℝ) * (X ^ (-(1 / 4) : ℝ) * X ^ (-(1 / 4) : ℝ)) := by ring
+      _ = 2 * τ * 2 ^ (-(1 / 2) : ℝ) * X ^ (-(1 / 2) : ℝ) := by rw [P4]
+  have e2 : X ^ (-(3 / 4) : ℝ) * (τ * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ)) =
+      τ * 2 ^ (1 / 2 : ℝ) * X ^ (-(1 / 2) : ℝ) := by
+    rw [hG]
+    calc X ^ (-(3 / 4) : ℝ) * (τ * (2 ^ (1 / 2 : ℝ) * X ^ (1 / 4 : ℝ)))
+        = τ * 2 ^ (1 / 2 : ℝ) * (X ^ (-(3 / 4) : ℝ) * X ^ (1 / 4 : ℝ)) := by ring
+      _ = τ * 2 ^ (1 / 2 : ℝ) * X ^ (-(1 / 2) : ℝ) := by rw [P5]
+  have e3 : X ^ (-(5 / 4) : ℝ) * (3 * τ * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ)) =
+      3 * τ * 2 ^ (3 / 2 : ℝ) * X ^ (-(1 / 2) : ℝ) := by
+    rw [hB']
+    calc X ^ (-(5 / 4) : ℝ) * (3 * τ * (2 ^ (3 / 2 : ℝ) * X ^ (3 / 4 : ℝ)))
+        = 3 * τ * 2 ^ (3 / 2 : ℝ) * (X ^ (-(5 / 4) : ℝ) * X ^ (3 / 4 : ℝ)) := by ring
+      _ = 3 * τ * 2 ^ (3 / 2 : ℝ) * X ^ (-(1 / 2) : ℝ) := by rw [P6]
+  have hA0 : 0 ≤ X ^ (-(1 / 4) : ℝ) := Real.rpow_nonneg hX0.le _
+  have hB0 : 0 ≤ X ^ (-(3 / 4) : ℝ) := Real.rpow_nonneg hX0.le _
+  have hC0 : 0 ≤ X ^ (-(5 / 4) : ℝ) := Real.rpow_nonneg hX0.le _
+  have h1 := mul_le_mul_of_nonneg_left hTa hA0
+  have h2 := mul_le_mul_of_nonneg_left hTb hB0
+  have h3 := mul_le_mul_of_nonneg_left hTc hC0
+  have hcomb : X ^ (-(1 / 4) : ℝ) * (∫ s in (0 : ℝ)..(X ^ (-(1 / 2) : ℝ) / 2), |stepW1 τ s|) +
+      X ^ (-(3 / 4) : ℝ) * |stepW1 τ (X ^ (-(1 / 2) : ℝ) / 2)| +
+      X ^ (-(5 / 4) : ℝ) * |stepW2 τ (X ^ (-(1 / 2) : ℝ) / 2)| +
+      (∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), |stepW3 τ s| * |airyPrimC (s - X)|) ≤
+      τ * (2 * 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * 2 ^ (3 / 2 : ℝ) + 6 * K5) * X ^ (-(1 / 2) : ℝ) := by
+    linarith only [h1, h2, h3, hTd, e1, e2, e3]
+  have hK' : 0 ≤ 2 * 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * 2 ^ (3 / 2 : ℝ) + 6 * K5 := by
+    have := Real.rpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) (-(1 / 2) : ℝ)
+    have := Real.rpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) (1 / 2 : ℝ)
+    have := Real.rpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) (3 / 2 : ℝ)
+    linarith
+  have hfin : |(∫ s in Ioi 0, stepW1 τ s * airyAi (s - X)) - stepW1 τ X| ≤
+      40 * (τ * (2 * 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * 2 ^ (3 / 2 : ℝ) + 6 * K5) *
+        X ^ (-(1 / 2) : ℝ)) :=
+    le_trans hgen (mul_le_mul_of_nonneg_left hcomb (by norm_num))
+  have hW1X : |stepW1 τ X| ≤ τ * X ^ (-(1 / 2) : ℝ) := stepW1_bound hτ0.le hX0
+  have htri : |∫ s in Ioi 0, stepW1 τ s * airyAi (s - X)| ≤
+      |(∫ s in Ioi 0, stepW1 τ s * airyAi (s - X)) - stepW1 τ X| + |stepW1 τ X| := by
+    have := abs_add_le ((∫ s in Ioi 0, stepW1 τ s * airyAi (s - X)) - stepW1 τ X) (stepW1 τ X)
+    rw [sub_add_cancel] at this
+    exact this
+  have hXv : X ^ (-(1 / 2) : ℝ) ≤ v ^ (-(1 / 2) : ℝ) :=
+    Real.rpow_le_rpow_of_nonpos hv0 hvX' (by norm_num)
+  have hτX : τ * X ^ (-(1 / 2) : ℝ) ≤ τ * v ^ (-(1 / 2) : ℝ) := mul_le_mul_of_nonneg_left hXv hτ0.le
+  have hKK : 40 * (τ * (2 * 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * 2 ^ (3 / 2 : ℝ) + 6 * K5) *
+      X ^ (-(1 / 2) : ℝ)) ≤ 40 * (τ * (2 * 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * 2 ^ (3 / 2 : ℝ) + 6 * K5) *
+      v ^ (-(1 / 2) : ℝ)) :=
+    mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hXv (mul_nonneg hτ0.le hK')) (by norm_num)
+  calc |∫ s in Ioi 0, stepW1 τ s * airyAi (s - X)|
+      ≤ |(∫ s in Ioi 0, stepW1 τ s * airyAi (s - X)) - stepW1 τ X| + |stepW1 τ X| := htri
+    _ ≤ 40 * (τ * (2 * 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * 2 ^ (3 / 2 : ℝ) + 6 * K5) *
+        v ^ (-(1 / 2) : ℝ)) + τ * v ^ (-(1 / 2) : ℝ) := by
+        have := add_le_add hfin (le_trans hW1X hτX)
+        linarith [hKK]
+    _ = (1 + 40 * (2 * 2 ^ (-(1 / 2) : ℝ) + 2 ^ (1 / 2 : ℝ) + 3 * 2 ^ (3 / 2 : ℝ) + 6 * K5)) * τ *
+        v ^ (-(1 / 2) : ℝ) := by ring
+
+set_option maxHeartbeats 1000000 in
+/-- **`cts:BC-bnds`, second bound**: `|∫ w_2 Ai(·-X) - w_2(X)| ≤ C/v` for `τ ∈ (0,1]`, `v ≥ 1`, `X = 2^{2/3} v`. -/
+theorem airyBC_bnd_W2 :
+    ∃ C : ℝ, ∀ τ v : ℝ, 0 < τ → τ ≤ 1 → 1 ≤ v →
+      |(∫ s in Ioi 0, stepV0 τ s * airyAi (s - 2 ^ (2 / 3 : ℝ) * v)) -
+        stepV0 τ (2 ^ (2 / 3 : ℝ) * v)| ≤ C / v := by
+  obtain ⟨K3, K5, hK3, hK5, hT⟩ := tail_consts
+  obtain ⟨M, hM, hC⟩ := airyBC_primC_dom
+  refine ⟨40 * (2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 * 2 ^ (1 / 2 : ℝ) + 4 * K3), ?_⟩
+  intro τ v hτ0 hτ1 hv
+  have hv0 : 0 < v := by linarith
+  have h23 : (1 : ℝ) ≤ 2 ^ (2 / 3 : ℝ) := Real.one_le_rpow (by norm_num) (by norm_num)
+  have hvX : v ≤ 2 ^ (2 / 3 : ℝ) * v := le_mul_of_one_le_left hv0.le h23
+  have hX1 : 1 ≤ 2 ^ (2 / 3 : ℝ) * v := le_trans hv hvX
+  obtain ⟨hh0, hh2, hhX⟩ := split_point_facts hX1
+  obtain ⟨hA, hG, hB'⟩ := split_facts hX1
+  obtain ⟨P1, P2, P3⟩ := pow_identities hX1
+  set X := 2 ^ (2 / 3 : ℝ) * v with hXdef
+  have hX0 : 0 < X := by linarith
+  have hvX' : v ≤ X := hvX
+  have hcontV0 : ContinuousOn (stepV0 τ) (Ioi 0) := fun s hs =>
+    (hasDerivAt_stepV0 hs).continuousAt.continuousWithinAt
+  have hwint : IntervalIntegrable (stepV0 τ) volume 0 (X ^ (-(1 / 2) : ℝ) / 2) := by
+    refine intervalIntegrable_of_dom (g := fun _ => (1 : ℝ)) hh0 hcontV0 intervalIntegrable_const
+      (fun s hs => ?_)
+    have hs1 : s ≤ 1 := le_trans hs.2 (le_trans hh2 (by norm_num))
+    calc |stepV0 τ s| ≤ s ^ (1 / 2 : ℝ) := stepV0_bound hτ0.le hs.1
+      _ ≤ 1 := Real.rpow_le_one hs.1.le hs1 (by norm_num)
+      _ = 1 := rfl
+  have hw2c : ContinuousOn (stepV2 τ) (Ioi 0) := stepV2_continuousOn τ
+  have hpoly : ∃ (K : ℝ) (N : ℕ), ∀ s, X ^ (-(1 / 2) : ℝ) / 2 ≤ s →
+      |stepV0 τ s| ≤ K * (1 + s) ^ N ∧ |stepV1 τ s| ≤ K * (1 + s) ^ N ∧
+        |stepV2 τ s| ≤ K * (1 + s) ^ N := by
+    have hu1 : 0 ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) := Real.rpow_nonneg hh0.le _
+    have hu3 : 0 ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) := Real.rpow_nonneg hh0.le _
+    set Kc : ℝ := 1 + 2 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) +
+      4 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) with hKc
+    have hK : 0 ≤ Kc := by rw [hKc]; linarith
+    refine ⟨Kc, 1, fun s hs => ?_⟩
+    have hs0 : 0 < s := lt_of_lt_of_le hh0 hs
+    have hpos1 : (1 : ℝ) ≤ 1 + s := by linarith
+    have hKs : Kc ≤ Kc * (1 + s) := le_mul_of_one_le_right hK hpos1
+    have hs12 : s ^ (1 / 2 : ℝ) ≤ 1 + s := rpow_half_le_poly hs0.le
+    have hsm1 : s ^ (-(1 / 2) : ℝ) ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) :=
+      Real.rpow_le_rpow_of_nonpos hh0 hs (by norm_num)
+    have hsm3 : s ^ (-(3 / 2) : ℝ) ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) :=
+      Real.rpow_le_rpow_of_nonpos hh0 hs (by norm_num)
+    have hK1 : 2 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) ≤ Kc := by rw [hKc]; linarith
+    have hK3' : 4 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) ≤ Kc := by rw [hKc]; linarith
+    have hτ0' : 0 ≤ τ := hτ0.le
+    rw [pow_one]
+    refine ⟨?_, ?_, ?_⟩
+    · calc |stepV0 τ s| ≤ s ^ (1 / 2 : ℝ) := stepV0_bound hτ0' hs0
+        _ ≤ 1 + s := hs12
+        _ ≤ Kc * (1 + s) := le_mul_of_one_le_left (by linarith) (by linarith)
+    · calc |stepV1 τ s| ≤ 2 * s ^ (-(1 / 2) : ℝ) := stepV1_bound hτ0' hs0
+        _ ≤ 2 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) := by linarith
+        _ ≤ Kc := by linarith
+        _ ≤ Kc * (1 + s) := hKs
+    · calc |stepV2 τ s| ≤ 4 * s ^ (-(3 / 2) : ℝ) := stepV2_bound hτ0' hs0
+        _ ≤ 4 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(3 / 2) : ℝ) := by linarith
+        _ ≤ Kc := by linarith
+        _ ≤ Kc * (1 + s) := hKs
+  have hgen := gen_bound hX1 rfl (fun s hs => hasDerivAt_stepV0 hs) (fun s hs => hasDerivAt_stepV1 hs)
+    hw2c hwint hpoly
+  have hTa : ∫ s in (0 : ℝ)..(X ^ (-(1 / 2) : ℝ) / 2), |stepV0 τ s| ≤
+      (X ^ (-(1 / 2) : ℝ) / 2) ^ (1 / 2 : ℝ) * (X ^ (-(1 / 2) : ℝ) / 2) := by
+    refine integral_abs_le_const hh0 (fun s hs => ?_)
+    calc |stepV0 τ s| ≤ s ^ (1 / 2 : ℝ) := stepV0_bound hτ0.le hs.1
+      _ ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (1 / 2 : ℝ) := Real.rpow_le_rpow hs.1.le hs.2 (by norm_num)
+  have hTb : |stepV0 τ (X ^ (-(1 / 2) : ℝ) / 2)| ≤ (X ^ (-(1 / 2) : ℝ) / 2) ^ (1 / 2 : ℝ) :=
+    stepV0_bound hτ0.le hh0
+  have hTc : |stepV1 τ (X ^ (-(1 / 2) : ℝ) / 2)| ≤ 2 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ) :=
+    stepV1_bound hτ0.le hh0
+  have hTd : ∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), |stepV2 τ s| * |airyPrimC (s - X)| ≤
+      4 * (K3 * X ^ (-1 : ℝ)) := by
+    have hint := tail_integrable_rpow (X := X) (h := X ^ (-(1 / 2) : ℝ) / 2) (p := 3 / 2) (M := M)
+      (by norm_num) hh0 (by linarith only [hh2, hX1]) hM hC
+    have hK := (hT X hX1).1
+    calc ∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), |stepV2 τ s| * |airyPrimC (s - X)|
+        ≤ ∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), 4 * (s ^ (-(3 / 2) : ℝ) * |airyPrimC (s - X)|) := by
+          refine integral_mono_of_nonneg ?_ (hint.const_mul 4) ?_
+          · exact (ae_restrict_iff' measurableSet_Ioi).2
+              (Eventually.of_forall fun s _ => mul_nonneg (abs_nonneg _) (abs_nonneg _))
+          · refine (ae_restrict_iff' measurableSet_Ioi).2 (Eventually.of_forall fun s hs => ?_)
+            have hs0 : 0 < s := lt_of_lt_of_le hh0 (Set.mem_Ioi.1 hs).le
+            calc |stepV2 τ s| * |airyPrimC (s - X)|
+                ≤ (4 * s ^ (-(3 / 2) : ℝ)) * |airyPrimC (s - X)| :=
+                  mul_le_mul_of_nonneg_right (stepV2_bound hτ0.le hs0) (abs_nonneg _)
+              _ = 4 * (s ^ (-(3 / 2) : ℝ) * |airyPrimC (s - X)|) := by ring
+      _ = 4 * ∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), s ^ (-(3 / 2) : ℝ) * |airyPrimC (s - X)| :=
+          MeasureTheory.integral_const_mul _ _
+      _ ≤ 4 * (K3 * X ^ (-1 : ℝ)) := mul_le_mul_of_nonneg_left hK (by norm_num)
+  have e1 : X ^ (-(1 / 4) : ℝ) * ((X ^ (-(1 / 2) : ℝ) / 2) ^ (1 / 2 : ℝ) * (X ^ (-(1 / 2) : ℝ) / 2)) =
+      2 ^ (-(1 / 2) : ℝ) / 2 * X ^ (-1 : ℝ) := by
+    rw [hA]
+    calc X ^ (-(1 / 4) : ℝ) * (2 ^ (-(1 / 2) : ℝ) * X ^ (-(1 / 4) : ℝ) * (X ^ (-(1 / 2) : ℝ) / 2))
+        = 2 ^ (-(1 / 2) : ℝ) / 2 * (X ^ (-(1 / 4) : ℝ) * X ^ (-(1 / 4) : ℝ) * X ^ (-(1 / 2) : ℝ)) := by
+          ring
+      _ = 2 ^ (-(1 / 2) : ℝ) / 2 * X ^ (-1 : ℝ) := by rw [P1]
+  have e2 : X ^ (-(3 / 4) : ℝ) * (X ^ (-(1 / 2) : ℝ) / 2) ^ (1 / 2 : ℝ) =
+      2 ^ (-(1 / 2) : ℝ) * X ^ (-1 : ℝ) := by
+    rw [hA]
+    calc X ^ (-(3 / 4) : ℝ) * (2 ^ (-(1 / 2) : ℝ) * X ^ (-(1 / 4) : ℝ))
+        = 2 ^ (-(1 / 2) : ℝ) * (X ^ (-(3 / 4) : ℝ) * X ^ (-(1 / 4) : ℝ)) := by ring
+      _ = 2 ^ (-(1 / 2) : ℝ) * X ^ (-1 : ℝ) := by rw [P2]
+  have e3 : X ^ (-(5 / 4) : ℝ) * (2 * (X ^ (-(1 / 2) : ℝ) / 2) ^ (-(1 / 2) : ℝ)) =
+      2 * 2 ^ (1 / 2 : ℝ) * X ^ (-1 : ℝ) := by
+    rw [hG]
+    calc X ^ (-(5 / 4) : ℝ) * (2 * (2 ^ (1 / 2 : ℝ) * X ^ (1 / 4 : ℝ)))
+        = 2 * 2 ^ (1 / 2 : ℝ) * (X ^ (-(5 / 4) : ℝ) * X ^ (1 / 4 : ℝ)) := by ring
+      _ = 2 * 2 ^ (1 / 2 : ℝ) * X ^ (-1 : ℝ) := by rw [P3]
+  have hA0 : 0 ≤ X ^ (-(1 / 4) : ℝ) := Real.rpow_nonneg hX0.le _
+  have hB0 : 0 ≤ X ^ (-(3 / 4) : ℝ) := Real.rpow_nonneg hX0.le _
+  have hC0 : 0 ≤ X ^ (-(5 / 4) : ℝ) := Real.rpow_nonneg hX0.le _
+  have h1 := mul_le_mul_of_nonneg_left hTa hA0
+  have h2 := mul_le_mul_of_nonneg_left hTb hB0
+  have h3 := mul_le_mul_of_nonneg_left hTc hC0
+  have hcomb : X ^ (-(1 / 4) : ℝ) * (∫ s in (0 : ℝ)..(X ^ (-(1 / 2) : ℝ) / 2), |stepV0 τ s|) +
+      X ^ (-(3 / 4) : ℝ) * |stepV0 τ (X ^ (-(1 / 2) : ℝ) / 2)| +
+      X ^ (-(5 / 4) : ℝ) * |stepV1 τ (X ^ (-(1 / 2) : ℝ) / 2)| +
+      (∫ s in Ioi (X ^ (-(1 / 2) : ℝ) / 2), |stepV2 τ s| * |airyPrimC (s - X)|) ≤
+      (2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 * 2 ^ (1 / 2 : ℝ) + 4 * K3) * X ^ (-1 : ℝ) := by
+    linarith only [h1, h2, h3, hTd, e1, e2, e3]
+  have hK0 : 0 ≤ 2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 * 2 ^ (1 / 2 : ℝ) + 4 * K3 := by
+    have := Real.rpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) (-(1 / 2) : ℝ)
+    have := Real.rpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) (1 / 2 : ℝ)
+    linarith
+  have hXinv : X ^ (-1 : ℝ) ≤ v⁻¹ := by
+    rw [Real.rpow_neg_one]
+    exact inv_anti₀ hv0 hvX'
+  have hfin : |(∫ s in Ioi 0, stepV0 τ s * airyAi (s - X)) - stepV0 τ X| ≤
+      40 * ((2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 * 2 ^ (1 / 2 : ℝ) + 4 * K3) * X ^ (-1 : ℝ)) :=
+    le_trans hgen (mul_le_mul_of_nonneg_left hcomb (by norm_num))
+  calc |(∫ s in Ioi 0, stepV0 τ s * airyAi (s - X)) - stepV0 τ X|
+      ≤ 40 * ((2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 * 2 ^ (1 / 2 : ℝ) + 4 * K3) * X ^ (-1 : ℝ)) :=
+        hfin
+    _ ≤ 40 * ((2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 * 2 ^ (1 / 2 : ℝ) + 4 * K3) * v⁻¹) :=
+        mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hXinv hK0) (by norm_num)
+    _ = 40 * (2 ^ (-(1 / 2) : ℝ) / 2 + 2 ^ (-(1 / 2) : ℝ) + 2 * 2 ^ (1 / 2 : ℝ) + 4 * K3) / v := by
+        ring
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.airyBC_bnd_W0' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms airyBC_bnd_W0
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.airyBC_bnd_W1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms airyBC_bnd_W1
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.airyBC_bnd_W2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms airyBC_bnd_W2
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.airyBC_primC_dom' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms airyBC_primC_dom
 
 end FormalResearch.ModularBootstrap.FiveTerm

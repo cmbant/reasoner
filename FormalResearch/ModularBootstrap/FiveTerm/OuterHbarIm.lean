@@ -112,4 +112,8 @@ theorem im_hbarA_aAmp (τ : ℝ) : (hbarA aAmp (Complex.I * (τ : ℂ))).im = bd
   obtain ⟨M, hM⟩ := abs_le_wlog_of_bounds (by positivity : (0 : ℝ) ≤ 5 * π / 8) hm hβ
   exact im_hbarA_eq_bdryF amp_aAmp hM (fun τ => localLip_of_deriv hasDerivAt_aAmp continuous_aD τ) τ
 
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.OuterStrip.im_hbarA_aAmp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms im_hbarA_aAmp
+
 end FormalResearch.ModularBootstrap.FiveTerm.OuterStrip

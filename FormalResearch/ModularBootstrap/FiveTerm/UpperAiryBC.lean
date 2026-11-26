@@ -124,7 +124,7 @@ private lemma abs_tail_le {C0 : ℝ} (hC0 : ∀ s : ℝ, |airyAi s| ≤ C0 * Rea
   calc |∫ x in Ioi t, airyAi x| ≤ C0 * (-Real.exp (-(2 / 3) * t) / (-(2 / 3))) := h
     _ = C0 * (3 / 2) * Real.exp (-(2 / 3) * t) := by ring
 
-/-- Exponential decay of the Airy primitives on `(0,∞)`: `|B(t)| ≤ K e^{-2t/3}` and `|C(t)| ≤ K(1+t)e^{-2t/3}`. -/
+/-- **`cts:tip-shared` (c), decay on `(0,∞)`**: exponential decay of the Airy primitives on `(0,∞)`: `|B(t)| ≤ K e^{-2t/3}` and `|C(t)| ≤ K(1+t)e^{-2t/3}`. -/
 theorem airyBC_primDecay_pos :
     ∃ K : ℝ, 0 ≤ K ∧ ∀ t : ℝ, 0 < t →
       |airyPrimB t| ≤ K * Real.exp (-(2 / 3) * t) ∧
@@ -586,5 +586,54 @@ theorem airyBC_integrableOn_abs {X h : ℝ} (hh : 0 < h) (hhX : h < X) {w2 : ℝ
 /-- info: 'FormalResearch.ModularBootstrap.FiveTerm.airyBC_integrableOn_abs' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms airyBC_integrableOn_abs
+
+/-- **Step 1 (derivative of `B`)**: for `t ≠ 0`, `B' = Ai`, where `B = airyPrimB`. -/
+theorem airyPrimB_hasDerivAt {t : ℝ} (ht : t ≠ 0) : HasDerivAt airyPrimB (airyAi t) t := by
+  rcases lt_or_gt_of_ne ht with h | h
+  · have hev : ∀ᶠ s in nhds t, airyPrimB s = bcP s :=
+      Filter.eventually_of_mem (Iio_mem_nhds h) fun s hs => airyPrimB_eq_bcP_neg (le_of_lt hs)
+    exact (bcP_hasDerivAt t).congr_of_eventuallyEq hev
+  · have hev : ∀ᶠ s in nhds t, airyPrimB s = bcP s - 1 :=
+      Filter.eventually_of_mem (Ioi_mem_nhds h) fun s hs => airyPrimB_eq_bcP_sub_one (Set.mem_Ioi.1 hs)
+    exact ((bcP_hasDerivAt t).sub_const 1).congr_of_eventuallyEq hev
+
+/-- **Step 1 (derivative of `C`)**: for `t ≠ 0`, `C' = B` (`C` is not differentiable at `0`: `B` jumps there). -/
+theorem airyPrimC_hasDerivAt {t : ℝ} (ht : t ≠ 0) : HasDerivAt airyPrimC (airyPrimB t) t := by
+  rcases lt_or_gt_of_ne ht with h | h
+  · have hev : ∀ᶠ s in nhds t, airyPrimC s = bcCm s :=
+      Filter.eventually_of_mem (Iio_mem_nhds h) fun s hs => airyPrimC_eq_bcCm (le_of_lt hs)
+    have hB : airyPrimB t = bcP t := airyPrimB_eq_bcP_neg (le_of_lt h)
+    rw [hB]
+    exact (bcCm_hasDerivAt t).congr_of_eventuallyEq hev
+  · have hev : ∀ᶠ s in nhds t, airyPrimC s = bcCp s :=
+      Filter.eventually_of_mem (Ioi_mem_nhds h) fun s hs => airyPrimC_eq_bcCp (Set.mem_Ioi.1 hs)
+    have hB : airyPrimB t = bcP t - 1 := airyPrimB_eq_bcP_sub_one h
+    rw [hB]
+    exact (bcCp_hasDerivAt t).congr_of_eventuallyEq hev
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.airyPrimB_hasDerivAt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms airyPrimB_hasDerivAt
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.airyPrimC_hasDerivAt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms airyPrimC_hasDerivAt
+
+/-- `C = airyPrimC` is measurable (piecewise continuous: `bcCm` on `(-∞,0]`, `bcCp` on `(0,∞)`). -/
+theorem airyPrimC_measurable : Measurable airyPrimC := by
+  have h : airyPrimC = fun t => if 0 < t then bcCp t else bcCm t := by
+    funext t
+    rcases le_or_gt t 0 with ht | ht
+    · rw [airyPrimC_eq_bcCm ht]
+      simp only [not_lt.2 ht, ↓reduceIte]
+    · rw [airyPrimC_eq_bcCp ht]
+      simp only [ht, ↓reduceIte]
+  rw [h]
+  exact Measurable.ite (measurableSet_lt measurable_const measurable_id)
+    bcCp_continuous.measurable bcCm_continuous.measurable
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.airyPrimC_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms airyPrimC_measurable
 
 end FormalResearch.ModularBootstrap.FiveTerm
