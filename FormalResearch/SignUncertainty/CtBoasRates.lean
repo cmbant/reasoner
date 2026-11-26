@@ -428,4 +428,28 @@ lemma frozenPb_le {c W Lt L0 : ℝ} {n : ℕ} (hc : 2 ≤ c) (hn1 : c ^ 6 ≤ (n
   have e1 : (1 : ℝ) * (√(2 * π) * W)⁻¹ = 1 / (√(2 * π) * W) := by ring
   linarith [t1, t2, t3]
 
+/-- info: 'FormalResearch.SignUncertainty.eventually_farEps_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms eventually_farEps_le
+
+/-- info: 'FormalResearch.SignUncertainty.farE2_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms farE2_le
+
+/-- info: 'FormalResearch.SignUncertainty.boasW_lower' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms boasW_lower
+
+/-- info: 'FormalResearch.SignUncertainty.boasW_sq_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms boasW_sq_le
+
+/-- info: 'FormalResearch.SignUncertainty.frozenPb_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms frozenPb_le
+
+/-- info: 'FormalResearch.SignUncertainty.eventually_phaseEps_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms eventually_phaseEps_le
+
 end FormalResearch.SignUncertainty

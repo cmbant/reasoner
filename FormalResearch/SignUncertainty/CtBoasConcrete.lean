@@ -483,4 +483,32 @@ theorem boas_field_s {κ B2 Λ : ℝ} {h : ℝ → ℝ} (hκ : 0 < κ)
 
 end fields
 
+/-- info: 'FormalResearch.SignUncertainty.boas_field_freeze' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms boas_field_freeze
+
+/-- info: 'FormalResearch.SignUncertainty.boas_field_pointwise' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms boas_field_pointwise
+
+/-- info: 'FormalResearch.SignUncertainty.boas_field_Plb' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms boas_field_Plb
+
+/-- info: 'FormalResearch.SignUncertainty.boas_field_trunc_lo' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms boas_field_trunc_lo
+
+/-- info: 'FormalResearch.SignUncertainty.boas_field_e' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms boas_field_e
+
+/-- info: 'FormalResearch.SignUncertainty.boas_field_s' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms boas_field_s
+
+/-- info: 'FormalResearch.SignUncertainty.e_moment_arith' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms e_moment_arith
+
 end FormalResearch.SignUncertainty

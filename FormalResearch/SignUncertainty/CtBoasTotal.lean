@@ -97,4 +97,8 @@ theorem boasErrTotal_le {c₁ K κ₀ : ℝ} (Cθ : ℝ) (hCθ : 0 ≤ Cθ) (hc�
   rw [← hL] at *
   nlinarith [p1, p2, p3, p4, p5, p6, p7]
 
+/-- info: 'FormalResearch.SignUncertainty.boasErrTotal_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms boasErrTotal_le
+
 end FormalResearch.SignUncertainty

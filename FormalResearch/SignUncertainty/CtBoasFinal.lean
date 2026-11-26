@@ -283,4 +283,12 @@ theorem boas_concrete_core {c c₁ K κ₀ Cθ ε T R LJ Lt : ℝ} {f : ℝ → 
     rw [mul_one]; exact mul_le_mul hJle hκ (by positivity) (by positivity)
   linarith
 
+/-- info: 'FormalResearch.SignUncertainty.boas_concrete_core' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms boas_concrete_core
+
+/-- info: 'FormalResearch.SignUncertainty.boas_grid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms boas_grid
+
 end FormalResearch.SignUncertainty
