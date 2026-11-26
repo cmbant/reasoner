@@ -264,6 +264,25 @@ lemma boasCe_nonneg {c₁ K : ℝ} (hc₁ : 0 < c₁) (hK : 0 ≤ K) : 0 ≤ boa
   have := langerKappa_pos
   unfold boasCe; positivity
 
+/-- **The tail constant**: `K c^{1/3}/(R - 1/2) + K c^{-1/3} ≤ (2K/c₁² + K) c^{-1/3}` for `R ≥ max(1, c₁²c^{2/3})`. -/
+lemma B2_arith {c c₁ K R : ℝ} (hc : 1 ≤ c) (hc₁ : 0 < c₁) (hK : 0 ≤ K) (hR1 : 1 ≤ R)
+    (hRlo : c₁ ^ 2 * c ^ (2 / 3 : ℝ) ≤ R) :
+    K * c ^ (1 / 3 : ℝ) / (R - 1 / 2) + K * c ^ (-(1 / 3) : ℝ) ≤ (2 * K / c₁ ^ 2 + K) * c ^ (-(1 / 3) : ℝ) := by
+  have hc0 : 0 < c := by linarith
+  have h13 : 0 < c ^ (1 / 3 : ℝ) := Real.rpow_pos_of_pos hc0 _
+  have hm13 : 0 < c ^ (-(1 / 3) : ℝ) := Real.rpow_pos_of_pos hc0 _
+  have h23 : 0 < c ^ (2 / 3 : ℝ) := Real.rpow_pos_of_pos hc0 _
+  set r : ℝ := c₁ ^ 2 * c ^ (2 / 3 : ℝ) with hr
+  have hr0 : 0 < r := by positivity
+  have hRh : r / 2 ≤ R - 1 / 2 := by linarith
+  have h1 : K * c ^ (1 / 3 : ℝ) / (R - 1 / 2) ≤ K * c ^ (1 / 3 : ℝ) / (r / 2) :=
+    div_le_div_of_nonneg_left (by positivity) (by positivity) hRh
+  have h2 : K * c ^ (1 / 3 : ℝ) / (r / 2) = 2 * K / c₁ ^ 2 * c ^ (-(1 / 3) : ℝ) := by
+    rw [hr]
+    have : c ^ (-(1 / 3) : ℝ) * c ^ (2 / 3 : ℝ) = c ^ (1 / 3 : ℝ) := by rw [← Real.rpow_add hc0]; norm_num
+    rw [← this]; field_simp
+  nlinarith
+
 /-- **The arithmetic of the `e`-moment**: with `α_e = 2·10¹¹√((1.0025κ)³) log c/(R²√R)`, `β_e = 7·10⁷ log c/(cΛ₀√Λ₀)`,
 `M_v = Kc^{1/3}` and `B₂ = Kc^{1/3}/(R - 1/2) + Kc^{-1/3}`, for `R ≥ c₁²c^{2/3}`, `R ≥ 1`:
 `α_eM_v + β_eB₂ ≤ C_e c^{-4/3} log c`. -/
@@ -318,18 +337,7 @@ lemma e_moment_arith {c c₁ K R : ℝ} (hc : 1 ≤ c) (hc₁ : 0 < c₁) (hK : 
     set Λ0 : ℝ := c₁ ^ 2 / (2.01 * langerKappa) with hΛ0
     have hΛ0p : 0 < Λ0 := by positivity
     have hden : 0 < Λ0 * √Λ0 := by positivity
-    -- `B₂ ≤ (2K/c₁² + K) c^{-1/3}`
-    have hRh : r / 2 ≤ R - 1 / 2 := by
-      have : (1 : ℝ) ≤ R := hR1
-      linarith
-    have hB2 : K * c ^ (1 / 3 : ℝ) / (R - 1 / 2) + K * c ^ (-(1 / 3) : ℝ) ≤ (2 * K / c₁ ^ 2 + K) * c ^ (-(1 / 3) : ℝ) := by
-      have h1 : K * c ^ (1 / 3 : ℝ) / (R - 1 / 2) ≤ K * c ^ (1 / 3 : ℝ) / (r / 2) :=
-        div_le_div_of_nonneg_left (by positivity) (by positivity) hRh
-      have h2 : K * c ^ (1 / 3 : ℝ) / (r / 2) = 2 * K / c₁ ^ 2 * c ^ (-(1 / 3) : ℝ) := by
-        rw [hr]
-        have : c ^ (-(1 / 3) : ℝ) * c ^ (2 / 3 : ℝ) = c ^ (1 / 3 : ℝ) := by rw [← Real.rpow_add hc0]; norm_num
-        rw [← this]; field_simp
-      nlinarith
+    have hB2 := B2_arith hc hc₁ hK hR1 hRlo
     have hB2' : 0 ≤ K * c ^ (1 / 3 : ℝ) / (R - 1 / 2) + K * c ^ (-(1 / 3) : ℝ) := by
       have : 0 < R - 1 / 2 := by linarith
       positivity
