@@ -121,7 +121,7 @@ lemma one_le_log_of_three_le {c : ℝ} (hc : 3 ≤ c) : 1 ≤ Real.log c := by
 
 /-- **The taper band**: `TaperChartInputs` together with the comparison `v' ≤ v ≤ v' + 1/2` of the Langer band variable
 `v'(L) = -ũ(ξ(L)) = K g(L)` (`ctVprime`) with `v(L) = -û(-v')` on `0 < L ≤ Λ` (`ψ_ε < 0` and `λM ≤ 1/2`), `v' ≤ R' ≤ R`, and
-`R - 1/2 ≤ R' ≤ R`.  This is what the pointwise estimates of `ct:Bj-pointwise` (f) use. -/
+`R - 1/2 ≤ R' ≤ R`, `e^Λ - 1 ≤ 5·10⁻⁴` and `R' ≤ 1.0025 K Λ` (so `Λ ≳ R/c^{2/3}`).  This is what the pointwise estimates of `ct:Bj-pointwise` (f) use. -/
 structure TaperBand (ε c R : ℝ) : Prop where
   inputs : TaperChartInputs ε c R 2
   vp_le_v : ∀ L, 0 < L → L ≤ ctTaperLam ε c R → ctVprime c L ≤ ctTaperV ε c L
@@ -129,6 +129,8 @@ structure TaperBand (ε c R : ℝ) : Prop where
   vp_le_R : ∀ L, 0 < L → L ≤ ctTaperLam ε c R → ctVprime c L ≤ ctRprime ε c R
   Rprime_ge : R - 1 / 2 ≤ ctRprime ε c R
   Rprime_le : ctRprime ε c R ≤ R
+  Lam_le_small : Real.exp (ctTaperLam ε c R) - 1 ≤ 5e-4
+  Rprime_le_Lam : ctRprime ε c R ≤ 1.0025 * langerScale c * ctTaperLam ε c R
 
 /-- **`TaperBand` from the `ψ_ε`-window** (`ct:dyadic` (4), `ct:taper-harnack` (c), first half), with `A_v = 2`.
 Hypotheses: the window facts of `ctPsi_window` (`PsiWin ε ρ M`: `ψ_ε < 0`, `|ψ_ε|, |ψ_ε'| ≤ M` on `(-ρ, 0)`), `c ≥ 3`,
@@ -255,9 +257,14 @@ theorem taperBand_of_window {ε c R ρ M : ℝ} (hW : PsiWin ε ρ M) (hc3 : 3 �
       have : -r = u := by rw [hr_eq]; ring
       rw [this, hv]
       simp
+  have hRL : r ≤ 1.0025 * langerScale c * Λ := by
+    have hg := (ctChartG_bounds hE1.le hE2).2.1
+    have : ctVprime c Λ ≤ langerScale c * (1.0025 * Λ) := mul_le_mul_of_nonneg_left hg hK.le
+    rw [hE3] at this
+    linarith
   exact ⟨hin, fun L hL hLΛ => by rw [(key L ⟨hL, hLΛ⟩).1]; exact hVge L ⟨hL, hLΛ⟩,
     fun L hL hLΛ => by rw [(key L ⟨hL, hLΛ⟩).1]; exact hMb L ⟨hL, hLΛ⟩,
-    fun L hL hLΛ => (key L ⟨hL, hLΛ⟩).2.2, hRr, hrR⟩
+    fun L hL hLΛ => (key L ⟨hL, hLΛ⟩).2.2, hRr, hrR, hE2, hRL⟩
 
 lemma ctLam_le {c : ℝ} (hc : 0 < c) : ctLam c ≤ (c ^ (1 / 3 : ℝ))⁻¹ := by
   unfold ctLam
