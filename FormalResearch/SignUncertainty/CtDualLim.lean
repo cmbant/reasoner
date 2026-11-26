@@ -212,13 +212,15 @@ lemma gcut_zero (τ : ℝ) : CtOsc.gcut 0 τ = 1 := by simp [CtOsc.gcut]
 
 /-- **`ct:dual-id` (2).**  For `ε = ±1` there is `K_b` (independent of `ξ`, `c`) such that for every `c ≥ 2`:
 the improper integral `∫_0^∞ A_ε e^{-icΦ_Ph(τ;ξ)} dτ` of `(ct:Keps)` converges for every `ξ > 0`, `|K_ε(ξ;c)| ≤ K_b`
-(in particular `≤ K_b √c`), and for every `f ∈ 𝒜_c^ε` the exact Cauchy duality `∫_0^∞ K_ε(ξ;c) dm(ξ) = 0` holds,
+(in particular `≤ K_b √c`), and for every `f ∈ 𝒜_c^ε` `K_ε dm` is integrable and the exact Cauchy duality `∫_0^∞ K_ε(ξ;c) dm(ξ) = 0` holds,
 `dm = c (fρ₀)(cξ) dξ`. -/
 theorem ct_dual_id_part2 {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
     ∃ Kb : ℝ, 0 ≤ Kb ∧ ∀ {c : ℝ}, 2 ≤ c →
       (∀ ξ : ℝ, 0 < ξ → Tendsto (fun T : ℝ => ∫ τ in (0 : ℝ)..T, outerAmp ε c τ * dualP c ξ τ) atTop
           (𝓝 (dualI ε c ξ)) ∧ |dualK ε c ξ| ≤ Kb) ∧
-      ∀ {f : ℝ → ℝ}, IsHankelEigenfn c ε f → ∫ ξ in Ioi (0 : ℝ), dualK ε c ξ * hankelDmDens c f ξ = 0 := by
+      ∀ {f : ℝ → ℝ}, IsHankelEigenfn c ε f →
+        IntegrableOn (fun ξ => dualK ε c ξ * hankelDmDens c f ξ) (Ioi (0 : ℝ)) ∧
+        ∫ ξ in Ioi (0 : ℝ), dualK ε c ξ * hankelDmDens c f ξ = 0 := by
   obtain ⟨Kb0, hKb0, HU⟩ := unif_data hε
   have hpi := Real.pi_pos
   refine ⟨Real.sqrt (Real.pi / 12) * Kb0, by positivity, fun {c} hc => ?_⟩
@@ -261,9 +263,11 @@ theorem ct_dual_id_part2 {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
     have := tendsto_nhds_unique hI (Jd_tendsto hc hε hδ hξ)
     rw [← this]; exact hb
   have hl : (𝓝[>] (0 : ℝ)).NeBot := inferInstance
+  have hmeas' : ∀ δ : ℝ, 0 < δ → AEStronglyMeasurable (F δ) μ := fun δ hδ =>
+    ((dual_fubini hc hf hε hδ).1.re).aestronglyMeasurable
   have hmeas : ∀ᶠ δ in 𝓝[>] (0 : ℝ), AEStronglyMeasurable (F δ) μ := by
     filter_upwards [self_mem_nhdsWithin] with δ hδ
-    exact ((dual_fubini hc hf hε hδ).1.re).aestronglyMeasurable
+    exact hmeas' δ hδ
   have hbdd : ∀ᶠ δ in 𝓝[>] (0 : ℝ), ∀ᵐ ξ ∂μ, ‖F δ ξ‖ ≤ ‖g0 ξ‖ * (Kb0 / Real.sqrt c) := by
     filter_upwards [self_mem_nhdsWithin, Ioc_mem_nhdsGT zero_lt_one] with δ hδ hδ1
     refine (ae_restrict_iff' measurableSet_Ioi).2 (Eventually.of_forall fun ξ hξ => ?_)
@@ -313,6 +317,23 @@ theorem ct_dual_id_part2 {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
     intro ξ
     unfold dualK
     ring
+  have hgm : AEStronglyMeasurable (fun ξ => g0 ξ * (dualI ε c ξ).re) μ := by
+    refine aestronglyMeasurable_of_tendsto_ae (u := atTop) (f := fun n : ℕ => F (1 / ((n : ℝ) + 1))) (g := fun ξ => g0 ξ * (dualI ε c ξ).re)
+      (fun n => hmeas' _ (by positivity)) ?_
+    filter_upwards [hlim] with ξ hξ
+    refine hξ.comp (tendsto_nhdsWithin_iff.2 ⟨tendsto_one_div_add_atTop_nhds_zero_nat, Eventually.of_forall fun n => ?_⟩)
+    simp only [mem_Ioi]; positivity
+  have hintK : IntegrableOn (fun ξ => dualK ε c ξ * hankelDmDens c f ξ) (Ioi (0 : ℝ)) := by
+    refine Integrable.mono' (g := fun ξ => ‖g0 ξ‖ * (Real.sqrt (Real.pi / 12) * Kb0)) ?_ ?_ ?_
+    · exact (hankelDmDens_integrableOn hc0 hf).norm.mul_const _
+    · rw [show (fun ξ => dualK ε c ξ * hankelDmDens c f ξ) =
+          fun ξ => (-Real.sqrt (Real.pi * c / 12)) * (g0 ξ * (dualI ε c ξ).re) from
+        funext fun ξ => by unfold dualK; ring]
+      exact hgm.const_mul _
+    · refine (ae_restrict_iff' measurableSet_Ioi).2 (Eventually.of_forall fun ξ _ => ?_)
+      rw [norm_mul, Real.norm_eq_abs, mul_comm ‖g0 ξ‖]
+      exact mul_le_mul_of_nonneg_right (hK ξ) (norm_nonneg (hankelDmDens c f ξ))
+  refine ⟨hintK, ?_⟩
   calc _ = ∫ ξ, (-Real.sqrt (Real.pi * c / 12)) * (g0 ξ * (dualI ε c ξ).re) ∂μ :=
         integral_congr_ae (Eventually.of_forall this)
     _ = (-Real.sqrt (Real.pi * c / 12)) * ∫ ξ, g0 ξ * (dualI ε c ξ).re ∂μ := integral_const_mul _ _
