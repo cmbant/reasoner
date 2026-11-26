@@ -11,6 +11,7 @@ public import FormalResearch.SignUncertainty.RadialRigidity
 public import FormalResearch.SignUncertainty.HankelEdgePhase
 public import FormalResearch.SignUncertainty.HankelThresholds
 public import FormalResearch.SignUncertainty.CtBandTop
+public import FormalResearch.SignUncertainty.CtNodeLower
 
 /-!
 # `thm:ct-lower`: the five-term lower bound, assembled from named inputs (F1 skeleton)
@@ -21,7 +22,7 @@ and `ε = ±1`, every feasible threshold `T` of the Hankel problem satisfies
 `Δ₅^ε(c) = c/π² + A c^{1/3} + κ_ε + c₁^{Langer} c^{-1/3} + d₂^{*,ε} c^{-2/3}`,
 `κ_ε = θ₁^ε/π²`, `c₁^{Langer} = 9π²A²/25`, `d₂^{*,ε} = A(θ₁^ε + 12θ₃^ε/π²)`.
 
-**Status: conditional on `CtLowerInputs`** (`dyadic` = `ct:dyadic` (4), `boas` = `ct:boas`, `node_lower`; `ct:dyadic` (2) is proved; the inversion step `chart_gap` is proved:
+**Status: conditional on `CtLowerInputs`** (`dyadic` = `ct:dyadic` (4), `boas` = `ct:boas`; `ct:dyadic` (2) and the node lower bound are proved; the inversion step `chart_gap` is proved:
 `ctChartGap` in `CtLowerChartGap`, with `κ_ε < 0` from `CtKappaNeg`).  The proof in the paper is by contradiction at the first Airy node: a
 feasible `f` at `T ≤ Δ₅ - K c⁻¹ log c` has `ũ₁ - φ_c(a₁) ≥ (Kβ₁/2) c^{-4/3} log c` (Langer chart inversion), and the
 dual identity at one good radius (`ct:dyadic` (2), (4) with `ct:boas`) bounds the budget `P_R(H) + g_vac/2π` above by
@@ -70,15 +71,6 @@ def CtPassStatement (c₁ : ℝ) : Prop :=
       T < c * hankelXi c (FormalResearch.Special.airyZero 1) → 0 < ctGap ε c T →
       ∃ R : ℝ, R ∈ Set.Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧
         ctBudget R ε c f ≤ C₀ * (c ^ (-(4 / 3) : ℝ) * Real.log c)
-
-/-- **The node lower bound** of the proof of `thm:ct-lower` (`gt:7.7p` (b), (d), `g_vac ≥ 0`, sign of the `n ≥ 2` nodes), for the window
-of `c₁`: at every radius of the window the budget is at least `κ` times the gap up to an exponentially small term. -/
-def CtNodeLowerStatement (c₁ : ℝ) : Prop :=
-  ∃ κ κ' C' c₀ : ℝ, 0 < κ ∧ 0 < κ' ∧ ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
-    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
-      T < c * hankelXi c (FormalResearch.Special.airyZero 1) → 0 < ctGap ε c T →
-      ∀ R : ℝ, R ∈ Set.Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) →
-        κ * ctGap ε c T ≤ ctBudget R ε c f + C' * Real.exp (-κ' * c)
 
 /-- **`ct:dyadic` (4) and `ct:boas`, `ct:dyadic` (2) → the pass.**  `ct:dyadic` (2) is the proved `ct_dyadic_radius_proved` (small `c₁`);
 `(ct:combined)` gives `|budget + B| ≤ C(c⁻¹η + c^{-4/3}log c)` with `η ≤ C c^{-1/3}`, and `ct:boas` gives `B ≥ -O(c^{-4/3}log c)`. -/
@@ -219,18 +211,17 @@ windows are `[c₁²c^{2/3}, 4c₁²c^{2/3}]`), about a feasible `f` with `M[f] 
 
 * `dyadic`: `ct:dyadic` (4), `(ct:combined)` (`CtDyadicInputs`).
 * `boas`: `ct:boas`, `ct:boas-ineq` (`CtBoasStatement`).
-* `node_lower`: `gt:7.7p` (b) and (d) (effective uniform `C¹` stability at `α = 0`), `g_vac ≥ 0` (`ε f(0) ≤ 0`) and the sign of the `n ≥ 2`
-  nodes (`CtNodeLowerStatement`). -/
+
+The node lower bound (`gt:7.7p` (b), (d), `g_vac ≥ 0`, the sign of the `n ≥ 2` nodes) is the proved `ct_node_lower` (`CtNodeLower`). -/
 structure CtLowerInputs : Prop where
   dyadic : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtDyadicInputs c₁
   boas : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtBoasStatement c₁
-  node_lower : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtNodeLowerStatement c₁
 
 /-- **`thm:ct-lower` from `CtLowerInputs`**: take `c₁` below the three thresholds and the radius threshold of `ct_dyadic_radius_proved`. -/
 theorem ct_lower (I : CtLowerInputs) : CtLowerStatement := by
   obtain ⟨a₁, ha₁, hd⟩ := I.dyadic
   obtain ⟨a₂, ha₂, hb⟩ := I.boas
-  obtain ⟨a₃, ha₃, hn⟩ := I.node_lower
+  obtain ⟨a₃, ha₃, hn⟩ := ct_node_lower
   obtain ⟨a₄, ha₄, hr⟩ := ct_dyadic_radius_proved
   set c₁ : ℝ := min a₁ (min a₂ (min a₃ a₄)) with hc₁
   have hpos : 0 < c₁ := lt_min ha₁ (lt_min ha₂ (lt_min ha₃ ha₄))
