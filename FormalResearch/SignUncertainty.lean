@@ -56,6 +56,8 @@ public import FormalResearch.SignUncertainty.HankelChartSecond
 public import FormalResearch.SignUncertainty.HankelThresholds
 public import FormalResearch.SignUncertainty.HeadlineDefs
 public import FormalResearch.SignUncertainty.CeCanonicalDefs
+public import FormalResearch.SignUncertainty.HbZeroEnum
+public import FormalResearch.SignUncertainty.ShellGapOrigin
 public import FormalResearch.SignUncertainty.HbMultilevelDefs
 public import FormalResearch.SignUncertainty.CEShellReduction
 public import FormalResearch.SignUncertainty.HankelWtBasics
@@ -787,6 +789,10 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   (`u1cl:multilevel`) and `thm_ce_canonical_iff` (`thm:intro-gap`, `thm:ce-canonical-iff`) of Paper I, each proved
   from one input structure whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5), and the
   proved `thm_ce_shell_gap`, `thm_ce_shell_gap_even`.
+* `FormalResearch.SignUncertainty.HbZeroEnum` (proved): `exists_isHbZeroEnum` (the zero enumeration `t_1 > t_2 > ⋯` of
+  `N = P Ai + Q Ai'` exists for every Hermite–Biehler pair, so the hypothesis `IsHbZeroEnum` of `thm_ce_canonical_iff`
+  is satisfiable), `IsHbZeroEnum.unique`, `hbZeroEnum`. `ShellGapOrigin` (proved): `hankelShellProfile_origin_floor`
+  (`0 < h(0) = M[ĥ] ≤ M[h]`, the origin floor of `thm:ce-shell-gap`).
 * `FormalResearch.SignUncertainty.SignSeparationLimsup`: the retired separation bound
   `separation_neg_two_div_pi_sq` (`limsup (T⁺ - T⁻) ≤ -2/π²`, old `gt:7.9c`, deleted from the paper and
   superseded by `eq:ct-split`), conditional on `SeparationInputs`; kept for its reusable steps, not a headline.
