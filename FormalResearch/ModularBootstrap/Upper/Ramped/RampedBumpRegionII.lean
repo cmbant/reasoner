@@ -222,7 +222,7 @@ theorem rampedBumped_regionII (p : ℕ) (Pp : RpParams p) :
         push_cast; linarith
       have := siteRadius_le_fifth hc'0 (by push_cast; linarith : (1 / 4 : ℝ) ≤ ((n + 1 : ℕ) : ℝ)) h2
       unfold siteRadius at this
-      linarith
+      linarith only [h1, this]
     have hnr : (1 : ℝ) ≤ n := by exact_mod_cast hn1
     set q : ℝ := ((n : ℝ) / c') ^ (5 / 6 : ℝ) with hqdef
     have hq : 0 < q := by positivity
@@ -249,7 +249,7 @@ theorem rampedBumped_regionII (p : ℕ) (Pp : RpParams p) :
       (le_div_iff₀ hLev).1 hfl
     have : 0 < (cFl * min 1 (16 * rampedEta P c' n ^ 2) * (1 - 1 / 8) -
         C2 * q * (1 + Ctr * c' ^ (-(1 / 10 : ℝ)))) * levComb c' 1 x := mul_pos (by linarith) hLev
-    nlinarith only [this, hfl', hmono, hamp]
+    linarith only [this, hfl', hmono, hamp]
   · -- macroscopic range
     push Not at hnear'
     obtain ⟨hfs, hfl⟩ := hmac d hd hd1 n x (by omega) hcell
@@ -273,11 +273,12 @@ theorem rampedBumped_regionII (p : ℕ) (Pp : RpParams p) :
         (1 / 4) (bumpSigma c' N₀ (rampedSigma d c')) (bumpEps bd c' N₀ (1 / 4) (rampedEps P c')))
           (c' * x ^ 2 / 3)).re := by
       by_cases hnr : x ≤ xiStar + 3 * bd.r
-      · have hq : rhoRp p x ≤ 1 / 10 := Pp.near x hxs (by linarith [bd.r_pos])
+      · have hbr : bd.r = Pp.r := rfl
+        have hq : rhoRp p x ≤ 1 / 10 := Pp.near x hxs (by linarith [Pp.r_pos])
         refine close_of_bounds hLev hq0 hw0 hhh'
           (c := (7 / 10 : ℝ) * (998 / 1000) * (998 / 1000) * (999 / 1000)) (hfl.trans hmono) ?_
         have := hq1 _ hq0
-        nlinarith [nu_margin_near]
+        linarith only [this, hq, nu_margin_near]
       · push Not at hnr
         by_cases hmac' : x ≤ bd.X - 1
         · have hq : rhoRp p x ≤ Pp.M := Pp.macro_le ⟨hnr.le, hmac'⟩
@@ -302,13 +303,13 @@ theorem rampedBumped_regionII (p : ℕ) (Pp : RpParams p) :
             have := hq1 _ hq0
             have hHd : bd.H = Pp.eta := rfl
             rw [hHd]
-            nlinarith
+            linarith only [hmg, hMq, this]
         · push Not at hmac'
           have hq : rhoRp p x ≤ 6 / 10 := Pp.far x hmac'.le
           refine close_of_bounds hLev hq0 hw0 hhh'
             (c := (7 / 10 : ℝ) * (998 / 1000) * (998 / 1000) * (999 / 1000)) (hfl.trans hmono) ?_
           have := hq1 _ hq0
-          nlinarith [nu_margin_far]
+          linarith only [this, hq, nu_margin_far]
     linarith
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Ramped.rampedBumped_regionII' depends on axioms: [propext, Classical.choice, Quot.sound] -/

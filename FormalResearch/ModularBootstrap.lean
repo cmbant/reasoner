@@ -337,6 +337,17 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumBands
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumIntegral
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuum
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFinal
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpSeparation
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpFloors
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpRegionII
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpRegionI
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpPositive
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpTheta
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpPointwise
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpWindowPart
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpVacuumBands
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpVacuum
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpFinal
 public import FormalResearch.ModularBootstrap.Upper.Assembly.N1
 public import FormalResearch.ModularBootstrap.FoldTip.Concordance
 public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeChart
@@ -351,8 +362,10 @@ public import FormalResearch.ModularBootstrap.TwoLevel.TheoremTwoOne
 public import FormalResearch.ModularBootstrap.FoldTip.Hypotheses
 public import FormalResearch.ModularBootstrap.FoldTip.Instances
 public import FormalResearch.ModularBootstrap.FoldTip.InstancesAllWeights
+public import FormalResearch.ModularBootstrap.FoldTip.InstancesAllWeightsUnconditional
 public import FormalResearch.ModularBootstrap.TwoLevel.ConstrainedDuality
 public import FormalResearch.ModularBootstrap.TwoLevel.CorollaryTwoFour
+public import FormalResearch.ModularBootstrap.TwoLevel.CorollaryTwoFourAllWeights
 public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumFunction
 public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimum
 public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumNodes
@@ -1239,4 +1252,5 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `Upper.Positivity.PropositionIIIRegionII`, `Upper.Positivity.PropositionIII` (`upper_transfer.tex` Proposition III `ut:III`, `fw:e1.3`, `fw:e1.6`, `fw:e2.2`, `fw:e2.3`, `fw:e3.5`; positivity of `g_w = ½(h₀ - 𝓗_w h₀)` for the bumped fixed designs at every integer weight `w = p + 1`): `twoGW p` (`RegionII`; `twoGW_zero : twoGW 0 = twoG`) is the order-`p` test; **`bumped_regionII`** (Region II for any `f ≥ 1` and any compact family of finite modifications with the bump of `rpParams p`: `Lev/20 ≤ 2 g_w` for `x ≥ ξ_* + c'^{-2/5}`, in the near-tip range from the floor `0.6965` and `R_bump ≥ 1` against `ρ_∞ R_p ≤ 0.10`, in the macroscopic range from `bump_floor_family` against `M_amp` and `bumpFloor η_big > 2 M_amp + 1`, in the far range against `ρ_∞ R_p ≤ 0.60`; `norm_le_rhoRp_mul_lev` is `fw:e1.6`, `phaseHyp_compact` with `bumped_phaseHyp` and `phase_packageP` give the order-`p` transform bound), **`bumped_regionI_pos`** (Region I: the bump raises `h₀` on the real axis, `twoGW_pos_of_lower` closes it with the order-`p` global bound `fw:e1.3`), **`proposition_III_sig`**, `proposition_III_sig_t`, `proposition_III_design`, `proposition_III_design_t` (the `f = 1` designs at fixed sites, all `t ≥ t_f + 1`, any cut above the block) and **`proposition_III`**, `proposition_III_regionII`, `proposition_III_nonvacuous` for a `FixedWeightProblem` (`p = prob.w - 1`); `RegionOne` and `RegionOneAssembly` are generalised in place (`twoGW_pos_of_lower`, `proposition_I_a_sig_lower`, `proposition_I_b_sig_lower`, `tForm_gap`, `designWidth1_admissible`), and `proposition_I_a_sig`, `proposition_I_b_sig`, `proposition_I_sig_t` are re-derived with unchanged statements.
 * `FiveTerm.{Constants, Langer, LangerExpansion, PhaseLock, HalfDisc}` (Paper II `cts:langer`, `cts:phaselock`, `ctu:consts`; the first part of FIVE-0): the Virasoro closed forms `c0Star`, `gamma0`, `d2Star`, `c1Langer` and their jet-parametrised versions `c0StarOf`, `gamma0Of`, `d2StarOf` (so the fixed-weight cases instantiate the jets), the tip expansions `rhoU_tip_expansion`, `cumulN_tip_expansion`, `tau_tip_expansion`, the Langer node `xLanger_spec` and `langer_node_expansion` (`Delta_Langer(c) = c'/Lambda_V + A_opt c'^{1/3} + c1Langer c'^{-1/3} + O(1/c')`), the phase-locking identity `phaseLock_identity` and `absentCharge_phase` (polar form), `cosh_two_pi_etaStar`, `etaStar_lt_quarter`, and the half-disc conformal geometry of `cts:involution` (`zetaHD_bijOn`, `sigmaHD_sigmaHD`); the outer function `G_outer` and `cts:main` are not in Lean.
 * `Upper.Positivity.VacuumBumped`, `Upper.Assembly.BumpedDesignWindow`, `FoldTip.InstancesAllWeights` (W-P5, design side at every weight): Lemma T and Proposition V with the multiplier/bump (`lemma_T_sig1_prob_mul`, `vacuum_core_mul`, `proposition_V_i_bumped`, `proposition_V_ii_bumped`), Property (P) `designPropertyP_probW`, `displacedPropertyP_probW`, `Sigma_0`, `Sigma` (`sigmaZero_unconditional_probW`, `sigma_unconditional_probW`) and H4b `fwH4bW` for every `FixedWeightProblem`; the fold-tip bundle `ft_fixedWeight_modH3` is the weight-`w` statement modulo H3 (`TheoremC15UpperInput`, W-P6).
+* `Upper.Ramped.RampedBump{Separation, Floors, RegionII, RegionI, Positive, Theta, Pointwise, WindowPart, VacuumBands, Vacuum, Final}`, `FoldTip.InstancesAllWeightsUnconditional`, `TwoLevel.CorollaryTwoFourAllWeights` (W-P6, the `O(1)` upper bound at every weight; `n2_ramped_comb.tex` Lemma U*(w) `fw:Ustar`, `pmix:ramped` at one component): the bumped ramped comb `rampedBumpComb` (the ramped comb of Region I/II times the bump multiplier of `rpParams (w-1)`), its positivity (`rampedBumped_regionI`, `rampedBumped_regionII`, `rampedBumped_positive`), the vacuum identity with the bump (`theta_boundW`, `rampedBump_pointwise`, `rampedBumpVacuum`), feasibility `rampedBumpG_isFeasible_prob`, and **`theoremC15UpperInput_probW`** (`TheoremC15UpperInput prob` for every `prob : FixedWeightProblem`, no hypothesis); hence `ft_fixedWeight_all`, `fw_foldTip_hypotheses_all`, `corollary_E1_all` (`ds:E1`) and `corollary_two_four_all` (`gt:2.4`(a)) at every weight.
 -/
