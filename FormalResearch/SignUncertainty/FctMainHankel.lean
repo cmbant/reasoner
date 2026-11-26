@@ -10,6 +10,7 @@ public import FormalResearch.SignUncertainty.FctDcomp
 public import FormalResearch.SignUncertainty.FctWarpAdmiss
 public import FormalResearch.SignUncertainty.FctWarpZero
 public import FormalResearch.SignUncertainty.FctSplittingDescent
+public import FormalResearch.SignUncertainty.FctSplittingSegment
 
 /-!
 # `fct:main-hankel`: the five-term upper bound for the Hankel thresholds (F2a skeleton)
@@ -127,11 +128,9 @@ structure FctMainHankelInputs where
   `ζ^{-5/2}` of `H_*/G_ε` is cancelled). -/
   splitting : FctSplittingStmt (fctPhiHat warp_solve)
   /-- `(fct:F-38-bnd)`, `fct:splitting` (1): `|F(σ+iy)| ≤ C c⁻¹/log(2+|y|)` on `5/16 ≤ σ ≤ 7/16` (`FctDescentStmt`).  `N_c = 1 + O(c⁻¹)`
-  (`fct:splitting` (2), the former field `splitting_norm`) is the theorem `FctMainHankelInputs.splitting_norm`. -/
+  (`fct:splitting` (2), the former field `splitting_norm`) is the theorem `FctMainHankelInputs.splitting_norm`; the integrability of the integrals defining `Ψ_c` and `F_±`
+  (the former field `splitting_int`) is `FctMainHankelInputs.splitting_int`. -/
   descent : FctDescentStmt warp_solve
-  /-- Integrability of the integrals defining `Ψ_c` and the Cauchy splitting `F_±` (`FctSplittingIntStmt`; `fct:splitting` (1)-(2)), so that the
-  definitions of `fctPhiHat`, `fctNc` carry no Bochner junk value. -/
-  splitting_int : FctSplittingIntStmt warp_solve
   /-- `fct:physical-positive` (iii)-(iv) with its inputs `fct:warp-asymp` (2)-(3), `fct:splitting`, `fct:unscaled-cusp`,
   `fct:cusp-edge`, `uct:seed-asymp` (1)-(2) (`(fct:hg1-win)`-`(fct:hg1-mac)`), `fct:bump-5`, `fct:bump-sym-check`,
   `uct:pos-floor` (`Kfl = K_* ≥ 1`): `K₀, K₁` can be chosen independently of `K_d` so that the density of `W̃_c^ε` is positive on
@@ -151,6 +150,11 @@ noncomputable abbrev FctMainHankelInputs.Nc (I : FctMainHankelInputs) : ℝ → 
 /-- `fct:splitting` (2): `N_c = 1 + O_{K₄}(c⁻¹)` (the former field `splitting_norm`), from `descent` (`fctSplittingNorm_of_descent`). -/
 theorem FctMainHankelInputs.splitting_norm (I : FctMainHankelInputs) : FctSplittingNormStmt I.Nc :=
   fctSplittingNorm_of_descent I.descent
+
+/-- Integrability of the integrals defining `Ψ_c` and the Cauchy splitting `F_±` (`FctSplittingIntStmt`; the former field `splitting_int`), from `descent`
+(`fctSplittingInt_of_descent`): no Bochner junk value enters `fctPhiHat`, `fctNc`. -/
+theorem FctMainHankelInputs.splitting_int (I : FctMainHankelInputs) : FctSplittingIntStmt I.warp_solve :=
+  fctSplittingInt_of_descent I.K4_ge_one I.descent
 
 /-- `T₁ = (c/π²) e^{L₁}` of the zero pair of `warp_solve` (`fct:warp-asymp` (1)). -/
 noncomputable abbrev FctMainHankelInputs.T1 (I : FctMainHankelInputs) : ℝ → ℝ → ℝ := fctWarpT1 I.warp_solve
