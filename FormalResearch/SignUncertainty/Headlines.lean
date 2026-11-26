@@ -53,12 +53,13 @@ Headlines and their inputs (open fields in bold):
 * `thm_ce_canonical_iff` (`thm:intro-gap` = `thm:ce-canonical-iff`, parts (1)-(4), with (i)-(iv); the zero enumeration `t` exists and is unique: `HbZeroEnum.lean`), from
   `CeCanonicalInputs D t` (`CeCanonicalDefs.lean`): **`shell_reduction`** (`thm:ce-shell-reduction`),
   **`ce_hb_lift`** (`thm:ce-hb-lift`, weak positivity), **`ce_airy_transfer_upper`** (`thm:ce-airy-transfer` (1)),
-  **`airy_square_attained`** (`thm:airy-square-attained`), **`airy_square_bound`** (`lem:airy-square-bound`),
+  **`airy_square_bound`** (`lem:airy-square-bound`),
   **`airy_node_square`** (`lem:airy-node-square`), **`active_height`** (`lem:airy-active-height`),
   **`node_sign`**, **`node_sum`** (`thm:airy-node-sign`, the sign and the cumulative node-sum criteria),
   **`terminal_deflation`** (`lem:ce-terminal-deflation`). The extraction and
   constraint system `eq:ce-laplace-constraint` of `thm:ce-shell-gap` (Hankel form `HankelShellGapLimit`) is the
-  theorem `hankelShellGapLimit_proved` (`ShellGapExtract.lean`) and no longer a field, the `v = t_m` endpoint clause
+  theorem `hankelShellGapLimit_proved` (`ShellGapExtract.lean`) and no longer a field; `thm:airy-square-attained` (1), (3) is the theorem `airySquareAttained` (`CeCanonicalDefs.lean`, from
+  `AirySquareSimple.lean`) and no longer a field; the `v = t_m` endpoint clause
   `ShellGapEndpoint D` is the theorem `shellGapEndpoint_proved` (`ShellGapEndpoint.lean`) and no longer a field, and
   `thm_ce_shell_gap` is proved; `one_profile_envelope` (`gt:3.1` envelope used in `prop:ce-one-profile`) is a theorem
   (`OneProfileEnvelope.lean`). Proved here: `one_profile_feasible_iff`, `one_profile_maximizer_exists`,
@@ -571,18 +572,14 @@ lemma shellSites_card (D : ShellHBData) : (shellSites D).card = D.S.card - 1 :=
 
 /-- The chain `Λ_M ≤ λ < u_sh ≤ u_LP` of `thm:ce-canonical-iff` (1), for `m ≥ 2`. -/
 lemma lambda_chain {D : ShellHBData} {t : ℕ → ℝ} (I : CeCanonicalInputs D t) (hm : 2 ≤ D.S.card) :
-    (∀ M : ℕ, D.S.card ≤ M → airyLambdaM (shellSites D) M ≤ airyLambda (shellSites D)) ∧
-    ((airyLambda (shellSites D) : ℝ) : EReal) ≤ uLP D ∧
-    ((airyLambda (shellSites D) : ℝ) : EReal) < uSh D := by
+    (∀ M : ℕ, D.S.card ≤ M → airyLambdaM (shellSites D) M ≤ airyLambdaOf (shellSites D)) ∧
+    ((airyLambdaOf (shellSites D) : ℝ) : EReal) ≤ uLP D ∧
+    ((airyLambdaOf (shellSites D) : ℝ) : EReal) < uSh D := by
   have hcard := shellSites_card D
-  have hbdd := I.airy_square_attained.bddAbove
   refine ⟨fun M hM => ?_, ?_⟩
-  · have h := le_ciSup hbdd (M - D.S.card)
-    have e : M - D.S.card + (shellSites D).card + 1 = M := by omega
-    simp only [e] at h
-    exact h
-  obtain ⟨q, hqd, hqreal, hqne, hqs, hwit, hint0, hLpos⟩ := I.airy_square_attained.witness
-  set lam : ℝ := airyLambda (shellSites D) with hlam
+  · exact airyLambdaSection_le_airyLambda (airySites (shellSites D)) (by omega)
+  obtain ⟨q, hqd, hqreal, hqne, hqs, hwit, hint0, hLpos⟩ := (airySquareAttained D).witness
+  set lam : ℝ := airyLambdaOf (shellSites D) with hlam
   have hle : (lam : EReal) ≤ uLP D :=
     le_iSup₂ (f := fun (u : ℝ) (_ : OneProfileFeasible D u) => (u : EReal)) lam ⟨_, hwit⟩
   refine ⟨hle, ?_⟩
@@ -953,10 +950,10 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
     (uLP D ≤ (D.tm : EReal) ∧
       (uLP D = (D.tm : EReal) ↔ ∀ y : ℝ, 0 < y → 0 ≤ airyLaplace (fun u => -(D.G (u : ℂ)).re) y) ∧
       (2 ≤ D.S.card →
-        (∀ M : ℕ, D.S.card ≤ M → airyLambdaM (shellSites D) M ≤ airyLambda (shellSites D)) ∧
-        ((airyLambda (shellSites D) : ℝ) : EReal) < uSh D ∧ uSh D ≤ uLP D ∧
+        (∀ M : ℕ, D.S.card ≤ M → airyLambdaM (shellSites D) M ≤ airyLambdaOf (shellSites D)) ∧
+        ((airyLambdaOf (shellSites D) : ℝ) : EReal) < uSh D ∧ uSh D ≤ uLP D ∧
         airyZero D.S.card < airyLambdaM (shellSites D) D.S.card ∧
-        hbTauN D t < airyLambda (shellSites D) ∧ hbNode t (D.S.card + D.S.card / 2) < hbTauN D t) ∧
+        hbTauN D t < airyLambdaOf (shellSites D) ∧ hbNode t (D.S.card + D.S.card / 2) < hbTauN D t) ∧
       (uLP D < (D.tm : EReal) →
         (∃ y : ℝ, 0 < y ∧ ∀ b : ℝ, uLP D = (b : EReal) → ∀ H : ℂ → ℂ, OneProfileFeasibleWitness D b H →
           AnalyticAt ℝ (laplaceL (fun u => (H (u : ℂ)).re)) y ∧
