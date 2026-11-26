@@ -39,12 +39,23 @@ structure MixtureData where
   hd : ∀ i, 0 < d i
   r : Fin s → ℝ
   hr : ∀ i, 0 ≤ r i
-  Q : Fin s → FixedWeightProblem
-  hQ : ∀ i, (Q i).w = w
+  m : Fin s → ℕ
+  μ : ∀ i, Fin (m i) → ℝ
+  hμ : ∀ i l, 0 < μ i l
 
 namespace MixtureData
 
 variable (M : MixtureData)
+
+/-- The `i`-th component product `Q_i(q) = ∏_{ℓ} (1 - q^{μ_{i,ℓ}})` as a fixed-weight problem of weight `w`. -/
+def Q (i : Fin M.s) : FixedWeightProblem where
+  w := M.w
+  hw := M.hw
+  m := M.m i
+  μ := M.μ i
+  hμ := M.hμ i
+
+@[simp] lemma Q_w (i : Fin M.s) : (M.Q i).w = M.w := rfl
 
 /-- Flattening of a mixture into an atomic shift source (atoms `(i, S)`). -/
 noncomputable def toSource : ShiftSource where
@@ -70,10 +81,9 @@ theorem toSource_cardyV (a t : ℝ) :
   unfold FixedWeightProblem.cardyV
   rw [Finset.mul_sum]
   refine Finset.sum_congr rfl fun S _ => ?_
-  have hw := M.hQ i
   show M.d i * (-1 : ℝ) ^ S.card * kernelK M.w (a - (M.r i + (M.Q i).shiftSum S)) t =
-    M.d i * ((-1 : ℝ) ^ S.card * kernelK (M.Q i).w (a - M.r i - (M.Q i).shiftSum S) t)
-  rw [hw, sub_add_eq_sub_sub]
+    M.d i * ((-1 : ℝ) ^ S.card * kernelK M.w (a - M.r i - (M.Q i).shiftSum S) t)
+  rw [sub_add_eq_sub_sub]
   ring
 
 /-- **`A(x) = ∑_i d_i e^{-4π r_i x} Q_i(e^{-4π x})`** (`pmix:Amix`). -/
