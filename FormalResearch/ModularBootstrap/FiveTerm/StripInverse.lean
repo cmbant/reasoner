@@ -76,7 +76,7 @@ lemma one_sub_mul_I_ne_zero {z : ℂ} (hz : z ≠ -Complex.I) : 1 - z * Complex.
   have h1 : z * Complex.I - 1 = 0 := by linear_combination -h
   linear_combination (-Complex.I) * h1 + z * Complex.I_sq
 
-lemma re_sInv {z : ℂ} (hz : 1 - z * Complex.I ≠ 0) (hq : qArc z ≠ 0) :
+lemma re_sInv {z : ℂ} (_hz : 1 - z * Complex.I ≠ 0) (_hq : qArc z ≠ 0) :
     (sInv z).re = 2 / π * Complex.arg (qArc z) := by
   unfold sInv Complex.arctan
   rw [← qArc]
@@ -106,7 +106,7 @@ lemma qArc_ne_zero {z : ℂ} (hz : z ≠ Complex.I) (hz2 : z ≠ -Complex.I) : q
   · apply hz
     have h1 : z * Complex.I + 1 = 0 := by linear_combination h
     have : z = Complex.I := by
-      linear_combination (-Complex.I) * h1 + z * Complex.I_sq + 2 * Complex.I
+      linear_combination (-Complex.I) * h1 + z * Complex.I_sq
     exact this
   · exact one_sub_mul_I_ne_zero hz2 h
 
@@ -210,7 +210,7 @@ lemma sInv_conj {z : ℂ} (hz : z ∈ halfDisc) : sInv (starRingEnd ℂ z) = sta
   have hq := qArc_mem_slit (subset_closure hz) h1 h2
   have harg : (qArc z).arg ≠ π := Complex.slitPlane_arg_ne_pi hq
   have hqc : (starRingEnd ℂ (qArc z)).arg ≠ π := by
-    rw [Complex.arg_conj, if_neg harg]
+    rw [Complex.arg_conj, ite_eq_right harg]
     intro h
     have := Complex.neg_pi_lt_arg (qArc z)
     linarith [Real.pi_pos]

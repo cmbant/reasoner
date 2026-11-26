@@ -43,7 +43,7 @@ lemma cos_eq_re_im (w : ℂ) : Complex.cos w = ((Real.cos w.re * Real.cosh w.im 
 lemma re_cos' (w : ℂ) : (Complex.cos w).re = Real.cos w.re * Real.cosh w.im := by
   rw [cos_eq_re_im]
   simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.ofReal_im, Complex.I_re,
-    Complex.I_im, mul_zero, sub_zero, mul_one, zero_mul, add_zero]
+    Complex.I_im, mul_zero, sub_zero, mul_one, add_zero]
 
 lemma im_cos' (w : ℂ) : (Complex.cos w).im = -(Real.sin w.re * Real.sinh w.im) := by
   rw [cos_eq_re_im]
@@ -143,7 +143,7 @@ lemma cC_eq_zero_iff {s : ℂ} (hs : s ∈ unitStrip) : cC s = 0 ↔ s = 1 / 2 :
 lemma sInt_zero' : sInt 0 = 1 := by unfold sInt; simp
 
 lemma half_mem : (1 / 2 : ℂ) ∈ unitStrip := by
-  constructor <;> simp <;> norm_num
+  constructor <;> simp; norm_num
 
 lemma kC_half : kC (1 / 2) = (((√2 / 2 : ℝ)) : ℂ) := by
   unfold kC
@@ -194,8 +194,7 @@ lemma dslope_cC_ne_zero {s : ℂ} (hs : s ∈ unitStrip) : dslope cC (1 / 2) s �
     rw [this.deriv]
     have : (π : ℂ) * (1 / 2) = π / 2 := by ring
     rw [this, Complex.sin_pi_div_two]
-    have hpi : (π : ℂ) ≠ 0 := by exact_mod_cast Real.pi_ne_zero
-    simpa using hpi
+    simp
   · rw [dslope_of_ne _ h, slope_def_field, cC_half, sub_zero]
     exact div_ne_zero (fun h0 => h ((cC_eq_zero_iff hs).mp h0)) (sub_ne_zero.mpr h)
 
@@ -253,8 +252,7 @@ lemma psiHat_bdd_near_one : ∃ r : ℝ, 0 < r ∧ ∃ M : ℝ, ∀ s ∈ unitSt
     have h1 : ∀ᶠ k in 𝓝 (0 : ℂ), tipE (((√2 : ℝ) : ℂ) * k) ≠ 0 := by
       have : tipE (((√2 : ℝ) : ℂ) * 0) ≠ 0 := by
         rw [mul_zero, hT0]
-        have : (π : ℂ) ≠ 0 := by exact_mod_cast Real.pi_ne_zero
-        simpa using this
+        simp
       exact hTc.eventually_ne this
     have h2 : ∀ᶠ k in 𝓝 (0 : ℂ), 2 * k ^ 2 - 1 ≠ 0 := by
       have hc : ContinuousAt (fun k : ℂ => 2 * k ^ 2 - 1) 0 := by fun_prop
@@ -339,7 +337,7 @@ lemma psiHat_bdd_near_one : ∃ r : ℝ, 0 < r ∧ ∃ M : ℝ, ∀ s ∈ unitSt
     have h3 := hb.1
     have h4 := hb.2.1
     field_simp
-    ring
+    ring_nf
 
 /-! ### Edge values -/
 
@@ -382,7 +380,7 @@ lemma continuousAt_kC (z : ℂ) : ContinuousAt kC z := by unfold kC; fun_prop
 
 lemma cosh_pos_aux (x : ℝ) : (0 : ℝ) < Real.cosh x := Real.cosh_pos x
 
-lemma psiHat_limit_left {τ : ℝ} (hτ : τ ≠ 0) :
+lemma psiHat_limit_left {τ : ℝ} (_hτ : τ ≠ 0) :
     Tendsto psiHat (𝓝[unitStrip] ((τ : ℂ) * Complex.I))
       (𝓝 (psiOne (sInt (((Real.cosh (π * τ) : ℝ)) : ℂ)) ((Real.cosh (π * τ / 2) : ℝ) : ℂ)
         ((Real.cosh (π * τ) : ℝ) : ℂ))) := by
@@ -530,7 +528,7 @@ lemma tendsto_gS_right {τ : ℝ} (hτ : τ ≠ 0) :
       intro s hs
       unfold gS
       rw [← sInt_conj (sDom_conj (cC_mem_sDom hs))]
-      simp only [hu, Complex.conj_conj]
+      simp only [Complex.conj_conj]
       rfl
     have : starRingEnd ℂ (sInt (cC z)) = Lg τ := by
       rw [hc₀, hval]
@@ -638,8 +636,8 @@ lemma psiTil_of_mem {s : ℂ} (hs : s ∈ unitStrip) : psiTil s = psiHat s :=
 
 lemma continuousOn_psiTil : ContinuousOn psiTil (unitStripCl \ {0, 1}) :=
   (continuousOn_extLim (U := unitStrip) (f := psiHat) (bad := {0, 1})
-    (fun z hz => exists_limit_psiHat ⟨closure_unitStrip_subset hz.1, hz.2⟩)).mono
-    (fun z hz => ⟨unitStripCl_subset_closure hz.1, hz.2⟩)
+    (fun _z hz => exists_limit_psiHat ⟨closure_unitStrip_subset hz.1, hz.2⟩)).mono
+    (fun _z hz => ⟨unitStripCl_subset_closure hz.1, hz.2⟩)
 
 lemma psiTil_left {τ : ℝ} (hτ : τ ≠ 0) :
     psiTil ((τ : ℂ) * Complex.I) = psiOne (sInt (((Real.cosh (π * τ) : ℝ)) : ℂ))
