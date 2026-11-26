@@ -62,7 +62,7 @@ Headlines and their inputs (open fields in bold):
   `AirySquareSimple.lean`) and no longer a field, nor are `lem:airy-square-bound` (`Λ_m > a_m`: `airyLambdaSection_hb_gt_airyZero`, `AirySquareBound.lean`),
   `lem:airy-node-square` (`λ > τ_N > t_{m+e}`: `airy_node_square`, `AiryNodeSquare.lean`), `lem:airy-active-height`
   (`airy_active_height`, `AiryActiveHeight.lean`), `thm:airy-node-sign` (`airy_node_sign`, `airy_node_sum`,
-  `AiryNodeSign.lean`), or `lem:ce-terminal-deflation` (`ce_terminal_deflation`, `CeTerminalDeflation.lean`); the `v = t_m` endpoint clause
+  `AiryNodeSign.lean`), or `lem:ce-terminal-deflation` (`terminal_cardinal_integral`, `ce_terminal_deflation_full`, `CeTerminalDeflation.lean`); the `v = t_m` endpoint clause
   `ShellGapEndpoint D` is the theorem `shellGapEndpoint_proved` (`ShellGapEndpoint.lean`) and no longer a field, and
   `thm_ce_shell_gap` is proved; `one_profile_envelope` (`gt:3.1` envelope used in `prop:ce-one-profile`) is a theorem
   (`OneProfileEnvelope.lean`). Proved here: `one_profile_feasible_iff`, `one_profile_maximizer_exists`,
@@ -773,7 +773,7 @@ lemma ceShellRho_tendsto {D : ShellHBData} {r : ℝ → ℕ → ℝ} {τ : ℝ}
 lemma uSh_eq_tm_of_canonical (D : ShellHBData)
     (hi : ∀ y : ℝ, 0 < y → 0 ≤ airyLaplace (fun u => -(D.G (u : ℂ)).re) y) : uSh D = (D.tm : EReal) := by
   have hb := (uLP_eq_tm_iff D).2 hi
-  obtain ⟨-, -, hpos⟩ := ce_terminal_deflation D hi
+  obtain ⟨-, -, -, hpos⟩ := terminal_cardinal_integral D
   refine (airy_active_height D).quotient_mass D.tm hb _ (negG_witness D hi) ?_
   have : (∫ u : ℝ, (((fun z => -D.G z) (u : ℂ)).re) / (u - D.tm)) =
       ∫ u : ℝ, (-(D.G (u : ℂ)).re) / (u - D.tm) := by simp

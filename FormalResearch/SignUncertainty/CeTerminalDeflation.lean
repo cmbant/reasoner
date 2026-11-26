@@ -17,10 +17,11 @@ Main results:
 * `terminal_cardinal_integral`: for every `D : ShellHBData`, the terminal cardinal
   `H_N = dslope (-D.G) D.tm` lies in `𝒢`, `u ↦ -(D.G u).re / (u - D.tm)` is integrable on `ℝ`, and
   `I_N = ∫_ℝ (-(D.G u).re) / (u - D.tm) du = D(t_m) / ∏_{s ∈ shellSites D} (s - t_m) > 0`.
-* `ce_terminal_deflation_full` and **`ce_terminal_deflation`** (`lem:ce-terminal-deflation`): under
-  `∀ y > 0, 0 ≤ airyLaplace (-D.G) y`, the Laplace lower bound `(eq:ce-deflation-pos)`
-  `airyLaplace H_N y ≥ I_N exp(t_m y - y³ / 12) > 0` holds for all `y ≥ 0`, and
-  `ce_terminal_deflation` discharges the former `terminal_deflation` field of `CeCanonicalInputs`.
+* `ce_terminal_deflation_full` (`lem:ce-terminal-deflation`, full statement): under
+  `∀ y > 0, 0 ≤ airyLaplace (-D.G) y`, the above plus the Laplace lower bound `(eq:ce-deflation-pos)`
+  `airyLaplace H_N y ≥ I_N exp(t_m y - y³ / 12) > 0` for all `y ≥ 0`. The Laplace hypothesis is used only for
+  this last clause (and implies `m` odd); `terminal_cardinal_integral` proves the former `terminal_deflation`
+  field of `CeCanonicalInputs` and makes `Headlines.uSh_eq_tm_of_canonical` unconditional.
 -/
 
 @[expose] public section
@@ -379,24 +380,12 @@ theorem ce_terminal_deflation_full (D : ShellHBData)
     _ ≤ Real.exp (-y ^ 3 / 12) * (Real.exp (D.tm * y) * (I_N + J)) := by
           gcongr; linarith
 
-/-- **`lem:ce-terminal-deflation` (`ce_shells.tex`), field form:** proves the former
-`terminal_deflation` field of `CeCanonicalInputs`. -/
-theorem ce_terminal_deflation (D : ShellHBData) :
-    (∀ y : ℝ, 0 < y → 0 ≤ airyLaplace (fun u => -(D.G (u : ℂ)).re) y) →
-      MeasureTheory.Integrable (fun u : ℝ => (-(D.G (u : ℂ)).re) / (u - D.tm)) ∧
-      (∫ u : ℝ, (-(D.G (u : ℂ)).re) / (u - D.tm)) =
-        airyPQDr D.P D.Q D.tm / ∏ s ∈ shellSites D, (s - D.tm) ∧
-      0 < ∫ u : ℝ, (-(D.G (u : ℂ)).re) / (u - D.tm) := by
-  intro _
-  obtain ⟨-, h1, h2, h3⟩ := terminal_cardinal_integral D
-  exact ⟨h1, h2, h3⟩
-
 /-- info: 'FormalResearch.SignUncertainty.ce_terminal_deflation_full' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.SignUncertainty.ce_terminal_deflation_full
 
-/-- info: 'FormalResearch.SignUncertainty.ce_terminal_deflation' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.SignUncertainty.terminal_cardinal_integral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.SignUncertainty.ce_terminal_deflation
+#print axioms FormalResearch.SignUncertainty.terminal_cardinal_integral
 
 end FormalResearch.SignUncertainty
