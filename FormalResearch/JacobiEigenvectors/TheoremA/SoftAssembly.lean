@@ -99,19 +99,19 @@ lemma Wmol_win_bounds (aplus a z : ℝ) (ha : a ≤ aplus) (hz : |z| ≤ rhoWin 
   have hc2 : 2 * Real.sqrt (1 + aplus) ≤ cWt aplus := le_max_right _ _
   unfold Wmol
   by_cases ha0 : a ≤ 0
-  · rw [if_pos ha0]
+  · rw [ite_eq_left ha0]
     obtain ⟨l1, l2⟩ := hw1 ha0
     unfold Wwell
     by_cases hz0 : 0 ≤ z
-    · rw [if_pos hz0, abs_of_nonneg hz0] at *
+    · rw [ite_eq_left hz0, abs_of_nonneg hz0] at *
       refine ⟨le_trans (Real.exp_le_exp.mpr (by linarith)) l1, le_trans l2 (Real.one_le_exp (by linarith))⟩
-    · rw [if_neg hz0]
+    · rw [ite_eq_right hz0]
       have hl : Real.exp (-(5 : ℝ) / 2) ≤ Ewell a |z| := l1
       have hpos := Ewell_pos a |z|
       have h1 : (1 : ℝ) ≤ (Ewell a |z|)⁻¹ := (one_le_inv₀ hpos).mpr l2
       exact ⟨le_trans (Real.exp_le_one_iff.mpr (by linarith)) h1,
         le_trans (inv_le_exp_five_half _ hl) (Real.exp_le_exp.mpr hc1)⟩
-  · rw [if_neg ha0]
+  · rw [ite_eq_right ha0]
     obtain ⟨l1, l2⟩ := hw2 (not_le.mp ha0)
     exact ⟨le_trans (Real.exp_le_exp.mpr (by linarith)) l1, le_trans l2 (Real.exp_le_exp.mpr hc2)⟩
 
@@ -295,7 +295,7 @@ theorem soft_win_mass {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) 
   have hclaims : WmClaims C p X N (min cs cl) := by
     by_cases hA : Fz.step N * max (-C.aOf p X N) 0 ≤ wmDelta c1 (winCB CPC aplus ^ 2) C.dp
     · exact (hsm p hp X hX N hN hsmall haplus hA).mono (min_le_left _ _) (wmMass_nonneg C p X N)
-    · push_neg at hA
+    · push Not at hA
       exact (hlg p hp X hX N hN hlarge haplus hA).mono (min_le_right _ _) (wmMass_nonneg C p X N)
   obtain ⟨-, -, h3⟩ := hclaims
   have hκ := kappaBal_pos (C.aOf p X N)
@@ -469,11 +469,11 @@ lemma glueNorm_ge (aL bR : ℤ → ℝ) (Ω rows : Finset ℤ) (isLeft : ℤ →
   refine Real.sqrt_le_sqrt ?_
   rw [← Finset.sum_filter_add_sum_filter_not Ω isLeft]
   have e1 : ∑ n ∈ Ω.filter isLeft, (if isLeft n then aL n else glueKappa aL bR Ω * bR n) ^ 2 = ∑ n ∈ Ω.filter isLeft, aL n ^ 2 :=
-    Finset.sum_congr rfl (fun n hn => by rw [if_pos (Finset.mem_filter.mp hn).2])
+    Finset.sum_congr rfl (fun n hn => by rw [ite_eq_left (Finset.mem_filter.mp hn).2])
   have e2 : ∑ n ∈ Ω.filter (fun n => ¬ isLeft n), (if isLeft n then aL n else glueKappa aL bR Ω * bR n) ^ 2 =
       glueKappa aL bR Ω ^ 2 * ∑ n ∈ Ω.filter (fun n => ¬ isLeft n), bR n ^ 2 := by
     rw [Finset.mul_sum]
-    exact Finset.sum_congr rfl (fun n hn => by rw [if_neg (Finset.mem_filter.mp hn).2]; ring)
+    exact Finset.sum_congr rfl (fun n hn => by rw [ite_eq_right (Finset.mem_filter.mp hn).2]; ring)
   rw [e1, e2]
   have h1 : ∑ n ∈ Ω.filter isLeft, aL n ^ 2 ≤ ∑ n ∈ rows.filter isLeft, aL n ^ 2 :=
     Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset_filter _ hΩ) (fun n _ _ => sq_nonneg _)

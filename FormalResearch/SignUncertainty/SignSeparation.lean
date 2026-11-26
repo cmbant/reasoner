@@ -122,7 +122,7 @@ theorem oddLaguerreMode_integrable {c : ℝ} (hc : 0 < c) :
         ((2 * π) ^ c / Real.Gamma c) * (s ^ (c - 1) * Real.exp (-(2 * π) * s))
       = (4 * π / c) * ((2 * π) ^ c / Real.Gamma c) * (s * s ^ (c - 1)) * Real.exp (-2 * π * s) -
           ((2 * π) ^ c / Real.Gamma c) * s ^ (c - 1) * Real.exp (-2 * π * s) := by
-        rw [hs_pow]; ring
+        rw [hs_pow]; ring_nf
     _ = (4 * π * s / c - 1) * Real.exp (-2 * π * s) * ((2 * π) ^ c / Real.Gamma c * s ^ (c - 1)) := by ring
 
 /-- Unconditional verification of the `Δ = 0` Hankel eigenvalue `-1` identity for `oddLaguerreMode c`:
@@ -157,7 +157,7 @@ theorem oddLaguerreMode_integral {c : ℝ} (hc : 0 < c) :
               ((2 * π) ^ c / Real.Gamma c) * s ^ (c - 1) * Real.exp (-2 * π * s) := by ring
         _ = (4 * π / c * ((2 * π) ^ c / Real.Gamma c)) * (s ^ c * Real.exp (-(2 * π) * s)) -
               ((2 * π) ^ c / Real.Gamma c) * (s ^ (c - 1) * Real.exp (-(2 * π) * s)) := by
-            rw [hs_pow]; ring
+            rw [hs_pow]; ring_nf
     rw [hcongr1, integral_sub h1 h2, integral_const_mul, integral_const_mul]
     congr 2
     · refine setIntegral_congr_fun measurableSet_Ioi fun s _ => ?_
@@ -893,7 +893,7 @@ theorem SignSeparationPackage.Tneg_asymp (P : SignSeparationPackage) :
   rw [mul_zero, add_zero] at h1
   refine h1.congr' ?_
   filter_upwards [eventually_ge_atTop P.c₀, eventually_gt_atTop (0 : ℝ)] with c hc hc0
-  rw [dif_pos hc, dif_pos hc]
+  rw [dite_eq_left hc, dite_eq_left hc]
   have hab : c ^ (1 / 3 : ℝ) * c ^ (2 / 3 : ℝ) = c := by
     rw [← Real.rpow_add hc0]; norm_num
   have h3 : 0 < c ^ (1 / 3 : ℝ) := Real.rpow_pos_of_pos hc0 _
@@ -942,7 +942,7 @@ theorem SignSeparationPackage.langer_approx (P : SignSeparationPackage) (δ M η
   have hβ := hankelBeta1_pos
   set β := hankelBeta1 with hβ_def
   have hTn_def : ∀ c : ℝ, ∀ hc : P.c₀ ≤ c, P.Tneg c = hankelThreshold c (P.K c hc) (-1) := fun c hc => by
-    unfold SignSeparationPackage.Tneg; rw [dif_pos hc]
+    unfold SignSeparationPackage.Tneg; rw [dite_eq_left hc]
   have hT_asymp_real : Tendsto (fun c : ℝ => P.Tneg c / c) atTop (𝓝 (1 / π ^ 2)) :=
     P.Tneg_asymp.congr' (Eventually.of_forall fun c => by
       dsimp [SignSeparationPackage.Tneg]; split_ifs <;> simp)
@@ -956,7 +956,7 @@ theorem SignSeparationPackage.langer_approx (P : SignSeparationPackage) (δ M η
       (𝓝 (|a| / β)) :=
     P.Tneg_airy_order.congr' (by
       filter_upwards [eventually_ge_atTop P.c₀] with c hc
-      simp only [SignSeparationPackage.Tneg, dif_pos hc])
+      simp only [SignSeparationPackage.Tneg, dite_eq_left hc])
   have hs_ev : ∀ᶠ c in atTop, |(P.Tneg c - c / π ^ 2) / c ^ (1 / 3 : ℝ) - |a| / β| < ρ / (2 * β) :=
     hs.eventually (Metric.ball_mem_nhds (|a| / β) (show 0 < ρ / (2 * β) by positivity)) |>.mono fun c hc => by
       rwa [Real.dist_eq] at hc
@@ -1041,7 +1041,7 @@ theorem SignSeparationPackage.langer_approx (P : SignSeparationPackage) (δ M η
     have hw : hankelWindowProfile c f (u y) = (q / β) * (f (T + y) * hankelRho0 c (T + y)) := by
       unfold hankelWindowProfile
       dsimp only
-      rw [hΔeq, if_pos hpos]
+      rw [hΔeq, ite_eq_left hpos]
     simp only [hΨ_def, hw]
     field_simp
     ring

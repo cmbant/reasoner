@@ -43,7 +43,7 @@ noncomputable def windowKerIter (s : ℝ) (n : ℕ) : ℝ → ℝ := bsplineConv
 /-- The dilation `t ↦ b⁻¹ · f (t / b)`. -/
 noncomputable def windowScale (b : ℝ) (f : ℝ → ℝ) : ℝ → ℝ := fun t => b⁻¹ * f (t / b)
 
-theorem windowKer_integrable {s : ℝ} (hs : 0 < s) : Integrable (windowKer s) := by
+theorem windowKer_integrable {s : ℝ} (_hs : 0 < s) : Integrable (windowKer s) := by
   unfold windowKer
   exact (integrable_indicator_iff measurableSet_Icc).2
     ((continuous_const : Continuous fun _ : ℝ => s⁻¹).integrableOn_Icc)
@@ -66,7 +66,7 @@ theorem windowKer_eq_zero {s t : ℝ} (ht : t ∉ Icc (0 : ℝ) s) : windowKer s
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.windowKer_eq_zero
 
 /-- `windowKerIter s n` vanishes outside `[0, (n+1) s]`. -/
-theorem windowKerIter_eq_zero {s : ℝ} (hs : 0 < s) (n : ℕ) {t : ℝ}
+theorem windowKerIter_eq_zero {s : ℝ} (_hs : 0 < s) (n : ℕ) {t : ℝ}
     (ht : t ∉ Icc (0 : ℝ) (((n : ℝ) + 1) * s)) : windowKerIter s n t = 0 := by
   induction n generalizing t with
   | zero =>
@@ -91,7 +91,7 @@ theorem windowKerIter_eq_zero {s : ℝ} (hs : 0 < s) (n : ℕ) {t : ℝ}
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.windowKerIter_eq_zero
 
 /-- Dilation of the uniform kernel: `b⁻¹ · windowKer a (t / b) = windowKer (a b) t`. -/
-theorem windowScale_windowKer {a b : ℝ} (ha : 0 < a) (hb : 0 < b) :
+theorem windowScale_windowKer {a b : ℝ} (_ha : 0 < a) (hb : 0 < b) :
     windowScale b (windowKer a) = windowKer (a * b) := by
   funext t
   have key : t / b ∈ Icc (0 : ℝ) a ↔ t ∈ Icc (0 : ℝ) (a * b) := by
@@ -270,7 +270,7 @@ theorem windowSmooth_eq_bspline_integral {X : ℝ → ℝ} (hX : Continuous X) {
   have hU' : ∀ t, bsplineUnit (n + 1) t = bsplineConvIter (bsplineBox (n + 1)) n t := by
     intro t
     unfold bsplineUnit
-    rw [if_neg (Nat.succ_ne_zero n), Nat.add_sub_cancel]
+    rw [ite_eq_right (Nat.succ_ne_zero n), Nat.add_sub_cancel]
   have hU : bsplineUnit (n + 1) = windowKerIter (((n + 1 : ℕ) : ℝ)⁻¹) n := by
     funext t
     rw [hU' t, hB]

@@ -153,13 +153,13 @@ theorem host_col_gen {N : ℕ} (cols : Finset (Fin (N + 1))) (g0 nc : ℤ) (hnc 
       refine jbL2_support_le _ _ hSc hc ?_ ?_
       · intro i hi
         have hi' : ¬ (g0 ≤ ((i : ℕ) : ℤ) ∧ ((i : ℕ) : ℤ) ≤ nc) := fun h => hi (Finset.mem_filter.mpr ⟨Finset.mem_univ _, h⟩)
-        rw [hhost, if_neg (fun h => hi' h.2)]
+        rw [hhost, ite_eq_right (fun h => hi' h.2)]
         ring
       · intro i
         by_cases hi : g0 ≤ ((i : ℕ) : ℤ) ∧ ((i : ℕ) : ℤ) ≤ nc
-        · rw [hhost, if_pos ⟨hj, hi⟩]
+        · rw [hhost, ite_eq_left ⟨hj, hi⟩]
           exact hdiff j hj i hi.1 hi.2
-        · rw [hhost, if_neg (fun h => hi h.2), sub_self, abs_zero]
+        · rw [hhost, ite_eq_right (fun h => hi h.2), sub_self, abs_zero]
           exact hc
     have hsum := jbL2_add_le Finset.univ (fun i => host i j - G i j) (fun i => G i j - Um i j)
     have e : (fun i => host i j - Um i j) = fun i => (host i j - G i j) + (G i j - Um i j) := by
@@ -168,7 +168,7 @@ theorem host_col_gen {N : ℕ} (cols : Finset (Fin (N + 1))) (g0 nc : ℤ) (hnc 
     linarith
   · have e : (fun i => host i j - Um i j) = fun i => G i j - Um i j := by
       funext i
-      rw [hhost, if_neg (fun h => hj h.1)]
+      rw [hhost, ite_eq_right (fun h => hj h.1)]
     rw [e]
     linarith [jbL2_nonneg (S := (Finset.univ : Finset (Fin (N + 1)))) (fun i => G i j - Um i j)]
 
@@ -346,16 +346,16 @@ theorem soft_right_ok (hf : ParabolicCylinderFacts U V cPC CPC)
     intro i hi k hk
     unfold softHost0R
     by_cases hle' : ((i : ℕ) : ℤ) ≤ nc
-    · rw [if_pos ⟨hk, hi, hle'⟩]
-    · rw [if_neg (fun h => hle' h.2.2), hG0 k hk i, if_neg hle']
+    · rw [ite_eq_left ⟨hk, hi, hle'⟩]
+    · rw [ite_eq_right (fun h => hle' h.2.2), hG0 k hk i, ite_eq_right hle']
   have hHR1 : ∀ (i : Fin (N + 1)), softLoR CR p N ≤ (i : ℕ) → ∀ k ∈ cols,
       softHost0R CL1 CR1 (softLoR CR p N) p N Xs cols G1 i k =
         softKappa CL1 CR1 p (Xs k) N * CR1.psiHatL p (Xs k) N ((N : ℤ) - ((i : ℕ) : ℤ)) / softNorm CL1 CR1 p (Xs k) N := by
     intro i hi k hk
     unfold softHost0R
     by_cases hle' : ((i : ℕ) : ℤ) ≤ nc
-    · rw [if_pos ⟨hk, hi, by rw [hnc1]; exact hle'⟩]
-    · rw [if_neg (fun h => hle' (by have h2 := h.2.2; rwa [hnc1] at h2)), hG1 k hk i, if_neg (by rw [hnc1]; exact hle')]
+    · rw [ite_eq_left ⟨hk, hi, by rw [hnc1]; exact hle'⟩]
+    · rw [ite_eq_right (fun h => hle' (by have h2 := h.2.2; rwa [hnc1] at h2)), hG1 k hk i, ite_eq_right (by rw [hnc1]; exact hle')]
   have hmono : ∀ i : ℤ, g0 ≤ i → i ≤ nc → |uNode (Fz.step N) i - CL.uc p| ≤ Fz.step N / 2 :=
     fun i h1 h2 => fold_between hst g5 g6 h1 h2
   have hX1' : ∀ k ∈ cols, |Xs k - Fz.bandHi p| ≤ CL1.δ0 := fun k hk => by rw [hδ1]; exact hwin k hk
@@ -391,7 +391,7 @@ theorem soft_right_ok (hf : ParabolicCylinderFacts U V cPC CPC)
         exact if_congr ⟨fun h => ⟨h.1, by omega, h.2.2⟩, fun h => ⟨h.1, by omega, h.2.2⟩⟩ rfl rfl)
       (mul_nonneg hCd0 (pow_nonneg hst.le _))
       (fun j hj i h1 h2 => by
-        rw [hG0 j hj i, if_pos h2]
+        rw [hG0 j hj i, ite_eq_left h2]
         exact hdiff0 j hj _ h1 h2) j
     have := hc0 j
     have hC : cs.C = Ch + 2 * Cd + 2 * Cd1 := rfl
@@ -407,7 +407,7 @@ theorem soft_right_ok (hf : ParabolicCylinderFacts U V cPC CPC)
         exact if_congr ⟨fun h => ⟨h.1, by omega, by rw [← hnc1]; exact h.2.2⟩, fun h => ⟨h.1, by omega, by rw [hnc1]; exact h.2.2⟩⟩ rfl rfl)
       (mul_nonneg hCd10 (pow_nonneg hst.le _))
       (fun j hj i h1 h2 => by
-        rw [hG1 j hj i, if_pos (by rw [hnc1]; exact h2)]
+        rw [hG1 j hj i, ite_eq_left (by rw [hnc1]; exact h2)]
         exact hdiff1 j hj _ h1 h2) j
     have := hc1 j
     have hC : cs.C = Ch + 2 * Cd + 2 * Cd1 := rfl
@@ -510,12 +510,12 @@ theorem soft_right_ok (hf : ParabolicCylinderFacts U V cPC CPC)
     have hn' := (Finset.mem_filter.mp hn).2
     rw [hH0 n k]
     unfold softHost0R
-    rw [if_neg (fun h => by have := h.2.2; simp only [FormalResearch.JB.Chart.row, softRightChart, softJBChart] at this; omega)]
+    rw [ite_eq_right (fun h => by have := h.2.2; simp only [FormalResearch.JB.Chart.row, softRightChart, softJBChart] at this; omega)]
   · intro n hn k
     have hn' := (Finset.mem_filter.mp hn).2
     rw [hH1 n k]
     unfold softHost0R
-    rw [if_neg (fun h => by have := h.2.2; rw [hnc1] at this; simp only [FormalResearch.JB.Chart.row, softRightChart, softJBChart] at this; omega)]
+    rw [ite_eq_right (fun h => by have := h.2.2; rw [hnc1] at this; simp only [FormalResearch.JB.Chart.row, softRightChart, softJBChart] at this; omega)]
   · intro i hi1 hi2
     have hn : ((i : ℕ) : ℤ) - (softLoR CR p N : ℤ) ≥ 0 := by omega
     have hlt : (((i : ℕ) : ℤ) - (softLoR CR p N : ℤ)).toNat < softRR CL CR p N := by

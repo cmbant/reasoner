@@ -229,7 +229,7 @@ theorem mellinStrip_reflection {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ}
     hconv.isPreconnected hz₀ hev ⟨hz0, hzc⟩
 
 /-- **Edge bound** (`gt:7.4(1)`): on `Re z = c`, `|M̃_f(c + i y)| ≤ Γ(c) M[f] / |Γ(c + i y)|`. -/
-theorem norm_mellinStrip_edge_le {c ε : ℝ} (hc : 0 < c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f)
+theorem norm_mellinStrip_edge_le {c ε : ℝ} (hc : 0 < c) {f : ℝ → ℝ} (_hf : IsHankelEigenfn c ε f)
     (y : ℝ) :
     ‖mellinStrip f ((c : ℂ) + (y : ℂ) * Complex.I)‖ ≤
       Real.Gamma c * hankelMass c f / ‖Complex.Gamma ((c : ℂ) + (y : ℂ) * Complex.I)‖ := by

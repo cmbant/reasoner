@@ -270,7 +270,7 @@ lemma lapC_airySq {y : ℂ} (hy : 0 < y.re) :
   rw [rpow_neg_half_mul_four_pi hy] at h
   have hL : lapC (fun u => airyAi u ^ 2) y =
       ∫ u : ℝ, (airyAi (u + 0) : ℂ) * (airyAi (u + 0) : ℂ) * Complex.exp (y * (u : ℂ)) := by
-    unfold lapC; refine integral_congr_ae (ae_of_all _ fun u => ?_); push_cast; ring
+    unfold lapC; refine integral_congr_ae (ae_of_all _ fun u => ?_); push_cast; ring_nf
   rw [hL, h]
   simp [cA]
 

@@ -576,12 +576,12 @@ theorem bulk_kappa_sign {cPC CPC : ℝ} (PC : ParabolicCylinderFacts U V cPC CPC
     have e : (-1 : ℝ) ^ k * (α0 * (κ' * qZ F p N X r) * (β0 * qZ F p N X r)) = (α0 * β0 * qZ F p N X r ^ 2) * ((-1 : ℝ) ^ k * κ') := by ring
     rw [e] at h
     by_contra hD
-    push_neg at hD
+    push Not at hD
     have := mul_nonpos_of_nonneg_of_nonpos hA hD
     linarith
   have hcase : ε / 2 ≤ Real.cos αn ^ 2 ∨ ε / 2 ≤ Real.cos (αn + θb) ^ 2 := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     linarith [hcon.1, hcon.2]
   have hD : 0 < (-1 : ℝ) ^ k * κ' := by
     rcases hcase with h1 | h1

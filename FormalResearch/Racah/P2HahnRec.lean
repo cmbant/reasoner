@@ -36,7 +36,7 @@ noncomputable def hc (α β D m k : ℕ) : ℝ :=
 
 lemma hc_eq_zero (α β D m k : ℕ) (h : m < k) : hc α β D m k = 0 := by
   unfold hc
-  rw [ascPochhammer_eval_neg_coe_nat_of_lt h]
+  rw [ascPochhammer_eval_neg_natCast_of_lt h]
   simp
 
 lemma hahnQ_eq_hc (α β D m u : ℕ) :

@@ -223,7 +223,7 @@ theorem hb_estimate_hbSeed_m1_uniform {m : ℕ} (hm : 1 ≤ m) (R' : ℝ) (hR' :
   have b2 : |γ₂ * δ| ≤ R' ^ 2 := by rw [abs_mul]; nlinarith [abs_nonneg γ₂, abs_nonneg δ]
   have b1 : |γ₁ * δ| ≤ R' ^ 2 := by rw [abs_mul]; nlinarith [abs_nonneg γ₁, abs_nonneg δ]
   have ha : |-1 - γ₂ * δ| ≤ 1 + 2 * R' ^ 2 + R' := by
-    calc |-1 - γ₂ * δ| ≤ |(-1 : ℝ)| + |γ₂ * δ| := by rw [sub_eq_add_neg, ← abs_neg (γ₂ * δ)]; exact abs_add_le _ _ |>.trans_eq' (by simp [abs_neg])
+    calc |-1 - γ₂ * δ| ≤ |(-1 : ℝ)| + |γ₂ * δ| := by rw [sub_eq_add_neg, ← abs_neg (γ₂ * δ)]; exact abs_add_le _ _ |>.trans_eq' (by simp)
       _ ≤ _ := by rw [abs_neg, abs_one]; nlinarith
   have hb : |-γ₁ * δ + γ₂ * δ + r| ≤ 1 + 2 * R' ^ 2 + R' := by
     calc |-γ₁ * δ + γ₂ * δ + r| ≤ |-γ₁ * δ| + |γ₂ * δ| + |r| := abs_add_three _ _ _

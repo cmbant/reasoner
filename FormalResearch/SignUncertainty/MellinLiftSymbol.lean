@@ -75,11 +75,11 @@ variable {W : ℂ → ℂ} {c σ : ℝ}
 lemma re_one_sub_div {c : ℝ} (hc : 0 < c) (z : ℂ) : (1 - z / (c : ℂ)).re = 1 - z.re / c := by
   simp [Complex.div_re, Complex.normSq_ofReal]; field_simp
 
-lemma re_div_cpow {c : ℝ} (hc : 0 < c) (z : ℂ) :
+lemma re_div_cpow {c : ℝ} (_hc : 0 < c) (z : ℂ) :
     (z / ((c ^ (2 / 3 : ℝ) : ℝ) : ℂ)).re = z.re / c ^ (2 / 3 : ℝ) := by
   rw [Complex.div_ofReal_re]
 
-lemma im_div_cpow {c : ℝ} (hc : 0 < c) (z : ℂ) :
+lemma im_div_cpow {c : ℝ} (_hc : 0 < c) (z : ℂ) :
     (z / ((c ^ (2 / 3 : ℝ) : ℝ) : ℂ)).im = z.im / c ^ (2 / 3 : ℝ) := by
   rw [Complex.div_ofReal_im]
 
@@ -122,7 +122,7 @@ theorem liftPhi_differentiableOn (hW : LiftSymbolData W) {c : ℝ} (hc : 0 < c) 
   exact liftPhi_eq hc hz.1 hz.2.le
 
 /-- `mellinMult Φ z = e^{cℋ(1 - z/c)} S(z)`. -/
-theorem mellinMult_liftPhi {c : ℝ} (hc : 0 < c) {z : ℂ} (hz0 : 0 < z.re) :
+theorem mellinMult_liftPhi {c : ℝ} (_hc : 0 < c) {z : ℂ} (hz0 : 0 < z.re) :
     mellinMult (liftPhi W c σ) z = Complex.exp ((c : ℂ) * stripH (1 - z / c)) * liftS W c σ z := by
   unfold mellinMult liftPhi
   have hr : (0 : ℝ) < 2 * Real.pi := by positivity
@@ -281,7 +281,7 @@ lemma norm_K0_half_strip_le {c : ℝ} (hc : 0 < c) :
     _ = _ := by ring
 
 theorem liftPhi_right_bound (hW : LiftSymbolData W) {c : ℝ} (hc : 0 < c) (σ : ℝ) (hσ : |σ| ≤ 1) {a b : ℝ}
-    (ha : c / 2 ≤ a) (hab : a ≤ b) (hb : b ≤ c) :
+    (ha : c / 2 ≤ a) (_hab : a ≤ b) (hb : b ≤ c) :
     ∃ B : ℝ, ∀ z : ℂ, a ≤ z.re → z.re ≤ b → ‖liftPhi W c σ z‖ ≤ B * (1 + |z.im|) ^ (-(5 / 2 : ℝ)) := by
   obtain ⟨K, hK0, hK⟩ := norm_K0_half_strip_le hc
   obtain ⟨BW0, hBW0⟩ := hW.bound
@@ -301,7 +301,7 @@ theorem liftPhi_right_bound (hW : LiftSymbolData W) {c : ℝ} (hc : 0 < c) (σ :
     exact Real.rpow_le_one_of_one_le_of_nonpos hr (by linarith)
   have hKz : ‖mellinK0 c (1 - z / c) (liftXi c)‖ ≤ K := by
     have e : (1 - z / (c : ℂ)) = ((1 - z.re / c : ℝ) : ℂ) + ((-(z.im / c) : ℝ) : ℂ) * Complex.I := by
-      apply Complex.ext <;> simp [Complex.div_re, Complex.div_im, Complex.normSq_ofReal] <;> field_simp
+      apply Complex.ext <;> simp [Complex.div_re, Complex.div_im, Complex.normSq_ofReal]
     rw [e]
     exact hK _ _ (by have := (div_le_one hc).mpr hzc; linarith)
       (by have : 1 / 2 ≤ z.re / c := by rw [le_div_iff₀ hc]; linarith
@@ -341,13 +341,13 @@ theorem liftPhi_right_bound (hW : LiftSymbolData W) {c : ℝ} (hc : 0 < c) (σ :
 
 
 lemma exists_bound_rect {f : ℂ → ℂ} {c a b : ℝ} (hf : ContinuousOn f {z : ℂ | 0 < z.re ∧ z.re < c}) (ha : 0 < a)
-    (hab : a ≤ b) (hb : b < c) : ∃ M : ℝ, ∀ z : ℂ, a ≤ z.re → z.re ≤ b → |z.im| ≤ 1 → ‖f z‖ ≤ M := by
+    (_hab : a ≤ b) (hb : b < c) : ∃ M : ℝ, ∀ z : ℂ, a ≤ z.re → z.re ≤ b → |z.im| ≤ 1 → ‖f z‖ ≤ M := by
   set C0 : Set ℂ := (fun p : ℝ × ℝ => (p.1 : ℂ) + (p.2 : ℂ) * Complex.I) '' (Icc a b ×ˢ Icc (-1 : ℝ) 1) with hC0
   have hC0c : IsCompact C0 := (isCompact_Icc.prod isCompact_Icc).image (by fun_prop)
   have hsub : C0 ⊆ {z : ℂ | 0 < z.re ∧ z.re < c} := by
     rintro z ⟨⟨x, y⟩, ⟨hx, hy⟩, rfl⟩
     simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.ofReal_im, Complex.I_re,
-      Complex.I_im, mul_zero, zero_mul, sub_zero, add_zero, mul_one, sub_self, Set.mem_setOf_eq]
+      Complex.I_im, mul_zero, add_zero, mul_one, sub_self, Set.mem_ofPred_eq]
     exact ⟨by linarith [hx.1], by linarith [hx.2]⟩
   obtain ⟨M, hM⟩ := hC0c.exists_bound_of_continuousOn (hf.mono hsub)
   refine ⟨M, fun z h1 h2 h3 => hM z ⟨(z.re, z.im), ⟨⟨h1, h2⟩, ⟨(abs_le.mp h3).1, (abs_le.mp h3).2⟩⟩, ?_⟩⟩
@@ -531,7 +531,7 @@ lemma bsplineE1_conj (ζ : ℂ) : bsplineE1 (starRingEnd ℂ ζ) = starRingEnd �
   by_cases h : ζ = 0
   · simp [h]
   · have h' : starRingEnd ℂ ζ ≠ 0 := by simpa using h
-    simp only [h, h', if_false, map_div₀, map_sub, map_one]
+    simp only [h, h', ite_false, map_div₀, map_sub, map_one]
     rw [← Complex.exp_conj]; simp
 
 lemma airyTwistedLaplaceC_conj (X : ℝ → ℝ) (y : ℂ) :

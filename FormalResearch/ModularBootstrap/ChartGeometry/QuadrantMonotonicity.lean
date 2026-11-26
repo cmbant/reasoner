@@ -82,7 +82,7 @@ private lemma deriv_chartOmega_bottom_edge {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x �
         have hq_ra : chartQ (a : ℂ) = ((chartQ (a : ℂ)).re : ℂ) :=
           Complex.ext rfl (chartQ_pos_of_mem_Ioo ha).2
         rw [hb_ra, hq_ra]
-        push_cast; simp
+        simp
       have heq_b : (chartOmega (b : ℂ)).re =
           (2 * Real.pi / 3) * (chartB (b : ℂ)).re * (chartQ (b : ℂ)).re := by
         unfold chartOmega chartOmegaHalf
@@ -92,7 +92,7 @@ private lemma deriv_chartOmega_bottom_edge {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x �
         have hq_rb : chartQ (b : ℂ) = ((chartQ (b : ℂ)).re : ℂ) :=
           Complex.ext rfl (chartQ_pos_of_mem_Ioo hb).2
         rw [hb_rb, hq_rb]
-        push_cast; simp
+        simp
       change (chartOmega (b : ℂ)).re ≤ (chartOmega (a : ℂ)).re
       rw [heq_a, heq_b]
       have hb_le : (chartB (b : ℂ)).re ≤ (chartB (a : ℂ)).re := hB_antitone ha hb hab

@@ -133,7 +133,7 @@ theorem chartGauge_shifted (e : cols ≃ cols') (c : Chart (N + 1) R cols') (n :
   cases hτ : c.τ
   · simp only [chartGauge, hτ, Bool.false_eq_true, ite_false, YshRev, Matrix.of_apply]
     by_cases hn : 0 < n.val
-    · rw [dif_pos hn, dif_pos hn]
+    · rw [dite_eq_left hn, dite_eq_left hn]
       have : c.lo + (n.val - 1) + 1 = c.lo + n.val := by omega
       have h2 := gsg_succ (c.lo + (n.val - 1))
       rw [this] at h2
@@ -141,18 +141,18 @@ theorem chartGauge_shifted (e : cols ≃ cols') (c : Chart (N + 1) R cols') (n :
       have h3 : gsg (c.lo + (n.val - 1)) = -gsg (c.lo + n.val) := by linarith
       simp only [Matrix.of_apply, h3]
       try ring
-    · rw [dif_neg hn, dif_neg hn]
+    · rw [dite_eq_right hn, dite_eq_right hn]
       have : gaugeExtRow c = c.lo + n.val := by
         unfold gaugeExtRow; simp only [hτ, Bool.false_eq_true, ite_false]; omega
       simp only [this]
       try ring
   · simp only [chartGauge, hτ, ite_true, Ysh, Matrix.of_apply]
     by_cases hn : n.val + 1 < R
-    · rw [dif_pos hn, dif_pos hn]
+    · rw [dite_eq_left hn, dite_eq_left hn]
       have h2 := gsg_succ (c.lo + n.val)
       simp only [Matrix.of_apply, show c.lo + (n.val + 1) = c.lo + n.val + 1 from by omega, h2]
       try ring
-    · rw [dif_neg hn, dif_neg hn]
+    · rw [dite_eq_right hn, dite_eq_right hn]
       have : gaugeExtRow c = c.lo + n.val := by
         have := n.isLt
         unfold gaugeExtRow; simp only [hτ, ite_true]; omega

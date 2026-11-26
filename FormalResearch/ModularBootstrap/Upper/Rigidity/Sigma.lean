@@ -223,7 +223,7 @@ lemma isLocallyFinite_airyMeasure : IsLocallyFiniteMeasure airyMeasure := by
     simp [Measure.dirac_apply' _ measurableSet_Icc, Set.indicator, this]
   rw [tsum_eq_sum this]
   refine ENNReal.sum_lt_top.2 fun i _ => ?_
-  rw [Measure.smul_apply, smul_eq_mul]
+  rw [smul_apply, smul_eq_mul]
   exact ENNReal.mul_lt_top ENNReal.ofReal_lt_top (measure_lt_top _ _)
 
 /-- **Consistency of the setting**: the Airy quadrature measure `μ_A` (`μ_j = μ_A`, `s_j = a₁`)

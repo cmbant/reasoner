@@ -80,7 +80,7 @@ theorem hankelWtS_edge_eq {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (_hf :
   have hW : hankelWtS c ε f ζ =
       Complex.exp (-((c : ℂ) * stripH ζ)) * mellinStrip f ((c : ℂ) * (1 - ζ)) := by
     unfold hankelWtS mellinFm
-    rw [if_pos (by rw [hre]; norm_num), hH]
+    rw [ite_eq_left (by rw [hre]; norm_num), hH]
   set G : ℝ → ℂ := fun Δ => (mellinK0 c ζ (Δ / c))⁻¹ * ((f Δ * hankelRho0 c Δ : ℝ) : ℂ) with hG
   have hper : ∀ ξ : ℝ, (mellinK0 c ζ ξ)⁻¹ * ((c * (f (c * ξ) * hankelRho0 c (c * ξ)) : ℝ) : ℂ) =
       (c : ℂ) * G (c * ξ) := by

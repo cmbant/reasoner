@@ -710,7 +710,7 @@ theorem sT_calculus {J J1 J2 J3 : ℂ → ℂ} (c : ℂ)
     refine this.congr_deriv ?_
     simp only [sT1]; push_cast
     have e : ((1 / 2 : ℝ) + 1 : ℝ) = 3 / 2 := by norm_num
-    rw [e]; push_cast; try ring
+    rw [e]; ring
   · have hq1 := hasDerivAt_sqf (3 / 2) hy
     have hq2 := hasDerivAt_sqf (1 / 2) hy
     have := ((((hq1.mul (h0 hy)).const_mul (-(1 / 2 : ℂ))).add (hq2.mul (h1 hy))).const_mul c)
@@ -718,7 +718,7 @@ theorem sT_calculus {J J1 J2 J3 : ℂ → ℂ} (c : ℂ)
     simp only [sT2]
     have e1 : ((3 / 2 : ℝ) + 1 : ℝ) = 5 / 2 := by norm_num
     have e2 : ((1 / 2 : ℝ) + 1 : ℝ) = 3 / 2 := by norm_num
-    rw [e1, e2]; push_cast; try ring
+    rw [e1, e2]; push_cast; ring
   · have hq1 := hasDerivAt_sqf (5 / 2) hy
     have hq2 := hasDerivAt_sqf (3 / 2) hy
     have hq3 := hasDerivAt_sqf (1 / 2) hy
@@ -728,21 +728,21 @@ theorem sT_calculus {J J1 J2 J3 : ℂ → ℂ} (c : ℂ)
     have e1 : ((5 / 2 : ℝ) + 1 : ℝ) = 7 / 2 := by norm_num
     have e2 : ((3 / 2 : ℝ) + 1 : ℝ) = 5 / 2 := by norm_num
     have e3 : ((1 / 2 : ℝ) + 1 : ℝ) = 3 / 2 := by norm_num
-    rw [e1, e2, e3]; push_cast; try ring
+    rw [e1, e2, e3]; push_cast; ring
   · have := ((d0.cpow_mul (1 / 2)).const_mul c).mono (k' := 5 / 2) (by norm_num)
     exact this.congr fun {y} _ => by simp only [sT0, sqf]
   · have a := ((d0.cpow_mul (3 / 2)).const_mul (-(1 / 2 : ℂ))).mono (k' := 7 / 2) (by norm_num)
     have b := (d1.cpow_mul (1 / 2)).mono (k' := 7 / 2) (by norm_num)
-    exact ((a.add b).const_mul c).congr fun {y} _ => by simp only [sT1, sqf]; try ring
+    exact ((a.add b).const_mul c).congr fun {y} _ => by simp only [sT1, sqf]
   · have a := ((d0.cpow_mul (5 / 2)).const_mul (3 / 4 : ℂ)).mono (k' := 9 / 2) (by norm_num)
     have b := ((d1.cpow_mul (3 / 2)).const_mul (-1 : ℂ)).mono (k' := 9 / 2) (by norm_num)
     have e := (d2.cpow_mul (1 / 2)).mono (k' := 9 / 2) (by norm_num)
-    exact (((a.add b).add e).const_mul c).congr fun {y} _ => by simp only [sT2, sqf]; try ring
+    exact (((a.add b).add e).const_mul c).congr fun {y} _ => by simp only [sT2, sqf]; ring
   · have a := ((d0.cpow_mul (7 / 2)).const_mul (-(15 / 8 : ℂ))).mono (k' := 9 / 2) (by norm_num)
     have b := ((d1.cpow_mul (5 / 2)).const_mul (9 / 4 : ℂ)).mono (k' := 9 / 2) (by norm_num)
     have e := ((d2.cpow_mul (3 / 2)).const_mul (-(3 / 2) : ℂ)).mono (k' := 9 / 2) (by norm_num)
     have f := (d3.cpow_mul (1 / 2)).mono (k' := 9 / 2) (by norm_num)
-    exact (((((a.add b).add e).add f)).const_mul c).congr fun {y} _ => by simp only [sT3, sqf]; try ring
+    exact (((((a.add b).add e).add f)).const_mul c).congr fun {y} _ => by simp only [sT3, sqf]; ring
 
 /-! ### The one-dimensional family `J1p φ` (for `ceF1`) -/
 
@@ -1043,15 +1043,15 @@ lemma symbolBounds_of_form {T J J1 J2 J3 : ℂ → ℂ} (c : ℂ) (hT : ∀ {y :
 lemma symbolBounds_two_dim {f g : ℝ → ℝ} (hf : ExpDec f) (hg : ExpDec g) (c : ℂ) {T : ℂ → ℂ}
     (hT : ∀ {y : ℂ}, 0 < y.re → T y = sT0 c (Jp f g) y) : SymbolBounds T :=
   symbolBounds_of_form c hT (J1 := Ja' f g 0 0) (J2 := Ja2 f g 0 0) (J3 := Ja3 f g 0 0)
-    (fun {y} hy => hasDerivAt_Ja hf hg 0 0 hy) (fun {y} hy => hasDerivAt_Ja' hf hg 0 0 hy)
-    (fun {y} hy => hasDerivAt_Ja2 hf hg 0 0 hy)
+    (fun {_y} hy => hasDerivAt_Ja hf hg 0 0 hy) (fun {_y} hy => hasDerivAt_Ja' hf hg 0 0 hy)
+    (fun {_y} hy => hasDerivAt_Ja2 hf hg 0 0 hy)
     (Ja_decay_00 hf hg) (Ja'_decay_00 hf hg) (Ja2_decay hf hg 0 0) (Ja3_decay hf hg 0 0)
 
 lemma symbolBounds_one_dim {φ : ℝ → ℝ} (hφ : ExpDec φ) (hφ0 : φ 0 = 0) (c : ℂ) {T : ℂ → ℂ}
     (hT : ∀ {y : ℂ}, 0 < y.re → T y = sT0 c (J1p φ) y) : SymbolBounds T :=
   symbolBounds_of_form c hT (J1 := J1a' φ 0) (J2 := J1a2 φ 0) (J3 := J1a3 φ 0)
-    (fun {y} hy => hasDerivAt_J1a hφ 0 hy) (fun {y} hy => hasDerivAt_J1a' hφ 0 hy)
-    (fun {y} hy => hasDerivAt_J1a2 hφ 0 hy)
+    (fun {_y} hy => hasDerivAt_J1a hφ 0 hy) (fun {_y} hy => hasDerivAt_J1a' hφ 0 hy)
+    (fun {_y} hy => hasDerivAt_J1a2 hφ 0 hy)
     (J1a_decay_0 hφ hφ0) (J1a'_decay_0 hφ hφ0) (J1a2_decay hφ hφ0 0) (J1a3_decay hφ hφ0 0)
 
 /-! ### The seeds -/
@@ -1174,7 +1174,7 @@ lemma boundary_step {F F1 F2 : ℂ → ℂ} {s : Set ℝ} (hs : IsOpen s) {M : �
   let h : ℝ → ℂ := fun ω => if hω : ω ∈ s then Classical.choose (hlim ω hω) else 0
   have hh : ∀ ω ∈ s, Tendsto (fun n : ℕ => F1 (bpt n ω)) atTop (𝓝 (h ω)) := by
     intro ω hω
-    simp only [h, dif_pos hω]
+    simp only [h, dite_eq_left hω]
     exact Classical.choose_spec (hlim ω hω)
   refine ⟨h, hh, fun ω hω => ?_⟩
   have hU : TendstoUniformlyOn (fun (n : ℕ) (ω : ℝ) => F1 (bpt n ω)) h atTop s :=

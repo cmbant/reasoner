@@ -40,7 +40,7 @@ lemma rr_lt_one : rr < 1 := by
   have h : rr ^ 3 = 1 / 2 := rr_cube
   have := rr_pos
   by_contra hc
-  push_neg at hc
+  push Not at hc
   nlinarith [pow_le_pow_left₀ (by norm_num : (0:ℝ) ≤ 1) hc 3]
 
 /-- `α = 2^{2/3} e^{2πi/3} = r(-1 + i√3)`. -/
@@ -102,10 +102,10 @@ lemma lin_le_cube {B t : ℝ} (ht : 0 ≤ t) :
       have : M * t ≤ (t ^ 2 / 6) * t := mul_le_mul_of_nonneg_right (by linarith) ht
       nlinarith [this]
     nlinarith [sq_nonneg M]
-  · push_neg at h
+  · push Not at h
     have htM : t ≤ 6 * M := by
       by_contra hc
-      push_neg at hc
+      push Not at hc
       nlinarith
     have : M * t ≤ M * (6 * M) := mul_le_mul_of_nonneg_left htM (by linarith)
     have : 0 ≤ t ^ 3 / 6 := by positivity

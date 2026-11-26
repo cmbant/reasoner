@@ -87,7 +87,7 @@ theorem ceBeta1_gt_two : 2 < ceBeta1 := by
   have hpi := Real.pi_gt_three
   have hb := ceBeta1_pos
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have : ceBeta1 ^ 3 ≤ 2 ^ 3 := pow_le_pow_left₀ hb.le hcon 3
   have h4 : (3 : ℝ) ^ 4 ≤ Real.pi ^ 4 := pow_le_pow_left₀ (by norm_num) hpi.le 4
   nlinarith

@@ -53,7 +53,7 @@ lemma Phase.D2_q (h : Phase c1 C φ φ1 f f1 f2) : D2 (Ioo (-1 : ℝ) 1) (qf f) 
 lemma Phase.D2_sqrt (h : Phase c1 C φ φ1 f f1 f2) (hc : 0 < c1) :
     D2 (Ioo (-1 : ℝ) 1) (fun y => Real.sqrt (qf f y)) (fun y => q1f f1 y / (2 * Real.sqrt (qf f y)))
       (fun y => q2f f2 y / (2 * Real.sqrt (qf f y)) - (q1f f1 y) ^ 2 / (4 * Real.sqrt (qf f y) ^ 3)) (Ku c1 C) :=
-  h.D2_q.sqrt hc (fun y hy => h.q_ge hy)
+  h.D2_q.sqrt hc (fun _y hy => h.q_ge hy)
 
 lemma Phase.D2_w (h : Phase c1 C φ φ1 f f1 f2) (hc : 0 < c1) :
     D2 (Ioo (-1 : ℝ) 1) (fun y => (Real.sqrt (qf f y))⁻¹)
@@ -61,7 +61,7 @@ lemma Phase.D2_w (h : Phase c1 C φ φ1 f f1 f2) (hc : 0 < c1) :
       (fun y => -(q2f f2 y / (2 * Real.sqrt (qf f y)) - (q1f f1 y) ^ 2 / (4 * Real.sqrt (qf f y) ^ 3)) *
           ((Real.sqrt (qf f y))⁻¹) ^ 2 + 2 * (q1f f1 y / (2 * Real.sqrt (qf f y))) ^ 2 * ((Real.sqrt (qf f y))⁻¹) ^ 3)
       (Kw c1 C) :=
-  (h.D2_sqrt hc).inv (Real.sqrt_pos.mpr hc) (fun y hy => Real.sqrt_le_sqrt (h.q_ge hy))
+  (h.D2_sqrt hc).inv (Real.sqrt_pos.mpr hc) (fun _y hy => Real.sqrt_le_sqrt (h.q_ge hy))
 
 /-- `s' = ρ / √q` is `D2` with an explicit constant. -/
 lemma Phase.D2_sd (h : Phase c1 C φ φ1 f f1 f2) (hc : 0 < c1) :
@@ -94,7 +94,7 @@ lemma Phase.s_sq (h : Phase c1 C φ φ1 f f1 f2) (hc : 0 < c1) {t : ℝ} (ht : t
 
 lemma Phase.s_zero (f : ℝ → ℝ) : sfun f 0 = 0 := by simp [sfun]
 
-lemma Phase.rho_zero (h : Phase c1 C φ φ1 f f1 f2) : rho f 0 = f 0 := by
+lemma Phase.rho_zero (_h : Phase c1 C φ φ1 f f1 f2) : rho f 0 = f 0 := by
   unfold rho avg
   simp only [mul_zero, one_mul]
   simp

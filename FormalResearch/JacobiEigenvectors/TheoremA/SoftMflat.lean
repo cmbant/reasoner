@@ -170,7 +170,7 @@ theorem fold_real (h δ cZ cmu Cmu Q dp a α μ0 μt ζx : ℝ) (hh : 0 < h) (hQ
     have hsA0 : 0 ≤ sA := Real.sqrt_nonneg _
     have hkey : cZ * sA * Real.sqrt h ≤ cmu := by
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       have hsq : cmu ^ 2 < (cZ * sA * Real.sqrt h) ^ 2 := pow_lt_pow_left₀ hcon hcm.le (by norm_num : (2 : ℕ) ≠ 0)
       have e : (cZ * sA * Real.sqrt h) ^ 2 = cZ ^ 2 * ((-a) * h) := by
         have : (cZ * sA * Real.sqrt h) ^ 2 = cZ ^ 2 * (sA * sA) * (Real.sqrt h * Real.sqrt h) := by ring
@@ -191,7 +191,7 @@ theorem fold_real (h δ cZ cmu Cmu Q dp a α μ0 μt ζx : ℝ) (hh : 0 < h) (hQ
       exact mul_le_mul_of_nonneg_left (by linarith) hcZ
     have hQs : (cZ * Q / cmu) * Real.sqrt h ≤ (cZ * (1 + Q) / cmu) * Real.sqrt h := mul_le_mul_of_nonneg_right hQ hs.le
     linarith [hdiv, hsp, hterm, hQs, hfin]
-  · push_neg at ha0
+  · push Not at ha0
     have hA : max (-a) 0 = 0 := max_eq_right (by linarith)
     rw [hA, Real.sqrt_zero, zero_add]
     have habs : |a| = a := abs_of_pos ha0
@@ -235,7 +235,7 @@ theorem sqrt_le_ell (Cf B h A : ℝ) (hCf : 0 ≤ Cf) (hB : 0 ≤ B) (hh : 0 < h
   have hx0 : 0 ≤ 4 * Cf * Real.sqrt h * r := mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) hCf) (Real.sqrt_nonneg _)) hr0.le
   have hx1 : 4 * Cf * Real.sqrt h * r ≤ 1 := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have := one_lt_pow₀ hcon (by norm_num : (6 : ℕ) ≠ 0)
     linarith
   rw [hrneg]
@@ -330,9 +330,9 @@ theorem fold_in_window (hsmall : SoftFoldSmall C) :
       have hpos : 0 < ((n0 : ℝ) + 1 / 2) * Fz.step N := by rw [← hu]; linarith
       have hlt : ((n0 : ℝ) + 1 / 2) * Fz.step N < Fz.step N * ((N : ℝ) + 1) := by rw [hLs, ← hu]; linarith
       have h1' : (0 : ℝ) < (n0 : ℝ) + 1 / 2 := by
-        by_contra hc; push_neg at hc; nlinarith
+        by_contra hc; push Not at hc; nlinarith
       have h2' : (n0 : ℝ) + 1 / 2 < (N : ℝ) + 1 := by
-        by_contra hc; push_neg at hc; nlinarith
+        by_contra hc; push Not at hc; nlinarith
       unfold rowsOf
       rw [Finset.mem_Icc]
       constructor

@@ -162,7 +162,7 @@ lemma exp_neg_sq_le {ε V : ℝ} (hε : 0 < ε) (hV1 : 1 ≤ V) (hV : ε ^ 2 * V
       _ ≤ V ^ 6 := pow_le_pow_right₀ hV1 (by norm_num)
   have hexp : (3 / 56 : ℝ) ^ 3 / 6 * ((ε ^ 2)⁻¹) ≤ Real.exp ((3 / 56 : ℝ) * V ^ 2) := by
     refine le_trans ?_ h
-    simp only [Nat.factorial, Nat.cast_ofNat]
+    simp only [Nat.factorial]
     norm_num
     have : ((3 / 56 : ℝ) * V ^ 2) ^ 3 = (3 / 56 : ℝ) ^ 3 * V ^ 6 := by ring
     rw [this]
@@ -226,12 +226,12 @@ theorem main_line_diff (m : ℕ) (Sw CW : ℝ) (hCW : 0 < CW) :
     have him : ((1 : ℂ) + (v : ℂ) * Complex.I).im = v := by simp
     rw [him] at hWv
     have hEref : Real.exp (Real.pi ^ 2 / 36 + Real.pi ^ 2 * S + ε / 2) ≤ E := by
-      rw [hE]; apply Real.exp_le_exp.mpr; nlinarith [Real.pi_pos]
+      rw [hE]; apply Real.exp_le_exp.mpr; nlinarith only [hSw, hε2, mul_nonneg (sq_nonneg Real.pi) (sub_nonneg.2 hSw)]
     have hp1 : 0 ≤ (1 + |v|) ^ (-(5 / 2 : ℝ)) := Real.rpow_nonneg (by positivity) _
     rw [norm_mul]
     by_cases hv : |v| ≤ V
     · -- near region
-      have hζ : ε * (1 + |v|) ≤ 1 / 4 := by nlinarith [abs_nonneg v]
+      have hζ : ε * (1 + |v|) ≤ 1 / 4 := by nlinarith only [hε1, hεV, mul_nonneg hε.le (sub_nonneg.2 hv)]
       have hM : ε ^ 2 * (1 + |v|) ^ 5 ≤ 32 := by
         have h1 : (1 + |v|) ^ 5 ≤ (2 * V) ^ 5 := by
           apply pow_le_pow_left₀ (by positivity); linarith
@@ -264,7 +264,7 @@ theorem main_line_diff (m : ℕ) (Sw CW : ℝ) (hCW : 0 < CW) :
         _ = ε ^ 2 * (Ca * Real.exp (-(Real.pi ^ 2 / 24) * v ^ 2)) := by rw [hCa]; ring
         _ ≤ _ := by
             have : 0 ≤ ε ^ 2 * (Cb * (1 + |v|) ^ (-(5 / 2 : ℝ))) := by positivity
-            nlinarith
+            nlinarith only [this]
     · -- far region
       have hv' : V < |v| := not_le.mp hv
       have hv2 : V ^ 2 ≤ v ^ 2 := by rw [← sq_abs v]; exact pow_le_pow_left₀ (by linarith) hv'.le 2
@@ -275,17 +275,18 @@ theorem main_line_diff (m : ℕ) (Sw CW : ℝ) (hCW : 0 < CW) :
       have hK' : ‖mellinK0 c ((ε : ℂ) * ((1 : ℂ) + (v : ℂ) * Complex.I)) ξ‖ ≤ B₀ * (Cexp * ε ^ 2) := by
         refine hK.trans ?_
         have h1 : Real.exp (-((3 / 56 : ℝ) * min (v ^ 2) (c * ε))) ≤ Real.exp (-((3 / 56 : ℝ) * V ^ 2)) := by
-          apply Real.exp_le_exp.mpr; nlinarith
+          apply Real.exp_le_exp.mpr; linarith only [hmin]
         have h2 : 2 * Real.exp (1 + Real.pi ^ 2 * |S|) ≤ B₀ := by
           rw [hB₀]
-          have := Real.exp_le_exp.mpr (by nlinarith : 1 + Real.pi ^ 2 * |S| ≤ 1 + Real.pi ^ 2 * Sw)
+          have := Real.exp_le_exp.mpr (by nlinarith only [hSabs, mul_nonneg (sq_nonneg Real.pi) (sub_nonneg.2 hSabs)] : 1 + Real.pi ^ 2 * |S| ≤ 1 + Real.pi ^ 2 * Sw)
           linarith
         exact mul_le_mul h2 (h1.trans hexpV) (Real.exp_pos _).le (by positivity)
       have hR : ‖refKernel S ε ((1 : ℂ) + (v : ℂ) * Complex.I)‖ ≤ E * (Cexp * ε ^ 2) := by
         rw [norm_refKernel_line]
         have h1 : Real.exp (-(Real.pi ^ 2 * v ^ 2 / 12)) ≤ Cexp * ε ^ 2 := by
           refine le_trans ?_ hexpV
-          apply Real.exp_le_exp.mpr; nlinarith
+          apply Real.exp_le_exp.mpr
+          nlinarith only [hv2, hpi, mul_nonneg (sub_nonneg.2 hpi.le) (sq_nonneg v), sq_nonneg V]
         exact mul_le_mul hEref h1 (Real.exp_pos _).le (by positivity)
       have hdiff : ‖mellinK0 c ((ε : ℂ) * ((1 : ℂ) + (v : ℂ) * Complex.I)) ξ -
           refKernel S ε ((1 : ℂ) + (v : ℂ) * Complex.I)‖ ≤ (B₀ + E) * (Cexp * ε ^ 2) := by
@@ -298,7 +299,7 @@ theorem main_line_diff (m : ℕ) (Sw CW : ℝ) (hCW : 0 < CW) :
         _ = ε ^ 2 * (Cb * (1 + |v|) ^ (-(5 / 2 : ℝ))) := by rw [hCb]; ring
         _ ≤ _ := by
             have : 0 ≤ ε ^ 2 * (Ca * Real.exp (-(Real.pi ^ 2 / 24) * v ^ 2)) := by positivity
-            nlinarith
+            nlinarith only [this]
   have hPsi : Integrable fun v : ℝ => ε ^ 2 * (Ca * Real.exp (-(Real.pi ^ 2 / 24) * v ^ 2) +
       Cb * (1 + |v|) ^ (-(5 / 2 : ℝ))) :=
     ((hGint.const_mul Ca).add (integrable_one_add_abs_rpow.const_mul Cb)).const_mul _
@@ -306,7 +307,7 @@ theorem main_line_diff (m : ℕ) (Sw CW : ℝ) (hCW : 0 < CW) :
   rw [integral_const_mul, integral_add (hGint.const_mul Ca) (integrable_one_add_abs_rpow.const_mul Cb),
     integral_const_mul, integral_const_mul]
   have hε2' : 0 ≤ ε ^ 2 := by positivity
-  nlinarith [mul_nonneg hε2' (by positivity : (0 : ℝ) ≤ 1)]
+  nlinarith only [hε2']
 
 /-! ### The shift of `I_main` and of the reference integral -/
 
@@ -331,17 +332,17 @@ lemma norm_refKernel_strip_le {S ε σ v Sw : ℝ} (hε1 : ε ≤ 1) (hS : |S| �
   have h1 : σ ^ 3 ≤ 1 := pow_le_one₀ hσ0 hσ1
   have h2 : 0 ≤ 3 * σ * v ^ 2 := by positivity
   have h4 : (Real.pi ^ 2 * S + ε / 2) * σ ≤ Real.pi ^ 2 * Sw + 1 := by
-    have : Real.pi ^ 2 * S + ε / 2 ≤ Real.pi ^ 2 * Sw + 1 := by nlinarith [sq_nonneg Real.pi]
+    have : Real.pi ^ 2 * S + ε / 2 ≤ Real.pi ^ 2 * Sw + 1 := by nlinarith only [hε1, hS', mul_nonneg (sq_nonneg Real.pi) (sub_nonneg.2 hS')]
     have hA : (Real.pi ^ 2 * S + ε / 2) * σ ≤ (Real.pi ^ 2 * Sw + 1) * σ := by
       by_cases hσ : σ = 0
       · simp [hσ]
       · exact mul_le_mul_of_nonneg_right this hσ0
-    nlinarith [sq_nonneg Real.pi, mul_nonneg (add_nonneg (mul_nonneg (sq_nonneg Real.pi) (by nlinarith [abs_nonneg S] : (0 : ℝ) ≤ Sw)) zero_le_one) (sub_nonneg.mpr hσ1)]
-  nlinarith [mul_le_mul_of_nonneg_left h1 (by positivity : (0 : ℝ) ≤ Real.pi ^ 2 / 36),
-    mul_nonneg (by positivity : (0 : ℝ) ≤ Real.pi ^ 2 / 36) h2]
+    nlinarith only [hA, mul_nonneg (add_nonneg (mul_nonneg (sq_nonneg Real.pi) ((abs_nonneg S).trans hS)) zero_le_one) (sub_nonneg.mpr hσ1)]
+  nlinarith only [mul_le_mul_of_nonneg_left h1 (by positivity : (0 : ℝ) ≤ Real.pi ^ 2 / 36),
+    mul_nonneg (by positivity : (0 : ℝ) ≤ Real.pi ^ 2 / 36) h2, h4]
 
 /-- Shift of `∫ K(v i) W(v i) dv` to `Re w = 1` for a kernel `K` that is holomorphic and bounded on the strip. -/
-theorem shift_kernel_lift {X : ℝ → ℝ} (hX : HasU2 X) {δ₀ : ℝ} (hδ : 0 ≤ δ₀) (m : ℕ) {CW BK : ℝ}
+theorem shift_kernel_lift {X : ℝ → ℝ} (hX : HasU2 X) {δ₀ : ℝ} (_hδ : 0 ≤ δ₀) (m : ℕ) {CW BK : ℝ}
     (hW : ∀ {w : ℂ}, 0 ≤ w.re → ‖liftSymbol X δ₀ m w‖ ≤ CW * (1 + |w.im|) ^ (-(5 / 2 : ℝ)))
     {Kf : ℂ → ℂ} (hKc : ContinuousOn Kf {w : ℂ | 0 ≤ w.re ∧ w.re ≤ 1})
     (hKd : DifferentiableOn ℂ Kf {w : ℂ | 0 < w.re ∧ w.re < 1})
@@ -678,9 +679,9 @@ theorem window_translation (m : ℕ) (hm : 1 ≤ m) (Sw CW CD : ℝ) (hCW : 0 < 
           calc (2 * Real.pi)⁻¹ * (C₁ * liftEps c ^ 2 + C₂ * (((1 + δ₀ * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ))))
               ≤ (2 * Real.pi)⁻¹ * ((C₁ + C₂) * (liftEps c ^ 2 + ((1 + δ₀ * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)))) := by
                 gcongr
-                nlinarith [mul_nonneg hC₁.le hq, mul_nonneg hC₂.le hε2]
+                linarith only [mul_nonneg hC₁.le hq, mul_nonneg hC₂.le hε2]
             _ = _ := by field_simp
-        nlinarith [mul_le_mul_of_nonneg_left this hξ0]
+        linarith only [mul_le_mul_of_nonneg_left this hξ0]
 
 /-- **`O.5`(1), `(e5)`, for fixed seeds.**  For seeds `X, D` with `HasU2` (and `X` continuous), `m ≥ 1` and any `S_w`, there is
 `C` (depending on `X, D, m, S_w`) with the estimate of `window_translation` for all `δ₀ ≥ 0`, `c ≥ 32768`, `ξ > 0`, `|S_eff(ξ)| ≤ S_w`;

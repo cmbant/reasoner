@@ -184,7 +184,7 @@ theorem at47_pointwise (P Q : ℝ[X]) (hQ : Q ≠ 0) :
         ((derivative P).eval (-r ^ 2) * q + p * (derivative Q).eval (-r ^ 2)) * A ^ 2 with hεdef
   have hε : ε = (q * (derivative Q).eval (-r ^ 2) - p * (derivative P).eval (-r ^ 2) / r ^ 2 -
       p ^ 2 / (2 * r ^ 4)) * (A * B) + ((derivative P).eval (-r ^ 2) * q + p * (derivative Q).eval (-r ^ 2)) * A ^ 2 := by
-    rw [hεdef]; congr 2 <;> field_simp <;> ring
+    rw [hεdef]; congr 2; field_simp; ring
   rw [← hε] at heps
   have hεb : |ε| ≤ 66 * (C * E) / r ^ 2 := by
     rw [le_div_iff₀ hrr]; linarith

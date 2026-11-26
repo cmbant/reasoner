@@ -169,7 +169,7 @@ theorem re_gSerD_ge (h : LangerEta η) {σ τ : ℝ} (hσ0 : 0 < σ) (hσ : σ �
   have haB : a ≤ 0.1128 := by rw [hnsq]; nlinarith
   have ha1 : a < 1 := by linarith
   have hnorm1 : ‖ζ‖ < 1 := by
-    by_contra hc; push_neg at hc; nlinarith [norm_nonneg ζ]
+    by_contra hc; push Not at hc; nlinarith [norm_nonneg ζ]
   -- terms
   set Z : ℕ → ℂ := fun j => (η j : ℂ) * ζ ^ (2 * j + 1) with hZ
   have hZn : ∀ j, ‖Z j‖ ≤ ‖ζ‖ * a ^ j := by
@@ -185,7 +185,7 @@ theorem re_gSerD_ge (h : LangerEta η) {σ τ : ℝ} (hσ0 : 0 < σ) (hσ : σ �
     unfold gSerD psW
     rw [← tsum_mul_left, ← tsum_mul_left]
     refine tsum_congr fun j => ?_
-    rw [hZ]; simp only []; ring
+    rw [hZ]; simp only []; ring_nf
   have hre : (gSerD η ζ).re = 2 * ∑' j, (Z j).re := by
     have hm := Complex.reCLM.map_tsum hZs.of_norm
     simp only [Complex.reCLM_apply] at hm

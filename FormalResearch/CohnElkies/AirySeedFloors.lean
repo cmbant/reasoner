@@ -403,7 +403,7 @@ theorem ceSb_neg_asymptotic (b : ℝ) :
       _ ≤ x⁻¹ * (3 / 8 * x ^ (-2 : ℝ)) + (5 * x ^ (-2 : ℝ)) * x ^ (-(1 / 2 : ℝ)) :=
           add_le_add (mul_le_mul_of_nonneg_left hAi_err (inv_nonneg.mpr hx0.le))
             (mul_le_mul (inv_add_sub_inv_le hx ha1_lo ha1_hi) hAi_sq (sq_nonneg _) (by positivity))
-      _ ≤ 6 * x ^ (-(5 / 2 : ℝ)) := by rw [← hpow2]; nlinarith [hpow1, Real.rpow_nonneg hx0.le (-(5 / 2 : ℝ))]
+      _ ≤ 6 * x ^ (-(5 / 2 : ℝ)) := by rw [← hpow2]; linarith only [hpow1, hpow2, Real.rpow_nonneg hx0.le (-(5 / 2 : ℝ))]
   have hg'_err : |ceG1Deriv a1' (-x) - Real.cos (cohnTheta x) ^ 2 / (π * x ^ (3 / 2 : ℝ))| ≤
       46 * x ^ (-(5 / 2 : ℝ)) := by
     have hg'_eq : ceG1Deriv a1' (-x) = (x + a1') ^ (-2 : ℤ) * airyAi' (-x) ^ 2 := by
@@ -432,7 +432,7 @@ theorem ceSb_neg_asymptotic (b : ℝ) :
       _ ≤ x ^ (-2 : ℝ) * (6 / 5 * x ^ (-1 : ℝ)) + (44 * x ^ (-3 : ℝ)) * x ^ (1 / 2 : ℝ) :=
           add_le_add (mul_le_mul_of_nonneg_left hAi'_err (Real.rpow_nonneg hx0.le _))
             (mul_le_mul (inv_add_sq_sub_inv_sq_le hx ha1'_lo ha1'_hi) hAi'_sq (sq_nonneg _) (by positivity))
-      _ ≤ 46 * x ^ (-(5 / 2 : ℝ)) := by rw [← hpow2]; nlinarith [hpow1, Real.rpow_nonneg hx0.le (-(5 / 2 : ℝ))]
+      _ ≤ 46 * x ^ (-(5 / 2 : ℝ)) := by rw [← hpow2]; linarith only [hpow1, hpow2, Real.rpow_nonneg hx0.le (-(5 / 2 : ℝ))]
   have hg1_bd : |ceG1 a1 (-x)| ≤ 4 * x ^ (-(5 / 2 : ℝ)) := by
     rw [abs_of_nonneg (by unfold ceG1; positivity), ceG1, dslope_of_ne _ hne1, slope_def_field,
       airyAi_airyZero, sub_zero, div_pow, show (-x - a1) ^ 2 = (x + a1) ^ 2 by ring]
@@ -511,7 +511,8 @@ theorem ceSb_lower_floor {b : ℝ} (hb : 0 < b) :
       have h1 := mul_le_mul_of_nonneg_right (min_le_left b 1) (sq_nonneg (Real.sin (cohnTheta x)))
       have h2 := mul_le_mul_of_nonneg_right (min_le_right b 1) (sq_nonneg (Real.cos (cohnTheta x)))
       have hsc := Real.sin_sq_add_cos_sq (cohnTheta x)
-      nlinarith
+      have h3 : min b 1 * (Real.sin (cohnTheta x) ^ 2 + Real.cos (cohnTheta x) ^ 2) = min b 1 := by rw [hsc, mul_one]
+      linarith only [h1, h2, h3, (rfl : m₀ = min b 1)]
     have hpos_coeff : m₀ / 2 ≤ b * Real.sin (cohnTheta x) ^ 2 + Real.cos (cohnTheta x) ^ 2 + R x := by
       linarith [(abs_le.mp hR_le).1]
     have hpow_le : (1 + |u|) ^ (-(3 / 2 : ℝ)) ≤ x ^ (-(3 / 2 : ℝ)) := by
@@ -807,7 +808,7 @@ theorem hb_seed_mass_exists (S : HBSeedSpec) {b V_max ε₀ : ℝ} (hb : 0 < b)
       have hH_sq_le : γ₁_max * S.A_H * ceBeta1 * δ ^ 2 ≤ δ / 2 := by
         have h2 := hδ.2.trans ((min_le_right _ _).trans (min_le_right _ _))
         rw [le_div_iff₀ (by positivity [ceBeta1_pos, S.A_H_nonneg])] at h2
-        nlinarith [hδ_pos]
+        nlinarith only [mul_le_mul_of_nonneg_left h2 hδ_pos.le, hδ_pos, h2]
       have hs_sb : s ≤ ceSb b u := by
         have hle : s ≤ s_val j := Finset.inf'_le s_val (Finset.mem_univ j)
         have hs1 : s ≤ ceSb b (S.nodes j) / 2 := by
@@ -822,7 +823,7 @@ theorem hb_seed_mass_exists (S : HBSeedSpec) {b V_max ε₀ : ℝ} (hb : 0 < b)
         linarith
       have hsite_mul : δ ≤ (γ₂ * s - ceBeta1 * S.A_G - ε₀ * M_g1) * δ := by
         have : 1 ≤ γ₂ * s - ceBeta1 * S.A_G - ε₀ * M_g1 := by linarith
-        nlinarith
+        linarith only [mul_le_mul_of_nonneg_right this hδ_pos.le]
       dsimp [F]; linarith
     exact ⟨⟨hF_int, hF_eval⟩, ⟨hu₀_neg, hF_cont.locallyIntegrable, hlin, hosc⟩, hpresc⟩
   · obtain ⟨uH, -, huH_max⟩ := isCompact_Icc.exists_isMaxOn ⟨0, neg_nonpos.mpr hR, hR⟩
@@ -1331,7 +1332,7 @@ theorem edgeKappa0_bounds {L : ℝ} (hL0 : 0 < L) (hL2 : L ≤ 0.002) :
     exact hpow
   have hpoly : (1 + 0.365 * L) ^ 2 ≤ (1 + L / 4) ^ 3 := by
     have hdiff : (1 + L / 4) ^ 3 - (1 + 0.365 * L) ^ 2 = 0.02 * L + 0.054275 * L ^ 2 + L ^ 3 / 64 := by ring
-    nlinarith [sq_nonneg L, pow_nonneg hL0.le 3]
+    linarith only [hdiff, hL0, sq_nonneg L, pow_nonneg hL0.le 3]
   exact ⟨hκ_gt, le_of_pow_le_pow_left₀ (n := 3) (by norm_num) (by linarith) (hκ_cube.trans hpoly)⟩
 
 /-- **Lemma `O.4`, real-axis derivative floor (`u1c_o1_upper.tex`, `u1co:O4(3)`):**

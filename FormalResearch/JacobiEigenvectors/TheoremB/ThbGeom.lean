@@ -54,7 +54,7 @@ theorem nearestRow_bounds (h x : ℝ) (hh : 0 < h) : x - h / 2 ≤ uNode h (near
 
 theorem nonneg_of_uNode_pos {h : ℝ} (hh : 0 < h) {n : ℤ} (hn : 0 < uNode h n) : 0 ≤ n := by
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have h1 : (n : ℝ) ≤ -1 := by exact_mod_cast (show n ≤ -1 by omega)
   unfold uNode at hn
   nlinarith
@@ -72,7 +72,7 @@ theorem bulk_geom {h L c' c σ s : ℝ} {N : ℕ} (hh : 0 < h) (hLs : h * ((N : 
   refine ⟨g1, ?_, g3, by rw [hadd]; linarith, by linarith, by linarith, by rw [hadd]; linarith, b2⟩
   -- ns + 1 ≤ N
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have h4 : (N : ℝ) + 1 ≤ (ns : ℝ) + 1 := by
     have : (N : ℤ) + 1 ≤ ns + 1 := by omega
     exact_mod_cast this

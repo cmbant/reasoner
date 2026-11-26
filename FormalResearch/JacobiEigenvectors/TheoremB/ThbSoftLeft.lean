@@ -221,7 +221,7 @@ theorem soft_left_ok (hf : ParabolicCylinderFacts U V cPC CPC)
     have hnz : (n.val : ℤ) < nc - a := by rw [← hRL_int]; exact_mod_cast hn
     have hn' : (((softLo CL p N + n.val : ℕ)) : ℤ) ≤ nc := by push_cast; omega
     simp only [Fin.val_mk]
-    rw [if_pos hn']
+    rw [ite_eq_left hn']
     have hcr : chartRowDn N (softLo CL p N) (softRL CL p N) false n = (((softLo CL p N + n.val : ℕ) : ℤ)) := by simp [chartRowDn]
     rw [hcr]
     have hg : CL.uc p - CL.η / 2 < uNode (Fz.step N) (((softLo CL p N + n.val : ℕ) : ℤ)) := by
@@ -240,7 +240,7 @@ theorem soft_left_ok (hf : ParabolicCylinderFacts U V cPC CPC)
     have hnz : (n.val : ℤ) < nc - a := by rw [← hRL_int]; exact_mod_cast hn
     have hn' : (((softLo CL p N + n.val : ℕ)) : ℤ) ≤ nearestRow (Fz.step N) (CL1.uc p) := by rw [hnc1]; push_cast; omega
     simp only [Fin.val_mk]
-    rw [if_pos hn']
+    rw [ite_eq_left hn']
     have hcr : chartRowDn N (softLo CL p N) (softRL CL p N) false n = (((softLo CL p N + n.val : ℕ) : ℤ)) := by simp [chartRowDn]
     rw [hcr]
     have hg : CL1.uc p - CL1.η / 2 < uNode (Fz.step N) (((softLo CL p N + n.val : ℕ) : ℤ)) := by

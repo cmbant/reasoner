@@ -46,7 +46,7 @@ lemma windowWeight_eq (α : ℝ) {K : ℕ} (hK : 3 ≤ K) {n : ℕ} (hS : n = 2 
     windowWeight α K n = windowRate α (clarkNode α n) * windowRatio α K n ^ 2 := by
   have hn : 1 ≤ n := by rcases hS with h | h <;> omega
   unfold windowWeight windowRate windowRatio
-  rw [if_pos hS, windowDr_split K (by omega)]
+  rw [ite_eq_left hS, windowDr_split K (by omega)]
   have h1 : clarkNode α n - airyZero 1 ≠ 0 := sub_ne_zero.mpr (clarkNode_ne_airyZero α hn le_rfl)
   have h2 : clarkNode α n - airyZero 2 ≠ 0 := sub_ne_zero.mpr (clarkNode_ne_airyZero α hn (by norm_num))
   have h3 : ∏ k ∈ Icc 3 K, (clarkNode α n - airyZero k) ≠ 0 :=
@@ -208,7 +208,7 @@ lemma windowTail_term_zero (α : ℝ) {K : ℕ} {i : ℕ} (hi : i < K) :
   by_cases h2 : i + 1 = 2
   · rw [h2]; simp
   · have hS : ¬(i + 1 = 2 ∨ K < i + 1) := by omega
-    unfold windowWeight; rw [if_neg hS]; simp
+    unfold windowWeight; rw [ite_eq_right hS]; simp
 
 lemma summable_shift_rpow : Summable (fun i : ℕ => ((i : ℝ) + 1) ^ (-(6 / 5) : ℝ)) := by
   have := (summable_nat_add_iff 1).2 (Real.summable_nat_rpow.2 (by norm_num : (-(6 / 5) : ℝ) < -1))

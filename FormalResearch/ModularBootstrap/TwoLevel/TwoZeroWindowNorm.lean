@@ -84,7 +84,7 @@ lemma twoZeroF_pos (prob : Crossing.FixedWeightProblem) {c : ℝ} (hc : 0 < c) :
   positivity
 
 /-- `F_{2,c} = FK^{(2)}_c · πλ/(2√2)` with the measure normalisation `windowMeasureNormK` of Lemma `W`. -/
-lemma twoZeroF_eq_windowMeasureNormK (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) {c : ℝ}
+lemma twoZeroF_eq_windowMeasureNormK (prob : Crossing.FixedWeightProblem) (_hw : prob.w = 1) {c : ℝ}
     (hc : 0 < c) :
     twoZeroF prob c = windowMeasureNormK prob 2 c * (π * lambdaComb c / (2 * √2)) := by
   rw [windowMeasureNormK_eq_FKc prob 2 hc]; rfl

@@ -33,7 +33,7 @@ namespace FormalResearch.SignUncertainty
 open FormalResearch.CohnElkies
 
 /-- At the origin the lift symbol is the integral of the seed: `W(0) = k ∫ X`. -/
-theorem liftSymbol_zero_eq {X : ℝ → ℝ} (hX : HasU2 X) (δ₀ : ℝ) (m : ℕ) :
+theorem liftSymbol_zero_eq {X : ℝ → ℝ} (_hX : HasU2 X) (δ₀ : ℝ) (m : ℕ) :
     liftSymbol X δ₀ m 0 = ((ceK * ∫ u : ℝ, X u : ℝ) : ℂ) := by
   have hint : ∫ u : ℝ, (X u : ℂ) * Complex.exp ((0 : ℂ) * (u : ℂ)) = ((∫ u : ℝ, X u : ℝ) : ℂ) := by
     simp only [zero_mul, Complex.exp_zero, mul_one]
@@ -48,7 +48,7 @@ theorem liftSymbol_zero_eq {X : ℝ → ℝ} (hX : HasU2 X) (δ₀ : ℝ) (m : �
 theorem norm_bsplineE1_ofReal_le {x : ℝ} (hx : 0 < x) : ‖bsplineE1 (x : ℂ)‖ ≤ 1 / x := by
   have hne : (x : ℂ) ≠ 0 := by exact_mod_cast hx.ne'
   have hval : bsplineE1 (x : ℂ) = ((1 - Real.exp (-x)) / x : ℝ) := by
-    rw [bsplineE1, if_neg hne]
+    rw [bsplineE1, ite_eq_right hne]
     push_cast
     rfl
   have h1 : Real.exp (-x) ≤ 1 := Real.exp_le_one_iff.mpr (by linarith)

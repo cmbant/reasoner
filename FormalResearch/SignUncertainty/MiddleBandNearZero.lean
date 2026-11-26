@@ -237,7 +237,7 @@ lemma nz_small_part {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) :
 
 
 lemma contOn_rpow_Icc {α β : ℝ} (hα : 0 < α) (t : ℝ) : ContinuousOn (fun x : ℝ => x ^ t) (Set.Icc α β) :=
-  continuousOn_id.rpow_const (fun x hx => Or.inl (ne_of_gt (lt_of_lt_of_le hα hx.1)))
+  continuousOn_id.rpow_const (fun _x hx => Or.inl (ne_of_gt (lt_of_lt_of_le hα hx.1)))
 
 lemma setIntegral_le_aux {α β c d : ℝ} (hα : 0 < α) (hαβ : α ≤ β) (hc : 0 ≤ c) {f : ℝ → ℝ}
     (hf : IntegrableOn f (Set.Icc α β)) (hle : ∀ x ∈ Set.Icc α β, f x ≤ c * x ^ (-(3 / 2 : ℝ)) + d) :

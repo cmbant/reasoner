@@ -136,10 +136,10 @@ theorem bulk_env_sq_sum {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily 
     congr 1
     · refine Finset.sum_congr rfl fun n hn => ?_
       have h := (Finset.mem_filter.mp hn).2
-      simp only [bulkEnv, if_pos h, div_pow] <;> rfl
+      simp only [bulkEnv, ite_eq_left h, div_pow] <;> rfl
     · refine Finset.sum_congr rfl fun n hn => ?_
       have h := (Finset.mem_filter.mp hn).2
-      simp only [bulkEnv, if_neg h, div_pow, mul_pow, sq_abs] <;> rfl
+      simp only [bulkEnv, ite_eq_right h, div_pow, mul_pow, sq_abs] <;> rfl
   have hSL : ∑ n ∈ (rowsOf N).filter (fun n => uNode (Fz.step N) n ≤ CL.c), CL.envL p X N n ^ 2 ≤
       CEL ^ 2 * (CsL + CML ^ 2) / Real.sqrt (Fz.step N) := by
     refine le_trans ?_ hLS'
@@ -252,7 +252,7 @@ theorem bulk_col_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily 
       · have hcn : uNode (Fz.step N) n ≤ CL.c := (uNode_le_of_le hst.le hnsn).trans hu_ns
         have e : bulkColAt CL CR p X N ns n = bulkVec CL CR p X N n := by
           unfold bulkColAt glueVecAt bulkVec glueVec
-          rw [if_pos hnsn, if_pos hcn]
+          rw [ite_eq_left hnsn, ite_eq_left hcn]
         rw [e, sub_self, abs_zero]
         positivity
       · by_cases hcn : uNode (Fz.step N) n ≤ CL.c
@@ -272,17 +272,17 @@ theorem bulk_col_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily 
           have e : bulkColAt CL CR p X N ns n - bulkVec CL CR p X N n =
               -((CL.psiHatL p X N n - bulkKappa CL CR p X N * bulkSeqR CR p X N n) / bulkNorm CL CR p X N) := by
             unfold bulkColAt glueVecAt bulkVec glueVec
-            rw [if_neg hnsn, if_pos hcn]
+            rw [ite_eq_right hnsn, ite_eq_left hcn]
             show _ = -((CL.psiHatL p X N n - bulkKappa CL CR p X N * bulkSeqR CR p X N n) / bulkNorm CL CR p X N)
             unfold bulkKappa bulkNorm
             ring
           have eE : bulkEnv CL CR p X N n = CL.envL p X N n / bulkNorm CL CR p X N := by
-            unfold bulkEnv; rw [if_pos hcn]
+            unfold bulkEnv; rw [ite_eq_left hcn]
           rw [e, abs_neg, abs_div, abs_of_pos hnnpos, eE, ← mul_div_assoc]
           exact div_le_div_of_nonneg_right hmt' hnnpos.le
         · have e : bulkColAt CL CR p X N ns n = bulkVec CL CR p X N n := by
             unfold bulkColAt glueVecAt bulkVec glueVec
-            rw [if_neg hnsn, if_neg hcn]
+            rw [ite_eq_right hnsn, ite_eq_right hcn]
           rw [e, sub_self, abs_zero]
           positivity
     calc |bulkColAt CL CR p X N ns n - eigVec Um k n|
@@ -542,7 +542,7 @@ theorem nearestRow_mem_window {Par : Type*} [TopologicalSpace Par] {Fz : SymbolF
     rw [← hLs] at hu
     have : (row : ℝ) + 1 / 2 < (N : ℝ) + 1 := by
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       nlinarith [mul_le_mul_of_nonneg_right hcon hst.le]
     have : (row : ℝ) < (N : ℝ) + 1 := by linarith
     have : row < (N : ℤ) + 1 := by exact_mod_cast this
@@ -595,7 +595,7 @@ theorem bulk_block_columns {Par : Type*} [TopologicalSpace Par] (F : SymbolFamil
   have hs4 : F.step N ≤ F.L / ((N0 : ℝ) + 1) := hN1.trans ((min_le_right _ _).trans (min_le_right _ _))
   have hNN : N0 ≤ N := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have h5 : (N : ℝ) + 1 < (N0 : ℝ) + 1 := by exact_mod_cast Nat.succ_lt_succ hcon
     have h6 : F.L / ((N0 : ℝ) + 1) < F.L / ((N : ℝ) + 1) :=
       div_lt_div_of_pos_left F.L_pos (by positivity) h5
@@ -642,7 +642,7 @@ theorem compMatrix_bulk_col {Par : Type*} [TopologicalSpace Par] {F : SymbolFami
   have hcol : ∀ i : Fin (N + 1), compMatrix CI spl μ N Xs i j =
       bulkColAt (CI.bulkL ν) (CI.bulkR ν) (atStep F μ N) (Xs j) N (nearestRow (F.step N) (spl ν)) ((i : ℕ) : ℤ) := by
     intro i
-    simp only [compMatrix, Matrix.of_apply, compColumn, dif_pos hj] <;> rfl
+    simp only [compMatrix, Matrix.of_apply, compColumn, dite_eq_left hj] <;> rfl
   have hhν : F.step N ≤ hf ν := by
     refine hN.trans ?_
     have h1 : 1 / hf ν ≤ ∑ ν', 1 / hf ν' :=
@@ -671,7 +671,7 @@ theorem etaR_succ_ge (m : ℕ) (h : ℝ) (hh : 0 < h) (he : h ≤ Real.exp (-1))
     exact he
   have hp : 0 < h ^ (m + 1) := by positivity
   unfold etaR
-  rw [if_neg (by omega)]
+  rw [ite_eq_right (by omega)]
   split_ifs
   · nlinarith
   · exact le_refl _
@@ -679,7 +679,7 @@ theorem etaR_succ_ge (m : ℕ) (h : ℝ) (hh : 0 < h) (he : h ≤ Real.exp (-1))
 /-- `eta_m = h^m` at order `m`. -/
 theorem etaR_self (m : ℕ) (h : ℝ) : etaR m m h = h ^ m := by
   unfold etaR
-  rw [if_pos rfl]
+  rw [ite_eq_left rfl]
 
 /-- **`PropThaSpliceTwoOrders`, bulk columns** (`prop:tha-splice` (c) for the columns whose energy lies in a bulk block): with the hypotheses of the frozen statement (`1 <= m`, `Kidx = (m+1)/2`,
 `q = 2 Kidx`, `IsCompact K`, `HypOn F K`, `StdDM F K Kidx`, `SplicesInWindow`), there are `C`, `h0` such that for every `mu in K`, `N` with `h <= h0`, `h <= t0`, every eigen-system and every column `j` with `X_j` in a block,

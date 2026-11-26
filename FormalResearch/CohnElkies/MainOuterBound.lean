@@ -43,7 +43,7 @@ lemma bsplineImag_mul_pow_eq (κ : ℝ) (m : ℕ) (τ : ℝ) :
 lemma edgePhi_sub_linear (L d τ : ℝ) : edgePhi (L - d) τ = edgePhi L τ - d * τ := by
   unfold edgePhi; ring
 
-lemma half_rpow_le {L p : ℝ} (hL : 0 < L) (hp : -(3 / 2 : ℝ) ≤ p) (hp0 : p ≤ 0) : (L / 2) ^ p ≤ (2 : ℝ) ^ (3 / 2 : ℝ) * L ^ p := by
+lemma half_rpow_le {L p : ℝ} (hL : 0 < L) (hp : -(3 / 2 : ℝ) ≤ p) (_hp0 : p ≤ 0) : (L / 2) ^ p ≤ (2 : ℝ) ^ (3 / 2 : ℝ) * L ^ p := by
   rw [div_eq_mul_inv, Real.mul_rpow hL.le (by norm_num), Real.inv_rpow (by norm_num), ← Real.rpow_neg (by norm_num : (0 : ℝ) ≤ 2), mul_comm]
   exact mul_le_mul_of_nonneg_right (Real.rpow_le_rpow_of_exponent_le (by norm_num) (by linarith)) (by positivity)
 

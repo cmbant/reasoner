@@ -83,16 +83,16 @@ theorem thbBlock_eq_bulk_iff (X : ℝ) (ν : Fin CI.nb) :
 theorem blockOf_some {X : ℝ} {ν : Fin CI.nb} (h : blockOf CI X = some ν) : CI.lo ν ≤ X ∧ X ≤ CI.hi ν := by
   unfold blockOf at h
   by_cases hex : ∃ ν : Fin CI.nb, CI.lo ν ≤ X ∧ X ≤ CI.hi ν
-  · rw [dif_pos hex, Option.some.injEq] at h
+  · rw [dite_eq_left hex, Option.some.injEq] at h
     rw [← h]; exact blockIdx_spec CI X hex
-  · rw [dif_neg hex] at h
+  · rw [dite_eq_right hex] at h
     simp at h
 
 theorem blockOf_none {X : ℝ} (h : blockOf CI X = none) : ∀ ν : Fin CI.nb, ¬ (CI.lo ν ≤ X ∧ X ≤ CI.hi ν) := by
   intro ν hν
   unfold blockOf at h
   by_cases hex : ∃ ν : Fin CI.nb, CI.lo ν ≤ X ∧ X ≤ CI.hi ν
-  · rw [dif_pos hex] at h
+  · rw [dite_eq_left hex] at h
     simp at h
   · exact hex ⟨ν, hν⟩
 
@@ -103,24 +103,24 @@ theorem compColumn_bulk (X : ℝ) (ν : Fin CI.nb) (h : blockOf CI X = some ν) 
   have hex : ∃ ν : Fin CI.nb, CI.lo ν ≤ X ∧ X ≤ CI.hi ν := ⟨ν, blockOf_some CI h⟩
   have hb : blockIdx CI X hex = ν := by
     unfold blockOf at h
-    rw [dif_pos hex, Option.some.injEq] at h
+    rw [dite_eq_left hex, Option.some.injEq] at h
     exact h
   unfold compColumn
-  rw [dif_pos hex, hb]
+  rw [dite_eq_left hex, hb]
 
 theorem compColumn_up (X : ℝ) (h : blockOf CI X = none) (hX : CI.Jhi < X) (n : ℤ) :
     compColumn CI spl μ N X n =
       softColAt CI.softUpL CI.softUpR (atStep F μ N) X N (nearestRow (F.step N) (CI.softUpL.uc (atStep F μ N))) n := by
   have hex : ¬ ∃ ν : Fin CI.nb, CI.lo ν ≤ X ∧ X ≤ CI.hi ν := fun ⟨ν, hν⟩ => blockOf_none CI h ν hν
   unfold compColumn
-  rw [dif_neg hex, if_pos hX]
+  rw [dite_eq_right hex, ite_eq_left hX]
 
 theorem compColumn_lo (X : ℝ) (h : blockOf CI X = none) (hX : ¬ CI.Jhi < X) (n : ℤ) :
     compColumn CI spl μ N X n = (-1 : ℝ) ^ n *
       softColAt CI.softLoL CI.softLoR (atStep F μ N) (-X) N (nearestRow (F.step N) (CI.softLoL.uc (atStep F μ N))) n := by
   have hex : ¬ ∃ ν : Fin CI.nb, CI.lo ν ≤ X ∧ X ≤ CI.hi ν := fun ⟨ν, hν⟩ => blockOf_none CI h ν hν
   unfold compColumn
-  rw [dif_neg hex, if_neg hX]
+  rw [dite_eq_right hex, ite_eq_right hX]
 
 end FormalResearch.JacobiEigenvectors.TheoremB
 

@@ -349,7 +349,7 @@ lemma kappaBal_nonpos {a : ℝ} (ha : a ≤ 0) :
     0 < kappaBal a ∧ kappaBal a ^ 2 * Real.Gamma (1 / 2 - a) = 1 := by
   have hG : 0 < Real.Gamma (1 / 2 - a) := Real.Gamma_pos_of_pos (by linarith)
   have hk : kappaBal a = (Real.Gamma (1 / 2 - a)) ^ (-(1 : ℝ) / 2) := by
-    unfold kappaBal; rw [if_pos ha]
+    unfold kappaBal; rw [ite_eq_left ha]
   rw [hk]
   refine ⟨Real.rpow_pos_of_pos hG _, ?_⟩
   rw [← Real.rpow_natCast, ← Real.rpow_mul hG.le]
@@ -383,7 +383,7 @@ lemma k2_neg (a z : ℝ) : k2 a (-z) = k2 a z := by simp [k2, neg_sq]
 lemma Mbal_neg (a z : ℝ) : Mbal a (-z) = Mbal a z := by simp [Mbal, k2_neg]
 
 lemma Ewell_one {a z : ℝ} (hz : z ≤ 2 * Real.sqrt |a|) : Ewell a z = 1 := by
-  unfold Ewell; rw [if_neg (not_lt.mpr hz)]
+  unfold Ewell; rw [ite_eq_right (not_lt.mpr hz)]
 
 lemma Mbal_sq_mul {k : ℝ} (hk : 0 < k) : Real.sqrt k * (k ^ (-(1 : ℝ) / 4)) ^ 2 = 1 := by
   rw [← Real.rpow_natCast, ← Real.rpow_mul hk.le, Real.sqrt_eq_rpow, ← Real.rpow_add hk]

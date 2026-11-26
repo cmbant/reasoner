@@ -77,7 +77,7 @@ theorem max_second_order {u u1 u2 v v1 v2 : ℝ → ℝ} (θ : ℝ)
   have hV : F2 0 = -θ ^ 2 * u 0 + u2 0 + 2 * Real.sqrt 3 * θ * v1 0 := by simp [hF2d]
   rw [← hV]
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have hdF : deriv F = F1 := funext fun s => (hF s).deriv
   have hdd : deriv (deriv F) 0 = F2 0 := by rw [hdF]; exact (hF1 0).deriv
   have hmin : IsLocalMin F 0 :=

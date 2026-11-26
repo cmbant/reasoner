@@ -24,7 +24,7 @@ open scoped Real
 
 namespace FormalResearch.SignUncertainty
 
-lemma div_one_sub_mono {r q : ℝ} (hr : 0 ≤ r) (hrq : r ≤ q) (hq : q < 1) :
+lemma div_one_sub_mono {r q : ℝ} (_hr : 0 ≤ r) (hrq : r ≤ q) (hq : q < 1) :
     r / (1 - r) ≤ q / (1 - q) := by
   rw [div_le_div_iff₀ (by linarith) (by linarith)]
   nlinarith
@@ -252,7 +252,7 @@ lemma chartKinv_spec (h : LangerEta η) {v : ℂ} (hv : v ∈ chartVdisc) :
   have hex : ∃ u : ℂ, u ∈ ball (0 : ℂ) (0.035 ^ 2) ∧ chartK η u = v := ⟨u, hu⟩
   classical
   unfold chartKinv
-  rw [dif_pos hex]
+  rw [dite_eq_left hex]
   exact Classical.choose_spec hex
 
 lemma chartKinv_eq_of {h : LangerEta η} {v u : ℂ} (hv : v ∈ chartVdisc)

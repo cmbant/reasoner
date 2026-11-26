@@ -121,7 +121,7 @@ theorem vertical_lines_eq {f : ℂ → ℂ} (hd : DifferentiableOn ℂ f closedS
       intro z hz
       have h1 := hz.1
       simp only [Complex.mul_re, Complex.ofReal_re, Complex.I_re, mul_zero, Complex.ofReal_im, Complex.I_im, mul_one,
-        sub_self, Complex.add_re, Complex.one_re, zero_add] at h1
+        sub_self, Complex.add_re, Complex.one_re] at h1
       rw [Set.uIcc_of_le (by norm_num)] at h1
       exact ⟨h1.1, by simpa using h1.2⟩
     have := integral_boundary_rect_eq_zero_of_differentiableOn f ((-Y : ℝ) * Complex.I) ((1 : ℂ) + (Y : ℝ) * Complex.I)
@@ -159,7 +159,7 @@ theorem vertical_lines_eq {f : ℂ → ℂ} (hd : DifferentiableOn ℂ f closedS
       Complex.I * (∫ y : ℝ in (-Y)..Y, f ((0 : ℂ) + (y : ℂ) * Complex.I))) =ᶠ[atTop] fun _ => (0 : ℂ) := by
     filter_upwards [eventually_gt_atTop (0 : ℝ)] with Y hY using hrect Y hY
   have h0 := tendsto_nhds_unique (hlim.congr' hev) tendsto_const_nhds
-  simp only [zero_sub, zero_add] at h0
+  simp only [zero_sub] at h0
   have : Complex.I * ((∫ y : ℝ, f (1 + (y : ℂ) * Complex.I)) - ∫ y : ℝ, f ((y : ℂ) * Complex.I)) = 0 := by
     linear_combination h0
   rcases mul_eq_zero.mp this with h | h
@@ -228,7 +228,7 @@ lemma re_gδ_imag {δ : ℝ} (hδ : 0 < δ) (t : ℝ) : (gδ δ ((t : ℂ) * Com
     push_cast; ring
   simp only [Complex.add_re, Complex.ofReal_re]
   rw [e1, e2, re_log_eq δ t (by positivity), re_log_eq (1 + δ) (-t) (by positivity)]
-  simp [neg_sq]
+  simp
 
 lemma gδ_one_add {δ : ℝ} (hδ : 0 < δ) (y : ℝ) :
     gδ δ (1 + (y : ℂ) * Complex.I) = starRingEnd ℂ (gδ δ ((y : ℂ) * Complex.I)) := by

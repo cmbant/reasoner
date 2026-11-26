@@ -75,7 +75,7 @@ lemma exists_sq_of_even {𝕜 : Type*} [RCLike 𝕜] {g : 𝕜 → 𝕜} (hg : A
     rw [← this]
     simp only [FormalMultilinearSeries.sum, hq, FormalMultilinearSeries.ofScalars_apply_eq]
     refine tsum_congr fun j => ?_
-    simp [mul_comm]
+    simp
 
 /-- info: 'FormalResearch.SignUncertainty.CtCfu.exists_sq_of_even' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

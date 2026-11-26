@@ -50,14 +50,14 @@ theorem hankel_window_saddle {c R : ℝ} {u q : ℂ} (hc : 1e14 ≤ c)
   have ht8' : (1.4e9 : ℝ) ≤ t ^ 8 := by norm_num at ht8; linarith
   have hRlb8 : (1 / 100 : ℝ) ^ 2 * t ^ 8 ≤ R := by rw [← hK8]; exact hRlb
   have hRub8 : R ≤ (1 / 100 : ℝ) ^ 2 * t ^ 8 + 1 := by rw [← hK8]; exact hRub
-  have hR1 : 1e5 ≤ R := by nlinarith
-  have hRc : R + 1 ≤ t ^ 8 := by nlinarith
-  have hkap := hankelLangerKappa_bounds
+  have hR1 : 1e5 ≤ R := by nlinarith only [hRlb8, ht8']
+  have hRc : R + 1 ≤ t ^ 8 := by nlinarith only [hRub8, ht8']
+  obtain ⟨hκ1, hκ2⟩ := hankelLangerKappa_bounds
   have hRdisc : R + 1 ≤ c ^ (2 / 3 : ℝ) * langerKappa * 4.94e-4 := by
-    rw [hK8]; nlinarith
+    rw [hK8]; nlinarith only [hRub8, ht8', mul_nonneg (sub_nonneg.2 hκ1) (pow_pos ht0 8).le]
   have hRA : R ≤ langerRadius c := by
     have : langerRadius c = c ^ (2 / 3 : ℝ) * langerKappa * 4.94e-4 := rfl
-    rw [this]; linarith
+    rw [this]; linarith only [hRdisc]
   -- the point u
   set N : ℝ := ‖u‖ with hNdef
   have hN1 : 9e4 ≤ N := by linarith
@@ -95,18 +95,18 @@ theorem hankel_window_saddle {c R : ℝ} {u q : ℂ} (hc : 1e14 ≤ c)
   have g4 : X ≤ 1.0009 * M * σ := g4
   have hM0 : 0 < M := mul_pos hk0 hμ0
   have hMle : M ≤ 3 / 4 * t ^ 4 := by
-    rw [hMdef, hk4]; nlinarith [pow_pos ht0 4]
+    rw [hMdef, hk4]; nlinarith only [mul_nonneg (sub_nonneg.2 hμ.le) (pow_pos ht0 4).le]
   have hζ0 : 0 ≤ ‖ζ‖ := norm_nonneg ζ
   -- `σ ≳ ‖ζ‖ / t`
   have hσt : 1.99 * ‖ζ‖ ≤ t * σ := by
     have h1 : 2 * t⁻¹ * (0.9991 * M * ‖ζ‖) ≤ 2 * t⁻¹ * s := by
       have := mul_le_mul_of_nonneg_left g1 (by positivity : (0 : ℝ) ≤ 2 * t⁻¹)
       linarith
-    have h2 : M * (1.9982 * t⁻¹ * ‖ζ‖) ≤ M * (1.0009 * σ) := by nlinarith
+    have h2 : M * (1.9982 * t⁻¹ * ‖ζ‖) ≤ M * (1.0009 * σ) := by linarith only [h1, hX, g4]
     have h3 : 1.9982 * t⁻¹ * ‖ζ‖ ≤ 1.0009 * σ := le_of_mul_le_mul_left h2 hM0
     have h4 : t * (1.9982 * t⁻¹ * ‖ζ‖) ≤ t * (1.0009 * σ) := mul_le_mul_of_nonneg_left h3 ht0.le
     have e : t * (1.9982 * t⁻¹ * ‖ζ‖) = 1.9982 * ‖ζ‖ := by field_simp
-    nlinarith
+    linarith only [h4, e, hζ0]
   -- annulus
   set R' := Real.sqrt R with hR'
   have hR'0 : 0 < R' := Real.sqrt_pos.2 (by linarith)
@@ -114,37 +114,37 @@ theorem hankel_window_saddle {c R : ℝ} {u q : ℂ} (hc : 1e14 ≤ c)
   have hsR1 : 0.99 * R' ≤ s := by
     have : (0.99 * R') ^ 2 ≤ s ^ 2 := by
       have : s ^ 2 = N := by rw [hsdef, ← Real.rpow_natCast, ← Real.rpow_mul hN0.le]; norm_num
-      rw [this]; nlinarith
+      rw [this]; nlinarith only [hR'sq, hlo, hR1]
     exact abs_le_of_sq_le_sq' this hs0.le |>.2
   have hsR2 : s ≤ 1.01 * R' := by
     have : s ^ 2 ≤ (1.01 * R') ^ 2 := by
       have : s ^ 2 = N := by rw [hsdef, ← Real.rpow_natCast, ← Real.rpow_mul hN0.le]; norm_num
-      rw [this]; nlinarith
+      rw [this]; nlinarith only [hR'sq, hhi, hR1]
     exact abs_le_of_sq_le_sq' this (by positivity) |>.2
   have hρ : rhoR hankelBandParams c R = R' / M := rhoR_hankel_eq hc0
   have hζlo : 9 / 10 * rhoR hankelBandParams c R ≤ ‖(σ : ℂ) + (τ0 : ℂ) * Complex.I‖ := by
     rw [← hζeq, hρ, mul_div_assoc', div_le_iff₀ hM0]
-    nlinarith
+    linarith only [g2, hsR1, hR'0]
   have hζhi : ‖(σ : ℂ) + (τ0 : ℂ) * Complex.I‖ ≤ 11 / 10 * rhoR hankelBandParams c R := by
     rw [← hζeq, hρ, mul_div_assoc', le_div_iff₀ hM0]
-    nlinarith
+    linarith only [g1, hsR2, hR'0]
   -- absolute lower bound for `‖ζ‖`
   have hR't : 0.01 * t ^ 4 ≤ R' := by
     rw [hR']
     apply Real.le_sqrt_of_sq_le
-    nlinarith
+    nlinarith only [hRlb8]
   have hζabs : 0.012 ≤ ‖ζ‖ := by
     have h1 : 0.009 * t ^ 4 ≤ M * ‖ζ‖ := by
       have : 0.9 * R' ≤ M * ‖ζ‖ := by
         have := hζlo
         rw [← hζeq, hρ, mul_div_assoc', div_le_iff₀ hM0] at this
-        linarith
-      nlinarith
+        linarith only [this]
+      linarith only [this, hR't]
     have h2 : M * ‖ζ‖ ≤ 3 / 4 * t ^ 4 * ‖ζ‖ := mul_le_mul_of_nonneg_right hMle hζ0
     have h3 : 0 < t ^ 4 := pow_pos ht0 4
     by_contra hlt
     push Not at hlt
-    nlinarith
+    nlinarith only [h1, h2, h3, mul_pos (sub_pos.2 hlt) h3]
   -- size of `cσ` and the window width `h`
   have ht11 : (14 : ℝ) ^ 7 ≤ t ^ 7 := pow_le_pow_left₀ (by norm_num) ht14 7
   have ht10 : (14 : ℝ) ^ 10 ≤ t ^ 10 := pow_le_pow_left₀ (by norm_num) ht14 10
@@ -152,7 +152,8 @@ theorem hankel_window_saddle {c R : ℝ} {u q : ℂ} (hc : 1e14 ≤ c)
     have : c * σ = t ^ 11 * (t * σ) := by rw [hct]; ring
     rw [this]
     have h11 : 0 < t ^ 11 := pow_pos ht0 11
-    nlinarith
+    have htσ : 0.0238 ≤ t * σ := by linarith only [hσt, hζabs]
+    nlinarith only [mul_le_mul_of_nonneg_left htσ h11.le]
   have hcσ0 : 0 < c * σ := by positivity
   have hlogc : 0 ≤ Real.log c := Real.log_nonneg (by linarith)
   set h : ℝ := Real.sqrt (5 * Real.log c / (c * σ)) with hhdef
@@ -162,37 +163,37 @@ theorem hankel_window_saddle {c R : ℝ} {u q : ℂ} (hc : 1e14 ≤ c)
     rw [hhdef]
     refine (Real.sqrt_le_left (by positivity)).2 ?_
     rw [div_le_iff₀ hcσ0]
-    have h1 : (1.44e-6 : ℝ) ≤ (1 / 10 * ‖ζ‖) ^ 2 := by nlinarith
+    have h1 : (1.44e-6 : ℝ) ≤ (1 / 10 * ‖ζ‖) ^ 2 := by nlinarith only [hζabs, mul_nonneg (sub_nonneg.2 hζabs) (sub_nonneg.2 hζabs)]
     have h2 : (60 : ℝ) * t ≤ 3.4e-8 * t ^ 11 := by
       have : t ^ 11 = t * t ^ 10 := by ring
-      rw [this]; nlinarith
-    have h3 : 3.4e-8 * t ^ 11 ≤ (1.44e-6 : ℝ) * (0.0238 * t ^ 11) := by nlinarith [pow_pos ht0 11]
+      rw [this]; nlinarith only [mul_le_mul_of_nonneg_left ht10 ht0.le, ht0]
+    have h3 : 3.4e-8 * t ^ 11 ≤ (1.44e-6 : ℝ) * (0.0238 * t ^ 11) := by nlinarith only [pow_pos ht0 11]
     have h4 : (1.44e-6 : ℝ) * (0.0238 * t ^ 11) ≤ (1 / 10 * ‖ζ‖) ^ 2 * (c * σ) := by
       have := mul_le_mul h1 hσ' (by positivity) (by positivity)
-      linarith
-    nlinarith
+      linarith only [this]
+    linarith only [hlog, h2, h3, h4]
   have hcz : 11 / 10 * c ^ (-(1 / 12 : ℝ)) * ‖(σ : ℂ) + (τ0 : ℂ) * Complex.I‖ ≤ σ := by
     rw [← hζeq, hτi]
     have h3 : 1.99 * t⁻¹ * ‖ζ‖ ≤ σ := by
       have := mul_le_mul_of_nonneg_left hσt hτi0.le
       have e : t⁻¹ * (t * σ) = σ := by field_simp
-      nlinarith
-    nlinarith
+      linarith only [this, e]
+    nlinarith only [h3, mul_nonneg hτi0.le hζ0]
   refine ⟨σ, τ0, h, hζeq, hσpos, hσle, hτ0, hh0, hhsq, hζlo, hζhi, (by rw [← hζeq]; exact hhle), hcz, ?_, ?_, ?_⟩
   · rw [← hζeq]
     rw [div_le_div_iff₀ hσpos hX0]
     have h1 := mul_le_mul_of_nonneg_left g4 hζ0
     have h2 := mul_le_mul_of_nonneg_right g1 hσpos.le
-    nlinarith
+    nlinarith only [h1, h2, mul_pos hs0 hσpos]
   · have h1 : X ≤ 1.0009 * M * σ := g4
-    have h2 : M ≤ 3 / 4 * k := by rw [hMdef]; nlinarith
-    nlinarith [mul_pos hk0 hσpos]
-  · have h2 : 0.035 * c * σ ≥ 0.035 * (0.0238 * t ^ 11) := by nlinarith
+    have h2 : M ≤ 3 / 4 * k := by rw [hMdef]; nlinarith only [mul_nonneg (sub_nonneg.2 hμ.le) hk0.le]
+    nlinarith only [h1, mul_nonneg hσpos.le (sub_nonneg.2 h2), mul_pos hk0 hσpos]
+  · have h2 : 0.035 * c * σ ≥ 0.035 * (0.0238 * t ^ 11) := by linarith only [hσ']
     have h3 : t ^ 11 = t ^ 4 * t ^ 7 := by ring
     rw [hk4]
     have h4 : (14 : ℝ) ^ 7 ≤ t ^ 7 := ht11
     have h5 : 0 < t ^ 4 := pow_pos ht0 4
-    nlinarith
+    nlinarith only [h2, h3, mul_le_mul_of_nonneg_left ht11 h5.le, h5]
 
 /-- info: 'FormalResearch.SignUncertainty.hankel_window_saddle' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -85,7 +85,7 @@ theorem soft_window_eig_lower_right {cPC CPC : ℝ} (hf : ParabolicCylinderFacts
     have := eigen_last_ne_zero Fz p N (Xs k') Xs Um hE k' rfl hpos
     have e : eigVec Um k' (N : ℤ) = Um (Fin.last N) k' := by
       unfold eigVec
-      rw [dif_pos ⟨by positivity, le_rfl⟩]
+      rw [dite_eq_left ⟨by positivity, le_rfl⟩]
       congr 1
     rwa [e] at this
   have hE' := isEigenSystem_mirror hE hne

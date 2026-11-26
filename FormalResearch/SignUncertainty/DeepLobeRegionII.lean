@@ -17,7 +17,7 @@ open scoped Real
 
 namespace FormalResearch.SignUncertainty
 
-lemma exp_le_of_small {x : ℝ} (h0 : 0 ≤ x) (h1 : x ≤ 1 / 50) : Real.exp x ≤ 11 / 10 := by
+lemma exp_le_of_small {x : ℝ} (_h0 : 0 ≤ x) (h1 : x ≤ 1 / 50) : Real.exp x ≤ 11 / 10 := by
   have h : 1 - x ≤ Real.exp (-x) := by linarith [Real.add_one_le_exp (-x)]
   have hpos : 0 < Real.exp (-x) := Real.exp_pos _
   have : Real.exp x * Real.exp (-x) = 1 := by rw [← Real.exp_add]; simp

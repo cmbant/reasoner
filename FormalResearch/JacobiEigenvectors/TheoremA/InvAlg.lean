@@ -205,10 +205,10 @@ lemma Qp_vanish (X0 : ℝ) (hM : 1 ≤ M) (hc : c 0 1 ≠ 0) :
     rw [Qp_step M c (X_dvd_Dp M _) (by omega) (by omega) hM _ hmn]
     by_cases hmn' : m = n + 1
     · subst hmn'
-      rw [if_pos rfl, Qp_trunc M c (X_dvd_Dp M _) (K0 := n + 1) (K0' := M) hn le_rfl]
+      rw [ite_eq_left rfl, Qp_trunc M c (X_dvd_Dp M _) (K0 := n + 1) (K0' := M) hn le_rfl]
       field_simp
       ring
-    · rw [if_neg hmn', add_zero]
+    · rw [ite_eq_right hmn', add_zero]
       exact ih hn' m hm1 (by omega)
 
 lemma eval_Dp (a : ℕ → ℝ) (h : ℝ) : (Dp M a).eval h = ∑ r ∈ range M, a (r + 1) * h ^ (r + 1) := by
@@ -285,10 +285,10 @@ lemma coeff_Qp_inner (a : ℝ) (K0 j e : ℕ) :
   rw [Finset.sum_congr rfl h1]
   by_cases he : e ≤ M - j ∧ e ≤ K0
   · rw [Finset.sum_eq_single e]
-    · rw [if_pos ⟨rfl, he.2⟩, if_pos he]
+    · rw [ite_eq_left ⟨rfl, he.2⟩, ite_eq_left he]
     · intro k _ hk; simp [Ne.symm hk]
     · intro h; exact absurd (Finset.mem_range.2 (by omega)) h
-  · rw [if_neg he]
+  · rw [ite_eq_right he]
     refine Finset.sum_eq_zero fun k hk => ?_
     by_cases hke : e = k
     · subst hke
@@ -356,7 +356,7 @@ lemma tail_eval {Q : ℝ[X]} {N0 M : ℕ} {c00 Cq h : ℝ} (hdeg : Q.natDegree �
       · simp [hn0, hMn]
       · simp [hn0, hMn, hvan n (by omega) (by omega)]
   rw [Finset.sum_congr rfl hsplit, Finset.sum_add_distrib, Finset.sum_ite_eq' (range (N0 + 1)) 0,
-    if_pos (Finset.mem_range.2 (by omega)), add_sub_cancel_left]
+    ite_eq_left (Finset.mem_range.2 (by omega)), add_sub_cancel_left]
   refine (Finset.abs_sum_le_sum_abs _ _).trans ?_
   calc ∑ n ∈ range (N0 + 1), |if M < n then Q.coeff n * h ^ n else 0| ≤ ∑ n ∈ range (N0 + 1), Cq * h ^ (M + 1) := by
         refine Finset.sum_le_sum fun n hn => ?_

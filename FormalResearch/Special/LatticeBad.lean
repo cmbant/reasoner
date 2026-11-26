@@ -92,7 +92,7 @@ lemma norm_fractDiff_le {φ : ℝ → ℂ} {τ0 : ℂ → ℂ} {X y0 m M K ε : 
     nlinarith [norm_nonneg (φ s)]
   · rw [Set.indicator_of_notMem hA, add_zero]
     have hno : ∀ n : ℤ, ε < |realPhase τ0 s - n| := by
-      intro n; by_contra hn; push_neg at hn
+      intro n; by_contra hn; push Not at hn
       exact hA ⟨hs, n, hn⟩
     have hd := fract_diff_le_of_no_int h.eps (h.close s hw) hno
     unfold fractDiff

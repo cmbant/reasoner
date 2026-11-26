@@ -596,7 +596,7 @@ lemma withDensity_dirac_aux {f : ℝ → ℝ≥0∞} (hf : Measurable f) (x : �
     (Measure.dirac x).withDensity f = f x • Measure.dirac x := by
   ext s hs
   classical
-  rw [withDensity_apply _ hs, Measure.smul_apply, smul_eq_mul, Measure.dirac_apply' _ hs,
+  rw [withDensity_apply _ hs, smul_apply, smul_eq_mul, Measure.dirac_apply' _ hs,
     setLIntegral_dirac' hf hs]
   by_cases h : x ∈ s <;> simp [h]
 

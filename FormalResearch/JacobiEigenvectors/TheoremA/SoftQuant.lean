@@ -76,8 +76,8 @@ lemma molv_upper {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ} (hf : ParabolicCyli
     Molv U V a z ≤ CPC * (kappaBal a)⁻¹ * Wmol a z * Mbal a z := by
   unfold Wmol
   by_cases ha : a ≤ 0
-  · rw [if_pos ha]; exact (hf.molv_well a ha z).2
-  · rw [if_neg ha]; exact (hf.molv_bar a (not_le.mp ha) z).2
+  · rw [ite_eq_left ha]; exact (hf.molv_well a ha z).2
+  · rw [ite_eq_right ha]; exact (hf.molv_bar a (not_le.mp ha) z).2
 
 /-! ### Q1: positions on the chart -/
 
@@ -805,12 +805,12 @@ theorem soft_quant {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (hm
             (CL.chain p X N).phi (Fz.step N) 0 3 j + Real.sin (Real.pi * a) * (CL.chain p X N).phi (Fz.step N) 1 3 j := by
           rw [hr1, hr2]
           linear_combination (-((CL.chain p X N).phi (Fz.step N) 0 2 j * Real.cos (Real.pi * a) ^ 2)) * hrr - (CL.chain p X N).phi (Fz.step N) 0 2 j * hsc
-        have e1 : cc = Real.sqrt (2 / Real.pi) * Real.cos (Real.pi * a) := by rw [hccdef, if_pos ha]
-        have e2 : sc = Real.sin (Real.pi * a) := by rw [hscdef, if_pos ha]
+        have e1 : cc = Real.sqrt (2 / Real.pi) * Real.cos (Real.pi * a) := by rw [hccdef, ite_eq_left ha]
+        have e2 : sc = Real.sin (Real.pi * a) := by rw [hscdef, ite_eq_left ha]
         rw [e1, e2, key, hμdef]; ring
       · obtain ⟨hr1, hr2⟩ := hrel2.2 (not_le.mp ha)
-        have e1 : cc = 1 := by rw [hccdef, if_neg ha]
-        have e2 : sc = 0 := by rw [hscdef, if_neg ha]
+        have e1 : cc = 1 := by rw [hccdef, ite_eq_right ha]
+        have e2 : sc = 0 := by rw [hscdef, ite_eq_right ha]
         rw [e1, e2, hr1, hμdef]; ring
   -- the two rows
   have hk0u1 : uNode (Fz.step N) (k0 + 1) < CL.uc p + CL.η / 2 := by linarith
@@ -894,14 +894,14 @@ theorem soft_quant {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (hm
     exact (mul_le_mul_of_nonneg_right h1 (by linarith)).trans h2
   have hapos : a ≤ 0 := by
     by_contra hcon
-    have e1 : cc = 1 := by rw [hccdef, if_neg hcon]
+    have e1 : cc = 1 := by rw [hccdef, ite_eq_right hcon]
     rw [e1, abs_one] at hccb
     have h3 : Cq0 * (Fz.step N ^ m * Lm (Fz.step N)) ≤ Cq0 * eps := mul_le_mul_of_nonneg_left hTle hCq00
     have h4 : Cq0 * eps < 1 := by
       rw [heps, mul_one_div, div_lt_one (by positivity)]; linarith
     linarith
   refine ⟨hapos, ?_⟩
-  have e1 : cc = Real.sqrt (2 / Real.pi) * Real.cos (Real.pi * a) := by rw [hccdef, if_pos hapos]
+  have e1 : cc = Real.sqrt (2 / Real.pi) * Real.cos (Real.pi * a) := by rw [hccdef, ite_eq_left hapos]
   rw [e1, abs_mul, abs_of_pos (Real.sqrt_pos.mpr (by positivity))] at hccb
   have hrr : Real.sqrt (2 / Real.pi) * Real.sqrt (Real.pi / 2) = 1 := by
     rw [← Real.sqrt_mul (by positivity)]

@@ -345,7 +345,7 @@ lemma softLoSigma_zero (SI : SoftPhaseInputs (negFamily (frozenFamily T Kidx)) (
   have e : softSigma C μ 0 (-X) 0 = Real.pi * C.muS 0 (μ, 0) ((negFamily (frozenFamily T Kidx)).bandHi (μ, 0) - -X) := by
     simp [softSigma]
   unfold softLoSigma
-  rw [if_pos rfl, e, hS, actionS0_negFrozen_zero, actionS0_neg_of_hyp T K hH hD hμ, neg_neg]
+  rw [ite_eq_left rfl, e, hS, actionS0_negFrozen_zero, actionS0_neg_of_hyp T K hH hD hμ, neg_neg]
   ring
 
 /-- The slope `partial_X Sigma_{-,0}(X, 0) <= -pi cmu0` on the open window, from the chart's `mu0_slope`. -/

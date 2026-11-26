@@ -57,7 +57,7 @@ lemma continuousOn_bumpLapW {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ x : 
   · exact (by fun_prop : Continuous fun s : ℂ => Complex.exp (-s * (x : ℂ)) * (((x ^ m * f x : ℝ)) : ℂ)).continuousOn
 
 /-- Differentiation in the real parameter `τ` along the line `Re s = η ≥ 0`. -/
-lemma hasDerivAt_bumpLapW_param {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ x : ℝ, x < 0 → f x = 0) {m : ℕ} {η : ℝ} (hη : 0 ≤ η) (c τ : ℝ)
+lemma hasDerivAt_bumpLapW_param {f : ℝ → ℝ} (hf : Continuous f) (_hz : ∀ x : ℝ, x < 0 → f x = 0) {m : ℕ} {η : ℝ} (_hη : 0 ≤ η) (c τ : ℝ)
     (hI0 : Integrable (fun x : ℝ => x ^ m * f x * Real.exp (-(η * x))))
     (hI1 : Integrable (fun x : ℝ => x ^ (m + 1) * f x * Real.exp (-(η * x)))) :
     HasDerivAt (fun τ : ℝ => bumpLapW f m (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)))
@@ -74,16 +74,16 @@ lemma hasDerivAt_bumpLapW_param {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ 
       · exact ((by fun_prop : Continuous fun x : ℝ => Complex.exp (-(((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) * (x : ℂ))).mul
           (Complex.continuous_ofReal.comp (by fun_prop : Continuous fun x : ℝ => x ^ m * f x))).aestronglyMeasurable
       · rw [norm_mul, bump_norm_exp_neg_mul, Complex.norm_real]
-        simp only [Complex.add_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, Complex.I_re, Complex.I_im, mul_zero, zero_mul,
-          sub_zero, add_zero, zero_add, mul_one, zero_sub, sub_self]
+        simp only [Complex.add_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, Complex.I_re, Complex.I_im, mul_zero,
+          zero_add, mul_one, sub_self]
         rw [norm_mul_exp])
     ((by fun_prop : Continuous fun x : ℝ => -((c : ℂ) * Complex.I) * (Complex.exp (-(((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) * (x : ℂ)) *
         (((x ^ (m + 1) * f x : ℝ)) : ℂ))).aestronglyMeasurable)
     (ae_of_all _ fun x τ' _ => by
       rw [norm_mul, norm_mul, bump_norm_exp_neg_mul, Complex.norm_real, norm_neg, norm_mul, Complex.norm_real, Complex.norm_I, mul_one,
         Real.norm_eq_abs]
-      simp only [Complex.add_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, Complex.I_re, Complex.I_im, mul_zero, zero_mul,
-        sub_zero, add_zero, zero_add, mul_one, zero_sub, sub_self]
+      simp only [Complex.add_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, Complex.I_re, Complex.I_im, mul_zero,
+        zero_add, mul_one, sub_self]
       rw [norm_mul_exp])
     (hI1.norm.const_mul _)
     (ae_of_all _ fun x τ' _ => by
@@ -525,7 +525,7 @@ lemma tail_bound (h : BumpProfile b δ M α β K B) (hβ : 3 / 2 ≤ β) (j : �
     _ = _ := by ring
 
 
-lemma integrableOn_Iic_pow (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (j : ℕ) {R : ℝ} (hR : b * δ ≤ R) :
+lemma integrableOn_Iic_pow (h : BumpProfile b δ M α β K B) (_hb0 : 0 ≤ b * δ) (j : ℕ) {R : ℝ} (hR : b * δ ≤ R) :
     IntegrableOn (fun x : ℝ => x ^ j * B x) (Iic R) := by
   have hBc : Continuous B := by simpa using (h.contDiff_iteratedDeriv 0).continuous
   have hc : Continuous (fun x : ℝ => x ^ j * B x) := by fun_prop
@@ -539,7 +539,7 @@ lemma integrableOn_Iic_pow (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * �
   rw [this]
   refine IntegrableOn.union ?_ hc.integrableOn_Icc
   refine (integrableOn_zero (s := Iio (b * δ))).congr_fun (fun x hx => ?_) measurableSet_Iio
-  simp only [Pi.zero_apply]
+  simp only
   rw [h.support x hx, mul_zero]
 
 lemma head_bound (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ : b * δ ≤ 1) (hβ : 3 / 2 ≤ β) (hM : 0 ≤ M) (j : ℕ) (hj : 1 ≤ j)
@@ -885,7 +885,7 @@ lemma continuousOn_edgeE {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ x : ℝ
 
 lemma pnorm (c τ η : ℝ) : ‖((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)‖ = Real.sqrt ((c * τ) ^ 2 + η ^ 2) := by
   rw [Complex.norm_def, Complex.normSq_apply]
-  simp only [Complex.add_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, Complex.I_re, Complex.I_im, mul_zero, zero_mul,
+  simp only [Complex.add_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, Complex.I_re, Complex.I_im, mul_zero,
     sub_zero, add_zero, mul_one, zero_add, Complex.add_im, Complex.mul_im]
   congr 1; ring
 
@@ -1289,7 +1289,7 @@ theorem bump_holder_zero {b α β : ℝ} (hb : 0 < b) (hβ : 3 / 2 ≤ β) (K : 
 set_option maxHeartbeats 1600000 in
 /-- **(M3) at `ζ = 1`** (`StripEdge1`, exponent `1/2`) for `ΔW_c`: the right-edge trace `τ ↦ c^{-1/3} B̂(c - icτ)` (here `Re s = c > 0`, so everything converges absolutely). -/
 theorem bump_stripEdge1 {b α β : ℝ} (hb : 0 < b) (hβ : 3 / 2 ≤ β) (K : ℕ → ℝ) {B : ℝ → ℝ} {δ M c : ℝ} (hδ0 : 0 < δ)
-    (hbδ : b * δ ≤ 1) (hM : 0 ≤ M) (hc : 0 < c) (h : BumpProfile b δ M α β K B) :
+    (hbδ : b * δ ≤ 1) (_hM : 0 ≤ M) (hc : 0 < c) (h : BumpProfile b δ M α β K B) :
     StripEdge1 (1 / 2) (fun ζ : ℂ => ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ) * bumpLaplace B ((c : ℂ) * ζ)) := by
   have hb0 : 0 ≤ b * δ := by positivity
   have hβ1 : 1 < β := by linarith

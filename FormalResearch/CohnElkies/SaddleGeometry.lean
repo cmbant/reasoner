@@ -45,7 +45,7 @@ theorem integral_cos_sq_ge (ϑ_a : ℝ) {L : ℝ} (hL : 0 < L) :
     ((by fun_prop : Continuous (fun ϑ : ℝ => Real.cos ϑ ^ 2)).intervalIntegrable _ _)
   have hsin_diff : Real.sin (2 * (ϑ_a + L)) - Real.sin (2 * ϑ_a) =
       2 * Real.sin L * Real.cos (2 * ϑ_a + L) := by
-    rw [Real.sin_sub_sin]; congr 2 <;> ring
+    rw [Real.sin_sub_sin]; congr 2 <;> ring_nf
   have heval : ∫ ϑ in ϑ_a..(ϑ_a + L), Real.cos ϑ ^ 2 =
       (L + Real.sin L * Real.cos (2 * ϑ_a + L)) / 2 := by
     rw [hftc]; linarith [hsin_diff]
@@ -162,7 +162,7 @@ lemma stripGReal_continuousOn : ContinuousOn stripGReal (Ico 0 1) := by
       simp only [Real.tan_zero, sub_zero, smul_eq_mul] at hs
       refine (hs.mono_left (nhdsWithin_mono _ fun x (hx : x ∈ Ioi (0 : ℝ)) => (mem_Ioi.mp hx).ne')).congr' ?_
       filter_upwards [self_mem_nhdsWithin] with x _
-      ring
+      ring_nf
     have hlog : Tendsto (fun u : ℝ => Real.log (Real.tan (π * u / 2) / (π * u / 2))) (𝓝[>] (0 : ℝ)) (𝓝 0) := by
       have hc := (Real.continuousAt_log one_ne_zero).tendsto.comp (htan_div.comp hmul)
       simpa [Real.log_one, Function.comp_def] using hc

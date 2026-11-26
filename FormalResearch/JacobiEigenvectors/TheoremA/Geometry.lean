@@ -86,7 +86,7 @@ lemma Tfun_nonneg_iff (hG : ∀ u ∈ Icc 0 L, g ≤ G0 u) (hg : 0 < g) {u : ℝ
   have hle := fMinus_le_fPlus (L := L) (G0 := G0) (B0 := B0) u
   constructor
   · intro h
-    constructor <;> by_contra hc <;> push_neg at hc <;> nlinarith
+    constructor <;> by_contra hc <;> push Not at hc <;> nlinarith
   · rintro ⟨h1, h2⟩
     exact mul_nonneg (by linarith) (by linarith)
 
@@ -539,7 +539,7 @@ lemma A_of_shapes (hG : ∀ u ∈ Icc 0 L, g ≤ G0 u) (hg : 0 < g) (hL : 0 < L)
     rcases le_total uc q with h | h
     · by_cases hfq : X ≤ fPlus L G0 B0 q
       · exact ⟨q, (memS' q).2 ⟨hq_mem, by rw [hXm]; exact hX1.le, hfq⟩⟩
-      · push_neg at hfq
+      · push Not at hfq
         have hIVT := intermediate_value_uIcc (hcontp.mono (uIcc_subset_Icc huc_mem hq_mem))
           (show X ∈ Set.uIcc (fPlus L G0 B0 uc) (fPlus L G0 B0 q) from Set.mem_uIcc.2 (Or.inr ⟨hfq.le, hXpX.le⟩))
         obtain ⟨e, he, hfe⟩ := hIVT
@@ -548,7 +548,7 @@ lemma A_of_shapes (hG : ∀ u ∈ Icc 0 L, g ≤ G0 u) (hg : 0 < g) (hL : 0 < L)
         exact ⟨e, (memS' e).2 ⟨heI, by linarith, by linarith⟩⟩
     · by_cases hfu : fMinus L G0 B0 uc ≤ X
       · exact ⟨uc, (memS' uc).2 ⟨huc_mem, hfu, hXpX.le⟩⟩
-      · push_neg at hfu
+      · push Not at hfu
         have hIVT := intermediate_value_uIcc (hcontm.mono (uIcc_subset_Icc hq_mem huc_mem))
           (show X ∈ Set.uIcc (fMinus L G0 B0 q) (fMinus L G0 B0 uc) from
             Set.mem_uIcc.2 (Or.inl ⟨by rw [hXm]; exact hX1.le, hfu.le⟩))
@@ -670,7 +670,7 @@ lemma A_of_shapes (hG : ∀ u ∈ Icc 0 L, g ≤ G0 u) (hg : 0 < g) (hL : 0 < L)
   have hA_a : 0 < sInf S → fPlus L G0 B0 (sInf S) = X ∨ fMinus L G0 B0 (sInf S) = X := by
     intro hpos
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     obtain ⟨h1, h2⟩ := hcon
     have hm := (memS' _).1 ha_mem
     have hlt1 : X < fPlus L G0 B0 (sInf S) := lt_of_le_of_ne hm.2.2 (Ne.symm h1)
@@ -696,7 +696,7 @@ lemma A_of_shapes (hG : ∀ u ∈ Icc 0 L, g ≤ G0 u) (hg : 0 < g) (hL : 0 < L)
   have hA_b : sSup S < L → fPlus L G0 B0 (sSup S) = X ∨ fMinus L G0 B0 (sSup S) = X := by
     intro hlt
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     obtain ⟨h1, h2⟩ := hcon
     have hm := (memS' _).1 hb_mem
     have hlt1 : X < fPlus L G0 B0 (sSup S) := lt_of_le_of_ne hm.2.2 (Ne.symm h1)
@@ -784,7 +784,7 @@ lemma crit_of_A (hG : ∀ u ∈ Icc 0 L, g ≤ G0 u) (hg : 0 < g) (hL : 0 < L) (
   have dipL : ∀ u v, 0 ≤ u → u ≤ v → v ≤ uc → fPlus L G0 B0 u ≤ fPlus L G0 B0 v := by
     intro u v hu0 huv hvuc
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have hvI : v ∈ Icc 0 L := ⟨le_trans hu0 huv, le_trans hvuc huc.2.le⟩
     have huI : u ∈ Icc 0 L := ⟨hu0, le_trans huv hvI.2⟩
     have hXlo : fPlus L G0 B0 v < (fPlus L G0 B0 u + fPlus L G0 B0 v) / 2 := by linarith
@@ -808,7 +808,7 @@ lemma crit_of_A (hG : ∀ u ∈ Icc 0 L, g ≤ G0 u) (hg : 0 < g) (hL : 0 < L) (
   have dipR : ∀ v w, uc ≤ v → v ≤ w → w ≤ L → fPlus L G0 B0 w ≤ fPlus L G0 B0 v := by
     intro v w hvuc hvw hwL
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have hvI : v ∈ Icc 0 L := ⟨le_trans huc.1.le hvuc, le_trans hvw hwL⟩
     have hwI : w ∈ Icc 0 L := ⟨le_trans hvI.1 hvw, hwL⟩
     have hXlo : fPlus L G0 B0 v < (fPlus L G0 B0 v + fPlus L G0 B0 w) / 2 := by linarith
@@ -870,7 +870,7 @@ lemma crit_of_A (hG : ∀ u ∈ Icc 0 L, g ≤ G0 u) (hg : 0 < g) (hL : 0 < L) (
       have hbelow : ∀ u, 0 ≤ u → u < a → fPlus L G0 B0 u < fPlus L G0 B0 c := by
         intro u hu0 hua
         by_contra hcon
-        push_neg at hcon
+        push Not at hcon
         have huI : u ∈ Icc 0 L := ⟨hu0, le_trans hua.le (le_trans hac hc.2.le)⟩
         have hfu : fPlus L G0 B0 u ≤ fPlus L G0 B0 c := dipL u c hu0 (le_trans hua.le hac) hlt.le
         have huS : u ∈ Icc a b := by
@@ -952,7 +952,7 @@ lemma crit_of_A (hG : ∀ u ∈ Icc 0 L, g ≤ G0 u) (hg : 0 < g) (hL : 0 < L) (
       have hbelow : ∀ u, b < u → u ≤ L → fPlus L G0 B0 u < fPlus L G0 B0 c := by
         intro u hbu huL
         by_contra hcon
-        push_neg at hcon
+        push Not at hcon
         have huI : u ∈ Icc 0 L := ⟨by linarith, huL⟩
         have hfu : fPlus L G0 B0 u ≤ fPlus L G0 B0 c := dipR c u hgt.le (le_trans hcb hbu.le) huL
         have huS : u ∈ Icc a b := by
@@ -1141,7 +1141,7 @@ lemma Pm_iff_neg : PmProp L G0 B0 ↔ PpProp L G0 (fun u => -B0 u) := by
     have hsetEq : {u ∈ Ioo 0 L | deriv (fPlus L G0 (fun u => -B0 u)) u = 0} =
         {u ∈ Ioo 0 L | deriv (fMinus L G0 B0) u = 0} := by
       ext u
-      simp only [Set.mem_setOf_eq, key, neg_eq_zero]
+      simp only [Set.mem_ofPred_eq, key, neg_eq_zero]
     rw [hsetEq]
     exact hset
   · rintro ⟨uc, huc, hset, hneg⟩
@@ -1149,7 +1149,7 @@ lemma Pm_iff_neg : PmProp L G0 B0 ↔ PpProp L G0 (fun u => -B0 u) := by
     have hsetEq : {u ∈ Ioo 0 L | deriv (fMinus L G0 B0) u = 0} =
         {u ∈ Ioo 0 L | deriv (fPlus L G0 (fun u => -B0 u)) u = 0} := by
       ext u
-      simp only [Set.mem_setOf_eq, key, neg_eq_zero]
+      simp only [Set.mem_ofPred_eq, key, neg_eq_zero]
     rw [hsetEq]
     exact hset
 
@@ -1571,7 +1571,7 @@ lemma base_sign {G B : ℝ → ℝ} {L g : ℝ} (hL : 0 < L) (hg : 0 < g) (hG : 
   constructor
   · intro u hu hlt
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have hsub : Icc 0 u ⊆ Icc 0 L := Icc_subset_Icc le_rfl hu.2
     obtain ⟨z, hz, hfz⟩ := intermediate_value_Icc' hu.1 (hcont.mono hsub) ⟨hcon, h0.le⟩
     have hz0 : z ≠ 0 := by
@@ -1583,7 +1583,7 @@ lemma base_sign {G B : ℝ → ℝ} {L g : ℝ} (hL : 0 < L) (hg : 0 < g) (hG : 
     linarith [hz.2]
   · intro u hu hgt
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have hsub : Icc u L ⊆ Icc 0 L := Icc_subset_Icc hu.1 le_rfl
     obtain ⟨z, hz, hfz⟩ := intermediate_value_Icc' hu.2 (hcont.mono hsub) ⟨hLn.le, hcon⟩
     have hzL : z ≠ L := by
@@ -2153,14 +2153,14 @@ lemma frozen_G_eq {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K
     (frozenFamily F Kidx).G (2 * j) ν = fun s => F.G (2 * j) ν.1 s + ν.2 * F.G (2 * j + 1) ν.1 s := by
   funext s
   simp only [frozenFamily]
-  rw [if_pos (show 2 * j % 2 = 0 ∧ 2 * j ≤ 2 * Kidx from ⟨by omega, by omega⟩)]
+  rw [ite_eq_left (show 2 * j % 2 = 0 ∧ 2 * j ≤ 2 * Kidx from ⟨by omega, by omega⟩)]
 
 lemma frozen_B_eq {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (Kidx j : ℕ) (hj : j ≤ Kidx)
     (ν : Par × ℝ) :
     (frozenFamily F Kidx).B (2 * j) ν = fun s => F.B (2 * j) ν.1 s + ν.2 * F.B (2 * j + 1) ν.1 s := by
   funext s
   simp only [frozenFamily]
-  rw [if_pos (show 2 * j % 2 = 0 ∧ 2 * j ≤ 2 * Kidx from ⟨by omega, by omega⟩)]
+  rw [ite_eq_left (show 2 * j % 2 = 0 ∧ 2 * j ≤ 2 * Kidx from ⟨by omega, by omega⟩)]
 
 /-- The jets of `s ↦ f(μ)(s) + t g(μ)(s)` on `K × [-t0, t0]` (regularity `n`). -/
 lemma jetReg_comb {Par : Type*} [TopologicalSpace Par] {K : Set Par} {L : ℝ} {n : ℕ} (hL : 0 < L) (t0 : ℝ)

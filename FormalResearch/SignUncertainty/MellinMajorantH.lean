@@ -76,7 +76,7 @@ lemma hasDerivAt_hLog {z : ℂ} (hz : z ∈ hStrip) : HasDerivAt hLog (hLogDeriv
   have := ((d1.add d2).sub d3).sub d4
   convert this using 1
   · ext w; simp [hLog]; ring_nf
-  · simp [hLogDeriv]; ring
+  · simp [hLogDeriv]; ring_nf
 
 
 lemma continuousOn_hLog : ContinuousOn hLog hStrip := fun _ hz =>

@@ -149,7 +149,7 @@ lemma ampQ_hasDerivAt (h : O4NormalForm L τ) {c : ℝ} (hc : 2 ≤ c) {θ : ℝ
     refine (hp.sub e1).congr_deriv ?_
     simp only [ampQ2, Pi.pow_apply]
     push_cast
-    linear_combination (-(1 / 4 : ℂ)) * Complex.exp (Complex.I * (θ : ℂ) / 2) * (Complex.I_sq + 1 - 1)
+    linear_combination (-(1 / 4 : ℂ)) * Complex.exp (Complex.I * (θ : ℂ) / 2) * (Complex.I_sq)
 
 
 /-- **`(e7)` in the variable `θ`**: for `|θ| ≤ 0.18`, `1/c ≤ L ≤ 0.002`, `c ≥ 2`,

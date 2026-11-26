@@ -230,7 +230,7 @@ theorem quadB_step_le {d : ℕ} (hd : 2 ≤ d) (κ : ℝ) :
       push_cast; rw [← Real.rpow_sub two_pos]; congr 1; ring
     rw [mul_div_mul_comm, hpow, quadD_parity_step hd, mul_left_comm, ← mul_assoc,
       show (1 / 4 : ℝ) = (2 : ℝ) ^ (-2 : ℝ) by norm_num, ← Real.rpow_add two_pos]
-    congr 1; ring
+    congr 1; ring_nf
   rw [hratio, Real.log_mul (Real.rpow_pos_of_pos two_pos _).ne'
     (Real.rpow_pos_of_pos (by positivity) _).ne', Real.log_rpow two_pos, Real.log_rpow (by positivity)]
   have hlog := Real.log_le_sub_one_of_pos (show (0 : ℝ) < 1 + 2 / ((d : ℝ) + 2) by positivity)
@@ -280,7 +280,7 @@ lemma quadB_step_strictAnti (κ : ℝ) :
       Real.log_rpow two_pos, Real.log_rpow (by positivity)]
     push_cast
     rw [show g (2 / ((d : ℝ) + 4)) = (((d : ℝ) + 2) / 2 + 2) * Real.log (1 + 2 / ((d : ℝ) + 2 + 2)) by
-      dsimp [g]; field_simp; ring]
+      dsimp [g]; field_simp; ring_nf]
     ring
   dsimp only; rw [hstep d₁, hstep d₂]
   linarith [hg_mono (by positivity : (0 : ℝ) < 2 / ((d₂ : ℝ) + 4))
@@ -465,7 +465,7 @@ private lemma quadB_2_3_pos : 0 < quadB 2 (1 / 4) ∧ 0 < quadB 3 (1 / 4) := by
         show (3 / 2 : ℝ) = (1 / 2 : ℝ) + 1 by norm_num, Real.Gamma_add_one (by norm_num),
         Real.Gamma_one_half_eq]; ring
     have hD3 : quadD 3 = 10 / (3 * √π) * (5 / 8 : ℝ) ^ (3 / 2 : ℝ) := by
-      unfold quadD; push_cast; rw [hG]; ring
+      unfold quadD; push_cast; rw [hG]; ring_nf
     rw [hD3, ← Real.rpow_lt_rpow_iff (by positivity) (by positivity) (by norm_num : (0 : ℝ) < 4),
       ← Real.rpow_mul two_pos.le,
       show -(1 / 4 : ℝ) * ((3 : ℕ) : ℝ) * 4 = (-3 : ℝ) by norm_num,
@@ -863,7 +863,7 @@ lemma cubicH_bound_eq {d : ℕ} (hd : 1 ≤ d) {u : ℝ} (hu : 0 < u) :
   rw [(cubicH_origin d).1, (cubicH_origin d).2, Complex.ofReal_re,
     div_self (by unfold cubicTheta; positivity), one_mul,
     volume_half_ball_eq hd (Real.sqrt_nonneg _), Real.sq_sqrt (by positivity)]
-  congr 1; field_simp [Real.pi_ne_zero]; ring
+  congr 1; field_simp [Real.pi_ne_zero]; ring_nf
 
 theorem optimalCohnElkiesBound_le_cubicD {d : ℕ} (hd : 1 ≤ d) :
     optimalCohnElkiesBound d ≤ cubicD d := by

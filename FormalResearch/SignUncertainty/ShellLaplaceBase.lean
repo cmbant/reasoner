@@ -1691,18 +1691,18 @@ theorem one_profile_maximizer_exists (D : ShellHBData) (M : AiryCompactnessModel
       have hlim_en : ∀ x : ℝ, ‖Hstar (x : ℂ)‖ₑ = Filter.liminf (fun k => ‖H (φ k) (x : ℂ)‖ₑ) atTop := by
         intro x
         have ht : Tendsto (fun k => ‖H (φ k) (x : ℂ)‖ₑ) atTop (𝓝 ‖Hstar (x : ℂ)‖ₑ) :=
-          (hpt (x : ℂ)).enorm
+          (hpt (x : ℂ)).eNorm
         exact ht.liminf_eq.symm
       calc ∫⁻ x : ℝ, ‖Hstar (x : ℂ)‖ₑ ∂volume
           = ∫⁻ x : ℝ, Filter.liminf (fun k => ‖H (φ k) (x : ℂ)‖ₑ) atTop ∂volume := by
             simp_rw [hlim_en]
         _ ≤ Filter.liminf (fun k => ∫⁻ x : ℝ, ‖H (φ k) (x : ℂ)‖ₑ ∂volume) atTop :=
             lintegral_liminf_le fun k => ((hH_wit (φ k)).1.1.continuous.comp
-              Complex.continuous_ofReal).measurable.enorm
+              Complex.continuous_ofReal).measurable.eNorm
         _ ≤ 1 := by
             have hk_eq : ∀ k, ∫⁻ x : ℝ, ‖H (φ k) (x : ℂ)‖ₑ ∂volume = 1 := fun k => by
               have hi := (hH_wit (φ k)).1.2.1
-              rw [← ofReal_integral_norm_eq_lintegral_enorm hi, hH_norm (φ k), ENNReal.ofReal_one]
+              rw [← ofReal_integral_norm_eq_lintegral_eNorm hi, hH_norm (φ k), ENNReal.ofReal_one]
             simp_rw [hk_eq]
             simp
     exact ⟨hmeas, lt_of_le_of_lt hfatou ENNReal.one_lt_top⟩

@@ -37,7 +37,7 @@ theorem exists_norm_inv_Gamma_le {a b : ℝ} (ha : 1 / 2 ≤ a) (hab : a ≤ b) 
   have hC0re : ∀ z ∈ C0, 0 < z.re := by
     rintro z ⟨⟨x, y⟩, ⟨hx, hy⟩, rfl⟩
     simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.ofReal_im,
-      Complex.I_re, Complex.I_im, mul_zero, zero_mul, sub_zero, add_zero, mul_one, sub_self]
+      Complex.I_re, Complex.I_im, mul_zero, add_zero, mul_one, sub_self]
     linarith [hx.1]
   have hcont : ContinuousOn (fun z : ℂ => ‖Complex.Gamma z‖⁻¹) C0 := by
     intro z hz

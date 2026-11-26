@@ -643,7 +643,7 @@ private lemma gaussPoly_deg_and_coeff (n : ℕ) :
     refine ⟨hQ_deg, fun k => ?_⟩
     by_cases hk : m + 1 < k
     · change ‖Q.coeff k‖ ≤ _; rw [Polynomial.coeff_eq_zero_of_natDegree_lt (lt_of_le_of_lt hQ_deg hk), norm_zero]; positivity
-    · push Not at hk; change ‖Q.coeff k‖ ≤ (m + 3 : ℝ) * M; dsimp [Q]; try rw [Polynomial.coeff_sub]
+    · push Not at hk; change ‖Q.coeff k‖ ≤ (m + 3 : ℝ) * M; dsimp [Q]
       rw [mul_assoc, Polynomial.coeff_C_mul, Polynomial.coeff_derivative]
       have h1 : ‖P.coeff (k + 1) * (k + 1 : ℂ)‖ ≤ (m + 2 : ℝ) * M := calc
         ‖P.coeff (k + 1) * (k + 1 : ℂ)‖ = ‖P.coeff (k + 1)‖ * ((k + 1 : ℕ) : ℝ) := by rw [norm_mul, show (k : ℂ) + 1 = ((k + 1 : ℕ) : ℂ) by push_cast; ring, Complex.norm_natCast]

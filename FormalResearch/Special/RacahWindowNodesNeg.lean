@@ -56,9 +56,9 @@ theorem rw_eigen_neg {a b c m n : ℤ} {D' : ℕ} (hsys : RacahSystem (a : ℚ) 
   rw [rwn_sign_succ] at F1
   rw [F0, F1]
   by_cases hi0 : s = 0
-  · rw [if_pos hi0] at hrow ⊢
+  · rw [ite_eq_left hi0] at hrow ⊢
     linear_combination (-(-1 : ℝ) ^ (max |m| |n| + (s : ℤ))) * hrow
-  · rw [if_neg hi0] at hrow ⊢
+  · rw [ite_eq_right hi0] at hrow ⊢
     have F2 := rw_wvec_ext (a := a) (b := b) (c := c) (m := m) (n := n) (D' := D') (s - 1)
     have e : (-1 : ℝ) ^ (max |m| |n| + ((s - 1 : ℕ) : ℤ)) = -(-1 : ℝ) ^ (max |m| |n| + (s : ℤ)) := by
       have := rwn_sign_succ (max |m| |n|) (s - 1)

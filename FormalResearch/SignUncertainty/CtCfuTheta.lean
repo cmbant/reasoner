@@ -29,7 +29,7 @@ theorem theta_hat {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
   have hodd : ∀ x, θ (-x) = -θ x := outerTheta_neg ε
   have hθ0 : θ 0 = 0 := by have := hodd 0; simp at this; linarith
   obtain ⟨p, r, hp⟩ := hθan
-  have hg : AnalyticAt ℝ (dslope θ 0) 0 := (hp.hasFPowerSeriesAt.has_fpower_series_dslope_fslope).analyticAt
+  have hg : AnalyticAt ℝ (dslope θ 0) 0 := (hp.hasFPowerSeriesAt.dslope_fslope).analyticAt
   have hslope : ∀ x, x ≠ 0 → dslope θ 0 x = θ x / x := by
     intro x hx; rw [dslope_of_ne θ hx, slope_def_field, hθ0]; simp
   have hev : ∀ x, dslope θ 0 (-x) = dslope θ 0 x := by

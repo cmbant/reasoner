@@ -608,7 +608,7 @@ lemma virasoro_pnodes_lb_and_theta {c' R T : ℝ} {N : ℕ}
         mul_le_mul_of_nonneg_left hΨ_lb (pow_nonneg hbase_nn _)
       have h2 : -(quantC1C1 * ℓ) ≤ (1 + airyZero 1 / R) ^ (k + 1) * (-quantC1C1 * ℓ) := by
         have h3 : 0 ≤ quantC1C1 * ℓ := mul_nonneg quantC1C1_pos.le hℓ_nn
-        nlinarith [hpow_le1]
+        nlinarith only [hpow_le1, h3]
       have h4 : -(quantC1C1 * ℓ) / quantC1WStar = -(quantC1C1 / quantC1WStar) * ℓ := by ring
       rw [← h4]
       exact div_le_div_of_nonneg_right (h2.trans hmul) hw_pos.le
@@ -618,7 +618,8 @@ lemma virasoro_pnodes_lb_and_theta {c' R T : ℝ} {N : ℕ}
       have : 0 ≤ quantC1C1 / quantC1WStar := div_nonneg quantC1C1_pos.le hw_pos.le
       linarith [show 2 * quantC1C1 * (1 / quantC1WStar) = 2 * (quantC1C1 / quantC1WStar) by ring]
     have h_main := virasoro_pnodes_lower_aux hc' hR_48 hR_ub hg hT_hi hT_A2 hT_a1 hB2 hN hℓ_nn hℓ_le' k hkR
-    have hΛ_mul : -tebLambdaN P 0 * ℓ ≤ -(quantC1C1 / quantC1WStar) * ℓ := by nlinarith
+    have hΛ_mul : -tebLambdaN P 0 * ℓ ≤ -(quantC1C1 / quantC1WStar) * ℓ := by
+      nlinarith only [hΛ_ge, hℓ_nn]
     linarith [hΛ_mul, hterm_lb, h_main]
   · -- `P_theta_bound`
     intro hk0_R hℓ_mem
@@ -1119,7 +1120,7 @@ theorem theoremFTLFW_oneZero_of_YVFor {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ 
       have h1 : airyZero 1 ^ 2 ≤ (|airyZero 1| + K₀) ^ 2 := by
         rw [← sq_abs (airyZero 1)]
         have : |airyZero 1| ≤ |airyZero 1| + K₀ := by linarith
-        nlinarith [abs_nonneg (airyZero 1)]
+        nlinarith only [abs_nonneg (airyZero 1), this]
       have h2 : chartParams.C_xi * c' ^ (-(1 / 3 : ℝ)) * airyZero 1 ^ 2 ≤
           chartParams.C_xi * 1 * (|airyZero 1| + K₀) ^ 2 := by
         have := chartParams.hCxi_nn

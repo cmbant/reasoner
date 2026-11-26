@@ -174,7 +174,7 @@ lemma deriv_cut_mul {ζ : ℝ → ℝ} {g : ℝ → ℂ} {x : ℝ} (hζ : ContDi
 /-- **Leibniz bound for `cutoff × amplitude`** (orders `0, 1, 2`): `‖g^{(r)}(x)‖ ≤ G |x|^{-s-r}` implies
 `‖(ζ g)^{(r)}(x)‖ ≤ K_r' G |x|^{-s-r}` with `K_0' = K0`, `K_1' = K1 + K0`, `K_2' = K2 + 2 K1 + K0`. -/
 lemma leibniz_cut {ζ : ℝ → ℝ} {K0 K1 K2 : ℝ} (hζ : IsCut ζ K0 K1 K2) {g : ℝ → ℂ} {G s x : ℝ} (hg : ContDiffAt ℝ 2 g x)
-    (hG : 0 ≤ G) (hx : x ≠ 0) (hg0 : ‖g x‖ ≤ G * |x| ^ (-s)) (hg1 : ‖deriv g x‖ ≤ G * |x| ^ (-s - 1))
+    (_hG : 0 ≤ G) (hx : x ≠ 0) (hg0 : ‖g x‖ ≤ G * |x| ^ (-s)) (hg1 : ‖deriv g x‖ ≤ G * |x| ^ (-s - 1))
     (hg2 : ‖deriv (deriv g) x‖ ≤ G * |x| ^ (-s - 2)) :
     ‖(ζ x : ℂ) * g x‖ ≤ K0 * G * |x| ^ (-s) ∧
     ‖deriv (fun y => (ζ y : ℂ) * g y) x‖ ≤ (K1 + K0) * G * |x| ^ (-s - 1) ∧

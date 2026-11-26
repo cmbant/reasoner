@@ -123,11 +123,11 @@ lemma hasDerivAt_chartE (h : LangerEta η) {w : ℂ} (hw : ‖w‖ < 1) :
 
 lemma norm_deriv_chartEps_le (h : LangerEta η) {w : ℂ} (hw : ‖w‖ < 1) :
     ‖psWD (aG η) w‖ ≤ 6 / π ^ 2 / (1 - ‖w‖) ^ 2 :=
-  norm_psWD_le (fun j hj => abs_aG_le h hj) hw
+  norm_psWD_le (fun _j hj => abs_aG_le h hj) hw
 
 lemma norm_deriv_chartE_le (h : LangerEta η) {w : ℂ} (hw : ‖w‖ < 1) :
     ‖psWD (aE η) w‖ ≤ 36 / (5 * π ^ 2) / (1 - ‖w‖) ^ 2 :=
-  norm_psWD_le (fun j hj => abs_aE_le h hj) hw
+  norm_psWD_le (fun _j hj => abs_aE_le h hj) hw
 
 /-! ### The constants of `gt:7.7b` -/
 

@@ -375,9 +375,9 @@ theorem two_ibp_phase_line {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2
   have hanC : ContDiff ℝ 2 an := ha.sub hapC
   -- local identifications
   have hap_pos : ∀ x, 0 < x → ap =ᶠ[nhds x] a := fun x hx => by
-    filter_upwards [isOpen_Ioi.mem_nhds hx] with y hy using by simp only [hap]; rw [if_pos (show 0 < y from hy)]
+    filter_upwards [isOpen_Ioi.mem_nhds hx] with y hy using by simp only [hap]; rw [ite_eq_left (show 0 < y from hy)]
   have han_neg : ∀ x, x < 0 → an =ᶠ[nhds x] a := fun x hx => by
-    filter_upwards [isOpen_Iio.mem_nhds hx] with y hy using by simp only [han, hap]; rw [if_neg (not_lt.2 (le_of_lt (show y < 0 from hy)))]; simp
+    filter_upwards [isOpen_Iio.mem_nhds hx] with y hy using by simp only [han, hap]; rw [ite_eq_right (not_lt.2 (le_of_lt (show y < 0 from hy)))]; simp
   have hdap : ∀ x, 0 < x → deriv ap x = deriv a x ∧ deriv (deriv ap) x = deriv (deriv a) x := by
     intro x hx
     have h1 : deriv ap =ᶠ[nhds x] deriv a := by

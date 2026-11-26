@@ -26,7 +26,7 @@ namespace FormalResearch.SignUncertainty
 open FormalResearch.Special FormalResearch.ModularBootstrap.Upper.Membership
 
 /-- The angular integral of the slice integrand. -/
-lemma polar_theta_integral (n : ℕ) (hn : 1 ≤ n) (G : ℝ → ℝ) (r s : ℝ) (hs : 0 < s) :
+lemma polar_theta_integral (n : ℕ) (hn : 1 ≤ n) (G : ℝ → ℝ) (r s : ℝ) (_hs : 0 < s) :
     ∫ θ in Ioo (0 : ℝ) Real.pi, s • sliceH n G r (s * Real.cos θ, s * Real.sin θ) =
       ((s ^ n * G (s ^ 2 / 2) *
         (besselNorm (((n : ℝ) - 1) / 2) (2 * Real.pi * s * r) /
@@ -71,7 +71,7 @@ lemma radial_constant_identity (n : ℕ) (hn : 1 ≤ n) :
         besselPoissonConst (((n : ℝ) - 1) / 2) =
       (2 * Real.pi) ^ (((n : ℝ) + 1) / 2) / Real.Gamma (((n : ℝ) + 1) / 2) := by
   have hn0 : (0 : ℝ) < n := by exact_mod_cast hn
-  haveI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+  have : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
   have hvol : (volume (Metric.ball (0 : EuclSp n) 1)).toReal =
       Real.sqrt Real.pi ^ n / Real.Gamma ((n : ℝ) / 2 + 1) := by
     rw [EuclideanSpace.volume_ball]

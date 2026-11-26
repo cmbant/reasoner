@@ -20,7 +20,7 @@ namespace FormalResearch.SignUncertainty
 variable {n : ℕ}
 
 lemma finrank_euclSp_sub_one (n : ℕ) : Module.finrank ℝ (EuclSp (n + 1)) - 1 = n := by
-  simp [finrank_euclideanSpace_fin]
+  simp
 
 /-- Polar coordinates on the product `S^n × (0,∞)` with the measure `σ × r^n dr`. -/
 theorem polar_aux {h : EuclSp (n + 1) → ℂ} (hh : Integrable h) :

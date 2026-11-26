@@ -257,7 +257,7 @@ lemma win_mbal_neighbour (a Z Z' D0 : ℝ) (hD0 : 0 ≤ D0) (hZ : |Z' ^ 2 - Z ^ 
         have := (abs_le.mp hdiff).1; linarith
       have h2 : k2 a Z ≤ 2 * k2 a Z' := by linarith
       nlinarith [mul_le_mul_of_nonneg_right hD12 (by linarith : (0:ℝ) ≤ k2 a Z')]
-    · push_neg at hlarge
+    · push Not at hlarge
       have h1 : k2 a Z ≤ 2 * D0 * k2 a Z' := by nlinarith
       nlinarith
   -- Mbal comparison
@@ -313,7 +313,7 @@ lemma win_loc_core (Kq Cmu cz1 η h x μ0 E a zx : ℝ) (hKq : 0 ≤ Kq) (hh0 : 
     (hZ : |zx / Real.sqrt h| ≤ 2 * Real.sqrt (max (-a) 0) + 2 * (1 + max (-a) 0) ^ (-(1 : ℝ) / 6)) :
     |x| < η / 4 := by
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have hfar' := hfar hcon
   have hA0 : 0 ≤ max (-a) 0 := le_max_right _ _
   have hℓ1 : (1 + max (-a) 0) ^ (-(1 : ℝ) / 6) ≤ 1 :=
@@ -732,7 +732,7 @@ lemma kappa_sq_gamma (a : ℝ) (ha : a ≤ 0) :
     kappaBal a ≠ 0 ∧ kappaBal a ^ 2 * Real.Gamma (1 / 2 - a) = 1 := by
   have hG : 0 < Real.Gamma (1 / 2 - a) := Real.Gamma_pos_of_pos (by linarith)
   unfold kappaBal
-  rw [if_pos ha]
+  rw [ite_eq_left ha]
   have hpow : (Real.Gamma (1 / 2 - a) ^ (-(1 : ℝ) / 2)) ^ 2 = (Real.Gamma (1 / 2 - a))⁻¹ := by
     rw [← Real.rpow_natCast, ← Real.rpow_mul hG.le]
     norm_num
@@ -1699,7 +1699,7 @@ lemma rhoWin_ge_half (a : ℝ) : 1 / 2 ≤ rhoWin a := by
       rw [← one_div]
       exact (one_div_lt_one_div (by norm_num) (by linarith [le_max_right (-a) 0])).mpr hA2
     by_contra hc
-    push_neg at hc
+    push Not at hc
     have hℓlt : (1 + max (-a) 0) ^ (-(1 : ℝ) / 6) < 1 / 2 := by linarith
     have hpos := ell_nonneg' a
     have hpow : ((1 + max (-a) 0) ^ (-(1 : ℝ) / 6)) ^ 6 < (1 / 2) ^ 6 :=
@@ -1722,7 +1722,7 @@ lemma mbal_sq_int_upper_all (a : ℝ) : ∫ z in (-rhoWin a)..(rhoWin a), Mbal a
       linarith
     · have ha : a ≤ 0 := by
         by_contra hc
-        push_neg at hc
+        push Not at hc
         have := winS0_zero_of_pos hc
         linarith
       exact mbal_sq_int_upper a ha h4.le

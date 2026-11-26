@@ -38,7 +38,7 @@ theorem etaR_next_le {m : ℕ} {h : ℝ} (hh : 0 < h) (hl : Real.exp (-1) ≥ h)
     simpa using h2
   have hp : 0 < h ^ (m + 1) := pow_pos hh _
   unfold etaR
-  rw [if_neg (by omega)]
+  rw [ite_eq_right (by omega)]
   split_ifs
   · exact le_rfl
   · nlinarith
@@ -63,7 +63,7 @@ theorem hostCols_of_twoOrders (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (
   refine ⟨?_, ?_⟩
   · refine c0.trans ?_
     unfold etaR
-    rw [if_pos rfl]
+    rw [ite_eq_left rfl]
     exact mul_le_mul_of_nonneg_right hCm hp1.le
   · refine c1.trans ?_
     have e := etaR_next_le (m := m) hpos (hN.trans (min_le_right _ _))
@@ -71,7 +71,7 @@ theorem hostCols_of_twoOrders (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (
     calc C * etaR m (m + 1) (F.step N) ≤ max C 0 * etaR m (m + 1) (F.step N) := by
           refine mul_le_mul_of_nonneg_right hCm ?_
           unfold etaR
-          rw [if_neg (by omega)]
+          rw [ite_eq_right (by omega)]
           split_ifs
           · have h1 : F.step N ≤ Real.exp (-1) := hN.trans (min_le_right _ _)
             have h2 : Real.exp (-1) < Real.exp 0 := Real.exp_lt_exp.2 (by norm_num)

@@ -78,21 +78,21 @@ theorem jacobiMat_neg_apply (F : SymbolFamily Par) (μ : Par) (N : ℕ) (i j : F
     rw [negFamily_entryB]
     calc -F.entryB μ N (i.val : ℤ) = -(((-1 : ℝ) ^ (i : ℕ) * (-1 : ℝ) ^ (i : ℕ)) * F.entryB μ N (i.val : ℤ)) := by rw [h1]; ring
       _ = _ := by ring
-  · rw [if_neg hij, if_neg hij]
+  · rw [ite_eq_right hij, ite_eq_right hij]
     by_cases h2 : j.val = i.val + 1
-    · rw [if_pos h2, if_pos h2]
+    · rw [ite_eq_left h2, ite_eq_left h2]
       rw [h2, pow_succ, negFamily_bondA]
       calc F.bondA μ N (i.val : ℤ) = -(((-1 : ℝ) ^ (i : ℕ) * (-1 : ℝ) ^ (i : ℕ)) * F.bondA μ N (i.val : ℤ) * (-1)) := by
             rw [h1]; ring
         _ = _ := by ring
-    · rw [if_neg h2, if_neg h2]
+    · rw [ite_eq_right h2, ite_eq_right h2]
       by_cases h3 : i.val = j.val + 1
-      · rw [if_pos h3, if_pos h3]
+      · rw [ite_eq_left h3, ite_eq_left h3]
         rw [h3, pow_succ, negFamily_bondA]
         calc F.bondA μ N (j.val : ℤ) = -(((-1 : ℝ) ^ (j : ℕ) * (-1 : ℝ) ^ (j : ℕ)) * F.bondA μ N (j.val : ℤ) * (-1)) := by
               rw [h1]; ring
           _ = _ := by ring
-      · rw [if_neg h3, if_neg h3]; ring
+      · rw [ite_eq_right h3, ite_eq_right h3]; ring
 
 theorem jacobiMat_neg (F : SymbolFamily Par) (μ : Par) (N : ℕ) :
     (negFamily F).jacobiMat μ N = negConj (F.jacobiMat μ N) := by
@@ -192,12 +192,12 @@ theorem eigVec_negU {N : ℕ} (U : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) (i : 
     eigVec (negU U) i n = (-1 : ℝ) ^ n * eigVec U (Fin.rev i) n := by
   unfold eigVec
   by_cases hn : 0 ≤ n ∧ n ≤ (N : ℤ)
-  · rw [dif_pos hn, dif_pos hn]
+  · rw [dite_eq_left hn, dite_eq_left hn]
     simp only [negU, Matrix.of_apply]
     have : (-1 : ℝ) ^ n = (-1 : ℝ) ^ (n.toNat) := by
       rw [← zpow_natCast, Int.toNat_of_nonneg hn.1]
     rw [this]
-  · rw [dif_neg hn, dif_neg hn]; ring
+  · rw [dite_eq_right hn, dite_eq_right hn]; ring
 
 /-- The eigenvector of the gauge family at the energy `-X_k` (column `rev k` of the transported system) is `D Psi_k`. -/
 theorem eigVec_negU_rev {N : ℕ} (U : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) (k : Fin (N + 1)) (n : ℤ) :

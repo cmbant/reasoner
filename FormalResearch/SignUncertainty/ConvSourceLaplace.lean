@@ -73,7 +73,7 @@ lemma hasDerivAt_lapW {w : ℝ → ℝ} (hw : IntegrableOn w (Ioi 0)) {z₀ : �
   set δ : ℝ := z₀.re / 2 with hδ
   have hδ0 : 0 < δ := by positivity
   have hs : {z : ℂ | δ < z.re} ∈ 𝓝 z₀ :=
-    (isOpen_lt continuous_const Complex.continuous_re).mem_nhds (by simp only [mem_setOf_eq, hδ]; linarith)
+    (isOpen_lt continuous_const Complex.continuous_re).mem_nhds (by simp only [mem_ofPred_eq, hδ]; linarith)
   have hwc := integrableOn_ofReal_weight hw
   have hmeasF : ∀ z : ℂ, AEStronglyMeasurable (fun y : ℝ => (w y : ℂ) * Complex.exp (-(z * (y : ℂ))))
       (volume.restrict (Ioi (0 : ℝ))) := fun z =>
@@ -151,7 +151,7 @@ theorem convR_twisted {w X : ℝ → ℝ} (hw : IntegrableOn w (Ioi 0)) (hX : Co
       ‖(w y : ℂ) * Complex.exp (-(z * (y : ℂ)))‖ * ∫ v : ℝ, ‖(X v : ℂ) * Complex.exp (z * (v : ℂ))‖ := fun y => by
     have : ∀ u : ℝ, ‖convF w X z (u, y)‖ = ‖(w y : ℂ) * Complex.exp (-(z * (y : ℂ)))‖ *
         ‖(X (u + y) : ℂ) * Complex.exp (z * ((u + y : ℝ) : ℂ))‖ := fun u => by
-      unfold convF; simp only [norm_mul, add_comm y u]
+      unfold convF; simp only [norm_mul]
     simp_rw [this]
     rw [integral_const_mul]
     congr 1
