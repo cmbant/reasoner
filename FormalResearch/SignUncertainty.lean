@@ -308,6 +308,10 @@ public import FormalResearch.SignUncertainty.CtBoasPointwise
 public import FormalResearch.SignUncertainty.CtBoasSigmaLip
 public import FormalResearch.SignUncertainty.CtDyadicTaper
 public import FormalResearch.SignUncertainty.CtDyadicTaperChart
+public import FormalResearch.SignUncertainty.CtDyadicPsiWindow
+public import FormalResearch.SignUncertainty.CtDyadicChartReal
+public import FormalResearch.SignUncertainty.CtDyadicUhat
+public import FormalResearch.SignUncertainty.CtDyadicTaperBuild
 public import FormalResearch.SignUncertainty.CtDyadicMoments
 public import FormalResearch.SignUncertainty.CtDyadicStatement
 public import FormalResearch.SignUncertainty.HankelChartCubic
