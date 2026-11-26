@@ -1,10 +1,10 @@
 module
 
-public import FormalResearch.ModularBootstrap.FiveTerm.LowerPhaseChart
+public import FormalResearch.ModularBootstrap.FiveTerm.LowerMainDefs
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerSign
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerCorL
-public import FormalResearch.ModularBootstrap.FixedWeightTip.PropositionP
-public import FormalResearch.Special.AiryEnvelope
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.QuadratureBounds
+public import FormalResearch.ModularBootstrap.Contour.VirasoroScaleChoice
 
 /-!
 # Skeleton of `cts:lower-main`: the sharp lower bound from its open lemmas (FIVE-L, Theorem C9)
@@ -46,47 +46,11 @@ namespace FormalResearch.ModularBootstrap.FiveTerm
 
 open FormalResearch.Special FormalResearch.ModularBootstrap FormalResearch.ModularBootstrap.Upper.Comb
 open FormalResearch.ModularBootstrap.Crossing FormalResearch.ModularBootstrap.ConcreteBootstrap
-open FormalResearch.ModularBootstrap.FixedWeightTip
+open FormalResearch.ModularBootstrap.FixedWeightTip FormalResearch.ModularBootstrap.Contour
 
 noncomputable section
 
 /-! ### Objects of the proof of `cts:lower-main` -/
-
-/-- `R_max = 4 c_1² c^{2/3}`, the radius of the shifted Airy chart. -/
-def lowerRmax (c1 c : ℝ) : ℝ := 4 * c1 ^ 2 * c ^ (2 / 3 : ℝ)
-
-/-- `R_min = c_1² c^{2/3}`, the lower end of the range of macroscopic good radii. -/
-def lowerRmin (c1 c : ℝ) : ℝ := c1 ^ 2 * c ^ (2 / 3 : ℝ)
-
-/-- The Hardy taper `W_6(u) = (1 - (u/R)^{12})²`. -/
-def lowerW6 (R u : ℝ) : ℝ := (1 - (u / R) ^ 12) ^ 2
-
-/-- The complementary taper `w_R(v) = 1 - W_6(-v)`. -/
-def lowerWR (R v : ℝ) : ℝ := 1 - lowerW6 R (-v)
-
-/-- `f(u) = Ψ̃(φ_c(u)) φ_c'(u)`, the density transported by the shifted chart `φ_c`. -/
-noncomputable def lowerF (prob : FixedWeightProblem) (phi : ℝ → ℂ → ℂ) (c : ℝ) (g : ℝ → ℝ) (u : ℂ) : ℂ :=
-  psiTilde prob c g (phi c u) * deriv (phi c) u
-
-/-- `H(u) = W_6(u) f(u)` on the real axis (real part). -/
-noncomputable def lowerH (prob : FixedWeightProblem) (phi : ℝ → ℂ → ℂ) (c : ℝ) (g : ℝ → ℝ) (R x : ℝ) : ℝ :=
-  lowerW6 R x * (lowerF prob phi c g (x : ℂ)).re
-
-/-- The Airy node sum `P_R(F) = Σ_{n ≤ N} F(a_n)/Ai'(a_n)²` over the `N` zeros inside the circle. -/
-noncomputable def lowerPNodes (N : ℕ) (F : ℝ → ℝ) : ℝ :=
-  ∑ n ∈ Finset.Icc 1 N, F (airyZero n) / airyAi' (airyZero n) ^ 2
-
-/-- The circle bound `η(R) = ∮_{|ũ|=R} |Ψ̃|/|e| |dũ| + ∮_{|u|=R} |f|/|e| |du|`. -/
-noncomputable def lowerEta (prob : FixedWeightProblem) (phi : ℝ → ℂ → ℂ) (c : ℝ) (g : ℝ → ℝ) (R : ℝ) : ℝ :=
-  ∫ θ in (0 : ℝ)..(2 * π),
-    R * (‖psiTilde prob c g (circleMap 0 R θ)‖ + ‖lowerF prob phi c g (circleMap 0 R θ)‖) /
-      airyEnv (circleMap 0 R θ)
-
-/-- `R` is a good Airy radius with `N` zeros inside: the lower bound `‖Ai‖² ≥ (1+R)^{-1/2} e/(25π)` holds
-on the circle `|u| = R` (`AiryGoodCircles`) and `a_n` lies inside exactly for `n ≤ N`. -/
-def LowerGoodCircle (N : ℕ) (R : ℝ) : Prop :=
-  (∀ u : ℂ, ‖u‖ = R → 1 / (25 * π) * (1 + R) ^ (-(1 / 2 : ℝ)) * airyEnv u ≤ ‖airyAiC u‖ ^ 2) ∧
-  ∀ n : ℕ, 1 ≤ n → (n ≤ N ↔ |airyZero n| < R)
 
 /-- Outer-measure multiplier `M̃_ε(z) = (1+ε)(1+z²)/(1+z²+ε(1+z))` (`cts:Meps`). -/
 noncomputable def lowerMt (ε : ℝ) (z : ℂ) : ℂ :=
@@ -125,33 +89,12 @@ noncomputable def lowerBand (prob : FixedWeightProblem) (Gout : ℂ → ℂ) (ph
 /-! ### The open lemmas, as fields -/
 
 open Classical in
-/-- **`cts:cauchy-dual` (1), the part consumed by `cts:lower-main`**: the shifted Airy chart `φ_c = û⁻¹` (data `phi`, `uhat`)
-is holomorphic on a neighbourhood of `|u| ≤ R_max`, real on the real axis, `φ_c' = 1 + O(c⁻¹)`,
-`|φ_c(u) - u| ≤ C c^{-1/3}`, `û(φ_c(x)) = x`, and (`cts:phic-exp`)
-`φ_c(a_1) = a_1 - (c_0/c_*) c^{-1/3} - γ_0 a_1 c^{-1} + O(c^{-4/3})`. -/
-def LowerChart (c0 γ0 : ℝ) (c1 : ℝ) (phi : ℝ → ℂ → ℂ) (uhat : ℝ → ℝ → ℝ) : Prop :=
-  ∃ cc C : ℝ, 0 ≤ C ∧ ∀ c : ℝ, cc ≤ c →
-    (∃ ρ : ℝ, lowerRmax c1 c < ρ ∧ DifferentiableOn ℂ (phi c) (ball 0 ρ)) ∧
-    (∀ x : ℝ, |x| ≤ lowerRmax c1 c → (phi c (x : ℂ)).im = 0) ∧
-    (∀ u : ℂ, ‖u‖ ≤ lowerRmax c1 c →
-      ‖phi c u - u‖ ≤ C * c ^ (-(1 / 3 : ℝ)) ∧ ‖deriv (phi c) u - 1‖ ≤ C * c ^ (-1 : ℝ)) ∧
-    (∀ x : ℝ, |x| ≤ lowerRmax c1 c → uhat c (phi c (x : ℂ)).re = x) ∧
-    |(phi c (airyZero 1 : ℂ)).re -
-        (airyZero 1 - c0 / cStar * c ^ (-(1 / 3 : ℝ)) - γ0 * airyZero 1 * c ^ (-1 : ℝ))| ≤
-      C * c ^ (-(4 / 3 : ℝ))
-
-/-- Hypothesis of `cts:rosc-uncond`: `ũ_1(g) > φ_c(a_1)`. -/
-def LowerViolator (phi : ℝ → ℂ → ℂ) (c T : ℝ) : Prop :=
-  (phi c (airyZero 1 : ℂ)).re < virasoroUT c T
-
-/-- The range of macroscopic good radii. -/
-def LowerRadiusRange (c1 c R : ℝ) : Prop := lowerRmin c1 c ≤ R ∧ R ≤ lowerRmax c1 c
-
-open Classical in
-/-- **`cts:rosc-uncond` (1)**: a first good Airy radius `R_1 ∈ [c_1²c^{2/3}, 4c_1²c^{2/3}]` with `η(R_1) ≤ C`. -/
+/-- **`cts:rosc-uncond` (1)**: a first good Airy radius `R_1 ∈ [c_1²c^{2/3}, 4c_1²c^{2/3}]` with `η(R_1) ≤ C`
+on the band `T ≤ Δ(-virasoroAThr)`. -/
 def LowerFirstGood (prob : FixedWeightProblem) (c1 : ℝ) (phi : ℝ → ℂ → ℂ) : Prop :=
   ∃ cc C : ℝ, ∀ c : ℝ, cc ≤ c → ∀ (T : ℝ) (g : ℝ → ℝ), prob.IsWeaklyFeasible (c / 12) T g →
-    LowerViolator phi c T → ∃ (N : ℕ) (R : ℝ), LowerGoodCircle N R ∧ LowerRadiusRange c1 c R ∧
+    LowerViolator phi c T → T ≤ virasoroDeltaChart c (-virasoroAThr) →
+    ∃ (N : ℕ) (R : ℝ), LowerGoodCircle N R ∧ LowerRadiusRange c1 c R ∧
       lowerEta prob phi c g R ≤ C
 
 /-- The "pass-1 hypothesis" `P_{R_1}(H_1) + g_vac/2π ≤ C_1 c^{-1}` at some good radius `R_1`. -/
@@ -160,38 +103,42 @@ def LowerPassOne (prob : FixedWeightProblem) (c1 : ℝ) (phi : ℝ → ℂ → �
     lowerPNodes N (lowerH prob phi c g R) + prob.gVac (c / 12) g / (2 * π) ≤ C₁ * c ^ (-1 : ℝ)
 
 open Classical in
-/-- **`cts:rosc-uncond` (4)**, the combined dual identity at a good radius:
+/-- **`cts:rosc-uncond` (4)**, the combined dual identity at a good radius on the band `T ≤ Δ(-virasoroAThr)`:
 `P_R(H) + g_vac/2π + ∫_{v_0}^∞ w̃_R Ψ̃(-v')[1 + 2 s_c] dv' = O(c⁻¹ η_R + c^{-4/3} log c + c⁻¹ 1_{E_un})`,
 the last term being absent when the pass-1 hypothesis holds. -/
 def LowerCombined (prob : FixedWeightProblem) (Gout : ℂ → ℂ) (c1 : ℝ) (phi : ℝ → ℂ → ℂ)
     (uhat : ℝ → ℝ → ℝ) : Prop :=
   (∃ cc C : ℝ, ∀ c : ℝ, cc ≤ c → ∀ (T : ℝ) (g : ℝ → ℝ), prob.IsWeaklyFeasible (c / 12) T g →
-    LowerViolator phi c T → ∀ (N : ℕ) (R : ℝ), LowerGoodCircle N R → LowerRadiusRange c1 c R →
+    LowerViolator phi c T → T ≤ virasoroDeltaChart c (-virasoroAThr) →
+    ∀ (N : ℕ) (R : ℝ), LowerGoodCircle N R → LowerRadiusRange c1 c R →
       |lowerPNodes N (lowerH prob phi c g R) + prob.gVac (c / 12) g / (2 * π) +
           lowerBand prob Gout phi uhat c R g| ≤
         C * (c ^ (-1 : ℝ) * lowerEta prob phi c g R + c ^ (-(4 / 3 : ℝ)) * Real.log c +
           c ^ (-1 : ℝ))) ∧
   ∀ C₁ : ℝ, ∃ cc C : ℝ, ∀ c : ℝ, cc ≤ c → ∀ (T : ℝ) (g : ℝ → ℝ),
-    prob.IsWeaklyFeasible (c / 12) T g → LowerViolator phi c T → LowerPassOne prob c1 phi C₁ c g →
+    prob.IsWeaklyFeasible (c / 12) T g → LowerViolator phi c T →
+    T ≤ virasoroDeltaChart c (-virasoroAThr) → LowerPassOne prob c1 phi C₁ c g →
     ∀ (N : ℕ) (R : ℝ), LowerGoodCircle N R → LowerRadiusRange c1 c R →
       |lowerPNodes N (lowerH prob phi c g R) + prob.gVac (c / 12) g / (2 * π) +
           lowerBand prob Gout phi uhat c R g| ≤
         C * (c ^ (-1 : ℝ) * lowerEta prob phi c g R + c ^ (-(4 / 3 : ℝ)) * Real.log c)
 
 /-- **`ctl:pass2`**: if the pass-1 hypothesis holds with constant `C_1`, there is a second good radius with
-`η(R) ≤ C c^{-1/3} log c`. -/
+`η(R) ≤ C c^{-1/3} log c` on the band `T ≤ Δ(-virasoroAThr)`. -/
 def LowerPass2 (prob : FixedWeightProblem) (c1 : ℝ) (phi : ℝ → ℂ → ℂ) : Prop :=
   ∀ C₁ : ℝ, ∃ cc C : ℝ, ∀ c : ℝ, cc ≤ c → ∀ (T : ℝ) (g : ℝ → ℝ),
-    prob.IsWeaklyFeasible (c / 12) T g → LowerViolator phi c T → LowerPassOne prob c1 phi C₁ c g →
+    prob.IsWeaklyFeasible (c / 12) T g → LowerViolator phi c T →
+    T ≤ virasoroDeltaChart c (-virasoroAThr) → LowerPassOne prob c1 phi C₁ c g →
     ∃ (N : ℕ) (R : ℝ), LowerGoodCircle N R ∧ LowerRadiusRange c1 c R ∧
       lowerEta prob phi c g R ≤ C * c ^ (-(1 / 3 : ℝ)) * Real.log c
 
 /-- **`cts:boas`** (local strip Boas positivity): the band integral is `≥ -C c^{-4/3} log c`
-at every good radius. -/
+at every good radius on the band `T ≤ Δ(-virasoroAThr)`. -/
 def LowerBoas (prob : FixedWeightProblem) (Gout : ℂ → ℂ) (c1 : ℝ) (phi : ℝ → ℂ → ℂ)
     (uhat : ℝ → ℝ → ℝ) : Prop :=
   ∃ cc C : ℝ, ∀ c : ℝ, cc ≤ c → ∀ (T : ℝ) (g : ℝ → ℝ), prob.IsWeaklyFeasible (c / 12) T g →
-    LowerViolator phi c T → ∀ (N : ℕ) (R : ℝ), LowerGoodCircle N R → LowerRadiusRange c1 c R →
+    LowerViolator phi c T → T ≤ virasoroDeltaChart c (-virasoroAThr) →
+    ∀ (N : ℕ) (R : ℝ), LowerGoodCircle N R → LowerRadiusRange c1 c R →
       -(C * c ^ (-(4 / 3 : ℝ)) * Real.log c) ≤ lowerBand prob Gout phi uhat c R g
 
 /-- **The exact Langer coordinate on the real band** (`cts:langer`, `rem:s1`, Theorem L*): `-ũ = β c^{2/3} τ(x)`,
@@ -203,18 +150,17 @@ def LowerLangerPhase : Prop :=
 
 /-- **The inputs of `cts:lower-main`.**  The data are the shifted chart `φ_c` (`phi`, `uhat`), the outer function
 `G_outer` (`Gout`) and the chart radius `c_1`; the fields are the open TeX lemmas as used in the proof of Theorem C9:
-`cts:cauchy-dual` (1) (`LowerChart`), `cts:rosc-uncond` (1) and (4) (`LowerFirstGood`, `LowerCombined`),
-`ctl:pass2`, `cts:boas`, and the Langer identification `LowerLangerPhase`.  (`ctl:dyadic` and `ctl:freeze` are used
-only inside the proofs of `cts:rosc-uncond` and `cts:boas`; they will enter as sub-structures of those fields.) -/
+`cts:cauchy-dual` (1) (`LowerChart`), `cts:rosc-uncond` (4) (`LowerCombined`),
+`ctl:pass2`, `cts:boas`, and the Langer identification `LowerLangerPhase` (`cts:rosc-uncond` (1), `LowerFirstGood`,
+is discharged unconditionally at Virasoro from `chart` by `lowerFirstGood_of_chart_on_band`). -/
 structure LowerMainInputs (prob : FixedWeightProblem) (c0 γ0 : ℝ) where
   Gout : ℂ → ℂ
   phi : ℝ → ℂ → ℂ
   uhat : ℝ → ℝ → ℝ
   c1 : ℝ
   c1_pos : 0 < c1
-  c1_small : 4 * c1 ^ 2 < 2 * virasoroBV ^ 2
+  c1_small : 10 * c1 ≤ virasoroBVChoice
   chart : LowerChart c0 γ0 c1 phi uhat
-  firstGood : LowerFirstGood prob c1 phi
   combined : LowerCombined prob Gout c1 phi uhat
   pass2 : LowerPass2 prob c1 phi
   boas : LowerBoas prob Gout c1 phi uhat
@@ -495,13 +441,15 @@ private lemma rpow_neg_one_mul {c : ℝ} (hc : 0 < c) :
 
 /-- **Passes 1 and 2 of `cts:lower-main`.**  For every violating test there is a good radius with
 `P_R(H) + g_vac/2π ≤ C_0 c^{-4/3} log c`, `C_0` independent of the test and of `K`. -/
-theorem lower_pass_upper {prob : FixedWeightProblem} {c0 γ0 : ℝ} (h : LowerMainInputs prob c0 γ0) :
+theorem lower_pass_upper {prob : FixedWeightProblem} {c0 γ0 : ℝ}
+    (h : LowerMainInputs prob c0 γ0) (hfirst_good : LowerFirstGood prob h.c1 h.phi) :
     ∃ cc C₀ : ℝ, ∀ c : ℝ, cc ≤ c → ∀ (T : ℝ) (g : ℝ → ℝ), prob.IsWeaklyFeasible (c / 12) T g →
-      LowerViolator h.phi c T → ∃ (N : ℕ) (R : ℝ), LowerGoodCircle N R ∧ LowerRadiusRange h.c1 c R ∧
+      LowerViolator h.phi c T → T ≤ virasoroDeltaChart c (-virasoroAThr) →
+      ∃ (N : ℕ) (R : ℝ), LowerGoodCircle N R ∧ LowerRadiusRange h.c1 c R ∧
         lowerPNodes N (lowerH prob h.phi c g R) + prob.gVac (c / 12) g / (2 * π) ≤
           C₀ * c ^ (-(4 / 3 : ℝ)) * Real.log c := by
   obtain ⟨⟨cc4a, C4a, h4a⟩, h4b⟩ := h.combined
-  obtain ⟨cc1, Cη, hfirst⟩ := h.firstGood
+  obtain ⟨cc1, Cη, hfirst⟩ := hfirst_good
   obtain ⟨cc8, C8, h8⟩ := h.boas
   set Ca := max C4a 0 with hCa
   set C8' := max C8 0 with hC8'
@@ -516,7 +464,7 @@ theorem lower_pass_upper {prob : FixedWeightProblem} {c0 γ0 : ℝ} (h : LowerMa
   have hC4b0 : 0 ≤ C4b' := le_max_right _ _
   have hCp0 : 0 ≤ Cp' := le_max_right _ _
   refine ⟨max (max (max cc4a cc1) (max cc8 cc4b)) (max cc2 3), C4b' * (Cp' + 1) + C8', ?_⟩
-  intro c hc T g hg hviol
+  intro c hc T g hg hviol hT_hi
   have hc3 : 3 ≤ c := (le_max_right _ _).trans ((le_max_right _ _).trans hc)
   have hc0 : 0 < c := by linarith
   have hlog := one_le_log hc3
@@ -530,9 +478,9 @@ theorem lower_pass_upper {prob : FixedWeightProblem} {c0 γ0 : ℝ} (h : LowerMa
   have hlog0 : 0 ≤ Real.log c := by linarith
   have hlogc := rpow_four_third_log_le hc3
   -- pass 1
-  obtain ⟨N₁, R₁, hgood₁, hrange₁, hη₁⟩ := hfirst c hcc1 T g hg hviol
-  have hP1 := h4a c hcc4a T g hg hviol N₁ R₁ hgood₁ hrange₁
-  have hB1 := h8 c hcc8 T g hg hviol N₁ R₁ hgood₁ hrange₁
+  obtain ⟨N₁, R₁, hgood₁, hrange₁, hη₁⟩ := hfirst c hcc1 T g hg hviol hT_hi
+  have hP1 := h4a c hcc4a T g hg hviol hT_hi N₁ R₁ hgood₁ hrange₁
+  have hB1 := h8 c hcc8 T g hg hviol hT_hi N₁ R₁ hgood₁ hrange₁
   set P₁ := lowerPNodes N₁ (lowerH prob h.phi c g R₁) + prob.gVac (c / 12) g / (2 * π)
   set B₁ := lowerBand prob h.Gout h.phi h.uhat c R₁ g
   have hη1' : c ^ (-1 : ℝ) * lowerEta prob h.phi c g R₁ ≤ c ^ (-1 : ℝ) * Cη' :=
@@ -567,13 +515,13 @@ theorem lower_pass_upper {prob : FixedWeightProblem} {c0 γ0 : ℝ} (h : LowerMa
       nlinarith [h1, h2, hB1, habs]
     exact this
   -- pass 2
-  obtain ⟨N, R, hgood, hrange, hη⟩ := hp2 c hcc2 T g hg hviol hpass1
+  obtain ⟨N, R, hgood, hrange, hη⟩ := hp2 c hcc2 T g hg hviol hT_hi hpass1
   have hR0 : 0 ≤ R := by
     have : 0 ≤ lowerRmin h.c1 c := by unfold lowerRmin; positivity
     linarith [hrange.1]
   refine ⟨N, R, hgood, hrange, ?_⟩
-  have hP2 := h4b' c hcc4b T g hg hviol hpass1 N R hgood hrange
-  have hB2 := h8 c hcc8 T g hg hviol N R hgood hrange
+  have hP2 := h4b' c hcc4b T g hg hviol hT_hi hpass1 N R hgood hrange
+  have hB2 := h8 c hcc8 T g hg hviol hT_hi N R hgood hrange
   have habs2 := (abs_le.1 hP2).2
   have hE0 := mul_nonneg hm1 (hη0 R hR0)
   have hd0 := mul_nonneg hm43 hlog0
@@ -608,14 +556,130 @@ private lemma ge_bracket_eventually {c0 : ℝ} (hc0 : c0 < 0) (γ0 Cφ : ℝ) :
   rw [hlim] at hb
   exact hb.eventually (lt_mem_nhds (div_pos (by linarith) hcs))
 
+private lemma lowerPhase_claim_delta_le {prob : FixedWeightProblem} {c0 γ0 C₀ K κ L₀ Cφ c T u A2 : ℝ}
+    {g : ℝ → ℝ} (h : LowerMainInputs prob c0 γ0)
+    (hCφ : 0 ≤ Cφ) (hκ : 0 < κ) (hc3 : 3 ≤ c) (hc0 : 0 < c)
+    (hL₀ : L₀ = κ / (2 * airyAi' (airyZero 1) ^ 2)) (hL₀pos : 0 < L₀)
+    (hβK : betaTip * K = max C₀ 0 / L₀ + Cφ + betaTip)
+    (hu : u = lowerUstar c0 γ0 K c) (hu1 : airyZero 1 < u) (hu3 : -(|airyZero 1| + 1) ≤ u)
+    (hbr : 0 < -c0 / cStar - γ0 * airyZero 1 * c ^ (-(2 / 3) : ℝ) - Cφ * c ^ (-1 : ℝ))
+    (hφ1 : Cφ * c ^ (-(1 / 3 : ℝ)) ≤ 1) (hφ2 : Cφ * c ^ (-1 : ℝ) ≤ 1 / 2)
+    (hA2 : A2 = virasoroAC c ^ 2) (hRA : lowerRmax h.c1 c + 1 ≤ A2)
+    (hRa : 2 * |airyZero 1| ≤ h.c1 ^ 2 * c ^ (2 / 3 : ℝ))
+    (hAmem : ∀ x : ℝ, -(|airyZero 1| + 1) ≤ x → x ≤ 0 → x ∈ Icc (-A2) A2)
+    (hsA : StrictAntiOn (virasoroDeltaChart c) (Icc (-A2) A2))
+    (hu_mem : u ∈ Icc (-A2) A2) (ha1_mem : airyZero 1 ∈ Icc (-A2) A2)
+    (hg : prob.IsWeaklyFeasible (c / 12) T g)
+    (hprel_c : ∀ T g, prob.IsWeaklyFeasible (c / 12) T g → T < virasoroDeltaChart c (airyZero 1) →
+      (airyZero 1 < virasoroUT c T ∧
+        virasoroUT c T ∈ Icc (-(virasoroAC c ^ 2)) (virasoroAC c ^ 2) ∧
+        virasoroDeltaChart c (virasoroUT c T) = T) ∧
+      (∀ x : ℝ, |x| ≤ virasoroAC c ^ 2 → (psiTilde prob c g (x : ℂ)).im = 0) ∧
+      (∀ x : ℝ, |x| ≤ virasoroAC c ^ 2 → x ≤ virasoroUT c T → 0 ≤ (psiTilde prob c g (x : ℂ)).re) ∧
+      (∀ θ : ℝ, 0 ≤ θ → θ ≤ 1 → 2 * κ * (1 - θ) * (virasoroUT c T - airyZero 1) ≤
+        (psiTilde prob c g ((airyZero 1 + θ * (virasoroUT c T - airyZero 1) : ℝ) : ℂ)).re))
+    (hch_c : (∃ ρ : ℝ, lowerRmax h.c1 c < ρ ∧ DifferentiableOn ℂ (h.phi c) (ball 0 ρ)) ∧
+      (∀ x : ℝ, |x| ≤ lowerRmax h.c1 c → (h.phi c (x : ℂ)).im = 0) ∧
+      (∀ w : ℂ, ‖w‖ ≤ lowerRmax h.c1 c →
+        ‖h.phi c w - w‖ ≤ Cφ * c ^ (-(1 / 3 : ℝ)) ∧ ‖deriv (h.phi c) w - 1‖ ≤ Cφ * c ^ (-1 : ℝ)) ∧
+      (∀ x : ℝ, |x| ≤ lowerRmax h.c1 c → h.uhat c (h.phi c (x : ℂ)).re = x) ∧
+      |(h.phi c (airyZero 1 : ℂ)).re -
+          (airyZero 1 - c0 / cStar * c ^ (-(1 / 3 : ℝ)) - γ0 * airyZero 1 * c ^ (-1 : ℝ))| ≤
+        Cφ * c ^ (-(4 / 3 : ℝ)))
+    (hpass_c : ∀ T g, prob.IsWeaklyFeasible (c / 12) T g → LowerViolator h.phi c T →
+      T ≤ virasoroDeltaChart c (-virasoroAThr) →
+      ∃ N R, LowerGoodCircle N R ∧ LowerRadiusRange h.c1 c R ∧
+        lowerPNodes N (lowerH prob h.phi c g R) + prob.gVac (c / 12) g / (2 * π) ≤
+          C₀ * c ^ (-(4 / 3 : ℝ)) * Real.log c) :
+    virasoroDeltaChart c u ≤ T := by
+  by_contra hT
+  have hT' : T < virasoroDeltaChart c u := not_le.1 hT
+  have hTa : T < virasoroDeltaChart c (airyZero 1) := hT'.trans (hsA ha1_mem hu_mem hu1)
+  obtain ⟨⟨hq1, hq2, hq2'⟩, hq0, hq3, hq4⟩ := hprel_c T g hg hTa
+  set uT := virasoroUT c T with huT
+  have hlt : u < uT := by
+    by_contra hle
+    have := hsA.antitoneOn (hA2 ▸ hq2) hu_mem (not_lt.1 hle)
+    linarith
+  obtain ⟨⟨ρ, hρ, hdiff⟩, him, hcl, -, hexp⟩ := hch_c
+  have hclose : ∀ w : ℂ, ‖w‖ ≤ lowerRmax h.c1 c → ‖h.phi c w - w‖ ≤ 1 ∧ ‖deriv (h.phi c) w - 1‖ ≤ 1 / 2 :=
+    fun w hw => ⟨(hcl w hw).1.trans hφ1, (hcl w hw).2.trans hφ2⟩
+  obtain ⟨hp2, hp3, hp4, -, -, -⟩ := rpow_third_pows hc0
+  have hp : 0 < c ^ (-(1 / 3 : ℝ)) := Real.rpow_pos_of_pos hc0 _
+  have hcs := cStar_pos
+  have hexp' := abs_le.1 hexp
+  have hge : airyZero 1 ≤ (h.phi c (airyZero 1 : ℂ)).re := by
+    set p := c ^ (-(1 / 3 : ℝ)) with hpdef
+    rw [hp2, hp3] at hbr
+    rw [hp4, hp3] at hexp'
+    have : 0 < p * (-c0 / cStar - γ0 * airyZero 1 * p ^ 2 - Cφ * p ^ 3) := mul_pos hp hbr
+    have h2 : p * (-c0 / cStar - γ0 * airyZero 1 * p ^ 2 - Cφ * p ^ 3) =
+        -(c0 / cStar * p) - γ0 * airyZero 1 * p ^ 3 - Cφ * p ^ 4 := by ring
+    linarith [hexp'.1]
+  have hlog := one_le_log hc3
+  have hd0 : 0 ≤ c ^ (-(4 / 3 : ℝ)) := Real.rpow_nonneg hc0.le _
+  have hdpos : 0 < c ^ (-(4 / 3 : ℝ)) * Real.log c :=
+    mul_pos (Real.rpow_pos_of_pos hc0 _) (by linarith)
+  have hdiffu : (max C₀ 0 / L₀ + betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c) ≤
+      u - (h.phi c (airyZero 1 : ℂ)).re := by
+    have hu' : u = (airyZero 1 - c0 / cStar * c ^ (-(1 / 3 : ℝ)) - γ0 * airyZero 1 * c ^ (-1 : ℝ)) +
+        betaTip * K * c ^ (-(4 / 3 : ℝ)) * Real.log c := by
+      rw [hu]; unfold lowerUstar; ring
+    have h1 : Cφ * c ^ (-(4 / 3 : ℝ)) ≤ Cφ * (c ^ (-(4 / 3 : ℝ)) * Real.log c) :=
+      mul_le_mul_of_nonneg_left (le_mul_of_one_le_right hd0 hlog) hCφ
+    have h2 : betaTip * K * c ^ (-(4 / 3 : ℝ)) * Real.log c =
+        (max C₀ 0 / L₀ + Cφ + betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c) := by
+      rw [← hβK]; ring
+    linarith [hexp'.2, h1, h2, hu']
+  have hviol : LowerViolator h.phi c T := by
+    unfold LowerViolator
+    have : 0 < (max C₀ 0 / L₀ + betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c) := by
+      have : 0 ≤ max C₀ 0 / L₀ := div_nonneg (le_max_right _ _) hL₀pos.le
+      have := betaTip_pos
+      positivity
+    linarith
+  have hthr_mem : -virasoroAThr ∈ Icc (-A2) A2 := by
+    unfold virasoroAThr
+    exact hAmem (-(|airyZero 1| + 1)) le_rfl (by linarith [abs_nonneg (airyZero 1)])
+  have hT_hi : T ≤ virasoroDeltaChart c (-virasoroAThr) := by
+    have hle : virasoroDeltaChart c u ≤ virasoroDeltaChart c (-virasoroAThr) :=
+      hsA.antitoneOn hthr_mem hu_mem hu3
+    linarith
+  obtain ⟨N, R, hgood, hrange, hPb⟩ := hpass_c T g hg hviol hT_hi
+  have hlow := nodes_lower prob h.phi h.c1 c g T κ hκ ⟨ρ, hρ, hdiff⟩ him hclose (hA2 ▸ hRA) hq1 hq0 hq3 hq4
+    hviol hge hgood.2 hrange.2 (by
+      have := hrange.1; unfold lowerRmin at this; linarith)
+  have hgv : 0 ≤ prob.gVac (c / 12) g / (2 * π) :=
+    div_nonneg hg.2.2.1 (by positivity)
+  have hLeq : (1 / 2) * (κ * (uT - (h.phi c (airyZero 1 : ℂ)).re)) / airyAi' (airyZero 1) ^ 2 =
+      L₀ * (uT - (h.phi c (airyZero 1 : ℂ)).re) := by
+    rw [hL₀]; field_simp
+  rw [hLeq] at hlow
+  have hfin : L₀ * ((max C₀ 0 / L₀ + betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c)) ≤
+      C₀ * c ^ (-(4 / 3 : ℝ)) * Real.log c := by
+    have : L₀ * (u - (h.phi c (airyZero 1 : ℂ)).re) ≤ L₀ * (uT - (h.phi c (airyZero 1 : ℂ)).re) :=
+      mul_le_mul_of_nonneg_left (by linarith) hL₀pos.le
+    have h3 := mul_le_mul_of_nonneg_left hdiffu hL₀pos.le
+    linarith
+  have : L₀ * ((max C₀ 0 / L₀ + betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c)) =
+      (max C₀ 0 + L₀ * betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c) := by
+    field_simp
+  rw [this] at hfin
+  have h4 : (max C₀ 0 + L₀ * betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c) ≤
+      C₀ * (c ^ (-(4 / 3 : ℝ)) * Real.log c) := by linarith
+  have h5 := le_of_mul_le_mul_right h4 hdpos
+  have hLβ : 0 < L₀ * betaTip := mul_pos hL₀pos betaTip_pos
+  linarith only [h5, hLβ, le_max_left C₀ 0]
+
 /-- **`cts:lower-main` from its inputs** (`LowerMainInputs`, the open TeX lemmas, and `LowerPrelim`, the already
 proved facts about `Ψ̃`): for `c_0 < 0` there is `C` with `LowerPhaseStatement prob c₀ γ₀ C` (`gp:L`), i.e. every weakly
 feasible test has first-site phase at least `τ_*(c) - C c^{-2} log c`.  Proof: Passes 1-2 (`lower_pass_upper`), the first
 node (`nodes_lower`) and the Langer identification (`LowerLangerPhase`) at `u_* = lowerUstar`. -/
 theorem lowerPhase_of_inputs {prob : FixedWeightProblem} {c0 γ0 : ℝ} (hc0 : c0 < 0)
-    (hP : LowerPrelim prob) (h : LowerMainInputs prob c0 γ0) :
+    (hP : LowerPrelim prob) (h : LowerMainInputs prob c0 γ0)
+    (hfirst_good : LowerFirstGood prob h.c1 h.phi) :
     ∃ C : ℝ, 0 ≤ C ∧ LowerPhaseStatement prob c0 γ0 C := by
-  obtain ⟨ccp, C₀, hpass⟩ := lower_pass_upper h
+  obtain ⟨ccp, C₀, hpass⟩ := lower_pass_upper h hfirst_good
   obtain ⟨cP, κ, hκ, hprel⟩ := hP
   obtain ⟨cc_ch, Cφ, hCφ, hch⟩ := h.chart
   obtain ⟨cb, hlang⟩ := h.langer
@@ -632,7 +696,10 @@ theorem lowerPhase_of_inputs {prob : FixedWeightProblem} {c0 γ0 : ℝ} (hc0 : c
     rw [hK]; field_simp
   have ha1 : airyZero 1 < 0 := airyZero_neg 1
   have hBV := virasoroBV_pos
-  have hdiff2 : 0 < 2 * virasoroBV ^ 2 - 4 * h.c1 ^ 2 := by linarith [h.c1_small]
+  have hc1_bv : 10 * h.c1 ≤ virasoroBV := h.c1_small.trans virasoroBVChoice_le
+  have hdiff2 : 0 < 2 * virasoroBV ^ 2 - 4 * h.c1 ^ 2 := by
+    have hc1_pos := h.c1_pos
+    nlinarith only [sq_nonneg h.c1, sq_nonneg virasoroBV, hc1_pos, hc1_bv, hBV]
   have hc23 : Tendsto (fun c : ℝ => c ^ (2 / 3 : ℝ)) atTop atTop :=
     tendsto_rpow_atTop (by norm_num)
   have hcm3 : Tendsto (fun c : ℝ => c ^ (-(1 / 3) : ℝ)) atTop (𝓝 0) :=
@@ -691,77 +758,9 @@ theorem lowerPhase_of_inputs {prob : FixedWeightProblem} {c0 γ0 : ℝ} (hc0 : c
   have ha1_mem : airyZero 1 ∈ Icc (-A2) A2 := hAmem _ (by linarith) ha1.le
   have h0_mem : (0 : ℝ) ∈ Icc (-A2) A2 := hAmem 0 (by linarith [abs_nonneg (airyZero 1)]) le_rfl
   -- the claim `Δ(u_*) ≤ T`
-  have hclaim : virasoroDeltaChart c u ≤ T := by
-    by_contra hT
-    have hT' : T < virasoroDeltaChart c u := not_le.1 hT
-    have hTa : T < virasoroDeltaChart c (airyZero 1) := hT'.trans (hsA ha1_mem hu_mem hu1)
-    obtain ⟨⟨hq1, hq2, hq2'⟩, hq0, hq3, hq4⟩ := hprel c hcP T g hg hTa
-    set uT := virasoroUT c T with huT
-    have hlt : u < uT := by
-      by_contra hle
-      have := hsA.antitoneOn hq2 hu_mem (not_lt.1 hle)
-      linarith
-    obtain ⟨⟨ρ, hρ, hdiff⟩, him, hcl, -, hexp⟩ := hch c hcch
-    have hclose : ∀ w : ℂ, ‖w‖ ≤ lowerRmax h.c1 c → ‖h.phi c w - w‖ ≤ 1 ∧ ‖deriv (h.phi c) w - 1‖ ≤ 1 / 2 :=
-      fun w hw => ⟨(hcl w hw).1.trans hφ1, (hcl w hw).2.trans hφ2⟩
-    obtain ⟨hp2, hp3, hp4, -, -, -⟩ := rpow_third_pows hc0
-    have hp : 0 < c ^ (-(1 / 3 : ℝ)) := Real.rpow_pos_of_pos hc0 _
-    have hcs := cStar_pos
-    have hexp' := abs_le.1 hexp
-    have hge : airyZero 1 ≤ (h.phi c (airyZero 1 : ℂ)).re := by
-      set p := c ^ (-(1 / 3 : ℝ)) with hpdef
-      rw [hp2, hp3] at hbr
-      rw [hp4, hp3] at hexp'
-      have : 0 < p * (-c0 / cStar - γ0 * airyZero 1 * p ^ 2 - Cφ * p ^ 3) := mul_pos hp hbr
-      have h2 : p * (-c0 / cStar - γ0 * airyZero 1 * p ^ 2 - Cφ * p ^ 3) =
-          -(c0 / cStar * p) - γ0 * airyZero 1 * p ^ 3 - Cφ * p ^ 4 := by ring
-      linarith [hexp'.1]
-    have hlog := one_le_log hc3
-    have hd0 : 0 ≤ c ^ (-(4 / 3 : ℝ)) := Real.rpow_nonneg hc0.le _
-    have hdpos : 0 < c ^ (-(4 / 3 : ℝ)) * Real.log c :=
-      mul_pos (Real.rpow_pos_of_pos hc0 _) (by linarith)
-    have hdiffu : (max C₀ 0 / L₀ + betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c) ≤
-        u - (h.phi c (airyZero 1 : ℂ)).re := by
-      have hu' : u = (airyZero 1 - c0 / cStar * c ^ (-(1 / 3 : ℝ)) - γ0 * airyZero 1 * c ^ (-1 : ℝ)) +
-          betaTip * K * c ^ (-(4 / 3 : ℝ)) * Real.log c := by
-        rw [hu]; unfold lowerUstar; ring
-      have h1 : Cφ * c ^ (-(4 / 3 : ℝ)) ≤ Cφ * (c ^ (-(4 / 3 : ℝ)) * Real.log c) :=
-        mul_le_mul_of_nonneg_left (le_mul_of_one_le_right hd0 hlog) hCφ
-      have h2 : betaTip * K * c ^ (-(4 / 3 : ℝ)) * Real.log c =
-          (max C₀ 0 / L₀ + Cφ + betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c) := by
-        rw [← hβK]; ring
-      linarith [hexp'.2, h1, h2, hu']
-    have hviol : LowerViolator h.phi c T := by
-      unfold LowerViolator
-      have : 0 < (max C₀ 0 / L₀ + betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c) := by
-        have : 0 ≤ max C₀ 0 / L₀ := div_nonneg (le_max_right _ _) hL₀pos.le
-        positivity
-      linarith
-    obtain ⟨N, R, hgood, hrange, hPb⟩ := hpass c hccp T g hg hviol
-    have hlow := nodes_lower prob h.phi h.c1 c g T κ hκ ⟨ρ, hρ, hdiff⟩ him hclose hRA hq1 hq0 hq3 hq4
-      hviol hge hgood.2 hrange.2 (by
-        have := hrange.1; unfold lowerRmin at this; linarith)
-    have hgv : 0 ≤ prob.gVac (c / 12) g / (2 * π) :=
-      div_nonneg hg.2.2.1 (by positivity)
-    have hLeq : (1 / 2) * (κ * (uT - (h.phi c (airyZero 1 : ℂ)).re)) / airyAi' (airyZero 1) ^ 2 =
-        L₀ * (uT - (h.phi c (airyZero 1 : ℂ)).re) := by
-      rw [hL₀]; field_simp
-    rw [hLeq] at hlow
-    have hfin : L₀ * ((max C₀ 0 / L₀ + betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c)) ≤
-        C₀ * c ^ (-(4 / 3 : ℝ)) * Real.log c := by
-      have : L₀ * (u - (h.phi c (airyZero 1 : ℂ)).re) ≤ L₀ * (uT - (h.phi c (airyZero 1 : ℂ)).re) :=
-        mul_le_mul_of_nonneg_left (by linarith) hL₀pos.le
-      have h3 := mul_le_mul_of_nonneg_left hdiffu hL₀pos.le
-      linarith
-    have : L₀ * ((max C₀ 0 / L₀ + betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c)) =
-        (max C₀ 0 + L₀ * betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c) := by
-      field_simp
-    rw [this] at hfin
-    have h4 : (max C₀ 0 + L₀ * betaTip) * (c ^ (-(4 / 3 : ℝ)) * Real.log c) ≤
-        C₀ * (c ^ (-(4 / 3 : ℝ)) * Real.log c) := by linarith
-    have h5 := le_of_mul_le_mul_right h4 hdpos
-    have : 0 < L₀ * betaTip := mul_pos hL₀pos hβ
-    linarith [le_max_left C₀ 0]
+  have hclaim : virasoroDeltaChart c u ≤ T :=
+    lowerPhase_claim_delta_le h hCφ hκ hc3 hc0 hL₀ hL₀pos hβK hu hu1 hu3 hbr hφ1 hφ2
+      hA2 hRA hRa hAmem hsA hu_mem ha1_mem hg (hprel c hcP) (hch c hcch) (hpass c hccp)
   -- conclusion
   have hΔ0 : virasoroDeltaChart c 0 < virasoroDeltaChart c u := hsA hu_mem h0_mem hu2
   rw [virasoroDeltaChart_zero] at hΔ0
