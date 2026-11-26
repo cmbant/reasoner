@@ -185,14 +185,15 @@ lemma lmin_le_lam {ε c R Lmin : ℝ} (hc : 0 < c) (hB : TaperBand ε c R) (hL0 
   rw [hLv] at this
   linarith
 
-/-- The field `trunc_lo` (`ct:dyadic` (1), the taper estimate): `∫_{L<L_min} w̃(1 - 𝔰_far)|h| ≤ 2^{12}(K+1)c₁^{-24}c^{-29/21}`
+/-- The field `trunc_lo` (`ct:dyadic` (1), the taper estimate): `∫_{L<L_min} w̃(1 - 𝔰)|h| ≤ 2^{12}(K+1)c₁^{-24}c^{-29/21}`
+for any `0 ≤ 𝔰 ≤ 1` (`𝔰 = 𝔰_far` for `ct:boas`, `𝔰 = 0` for the taper estimate of `ct:dyadic` (4))
 from the first moment `∫_{(0,L_J]} v'|h| ≤ Kc^{1/3}` (`ct_boas_moments_top`). -/
-theorem boas_field_trunc_lo {c₁ K Lmin LJ : ℝ} {h : ℝ → ℝ} (hc : 3 ≤ c) (hB : TaperBand ε c R) (hc₁ : 0 < c₁)
+theorem boas_field_trunc_lo {c₁ K Lmin LJ : ℝ} {h sf : ℝ → ℝ} (hsf : ∀ L, 0 ≤ sf L ∧ sf L ≤ 1) (hc : 3 ≤ c) (hB : TaperBand ε c R) (hc₁ : 0 < c₁)
     (hRlo : c₁ ^ 2 * c ^ (2 / 3 : ℝ) ≤ R) (hh : Integrable h) (hmass : ∫ L, |h L| = 1)
     (hL0 : 0 < Lmin) (hLe : Real.exp Lmin - 1 ≤ 5e-4) (hLv : ctVprime c Lmin = c ^ (4 / 7 : ℝ))
     (hLΛ : Lmin ≤ ctTaperLam ε c R) (hLJ : Lmin ≤ LJ) (hLJe : Real.exp LJ - 1 ≤ 5e-4) (hK0 : 0 ≤ K)
     (hMom : ∫ L in Ioc 0 LJ, ctVprime c L * |h L| ≤ K * c ^ (1 / 3 : ℝ)) :
-    ∫ L in Iio Lmin, ctTaper ε c R L * (1 - boasSf c L) * |h L| ≤ 2 ^ 12 * (K + 1) / c₁ ^ 24 * c ^ (-(29 / 21) : ℝ) := by
+    ∫ L in Iio Lmin, ctTaper ε c R L * (1 - sf L) * |h L| ≤ 2 ^ 12 * (K + 1) / c₁ ^ 24 * c ^ (-(29 / 21) : ℝ) := by
   have hc0 : 0 < c := by linarith
   have hc1 : 1 < c := by linarith
   have hR0 := hB.inputs.R_pos
@@ -207,9 +208,9 @@ theorem boas_field_trunc_lo {c₁ K Lmin LJ : ℝ} {h : ℝ → ℝ} (hc : 3 ≤
   have hint1 : IntegrableOn (fun L => ctVprime c L * |h L|) (Icc 0 LJ) := integrableOn_vprime_mul_abs hh hLJe
   have hsub : Ioo 0 Lmin ⊆ Icc 0 LJ := fun x hx => ⟨hx.1.le, hx.2.le.trans hLJ⟩
   have hsub' : Ioo 0 Lmin ⊆ Ioc 0 LJ := fun x hx => ⟨hx.1, hx.2.le.trans hLJ⟩
-  have key := boas_trunc_lo (h := h) (wt := ctTaper ε c R) (sf := boasSf c) (v := fun L => ctVprime c L + 1 / 2)
+  have key := boas_trunc_lo (h := h) (wt := ctTaper ε c R) (sf := sf) (v := fun L => ctVprime c L + 1 / 2)
     (R := R) (V0 := c ^ (4 / 7 : ℝ) + 1 / 2) (Mv := K * c ^ (1 / 3 : ℝ) + 1 / 2) (Lmin := Lmin) hR0
-    (by linarith) (fun L => ⟨sFar_nonneg hc1 _, sFar_le_one hc1 _⟩) (fun L => (hI.reg.mem L).1)
+    (by linarith) hsf (fun L => (hI.reg.mem L).1)
     (fun L hL => ctTaper_nonpos ε c R hL) ?_ ?_ ?_ ?_
   · refine key.trans ?_
     have hV : c ^ (4 / 7 : ℝ) + 1 / 2 ≤ 2 * c ^ (4 / 7 : ℝ) := by linarith
