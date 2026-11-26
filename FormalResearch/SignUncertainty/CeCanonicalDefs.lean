@@ -26,6 +26,9 @@ Concrete objects (no free data):
 
 * `ProfileConv Φ L`, `ShellGapEndpoint D`: the `v = t_m` endpoint clause of `thm:ce-shell-gap` (proved:
   `shellGapEndpoint_proved`, `ShellGapEndpoint.lean`; no longer a field of `CeCanonicalInputs`).
+* `AiryActiveHeight D`: `lem:airy-active-height` (proved: `airy_active_height`, `AiryActiveHeight.lean`; no longer a
+  field of `CeCanonicalInputs`; `lem:airy-node-square` is `airy_node_square` in `AiryNodeSquare.lean` and also no
+  longer a field).
 
 `CeCanonicalInputs D t` is the input structure of the headline `thm_ce_canonical_iff` (in `Headlines.lean`); every
 field is an open result of the paper and names its label.
@@ -233,7 +236,8 @@ theorem airySquareAttained (D : ShellHBData) : AirySquareAttained D := by
 #print axioms FormalResearch.SignUncertainty.airySquareAttained
 
 /-- `lem:airy-active-height` (`ce_airy_lp_proofs.tex`, strictification and deflation), parts (1)–(4), for the
-configuration `D`; "optimizer" means a weak witness `H` at `b = u_LP` (`uLP D = b` real). Part (1) is stated in the
+configuration `D` (proved unconditionally as `airy_active_height` in `AiryActiveHeight.lean`); "optimizer" means a weak
+witness `H` at `b = u_LP` (`uLP D = b` real). Part (1) is stated in the
 form "whenever `L_H(y) > 0` for all `y > 0`" (any buffer of `lem:airy-shell-buffer` then works). In (3) and (4)
 the quotient is required to be integrable (it is in `𝒢` for an optimizer; for a non-integrable quotient the
 Lean integral would be the junk value `0`). -/
@@ -276,11 +280,6 @@ structure CeCanonicalInputs (D : ShellHBData) (t : ℕ → ℝ) : Prop where
     ShellOffsetsSmall r →
       ∀ᶠ d : ℕ in atTop, ∃ R ∈ ceShellRadiusSet D r d,
         R ^ 2 / 2 ≤ (d : ℝ) / (2 * π ^ 2) - (v / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ)
-  /-- `lem:airy-node-square` (M9): for `m ≥ 2`, the fixed node-square bound `λ > τ_N > t_{m+e}`. -/
-  airy_node_square : 2 ≤ D.S.card →
-    hbTauN D t < airyLambdaOf (shellSites D) ∧ hbNode t (D.S.card + D.S.card / 2) < hbTauN D t
-  /-- `lem:airy-active-height` (M9). -/
-  active_height : AiryActiveHeight D
   /-- `thm:airy-node-sign` (M9): if `b = u_LP < t_m` and an optimizer `H_*` has no zeros `t' < t'' < t'''` of `N`
   in `(b, t_m]` with `H_*(t') > 0`, `H_*(t'') < 0`, `H_*(t''') > 0`, then `u_sh = u_LP`; in particular
   `u_sh = u_LP` whenever `t_{m+2} ≤ u_LP < t_m`. (The cumulative node-sum criterion is the field `node_sum`.) -/
