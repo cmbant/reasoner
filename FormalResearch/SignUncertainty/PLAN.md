@@ -106,7 +106,7 @@ All three headlines are targets. Each gets an exact Lean statement first, proved
 3. **`thm:intro-gap` (M9, E2, M6 remainder).** First write the exact statement of `thm:ce-canonical-iff`, with weak Laplace positivity including tangencies, the endpoint and origin-floor clauses, and (iv). The Airy-only core does not need M6 and can start at once: `thm:airy-square-attained` (only proved inputs: `airyNC_quadrature`, `airyAiC_logDeriv_mittagLeffler`), then `thm:ce-canonical-iff` (1)-(2). M6 (b)-(c) (`CeHankelPair`) and the shifted lift serve (iii) only.
 4. **Staffing.**
    - Two Sonnet lanes stay on M10 (F1, F2a) until their skeletons' fields are routine.
-   - agy takes bounded hard leaves, one per run: after `fct:comp-D`, then `fct:unscaled-cusp` if F2a has not started it, `thm:airy-square-attained`, the `gt:7.10` port, and single `ct:dyadic` pieces.
+   - agy takes bounded hard leaves, one step per run (a lemma, or a few closely related lemmas), and is asked to say if it sees a better route or split: after `fct:comp-D`, then `fct:unscaled-cusp` if F2a has not started it, `thm:airy-square-attained`, the `gt:7.10` port, and single `ct:dyadic` pieces.
    - The M8 and M9 statement skeletons are short and are written by the manager or a Haiku agent with review. They are written before any further M8/M9 leaf work.
 
 **Stop conditions (tier 1).**
