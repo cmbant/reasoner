@@ -503,6 +503,9 @@ public import FormalResearch.SignUncertainty.FctSplittingDefs
 public import FormalResearch.SignUncertainty.FctSplittingDescent
 public import FormalResearch.SignUncertainty.FctSplittingSegment
 public import FormalResearch.SignUncertainty.FctSplittingHol
+public import FormalResearch.SignUncertainty.FctSplittingResidue
+public import FormalResearch.SignUncertainty.FctSplittingCauchy
+public import FormalResearch.SignUncertainty.FctSplittingWarp
 public import FormalResearch.SignUncertainty.FctMainHankel
 public import FormalResearch.SignUncertainty.FctSymCal
 public import FormalResearch.SignUncertainty.FctSymChain
