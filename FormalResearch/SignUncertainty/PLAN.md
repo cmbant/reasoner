@@ -410,7 +410,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `fct:warp-asymp` | planned | M10 (upper bound); 5, 21, 7 integrations by parts through `fct:edge-ibp` |
 | `fct:edge-ibp` | planned | M10 (F2a): new Lemma FCT.5a (2026-11-25), Abel-sense edge-cutoff removal and shoulder IBP uniform in the regulator `lambda in {0, 1/c}`; shared by `fct:warp-asymp` and `fct:ce-band` |
 | `fct:splitting` | planned | M10 (upper bound) |
-| `fct:bump-5` | planned | M10 (upper bound) |
+| `fct:bump-5` | partial (items (1), (2)) | `FctBump5`: `BSym` (`(fct:B-sym)`) and `BSym.profile`, `fct_bump5_main_small` ((1) main density, `e^{-c_1 c^{1/4}}`), `fct_bump5_refl` ((1) reflected density, `e^{-c_1 c^{1/2}} min(1,L_+^{-2})`), `fct_bump5_mid` ((2), `M_loc = M L^{-alpha}`); (1) common bounds are `bump_laplace_decay`/`bump_stripAdmissFull` at `b = 3/2`. Open: (3) far band (needs `uct:bump-weighted` far band) |
 | `fct:bump-sym-check` | planned | M10 (F2a): Lemma FCT.7b (a remark until 2026-11-25); symbol-class bounds of the three bumps, cited by `fct:physical-positive`, `fct:main-hankel`, `fct:ce-band` |
 | `fct:cusp-edge` | planned | M10 (upper bound): absolute edge estimate for a cusp profile (three integrations by parts, van der Corput; reuse `Analysis/VanDerCorput`) |
 | `fct:unscaled-cusp` | planned | M10 (upper bound) |
