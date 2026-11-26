@@ -14,12 +14,13 @@ results are not in Lean; of positive mixtures only the interface PM-0, the estim
 
 **Counts.** The paper and supplement state 250 results (247 `result` environments, the two `theorem`/`corollary` of
 `modular_bootstrap_gap_proof.tex`, and Lemma A$_V$, which is a `remarkx`; several labels on one result are one row). Their state
-on `master`: 85 done, 45 partial (Lean covers a special case, or the statement is proved modulo a named hypothesis, stated in the row), 92 planned (a named
-work package), 6 not planned (with the reason), and 22 recalled from Paper I (mapped in 7.10, not Paper II packages); 85 + 45 + 92 + 6 + 22 = 250.
+on `master`: 84 done, 45 partial (Lean covers a special case, or the statement is proved modulo a named hypothesis, stated in the row), 92 planned (a named
+work package), 6 not planned (with the reason), and 23 recalled from Paper I (22 in `recalled_paper1.tex`, mapped in 7.10, not Paper II packages, and `dsl:compact-mass`); 84 + 45 + 92 + 6 + 23 = 250.
 The counts rule: a label moves only when its row below says so and its whole statement changes class (a general-`m` or general-factor part still open, a statement proved in a different variable, or one proved under a hypothesis the paper omits, keeps it partial or planned); a proved proof step that is not part of the statement moves nothing (`cts:boas`, `ctu:jets`, `ctl:dyadic`/`ctl:pass2`/`ctl:freeze`, whose exponent bookkeeping only is proved).
 Calls that need the rule spelled out:
 - *Partial, modulo a named hypothesis:* `cts:transfer` and `thm:spinless-expansion` (upper half modulo `UpperMainInputs`, fields C11-C14; lower half modulo `LowerMainInputs`); `cts:lower-main` (first display only); `cts:rosc-uncond` (the first good radius of (1), at Virasoro, from the `chart` field; (2)-(4) are not Lean statements); `pmix:rebase` (local finiteness of the push-forwards).
 - *Partial, special case or weaker form:* `cts:smooth-env` ((1) and (3) proved, (2) open: FIVE-S S3); `cts:edge-hankel` ((1) at Virasoro, the Bessel input of (2)); `ctu:common-functional` (Virasoro data only); `cts:involution` (weaker endpoint bound near `+-i`); `bl:norm` (Langer `u`-variable, under an interior condition the paper omits); `pmix:smooth` (coefficient `1/2` for the paper's `3/8`); `pmix:vac` (`(1,0)`, `(2,1)`, one-sided limit); `pmix:punif`, `pmix:ramped`, `pmix:o1`, `pmix:weight`, `pmix:crossing`, `pmix:jets`, `int:repair`, `se:3.1`, `se:3.3`, `se:terminal-stability`, `sr:cor`, `ds:farkas`, `ds:E1`, `dsl:strip-fixed`, `ds:primal`, `rem:corL`, `sr:P`, `sr:Sigma0`, `sr:Sigma`, `ctu:O1`, `ut:ideal`, `ut:IIF`, `ut:III`, `ut:Vac`, `gt:2.4`-`gt:2.6` (the missing part is named in each row).
+- *Recalled, with a Paper II Lean proof of the case used:* `dsl:compact-mass` (since QIprojects PR 300 recalled from Paper I's `lem:qual-compact`, local `L^1` convergence with tight negative parts; Paper II's `compact_negative_mass` assumes uniform convergence on one compact `K` with `f_j >= 0` off `K`, the case `dual_spectrum_limit.tex` uses, and is not the general lemma; Paper I's `lem:qual-compact` is planned in `SignUncertainty/PLAN.md` and should generalise `compact_negative_mass` in place, `Duality/Primal/CompactMass.lean`, rather than add a second copy).
 - *Done although proved in a different form:* `cts:langer` (`lowerLangerPhase_holds` links the chart to the comb phase on the real band); `cts:main` (Virasoro data; the decimal `-0.0713...` is numerical); `cts:tip-shared` (every part, with `cts:BC-id` under the corrected TeX hypotheses).
 - *Planned although Lean has a related object:* `ctu:jets`, `ctu:piece4` (Virasoro jets only; the general-amplitude statement is not formalised); `int:cheb` (Lean has the floor `8 N^{5/2}` of `int:cheb-explicit`, not `640 N^2`); `int:sonine`.
 Not counted: `int:cheb-explicit` and `int:repair-identity` (done, not among Appendix A's 11 INT labels), and the result labels of the current TeX that Appendix A does not yet classify (a recount against the TeX is pending): `cts:base-jets`, `ctu:tip-window`, `ctu:tip-kernel`, `dsl:positive-ray` (an instance of `dsl:poly-compact`, LP1), `int:hb-integer`, `int:cheb2d-explicit`. Appendix A's bullets list 116 planned labels against the stated count (aliases); the discrepancy is known.
@@ -190,7 +191,7 @@ Unconditional, pinned axioms. "Scope" is the scope of the Lean statement, which 
 | Tip blow-up, Theorems C, R1-R3 | `bl:T`, `rig:R` | `proposition_T_of_problem`, `concrete_blowup_theorem_R3_general` | every `(w,Q)` (`Att` a hypothesis, as in the paper) |
 | Crossing sum rule, strong duality, exact-gap measure | `fw:*`, `ds:D1`, `ds:M`, `ds:E` | `theorem_fwC_unconditional`, `FixedWeight.theorem_E`, `corollary_E1_exact_gap` | every `(w,Q)`; `ds:E` for `F = empty` and `F = {t_1}` here (`FixedWeight.theorem_E`), and in full by DU-G (`theorem_E_a`, `theorem_E_b_compact`, `theorem_E_c_reserve`; the next row) |
 | Duality `ds:E` (a), (b) compact `F`, (c); `ds:farkas` (DU-G) | `ds:E`, `ds:farkas` | `theorem_E_a`, `theorem_E_b_compact`, `theorem_E_b_compact_empty`, `theorem_E_c_reserve`, `farkas_separation`, `farkas_finite` (namespace `FixedWeight`, files under `Duality/`) | every `(w,Q)`; (b) under `0 < T_V`; `ds:farkas` without the symmetry clause |
-| Fixed-charge compact mass and primal attainment (PA1, partial) | `dsl:compact-mass`, `dsl:strip-fixed`, `ds:primal` | `compact_negative_mass`, `T_V_pos_of_strip`, `fixedChargeStrip_of_large`, `theorem_primal` (files under `Duality/Primal/`) | `theorem_primal` for `c~ >= c_0(w,Q)`; conditional on `FixedChargeStrip` for `12 S <= c~ < c_0` |
+| Fixed-charge compact mass and primal attainment (PA1, partial) | `dsl:compact-mass` (recalled from Paper I `lem:qual-compact` since PR 300; Lean proves the case used), `dsl:strip-fixed`, `ds:primal` | `compact_negative_mass`, `T_V_pos_of_strip`, `fixedChargeStrip_of_large`, `theorem_primal` (files under `Duality/Primal/`) | `theorem_primal` for `c~ >= c_0(w,Q)`; conditional on `FixedChargeStrip` for `12 S <= c~ < c_0` |
 | Clark two-level curve, lower bound, `se:3.2` | `gt:2.1`, `wone:genlower`(2), `se:3.2` | `concrete_two_level_theorem`, `theorem_W1prime_two`, `A2star_lipschitzOn` | every `(w,Q)` |
 | Two-level exclusion and Clark rigidity | `gt:2.4`-`gt:2.6` | `corollary_two_four`, `theorem_two_five_w1`, `theorem_two_six_w1_unconditional` | `gt:2.4`(a): every weight (`corollary_two_four_all`); `gt:2.5`, `gt:2.6`: every weight for the two-zero designs (`theorem_two_five_all`, `theorem_two_six_all`, W-T2w; the `_w1` and `_of_T2` forms stay) |
 | Theorem T2, Clark boundary, soft-edge crossing corollary (W-T2w, SE3) | `ut:T2`, `wone:clark`(c), `se:3.3` | `twoSimpleZeroTransfer_all`, `wone_clark_two_level_boundary_all`, `se_crossing_corollary` (`twoSimpleZeroTransfer_of_w1`, `wone_clark_two_level_boundary` at `w = 1`) | every weight, `f = 2`, `r = 1` (two zeros, `m <= 2`); `se:3.3` at zero offset |
@@ -251,11 +252,11 @@ Statements that Lean proves only for a special case, so that nobody cites them a
   - PR 301: `int:sonine`'s small-band inverse bound \eqref{int:AB-bound} holds for every real `w ≥ 1` (one slit-plane estimate),
     and INT-R uses the abstract projection repair (also for real `w ≥ 1`); INT-R0 needs pointwise crossing identities on the band.
     `ds:mom` / `dsl:poly-compact` (LP-M/LP-P) are stated for abstract coercive polynomial families with Laguerre as a special
-    case, from one pointwise moment inequality, which suits the LP1 package. INT-S takes any repair budget `∑ b_k ≤ 1/8`
+    case, from one pointwise moment inequality, which suits the LP1 package (the running LP1 agent targets the abstract-family form, with Laguerre as a corollary). INT-S takes any repair budget `∑ b_k ≤ 1/8`
     (lattice `b_k = 1/(8k(k+1))`); INT-7C drops `2πeR ≤ m`. `pmix:jets` (PM.13) is an exact integrated relative-entropy
     identity (comparison and equality criterion kept); `pmix:rebase` (PM.1) is an exact affine pushforward identity.
   - PR 300: Paper II's `dsl:compact-mass` is now recalled from Paper I's `lem:qual-compact` (local `L^1` convergence on a
-    locally compact σ-compact metric space), one lemma for both papers; the Clark node motion used by `gt:2.1`/W1'(2)
+    locally compact σ-compact metric space), one lemma for both papers (carried into the counts, the PA1 row and Appendix A: `dsl:compact-mass` is now counted as recalled); the Clark node motion used by `gt:2.1`/W1'(2)
     (slope in (0,1) for every node pair) is `CFT/common/clark_airy.tex#lem:clark-node-motion`.
 - **Paper findings (no stated result found false; wording to fix in TeX).** `constant_term_slit_strip.tex`, proof of `cts:airy-sum-zero` (`cts:tip-shared` (a), the statement stands): the proof applies the Hadamard sum rule to the smooth sites `b_k = b(k)`, but the rule runs over the true zeros `|a_k|/kappa = b_k + eta_k` with `eta_k = O(k^{-4/3})`; the shifts enter the `X^{-3}` coefficient, and the identity actually proved (`moment_identity`) is `Sum eta_k/kappa + Sum m_k = int_{1/4}^{1/2} b da` (`m_k` the midpoint cell defects); the stated `O(K^{-1/3})` conclusion is correct (numerically `Sum_{k<=K} |a_k|/kappa - int_0^{K+1/4} u^{2/3} du = -0.0418 K^{-1/3}`); the TeX proof step is the lead's to fix. Proof of C11 (3) (`cts:upper-design`): the text says K7 "applies verbatim" to `h0 = E_delta B_D`. It does not apply as stated: K7 (i)-(ii) need analyticity on `|Im b| < 7/8`, `|B| <= 1` on `|Im b| <= 1/2` and `Phi_1` bounded on `|Im b - 1/2| <= 1/4`, while `E_delta` has a branch point `i(1/2 + eta_delta)` with `eta_delta` of order `delta` inside that strip and `|E_delta|` is unbounded near it. What is actually used is the decay bound from the five-piece deformation (C11 (2)), `fwM_of_decay` and the vacuum identity. This is an imprecise sentence in a proof, not a false statement: paper wording to fix in `constant_term_slit_strip.tex`, C11 (3) proof (the TeX edit is the lead's decision; Lean's field `c11_membership` of `UpperMainInputs` is stated without K7).
 
@@ -461,7 +462,7 @@ Within a file, results are grouped by group and state. D done, P partial, PL pla
 
 **`dual_spectrum_limit.tex`** (7)
 - PL / LP: `ds:cay`, `ds:cont`, `ds:mom`, `dsl:poly-compact`
-- D / PA: `dsl:compact-mass`
+- R / PA: `dsl:compact-mass` (recalled from Paper I `lem:qual-compact`; Lean `compact_negative_mass` proves the case used)
 - P / PA: `dsl:strip-fixed`
 - PL / PA: `dsl:one-level-clusters`, `dsl:hb-clusters`, `dsl:hb-mass`, `dsl:near-opt-mass`
 
@@ -551,7 +552,7 @@ Within a file, results are grouped by group and state. D done, P partial, PL pla
 - P / FIVEW: `thm:spinless-expansion`
 - PL / FIVEW: `thm:fixed-weight-expansion`
 
-Totals: 250 results; done 85, partial 45, planned 92, not planned 6, recalled from Paper I 22.
+Totals: 250 results; done 84, partial 45, planned 92, not planned 6, recalled from Paper I 23.
 
 ## Appendix B. Calibration (lines of Lean under `FormalResearch/ModularBootstrap/`, `master` `5b7fa76`)
 
