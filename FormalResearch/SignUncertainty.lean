@@ -55,6 +55,10 @@ public import FormalResearch.SignUncertainty.HankelWindow
 public import FormalResearch.SignUncertainty.HankelChartSecond
 public import FormalResearch.SignUncertainty.HankelThresholds
 public import FormalResearch.SignUncertainty.HeadlineDefs
+public import FormalResearch.SignUncertainty.CeCanonicalDefs
+public import FormalResearch.SignUncertainty.HbZeroEnum
+public import FormalResearch.SignUncertainty.ShellGapOrigin
+public import FormalResearch.SignUncertainty.HbMultilevelDefs
 public import FormalResearch.SignUncertainty.CEShellReduction
 public import FormalResearch.SignUncertainty.HankelWtBasics
 public import FormalResearch.SignUncertainty.HardyMellinIntertwiner
@@ -316,6 +320,11 @@ public import FormalResearch.SignUncertainty.CtDyadicMoments
 public import FormalResearch.SignUncertainty.CtDyadicPointwise
 public import FormalResearch.SignUncertainty.CtDyadicSigma
 public import FormalResearch.SignUncertainty.CtDyadicRegime
+public import FormalResearch.SignUncertainty.AiryEtaUnfold
+public import FormalResearch.SignUncertainty.CtDyadicEta
+public import FormalResearch.SignUncertainty.CtDyadicArea
+public import FormalResearch.SignUncertainty.CtDyadicGReg
+public import FormalResearch.SignUncertainty.CtDyadicRadius
 public import FormalResearch.SignUncertainty.CtDyadicStatement
 public import FormalResearch.SignUncertainty.HankelChartCubic
 public import FormalResearch.SignUncertainty.CtLowerDefs
@@ -349,6 +358,9 @@ public import FormalResearch.SignUncertainty.ShellGapLaplace
 public import FormalResearch.SignUncertainty.ShellGapMellin
 public import FormalResearch.SignUncertainty.ShellGapTransport
 public import FormalResearch.SignUncertainty.ShellGapExtract
+public import FormalResearch.SignUncertainty.ShellGapProfileConv
+public import FormalResearch.SignUncertainty.ShellGapEndpointAux
+public import FormalResearch.SignUncertainty.ShellGapEndpoint
 public import FormalResearch.SignUncertainty.EuclidCELift
 public import FormalResearch.SignUncertainty.CeHbLiftAssembly
 public import FormalResearch.SignUncertainty.MellinLiftGeneral
@@ -455,6 +467,14 @@ public import FormalResearch.SignUncertainty.FctSymCal
 public import FormalResearch.SignUncertainty.FctBumpSymCheck
 public import FormalResearch.SignUncertainty.FctBumpProfileField
 public import FormalResearch.SignUncertainty.FctPhysicalBudget
+public import FormalResearch.SignUncertainty.FctVacuumPaired
+public import FormalResearch.SignUncertainty.FctVacuumBudget
+public import FormalResearch.SignUncertainty.FctVacuumField
+public import FormalResearch.SignUncertainty.FctVacuumCancelBounds
+public import FormalResearch.SignUncertainty.FctVacuumCancel
+public import FormalResearch.SignUncertainty.FctVacuumPointwise
+public import FormalResearch.SignUncertainty.FctVacuumConcrete
+public import FormalResearch.SignUncertainty.FctPhysicalBudgetConcrete
 public import FormalResearch.SignUncertainty.CtUpper
 public import FormalResearch.SignUncertainty.UctOuterGrowth
 public import FormalResearch.SignUncertainty.UctGenPreedge
@@ -729,6 +749,11 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `‖Q‖₁ ≤ 1`, `∫ Q ≤ 0`, `∫_{u_*}^∞ Q_- ≥ 1/2`).
 * `FormalResearch.SignUncertainty.ShellGapExtract`: `extract_two` and `hankelShellGapLimit_proved`, the theorem
   `thm:ce-shell-gap` (Hankel form) with all constraints of `eq:ce-laplace-constraint`.
+* `FormalResearch.SignUncertainty.ShellGapProfileConv`, `ShellGapEndpointAux`, `ShellGapEndpoint` (`thm:ce-shell-gap`,
+  the `v = t_m` endpoint clause; proved, unconditional): `shellGapEndpoint_proved : ShellGapEndpoint D` (physical
+  profile `Ψ_h/M[h] → -G_N/‖G_N‖₁`, Fourier profile `→ 0`, `Ψ_f/M[f] → G_N/‖G_N‖₁`, `M[ĥ]/M[f] → 0`, `ℒ_y(-G_N) ≥ 0`),
+  from `endpoint_subseq` (normalisation by `M[h]`, uniqueness `D.uniqueness`, equality case of `lem:qual-compact`,
+  `Analysis.qual_compact_real`) and the subsequence principle `profileConv_of_subseq`.
 * `FormalResearch.SignUncertainty.RadialCompactness`: the statement of `lem:radial-compactness` (`RadialCompactness`:
   window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it
@@ -781,9 +806,15 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `airyLambdaSection_eq_airyLambda_iff`, `airySquare_maximizer_representation`,
   `isGreatest_airySquareClass`, `airyMaximizerWitness_properties`,
   `thm_airy_square_attained_simple`, `thm_airy_square_attained_simple_full`.
-* `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
-  `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
-  whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
+* `FormalResearch.SignUncertainty.HbMultilevelDefs`, `CeCanonicalDefs` (M0 skeleton, statement objects and input structures of `thm_intro_hb` and `thm_ce_canonical_iff`; the structures `HbMultilevelInputs`, `CeCanonicalInputs` have the open TeX results as fields).
+* `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`, `thm_intro_hb`
+  (`u1cl:multilevel`) and `thm_ce_canonical_iff` (`thm:intro-gap`, `thm:ce-canonical-iff`) of Paper I, each proved
+  from one input structure whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5), and the
+  proved `thm_ce_shell_gap`, `thm_ce_shell_gap_even`.
+* `FormalResearch.SignUncertainty.HbZeroEnum` (proved): `exists_isHbZeroEnum` (the zero enumeration `t_1 > t_2 > ⋯` of
+  `N = P Ai + Q Ai'` exists for every Hermite–Biehler pair, so the hypothesis `IsHbZeroEnum` of `thm_ce_canonical_iff`
+  is satisfiable), `IsHbZeroEnum.unique`, `hbZeroEnum`. `ShellGapOrigin` (proved): `hankelShellProfile_origin_mass`
+  (`0 < h(0) = M[ĥ] ≤ M[h]`, the origin mass identity, first step of `eq:ce-origin-floor`).
 * `FormalResearch.SignUncertainty.SignSeparationLimsup`: the retired separation bound
   `separation_neg_two_div_pi_sq` (`limsup (T⁺ - T⁻) ≤ -2/π²`, old `gt:7.9c`, deleted from the paper and
   superseded by `eq:ct-split`), conditional on `SeparationInputs`; kept for its reusable steps, not a headline.

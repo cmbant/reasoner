@@ -23,10 +23,11 @@ Source: `CFT/sign_uncertainty/paper/constant_terms_five.tex`, Lemma `fct:physica
 * the reflected term `c^{-1/3} B̂(c)` is `O(e^{-c' c^{1/2}})` (`bump_laplace_decay`) and is absorbed for large `c`;
 * the passage `Re ctWbump(0) = c^{-1/3} ∫B + ε c^{-1/3} B̂(c)` and the quantifier order `C₀, b₂` before `K₁`, `c₀` after.
 
-**Not proved here (hypothesis `hvac`, named after the paper).**  The vacuum integral of the physical difference,
-`∫ χ(L/3δ) γ(L̃) (O − F) dL ≤ A c^{-3/4}` (`K₁`-free): parts (a)-(c) of the proof of `fct:physical-budget` for `H₀ = H_*`
-(`C_fl(H_*) = 0`): the paired decomposition `(fct:vac-paired)`, the cosine penalty `(fct:cos-pen)`, `(fct:bump-1L)`, `(fct:bump-2L)` of
-`fct:comp-D` (2), the finite-part cancellation of `fct:phikill` (3).  The transition mass of (d), `∫ B_tr = O(δ^{3/2})`, is proved
+**Hypothesis `hvac` here, proved in `FctVacuumField`.**  The vacuum integral of the physical difference,
+`∫ χ(L/3δ) γ(L̃) (O − F) dL ≤ A c^{-3/4}` (`K₁`-free): parts (a)-(c) of the proof of `fct:physical-budget` (`(fct:vac-paired)`, the cosine
+penalty `(fct:cos-pen)`, `(fct:bump-1L)`, `(fct:bump-2L)` of `fct:comp-D` (2), the finite-part cancellation of `fct:phikill` (3)) is
+`FctSym.vacuum_integral_field` (`FctVacuumField`, from the named displays `VacDisp`), which has exactly the statement of `hvac`; this file
+keeps `hvac` as an argument so that it does not depend on that module; for the concrete physical datum `hvac` is proved and removed in `FctPhysicalBudgetConcrete` (`physical_budget_field_concrete`).  The transition mass of (d), `∫ B_tr = O(δ^{3/2})`, is proved
 (`tr_l1`, `physBump_zero_le`), as is everything that involves `K₁`.
 
 Class: proved under the explicit hypotheses `hsize` (scales `δ_L ≍ c^{-1/2}`, `0 ≤ n_c ≤ n_max`), `hR`, `hT`, `hvac`.

@@ -69,7 +69,7 @@ theorem exists_crossingMeasure_of_not_oddFeasible (ha : prob.totalShift ≤ a) {
       Subtype.ext hvj
     rw [hv, this]
   have : LocallyCompactSpace X := hXc.locallyCompactSpace
-  obtain ⟨μ, hreg, hpoly, hrep, ε, hε, hexp⟩ := poly_compact hT (refMeas prob a) refMeas_Iio
+  obtain ⟨μ, hreg, hpoly, hrep, ε, hε, hexp⟩ := poly_compact_ref hT (refMeas prob a) refMeas_Iio
     (integrable_exp_ref_pi ha) L hLpos hodd
   -- push forward to `ℝ`
   have hmeas : Measurable (fun x : X => x.1) := measurable_subtype_coe

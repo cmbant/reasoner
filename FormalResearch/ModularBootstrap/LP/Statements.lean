@@ -33,40 +33,43 @@ open FormalResearch.ModularBootstrap.Crossing FormalResearch.ModularBootstrap.Du
 
 namespace FormalResearch.ModularBootstrap.LP
 
-/-- `ds:mom` for an abstract odd family `p_k` with the growth bounds `OddFam`. -/
+/-- `ds:mom` for an abstract odd family `p_k` with the growth bounds `OddFam` and arbitrary odd
+targets `|b_k| ≤ (C₂ k)^k`. -/
 def DsMom : Prop :=
-  ∀ {C : ℝ} {p : ℕ → C(ℝ, ℝ)}, OddFam C p → ∀ (μ₀ : Measure ℝ), μ₀ (Iio 0) = 0 →
-    Integrable (fun t => Real.exp (π * t)) μ₀ → ∀ {M : ℝ}, 0 ≤ M →
+  ∀ {C : ℝ} {p : ℕ → C(ℝ, ℝ)}, OddFam C p → ∀ {C₂ : ℝ}, 0 < C₂ → ∀ {M : ℝ}, 0 ≤ M →
     ∃ C₁ : ℝ, 0 < C₁ ∧
-      (∀ μ : Measure ℝ, μ (Iio 0) = 0 → μ univ ≤ ENNReal.ofReal M → ∀ K : ℕ,
-        (∀ k ≤ K, Integrable (fun t : ℝ => t ^ k) μ) →
-        (∀ k ≤ K, Odd k → ∫ t, p k t ∂μ = ∫ t, p k t ∂μ₀) →
-        ∀ k : ℕ, 1 ≤ k → k + 1 ≤ K → ∫ t, t ^ k ∂μ ≤ (C₁ * k) ^ k) ∧
-      (∀ μ : Measure ℝ, μ (Iio 0) = 0 → μ univ ≤ ENNReal.ofReal M →
-        (∀ k : ℕ, Integrable (fun t : ℝ => t ^ k) μ) →
-        (∀ k : ℕ, Odd k → ∫ t, p k t ∂μ = ∫ t, p k t ∂μ₀) →
-        Integrable (fun t => Real.exp (t / (2 * Real.exp 1 * C₁))) μ ∧
-          ∫ t, Real.exp (t / (2 * Real.exp 1 * C₁)) ∂μ ≤ M + 1)
+      (∀ (b : ℕ → ℝ), (∀ k, Odd k → |b k| ≤ (C₂ * k) ^ k) →
+        ∀ μ : Measure ℝ, μ (Iio 0) = 0 → μ univ ≤ ENNReal.ofReal M → ∀ K : ℕ,
+          (∀ k ≤ K, Integrable (fun t : ℝ => t ^ k) μ) →
+          (∀ k ≤ K, Odd k → ∫ t, p k t ∂μ = b k) →
+          ∀ k : ℕ, 1 ≤ k → k + 1 ≤ K → ∫ t, t ^ k ∂μ ≤ (C₁ * k) ^ k) ∧
+      (∀ (b : ℕ → ℝ), (∀ k, Odd k → |b k| ≤ (C₂ * k) ^ k) →
+        ∀ μ : Measure ℝ, μ (Iio 0) = 0 → μ univ ≤ ENNReal.ofReal M →
+          (∀ k : ℕ, Integrable (fun t : ℝ => t ^ k) μ) →
+          (∀ k : ℕ, Odd k → ∫ t, p k t ∂μ = b k) →
+          Integrable (fun t => Real.exp (t / (2 * Real.exp 1 * C₁))) μ ∧
+            ∫ t, Real.exp (t / (2 * Real.exp 1 * C₁)) ∂μ ≤ M + 1)
 
-theorem dsMom_holds : DsMom := fun hF μ₀ hμ₀ hint _ hM => ds_mom hF μ₀ hμ₀ hint hM
+theorem dsMom_holds : DsMom := fun hF _ hC₂ _ hM => ds_mom hF hC₂ hM
 
 /-- `ds:mom` for the monic Laguerre polynomials `P_k = lagP w k`, `w > 0`. -/
 def DsMomLaguerre : Prop :=
-  ∀ {w : ℝ}, 0 < w → ∀ (μ₀ : Measure ℝ), μ₀ (Iio 0) = 0 →
-    Integrable (fun t => Real.exp (π * t)) μ₀ → ∀ {M : ℝ}, 0 ≤ M →
+  ∀ {w : ℝ}, 0 < w → ∀ {C₂ : ℝ}, 0 < C₂ → ∀ {M : ℝ}, 0 ≤ M →
     ∃ C₁ : ℝ, 0 < C₁ ∧
-      (∀ μ : Measure ℝ, μ (Iio 0) = 0 → μ univ ≤ ENNReal.ofReal M → ∀ K : ℕ,
-        (∀ k ≤ K, Integrable (fun t : ℝ => t ^ k) μ) →
-        (∀ k ≤ K, Odd k → ∫ t, lagP w k t ∂μ = ∫ t, lagP w k t ∂μ₀) →
-        ∀ k : ℕ, 1 ≤ k → k + 1 ≤ K → ∫ t, t ^ k ∂μ ≤ (C₁ * k) ^ k) ∧
-      (∀ μ : Measure ℝ, μ (Iio 0) = 0 → μ univ ≤ ENNReal.ofReal M →
-        (∀ k : ℕ, Integrable (fun t : ℝ => t ^ k) μ) →
-        (∀ k : ℕ, Odd k → ∫ t, lagP w k t ∂μ = ∫ t, lagP w k t ∂μ₀) →
-        Integrable (fun t => Real.exp (t / (2 * Real.exp 1 * C₁))) μ ∧
-          ∫ t, Real.exp (t / (2 * Real.exp 1 * C₁)) ∂μ ≤ M + 1)
+      (∀ (b : ℕ → ℝ), (∀ k, Odd k → |b k| ≤ (C₂ * k) ^ k) →
+        ∀ μ : Measure ℝ, μ (Iio 0) = 0 → μ univ ≤ ENNReal.ofReal M → ∀ K : ℕ,
+          (∀ k ≤ K, Integrable (fun t : ℝ => t ^ k) μ) →
+          (∀ k ≤ K, Odd k → ∫ t, lagP w k t ∂μ = b k) →
+          ∀ k : ℕ, 1 ≤ k → k + 1 ≤ K → ∫ t, t ^ k ∂μ ≤ (C₁ * k) ^ k) ∧
+      (∀ (b : ℕ → ℝ), (∀ k, Odd k → |b k| ≤ (C₂ * k) ^ k) →
+        ∀ μ : Measure ℝ, μ (Iio 0) = 0 → μ univ ≤ ENNReal.ofReal M →
+          (∀ k : ℕ, Integrable (fun t : ℝ => t ^ k) μ) →
+          (∀ k : ℕ, Odd k → ∫ t, lagP w k t ∂μ = b k) →
+          Integrable (fun t => Real.exp (t / (2 * Real.exp 1 * C₁))) μ ∧
+            ∫ t, Real.exp (t / (2 * Real.exp 1 * C₁)) ∂μ ≤ M + 1)
 
-theorem dsMomLaguerre_holds : DsMomLaguerre := fun hw μ₀ hμ₀ hint _ hM =>
-  ds_mom_laguerre hw μ₀ hμ₀ hint hM
+theorem dsMomLaguerre_holds : DsMomLaguerre := fun hw _ hC₂ _ hM =>
+  ds_mom_laguerre hw hC₂ hM
 
 /-- `ds:mom`, Laguerre clause: the monic Laguerre family at weight `w > 0` satisfies the hypotheses of
 `ds:mom` with the paper's constant `C_w = (2+w)/(2π)`. -/
@@ -80,22 +83,21 @@ theorem dsMomLaguerreConst_holds : DsMomLaguerreConst := fun hw => lagP_oddFam_s
 
 /-- `ds:mom`, last sentence: the mass bound from the first odd equation (`T₀ > w/(4π)`). -/
 def DsMomMass : Prop :=
-  ∀ {w T₀ : ℝ} {μ₀ μ : Measure ℝ}, w / (4 * π) < T₀ → μ (Iio T₀) = 0 →
-    Integrable (lagP w 1) μ → ∫ t, lagP w 1 t ∂μ = ∫ t, lagP w 1 t ∂μ₀ →
-    μ univ ≤ ENNReal.ofReal ((∫ t, lagP w 1 t ∂μ₀) / (T₀ - w / (4 * π)))
+  ∀ {w T₀ : ℝ} {μ : Measure ℝ}, w / (4 * π) < T₀ → μ (Iio T₀) = 0 →
+    Integrable (lagP w 1) μ → ∀ {b₁ : ℝ}, ∫ t, lagP w 1 t ∂μ = b₁ →
+    μ univ ≤ ENNReal.ofReal (b₁ / (T₀ - w / (4 * π)))
 
-theorem dsMomMass_holds : DsMomMass := fun hT hμ hP hL => ds_mom_mass hT hμ hP hL
+theorem dsMomMass_holds : DsMomMass := fun hT hμ hP _ hL => ds_mom_mass hT hμ hP hL
 
 /-- `dsl:poly-compact` for an abstract odd family: a positive functional on `⋃ V_N` satisfying the
-reference odd equations is a positive Radon measure with an `e^{εt}` moment; and a finite group
-preserving the data gives an invariant measure. -/
+odd growth bound `|L(p_j ∘ t)| ≤ (C₂ j)^j` is a positive Radon measure with an `e^{εt}` moment; and
+a finite group preserving the data gives an invariant measure. -/
 def DslPolyCompact.{u} : Prop :=
   ∀ (X : Type u) [TopologicalSpace X] [T2Space X] [LocallyCompactSpace X] [MeasurableSpace X]
     [BorelSpace X] {C T₀ : ℝ} {p : ℕ → C(ℝ, ℝ)} {t : C(X, ℝ)} {V : ℕ → Submodule ℝ C(X, ℝ)},
-    PolyCompactHyp C p T₀ t V → ∀ (μ₀ : Measure ℝ), μ₀ (Iio 0) = 0 →
-    Integrable (fun s => Real.exp (π * s)) μ₀ →
+    PolyCompactHyp C p T₀ t V → ∀ {C₂ : ℝ}, 0 < C₂ →
     ∀ (L : polyUnion V →ₗ[ℝ] ℝ), (∀ v : polyUnion V, (∀ x, 0 ≤ v.1 x) → 0 ≤ L v) →
-    RefOdd p t V μ₀ L →
+    (∀ j : ℕ, Odd j → ∀ v : polyUnion V, (v : C(X, ℝ)) = pc p j t → |L v| ≤ (C₂ * j) ^ j) →
     (∃ μ : Measure X, μ.Regular ∧
       (∀ f ∈ FormalResearch.Measure.polyGrowth t, Integrable f μ) ∧
       (∀ v : polyUnion V, ∫ x, v.1 x ∂μ = L v) ∧
@@ -112,9 +114,9 @@ def DslPolyCompact.{u} : Prop :=
         ∀ g : G, Measure.map (fun x => g • x) μ = μ
 
 theorem dslPolyCompact_holds : DslPolyCompact.{u} :=
-  fun _ _ _ _ _ _ _ _ _ _ _ h μ₀ hμ₀ hint L hL hodd =>
-    ⟨poly_compact h μ₀ hμ₀ hint L hL hodd, fun _ _ _ _ _ htg hVg hLg =>
-      poly_compact_invariant h μ₀ hμ₀ hint L hL hodd htg hVg hLg⟩
+  fun _ _ _ _ _ _ _ _ _ _ _ h _ hC₂ L hL hodd =>
+    ⟨poly_compact h hC₂ L hL hodd, fun _ _ _ _ _ htg hVg hLg =>
+      poly_compact_invariant h hC₂ L hL hodd htg hVg hLg⟩
 
 /-- `dsl:positive-ray`: for `w, T₀ > 0` some `p ∈ ⋃ O_N` satisfies `p ≥ 1` on `[T₀, ∞)`. -/
 def DslPositiveRay : Prop :=

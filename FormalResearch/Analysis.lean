@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.Analysis.VanDerCorput
+public import FormalResearch.Analysis.QualCompact
 public import FormalResearch.Analysis.Scheffe
 public import FormalResearch.Analysis.UniformTaylor
 
@@ -16,4 +17,6 @@ General-purpose analysis helpers used across programmes (`namespace FormalResear
   countably generated filter (`tendsto_integral_norm_sub_of_tendsto_ae`).
 * `UniformTaylor`: uniform `O(h^n)` bounds over a compact parameter set from pointwise ones and a jointly
   continuous `n`-th derivative (`uniform_bigO_of_pointwise`).
+* `QualCompact`: Paper I `lem:qual-compact`, qualitative mass transfer under local `L¹` convergence with tight
+  negative parts, including the equality case (`qual_compact`, and `qual_compact_real` with the ray hypotheses on `ℝ`).
 -/
