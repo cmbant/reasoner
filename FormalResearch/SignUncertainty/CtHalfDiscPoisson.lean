@@ -1,6 +1,7 @@
 module
 
 public import Mathlib
+public import FormalResearch.Complex.HalfDiscPoisson
 
 /-!
 # `ct:dyadic` Part (2): the explicit half-disc Poisson kernel and its bounds
@@ -13,13 +14,14 @@ Source: `CFT/sign_uncertainty/paper/constant_terms_lower.tex`, `ct:dyadic` Part 
 * `pArc A z θ = (2/π) A y (A²-|z|²) sin θ / (|z-Ae^{iθ}|²|z-Ae^{-iθ}|²)` (`A · P` on the arc);
   `pArc_le`: for `|z| ≤ A/4`, `0 ≤ pArc ≤ 3 (y/A) sin θ` (`512/(81π) ≤ 3`).
 
-The harmonic-measure (Poisson) representation of a function continuous on `closure D_+` and holomorphic in `D_+`
-by these kernels, and the area integral `r_*⁻¹ ∫_{N_+} P(z,t) dA ≤ 6`, are NOT formalised here.
+The Poisson representation of a function continuous on `closure D_+` and holomorphic in `D_+` by these kernels is
+`ct_halfDisc_poisson` (from `Complex/HalfDiscPoisson`); the area integral `r_*⁻¹ ∫_{N_+} P(z,t) dA ≤ 6` and the Lipschitz
+bound `|P(z,t) - P(z,0)| ≤ 123 r_*⁻²|t|` are NOT formalised here.
 -/
 
 @[expose] public section
 
-open Complex Set
+open Complex Set intervalIntegral
 open scoped Real
 
 namespace FormalResearch.SignUncertainty.CtHalfDiscPoisson
@@ -162,5 +164,20 @@ lemma pArc_le {A : ℝ} (hA : 0 < A) {z : ℂ} (hy : 0 < z.im) (hz : ‖z‖ ≤
 /-- info: 'FormalResearch.SignUncertainty.CtHalfDiscPoisson.pArc_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms pArc_le
+
+lemma pDiam_eq_hdDiam (A : ℝ) (z : ℂ) (t : ℝ) : pDiam A z t = FormalResearch.HalfDiscCauchy.hdDiam A z t := rfl
+
+lemma pArc_eq_hdArc (A : ℝ) (z : ℂ) (θ : ℝ) : pArc A z θ = FormalResearch.HalfDiscCauchy.hdArc A z θ := rfl
+
+/-- **`ct:dyadic` Part (2), the Poisson representation on `D_+`** (`G` continuous on `closure D_+`, holomorphic in `D_+`):
+`G(z) = ∫_{-A}^{A} P(z,t) G(t) dt + ∫_0^π (A P)(z,θ) G(A e^{iθ}) dθ` with the kernels `pDiam`, `pArc`
+(`ct:Pdiam`, `ct:Parc`). -/
+theorem ct_halfDisc_poisson {A : ℝ} (hA : 0 < A) {G : ℂ → ℂ} {z : ℂ}
+    (hz : z ∈ FormalResearch.HalfDiscCauchy.openHalfDisc A)
+    (hc : ContinuousOn G (FormalResearch.HalfDiscCauchy.closedHalfDisc A))
+    (hd : DifferentiableOn ℂ G (FormalResearch.HalfDiscCauchy.openHalfDisc A)) :
+    G z = (∫ t in (-A)..A, (pDiam A z t : ℂ) * G (t : ℂ)) +
+      ∫ θ in (0 : ℝ)..π, (pArc A z θ : ℂ) * G (A * Complex.exp (θ * I)) :=
+  FormalResearch.HalfDiscCauchy.halfDisc_poisson hA hz hc hd
 
 end FormalResearch.SignUncertainty.CtHalfDiscPoisson
