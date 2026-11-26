@@ -23,13 +23,13 @@ Source: `CFT/sign_uncertainty/paper/constant_terms_five.tex`, Lemma `fct:physica
 * the reflected term `c^{-1/3} B̂(c)` is `O(e^{-c' c^{1/2}})` (`bump_laplace_decay`) and is absorbed for large `c`;
 * the passage `Re ctWbump(0) = c^{-1/3} ∫B + ε c^{-1/3} B̂(c)` and the quantifier order `C₀, b₂` before `K₁`, `c₀` after.
 
-**Not proved here (hypothesis `hvac`, named after the paper).**  The `K₁`-free vacuum budget `∫ B|_{K₁ = 0} ≤ A c^{-3/4}`: this is
-`fct:physical-budget` at `K₁ = 0`, i.e. parts (a)-(d) of its proof (the paired decomposition `(fct:vac-paired)`, the cosine penalty
-`(fct:cos-pen)`, `(fct:bump-1L)`, `(fct:bump-2L)` of `fct:comp-D` (2), the finite-part cancellation of `fct:phikill` (3) and the
-`B_tr` mass), for `H₀ = H_*` (`C_fl(H_*) = 0`).  It does not involve `K₁`; the `K₁`-linear part of the lemma and the
-assembly are proved.
+**Not proved here (hypothesis `hvac`, named after the paper).**  The vacuum integral of the physical difference,
+`∫ χ(L/3δ) γ(L̃) (O − F) dL ≤ A c^{-3/4}` (`K₁`-free): parts (a)-(c) of the proof of `fct:physical-budget` for `H₀ = H_*`
+(`C_fl(H_*) = 0`): the paired decomposition `(fct:vac-paired)`, the cosine penalty `(fct:cos-pen)`, `(fct:bump-1L)`, `(fct:bump-2L)` of
+`fct:comp-D` (2), the finite-part cancellation of `fct:phikill` (3).  The transition mass of (d), `∫ B_tr = O(δ^{3/2})`, is proved
+(`tr_l1`, `physBump_zero_le`), as is everything that involves `K₁`.
 
-Class: proved under the explicit hypotheses `hsize`, `hR`, `hT`, `hvac`.
+Class: proved under the explicit hypotheses `hsize` (scales `δ_L ≍ c^{-1/2}`, `0 ≤ n_c ≤ n_max`), `hR`, `hT`, `hvac`.
 -/
 
 @[expose] public section
@@ -233,6 +233,107 @@ lemma KpMar_nonneg {Kχ KΦ KR : ℕ → ℝ} (h1 : ∀ r, 0 ≤ Kχ r) (h2 : �
 noncomputable def budgetSlope (K0a K0b X a₀ : ℝ) : ℝ :=
   2 * K0a * X * (3 * a₀ / 2) ^ (-(5 / 2 : ℝ)) / (5 / 2) + 2 * K0b * X * (3 * a₀ / 2) ^ (-(1 / 2 : ℝ)) / (1 / 2)
 
+/-- A profile of the class `(M, -1/2, 3/2)` supported in `[3δ/2, 6δ]`, `6δ ≤ 1`, has `∫|p| ≤ K₀ M (2/3)(6δ)^{3/2}`
+(the mass `O(δ^{3/2}) = O(c^{-3/4})` of `B_tr`, `fct:physical-budget` (d)). -/
+lemma tr_l1 {δ M : ℝ} {K : ℕ → ℝ} {p : ℝ → ℝ} (h : SymW (Ici (3 / 2 * δ)) (pw M (-(1 / 2)) (3 / 2)) K p)
+    (hsup : ∀ x : ℝ, x < 3 / 2 * δ → p x = 0) (hsup' : ∀ x : ℝ, 6 * δ < x → p x = 0)
+    (hM : 0 ≤ M) (hδ : 0 < δ) (h6 : 6 * δ ≤ 1) :
+    ∫ x, ‖p x‖ ≤ K 0 * M * (2 / 3) * (6 * δ) ^ (3 / 2 : ℝ) := by
+  have hb : 0 < 3 / 2 * δ := by positivity
+  have hK : 0 ≤ K 0 := h.K_nonneg 0
+  set g : ℝ → ℝ := (Icc (3 / 2 * δ) (6 * δ)).indicator (fun x => K 0 * M * x ^ (1 / 2 : ℝ)) with hg
+  have hcont : ContinuousOn (fun x : ℝ => K 0 * M * x ^ (1 / 2 : ℝ)) (Icc (3 / 2 * δ) (6 * δ)) :=
+    continuousOn_const.mul (fun x hx => (Real.continuousAt_rpow_const x _ (Or.inl (by linarith [hx.1]))).continuousWithinAt)
+  have hgi : Integrable g := (hcont.integrableOn_Icc).integrable_indicator measurableSet_Icc
+  have hle : ∀ x, ‖p x‖ ≤ g x := by
+    intro x
+    by_cases hx : x ∈ Icc (3 / 2 * δ) (6 * δ)
+    · rw [hg, indicator_of_mem hx, Real.norm_eq_abs]
+      have hb' := h.bound 0 x hx.1
+      have hx1 : x ≤ 1 := hx.2.trans h6
+      have e : pw M (-(1 / 2)) (3 / 2) x = M * x ^ (1 / 2 : ℝ) := by simp only [pw, hx1, ↓reduceIte, neg_neg]
+      simp only [iteratedDeriv_zero, pow_zero, inv_one, mul_one, e] at hb'
+      linarith
+    · rw [hg, indicator_of_notMem hx]
+      have : p x = 0 := by
+        by_cases h1 : x < 3 / 2 * δ
+        · exact hsup x h1
+        · exact hsup' x (by
+            by_contra h2
+            exact hx ⟨not_lt.mp h1, not_lt.mp h2⟩)
+      simp [this]
+  have hint : ∫ x, ‖p x‖ ≤ ∫ x, g x :=
+    integral_mono_of_nonneg (Filter.Eventually.of_forall fun x => norm_nonneg _) hgi (Filter.Eventually.of_forall hle)
+  refine hint.trans ?_
+  have hab : 3 / 2 * δ ≤ 6 * δ := by linarith
+  have e1 : ∫ x, g x = K 0 * M * ∫ x in (3 / 2 * δ)..(6 * δ), x ^ (1 / 2 : ℝ) := by
+    rw [hg, integral_indicator measurableSet_Icc, integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le hab,
+      intervalIntegral.integral_const_mul]
+  have e2 : ∫ x in (3 / 2 * δ)..(6 * δ), x ^ (1 / 2 : ℝ) =
+      ((6 * δ) ^ (1 / 2 + 1 : ℝ) - (3 / 2 * δ) ^ (1 / 2 + 1 : ℝ)) / (1 / 2 + 1) :=
+    integral_rpow (Or.inl (by norm_num))
+  rw [e1, e2]
+  have h3 : 0 ≤ (3 / 2 * δ) ^ (1 / 2 + 1 : ℝ) := Real.rpow_nonneg hb.le _
+  have h4 : (6 * δ) ^ (1 / 2 + 1 : ℝ) = (6 * δ) ^ (3 / 2 : ℝ) := by norm_num
+  rw [h4]
+  have : ((6 * δ) ^ (3 / 2 : ℝ) - (3 / 2 * δ) ^ (1 / 2 + 1 : ℝ)) / (1 / 2 + 1) ≤ (2 / 3) * (6 * δ) ^ (3 / 2 : ℝ) := by
+    rw [div_le_iff₀ (by norm_num)]; nlinarith
+  calc K 0 * M * (((6 * δ) ^ (3 / 2 : ℝ) - (3 / 2 * δ) ^ (1 / 2 + 1 : ℝ)) / (1 / 2 + 1)) ≤
+      K 0 * M * ((2 / 3) * (6 * δ) ^ (3 / 2 : ℝ)) := mul_le_mul_of_nonneg_left this (mul_nonneg hK hM)
+    _ = _ := by ring
+
+/-- The `K₁ = 0` bump: `∫ B₀ ≤ n V + n ∫|p₄|` where `V` bounds `∫ χ γ (O − F)` (the vacuum difference) and `p₄` is the
+transition bump `B_tr` (mass `O(δ^{3/2})`). -/
+theorem physBump_zero_le {χ : ℝ → ℝ} (hχ : IsCutoff χ) {Kχ : ℕ → ℝ}
+    (hKχ : ∀ (r : ℕ) (s : ℝ), |iteratedDeriv r χ s| ≤ Kχ r)
+    {KΦ KR KT : ℕ → ℝ} {n c δ s K4 MΦ MR MT V : ℝ} {F R T4 : ℝ → ℝ}
+    (hδ : 0 < δ) (hδ1 : 3 / 2 * δ ≤ 1) (h6 : 6 * δ ≤ 1) (hs : |s| ≤ 3 / 2 * δ / 2)
+    (hsmall : (5 * π ^ 2 / 96) * c⁻¹ ^ 2 * (3 / 2 * δ) ^ (-3 : ℝ) ≤ 1) (hn : 0 ≤ n)
+    (hMR : 0 ≤ MR) (hMT : 0 ≤ MT)
+    (hF : SymW (Ici (3 / 2 * δ)) (pw MΦ (3 / 2) (3 / 2)) KΦ F)
+    (hR : SymW (Ici (3 / 2 * δ)) (pw MR (-1) 0) KR (fun x => R x - 1))
+    (hT : SymW (Icc (3 / 2 * δ) (6 * δ)) (pw MT (-(1 / 2)) (3 / 2)) KT T4)
+    (hV : ∫ x, χ (x / (3 * δ)) * physGamma c s x * (F x * R x - F x) ≤ V) :
+    ∫ x, physBump χ n c δ s 0 K4 (fun x => F x * R x) F T4 x ≤
+      n * V + n * (KpTr Kχ KT 0 * (|2 * K4| * MT) * (2 / 3) * (6 * δ) ^ (3 / 2 : ℝ)) := by
+  obtain ⟨p1, p2, p3, p4⟩ := physBump_pieces hχ hKχ (K1 := 0) (K4 := K4) (c := c) (s := s) (MΦ := MΦ) (αΦ := 3 / 2)
+    (βΦ := 3 / 2) (MR := MR) (MT := MT) hδ hs hsmall hMR hMT hF hR hT
+  have hz : ∀ x : ℝ, x < 3 / 2 * δ → χ (x / (3 * δ)) = 0 := fun x hx =>
+    hχ.zero _ (by rw [div_le_iff₀ (by positivity)]; linarith)
+  have hm1 : 0 ≤ MΦ * MR := by
+    have := hF.w_nonneg (3 / 2 * δ) le_rfl
+    have hMΦ : 0 ≤ MΦ := by
+      have h1 : pw MΦ (3 / 2) (3 / 2) (3 / 2 * δ) = MΦ * (3 / 2 * δ) ^ (-(3 / 2 : ℝ)) := pw_self _ _ _
+      rw [h1] at this
+      exact nonneg_of_mul_nonneg_left this (Real.rpow_pos_of_pos (by positivity) _)
+    exact mul_nonneg hMΦ hMR
+  have hi1 : Integrable (fun x => χ (x / (3 * δ)) * physGamma c s x * (F x * R x - F x)) := by
+    simpa using (SymW.toBumpProfile (M := MΦ * MR) p1 hm1 (fun x hx => by simp [hz x hx])).integrable_iteratedDeriv hδ1
+      (by norm_num : (1 : ℝ) < 3 / 2) 0
+  have hm4 : 0 ≤ |2 * K4| * MT := mul_nonneg (abs_nonneg _) hMT
+  have hsup4 : ∀ x : ℝ, x < 3 / 2 * δ → 2 * K4 * (χ (x / (3 * δ)) * ((1 - χ (x / (6 * δ))) * T4 x)) = 0 :=
+    fun x hx => by simp [hz x hx]
+  have hsup4' : ∀ x : ℝ, 6 * δ < x → 2 * K4 * (χ (x / (3 * δ)) * ((1 - χ (x / (6 * δ))) * T4 x)) = 0 := by
+    intro x hx
+    have : 1 ≤ x / (6 * δ) := by rw [le_div_iff₀ (by positivity)]; linarith
+    simp [hχ.one _ this]
+  have hi4 : Integrable (fun x => 2 * K4 * (χ (x / (3 * δ)) * ((1 - χ (x / (6 * δ))) * T4 x))) := by
+    simpa using (SymW.toBumpProfile (M := |2 * K4| * MT) p4 hm4 hsup4).integrable_iteratedDeriv hδ1
+      (by norm_num : (1 : ℝ) < 3 / 2) 0
+  have l4 := tr_l1 p4 hsup4 hsup4' hm4 hδ h6
+  have hid : (fun x => physBump χ n c δ s 0 K4 (fun x => F x * R x) F T4 x) = fun x =>
+      n * (χ (x / (3 * δ)) * physGamma c s x * (F x * R x - F x)) +
+        n * (2 * K4 * (χ (x / (3 * δ)) * ((1 - χ (x / (6 * δ))) * T4 x))) := by
+    funext x
+    simp only [physBump, physEta]; ring
+  rw [hid, integral_add (hi1.const_mul n) (hi4.const_mul n), integral_const_mul, integral_const_mul]
+  have b1 : n * ∫ x, χ (x / (3 * δ)) * physGamma c s x * (F x * R x - F x) ≤ n * V :=
+    mul_le_mul_of_nonneg_left hV hn
+  have b4 : n * ∫ x, 2 * K4 * (χ (x / (3 * δ)) * ((1 - χ (x / (6 * δ))) * T4 x)) ≤
+      n * (KpTr Kχ KT 0 * (|2 * K4| * MT) * (2 / 3) * (6 * δ) ^ (3 / 2 : ℝ)) :=
+    mul_le_mul_of_nonneg_left ((le_abs_self _).trans ((norm_integral_le_integral_norm _).trans l4)) hn
+  linarith
+
 lemma Mbound {n nmax c K1 A0 B0 X : ℝ} (hc : 1 ≤ c) (hK1 : 0 ≤ K1) (hX : 0 ≤ X) (hn : |n| ≤ nmax) (hA0 : 0 ≤ A0)
     (hB0 : 0 ≤ B0) :
     |n| * (A0 + |K1 * c⁻¹ ^ 2| * X + |K1 * c⁻¹| * X + B0) ≤ nmax * ((A0 + B0) + 2 * K1 * X) := by
@@ -277,24 +378,27 @@ lemma lambda_le {a₀ c δ : ℝ} (ha₀ : 0 < a₀) (hc : 0 < c) (hδa : a₀ *
 `∃ C₀ b₂, ∀ K₁ > 0, ∃ c₀, ∀ c ≥ c₀, Re ctWbump(B_c^ε)(0) ≤ (C₀ + b₂ K₁) c^{-13/12}` for the bump `B_c^ε = physBump` of `(fct:B-physical)`.
 
 Inputs (module docstring): `hsize` (the scales and `δ_L ≥ a₀ c^{-1/2}`, `|n_c| ≤ n_max`), `hR`, `hT` (the symbol-class facts of
-Lemma 7b (b), with constants uniform in `(ε, c)`) and `hvac` (the `K₁ = 0` vacuum budget `∫B|_{K₁=0} ≤ A c^{-3/4}`: parts (a)-(d)
+Lemma 7b (b), with constants uniform in `(ε, c)`) and `hvac` (the vacuum integral `∫ χγ(O − F) ≤ A c^{-3/4}`: parts (a)-(c)
 of `fct:physical-budget`, from `fct:comp-D` (2) and `fct:phikill` (3)).  Proved: the margin (e), the reflected term, the assembly. -/
 theorem physical_budget_field {χ : ℝ → ℝ} (hχ : IsCutoff χ) {Bphys : ℝ → ℝ → ℝ → ℝ → ℝ}
     (δf sf L1f nf : ℝ → ℝ → ℝ) (K4 : ℝ) (Of : ℝ → ℝ → ℝ → ℝ)
     (hdef : ∀ ε c K1 : ℝ, Bphys ε c K1 = physBump χ (nf ε c) c (δf ε c) (sf ε c) K1 K4 (Of ε c)
       (physF (sf ε c) (L1f ε c)) (fun L => tau0 L ^ 4 * uctIfl L))
-    (hsize : ∃ c₀ a₀ nmax : ℝ, 1 ≤ c₀ ∧ 0 < a₀ ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
+    (hsize : ∃ c₀ a₀ a₁ nmax : ℝ, 1 ≤ c₀ ∧ 0 < a₀ ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       0 < δf ε c ∧ 3 / 2 * δf ε c ≤ 1 ∧ |sf ε c| ≤ 3 / 2 * δf ε c / 2 ∧ |L1f ε c| ≤ 3 / 2 * δf ε c / 2 ∧
         |L1f ε c - sf ε c| ≤ 3 / 2 * δf ε c ∧ (5 * π ^ 2 / 96) * c⁻¹ ^ 2 * (3 / 2 * δf ε c) ^ (-3 : ℝ) ≤ 1 ∧
-        a₀ * c ^ (-(1 / 2 : ℝ)) ≤ δf ε c ∧ |nf ε c| ≤ nmax)
+        a₀ * c ^ (-(1 / 2 : ℝ)) ≤ δf ε c ∧ δf ε c ≤ a₁ * c ^ (-(1 / 2 : ℝ)) ∧ 6 * δf ε c ≤ 1 ∧ 0 ≤ nf ε c ∧
+        |nf ε c| ≤ nmax)
     (hR : ∃ (c₀ MR : ℝ) (KR : ℕ → ℝ), 0 ≤ MR ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       SymW (Ici (3 / 2 * δf ε c)) (pw MR (-1) 0) KR (fun x => Of ε c x / physF (sf ε c) (L1f ε c) x - 1))
     (hT : ∃ (c₀ MT : ℝ) (KT : ℕ → ℝ), 0 ≤ MT ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       SymW (Icc (3 / 2 * δf ε c) (6 * δf ε c)) (pw MT (-(1 / 2)) (3 / 2)) KT (fun L => tau0 L ^ 4 * uctIfl L))
-    (hvac : ∃ A c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → (∫ x, Bphys ε c 0 x) ≤ A * c ^ (-(3 / 4 : ℝ))) :
+    (hvac : ∃ A c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
+      (∫ x, χ (x / (3 * δf ε c)) * physGamma c (sf ε c) x * (Of ε c x - physF (sf ε c) (L1f ε c) x)) ≤
+        A * c ^ (-(3 / 4 : ℝ))) :
     ∃ C0 b2 : ℝ, ∀ K1 : ℝ, 0 < K1 → ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       (ctWbump (Bphys ε c K1) ε c 0).re ≤ (C0 + b2 * K1) * c ^ (-(13 / 12 : ℝ)) := by
-  obtain ⟨c₁, a₀, nmax, hc₁, ha₀, hsz⟩ := hsize
+  obtain ⟨c₁, a₀, a₁, nmax, hc₁, ha₀, hsz⟩ := hsize
   obtain ⟨c₂, MR, KR, hMR, hRu⟩ := hR
   obtain ⟨c₃, MT, KT, hMT, hTu⟩ := hT
   obtain ⟨A, c₄, hvac'⟩ := hvac
@@ -313,9 +417,16 @@ theorem physical_budget_field {χ : ℝ → ℝ} (hχ : IsCutoff χ) {Bphys : �
   obtain ⟨Cl, hCl0, hCl⟩ := bump_laplace_decay (b := 3 / 2) (α := 7 / 2) (β := 3 / 2) (by norm_num) (by norm_num)
     (KpTot Kχ KΦ KR KT) 0
   have hn0 : 0 ≤ nmax := by
-    obtain ⟨_, _, _, _, _, _, _, hn⟩ := hsz 1 (max c₁ 1) (Or.inl rfl) (le_max_left _ _)
+    obtain ⟨_, _, _, _, _, _, _, _, _, _, hn⟩ := hsz 1 (max c₁ 1) (Or.inl rfl) (le_max_left _ _)
     exact (abs_nonneg _).trans hn
-  refine ⟨A + 1, nmax * Cm, fun K1 hK1 => ?_⟩
+  set Ap : ℝ := max A 0 with hAp
+  set Ktr : ℝ := KpTr Kχ KT 0 * (|2 * K4| * MT) * (2 / 3) with hKtr
+  have hKtr0 : 0 ≤ Ktr := by
+    have hKT0 : ∀ r, 0 ≤ KT r := fun r => (hTu 1 (max c₃ 1) (Or.inl rfl) (le_max_left _ _)).K_nonneg r
+    have : 0 ≤ KpTr Kχ KT 0 := Kmul_nonneg hKχ0 (Kmul_nonneg (fun r => add_nonneg (Kone_nonneg r) (hKχ0 r)) hKT0) 0
+    rw [hKtr]; positivity
+  set Atot : ℝ := nmax * (Ap + Ktr * (6 * a₁) ^ (3 / 2 : ℝ)) with hAtot
+  refine ⟨Atot + 1, nmax * Cm, fun K1 hK1 => ?_⟩
   set M0 : ℝ := MΦ * MR + |2 * K4| * MT with hM0
   have hM00 : 0 ≤ M0 := add_nonneg (mul_nonneg (abs_nonneg _) hMR) (mul_nonneg (abs_nonneg _) hMT)
   set P : ℝ := Cl * nmax * (M0 + 2 * K1 * X) with hP
@@ -330,7 +441,7 @@ theorem physical_budget_field {χ : ℝ → ℝ} (hχ : IsCutoff χ) {Bphys : �
   have hc4 : c₄ ≤ c := (le_max_right _ _).trans ((le_max_right _ _).trans hcB)
   have hc1' : 1 ≤ c := hc₁.trans hc1
   have hc0 : 0 < c := by linarith
-  obtain ⟨hδ, hδ1, hs, hL1, hLs, hsmall, hδa, hn⟩ := hsz ε c hε hc1
+  obtain ⟨hδ, hδ1, hs, hL1, hLs, hsmall, hδa, hδb, h6, hn0', hn⟩ := hsz ε c hε hc1
   have hRε := hRu ε c hε hc2
   have hTε := hTu ε c hε hc3
   have hx0 : 0 < 3 / 2 * δf ε c := by positivity
@@ -347,9 +458,65 @@ theorem physical_budget_field {χ : ℝ → ℝ} (hχ : IsCutoff χ) {Bphys : �
     hδ hs hsmall (abs_nonneg _) hMR hMT hFsym hRε hTε
   have hv : (∫ x, physBump χ (nf ε c) c (δf ε c) (sf ε c) 0 K4
       (fun x => physF (sf ε c) (L1f ε c) x * (Of ε c x / physF (sf ε c) (L1f ε c) x))
-      (physF (sf ε c) (L1f ε c)) (fun L => tau0 L ^ 4 * uctIfl L) x) ≤ A * c ^ (-(3 / 4 : ℝ)) := by
-    have := hvac' ε c hε hc4
-    rwa [hBeq 0] at this
+      (physF (sf ε c) (L1f ε c)) (fun L => tau0 L ^ 4 * uctIfl L) x) ≤ Atot * c ^ (-(3 / 4 : ℝ)) := by
+    have hV0 := hvac' ε c hε hc4
+    have hV : (∫ x, χ (x / (3 * δf ε c)) * physGamma c (sf ε c) x *
+        (physF (sf ε c) (L1f ε c) x * (Of ε c x / physF (sf ε c) (L1f ε c) x) - physF (sf ε c) (L1f ε c) x)) ≤
+        A * c ^ (-(3 / 4 : ℝ)) := by
+      refine le_trans (le_of_eq (integral_congr_ae (Filter.Eventually.of_forall fun x => ?_))) hV0
+      simp only
+      by_cases hx : 3 / 2 * δf ε c ≤ x
+      · rw [mul_div_cancel₀ _ (physF_pos hx0 hs hL1 hx).ne']
+      · have hx3 : x / (3 * δf ε c) ≤ 1 / 2 := by rw [div_le_iff₀ (by positivity)]; linarith [not_le.mp hx]
+        simp [hχ.zero _ hx3]
+    have hz := physBump_zero_le hχ hKχ (n := nf ε c) (c := c) (K4 := K4) (MΦ := MΦ) (MR := MR) (MT := MT)
+      (R := fun x => Of ε c x / physF (sf ε c) (L1f ε c) x) hδ hδ1 h6 hs hsmall hn0' hMR hMT hFsym hRε hTε hV
+    rw [← hKtr] at hz
+    refine hz.trans ?_
+    have hcp0 : 0 ≤ c ^ (-(3 / 4 : ℝ)) := Real.rpow_nonneg hc0.le _
+    have hnn : nf ε c ≤ nmax := (le_abs_self _).trans hn
+    have h6δ : (6 * δf ε c) ^ (3 / 2 : ℝ) ≤ (6 * a₁) ^ (3 / 2 : ℝ) * c ^ (-(3 / 4 : ℝ)) := by
+      have h1 : 6 * δf ε c ≤ 6 * (a₁ * c ^ (-(1 / 2 : ℝ))) := by linarith
+      refine (Real.rpow_le_rpow (by positivity) h1 (by norm_num)).trans (le_of_eq ?_)
+      rw [← mul_assoc, Real.mul_rpow (by
+        have : 0 ≤ a₁ * c ^ (-(1 / 2 : ℝ)) := (le_trans (by positivity) hδb)
+        have ha1 : 0 ≤ a₁ := by
+          by_contra hneg
+          have : a₁ * c ^ (-(1 / 2 : ℝ)) < 0 := mul_neg_of_neg_of_pos (not_le.mp hneg) (Real.rpow_pos_of_pos hc0 _)
+          linarith
+        positivity) (Real.rpow_nonneg hc0.le _), Real.mul_rpow (by norm_num) (by
+        have ha1 : 0 ≤ a₁ := by
+          by_contra hneg
+          have : a₁ * c ^ (-(1 / 2 : ℝ)) < 0 := mul_neg_of_neg_of_pos (not_le.mp hneg) (Real.rpow_pos_of_pos hc0 _)
+          have : 0 ≤ a₁ * c ^ (-(1 / 2 : ℝ)) := le_trans (by positivity) hδb
+          linarith
+        exact ha1), ← Real.rpow_mul hc0.le]
+      norm_num
+    have e1 : nf ε c * (A * c ^ (-(3 / 4 : ℝ))) ≤ nmax * Ap * c ^ (-(3 / 4 : ℝ)) := by
+      have h1 : A * c ^ (-(3 / 4 : ℝ)) ≤ Ap * c ^ (-(3 / 4 : ℝ)) :=
+        mul_le_mul_of_nonneg_right (le_max_left _ _) hcp0
+      calc nf ε c * (A * c ^ (-(3 / 4 : ℝ))) ≤ nf ε c * (Ap * c ^ (-(3 / 4 : ℝ))) :=
+            mul_le_mul_of_nonneg_left h1 hn0'
+        _ ≤ nmax * (Ap * c ^ (-(3 / 4 : ℝ))) :=
+            mul_le_mul_of_nonneg_right hnn (mul_nonneg (le_max_right _ _) hcp0)
+        _ = _ := by ring
+    have e2 : nf ε c * (Ktr * (6 * δf ε c) ^ (3 / 2 : ℝ)) ≤ nmax * Ktr * ((6 * a₁) ^ (3 / 2 : ℝ) * c ^ (-(3 / 4 : ℝ))) := by
+      have h1 : Ktr * (6 * δf ε c) ^ (3 / 2 : ℝ) ≤ Ktr * ((6 * a₁) ^ (3 / 2 : ℝ) * c ^ (-(3 / 4 : ℝ))) :=
+        mul_le_mul_of_nonneg_left h6δ hKtr0
+      have h0 : 0 ≤ Ktr * ((6 * a₁) ^ (3 / 2 : ℝ) * c ^ (-(3 / 4 : ℝ))) :=
+        mul_nonneg hKtr0 (mul_nonneg (Real.rpow_nonneg (by
+          have : 0 ≤ a₁ * c ^ (-(1 / 2 : ℝ)) := le_trans (by positivity) hδb
+          have ha1 : 0 ≤ a₁ := by
+            by_contra hneg
+            have : a₁ * c ^ (-(1 / 2 : ℝ)) < 0 := mul_neg_of_neg_of_pos (not_le.mp hneg) (Real.rpow_pos_of_pos hc0 _)
+            linarith
+          positivity) _) hcp0)
+      calc nf ε c * (Ktr * (6 * δf ε c) ^ (3 / 2 : ℝ)) ≤ nf ε c * (Ktr * ((6 * a₁) ^ (3 / 2 : ℝ) * c ^ (-(3 / 4 : ℝ)))) :=
+            mul_le_mul_of_nonneg_left h1 hn0'
+        _ ≤ nmax * (Ktr * ((6 * a₁) ^ (3 / 2 : ℝ) * c ^ (-(3 / 4 : ℝ)))) := mul_le_mul_of_nonneg_right hnn h0
+        _ = _ := by ring
+    rw [hAtot]
+    linarith
   -- the scale bounds
   have hδlow : (3 * a₀ / 2) * c ^ (-(1 / 2 : ℝ)) ≤ 3 / 2 * δf ε c := by
     have := mul_le_mul_of_nonneg_left hδa (by norm_num : (0 : ℝ) ≤ 3 / 2)
@@ -372,7 +539,7 @@ theorem physical_budget_field {χ : ℝ → ℝ} (hχ : IsCutoff χ) {Bphys : �
   have hmar : (∫ x, physBump χ (nf ε c) c (δf ε c) (sf ε c) K1 K4
       (fun x => physF (sf ε c) (L1f ε c) x * (Of ε c x / physF (sf ε c) (L1f ε c) x))
       (physF (sf ε c) (L1f ε c)) (fun L => tau0 L ^ 4 * uctIfl L) x) ≤
-        A * c ^ (-(3 / 4 : ℝ)) + nmax * Cm * K1 * c ^ (-(3 / 4 : ℝ)) := by
+        Atot * c ^ (-(3 / 4 : ℝ)) + nmax * Cm * K1 * c ^ (-(3 / 4 : ℝ)) := by
     refine hbound.trans ?_
     have habs1 : |K1 * c⁻¹ ^ 2| = K1 * c⁻¹ ^ 2 := abs_of_nonneg (by positivity)
     have habs2 : |K1 * c⁻¹| = K1 * c⁻¹ := abs_of_nonneg (by positivity)
@@ -397,10 +564,10 @@ theorem physical_budget_field {χ : ℝ → ℝ} (hχ : IsCutoff χ) {Bphys : �
       have : 0 ≤ Cm := by
         rw [hCm, budgetSlope]; positivity
       positivity
-    calc _ ≤ A * c ^ (-(3 / 4 : ℝ)) + |nf ε c| * (Cm * K1 * c ^ (-(3 / 4 : ℝ))) := by
+    calc _ ≤ Atot * c ^ (-(3 / 4 : ℝ)) + |nf ε c| * (Cm * K1 * c ^ (-(3 / 4 : ℝ))) := by
           have := mul_le_mul_of_nonneg_left hsum (abs_nonneg (nf ε c))
           linarith
-      _ ≤ A * c ^ (-(3 / 4 : ℝ)) + nmax * (Cm * K1 * c ^ (-(3 / 4 : ℝ))) := by
+      _ ≤ Atot * c ^ (-(3 / 4 : ℝ)) + nmax * (Cm * K1 * c ^ (-(3 / 4 : ℝ))) := by
           have := mul_le_mul_of_nonneg_right hnn hCm0
           linarith
       _ = _ := by ring
@@ -455,7 +622,7 @@ theorem physical_budget_field {χ : ℝ → ℝ} (hχ : IsCutoff χ) {Bphys : �
     rw [← Real.rpow_add hc0]; norm_num
   have hc13 : 0 ≤ c ^ (-(1 / 3 : ℝ)) := Real.rpow_nonneg hc0.le _
   calc _ ≤ _ := hre
-    _ ≤ c ^ (-(1 / 3 : ℝ)) * (A * c ^ (-(3 / 4 : ℝ)) + nmax * Cm * K1 * c ^ (-(3 / 4 : ℝ))) +
+    _ ≤ c ^ (-(1 / 3 : ℝ)) * (Atot * c ^ (-(3 / 4 : ℝ)) + nmax * Cm * K1 * c ^ (-(3 / 4 : ℝ))) +
           c ^ (-(1 / 3 : ℝ)) * c ^ (-(3 / 4 : ℝ)) := by
         have := mul_le_mul_of_nonneg_left hmar hc13
         have := mul_le_mul_of_nonneg_left hLap hc13
@@ -464,29 +631,32 @@ theorem physical_budget_field {χ : ℝ → ℝ} (hχ : IsCutoff χ) {Bphys : �
 
 /-- **The fields `bump_profile` and `physical_budget` of `FctMainHankelInputs`**, for an `I.Bphys` that is the bump `(fct:B-physical)`
 (`hdef`), from `fct:bump-sym-check` and `fct:physical-budget`; the conclusions are literally the types of the two fields.
-Inputs: `hsize`, `hR`, `hT` (the instantiated `fct:comp-D` / warp datum, uniform in `(ε, c)`) and `hvac` (the `K₁ = 0` vacuum budget,
-`fct:physical-budget` (a)-(d)). -/
+Inputs: `hsize`, `hR`, `hT` (the instantiated `fct:comp-D` / warp datum, uniform in `(ε, c)`) and `hvac` (the vacuum integral
+`∫ χγ(O − F) ≤ A c^{-3/4}`, `fct:physical-budget` (a)-(c)). -/
 theorem fctMainHankel_bump_fields {χ : ℝ → ℝ} (hχ : IsCutoff χ) (I : FctMainHankelInputs)
     (δf sf L1f nf : ℝ → ℝ → ℝ) (K4 : ℝ) (Of : ℝ → ℝ → ℝ → ℝ)
     (hdef : ∀ ε c K1 : ℝ, I.Bphys ε c K1 = physBump χ (nf ε c) c (δf ε c) (sf ε c) K1 K4 (Of ε c)
       (physF (sf ε c) (L1f ε c)) (fun L => tau0 L ^ 4 * uctIfl L))
-    (hsize : ∃ c₀ a₀ nmax : ℝ, 1 ≤ c₀ ∧ 0 < a₀ ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
+    (hsize : ∃ c₀ a₀ a₁ nmax : ℝ, 1 ≤ c₀ ∧ 0 < a₀ ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       0 < δf ε c ∧ 3 / 2 * δf ε c ≤ 1 ∧ |sf ε c| ≤ 3 / 2 * δf ε c / 2 ∧ |L1f ε c| ≤ 3 / 2 * δf ε c / 2 ∧
         |L1f ε c - sf ε c| ≤ 3 / 2 * δf ε c ∧ (5 * π ^ 2 / 96) * c⁻¹ ^ 2 * (3 / 2 * δf ε c) ^ (-3 : ℝ) ≤ 1 ∧
-        a₀ * c ^ (-(1 / 2 : ℝ)) ≤ δf ε c ∧ |nf ε c| ≤ nmax)
+        a₀ * c ^ (-(1 / 2 : ℝ)) ≤ δf ε c ∧ δf ε c ≤ a₁ * c ^ (-(1 / 2 : ℝ)) ∧ 6 * δf ε c ≤ 1 ∧ 0 ≤ nf ε c ∧
+        |nf ε c| ≤ nmax)
     (hR : ∃ (c₀ MR : ℝ) (KR : ℕ → ℝ), 0 ≤ MR ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       SymW (Ici (3 / 2 * δf ε c)) (pw MR (-1) 0) KR (fun x => Of ε c x / physF (sf ε c) (L1f ε c) x - 1))
     (hT : ∃ (c₀ MT : ℝ) (KT : ℕ → ℝ), 0 ≤ MT ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       SymW (Icc (3 / 2 * δf ε c) (6 * δf ε c)) (pw MT (-(1 / 2)) (3 / 2)) KT (fun L => tau0 L ^ 4 * uctIfl L))
-    (hvac : ∃ A c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → (∫ x, I.Bphys ε c 0 x) ≤ A * c ^ (-(3 / 4 : ℝ))) :
+    (hvac : ∃ A c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
+      (∫ x, χ (x / (3 * δf ε c)) * physGamma c (sf ε c) x * (Of ε c x - physF (sf ε c) (L1f ε c) x)) ≤
+        A * c ^ (-(3 / 4 : ℝ))) :
     type_of% I.bump_profile ∧ type_of% I.physical_budget := by
   refine ⟨?_, physical_budget_field hχ δf sf L1f nf K4 Of hdef hsize hR hT hvac⟩
-  obtain ⟨c₁, a₀, nmax, _, _, hsz⟩ := hsize
+  obtain ⟨c₁, a₀, a₁, nmax, _, _, hsz⟩ := hsize
   obtain ⟨c₂, MR, KR, hMR, hRu⟩ := hR
   obtain ⟨c₃, MT, KT, hMT, hTu⟩ := hT
   refine bump_profile_field hχ δf sf L1f nf K4 Of hdef ⟨c₁, fun ε c hε hc => ?_⟩ ⟨c₂, fun ε c hε hc => ⟨MR, KR, hMR, hRu ε c hε hc⟩⟩
     ⟨c₃, fun ε c hε hc => ⟨MT, KT, hMT, hTu ε c hε hc⟩⟩
-  obtain ⟨h1, h2, h3, h4, h5, h6, _, _⟩ := hsz ε c hε hc
+  obtain ⟨h1, h2, h3, h4, h5, h6, _, _, _, _, _⟩ := hsz ε c hε hc
   exact ⟨h1, h2, h3, h4, h5, h6⟩
 
 /-- info: 'FormalResearch.SignUncertainty.FctSym.bump_profile_field' depends on axioms: [propext, Classical.choice, Quot.sound] -/
