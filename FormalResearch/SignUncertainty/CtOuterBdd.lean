@@ -96,6 +96,30 @@ lemma crude_left {CA c a : ℝ} {A A1 A2 : ℝ → ℂ} {ϕ : ℝ → ℝ} (hA :
   have : ((1 : ℝ) / 2 + 1) = 3 / 2 := by norm_num
   rw [this, Real.zero_rpow (by norm_num)]; ring
 
+/-- The improper integral exists and is bounded by the crude left piece on `[0,a]` plus the tail from `a`, whenever
+`(1/4) sg ≤ |m - L|` on `[a, ∞)`. -/
+theorem bdd_a {C0 CA c a L : ℝ} {m m1 m2 m3 : ℝ → ℝ} {A A1 A2 : ℝ → ℂ} {ϕ : ℝ → ℝ}
+    (hM : MData C0 m m1 m2 m3) (hA : AmpBd CA A A1 A2) (hc : 0 < c) (ha : 0 < a)
+    (hϕ : ∀ τ : ℝ, 0 < τ → HasDerivAt ϕ (m τ - L) τ) (hp : ∀ τ : ℝ, a ≤ τ → (1 / 4 : ℝ) * sg τ ≤ |m τ - L|) :
+    ∃ I : ℂ, Tendsto (fun b : ℝ => ∫ τ in (0 : ℝ)..b, A τ * Complex.exp (Complex.I * c * (ϕ τ : ℂ))) atTop (𝓝 I) ∧
+      ‖I‖ ≤ (2 / 3) * CA * a ^ (3 / 2 : ℝ) +
+        ((1 / c) * (CA * a ^ (1 / 2 : ℝ) / (1 + a) / |m a - L|) +
+        (1 / c) ^ 2 * (CA * (1 + C0 / (1 / 4)) * (a ^ (-1 / 2 : ℝ) / (1 + a)) / |m a - L| /
+          |m a - L|) +
+        (1 / c) ^ 2 * ((4 * CA * (1 + 4 * C0 / (1 / 4) + 3 * C0 ^ 2 / (1 / 4) ^ 2) / (1 / 4) ^ 2) *
+          ((2 / 9) * a ^ (-9 / 2 : ℝ) + (2 / 3) * a ^ (-3 / 2 : ℝ)))) := by
+  have hϕc : ContinuousOn ϕ (Ioi 0) := fun τ hτ => (hϕ τ hτ).continuousAt.continuousWithinAt
+  obtain ⟨V, hV, hVb⟩ := tail_est (γ := 1 / 4) hM hA (by norm_num) hc ha hϕ hp
+  have hint : ∀ b : ℝ, 0 ≤ b → IntervalIntegrable (fun τ => A τ * Complex.exp (Complex.I * c * (ϕ τ : ℂ))) volume 0 b :=
+    fun b hb => intInt_BE hb hA.CA0 (fun τ hτ => (hA.d1 τ hτ).continuousAt.continuousWithinAt) hϕc hA.b0
+  refine ⟨(∫ τ in (0 : ℝ)..a, A τ * Complex.exp (Complex.I * c * (ϕ τ : ℂ))) + V, ?_, ?_⟩
+  · refine (hV.const_add _).congr' ?_
+    filter_upwards [eventually_ge_atTop a] with b hb
+    exact (intervalIntegral_split ha.le hb (hint b (by linarith))).symm
+  · refine (norm_add_le _ _).trans ?_
+    have := crude_left (c := c) hA ha.le hϕc
+    linarith only [this, hVb]
+
 /-- **Small `τ₀`.** For `0 < τ₀`, the improper integral exists and is bounded by the crude left piece plus the tail. -/
 theorem bdd_small {C0 CA c τ0 : ℝ} {m m1 m2 m3 : ℝ → ℝ} {A A1 A2 : ℝ → ℂ} {ϕ : ℝ → ℝ}
     (hM : MData C0 m m1 m2 m3) (hA : AmpBd CA A A1 A2) (hc : 0 < c) (hτ0 : 0 < τ0)
@@ -106,19 +130,8 @@ theorem bdd_small {C0 CA c τ0 : ℝ} {m m1 m2 m3 : ℝ → ℝ} {A A1 A2 : ℝ 
         (1 / c) ^ 2 * (CA * (1 + C0 / (1 / 4)) * ((2 * τ0) ^ (-1 / 2 : ℝ) / (1 + 2 * τ0)) / |m (2 * τ0) - m τ0| /
           |m (2 * τ0) - m τ0|) +
         (1 / c) ^ 2 * ((4 * CA * (1 + 4 * C0 / (1 / 4) + 3 * C0 ^ 2 / (1 / 4) ^ 2) / (1 / 4) ^ 2) *
-          ((2 / 9) * (2 * τ0) ^ (-9 / 2 : ℝ) + (2 / 3) * (2 * τ0) ^ (-3 / 2 : ℝ)))) := by
-  have ha : 0 < 2 * τ0 := by positivity
-  have hϕc : ContinuousOn ϕ (Ioi 0) := fun τ hτ => (hϕ τ hτ).continuousAt.continuousWithinAt
-  obtain ⟨V, hV, hVb⟩ := tail_est (γ := 1 / 4) hM hA (by norm_num) hc ha hϕ (fun τ hτ => hp_two hM hτ0 hτ)
-  have hint : ∀ b : ℝ, 0 ≤ b → IntervalIntegrable (fun τ => A τ * Complex.exp (Complex.I * c * (ϕ τ : ℂ))) volume 0 b :=
-    fun b hb => intInt_BE hb hA.CA0 (fun τ hτ => (hA.d1 τ hτ).continuousAt.continuousWithinAt) hϕc hA.b0
-  refine ⟨(∫ τ in (0 : ℝ)..(2 * τ0), A τ * Complex.exp (Complex.I * c * (ϕ τ : ℂ))) + V, ?_, ?_⟩
-  · refine (hV.const_add _).congr' ?_
-    filter_upwards [eventually_ge_atTop (2 * τ0)] with b hb
-    exact (intervalIntegral_split ha.le hb (hint b (by linarith))).symm
-  · refine (norm_add_le _ _).trans ?_
-    have := crude_left (c := c) hA ha.le hϕc
-    linarith only [this, hVb]
+          ((2 / 9) * (2 * τ0) ^ (-9 / 2 : ℝ) + (2 / 3) * (2 * τ0) ^ (-3 / 2 : ℝ)))) :=
+  bdd_a hM hA hc (by positivity) hϕ (fun τ hτ => hp_two hM hτ0 hτ)
 
 lemma rp_all {a : ℝ} (ha : 0 < a) : a ^ (1 / 2 : ℝ) = Real.sqrt a ∧ a ^ (-1 / 2 : ℝ) = (Real.sqrt a)⁻¹ ∧
     a ^ (-3 / 2 : ℝ) = ((Real.sqrt a) ^ 3)⁻¹ ∧ a ^ (-9 / 2 : ℝ) = ((Real.sqrt a) ^ 9)⁻¹ ∧
@@ -303,6 +316,79 @@ theorem bdd_small_final (C0 CA : ℝ) (hC0 : 0 < C0) (hCA : 0 ≤ CA) :
       Real.sqrt (r ^ 2 * τ0 ^ 3) :=
     mul_le_mul_of_nonneg_right (by linarith only [h3, hCA, hK30]) hsq0
   linarith only [h0, h1, h2, hCA, hK30, h3]
+
+/-- **Tiny `μ₀`** (`c ≥ 2`, `λ = c^{-1/3}`, `(1/4) sg ≤ |m - L|` on `[2λ, ∞)`): `√c ‖I‖ ≤ C`. -/
+theorem bdd_tiny (C0 CA : ℝ) (hC0 : 0 < C0) (hCA : 0 ≤ CA) :
+    ∃ Ct : ℝ, 0 ≤ Ct ∧ ∀ {m m1 m2 m3 : ℝ → ℝ} {A A1 A2 : ℝ → ℂ} {ϕ : ℝ → ℝ} {c lam L : ℝ},
+      MData C0 m m1 m2 m3 → AmpBd CA A A1 A2 → 2 ≤ c → 0 < lam → c * lam ^ 3 = 1 →
+      (∀ τ : ℝ, 0 < τ → HasDerivAt ϕ (m τ - L) τ) → (∀ τ : ℝ, 2 * lam ≤ τ → (1 / 4 : ℝ) * sg τ ≤ |m τ - L|) →
+      ∃ I : ℂ, Tendsto (fun b : ℝ => ∫ τ in (0 : ℝ)..b, A τ * Complex.exp (Complex.I * c * (ϕ τ : ℂ))) atTop (𝓝 I) ∧
+        Real.sqrt c * ‖I‖ ≤ Ct := by
+  set K3 : ℝ := 4 * CA * (1 + 16 * C0 + 48 * C0 ^ 2) * 16 with hK3
+  have hK30 : 0 ≤ K3 := by rw [hK3]; positivity
+  refine ⟨2 * CA + 10 * CA + 50 * (CA * (1 + 4 * C0)) + K3, by positivity, ?_⟩
+  intro m m1 m2 m3 A A1 A2 ϕ c lam L hM hA hc hlam hcl hϕ hp
+  have hc0 : 0 < c := by linarith
+  have ha : 0 < 2 * lam := by positivity
+  obtain ⟨I, hI, hb⟩ := bdd_a hM hA hc0 ha hϕ hp
+  refine ⟨I, hI, ?_⟩
+  have hl1 : lam < 1 := by
+    by_contra h
+    push_neg at h
+    have : 1 ≤ lam ^ 3 := one_le_pow₀ h
+    nlinarith
+  obtain ⟨r, hr, rfl⟩ : ∃ r : ℝ, 0 < r ∧ c = r ^ 2 := ⟨Real.sqrt c, Real.sqrt_pos.2 hc0, (Real.sq_sqrt hc0.le).symm⟩
+  rw [Real.sqrt_sq hr.le]
+  obtain ⟨e1, e2, e3, e4, e5⟩ := rp_all ha
+  set w := Real.sqrt (2 * lam) with hwdef
+  have hw : 0 < w := Real.sqrt_pos.2 ha
+  have hw2 : w ^ 2 = 2 * lam := Real.sq_sqrt ha.le
+  have hpa := hp (2 * lam) le_rfl
+  set p := |m (2 * lam) - L| with hpdef
+  rw [e1, e2, e3, e4, e5, ← hw2] at hb
+  have hw22 : w ^ 2 ≤ 2 := by rw [hw2]; linarith
+  have hw4 : w ^ 4 / 20 ≤ p := by
+    refine le_trans ?_ hpa
+    unfold sg
+    rw [← hw2, show (w ^ 2) ^ 2 = w ^ 4 by ring]
+    have h2 : w ^ 4 ≤ 4 := by nlinarith
+    rw [show (1 / 4 : ℝ) * (w ^ 4 / (1 + w ^ 4)) = w ^ 4 / (4 * (1 + w ^ 4)) by field_simp]
+    rw [div_le_div_iff₀ (by positivity) (by positivity)]
+    nlinarith [pow_pos hw 4]
+  have hX2 : (r * w ^ 3) ^ 2 = 8 := by
+    have : w ^ 6 = 8 * lam ^ 3 := by
+      have : w ^ 6 = (w ^ 2) ^ 3 := by ring
+      rw [this, hw2]; ring
+    calc (r * w ^ 3) ^ 2 = r ^ 2 * w ^ 6 := by ring
+      _ = 8 * (r ^ 2 * lam ^ 3) := by rw [this]; ring
+      _ = 8 := by rw [hcl]; ring
+  have hX : 2 ≤ r * w ^ 3 := by
+    have h1 : 4 ≤ (r * w ^ 3) ^ 2 := by rw [hX2]; norm_num
+    have h0 : 0 ≤ r * w ^ 3 := by positivity
+    nlinarith
+  have hX3 : r * w ^ 3 ≤ 3 := by
+    have h0 : 0 ≤ r * w ^ 3 := by positivity
+    nlinarith
+  have hsm := small_arith hCA hC0.le hr hw hw22 hX hw4
+  have hcr : r * ((2 / 3) * CA * w ^ 3) ≤ 2 * CA := by
+    have : r * ((2 / 3) * CA * w ^ 3) = (2 / 3) * CA * (r * w ^ 3) := by ring
+    rw [this]
+    have := mul_le_mul_of_nonneg_left hX3 (by positivity : 0 ≤ (2 / 3) * CA)
+    linarith only [this]
+  have hb2 : ‖I‖ ≤ (2 / 3) * CA * w ^ 3 + ((1 / r ^ 2) * (CA * w / (1 + w ^ 2) / p) +
+      (1 / r ^ 2) ^ 2 * (CA * (1 + C0 / (1 / 4)) * (w⁻¹ / (1 + w ^ 2)) / p / p) +
+      (1 / r ^ 2) ^ 2 * ((4 * CA * (1 + 4 * C0 / (1 / 4) + 3 * C0 ^ 2 / (1 / 4) ^ 2) / (1 / 4) ^ 2) *
+        ((2 / 9) * ((w ^ 9)⁻¹) + (2 / 3) * ((w ^ 3)⁻¹)))) := hb
+  generalize hTt : ((1 / r ^ 2) * (CA * w / (1 + w ^ 2) / p) +
+      (1 / r ^ 2) ^ 2 * (CA * (1 + C0 / (1 / 4)) * (w⁻¹ / (1 + w ^ 2)) / p / p) +
+      (1 / r ^ 2) ^ 2 * ((4 * CA * (1 + 4 * C0 / (1 / 4) + 3 * C0 ^ 2 / (1 / 4) ^ 2) / (1 / 4) ^ 2) *
+        ((2 / 9) * ((w ^ 9)⁻¹) + (2 / 3) * ((w ^ 3)⁻¹)))) = Tt at hb2 hsm
+  have h0 : r * ‖I‖ ≤ r * ((2 / 3) * CA * w ^ 3) + r * Tt := by
+    have := mul_le_mul_of_nonneg_left hb2 hr.le
+    linarith only [this]
+  have h3 : 0 ≤ CA * (1 + 4 * C0) := by positivity
+  linarith only [h0, hcr, hsm]
+
 
 /-- Bounded variation of the amplitude on `[a, b]` from a derivative bound. -/
 lemma A_bv {CA Lc a b : ℝ} {A A1 A2 : ℝ → ℂ} (hA : AmpBd CA A A1 A2) (ha : 0 < a) (hab : a ≤ b) (hLc : 0 ≤ Lc)
@@ -631,6 +717,105 @@ theorem tail_bdd {C0 CA c a L : ℝ} {m m1 m2 m3 : ℝ → ℝ} {A A1 A2 : ℝ �
       _ = _ := by ring
   linarith only [T1, T2, T3]
 
+/-- Tail from `a ≥ 2`, with decay: `‖V‖ ≤ K_t / √a` (`c ≥ 1`). -/
+theorem tail_small {C0 CA c a L : ℝ} {m m1 m2 m3 : ℝ → ℝ} {A A1 A2 : ℝ → ℂ} {ϕ : ℝ → ℝ}
+    (hM : MData C0 m m1 m2 m3) (hA : AmpBd CA A A1 A2) (hc : 1 ≤ c) (ha : 2 ≤ a)
+    (hϕ : ∀ τ : ℝ, 0 < τ → HasDerivAt ϕ (m τ - L) τ) (hp : ∀ τ : ℝ, a ≤ τ → (1 / 4 : ℝ) * sg τ ≤ |m τ - L|) :
+    ∃ V : ℂ, Tendsto (fun b : ℝ => ∫ τ in a..b, A τ * Complex.exp (Complex.I * c * (ϕ τ : ℂ))) atTop (𝓝 V) ∧
+      ‖V‖ ≤ (5 * CA + 25 * (CA * (1 + 4 * C0)) + 64 * CA * (1 + 16 * C0 + 48 * C0 ^ 2)) / Real.sqrt a := by
+  have hC0 := hM.C0nn
+  have hCA := hA.CA0
+  have hc0 : 0 < c := by linarith
+  have ha0 : 0 < a := by linarith
+  obtain ⟨V, hV, hb⟩ := tail_est (γ := 1 / 4) hM hA (by norm_num) hc0 ha0 hϕ hp
+  refine ⟨V, hV, hb.trans ?_⟩
+  have hd : (1 / 5 : ℝ) ≤ |m a - L| := by
+    refine le_trans ?_ (hp a le_rfl)
+    unfold sg
+    rw [show (1 / 4 : ℝ) * (a ^ 2 / (1 + a ^ 2)) = a ^ 2 / (4 * (1 + a ^ 2)) by field_simp]
+    rw [div_le_div_iff₀ (by norm_num) (by positivity)]
+    nlinarith
+  have hd0 : 0 < |m a - L| := by linarith
+  set d := |m a - L| with hddef
+  have hc1 : 1 / c ≤ 1 := by rw [div_le_one hc0]; exact hc
+  have hc10 : 0 ≤ 1 / c := by positivity
+  have hc2 : (1 / c) ^ 2 ≤ 1 := by nlinarith
+  obtain ⟨r1, r2, r3, r9, -⟩ := rp_all ha0
+  have hs1 : 1 ≤ Real.sqrt a := by rw [Real.one_le_sqrt]; linarith
+  have hs0 : 0 < Real.sqrt a := by linarith
+  have hsq : Real.sqrt a * Real.sqrt a = a := Real.mul_self_sqrt ha0.le
+  set q := (Real.sqrt a)⁻¹ with hq
+  have hq0 : 0 < q := inv_pos.2 hs0
+  have hq1 : q ≤ 1 := inv_le_one_of_one_le₀ hs1
+  have hr3 : a ^ (-3 / 2 : ℝ) ≤ q := by
+    rw [r3]
+    have h3 : (Real.sqrt a) ≤ (Real.sqrt a) ^ 3 := by
+      calc Real.sqrt a = Real.sqrt a * 1 := by ring
+        _ ≤ Real.sqrt a * (Real.sqrt a) ^ 2 := mul_le_mul_of_nonneg_left (one_le_pow₀ hs1) hs0.le
+        _ = (Real.sqrt a) ^ 3 := by ring
+    exact inv_anti₀ hs0 h3
+  have hr9 : a ^ (-9 / 2 : ℝ) ≤ q := by
+    rw [r9]
+    have h9 : (Real.sqrt a) ≤ (Real.sqrt a) ^ 9 := by
+      calc Real.sqrt a = Real.sqrt a * 1 := by ring
+        _ ≤ Real.sqrt a * (Real.sqrt a) ^ 8 := mul_le_mul_of_nonneg_left (one_le_pow₀ hs1) hs0.le
+        _ = (Real.sqrt a) ^ 9 := by ring
+    exact inv_anti₀ hs0 h9
+  have hr30 : 0 ≤ a ^ (-3 / 2 : ℝ) := by positivity
+  have hr90 : 0 ≤ a ^ (-9 / 2 : ℝ) := by positivity
+  have hw : (2 / 9) * a ^ (-9 / 2 : ℝ) + (2 / 3) * a ^ (-3 / 2 : ℝ) ≤ q := by linarith
+  have hw0 : 0 ≤ (2 / 9) * a ^ (-9 / 2 : ℝ) + (2 / 3) * a ^ (-3 / 2 : ℝ) := by positivity
+  have hu1 : CA * a ^ (1 / 2 : ℝ) / (1 + a) ≤ CA * q := by
+    rw [r1, div_le_iff₀ (by linarith)]
+    have : Real.sqrt a ≤ q * (1 + a) := by
+      rw [hq]
+      rw [← div_eq_inv_mul, le_div_iff₀ hs0]
+      nlinarith
+    nlinarith only [mul_le_mul_of_nonneg_left this hCA]
+  have hu2 : a ^ (-1 / 2 : ℝ) / (1 + a) ≤ q := by
+    rw [r2]; exact div_le_self hq0.le (by linarith)
+  have hu20 : 0 ≤ a ^ (-1 / 2 : ℝ) / (1 + a) := by positivity
+  have hu10 : 0 ≤ CA * a ^ (1 / 2 : ℝ) / (1 + a) := by positivity
+  have T1 : (1 / c) * (CA * a ^ (1 / 2 : ℝ) / (1 + a) / d) ≤ 5 * CA * q := by
+    have : CA * a ^ (1 / 2 : ℝ) / (1 + a) / d ≤ 5 * CA * q := by
+      rw [div_le_iff₀ hd0]
+      have hCq : 0 ≤ CA * q := by positivity
+      have h5 := mul_le_mul_of_nonneg_left (show 1 ≤ 5 * d by linarith only [hd]) hCq
+      linarith only [hu1, h5]
+    calc _ ≤ 1 * (5 * CA * q) := mul_le_mul hc1 this (by positivity) zero_le_one
+      _ = 5 * CA * q := one_mul _
+  have e2 : C0 / (1 / 4 : ℝ) = 4 * C0 := by ring
+  have T2 : (1 / c) ^ 2 * (CA * (1 + C0 / (1 / 4 : ℝ)) * (a ^ (-1 / 2 : ℝ) / (1 + a)) / d / d) ≤
+      25 * (CA * (1 + 4 * C0)) * q := by
+    rw [e2]
+    have hX : 0 ≤ CA * (1 + 4 * C0) := by positivity
+    have : CA * (1 + 4 * C0) * (a ^ (-1 / 2 : ℝ) / (1 + a)) / d / d ≤ 25 * (CA * (1 + 4 * C0)) * q := by
+      rw [div_div, div_le_iff₀ (mul_pos hd0 hd0)]
+      have h1 : CA * (1 + 4 * C0) * (a ^ (-1 / 2 : ℝ) / (1 + a)) ≤ CA * (1 + 4 * C0) * q :=
+        mul_le_mul_of_nonneg_left hu2 hX
+      have h2 : (1 : ℝ) ≤ 25 * (d * d) := by nlinarith only [hd]
+      have hXq : 0 ≤ CA * (1 + 4 * C0) * q := by positivity
+      calc _ ≤ CA * (1 + 4 * C0) * q := h1
+        _ = (CA * (1 + 4 * C0) * q) * 1 := (mul_one _).symm
+        _ ≤ (CA * (1 + 4 * C0) * q) * (25 * (d * d)) := mul_le_mul_of_nonneg_left h2 hXq
+        _ = 25 * (CA * (1 + 4 * C0)) * q * (d * d) := by ring
+    calc _ ≤ 1 * (25 * (CA * (1 + 4 * C0)) * q) := mul_le_mul hc2 this (by positivity) zero_le_one
+      _ = _ := one_mul _
+  have e3 : 4 * CA * (1 + 4 * C0 / (1 / 4 : ℝ) + 3 * C0 ^ 2 / (1 / 4 : ℝ) ^ 2) / (1 / 4 : ℝ) ^ 2 =
+      64 * CA * (1 + 16 * C0 + 48 * C0 ^ 2) := by ring
+  have T3 : (1 / c) ^ 2 * ((4 * CA * (1 + 4 * C0 / (1 / 4 : ℝ) + 3 * C0 ^ 2 / (1 / 4 : ℝ) ^ 2) / (1 / 4 : ℝ) ^ 2) *
+      ((2 / 9) * a ^ (-9 / 2 : ℝ) + (2 / 3) * a ^ (-3 / 2 : ℝ))) ≤ 64 * CA * (1 + 16 * C0 + 48 * C0 ^ 2) * q := by
+    rw [e3]
+    have hX : 0 ≤ 64 * CA * (1 + 16 * C0 + 48 * C0 ^ 2) := by positivity
+    calc _ ≤ 1 * (64 * CA * (1 + 16 * C0 + 48 * C0 ^ 2) * q) :=
+          mul_le_mul hc2 (mul_le_mul_of_nonneg_left hw hX) (by positivity) zero_le_one
+      _ = _ := one_mul _
+  have hfin : (5 * CA + 25 * (CA * (1 + 4 * C0)) + 64 * CA * (1 + 16 * C0 + 48 * C0 ^ 2)) / Real.sqrt a =
+      (5 * CA + 25 * (CA * (1 + 4 * C0)) + 64 * CA * (1 + 16 * C0 + 48 * C0 ^ 2)) * q := by
+    rw [hq, div_eq_mul_inv]
+  rw [hfin]
+  linarith only [T1, T2, T3]
+
 lemma assemble_split {F : ℝ → ℂ} {e f g : ℝ} {V : ℂ} (he : 0 ≤ e) (hef : e ≤ f) (hfg : f ≤ g)
     (hint : ∀ b : ℝ, 0 ≤ b → IntervalIntegrable F volume 0 b)
     (hV : Tendsto (fun b : ℝ => ∫ τ in g..b, F τ) atTop (𝓝 V)) :
@@ -763,5 +948,13 @@ theorem ct_cfu_outer_bdd {ε : ℝ} (hε : ε = -1 ∨ ε = 1) (M0 : ℝ) :
 /-- info: 'FormalResearch.SignUncertainty.CtOsc.ct_cfu_outer_bdd' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ct_cfu_outer_bdd
+
+/-- info: 'FormalResearch.SignUncertainty.CtOsc.bdd_tiny' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms bdd_tiny
+
+/-- info: 'FormalResearch.SignUncertainty.CtOsc.tail_small' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms tail_small
 
 end FormalResearch.SignUncertainty.CtOsc
