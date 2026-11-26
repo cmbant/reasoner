@@ -9,6 +9,7 @@ public import FormalResearch.SignUncertainty.FctRSymbol
 public import FormalResearch.SignUncertainty.FctDcomp
 public import FormalResearch.SignUncertainty.FctWarpAdmiss
 public import FormalResearch.SignUncertainty.FctWarpZero
+public import FormalResearch.SignUncertainty.FctSplittingDefs
 
 /-!
 # `fct:main-hankel`: the five-term upper bound for the Hankel thresholds (F2a skeleton)
@@ -42,7 +43,7 @@ the corner bound `Φ̂_c = O(ζ³)` of the field `splitting` (it cancels the `ζ
 value of `ctHG`/`ctWwarp` at `ζ = 0` is a division-by-zero value; it is never used, and the Hölder clause of `fctWarp_admissible` is consistent
 with it because the limit is `0`.)
 
-**Data of `FctMainHankelInputs`**: `PhiHat` (`fct:splitting`, which depends on the chart of `fct:comp-cfu`), `Nc` (`fct:splitting`), and the two deliberate parameters of the physical bump, the cutoff `chi` (with `IsCutoff chi`) and
+**Data of `FctMainHankelInputs`**: the two deliberate parameters of the physical bump, the cutoff `chi` (with `IsCutoff chi`) and
 `K4 ≥ 1` (`fct:comp-D`).  The physical bump `Bphys` is **not** data: `fctBphys` is the definition `(fct:B-physical)` with `H₀ = H_*`, `n_c = 1/N_c`
 (`(fct:B-five-def)`).  Likewise the compensator `D_{τ₁}` is the definition `fctDcomp K4 alpha` (`FctDcomp.lean`).
 
@@ -54,7 +55,7 @@ the output of the named TeX lemma(s), stated about the concrete multipliers and 
 `fct:bump-5`, `uct:seed-asymp` (1), `fct:moment-solver`, `fct:phikill`, `fct:edge-ibp`, `fct:bump-sym-check`, `fct:physical-budget`) are used directly or enter through the
 discharge of a field, not as fields.
 
-**Satisfiability.** The data `PhiHat`, `Nc` are free, so the fields are consistent only for the paper's actual `Φ̂_c`, `N_c` (`T₁`, `α` are no longer data: they are chosen from `warp_solve`, whose zero condition `I_ε(L₁, α) = 0` is the paper's, `FctWarpZero.lean`);
+**Satisfiability.** `Φ̂_c`, `N_c` are definitions (`fctPhiHat`, `fctNc`), as are `T₁`, `α` (chosen from `warp_solve`, whose zero condition `I_ε(L₁, α) = 0` is the paper's, `FctWarpZero.lean`);
 no field has been shown consistent in Lean.  Doubtful points: `warp_solve` is `fct:warp-asymp` (1), which hides `fct:comp-D`/`fct:comp-cfu`/
 `fct:inner-symbols`, and `splitting` is `fct:splitting` (1)-(2) read as in `FctSplittingStmt` (including edge-trace derivative bounds for `Φ̂_c(iτ)`); `physical_positive` hides the five-term positivity (`fct:physical-positive` and its inputs) and is
 the field most likely to need a sharper form once its proof is formalised.  The `T_c^ε` set is bounded below by
@@ -98,21 +99,17 @@ theorem fctBphys_physicalBudget {χ : ℝ → ℝ} (hχ : IsCutoff χ) {K4 : ℝ
 /-- **The open inputs of `fct:main-hankel`.**  The multipliers `ctWg1`, `ctWfl`, `ctWbump`, `ctWwarp`, `ctWtot` the physical bump `fctBphys`
 (`(fct:B-physical)`) and the compensator `fctDcomp` (`fct:comp-D`, built from `K4` and `alpha`) are concrete; the remaining data are the objects not yet in Lean, each named after its TeX label:
 
-* `PhiHat ε c : ℂ → ℂ`, the splitting function `Φ̂_c` (`fct:splitting`, `(fct:Phihat-def)`; it depends on the chart `V` of `fct:comp-cfu`);
+* `PhiHat = fctPhiHat warp_solve`, the splitting function `Φ̂_c` (`fct:splitting`, `(fct:Phihat-def)`), is the **definition** of `FctSplittingDefs.lean` (not data);
 * the zero pair `(L₁, α)` of `fct:warp-asymp` (1) is **not** data: the field `warp_solve : FctWarpSolveStmt K4` states that it exists and is unique in the paper's
   class (`I_ε(L₁, α) = 0`, `FctWarpZero.lean`), and `T₁ = (c/π²)e^{L₁}`, `α` are the chosen pair (`FctMainHankelInputs.T1`, `.alpha`); the IBP identity
   `(fct:exact-ibp)` is not stated;
-* `Nc ε c`, the normalisation `N_c = Φ^warp_c(1) = 1 - F₊(1)` of `fct:splitting` (`(fct:Phihat-def)`); the physical bump uses `n_c = 1/N_c`;
+* `Nc = fctNc warp_solve`, the normalisation `N_c = Φ^warp_c(1) = 1 - F₊(1)` of `fct:splitting` (`(fct:Phihat-def)`), likewise a definition; the physical bump uses `n_c = 1/N_c`;
 * the deliberate parameters `chi` (the cutoff of `(fct:B-physical)`, `IsCutoff chi`: smooth, `1` near `0`, supported in a bounded interval; the
   paper fixes no particular one) and `K4 ≥ 1` (the absolute constant of `fct:comp-D`).
 
 The fields are the TeX statements about these (the order of constants `K_* → K₄ → K₀ → K₁ → K_d → c₀` is built into the
 quantifiers). -/
 structure FctMainHankelInputs where
-  /-- `Φ̂_c` (`fct:splitting`). -/
-  PhiHat : ℝ → ℝ → ℂ → ℂ
-  /-- `N_c` (`fct:splitting`, `(fct:Phihat-def)`). -/
-  Nc : ℝ → ℝ → ℝ
   /-- The cutoff `χ` of `(fct:B-physical)` (a deliberate parameter). -/
   chi : ℝ → ℝ
   /-- `χ` is a cutoff (`IsCutoff`). -/
@@ -121,16 +118,19 @@ structure FctMainHankelInputs where
   K4 : ℝ
   /-- `K₄ ≥ 1`. -/
   K4_ge_one : 1 ≤ K4
+  /-- `fct:warp-asymp` (1) (`FctWarpSolveStmt`): exact complex zero solve, a unique `(L₁, α)` with `I_ε(L₁, α) = 0`, `|T₁ - Δ₅^ε(c)| ≤ C c⁻¹`,
+  `|α| ≤ C c^{-2/3}`. -/
+  warp_solve : FctWarpSolveStmt K4
   /-- `fct:splitting` (1)-(2) for `Φ̂_c` (`FctSplittingStmt`): holomorphic on `Re ζ > 0`, real-symmetric, `Φ̂_c = O(ζ³)` at `0`, the `log log` growth
   on `S̄` and the edge-trace derivative bounds.  With the proved `fct:comp-D` (`fctDcomp_compData`) and `H_*/G_ε` (`uct:outer-growth`) this gives Step 1 of
   `fct:s4-proof` for the warp summand (`fctWarp_admissible`) and the corner behaviour that makes `ctWwarp → 0` at `ζ = 0` (`ctWwarp_tendsto_zero`; the singularity
   `ζ^{-5/2}` of `H_*/G_ε` is cancelled). -/
-  splitting : FctSplittingStmt PhiHat
+  splitting : FctSplittingStmt (fctPhiHat warp_solve)
   /-- `fct:splitting` (2): `N_c = 1 + O_{K₄}(c⁻¹)`. -/
-  splitting_norm : FctSplittingNormStmt Nc
-  /-- `fct:warp-asymp` (1) (`FctWarpSolveStmt`): exact complex zero solve, a unique `(L₁, α)` with `I_ε(L₁, α) = 0`, `|T₁ - Δ₅^ε(c)| ≤ C c⁻¹`,
-  `|α| ≤ C c^{-2/3}`. -/
-  warp_solve : FctWarpSolveStmt K4
+  splitting_norm : FctSplittingNormStmt (fctNc warp_solve)
+  /-- Integrability of the integrals defining `Ψ_c` and the Cauchy splitting `F_±` (`FctSplittingIntStmt`; `fct:splitting` (1)-(2)), so that the
+  definitions of `fctPhiHat`, `fctNc` carry no Bochner junk value. -/
+  splitting_int : FctSplittingIntStmt warp_solve
   /-- `fct:physical-positive` (iii)-(iv) with its inputs `fct:warp-asymp` (2)-(3), `fct:splitting`, `fct:unscaled-cusp`,
   `fct:cusp-edge`, `uct:seed-asymp` (1)-(2) (`(fct:hg1-win)`-`(fct:hg1-mac)`), `fct:bump-5`, `fct:bump-sym-check`,
   `uct:pos-floor` (`Kfl = K_* ≥ 1`): `K₀, K₁` can be chosen independently of `K_d` so that the density of `W̃_c^ε` is positive on
@@ -138,8 +138,14 @@ structure FctMainHankelInputs where
   physical_positive : ∃ Kfl K0 K1 : ℝ, 1 ≤ Kfl ∧ 0 < K0 ∧ 0 < K1 ∧ ∀ Kd : ℝ, 0 < Kd → ∃ c₀ : ℝ,
     ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       ∀ Δ : ℝ, fctWarpT1 warp_solve ε c + 2 * Kd / hankelBeta1 * c ^ (-(3 / 4 : ℝ)) ≤ Δ →
-        0 ≤ admissF c (ctWtot PhiHat (fctDcomp K4 (fctWarpAlpha warp_solve))
-          (fctBphys chi K4 (fctWarpT1 warp_solve) (fctWarpAlpha warp_solve) Nc) ε c Kfl K0 K1 Kd) Δ
+        0 ≤ admissF c (ctWtot (fctPhiHat warp_solve) (fctDcomp K4 (fctWarpAlpha warp_solve))
+          (fctBphys chi K4 (fctWarpT1 warp_solve) (fctWarpAlpha warp_solve) (fctNc warp_solve)) ε c Kfl K0 K1 Kd) Δ
+
+/-- `Φ̂_c` of the inputs (`fct:splitting`, `(fct:Phihat-def)`): the definition `fctPhiHat`. -/
+noncomputable abbrev FctMainHankelInputs.PhiHat (I : FctMainHankelInputs) : ℝ → ℝ → ℂ → ℂ := fctPhiHat I.warp_solve
+
+/-- `N_c` of the inputs (`fct:splitting`, `(fct:Phihat-def)`): the definition `fctNc`. -/
+noncomputable abbrev FctMainHankelInputs.Nc (I : FctMainHankelInputs) : ℝ → ℝ → ℝ := fctNc I.warp_solve
 
 /-- `T₁ = (c/π²) e^{L₁}` of the zero pair of `warp_solve` (`fct:warp-asymp` (1)). -/
 noncomputable abbrev FctMainHankelInputs.T1 (I : FctMainHankelInputs) : ℝ → ℝ → ℝ := fctWarpT1 I.warp_solve
