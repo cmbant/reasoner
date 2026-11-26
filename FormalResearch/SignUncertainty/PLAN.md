@@ -292,7 +292,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `gt:7.7c` | done | `HankelLocalDensity`, `HankelLocalEnvelope` (envelope `(e71)`), `HankelLocalHolo` |
 | `gt:7.7p` | partial | `hankelPsi_cut_bound`, `hankelPsi_deriv_bound` (`HankelPsiCutBound`, explicit non-TeX constants), `hankel_tail_le`, `hankel_psi_neg_mass`, `HankelTransport*` for `c >= 3e6` with weaker constants (tail `c/40000`); the explicit cut-crossing constant and the two-level `C^1` stability (`alpha != 0`) of part (d) are not stated |
 | `u1cl:langer` | done | `u1cl_langer` (`HankelLangerComparability`); band clause at `zeta = i tau_0`, not as a limit |
-| `u1cl:rep` | partial | `HankelEdgeRep`, `HankelStripInversion`, `HankelBandInstance` for the one-level Hankel problem; the weighted-Mellin clause (`u1cl:weighted-mellin`) is not stated |
+| `u1cl:rep` | done for the one-level Hankel problem | `HankelEdgeRep` (`hankelWtS_mel_eq`: the weighted-Mellin clause `u1cl:weighted-mellin` for `0 ≤ Re ζ < 1`), `HankelStripInversion`, `HankelBandInstance`; `HankelHhat` (`ct:hhat-strip`: `hankelHhat_formula`, `hankelHhat_bound`) |
 
 **C1. Mellin-Airy toolkit and symbol transfer** (`mellin_airy_toolkit.tex`). Lean: `CohnElkies/Mellin*`, `AirySymbolTransfer`, `SeedSymbolDerivs`, `Gt1*`, `MiddleBand*`, `MellinLift*`, `Asymptotics/BinetRemainder` (about 25k lines).
 
