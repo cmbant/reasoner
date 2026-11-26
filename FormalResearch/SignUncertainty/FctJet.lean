@@ -8,6 +8,7 @@ public import Mathlib.Analysis.Calculus.ContDiff.Bounds
 public import Mathlib.Analysis.Calculus.ContDiff.Operations
 public import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
 public import Mathlib.Analysis.Calculus.Deriv.ZPow
+public import Mathlib.Analysis.Calculus.MeanValue
 
 /-!
 # `C^k`-jet bounds on a set (F2a, `fct:comp-cfu`)
@@ -23,6 +24,7 @@ Class: proved, no hypotheses.
 @[expose] public section
 
 open Set Filter Topology
+open scoped ContDiff
 
 namespace FormalResearch.SignUncertainty
 
@@ -226,22 +228,29 @@ lemma norm_iteratedFDerivWithin_graph_le (hU : UniqueDiffOn ℝ U) {w : Y → �
   rw [e', ContinuousMultilinearMap.opNorm_prod]
   exact max_le_max (norm_iteratedFDerivWithin_id_le hU hi1 hy) (hb i hi1 hik y hy)
 
-lemma JB.snd {P : Type*} [NormedAddCommGroup P] [NormedSpace ℝ P] {U : Set (P × ℝ)} (hU : UniqueDiffOn ℝ U)
-    (h0 : ∀ p ∈ U, |p.2| ≤ 1) : JB k U (fun p : P × ℝ => p.2) 1 := by
-  intro i hi p hp
+lemma norm_iteratedFDerivWithin_clm_le {X : Type*} [NormedAddCommGroup X] [NormedSpace ℝ X] {U : Set X}
+    (hU : UniqueDiffOn ℝ U) (L : X →L[ℝ] V) {i : ℕ} (hi : 1 ≤ i) {x : X} (hx : x ∈ U) :
+    ‖iteratedFDerivWithin ℝ i (fun x => L x) U x‖ ≤ ‖L‖ := by
+  obtain ⟨n, rfl⟩ : ∃ n, i = n + 1 := ⟨i - 1, by omega⟩
+  rw [← norm_iteratedFDerivWithin_fderivWithin hU hx]
+  have h1 : JB n U (fun _ : X => L) ‖L‖ := JB.const hU _
+  have h2 : JB n U (fderivWithin ℝ (fun x => L x) U) ‖L‖ :=
+    h1.congr fun z hz => (L.fderivWithin (hU.uniqueDiffWithinAt hz)).symm
+  exact h2 n le_rfl x hx
+
+/-- A continuous linear map has `JB` bound `M` if `M` bounds its norm and its values on `U`. -/
+lemma JB.clm {X : Type*} [NormedAddCommGroup X] [NormedSpace ℝ X] {U : Set X} (hU : UniqueDiffOn ℝ U)
+    (L : X →L[ℝ] V) {M : ℝ} (hL : ‖L‖ ≤ M) (h0 : ∀ x ∈ U, ‖L x‖ ≤ M) : JB k U (fun x => L x) M := by
+  intro i hi x hx
   cases i with
-  | zero => simpa [iteratedFDerivWithin_zero_eq_comp] using h0 p hp
-  | succ n =>
-    have h := (ContinuousLinearMap.snd ℝ P ℝ).norm_iteratedFDerivWithin_comp_left (f := (id : P × ℝ → P × ℝ))
-      (n := n + 1) (N := n + 1) contDiffWithinAt_id hU hp le_rfl
-    have h1 : ‖(ContinuousLinearMap.snd ℝ P ℝ)‖ ≤ 1 :=
-      ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun p => by simpa using norm_snd_le p
-    have h2 := norm_iteratedFDerivWithin_id_le hU (i := n + 1) (by omega) hp
-    calc ‖iteratedFDerivWithin ℝ (n + 1) (fun p : P × ℝ => p.2) U p‖
-        = ‖iteratedFDerivWithin ℝ (n + 1) ((ContinuousLinearMap.snd ℝ P ℝ) ∘ (id : P × ℝ → P × ℝ)) U p‖ := rfl
-      _ ≤ _ := h
-      _ ≤ 1 * 1 := by gcongr
-      _ = 1 := one_mul 1
+  | zero => simpa [iteratedFDerivWithin_zero_eq_comp] using h0 x hx
+  | succ n => exact (norm_iteratedFDerivWithin_clm_le hU L (by omega) hx).trans hL
+
+lemma JB.snd {P : Type*} [NormedAddCommGroup P] [NormedSpace ℝ P] {U : Set (P × ℝ)} (hU : UniqueDiffOn ℝ U)
+    {M : ℝ} (hM : 1 ≤ M) (h0 : ∀ p ∈ U, |p.2| ≤ M) : JB k U (fun p : P × ℝ => p.2) M :=
+  JB.clm hU (ContinuousLinearMap.snd ℝ P ℝ)
+    ((ContinuousLinearMap.opNorm_le_bound _ (by linarith) fun p => by
+      simpa using (norm_snd_le p).trans (by nlinarith [norm_nonneg p]))) (fun p hp => by simpa using h0 p hp)
 
 lemma JB.comp_inl {P Z : Type*} [NormedAddCommGroup P] [NormedSpace ℝ P] [NormedAddCommGroup Z]
     [NormedSpace ℝ Z] {U : Set P} (hU : UniqueDiffOn ℝ U) {A : P → (Y × Z) →L[ℝ] ℝ} {b : ℝ} (hb0 : 0 ≤ b)
@@ -257,6 +266,93 @@ lemma JB.comp_inl {P Z : Type*} [NormedAddCommGroup P] [NormedSpace ℝ P] [Norm
     have : ‖ContinuousLinearMap.inl ℝ Y Z‖ ≤ 1 := ContinuousLinearMap.norm_inl_le_one ℝ Y Z
     nlinarith [norm_nonneg f, norm_nonneg (ContinuousLinearMap.inl ℝ Y Z)]
   exact h1.mono (mul_le_of_le_one_left hb0 hn)
+
+/-- Composition with a continuous linear map of norm `≤ 1`. -/
+lemma JB.comp_clm {X X' : Type*} [NormedAddCommGroup X] [NormedSpace ℝ X] [NormedAddCommGroup X']
+    [NormedSpace ℝ X'] {U : Set X} {t : Set X'} (hU : UniqueDiffOn ℝ U) (ht : UniqueDiffOn ℝ t) (L : X →L[ℝ] X')
+    (hL : ‖L‖ ≤ 1) {g : X' → W} {b : ℝ} (hb0 : 0 ≤ b) (hg : ContDiffOn ℝ k g t) (hst : MapsTo L U t)
+    (hb : JB k t g b) : JB k U (fun x => g (L x)) (k.factorial * b) := by
+  have h := JB.comp (k := k) hU ht (g := g) (f := fun x => L x) (C := b) (b := 1) hg
+    (L.contDiff.contDiffOn) hst hb0 (fun y hy i hi => hb i hi _ (hst hy))
+    (fun i hi1 _ y hy => (norm_iteratedFDerivWithin_clm_le hU L hi1 hy).trans hL)
+  exact h.mono (le_of_eq (by simp))
+
+/-- Orders `≥ 1` of a pair of functions. -/
+lemma norm_iteratedFDerivWithin_pair_le {V1 V2 : Type*} [NormedAddCommGroup V1] [NormedSpace ℝ V1]
+    [NormedAddCommGroup V2] [NormedSpace ℝ V2] (hU : UniqueDiffOn ℝ U) {u : Y → V1} {w : Y → V2}
+    (hu : ContDiffOn ℝ k u U) (hw : ContDiffOn ℝ k w U) {b1 b2 : ℝ}
+    (h1 : ∀ i, 1 ≤ i → i ≤ k → ∀ y ∈ U, ‖iteratedFDerivWithin ℝ i u U y‖ ≤ b1)
+    (h2 : ∀ i, 1 ≤ i → i ≤ k → ∀ y ∈ U, ‖iteratedFDerivWithin ℝ i w U y‖ ≤ b2) :
+    ∀ i, 1 ≤ i → i ≤ k → ∀ y ∈ U, ‖iteratedFDerivWithin ℝ i (fun y => (u y, w y)) U y‖ ≤ max b1 b2 := by
+  intro i hi1 hik y hy
+  have e := iteratedFDerivWithin_prodMk (f := u) (g := w) (n := k) (s := U) (x := y)
+    (hu y hy) (hw y hy) hU hy (i := i) (by exact_mod_cast hik)
+  have e' : iteratedFDerivWithin ℝ i (fun y => (u y, w y)) U y =
+      (iteratedFDerivWithin ℝ i u U y).prod (iteratedFDerivWithin ℝ i w U y) := e
+  rw [e', ContinuousMultilinearMap.opNorm_prod]
+  exact max_le_max (h1 i hi1 hik y hy) (h2 i hi1 hik y hy)
+
+/-- `ε`-linear composition: if `f` is `ε`-small in `JB (j+1)` and `g` has bounded `JB (j+1)` jets on an open interval `T ∋ 0`
+containing the range of `f`, then `g ∘ f - g 0` is `C ε` in `JB (j+1)`, `C = (1 + 2^j j!) C_g` (for `ε ≤ 1`). -/
+lemma JB.comp_small {j : ℕ} {U : Set Y} (hU : UniqueDiffOn ℝ U) {T : Set ℝ} (hT : IsOpen T) (hTc : Convex ℝ T)
+    (h0T : (0 : ℝ) ∈ T) {g : ℝ → ℝ} {Cg : ℝ} (hg : ContDiffOn ℝ (j + 1) g T) (hgb : JB (j + 1) T g Cg)
+    {f : Y → ℝ} {ε : ℝ} (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1) (hCg0 : 0 ≤ Cg) (hf : ContDiffOn ℝ (j + 1) f U) (hfb : JB (j + 1) U f ε)
+    (hfT : MapsTo f U T) :
+    JB (j + 1) U (fun y => g (f y) - g 0) ((1 + 2 ^ j * j.factorial) * Cg * ε) := by
+  have hTd : UniqueDiffOn ℝ T := hT.uniqueDiffOn
+  -- derivative of g as a function
+  have hg1 : ContDiffOn ℝ j (fun x => fderiv ℝ g x 1) T :=
+    (hg.fderiv_of_isOpen hT (by exact_mod_cast le_rfl : (j : ℕ∞ω) + 1 ≤ (j + 1 : ℕ))).clm_apply contDiffOn_const
+  have hg1b : JB j T (fun x => fderiv ℝ g x 1) Cg := by
+    have h1 : JB j T (fderiv ℝ g) Cg := (hgb.succ_fderivWithin hTd).congr fun p hp => fderivWithin_of_isOpen hT hp
+    have h2 := JB.clm_apply_const hTd (hg.fderiv_of_isOpen hT (by exact_mod_cast le_rfl : (j : ℕ∞ω) + 1 ≤ (j + 1 : ℕ))) (1 : ℝ) h1
+    simpa using h2
+  have hfj : ContDiffOn ℝ j f U := hf.of_le (by exact_mod_cast Nat.le_succ j)
+  have hDf : JB j U (fderivWithin ℝ f U) ε := hfb.succ_fderivWithin hU
+  have hDfc : ContDiffOn ℝ j (fderivWithin ℝ f U) U :=
+    hf.fderivWithin hU (by exact_mod_cast le_rfl : (j : ℕ∞ω) + 1 ≤ (j + 1 : ℕ))
+  -- g' ∘ f
+  have hcomp := JB.comp hU hTd (g := fun x => fderiv ℝ g x 1) hg1 hfj hfT hCg0
+    (fun y hy i hi => hg1b i hi _ (hfT hy)) (b := 1) (fun i hi1 hij y hy => by
+      have := hfb i (by omega) y hy
+      exact this.trans hε1)
+  have hcompc : ContDiffOn ℝ j ((fun x => fderiv ℝ g x 1) ∘ f) U := hg1.comp hfj hfT
+  have hprod := JB.smul_mul hU (by positivity) hε0 hcompc hDfc hcomp hDf
+  -- the derivative of the composite
+  have hderiv : ∀ y ∈ U, fderivWithin ℝ (fun y => g (f y) - g 0) U y =
+      ((fun x => fderiv ℝ g x 1) ∘ f) y • fderivWithin ℝ f U y := by
+    intro y hy
+    have hk0 : ((j + 1 : ℕ) : ℕ∞ω) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
+    have hgat : DifferentiableAt ℝ g (f y) :=
+      ((hg.contDiffAt (hT.mem_nhds (hfT hy))).differentiableAt (by exact_mod_cast hk0))
+    have hgd : HasDerivAt g (fderiv ℝ g (f y) 1) (f y) := by
+      have := hgat.hasDerivAt
+      exact this
+    have hfd : HasFDerivWithinAt f (fderivWithin ℝ f U y) U y :=
+      ((hf y hy).differentiableWithinAt (by exact_mod_cast hk0)).hasFDerivWithinAt
+    have := (hgd.comp_hasFDerivWithinAt y hfd).sub_const (g 0)
+    exact this.fderivWithin (hU.uniqueDiffWithinAt hy)
+  have hfin := hprod.congr (g := fderivWithin ℝ (fun y => g (f y) - g 0) U) fun y hy => (hderiv y hy).symm
+  have h0 : ∀ y ∈ U, ‖g (f y) - g 0‖ ≤ Cg * ε := by
+    intro y hy
+    have hk0 : ((j + 1 : ℕ) : ℕ∞ω) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
+    have hdiff : ∀ x ∈ T, DifferentiableAt ℝ g x := fun x hx =>
+      (hg.contDiffAt (hT.mem_nhds hx)).differentiableAt (by exact_mod_cast hk0)
+    have hbd : ∀ x ∈ T, ‖deriv g x‖ ≤ Cg := fun x hx => by
+      have := hg1b 0 (Nat.zero_le _) x hx
+      have h' : ‖(fderiv ℝ g x) 1‖ ≤ Cg := by simpa [iteratedFDerivWithin_zero_eq_comp] using this
+      exact h'
+    have h1 := Convex.norm_image_sub_le_of_norm_deriv_le hdiff hbd hTc h0T (hfT hy)
+    have h2 : ‖f y‖ ≤ ε := by
+      have := hfb 0 (Nat.zero_le _) y hy
+      simpa [iteratedFDerivWithin_zero_eq_comp] using this
+    calc ‖g (f y) - g 0‖ ≤ Cg * ‖f y - 0‖ := h1
+      _ ≤ Cg * ε := by rw [sub_zero]; exact mul_le_mul_of_nonneg_left h2 hCg0
+  have := JB.of_fderivWithin hU h0 hfin
+  refine this.mono (max_le ?_ ?_)
+  · nlinarith [mul_nonneg hCg0 hε0, mul_nonneg (mul_nonneg (by positivity : (0:ℝ) ≤ 2 ^ j * j.factorial) hCg0) hε0]
+  · simp only [max_self, one_pow, mul_one]
+    nlinarith [mul_nonneg hCg0 hε0]
 
 /-- info: 'FormalResearch.SignUncertainty.JB.comp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -297,5 +393,21 @@ lemma JB.comp_inl {P Z : Type*} [NormedAddCommGroup P] [NormedSpace ℝ P] [Norm
 /-- info: 'FormalResearch.SignUncertainty.norm_iteratedFDerivWithin_graph_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms norm_iteratedFDerivWithin_graph_le
+
+/-- info: 'FormalResearch.SignUncertainty.JB.comp_small' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms JB.comp_small
+
+/-- info: 'FormalResearch.SignUncertainty.JB.comp_clm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms JB.comp_clm
+
+/-- info: 'FormalResearch.SignUncertainty.JB.clm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms JB.clm
+
+/-- info: 'FormalResearch.SignUncertainty.norm_iteratedFDerivWithin_pair_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms norm_iteratedFDerivWithin_pair_le
 
 end FormalResearch.SignUncertainty
