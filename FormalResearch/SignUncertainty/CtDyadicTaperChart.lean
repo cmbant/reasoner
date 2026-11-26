@@ -16,9 +16,8 @@ public import FormalResearch.SignUncertainty.CtLowerDefs
 
 `TaperChartInputs ε c R A` is the named hypothesis structure for what the chart supplies (`ct:taper-harnack` (c), first half;
 `ct:Bj-pointwise` notation `Λ ≍ 1`): `v > 0` nondecreasing with `L ∂_L log v ≤ A_v` (in the integral form of `TaperProfile`)
-on `(0, Λ]`, `v(Λ) ≥ R` (equality by `R' = -φ_c(-R)` once `û` is bijective, `ct:cfu`), and `0 < Λ ≤ log(π² log c / 2)` (so that
-`Δ > D/2` forces `L > Λ`).  Proved from the Lean chart and the `ψ_ε` window in `CtDyadicTaperBuild` (`taperChartInputs`, `A_v = 2`, under the named input
-`UhatInjOn`, the bijectivity of `û` of `ct:cfu`).
+on `(0, Λ]`, `v(Λ) ≥ R` (equality by `R' = -φ_c(-R)`, `ct:cfu`), and `0 < Λ ≤ log(π² log c / 2)` (so that
+`Δ > D/2` forces `L > Λ`).  Proved from the Lean chart and the `ψ_ε` window in `CtDyadicTaperBuild` (`taperChartInputs`, `A_v = 2`, unconditional).
 
 Discharged from `TaperChartInputs`: `ctTaper_hwt1` (`w̃ = 1` for `Δ > D/2`, the hypothesis `hwt1` of `boas_far_field`),
 `TaperChartInputs.reg` (`TaperReg`), and `ctTaper_block_bounds` (the hypotheses `hlip`, `hSup` of `boas_freeze_field` and
