@@ -134,12 +134,12 @@ lemma ctRoscAiry_le {c₁ ε c C₁ C₂ ρW MW K R : ℝ} {f : ℝ → ℝ} {N 
   exact mul_le_mul_of_nonneg_left hge hK0
 
 
-/-- **Named input `CtRoscBook`** (the Hankel bookkeeping of `(ct:rosc)`; `constant_terms_lower.tex`, `ct:dyadic` (4), mass identity, lobe and transport):
+/-- **The Hankel bookkeeping `CtRoscBook`** (`(ct:rosc)`; `constant_terms_lower.tex`, `ct:dyadic` (4), mass identity, lobe and transport):
 at a good radius `R ∈ [c₁²c^{2/3}, 4c₁²c^{2/3}]` with `a_1, …, a_N` the Airy zeros inside `|u| < R`, the concrete quantity
 `budget + M_all + 2(s₁ - s₂)` equals the Airy-side quantity `ctRoscAiry` up to `O(c^{-4/3})`.  Its content: the budget `tsum` is the finite sum over the
 nodes `a_n` (`T1`); `∫_{-R}^R W₆ f_c = ∫ g - ∫_{-R}^0 w_R g - ∫_0^R q g` with `∫_ℝ h dL = ε f(0)` the mass identity (`T2`, `T3`); the taper integral is
 transported to the Langer variable (`T4`, `ct_trans_transport`), the remaining pieces are `O(R^{-6}) TV + e^{-c R^{1/2}}` (`T5`), and `s₂^{lit} - s₂^{L}`
-is the `O(R^{-12})` edge strip (`T6`).  Open; not yet formalised. -/
+is the `O(R^{-12})` edge strip (`T6`).  **Proved** for every `0 < c₁ ≤ ctChartC1` (`ct_rosc_book`, `CtRoscBookProof`, with the bound `10 c^{-4/3}`). -/
 def CtRoscBook (c₁ : ℝ) : Prop :=
   ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
     ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
@@ -182,9 +182,9 @@ lemma rosc_arith {q d a Cb B x cn lg : ℝ} (hq : |q| ≤ d + a) (hd : d ≤ Cb 
   have h2 : B * x ≤ B * (x + cn * lg) := mul_le_mul_of_nonneg_left (by nlinarith [mul_nonneg hcn (by linarith : (0:ℝ) ≤ lg)]) hB
   nlinarith [abs_nonneg Cb]
 
-/-- **`CtCombinedPieces.rosc`** (`(ct:rosc)`, `ct:dyadic` (4)), from the two named inputs `AiryRplusComparison` (pure Airy) and `CtRoscBook`
-(Hankel bookkeeping): for small `c₁`, `|budget + M_all + 2(s₁ - s₂)| ≤ C(c⁻¹ η_R + c^{-4/3} log c)` at good radii.  The Airy part is the half-disc
-defect formula `airy_halfdisc_rosc` with `W₆ f_c`, `K = C R^{-3/2} ≤ C c₁^{-3} c⁻¹`.  Proved given the two inputs. -/
+/-- **`CtCombinedPieces.rosc`** (`(ct:rosc)`, `ct:dyadic` (4)), from the named input `AiryRplusComparison` (pure Airy) and `CtRoscBook`
+(Hankel bookkeeping, proved: `ct_rosc_book`): for small `c₁`, `|budget + M_all + 2(s₁ - s₂)| ≤ C(c⁻¹ η_R + c^{-4/3} log c)` at good radii.  The Airy part is the half-disc
+defect formula `airy_halfdisc_rosc` with `W₆ f_c`, `K = C R^{-3/2} ≤ C c₁^{-3} c⁻¹`.  Proved given the Airy input `hA` and the hypothesis `CtRoscBook c₁` (itself proved, `ct_rosc_book`). -/
 theorem ct_combined_rosc (hA : AiryRplusComparison) :
     ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ → CtRoscBook c₁ →
       CtDyadicBound c₁ fun R ε c f => ctBudget R ε c f + ctMall R ε c f + 2 * (ctOscS1 R ε c f - ctOscS2 R ε c f) := by

@@ -18,7 +18,7 @@ identification `ct_langer_edge` of the Lean series Langer chart `ũ(ξ)` with th
 * `ct_trans_transport`: `s₂` in the Langer variable `x = ũ`, `L = log π²ξ(x)`, with the transport error `R' r_∞`;
 * `ct_trans_decomp`, `trans_rate_bound`, `ct_combined_trans`: the assembly with the taper estimate `boas_field_trunc_lo` for `L < L_min`.
 
-`CtCombinedOpen` (the one step `window`), `CtRoscInputs` (the two named inputs of `rosc`, which is `ct_combined_rosc` in `CtRoscAssembly`) and `ct_lower_of_open` are here.  **Proved** (`ct_lower_of_open` takes `CtCombinedOpen` and `CtRoscInputs`).-/
+`CtCombinedOpen` (the one step `window`) is here; `CtRoscInputs` and `ct_lower_of_open` are in `CtLowerOfOpen` (after the proof `ct_rosc_book` of `CtRoscBook`).-/
 
 @[expose] public section
 
@@ -747,35 +747,6 @@ chart.  The steps `trunc`, `outer`, `trans` are `ct_combined_trunc`, `ct_combine
 structure CtCombinedOpen (c₁ : ℝ) : Prop where
   window : CtDyadicBound c₁ fun R ε c f => ctKin R ε c f + ctOscS1 R ε c f
 
-/-- **The two named inputs of `rosc`** (`(ct:rosc)`, `CtRoscAssembly`): the pure-Airy comparison `AiryRplusComparison` (DLMF 9.7.5/9.7.9 on the upper
-semicircle) and the Hankel bookkeeping `CtRoscBook` (budget, mass identity, lobe, transport, edge strip) for every `c₁ ≤ ctChartC1`. -/
-structure CtRoscInputs : Prop where
-  airy : AiryRplusComparison
-  book : ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ ctChartC1 → CtRoscBook c₁
-
-/-- **`thm:ct-lower` from `window` and the two inputs of `rosc`**: `ct_lower` with `CtLowerInputs.dyadic` replaced by `CtCombinedOpen` (`window`) and
-`CtRoscInputs`; the steps `trunc`, `outer`, `trans`, `rosc` are `ct_combined_trunc`, `ct_combined_outer`, `ct_combined_trans`, `ct_combined_rosc`. -/
-theorem ct_lower_of_open
-    (P : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtCombinedOpen c₁) (Q : CtRoscInputs) :
-    CtLowerStatement := by
-  obtain ⟨c₁₀, hc₁₀, hP⟩ := P
-  obtain ⟨g₁, hg₁, hT⟩ := ct_combined_trunc
-  obtain ⟨g₂, hg₂, hO⟩ := ct_combined_outer
-  obtain ⟨g₃, hg₃, hR⟩ := ct_combined_trans
-  obtain ⟨g₄, hg₄, hRo⟩ := ct_combined_rosc Q.airy
-  refine ct_lower_of_pieces ⟨min c₁₀ (min g₁ (min g₂ (min g₃ (min g₄ ctChartC1)))),
-    lt_min hc₁₀ (lt_min hg₁ (lt_min hg₂ (lt_min hg₃ (lt_min hg₄ ctChartC1_pos)))), fun c₁ h1 h2 => ?_⟩
-  have a1 : c₁ ≤ c₁₀ := h2.trans (min_le_left _ _)
-  have a2 : c₁ ≤ g₁ := h2.trans ((min_le_right _ _).trans (min_le_left _ _))
-  have a3 : c₁ ≤ g₂ := h2.trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _)))
-  have a4 : c₁ ≤ g₃ :=
-    h2.trans ((min_le_right _ _).trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _))))
-  have a5 : c₁ ≤ g₄ := h2.trans ((min_le_right _ _).trans ((min_le_right _ _).trans ((min_le_right _ _).trans
-    ((min_le_right _ _).trans (min_le_left _ _)))))
-  have a6 : c₁ ≤ ctChartC1 := h2.trans ((min_le_right _ _).trans ((min_le_right _ _).trans ((min_le_right _ _).trans
-    ((min_le_right _ _).trans (min_le_right _ _)))))
-  exact ⟨hRo c₁ h1 a5 (Q.book c₁ h1 a6), hT c₁ h1 a2, (hP c₁ h1 a1).window, hO c₁ h1 a3, hR c₁ h1 a4⟩
-
 /-- info: 'FormalResearch.SignUncertainty.ct_trans_phase_pt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ct_trans_phase_pt
@@ -791,9 +762,5 @@ theorem ct_lower_of_open
 /-- info: 'FormalResearch.SignUncertainty.ct_combined_trans' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ct_combined_trans
-
-/-- info: 'FormalResearch.SignUncertainty.ct_lower_of_open' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms ct_lower_of_open
 
 end FormalResearch.SignUncertainty
