@@ -66,6 +66,202 @@ lemma StripAdmissFullData.reflect {α : ℝ} {W : ℂ → ℂ} (hW : StripAdmiss
     rw [hfun]
     exact hW.edge0
 
+/-! ### Closure of `StripAdmissFullData` under sums, real multiples and agreement on the closed strip -/
+
+section Closure
+
+private lemma mem_cs_iff {ζ : ℂ} : ζ ∈ {ζ : ℂ | 0 ≤ ζ.re ∧ ζ.re ≤ 1} ↔ 0 ≤ ζ.re ∧ ζ.re ≤ 1 := Iff.rfl
+
+/-- Agreement on the closed strip transfers `(M1)`. -/
+lemma StripM1.congr {W V : ℂ → ℂ} (hW : StripM1 W) (h : ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → V ζ = W ζ) : StripM1 V where
+  hol := hW.hol.congr fun ζ hζ => h ζ hζ.1.le hζ.2.le
+  cont := hW.cont.congr fun ζ hζ => h ζ hζ.1 hζ.2
+  real ζ h0 h1 := by
+    have hc : 0 ≤ (starRingEnd ℂ ζ).re ∧ (starRingEnd ℂ ζ).re ≤ 1 := by simpa using And.intro h0 h1
+    rw [h _ hc.1 hc.2, h ζ h0 h1]; exact hW.real ζ h0 h1
+  bound := by
+    obtain ⟨C, hC⟩ := hW.bound
+    exact ⟨C, fun ζ h0 h1 => by rw [h ζ h0 h1]; exact hC ζ h0 h1⟩
+
+lemma StripM1.add {W V : ℂ → ℂ} (hW : StripM1 W) (hV : StripM1 V) : StripM1 (fun ζ => W ζ + V ζ) where
+  hol := hW.hol.add hV.hol
+  cont := hW.cont.add hV.cont
+  real ζ h0 h1 := by simp only [hW.real ζ h0 h1, hV.real ζ h0 h1, map_add]
+  bound := by
+    obtain ⟨C, hC⟩ := hW.bound
+    obtain ⟨D, hD⟩ := hV.bound
+    refine ⟨C + D, fun ζ h0 h1 => ?_⟩
+    calc ‖W ζ + V ζ‖ ≤ ‖W ζ‖ + ‖V ζ‖ := norm_add_le _ _
+      _ ≤ C * (1 + |ζ.im|) ^ (-(2 : ℝ)) + D * (1 + |ζ.im|) ^ (-(2 : ℝ)) := add_le_add (hC ζ h0 h1) (hD ζ h0 h1)
+      _ = _ := by ring
+
+lemma StripM1.smul_real {W : ℂ → ℂ} (hW : StripM1 W) (r : ℝ) : StripM1 (fun ζ => (r : ℂ) * W ζ) where
+  hol := hW.hol.const_mul _
+  cont := hW.cont.const_mul _
+  real ζ h0 h1 := by simp only [hW.real ζ h0 h1, map_mul, Complex.conj_ofReal]
+  bound := by
+    obtain ⟨C, hC⟩ := hW.bound
+    refine ⟨|r| * C, fun ζ h0 h1 => ?_⟩
+    rw [norm_mul, Complex.norm_real, Real.norm_eq_abs, mul_assoc]
+    exact mul_le_mul_of_nonneg_left (hC ζ h0 h1) (abs_nonneg _)
+
+private lemma edge_deriv_add {f g : ℝ → ℂ} (hf : ContDiffOn ℝ 2 f {τ : ℝ | τ ≠ 0}) (hg : ContDiffOn ℝ 2 g {τ : ℝ | τ ≠ 0})
+    {τ : ℝ} (hτ : τ ≠ 0) :
+    deriv (fun t => f t + g t) τ = deriv f τ + deriv g τ ∧
+      deriv (deriv (fun t => f t + g t)) τ = deriv (deriv f) τ + deriv (deriv g) τ := by
+  have hO : IsOpen {τ : ℝ | τ ≠ 0} := isOpen_ne
+  have hmem : ∀ σ : ℝ, σ ≠ 0 → {τ : ℝ | τ ≠ 0} ∈ 𝓝 σ := fun σ hσ => hO.mem_nhds hσ
+  have hd : ∀ σ : ℝ, σ ≠ 0 → DifferentiableAt ℝ f σ ∧ DifferentiableAt ℝ g σ := fun σ hσ =>
+    ⟨(hf.differentiableOn (by norm_num)).differentiableAt (hmem σ hσ),
+      (hg.differentiableOn (by norm_num)).differentiableAt (hmem σ hσ)⟩
+  have hfd : ContDiffOn ℝ 1 (deriv f) {τ : ℝ | τ ≠ 0} := hf.deriv_of_isOpen hO (by norm_num)
+  have hgd : ContDiffOn ℝ 1 (deriv g) {τ : ℝ | τ ≠ 0} := hg.deriv_of_isOpen hO (by norm_num)
+  have hev : deriv (fun t => f t + g t) =ᶠ[𝓝 τ] fun t => deriv f t + deriv g t := by
+    filter_upwards [hmem τ hτ] with σ hσ
+    exact deriv_add (hd σ hσ).1 (hd σ hσ).2
+  refine ⟨deriv_add (hd τ hτ).1 (hd τ hτ).2, ?_⟩
+  rw [hev.deriv_eq]
+  exact deriv_add ((hfd.differentiableOn (by norm_num)).differentiableAt (hmem τ hτ))
+    ((hgd.differentiableOn (by norm_num)).differentiableAt (hmem τ hτ))
+
+lemma StripEdge0.add {α : ℝ} {W V : ℂ → ℂ} (hW : StripEdge0 α W) (hV : StripEdge0 α V) :
+    StripEdge0 α (fun ζ => W ζ + V ζ) := by
+  have e : stripEdge0 (fun ζ => W ζ + V ζ) = fun t => stripEdge0 W t + stripEdge0 V t := rfl
+  have e0 : stripEdge0 (fun ζ => W ζ + V ζ) 0 = stripEdge0 W 0 + stripEdge0 V 0 := rfl
+  refine ⟨?_, ?_, ?_⟩
+  · rw [e]; exact hW.c2.add hV.c2
+  · obtain ⟨C, hC⟩ := hW.near
+    obtain ⟨D, hD⟩ := hV.near
+    refine ⟨C + D, fun τ hτ hτ1 => ?_⟩
+    obtain ⟨a1, a2, a3⟩ := hC τ hτ hτ1
+    obtain ⟨b1, b2, b3⟩ := hD τ hτ hτ1
+    obtain ⟨d1, d2⟩ := edge_deriv_add hW.c2 hV.c2 hτ
+    rw [e0, e, d1, d2]
+    refine ⟨?_, ?_, ?_⟩
+    · calc _ = ‖(stripEdge0 W τ - stripEdge0 W 0) + (stripEdge0 V τ - stripEdge0 V 0)‖ := by congr 1; ring
+        _ ≤ _ := (norm_add_le _ _).trans (by rw [add_mul]; exact add_le_add a1 b1)
+    · exact (norm_add_le _ _).trans (by rw [add_mul]; exact add_le_add a2 b2)
+    · exact (norm_add_le _ _).trans (by rw [add_mul]; exact add_le_add a3 b3)
+  · obtain ⟨C, hC⟩ := hW.far
+    obtain ⟨D, hD⟩ := hV.far
+    refine ⟨C + D, fun τ hτ => ?_⟩
+    obtain ⟨a1, a2, a3⟩ := hC τ hτ
+    obtain ⟨b1, b2, b3⟩ := hD τ hτ
+    have hτ0 : τ ≠ 0 := by intro h; rw [h] at hτ; simp at hτ; linarith
+    obtain ⟨d1, d2⟩ := edge_deriv_add hW.c2 hV.c2 hτ0
+    rw [e, d1, d2]
+    refine ⟨?_, ?_, ?_⟩
+    · exact (norm_add_le _ _).trans (by rw [add_mul]; exact add_le_add a1 b1)
+    · exact (norm_add_le _ _).trans (by rw [add_mul]; exact add_le_add a2 b2)
+    · exact (norm_add_le _ _).trans (by rw [add_mul]; exact add_le_add a3 b3)
+
+lemma StripEdge0.smul {α : ℝ} {W : ℂ → ℂ} (hW : StripEdge0 α W) (t : ℂ) : StripEdge0 α (fun ζ => t * W ζ) := by
+  have e : stripEdge0 (fun ζ => t * W ζ) = fun s => t * stripEdge0 W s := rfl
+  have hd1 : ∀ τ : ℝ, deriv (fun s => t * stripEdge0 W s) τ = t * deriv (stripEdge0 W) τ := fun τ => congrFun (deriv_const_mul_field' t) τ
+  have hd2 : ∀ τ : ℝ, deriv (deriv (fun s => t * stripEdge0 W s)) τ = t * deriv (deriv (stripEdge0 W)) τ := by
+    intro τ
+    have : deriv (fun s => t * stripEdge0 W s) = fun s => t * deriv (stripEdge0 W) s := funext hd1
+    rw [this]; exact congrFun (deriv_const_mul_field' t) τ
+  refine ⟨?_, ?_, ?_⟩
+  · rw [e]; exact hW.c2.const_smul t |>.congr fun s _ => by simp
+  · obtain ⟨C, hC⟩ := hW.near
+    refine ⟨‖t‖ * C, fun τ hτ hτ1 => ?_⟩
+    obtain ⟨a1, a2, a3⟩ := hC τ hτ hτ1
+    rw [e, hd1, hd2]
+    simp only [mul_assoc]
+    refine ⟨?_, ?_, ?_⟩
+    · rw [← mul_sub, norm_mul]; exact mul_le_mul_of_nonneg_left a1 (norm_nonneg _)
+    · rw [norm_mul]; exact mul_le_mul_of_nonneg_left a2 (norm_nonneg _)
+    · rw [norm_mul]; exact mul_le_mul_of_nonneg_left a3 (norm_nonneg _)
+  · obtain ⟨C, hC⟩ := hW.far
+    refine ⟨‖t‖ * C, fun τ hτ => ?_⟩
+    obtain ⟨a1, a2, a3⟩ := hC τ hτ
+    rw [e, hd1, hd2]
+    simp only [mul_assoc]
+    refine ⟨?_, ?_, ?_⟩
+    · rw [norm_mul]; exact mul_le_mul_of_nonneg_left a1 (norm_nonneg _)
+    · rw [norm_mul]; exact mul_le_mul_of_nonneg_left a2 (norm_nonneg _)
+    · rw [norm_mul]; exact mul_le_mul_of_nonneg_left a3 (norm_nonneg _)
+
+lemma StripEdge0.congr {α : ℝ} {W V : ℂ → ℂ} (hW : StripEdge0 α W) (h : ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → V ζ = W ζ) :
+    StripEdge0 α V := by
+  have e : stripEdge0 V = stripEdge0 W := funext fun τ => h _ (by simp) (by simp)
+  exact ⟨by rw [e]; exact hW.c2, by rw [e]; exact hW.near, by rw [e]; exact hW.far⟩
+
+/-- Sum of two functions with `StripAdmissFullData α`. -/
+lemma StripAdmissFullData.add {α : ℝ} {W V : ℂ → ℂ} (hW : StripAdmissFullData α W) (hV : StripAdmissFullData α V) :
+    StripAdmissFullData α (fun ζ => W ζ + V ζ) where
+  toStripM1 := hW.toStripM1.add hV.toStripM1
+  holder1 := by
+    obtain ⟨C, hC⟩ := hW.holder1
+    obtain ⟨D, hD⟩ := hV.holder1
+    refine ⟨C + D, fun ζ h0 h1 hn => ?_⟩
+    have a := hC ζ h0 h1 hn
+    have b := hD ζ h0 h1 hn
+    calc ‖W ζ + V ζ - (W 1 + V 1)‖ = ‖(W ζ - W 1) + (V ζ - V 1)‖ := by congr 1; ring
+      _ ≤ _ := (norm_add_le _ _).trans (by rw [add_mul]; exact add_le_add a b)
+  edge0 := hW.edge0.add hV.edge0
+  holder0 := by
+    obtain ⟨C, hC⟩ := hW.holder0
+    obtain ⟨D, hD⟩ := hV.holder0
+    refine ⟨C + D, fun ζ h0 h1 hn => ?_⟩
+    have a := hC ζ h0 h1 hn
+    have b := hD ζ h0 h1 hn
+    calc ‖W ζ + V ζ - (W 0 + V 0)‖ = ‖(W ζ - W 0) + (V ζ - V 0)‖ := by congr 1; ring
+      _ ≤ _ := (norm_add_le _ _).trans (by rw [add_mul]; exact add_le_add a b)
+  edge1 := by
+    have := hW.edge1.add hV.edge1
+    exact this
+
+/-- Real multiple of a function with `StripAdmissFullData α`. -/
+lemma StripAdmissFullData.smul_real {α : ℝ} {W : ℂ → ℂ} (hW : StripAdmissFullData α W) (r : ℝ) :
+    StripAdmissFullData α (fun ζ => (r : ℂ) * W ζ) where
+  toStripM1 := hW.toStripM1.smul_real r
+  holder1 := by
+    obtain ⟨C, hC⟩ := hW.holder1
+    refine ⟨|r| * C, fun ζ h0 h1 hn => ?_⟩
+    have a := hC ζ h0 h1 hn
+    rw [← mul_sub, norm_mul, Complex.norm_real, Real.norm_eq_abs, mul_assoc]
+    exact mul_le_mul_of_nonneg_left a (abs_nonneg _)
+  edge0 := hW.edge0.smul _
+  holder0 := by
+    obtain ⟨C, hC⟩ := hW.holder0
+    refine ⟨|r| * C, fun ζ h0 h1 hn => ?_⟩
+    have a := hC ζ h0 h1 hn
+    rw [← mul_sub, norm_mul, Complex.norm_real, Real.norm_eq_abs, mul_assoc]
+    exact mul_le_mul_of_nonneg_left a (abs_nonneg _)
+  edge1 := hW.edge1.smul _
+
+/-- Agreement on the closed strip transfers `StripAdmissFullData α`. -/
+lemma StripAdmissFullData.congr {α : ℝ} {W V : ℂ → ℂ} (hW : StripAdmissFullData α W)
+    (h : ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → V ζ = W ζ) : StripAdmissFullData α V where
+  toStripM1 := hW.toStripM1.congr h
+  holder1 := by
+    obtain ⟨C, hC⟩ := hW.holder1
+    refine ⟨C, fun ζ h0 h1 hn => ?_⟩
+    rw [h ζ h0 h1, h 1 (by simp) (by simp)]; exact hC ζ h0 h1 hn
+  edge0 := hW.edge0.congr h
+  holder0 := by
+    obtain ⟨C, hC⟩ := hW.holder0
+    refine ⟨C, fun ζ h0 h1 hn => ?_⟩
+    rw [h ζ h0 h1, h 0 (by simp) (by simp)]; exact hC ζ h0 h1 hn
+  edge1 := hW.edge1.congr fun ζ h0 h1 => h (1 - ζ) (by simpa using h1) (by simpa using h0)
+
+end Closure
+
+/-- info: 'FormalResearch.SignUncertainty.StripAdmissFullData.add' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms StripAdmissFullData.add
+
+/-- info: 'FormalResearch.SignUncertainty.StripAdmissFullData.smul_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms StripAdmissFullData.smul_real
+
+/-- info: 'FormalResearch.SignUncertainty.StripAdmissFullData.congr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms StripAdmissFullData.congr
+
+
 /-! ### `Δ⁻¹ (log kΔ)^{-p}` is integrable at infinity for `p > 1` -/
 
 theorem integrableOn_inv_log_rpow_of_one_lt {k Δ₁ p : ℝ} (hp : 1 < p) (hk : 0 < k) (hΔ₁ : 0 < Δ₁)
