@@ -14,10 +14,11 @@ contour step is Cauchy's theorem on a strip (`StripCauchy.strip_edge_cauchy`).
 `CauchyClass H h₁` collects what the paper's admissible class gives for `H = F G`:
 
 * `H` holomorphic on `Ω`, continuous on `closure Ω ∖ {i, -i, 1}`, `H(z̄) = conj H(z)`;
-* `H(z) = 1 + h₁ z + O(|z|²)` at `z = 0` in `Ω`;
-* `‖H z‖ ‖1 + z²‖^{1-ε} ≤ C` on `Ω`, i.e. `|H| = O(|1+z²|^{-(1-ε)})` (this includes boundedness
-  near `z = 1` and the endpoint growth at `±i`; in the paper `|H| = O(|1+z²|^{a_∞-1}(1+|log|1+z²||)^{w-1/2})`
-  with `a_∞ > 1/2`, and a log power is absorbed by a smaller power margin).
+* `H(z) = 1 + h₁ z + O(|z|²)` as `z → 0` in `closure Ω` (so `H 0 = 1`);
+* `‖H z‖ ‖1 + z²‖^{1-ε} ≤ C` on `closure Ω ∖ {i, -i, 1}`, i.e. `|H| = O(|1+z²|^{-(1-ε)})` (this includes
+  boundedness near `z = 1` and the endpoint growth at `±i`; in the paper
+  `|H| = O(|1+z²|^{a_∞-1}(1+|log|1+z²||)^{w-1/2})` with `a_∞ > 1/2`, and a log power is absorbed by a smaller
+  power margin).  The values at the three singular points are not constrained.
 
 `cauchyPsi H h₁ s = (π/4)(1+z²)(H z - 1 - h₁ z)/z²` with `z = tan(π s/4)` is then holomorphic on the open
 strip, continuous on the closed strip off `{0, 1}`, and decays like `e^{-(επ/2)|Im s|}`
@@ -40,8 +41,13 @@ structure CauchyClass (H : ℂ → ℂ) (h1 : ℝ) : Prop where
   diff : DifferentiableOn ℂ H halfDisc
   cont : ContinuousOn H (closure halfDisc \ {Complex.I, -Complex.I, 1})
   conj : ∀ z ∈ halfDisc, H (starRingEnd ℂ z) = starRingEnd ℂ (H z)
-  jet : ∃ C r : ℝ, 0 < r ∧ ∀ z ∈ halfDisc, ‖z‖ < r → ‖H z - 1 - h1 * z‖ ≤ C * ‖z‖ ^ 2
-  growth : ∃ C ε : ℝ, 0 < ε ∧ ε ≤ 1 ∧ ∀ z ∈ halfDisc, ‖H z‖ * ‖1 + z ^ 2‖ ^ (1 - ε) ≤ C
+  jet : ∃ C r : ℝ, 0 < r ∧ ∀ z ∈ closure halfDisc, ‖z‖ < r → ‖H z - 1 - h1 * z‖ ≤ C * ‖z‖ ^ 2
+  growth : ∃ C ε : ℝ, 0 < ε ∧ ε ≤ 1 ∧ ∀ z ∈ closure halfDisc, z ≠ Complex.I → z ≠ -Complex.I → z ≠ 1 →
+    ‖H z‖ * ‖1 + z ^ 2‖ ^ (1 - ε) ≤ C
+
+lemma halfDisc_ne_special {z : ℂ} (hz : z ∈ halfDisc) : z ≠ Complex.I ∧ z ≠ -Complex.I ∧ z ≠ 1 := by
+  have h1 := hz.1
+  refine ⟨?_, ?_, ?_⟩ <;> intro h <;> rw [h] at h1 <;> simp at h1
 
 /-- The strip-coordinate integrand `Ψ_H(s) = (π/4) (1+z²)(H z - 1 - h₁ z)/z²`, `z = tan(π s/4)`. -/
 noncomputable def cauchyPsi (H : ℂ → ℂ) (h1 : ℝ) (s : ℂ) : ℂ :=
@@ -93,7 +99,7 @@ lemma cauchyPsi_continuousOn (hH : CauchyClass H h1) :
   exact (continuousOn_const.add (hT.pow 2)).mul ((hHT.sub continuousOn_const).sub (continuousOn_const.mul hT))
 
 lemma mul_norm_le {t m C ε E : ℝ} (ht : 0 < t) (hε0 : 0 < ε) (hε1 : ε ≤ 1) (hE : 0 < E)
-    (htE : t ≤ 4 * E) (hm : 0 ≤ m) (hC : m * t ^ (1 - ε) ≤ C) :
+    (htE : t ≤ 4 * E) (hC : m * t ^ (1 - ε) ≤ C) :
     t * m ≤ max C 0 * (4 * E ^ ε) := by
   have h1 : t = t ^ (1 - ε) * t ^ ε := by
     rw [← Real.rpow_add ht]; simp
@@ -118,8 +124,13 @@ lemma mul_norm_le {t m C ε E : ℝ} (ht : 0 < t) (hε0 : 0 < ε) (hε1 : ε ≤
 /-- `Ψ_H` decays exponentially along the strip. -/
 lemma cauchyPsi_decay (hH : CauchyClass H h1) :
     ∃ K ε' : ℝ, 0 < ε' ∧ ∀ s ∈ unitStrip, ‖cauchyPsi H h1 s‖ ≤ K * Real.exp (-(ε' * |s.im|)) := by
-  obtain ⟨C₁, r, hr, hjet⟩ := hH.jet
-  obtain ⟨Cg, ε, hε0, hε1, hgr⟩ := hH.growth
+  obtain ⟨C₁, r, hr, hjet0⟩ := hH.jet
+  obtain ⟨Cg, ε, hε0, hε1, hgr0⟩ := hH.growth
+  have hjet : ∀ z ∈ halfDisc, ‖z‖ < r → ‖H z - 1 - h1 * z‖ ≤ C₁ * ‖z‖ ^ 2 :=
+    fun z hz hzr => hjet0 z (subset_closure hz) hzr
+  have hgr : ∀ z ∈ halfDisc, ‖H z‖ * ‖1 + z ^ 2‖ ^ (1 - ε) ≤ Cg := fun z hz =>
+    hgr0 z (subset_closure hz) (halfDisc_ne_special hz).1 (halfDisc_ne_special hz).2.1
+      (halfDisc_ne_special hz).2.2
   refine ⟨Real.pi * max C₁ 0 + Real.pi / (r ^ 2) * (max Cg 0 + 1 + |h1|), ε * π / 2, by positivity, ?_⟩
   intro s hs
   have hcl := unitStrip_subset_cl hs
@@ -148,7 +159,6 @@ lemma cauchyPsi_decay (hH : CauchyClass H h1) :
   have hnorm : ‖cauchyPsi H h1 s‖ = π / 4 * (t * ‖H z - 1 - h1 * z‖ / ‖z‖ ^ 2) := by
     unfold cauchyPsi
     rw [norm_mul, norm_div, norm_mul, norm_pow, Complex.norm_real, Real.norm_of_nonneg (by positivity)]
-    ring
   have hAnn : 0 ≤ A := Real.exp_nonneg _
   rw [hnorm]
   by_cases hzr : ‖z‖ < r
@@ -179,7 +189,7 @@ lemma cauchyPsi_decay (hH : CauchyClass H h1) :
         _ = ‖H z‖ + 1 + |h1| * ‖z‖ := by
             rw [norm_one, norm_mul, Complex.norm_real, Real.norm_eq_abs]
         _ ≤ ‖H z‖ + 1 + |h1| := by nlinarith only [abs_nonneg h1, hzlt, norm_nonneg z]
-    have hG := mul_norm_le htpos hε0 hε1 hEpos htE (norm_nonneg (H z)) (hgr z hz)
+    have hG := mul_norm_le htpos hε0 hε1 hEpos htE (hgr z hz)
     have hr2 : r ^ 2 ≤ ‖z‖ ^ 2 := by nlinarith only [hzr, hr]
     have hfrac : t * ‖H z - 1 - h1 * z‖ / ‖z‖ ^ 2 ≤ t * (‖H z‖ + 1 + |h1|) / r ^ 2 := by
       calc t * ‖H z - 1 - h1 * z‖ / ‖z‖ ^ 2 ≤ t * (‖H z‖ + 1 + |h1|) / ‖z‖ ^ 2 := by
