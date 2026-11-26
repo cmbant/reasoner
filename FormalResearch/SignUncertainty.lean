@@ -472,6 +472,13 @@ public import FormalResearch.SignUncertainty.FctSymScale
 public import FormalResearch.SignUncertainty.FctSymInv
 public import FormalResearch.SignUncertainty.FctTau0Global
 public import FormalResearch.SignUncertainty.FctTauA
+public import FormalResearch.SignUncertainty.FctPhiKillSymbol
+public import FormalResearch.SignUncertainty.FctTau0Comp
+public import FormalResearch.SignUncertainty.FctSymUnif
+public import FormalResearch.SignUncertainty.FctNBlocks
+public import FormalResearch.SignUncertainty.FctNPiece
+public import FormalResearch.SignUncertainty.FctNSymbol
+public import FormalResearch.SignUncertainty.FctHN
 public import FormalResearch.SignUncertainty.FctBumpSymCheck
 public import FormalResearch.SignUncertainty.FctBumpProfileField
 public import FormalResearch.SignUncertainty.FctPhysicalBudget
