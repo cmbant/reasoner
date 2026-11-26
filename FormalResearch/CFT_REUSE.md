@@ -1,0 +1,18 @@
+# External Lean code for the CFT papers: reuse ledger
+
+One ledger for Paper I (`SignUncertainty/PLAN.md`) and Paper II (`ModularBootstrap/PLAN.md`). Before assigning a new generic
+lemma (Fourier, Poisson, compactness, certified numerics, special functions), check this file, then Mathlib and the local tree
+(`git grep` in `FormalResearch/`). Port one theorem and its import closure, not a library, and only when the port costs less than
+the residual proof. A port lands under `ThirdParty/<repo>/` with its licence notice, an adapter in reasoner's conventions, and a
+`#print axioms` guard on the adapted endpoint (only `propext`, `Classical.choice`, `Quot.sound`). Entries are candidates until a
+row says *ported*. Upstream CI is not a local import or axiom check.
+
+| upstream (pinned) | declarations | target label | adapter / missing | status |
+|---|---|---|---|---|
+| `seewoo5/cohn-elkies-refactor` `f2d41c9` (Apache-2.0, Lean 4.35.0) `CohnElkies/SpherePacking/CohnElkiesBound.lean`, `CohnElkies/PackingBound.lean` | `LinearProgrammingBound`, `sphere_packing_le_admissible`, `sphere_packing_le_linear_program` | Paper I `gt:7.10` (packing bound for integrable CE pairs), used by `eq:ce-log-density` (`ce_radius.tex`) | with local `ce_schwartz_radius_eq_L1_radius`; Fourier convention and `r^2/2 = Delta` normalisation | candidate; `gt:7.10` is planned in D2 (Paper I plan) |
+| same, `CohnElkies/SignUncertainty/AppendixA.lean`, `OriginCorrection.lean`, `TailIntegral.lean` | `signUncertaintyConstant_one_lt_neg_one`, `exists_signRadius_eq_signUncertaintyConstant_neg_one`, `originCorrectionFun_pos`, `signRadius_originCorrection_le` | Paper I `gt:7.9a` (strict `A_+ < A_-`, negative extremiser), `gt:7.9b`, M8 attainment | integer dimension only; real `c` needs the same argument on `hankelKernelData` (reuse the proof idea, not a copy) | candidate |
+| same, `CohnElkiesForMathlib/Analysis/InnerProductSpace/WeakSequentialCompactness.lean`, `.../Fourier/EigenfunctionConcentration.lean` | `tendsto_subseq_inner_right_of_norm_le`, `exists_pos_le_setIntegral_norm_compl_closedBall_of_fourier_eq_mul` | `lem:finite-hankel-compactness`, `prop:ce-finite-attainment` | Mathlib-only imports; check whether Mathlib already has the weak compactness | candidate |
+| same, `CohnElkiesForMathlib/Analysis/Complex/PoissonHalfPlane.lean` | `harmonicOnNhd_poissonIntegralHalfPlane`, `tendsto_poissonIntegralHalfPlane_of_continuousAt` | outer-function boundary estimates (F1, FIVE-L) | overlaps local `Complex/HardyHalfPlane`, `Complex/StripPoisson`; use only for a missing statement | candidate |
+| `alerad/leancert` `9a8e329` (Lean 4.36.0) `LeanCert/API/Integration.lean`, `Validity/IntegrationDyadic.lean` | `integrateUniform_correct`, `integrateDyadicLevel_correct`, `integral_bounds_of_check_dyadic` | Paper II SPIN-Z `SpinZEnclosures` (box inequalities, compact saddle-excess integrals) | kernel trust only (no `native_decide`/`ofReduceBool` in the final axiom list); Mathlib commit compatibility | candidate; prototype one box |
+| `bjbraams/lean-DLMF` `1585f72` `DLMF/Airy/Asymptotics/DerivativeErrorBounds.lean` | `airyAiDeriv_complex_error` | Paper I `ct:dyadic` P3a ratio bound | normalisation bridge; audit the import closure first (several neighbouring files in that repo contain placeholders: `AnalyticCubicCoordinates`, `MorseStationaryPhase`, `TurningPointExpansion`, `SectorRemainders`; do not import them) | candidate |
+| same, `DLMF/Bessel/IntegralTransforms.lean`, `Sonine.lean` | `besselJ_gaussian_integral_complex`, `sonine_integral` | transform identities if not already closed locally | 66 lean-DLMF files are already vendored from `7edc630` (`ThirdParty/lean-dlmf/NOTICE.md`) | candidate |

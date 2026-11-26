@@ -79,6 +79,32 @@ public import FormalResearch.ModularBootstrap.FiveTerm.UpperTipSharedD
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperMainInputs
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerMain
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerMainVirasoro
+public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryMoment
+public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryPrimitive
+public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryBC
+public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryBCBounds
+public import FormalResearch.Complex.StripBdryFunctional
+public import FormalResearch.Complex.SchwarzReflection
+public import FormalResearch.ModularBootstrap.LP.Statements
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterStripStatements
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterHbarIm
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterKfun
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterRest
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterPL
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterPhase
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterRestDeriv
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterTheta
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterX
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterBridge
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterH3
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterS1
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterDphi
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterS4bPhi
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterS4b
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterS3a
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterS3Strip
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterS3Bdry
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterS3Ee
 public import FormalResearch.ModularBootstrap.Mixtures.Source
 public import FormalResearch.ModularBootstrap.Mixtures.Mixture
 public import FormalResearch.ModularBootstrap.Mixtures.RebaseAnalysis
@@ -1431,4 +1457,11 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `FiveTerm.{LowerPhaseChart, LowerCorL, LowerSign, LowerBoasResidue, LowerDyadic, LowerEdgeHankel}` (FIVE-L, partial; also `boas_residue_identity`, `boas_local_lower` (the Step 3 core of `cts:boas`, prob-free), `pass2_exponents`, `boas_window_exponents`, `gauss_window_exponents`, `markov_select` (`ctl:dyadic`/`ctl:freeze` arithmetic), `edge_hankel_one_virasoro` (`cts:edge-hankel` (1) with absolute constants); `rem:corL`, the lower half of `thm:spinless-expansion`; design in `FiveTerm/FIVEL_DESIGN.md`): **`corL_virasoro`** (`rem:corL` at Virasoro, unconditional: the type-II envelope, `u_T - a_1 <= K c'^{-1/3}` (stronger than the paper, no log), `QuantC1B2Holds`, the secant bound), **`c0Star_neg`** (`c0Star < 0`), `dimension_ge_of_phase_ge` (the chart conversion) and the conditional assembly `delta_best_ge_of_phase`, `spinless_lower_of_phase` modulo the named hypothesis `LowerPhaseStatement` (`gp:L`). Not formalised: `cts:edge-hankel`, `cts:cauchy-dual`, `cts:rosc-uncond`, `cts:boas`, `cts:lower-main`, `ctl:dyadic`, `ctl:pass2`, `ctl:freeze`, `teb:quant_c1_near`, `rem:thmOloc`.
 * `FiveTerm.{LowerBesselTwoTerm}` (FIVE-L, partial: the two-term complex Bessel expansion behind `cts:edge-hankel` (2)); `FiveTerm.{UpperPairPhi, UpperPairTaylor, UpperPairDrift, UpperPairGamma, UpperTipSharedD}` (FIVE-U, partial: `cts:tip-shared` (b1) `pair_drift`, (b2) `pair_drift_gamma`, (d) `tipShared_d`); `FiveTerm.UpperMainInputs` (FIVE-U skeleton: `UpperMainInputs` with one field per open TeX lemma C11-C14, `sharpUpperFamily_of_inputs`, `sharp_upper_of_inputs`, `spinless_upper_of_inputs`, conditional on `UpperMainInputs`).
 * `FiveTerm.{LowerMain, LowerMainVirasoro}` (FIVE-L skeleton: `LowerMainInputs` with fields `chart` (`cts:cauchy-dual` (1)), `firstGood`, `combined` (`cts:rosc-uncond` (1), (4)), `pass2` (`ctl:pass2`), `boas` (`cts:boas`), `langer` (the u~ <-> tau bridge); `lower_pass_upper`, `lowerPhase_of_inputs` (with `LowerPrelim`, `c0 < 0`), `spinless_lower_of_inputs` (Virasoro lower half of `thm:spinless-expansion`), conditional on `LowerMainInputs`).
+* `FiveTerm.{LowerMainDefs, LowerGoodCircle, LowerGoodArea, LowerGoodWtilde, LowerGoodMain}` (FIVE-L: `cts:rosc-uncond` (1), the first good circle at Virasoro, `lowerFirstGood_of_chart_on_band` from the `chart` field, via `Complex/HalfDiscPoisson`; the `firstGood` field is removed from `LowerMainInputs`, whose fields are now restricted to the band `T <= Delta(-A_thr)`; out-of-band thresholds are handled in `lowerPhase_of_inputs`).
+* `FiveTerm.LowerLangerBridge` (FIVE-L: `cts:langer` / `rem:s1` on the real band, `lowerLangerPhase_holds`: `tauPhase (sqrt(3 Delta_c(u)/c)) = -u/(betaTip c^{2/3})` exactly for `u in [-(|a_1|+1), 0)`, which removes the `langer` field from `LowerMainInputs`).
+* `FiveTerm.{UpperAiryMoment, UpperAiryPrimitive}` (FIVE-U: `cts:tip-shared` (a) `airyLinearMoment`, (c) `airyPrimitiveDecay`, unconditional), with the shared cores they import: `Asymptotics.{RiccatiBarrier, MidpointRule}` (`nonpos_of_deriv_ge_mul`, `abs_le_of_riccati_barrier`, `midpoint_remainder`), `Special.AiryLogDerivAsym` (`riccG_threeTerm`: three-term `Ai'/Ai` asymptotics, `airy_zero_sum_asymp`), `Special.{AiryMomentCells, AiryMomentLimit, AiryZeroLinearMoment}` (`airyZero_linear_moment`), `Special.AiryPrimitiveNeg` (`Bneg_decay`).
+* `FiveTerm.{UpperAiryBC, UpperAiryBCBounds}` (FIVE-U: `cts:tip-shared` (c), the identity `cts:BC-id` (`airyBC_id`, `airyBC_id_global`), the right-side bound with constant 40 (`airyBC_rhs_bound_paper`) and the three bounds `cts:BC-bnds` (`airyBC_bnd_W0`, `airyBC_bnd_W1`, `airyBC_bnd_W2`); with these `cts:tip-shared` is proved in full).
+* `LP.*` with `Measure.PolyGrowthExtension` (LP1, the infinite-order derivative limit; targets indexed as `Prop`s in `LP.Statements`, each proved by a `*_holds` theorem): `ds:mom` for an abstract odd family `OddFam C p` with the monic Laguerre instance (`ds_mom`, `ds_mom_laguerre`, `ds_mom_mass`), `dsl:poly-compact` (`poly_compact`, `poly_compact_invariant`), `dsl:positive-ray` (`positive_ray`), `ds:cay` (`ds_cay_series`, `ds_cay_iff`), `ds:cont` (`ds_cont` for real-analytic sources, `ds_cont_complex`) and `ds:LP` (i)-(iii) (`ds_LP_i`, `ds_LP_ii`, `ds_LP_iii`). Design notes and paper findings: `LP/LP1_DESIGN.md`.
+* `Complex.SchwarzReflection` (shared phase-free core for FIVE-S S3, `cts:smooth-env` (2)/Lemma C10: Morera across a horizontal line `differentiableOn_of_continuousOn_off_horizLine`, Schwarz reflection `schwarzReflection`, and reflection with a prescribed holomorphic real part `schwarzReflection_prescribed_re`).
+* `FiveTerm.Outer*` and `Complex.StripBdryFunctional` (FIVE-S, partial: strip structure of the Virasoro outer function; statements `OuterS1`-`OuterS4` in `OuterStripStatements`; proved `outerS1` (`cts:cauchy-dual` Step 2 factorisation `G_outer = (1+z^2)^{-1} H_3^{1/4} Gtilde` bridged to `Gout`, `log |Gtilde|` on the slit), `outerS2` (`theta_out` bounds `C min(r,1)^{1/2-j} e^{-pi x}`, limit at infinity), `outerS4a` (`cts:smooth-env` (3) phase bounds uniform in `delta`), `outerS4b` (`Delta Phi_delta` holomorphic on the band with `C^2` bounds uniform in `delta`, `Re = 0` on `E_+`; `OuterS4bPhi`), the `OuterS3` prefix `fDelta_slit_dphi`, `fDelta_factor` (`OuterS3a`), and S3 step 1 (`OuterS3Strip`, `OuterS3Bdry`: `DeltaPhi` holomorphic on the whole strip `0 < Im b < 1`, its boundary values from above with `Im = -dphi` on the slit and `0` on `|x| < xi_*`, and the modulus identity `EeBdry_modulus_identity`), and S3 step 2 (`OuterS3Ee`: `Ee` on `|Im b| < 1/2` by Schwarz reflection, holomorphic, zero-free, even, real positive on the axis, equal to `Estripped` above; `differentiableOn_Ee_symmStrip`, `Ee_ne_zero_symmStrip`, `Ee_neg`, `Ee_real_pos`, `Ee_eq_Estripped`, `Ee_modulus_identity`); the rest of `OuterS3` (extension across `E_+`, factorisation and bounds) is open).
 -/
