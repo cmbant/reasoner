@@ -3,12 +3,12 @@ module
 public import FormalResearch.SignUncertainty.ShellGapHankel
 
 /-!
-# The origin floor of `thm:ce-shell-gap` (Corollary H.14d, proof of `thm:ce-physical-profile`)
+# The origin mass identity (proof of `thm:ce-physical-profile`; first step of `eq:ce-origin-floor`)
 
 Source: `CFT/sign_uncertainty/paper/ce_shells.tex`, proof of `thm:ce-physical-profile`: "Since `ĥ_c ≥ 0`, the equal
 origin values give `M[ĥ_c] = h_c(0) = ĥ_c(0) = ∫ h_c ρ₀ ∈ (0, 1]`" (in the normalisation `M[h_c] = 1`).
 
-`hankelShellProfile_origin_floor`: for a Hankel Cohn–Elkies profile `G` (`HankelShellProfile`) in dimension
+`hankelShellProfile_origin_mass`: for a Hankel Cohn–Elkies profile `G` (`HankelShellProfile`) in dimension
 `d = n + 1 ≥ 2`, `0 < G(0) = M[𝓗_c G] ≤ M[G]`, where `M[f] = ∫ |f| ρ₀` (`hankelMass`). Proved from the Hankel
 inversion `besselHankel_involutive`.
 -/
@@ -20,10 +20,10 @@ open scoped Real
 
 namespace FormalResearch.SignUncertainty
 
-/-- **Origin floor** (`thm:ce-shell-gap`, proof of `thm:ce-physical-profile`; `d = n + 1 ≥ 2`, `c = d/2`):
+/-- **Origin mass identity** (proof of `thm:ce-physical-profile`, first step of `eq:ce-origin-floor`, which is not formalised; `d = n + 1 ≥ 2`, `c = d/2`):
 for a Hankel Cohn–Elkies profile `G` (`ĥ ≥ 0`, `h(0) = ĥ(0) > 0`), the mass of the Fourier profile equals the
 origin value, `M[ĥ] = h(0) = ĥ(0) = ∫ h ρ₀`, which is positive and at most `M[h]`. -/
-theorem hankelShellProfile_origin_floor {n : ℕ} (hn : 1 ≤ n) {T : ℝ} {G : ℝ → ℝ}
+theorem hankelShellProfile_origin_mass {n : ℕ} (hn : 1 ≤ n) {T : ℝ} {G : ℝ → ℝ}
     (hG : HankelShellProfile (((n : ℝ) + 1) / 2) T G) :
     0 < G 0 ∧ hankelMass (((n : ℝ) + 1) / 2) (besselHankelTransform (((n : ℝ) + 1) / 2) G) = G 0 ∧
       G 0 ≤ hankelMass (((n : ℝ) + 1) / 2) G := by
@@ -48,8 +48,8 @@ theorem hankelShellProfile_origin_floor {n : ℕ} (hn : 1 ≤ n) {T : ℝ} {G : 
       fun s hs => ?_
     exact mul_le_mul_of_nonneg_right (le_abs_self _) (hankelRho0_nonneg hcpos (le_of_lt hs))
 
-/-- info: 'FormalResearch.SignUncertainty.hankelShellProfile_origin_floor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.SignUncertainty.hankelShellProfile_origin_mass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms hankelShellProfile_origin_floor
+#print axioms hankelShellProfile_origin_mass
 
 end FormalResearch.SignUncertainty

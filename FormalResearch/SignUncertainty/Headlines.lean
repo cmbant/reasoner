@@ -895,8 +895,8 @@ zeros" (`thm:ce-laplace-zeros`) and the statement `τ_N < t_m` are not restated;
 (`ρ_d` is `+∞` for an empty shell class); in (ii) the offsets are fixed per statement, and the quotient integrals in
 (1) and (2)(a) are required to exist; the hypothesis `IsHbZeroEnum` on `t` is
 satisfiable for every `D` (`exists_isHbZeroEnum`, unique by `IsHbZeroEnum.unique`; `hbZeroEnum D` is that `t`). (4) the
-remaining clauses of `thm:ce-shell-gap` (Hankel form): the origin floor `0 < h(0) = M[ĥ] ≤ M[h]` for Hankel
-Cohn–Elkies profiles (proved, `hankelShellProfile_origin_floor`) and the `v = t_m` endpoint clause
+remaining clauses of `thm:ce-shell-gap` (Hankel form): the origin mass identity `0 < h(0) = M[ĥ] ≤ M[h]` for Hankel
+Cohn–Elkies profiles (proved, `hankelShellProfile_origin_mass`) and the `v = t_m` endpoint clause
 (`ShellGapEndpoint D`: `Ψ_h/M[h] → -G_N/‖G_N‖₁`, `Ψ_ĥ/M[h] → 0`, `Ψ_f/M[f] → G_N/‖G_N‖₁`, `M[ĥ]/M[f] → 0`, with
 `f = ĥ - h`, and `ℒ_y(-G_N) ≥ 0`; the input field `shell_gap_endpoint`). The failure of (i) forcing a strict
 Airy-order gap (`thm:ce-shell-gap`, `eq:strict-gap`) is `thm_ce_shell_gap`. -/
@@ -933,14 +933,14 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
       (LaplaceNonneg D ↔ ShellBoundedRemainder D) ∧
       (LaplaceNonneg D ↔ ShellLimit D) ∧
       (LaplaceNonneg D ↔ ShellLiminf D)) ∧
-    -- (4) `thm:ce-shell-gap`: the origin floor and the `v = t_m` endpoint clause
+    -- (4) `thm:ce-shell-gap`: the origin mass identity and the `v = t_m` endpoint clause
     ((∀ n : ℕ, 1 ≤ n → ∀ (T : ℝ) (G : ℝ → ℝ), HankelShellProfile (((n : ℝ) + 1) / 2) T G →
         0 < G 0 ∧
         hankelMass (((n : ℝ) + 1) / 2) (besselHankelTransform (((n : ℝ) + 1) / 2) G) = G 0 ∧
         G 0 ≤ hankelMass (((n : ℝ) + 1) / 2) G) ∧
       ShellGapEndpoint D) := by
   refine ⟨⟨uLP_le_tm D, uLP_eq_tm_iff D, fun hm => ?_, fun hlt => ⟨?_, ?_⟩⟩, ⟨?_, ?_, ?_⟩, ?_,
-    fun n hn T G hG => hankelShellProfile_origin_floor hn hG, I.shell_gap_endpoint⟩
+    fun n hn T G hG => hankelShellProfile_origin_mass hn hG, I.shell_gap_endpoint⟩
   · obtain ⟨hΛ, -, hlt⟩ := lambda_chain I hm
     obtain ⟨hτ1, hτ2⟩ := I.airy_node_square hm
     exact ⟨hΛ, hlt, uSh_le_uLP D, I.airy_square_bound hm, hτ1, hτ2⟩
