@@ -3,6 +3,9 @@ module
 public import Mathlib
 public import FormalResearch.SignUncertainty.CtBoasFarPhase
 public import FormalResearch.SignUncertainty.CtDyadicMoments
+public import FormalResearch.SignUncertainty.CtBoasKdW
+public import FormalResearch.SignUncertainty.CtBoasPlbField
+public import FormalResearch.SignUncertainty.FctCuspEdgeIbp
 
 /-!
 # `ct:boas-ineq`: the numerical bookkeeping of the far-field and truncation errors
@@ -298,5 +301,131 @@ lemma eventually_farEps_le (Cθ : ℝ) :
     linarith only [hsum, h1, h2, e2]
   unfold boasFarEps
   linarith only [A1, A2, A3, E1, E2, hph, hc6, hE1pos]
+
+/-! ### The frozen error `Pb` and the block widths -/
+
+open FormalResearch.CohnElkies FormalResearch.SignUncertainty.FctCuspEdge in
+/-- `τ₀(L) ≤ 2e^L/π` for `L > 0` (`m(τ) > log(πτ/2)`). -/
+lemma tau0_le_two_exp {L : ℝ} (hL : 0 < L) : tau0 L ≤ 2 * Real.exp L / π := by
+  have ht0 : 0 < tau0 L := tau0_pos hL
+  have hm : hankelEdgeM (tau0 L) = L := ceEll_tau0 hL
+  have hlog := hankelEdgeM_ge_log ht0
+  rw [hm] at hlog
+  have h1 : π * tau0 L / 2 < Real.exp L := by
+    have := Real.exp_lt_exp.mpr hlog
+    rwa [Real.exp_log (by positivity)] at this
+  rw [le_div_iff₀ Real.pi_pos]
+  linarith
+
+open FormalResearch.CohnElkies in
+/-- `W_j ≥ c^{-2}` for blocks with `L_j ≤ log c`. -/
+lemma boasW_lower {c a : ℝ} {j : ℕ} (hc : 1 ≤ c) (hlog : 1 ≤ Real.log c) (ha : 0 < a)
+    (hL : tentNode a (j + 1) ≤ Real.log c) : 1 ≤ c ^ 2 * boasW c a j := by
+  have hc0 : 0 < c := by linarith
+  have hL0 : 0 < tentNode a (j + 1) := tentNode_pos ha _
+  have hτ := tau0_pos hL0
+  have hτu := tau0_le_two_exp hL0
+  set L := tentNode a (j + 1)
+  have hN : 1000 ≤ √(1000000 * (1 + L) * Real.log c) := by
+    apply Real.le_sqrt_of_sq_le
+    nlinarith
+  have heL : Real.exp L ≤ c := by
+    calc Real.exp L ≤ Real.exp (Real.log c) := Real.exp_le_exp.2 hL
+      _ = c := Real.exp_log hc0
+  have hτc : tau0 L ≤ c := by
+    have : 2 * Real.exp L / π ≤ Real.exp L := by
+      rw [div_le_iff₀ Real.pi_pos]; nlinarith [Real.exp_pos L, Real.pi_gt_three]
+    linarith
+  have hW : boasW c a j = √(1000000 * (1 + L) * Real.log c) / (c * tau0 L) := rfl
+  rw [hW, show c ^ 2 * (√(1000000 * (1 + L) * Real.log c) / (c * tau0 L)) =
+      c * √(1000000 * (1 + L) * Real.log c) / tau0 L by field_simp, le_div_iff₀ hτ]
+  nlinarith [mul_le_mul hτc hN (by norm_num) hc0.le]
+
+open FormalResearch.CohnElkies in
+/-- `W_j² ≤ 2·10⁶ log c/(c² a)` (`τ_j² ≥ L_j ≥ a`, `(1+L)/L ≤ 2/a`). -/
+lemma boasW_sq_le {c a : ℝ} {j : ℕ} (hc : 1 ≤ c) (hlog : 1 ≤ Real.log c) (ha : 0 < a) (ha1 : a ≤ 1) :
+    boasW c a j ^ 2 ≤ 2000000 * Real.log c / (c ^ 2 * a) := by
+  have hc0 : 0 < c := by linarith
+  have hL0 : 0 < tentNode a (j + 1) := tentNode_pos ha _
+  have haL : a ≤ tentNode a (j + 1) := (tentNode_strictMono ha).monotone (Nat.zero_le (j + 1))
+  have hτ2 := tau0_sq_ge hL0
+  have hτ := tau0_pos hL0
+  set L := tentNode a (j + 1)
+  have hW : boasW c a j = √(1000000 * (1 + L) * Real.log c) / (c * tau0 L) := rfl
+  rw [hW, div_pow, Real.sq_sqrt (by positivity), div_le_div_iff₀ (by positivity) (by positivity)]
+  have h1 : (1 + L) * a ≤ 2 * L := by nlinarith
+  have h2 : 0 ≤ 1000000 * Real.log c := by positivity
+  have h3 : 1000000 * (1 + L) * Real.log c * (c ^ 2 * a) = 1000000 * Real.log c * c ^ 2 * ((1 + L) * a) := by ring
+  have h4 : 2000000 * Real.log c * (c * tau0 L) ^ 2 ≥ 2000000 * Real.log c * (c ^ 2 * L) := by
+    have : c ^ 2 * L ≤ (c * tau0 L) ^ 2 := by rw [mul_pow]; exact mul_le_mul_of_nonneg_left hτ2 (sq_nonneg c)
+    exact mul_le_mul_of_nonneg_left this (by positivity)
+  rw [h3]
+  have h5 : 1000000 * Real.log c * c ^ 2 * ((1 + L) * a) ≤ 1000000 * Real.log c * c ^ 2 * (2 * L) :=
+    mul_le_mul_of_nonneg_left h1 (by positivity)
+  nlinarith [h5, h4]
+
+/-- **The frozen error `Pb`** (`ct:P-lb`, bookkeeping): for `n ≈ c⁶`, `c^{-2} ≤ W`, and an exponent `(L₀-L_T)²/(2W²) ≥ c`
+with `e^{-c} ≤ c^{-12}`, `hankelFrozenPb c 1 W L_T L₀ n ≤ 30 c^{-4}`. -/
+lemma frozenPb_le {c W Lt L0 : ℝ} {n : ℕ} (hc : 2 ≤ c) (hn1 : c ^ 6 ≤ (n : ℝ)) (hn2 : (n : ℝ) ≤ 2 * c ^ 6)
+    (hW : 0 < W) (hW1 : 1 ≤ c ^ 2 * W) (hX : c ≤ 1 / (2 * W ^ 2) * (L0 - Lt) ^ 2)
+    (hexp : Real.exp (-c) ≤ (c ^ 12)⁻¹) :
+    hankelFrozenPb c 1 W Lt L0 n ≤ 30 * (c ^ 4)⁻¹ := by
+  have hc0 : 0 < c := by linarith
+  have hn0 : 0 < (n : ℝ) := lt_of_lt_of_le (by positivity) hn1
+  have hs1 : 1 ≤ √(2 * π) := by
+    rw [Real.one_le_sqrt]; linarith [Real.pi_gt_three]
+  have hs0 : 0 < √(2 * π) := by linarith
+  -- `1/(√(2π) W) ≤ c²`
+  have hinvW : 1 / W ≤ c ^ 2 := by rw [div_le_iff₀ hW]; linarith
+  have hk : 1 / (√(2 * π) * W) ≤ c ^ 2 := by
+    calc 1 / (√(2 * π) * W) ≤ 1 / (1 * W) :=
+          one_div_le_one_div_of_le (by positivity) (mul_le_mul_of_nonneg_right hs1 hW.le)
+      _ = 1 / W := by rw [one_mul]
+      _ ≤ c ^ 2 := hinvW
+  have hE : Real.exp (-(1 / (2 * W ^ 2)) * (L0 - Lt) ^ 2) ≤ (c ^ 12)⁻¹ := by
+    refine le_trans (Real.exp_le_exp.2 ?_) hexp
+    have : -(1 / (2 * W ^ 2)) * (L0 - Lt) ^ 2 = -(1 / (2 * W ^ 2) * (L0 - Lt) ^ 2) := by ring
+    rw [this]; linarith
+  have hc12 : 0 < (c ^ 12)⁻¹ := by positivity
+  unfold hankelFrozenPb
+  have t1 : (n : ℝ) * (1 * (Real.exp (-(1 / (2 * W ^ 2)) * (L0 - Lt) ^ 2) / (√(2 * π) * W))) ≤
+      2 * (c ^ 4)⁻¹ := by
+    have h1 : Real.exp (-(1 / (2 * W ^ 2)) * (L0 - Lt) ^ 2) / (√(2 * π) * W) ≤ (c ^ 12)⁻¹ * c ^ 2 := by
+      rw [div_eq_mul_one_div]
+      exact mul_le_mul hE hk (by positivity) hc12.le
+    calc (n : ℝ) * (1 * (Real.exp (-(1 / (2 * W ^ 2)) * (L0 - Lt) ^ 2) / (√(2 * π) * W)))
+        ≤ (2 * c ^ 6) * ((c ^ 12)⁻¹ * c ^ 2) := by
+          rw [one_mul]; exact mul_le_mul hn2 h1 (by positivity) (by positivity)
+      _ = 2 * (c ^ 4)⁻¹ := by field_simp
+  have t2 : 2 / (n : ℝ) * (1 / (√(2 * π) * W)) ≤ 2 * (c ^ 4)⁻¹ := by
+    have h1 : 2 / (n : ℝ) ≤ 2 * (c ^ 6)⁻¹ := by
+      rw [div_le_iff₀ hn0]
+      have : 2 * (c ^ 6)⁻¹ * c ^ 6 = 2 := by field_simp
+      nlinarith [mul_le_mul_of_nonneg_left hn1 (by positivity : (0 : ℝ) ≤ 2 * (c ^ 6)⁻¹)]
+    calc 2 / (n : ℝ) * (1 / (√(2 * π) * W)) ≤ (2 * (c ^ 6)⁻¹) * c ^ 2 :=
+          mul_le_mul h1 hk (by positivity) (by positivity)
+      _ = 2 * (c ^ 4)⁻¹ := by field_simp
+  have hsq : √(π / (2 * π ^ 2 * W ^ 2)) ≤ c ^ 2 := by
+    rw [Real.sqrt_le_left (by positivity)]
+    have : π / (2 * π ^ 2 * W ^ 2) ≤ (1 / W) ^ 2 := by
+      rw [div_pow, one_pow, div_le_div_iff₀ (by positivity) (by positivity)]
+      nlinarith [Real.pi_gt_three, sq_nonneg W, mul_pos Real.pi_pos (sq_nonneg W |>.lt_of_ne' (by positivity))]
+    exact this.trans (pow_le_pow_left₀ (by positivity) hinvW 2)
+  have t3 : 6 * (n : ℝ) * 1 * ((c ^ 20)⁻¹ * (1 + √(π / (2 * π ^ 2 * W ^ 2)))) ≤ 26 * (c ^ 4)⁻¹ := by
+    have h1 : (c ^ 20)⁻¹ * (1 + √(π / (2 * π ^ 2 * W ^ 2))) ≤ (c ^ 20)⁻¹ * (1 + c ^ 2) :=
+      mul_le_mul_of_nonneg_left (by linarith) (by positivity)
+    have h2 : 6 * (n : ℝ) * 1 ≤ 12 * c ^ 6 := by linarith
+    calc 6 * (n : ℝ) * 1 * ((c ^ 20)⁻¹ * (1 + √(π / (2 * π ^ 2 * W ^ 2))))
+        ≤ (12 * c ^ 6) * ((c ^ 20)⁻¹ * (1 + c ^ 2)) := mul_le_mul h2 h1 (by positivity) (by positivity)
+      _ = 12 * ((c ^ 14)⁻¹ + (c ^ 12)⁻¹) := by field_simp
+      _ ≤ 26 * (c ^ 4)⁻¹ := by
+          have a1 : (c ^ 14)⁻¹ ≤ (c ^ 4)⁻¹ := by
+            apply inv_anti₀ (by positivity); exact pow_le_pow_right₀ (by linarith) (by norm_num)
+          have a2 : (c ^ 12)⁻¹ ≤ (c ^ 4)⁻¹ := by
+            apply inv_anti₀ (by positivity); exact pow_le_pow_right₀ (by linarith) (by norm_num)
+          linarith
+  rw [show (1 : ℝ) = 1 from rfl] at *
+  have e1 : (1 : ℝ) * (√(2 * π) * W)⁻¹ = 1 / (√(2 * π) * W) := by ring
+  linarith [t1, t2, t3]
 
 end FormalResearch.SignUncertainty
