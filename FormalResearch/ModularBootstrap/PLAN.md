@@ -31,6 +31,15 @@ Of the 22 recalled results, 15 are formalised in Lean (in Paper I's files or in 
 - **`(H_w)`**: integer weight `w >= 1`, null factor `Q = prod (1 - q^{mu_l})`, `mu_l > 0` (Lean: `FixedWeightProblem`);
   `(H_{w,mix})`: positive finite mixtures of shifted products (no Lean structure yet).
 
+**Open checks from an external review (2026-11-26; resolve each in its row, then delete this list).** (1) Target the current
+`dual_spectrum_limit.tex` statements (`dsl:poly-compact`, `ds:LP`, `sd:LP`: positive extension, polynomial-moment compactness, all-charge
+derivative-program convergence) rather than an older threshold-restricted form; keep compact `F` vs closed `X` and atomicity distinct.
+(2) The positive-mixtures section now covers dominated thermal sources, broader than finite atomic mixtures; check PM-0..PM-4 rows,
+the vocabulary `(H_{w,mix})`, and that PM-3 depends only on the one-level PA2 part. (3) The spin headline is a dimension gap through Airy
+order (continuous spin analytic; integer spin computer-assisted; integer degeneracies also need CLM); keep `SpinZEnclosures` a named
+hypothesis until certified (LeanCert candidate in `FormalResearch/CFT_REUSE.md`). (4) Check the `teb:quant_c1_hb` normalisation change
+(division by `||G_N||_1` in the slope) against both Lean instances. External candidates for both papers: `FormalResearch/CFT_REUSE.md`.
+
 ## 1. Priority order: the four headline results
 
 The introduction of `airy_scale_core.tex` states four results. Work is ordered by what each needs; packages off every headline path
