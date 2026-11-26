@@ -2,13 +2,14 @@ module
 
 public import Mathlib
 public import FormalResearch.SignUncertainty.CtCombinedTop
+public import FormalResearch.SignUncertainty.CtLangerEdgeChart
 
 /-!
 # `ct:dyadic` (4), the transition band
 
 `constant_terms_lower.tex`, proof of `ct:dyadic` (4) / `(ct:combined)`, the transition band `v' ∈ [v₀, R']`.  The step `CtCombinedPieces.trans`,
 `∫_{ξ ≥ ξ(-v₀)} w̃ sin X dm - s₂ - ∫_{ξ>ξ(-R')} sin X dm = O(c^{-4/3})`, is proved (`ct_combined_trans`) from one named input, the
-identification `CtLangerEdge` of the Lean series Langer chart `ũ(ξ)` with the CFU edge chart (`cΦ_Ph(τ₀(L);L) = (4/3)(-ũ)^{3/2}`), by
+identification `ct_langer_edge` of the Lean series Langer chart `ũ(ξ)` with the CFU edge chart (`cΦ_Ph(τ₀(L);L) = (4/3)(-ũ)^{3/2}`, proved in `CtLangerEdgeChart`), by
 
 * `phase_remainder`, `ct_trans_phase_pt`: at one point, `X = (4/3)v'^{3/2} + 2√v'δ` (`(ct:theta-cfu-match)`: `2v'^{1/2}(v - v') = -θ_ε(τ₀)`,
   `v - v' = δ = -λψ_ε ∈ (0, λM]`) and `|sin X - sin((4/3)v^{3/2})| ≤ (2/3)δ²/√v'`;
@@ -16,7 +17,7 @@ identification `CtLangerEdge` of the Lean series Langer chart `ũ(ξ)` with the 
 * `ct_trans_transport`: `s₂` in the Langer variable `x = ũ`, `L = log π²ξ(x)`, with the transport error `R' r_∞`;
 * `ct_trans_decomp`, `trans_rate_bound`, `ct_combined_trans`: the assembly with the taper estimate `boas_field_trunc_lo` for `L < L_min`.
 
-`CtCombinedOpen` (the two steps `rosc`, `window`) and `ct_lower_of_open` are here.  **Proved** modulo `CtLangerEdge` (a named input).-/
+`CtCombinedOpen` (the two steps `rosc`, `window`) and `ct_lower_of_open` are here.  **Proved** (`ct_lower_of_open` takes only `CtCombinedOpen`).-/
 
 @[expose] public section
 
@@ -59,17 +60,6 @@ lemma phase_remainder {v' v : ℝ} (hv' : 0 < v') (hvv : v' ≤ v) :
 
 open FormalResearch.CohnElkies
 
-/-- **The Langer chart matches the edge chart** (`ct:cfu` (1), `gt:7.7b`: "so `cΦ_Ph(τ₀(ξ);ξ) = (4/3)(-ũ)^{3/2}` on the band"), the named input
-of the transition band.  In the Lean chart `ũ(ξ(L)) = -K g(L)` (`ctVprime`, `K = c^{2/3}κ`, `g = ctChartG`) the `c`-dependence is a
-scaling, so the identity is `c`-free: `Φ_Ph(τ₀(L); L) = (4/3) κ^{3/2} g(L)^{3/2}` for `0 < L`, `e^L - 1 ≤ 5·10⁻⁴`.  Equivalently the series chart
-`hankelXi` (`HankelLangerY`) and the CFU edge chart `Ξ(a) = exp(m(τ₀(a)))/π²` (`cfu_psi_langer`) agree (`CtCfuData`: "their identification is not
-proved").  Here `tau0` is `CohnElkies.tau0` (the saddle with `hankelEdgeM (tau0 L) = L`, argument the edge variable `L`; **not** `CtCfu.tau0`, which takes the Langer parameter `a`),
-so `edgePhi L (tau0 L) = Φ(τ₀(L); L)` is the critical value, positive for `L > 0`.  Unproved.  Leading-order check with constants: `m(τ) = (π²/12)τ² + O(τ⁴)` gives
-`τ₀ = (12L/π²)^{1/2}`, `Φ = τ₀ m(τ₀) - ∫₀^{τ₀} m = (2/3)(π²/12)τ₀³ = (2/3)(12/π²)^{1/2}L^{3/2} = (4/3)(√3/π)L^{3/2}`; and `κ = (3/π²)^{1/3}`,
-`g(L) = L + O(L²)` give `(4/3)κ^{3/2}g^{3/2} = (4/3)(3/π²)^{1/2}L^{3/2}`, the same. (Equivalently `(2/3)(-a)^{3/2} = Φ` with `a = -2^{2/3}κ g`.) -/
-def CtLangerEdge : Prop :=
-  ∀ L : ℝ, 0 < L → Real.exp L - 1 ≤ 5e-4 → edgePhi L (tau0 L) = 4 / 3 * (langerKappa * ctChartG L) ^ (3 / 2 : ℝ)
-
 /-- `ctTau0 a` is the genuine `τ₀(a)` near `0⁻`: the unique positive solution. -/
 lemma ctTau0_unique {ε : ℝ} (hε : ε = 1 ∨ ε = -1) : ∃ ρ : ℝ, 0 < ρ ∧ ∀ a ∈ Ioo (-ρ) 0, ∀ τ : ℝ, 0 < τ →
     edgePhi (hankelEdgeM τ) τ = (2 / 3) * (-a) ^ ((3 : ℝ) / 2) → ctTau0 a = τ := by
@@ -96,9 +86,9 @@ lemma two_mul_ctLam {c : ℝ} (hc : 0 < c) : 2 * ctLam c = Real.sqrt (ctMu c) :=
 
 /-- **The phase estimate at one point of the transition band** (`(ct:theta-cfu-match)` and the Taylor expansion of `(4/3)v^{3/2}` about
 `v'`, proof of `(ct:combined)`): for `0 < L`, `e^L - 1 ≤ 5·10⁻⁴`, with `v' = v'(L)` (`ctVprime`), `v = -û(-v')` and `δ = v - v'`, under
-`CtLangerEdge` and the `ψ_ε`-window `(ρ, M)` containing `μ(-v')`: `0 < δ ≤ λM` and
+`ct_langer_edge` and the `ψ_ε`-window `(ρ, M)` containing `μ(-v')`: `0 < δ ≤ λM` and
 `|sin X(L) - sin((4/3)v^{3/2})| ≤ (2/3)δ²/√v'` (`X = boasX`).  Here `X = (4/3)v'^{3/2} + 2√v' δ` exactly. -/
-theorem ct_trans_phase_pt (hE : CtLangerEdge) {ε c ρ M L : ℝ} (hW : PsiWin ε ρ M)
+theorem ct_trans_phase_pt {ε c ρ M L : ℝ} (hW : PsiWin ε ρ M)
     (hU : ∀ a ∈ Ioo (-ρ) 0, ∀ τ : ℝ, 0 < τ →
       edgePhi (hankelEdgeM τ) τ = (2 / 3) * (-a) ^ ((3 : ℝ) / 2) → ctTau0 a = τ)
     (hc : 0 < c) (hL : 0 < L) (hLe : Real.exp L - 1 ≤ 5e-4) (hwin : -ρ < ctMu c * (-(ctVprime c L))) :
@@ -118,7 +108,7 @@ theorem ct_trans_phase_pt (hE : CtLangerEdge) {ε c ρ M L : ℝ} (hW : PsiWin �
   have hna : -a = ctMu c * v' := by rw [ha]; ring
   -- the phase at the edge
   have hΦ : c * edgePhi L (tau0 L) = 4 / 3 * v' ^ (3 / 2 : ℝ) := by
-    rw [hE L hL hLe, hv']
+    rw [ct_langer_edge hL hLe, hv']
     unfold ctVprime langerScale
     have : (c ^ (2 / 3 : ℝ) * langerKappa * ctChartG L) ^ (3 / 2 : ℝ) = c * (langerKappa * ctChartG L) ^ (3 / 2 : ℝ) := by
       rw [mul_assoc, Real.mul_rpow (by positivity) (by have := langerKappa_pos; positivity), ← Real.rpow_mul hc.le]
@@ -363,8 +353,8 @@ lemma ctTransG_abs {R : ℝ} (hR : 0 < R) (u : ℝ) :
 
 /-- **The phase-error integral of the transition band**: on `L ∈ (L_min, Λ]`,
 `|∫ w̃ h (sin X - sin((4/3)v^{3/2}))| ≤ 174 (λM)² (∫_{(0,L_J]} v'|h|)/(R√R)` (`ct:dyadic` (4), transition band: the phase error
-`O(c^{-2/3}v'^{-1/2})` against `w̃ ≤ C (v'/R)^{12}`).  Hypotheses: the window `(ρ, M)`, `CtLangerEdge`, `TaperBand`, `R' ≤ A`. -/
-theorem ct_trans_E1 (hE : CtLangerEdge) {ε c R ρ M K LJ Lmin : ℝ} {f : ℝ → ℝ} (hW : PsiWin ε ρ M)
+`O(c^{-2/3}v'^{-1/2})` against `w̃ ≤ C (v'/R)^{12}`).  Hypotheses: the window `(ρ, M)`, `TaperBand`, `R' ≤ A`. -/
+theorem ct_trans_E1 {ε c R ρ M K LJ Lmin : ℝ} {f : ℝ → ℝ} (hW : PsiWin ε ρ M)
     (hU : ∀ a ∈ Ioo (-ρ) 0, ∀ τ : ℝ, 0 < τ → edgePhi (hankelEdgeM τ) τ = (2 / 3) * (-a) ^ ((3 : ℝ) / 2) → ctTau0 a = τ)
     (hc : 1 ≤ c) (hB : TaperBand ε c R) (hf : IsHankelEigenfn c ε f) (hrA : ctRprime ε c R ≤ langerRadius c)
     (hRρ : -ρ < ctMu c * (-R)) (hL0 : 0 < Lmin) (hLv : ctVprime c Lmin = c ^ (4 / 7 : ℝ))
@@ -414,7 +404,7 @@ theorem ct_trans_E1 (hE : CtLangerEdge) {ε c R ρ M K LJ Lmin : ℝ} {f : ℝ �
     have hwin : -ρ < ctMu c * (-(ctVprime c L)) := by
       have := mul_le_mul_of_nonneg_left (neg_le_neg hvR) (ctMu_pos hc0).le
       linarith
-    obtain ⟨hδ0, hδM, hsin⟩ := ct_trans_phase_pt hE hW hU hc0 hL0' hLe' hwin
+    obtain ⟨hδ0, hδM, hsin⟩ := ct_trans_phase_pt hW hU hc0 hL0' hLe' hwin
     have hV := ctTaperV_eq hc0 hr0 hrA hL0' hLΛ'
     set δ := -ctUhat ε c (-(ctVprime c L)) - ctVprime c L with hδ
     have hvδ : ctTaperV ε c L = ctVprime c L + δ := by rw [hV]; ring
@@ -455,10 +445,10 @@ theorem ct_trans_E1 (hE : CtLangerEdge) {ε c R ρ M K LJ Lmin : ℝ} {f : ℝ �
   have hLe' : Real.exp L - 1 ≤ 5e-4 := by linarith [Real.exp_le_exp.2 hL.2]
   exact mul_nonneg (mul_pos (langerScale_pos hc0) (ctChartG_pos hL.1 hLe')).le (abs_nonneg _)
 
-/-- **The transition band, decomposed**: under `CtLangerEdge`, the window `(ρ, M)`, `TaperBand`, the top-scale first moment and `R' ≤ A`,
+/-- **The transition band, decomposed**: the window `(ρ, M)`, `TaperBand`, the top-scale first moment and `R' ≤ A`,
 `|∫_{ξ ≥ ξ(-v₀)} w̃ sin X dm - s₂ - ∫_{ξ>ξ(-R')} sin X dm| ≤ 174(λM)²(Kc^{1/3})/(R√R) + 2^{12}(K+1)c₁^{-24}c^{-29/21} + R' r_∞`:
 the phase error (`ct_trans_E1`), the taper estimate for `L < L_min` (`boas_field_trunc_lo`) and the transport error (`ct_trans_transport`). -/
-theorem ct_trans_decomp (hE : CtLangerEdge) {ε c R ρ M K LJ c₁ : ℝ} {f : ℝ → ℝ} (hW : PsiWin ε ρ M)
+theorem ct_trans_decomp {ε c R ρ M K LJ c₁ : ℝ} {f : ℝ → ℝ} (hW : PsiWin ε ρ M)
     (hU : ∀ a ∈ Ioo (-ρ) 0, ∀ τ : ℝ, 0 < τ → edgePhi (hankelEdgeM τ) τ = (2 / 3) * (-a) ^ ((3 : ℝ) / 2) → ctTau0 a = τ)
     (hε : ε = 1 ∨ ε = -1) (hc5 : 5000 ≤ c) (hBR : TaperBand ε c R) (hf' : IsHankelEigenfn c ε f)
     (hm : hankelMass c f = 1) (hc₁ : 0 < c₁) (hRlo : c₁ ^ 2 * c ^ (2 / 3 : ℝ) ≤ R)
@@ -548,7 +538,7 @@ theorem ct_trans_decomp (hE : CtLangerEdge) {ε c R ρ M K LJ c₁ : ℝ} {f : �
   have hI1 : |(∫ L in Ioc Lm Λ, ctTaper ε c R L * (hankelHL c f L * Real.sin (boasX c ε L))) -
       ∫ L in Ioc Lm Λ, g L| ≤ 174 * (ctLam c * M) ^ 2 / (R * Real.sqrt R) * (K * c ^ (1 / 3 : ℝ)) := by
     rw [← integral_sub hΦX.integrableOn (hgI.mono_set (Ioc_subset_Ioc hL0.le le_rfl))]
-    have := ct_trans_E1 hE hW hU (by linarith) hBR hf' hrA hRρ hL0 hLv hLΛ hΛJ hLJe hMom
+    have := ct_trans_E1 hW hU (by linarith) hBR hf' hrA hRρ hL0 hLv hLΛ hΛJ hLJe hMom
     refine le_of_eq_of_le ?_ this
     congr 1
     refine integral_congr_ae ?_
@@ -659,12 +649,12 @@ lemma trans_rate_bound {c c₁ R R' M K : ℝ} (hc0 : 0 < c) (hc₁ : 0 < c₁) 
             _ = c ^ (-(4 / 3) : ℝ) := mul_one _
   nlinarith [hb1, hb3, hb4]
 
-/-- **`CtCombinedPieces.trans`** (`ct:dyadic` (4), transition band), from the identification `CtLangerEdge` of the Langer chart with the edge chart:
+/-- **`CtCombinedPieces.trans`** (`ct:dyadic` (4), transition band), from the identification `ct_langer_edge` of the Langer chart with the edge chart:
 for small `c₁`, `|∫_{ξ ≥ ξ(-v₀)} w̃ sin X dm - s₂ - ∫_{ξ > ξ(-R')} sin X dm| ≤ C c^{-4/3}`.  Proof: `w̃ = 1` beyond `Λ`; on `(L_min, Λ]` the phase
 `X = (4/3)v'^{3/2} + 2√v'δ` of `ct_trans_phase_pt` against `(4/3)v^{3/2}` costs `O(c^{-2/3}v'^{-1/2})`, integrated against `w̃|h| ≤ C(v'/R)^{12}|h|`
 by the first moment `∫ v'|h| ≤ Kc^{1/3}` (`ct_trans_E1`); the substitution `v = -û(x)`, `L = L(x)` and transport `ct_trans_transport` turn `s₂` into
 `∫_0^Λ w̃ h sin((4/3)v^{3/2}) dL` up to `R' r_∞`; the part `L < L_min` is the taper estimate (`boas_field_trunc_lo`). -/
-theorem ct_combined_trans (hE : CtLangerEdge) : ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ →
+theorem ct_combined_trans : ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ →
     CtDyadicBound c₁ fun R ε c f => ctStr R ε c f - ctOscS2 R ε c f - ctSout R ε c f := by
   obtain ⟨K, cM, hK0, hmom⟩ := ct_boas_moments_top
   obtain ⟨κ₀, hκ₀, cL, hcL1, hL⟩ := ctLv0_facts
@@ -731,7 +721,7 @@ theorem ct_combined_trans (hE : CtLangerEdge) : ∃ γ : ℝ, 0 < γ ∧ ∀ c�
         _ = 8 * c₁ ^ 2 * (c ^ (-(2 / 3) : ℝ) * c ^ (2 / 3 : ℝ)) := by ring
         _ = 8 * c₁ ^ 2 := by rw [e, mul_one]
     nlinarith [sq_nonneg c₁]
-  have hdec := ct_trans_decomp hE (K := K) (LJ := LJ) hW hU hε hc5 hBR hf' hm hc₁ hR.1 hr0 hrA hRρ hL0 hLe hLv hLΛ hΛJ hLJe hK0 hMom
+  have hdec := ct_trans_decomp (K := K) (LJ := LJ) hW hU hε hc5 hBR hf' hm hc₁ hR.1 hr0 hrA hRρ hL0 hLe hLv hLΛ hΛJ hLJe hK0 hMom
   have hrate := trans_rate_bound hc0 hc₁ hR.1 hR.2 hrR (hankelRinf_nonneg hc5 hf' hε hm) hexpo hM0 hK0 hc3
   have hlog1 : 1 ≤ Real.log c := by linarith
   have hη : 0 ≤ c⁻¹ * ctEta c₁ ε c f R :=
@@ -750,7 +740,7 @@ theorem ct_combined_trans (hE : CtLangerEdge) : ∃ γ : ℝ, 0 < γ ∧ ∀ c�
 
 /-! ### What remains of `ct:dyadic` (4): `CtCombinedOpen` -/
 
-/-- **The two steps of `(ct:combined)` not yet in Lean** (with the chart identification `CtLangerEdge`, these are the named inputs of
+/-- **The two steps of `(ct:combined)` not yet in Lean** (these are the named inputs of
 `thm:ct-lower`; `trunc`, `outer` are `ct_combined_trunc`, `ct_combined_outer` and `trans` is `ct_combined_trans`):
 
 * `rosc`: `P_R(H) + g_vac/2π + ∫ w̃ dm + 2(s₁ - s₂) = O(c⁻¹η_R)` (`(ct:rosc)`, the half-disc `ap:thmD` with the `R₊ = -ih₊/Ai` comparison
@@ -761,15 +751,15 @@ structure CtCombinedOpen (c₁ : ℝ) : Prop where
   rosc : CtDyadicBound c₁ fun R ε c f => ctBudget R ε c f + ctMall R ε c f + 2 * (ctOscS1 R ε c f - ctOscS2 R ε c f)
   window : CtDyadicBound c₁ fun R ε c f => ctKin R ε c f + ctOscS1 R ε c f
 
-/-- **`thm:ct-lower` from the two open steps of `ct:dyadic` (4) and the chart identification**: `ct_lower` with `CtLowerInputs.dyadic` replaced
-by `CtCombinedOpen` (`rosc`, `window`) and `CtLangerEdge`; the steps `trunc`, `outer`, `trans` are `ct_combined_trunc`, `ct_combined_outer`,
+/-- **`thm:ct-lower` from the two open steps of `ct:dyadic` (4)**: `ct_lower` with `CtLowerInputs.dyadic` replaced
+by `CtCombinedOpen` (`rosc`, `window`); the steps `trunc`, `outer`, `trans` are `ct_combined_trunc`, `ct_combined_outer`,
 `ct_combined_trans`. -/
-theorem ct_lower_of_open (hE : CtLangerEdge)
+theorem ct_lower_of_open
     (P : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtCombinedOpen c₁) : CtLowerStatement := by
   obtain ⟨c₁₀, hc₁₀, hP⟩ := P
   obtain ⟨g₁, hg₁, hT⟩ := ct_combined_trunc
   obtain ⟨g₂, hg₂, hO⟩ := ct_combined_outer
-  obtain ⟨g₃, hg₃, hR⟩ := ct_combined_trans hE
+  obtain ⟨g₃, hg₃, hR⟩ := ct_combined_trans
   refine ct_lower_of_pieces ⟨min c₁₀ (min g₁ (min g₂ g₃)), lt_min hc₁₀ (lt_min hg₁ (lt_min hg₂ hg₃)), fun c₁ h1 h2 => ?_⟩
   have a1 : c₁ ≤ c₁₀ := h2.trans (min_le_left _ _)
   have a2 : c₁ ≤ g₁ := h2.trans ((min_le_right _ _).trans (min_le_left _ _))
