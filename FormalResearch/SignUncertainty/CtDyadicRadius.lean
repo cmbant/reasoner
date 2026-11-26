@@ -4,6 +4,7 @@ public import Mathlib
 public import FormalResearch.SignUncertainty.CtDyadicArea
 public import FormalResearch.SignUncertainty.CtDyadicGReg
 public import FormalResearch.SignUncertainty.CtDyadicRegime
+public import FormalResearch.SignUncertainty.CtChartPsiAnalytic
 public import FormalResearch.SignUncertainty.AiryEtaUnfold
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerGoodCircle
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerDyadic
@@ -16,7 +17,8 @@ public import FormalResearch.ModularBootstrap.FiveTerm.LowerDyadic
 (`CtDyadicEta`).  The proof of the paper (two Cauchy moments, an area bound, averaging over a positive-measure set of good
 radii) is formalised here down to two named hypotheses about the concrete objects:
 
-* `CtChartComplex c₁` (`CtDyadicEta`): the complex chart facts of `ct:cfu` / `ct:phic-exp`;
+* `CtChartComplex c₁` (`CtDyadicEta`): the complex chart facts of `ct:cfu` / `ct:phic-exp`; **proved** for every small `c₁`
+  (`ct_chart_complex`, `CtChartPsiAnalytic`), so only `CtBandData` remains in `ct_dyadic_radius_small`;
 * `CtBandData c₁` (`CtDyadicGReg`): the two top-scale outputs of `ct:dyadic` (1) used by (2): `(ct:cov)` on the circle
   `|ũ'| = R_J` and the first `v`-moment of `(ct:half)` at `R_J`, for `A = √R_J`;
 
@@ -359,5 +361,19 @@ theorem ct_dyadic_radius {c₁ : ℝ} (hc₁ : 0 < c₁) (hch : CtChartComplex c
 /-- info: 'FormalResearch.SignUncertainty.ct_dyadic_radius' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.SignUncertainty.ct_dyadic_radius
+
+/-- **`ct:dyadic` (2) with the chart input discharged**: there is `c₁₀ > 0` such that for every `0 < c₁ ≤ c₁₀` the conclusion of
+`ct_dyadic_radius` holds from `CtBandData c₁` alone (`CtChartComplex c₁` is `ct_chart_complex`; `c₁` is the small constant of `ct:cfu`). -/
+theorem ct_dyadic_radius_small : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtBandData c₁ →
+    ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
+      ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 → 0 < ctGap ε c T →
+        ∃ R : ℝ, R ∈ Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧ ctGoodRadius R ∧
+          ctEta c₁ ε c f R ≤ C * c ^ (-(1 / 3) : ℝ) := by
+  obtain ⟨c₁₀, hc₁₀, h⟩ := ct_chart_complex
+  exact ⟨c₁₀, hc₁₀, fun c₁ hc₁ hle hband => ct_dyadic_radius hc₁ (h c₁ hc₁ hle) hband⟩
+
+/-- info: 'FormalResearch.SignUncertainty.ct_dyadic_radius_small' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.ct_dyadic_radius_small
 
 end FormalResearch.SignUncertainty
