@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerMainDefs
+public import FormalResearch.ModularBootstrap.FiveTerm.LowerLangerBridge
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerSign
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerCorL
 public import FormalResearch.ModularBootstrap.ConcreteBootstrap.QuadratureBounds
@@ -141,18 +142,12 @@ def LowerBoas (prob : FixedWeightProblem) (Gout : ℂ → ℂ) (c1 : ℝ) (phi :
     ∀ (N : ℕ) (R : ℝ), LowerGoodCircle N R → LowerRadiusRange c1 c R →
       -(C * c ^ (-(4 / 3 : ℝ)) * Real.log c) ≤ lowerBand prob Gout phi uhat c R g
 
-/-- **The exact Langer coordinate on the real band** (`cts:langer`, `rem:s1`, Theorem L*): `-ũ = β c^{2/3} τ(x)`,
-i.e. `-ũ = (3π c N(x)/2)^{2/3}`, for `x = √(3 Δ(u)/c)` and `u ∈ [-(|a_1|+1), 0)`.  This is the `ũ ↔ τ` bridge between
-Paper II's holomorphic chart `virasoroUChart` and the comb phase `tauPhase`; it is not in Lean. -/
-def LowerLangerPhase : Prop :=
-  ∃ cb : ℝ, ∀ c : ℝ, cb ≤ c → ∀ u : ℝ, -(|airyZero 1| + 1) ≤ u → u < 0 →
-    tauPhase (√(3 * virasoroDeltaChart c u / c)) = -u / (betaTip * c ^ (2 / 3 : ℝ))
-
 /-- **The inputs of `cts:lower-main`.**  The data are the shifted chart `φ_c` (`phi`, `uhat`), the outer function
 `G_outer` (`Gout`) and the chart radius `c_1`; the fields are the open TeX lemmas as used in the proof of Theorem C9:
 `cts:cauchy-dual` (1) (`LowerChart`), `cts:rosc-uncond` (4) (`LowerCombined`),
-`ctl:pass2`, `cts:boas`, and the Langer identification `LowerLangerPhase` (`cts:rosc-uncond` (1), `LowerFirstGood`,
-is discharged unconditionally at Virasoro from `chart` by `lowerFirstGood_of_chart_on_band`). -/
+`ctl:pass2`, and `cts:boas` (`cts:rosc-uncond` (1) `LowerFirstGood` is discharged at Virasoro from `chart` by
+`lowerFirstGood_of_chart_on_band`, and `cts:langer` `LowerLangerPhase` is discharged unconditionally by
+`lowerLangerPhase_holds`). -/
 structure LowerMainInputs (prob : FixedWeightProblem) (c0 γ0 : ℝ) where
   Gout : ℂ → ℂ
   phi : ℝ → ℂ → ℂ
@@ -164,7 +159,6 @@ structure LowerMainInputs (prob : FixedWeightProblem) (c0 γ0 : ℝ) where
   combined : LowerCombined prob Gout c1 phi uhat
   pass2 : LowerPass2 prob c1 phi
   boas : LowerBoas prob Gout c1 phi uhat
-  langer : LowerLangerPhase
 
 /-- The chart point of the reference phase minus `K c^{-2} log c`:
 `u_* = a_1 - (c_0/c_*) c^{-1/3} - γ_0 a_1 c^{-1} + β K c^{-4/3} log c`. -/
@@ -682,7 +676,7 @@ theorem lowerPhase_of_inputs {prob : FixedWeightProblem} {c0 γ0 : ℝ} (hc0 : c
   obtain ⟨ccp, C₀, hpass⟩ := lower_pass_upper h hfirst_good
   obtain ⟨cP, κ, hκ, hprel⟩ := hP
   obtain ⟨cc_ch, Cφ, hCφ, hch⟩ := h.chart
-  obtain ⟨cb, hlang⟩ := h.langer
+  obtain ⟨cb, hlang⟩ := lowerLangerPhase_holds
   have hAi : 0 < airyAi' (airyZero 1) ^ 2 := by have := airyAi'_first_pos; positivity
   have hβ := betaTip_pos
   set L₀ : ℝ := κ / (2 * airyAi' (airyZero 1) ^ 2) with hL₀
