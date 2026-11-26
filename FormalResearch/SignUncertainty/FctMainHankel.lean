@@ -7,6 +7,7 @@ module
 public import FormalResearch.SignUncertainty.FctMainHankelDefs
 public import FormalResearch.SignUncertainty.FctRSymbol
 public import FormalResearch.SignUncertainty.FctDcomp
+public import FormalResearch.SignUncertainty.FctWarpAdmiss
 
 /-!
 # `fct:main-hankel`: the five-term upper bound for the Hankel thresholds (F2a skeleton)
@@ -36,8 +37,8 @@ and `ctWtot` (`(fct:Wtot-hankel)`) are defined from the existing Lean objects.  
 (`|Re W̃^fl(0)| ≤ C`).  No fact depends on a junk value at the corners: the value `W̃_c^ε(0)` is computed as the limit along the strip
 (`ctWtot_zero_eq`, from the Hölder clause (M2) of `StripAdmissFullData` and the limits of the summands; `ctWg1`, `ctWfl`,
 `ctWbump` are continuous on the closed strip, `ctWg1_continuousOn` etc.), and `W̃^warp → 0` is `ctWwarp_tendsto_zero`, proved from
-the explicit corner field `splitting_origin` (`Φ̂_c = O(ζ³)` cancels the `ζ^{-5/2}` singularity of `H_*/G_ε`, `ctHG_bound`).  (Lean's
-value of `ctHG`/`ctWwarp` at `ζ = 0` is a division-by-zero value; it is never used, and the Hölder clause of `warp_admissible` is consistent
+the corner bound `Φ̂_c = O(ζ³)` of the field `splitting` (it cancels the `ζ^{-5/2}` singularity of `H_*/G_ε`, `ctHG_bound`).  (Lean's
+value of `ctHG`/`ctWwarp` at `ζ = 0` is a division-by-zero value; it is never used, and the Hölder clause of `fctWarp_admissible` is consistent
 with it because the limit is `0`.)
 
 **Data of `FctMainHankelInputs`**: `PhiHat` (`fct:splitting`, which depends on the chart of `fct:comp-cfu`), `T1`, `alpha`
@@ -45,16 +46,17 @@ with it because the limit is `0`.)
 `K4 ≥ 1` (`fct:comp-D`).  The physical bump `Bphys` is **not** data: `fctBphys` is the definition `(fct:B-physical)` with `H₀ = H_*`, `n_c = 1/N_c`
 (`(fct:B-five-def)`).  Likewise the compensator `D_{τ₁}` is the definition `fctDcomp K4 alpha` (`FctDcomp.lean`).
 
-**Conditional on the fields of `FctMainHankelInputs`** (`splitting_origin`, `splitting_norm`, `warp_zero`, `warp_admissible`, `physical_positive`): each is
+**Conditional on the fields of `FctMainHankelInputs`** (`splitting`, `splitting_norm`, `warp_zero`, `physical_positive`): each is
 the output of the named TeX lemma(s), stated about the concrete multipliers and these data.  The former fields `bump_profile` and `physical_budget` are
-**proved** for `fctBphys` (`fctBphys_bumpProfile`, `fctBphys_physicalBudget`, from `fctMainHankel_bump_fields_concrete_of_factors`).  Proved lemmas
+**proved** for `fctBphys` (`fctBphys_bumpProfile`, `fctBphys_physicalBudget`, from `fctMainHankel_bump_fields_concrete_of_factors`), and the former field `warp_admissible` is
+**proved** (`fctWarp_admissible`, `FctWarpAdmiss.lean`: Step 1 of `fct:s4-proof` for the warp summand, from `fct:comp-D`, `uct:outer-growth` and the field `splitting`).  Proved lemmas
 (`uct:admiss` = `uct_admiss_full`, `mat:T7`, `hb_thresholds_lower`, `uct:airy-trans`, `uct:pos-floor`, `uct:outer-growth`,
 `fct:bump-5`, `uct:seed-asymp` (1), `fct:moment-solver`, `fct:phikill`, `fct:edge-ibp`, `fct:bump-sym-check`, `fct:physical-budget`) are used directly or enter through the
 discharge of a field, not as fields.
 
 **Satisfiability.** The data `PhiHat`, `T1`, `alpha`, `Nc` are free, so the fields are consistent only for the paper's actual `Φ̂_c`, `T₁`, `α`, `N_c`;
-no field has been shown consistent in Lean.  Doubtful points: `warp_zero` and `warp_admissible` hide `fct:comp-D`/`fct:comp-cfu`/
-`fct:inner-symbols`/`fct:splitting`; `physical_positive` hides the five-term positivity (`fct:physical-positive` and its inputs) and is
+no field has been shown consistent in Lean.  Doubtful points: `warp_zero` hides `fct:comp-D`/`fct:comp-cfu`/
+`fct:inner-symbols`, and `splitting` is `fct:splitting` (1)-(2) read as in `FctSplittingStmt` (including edge-trace derivative bounds for `Φ̂_c(iτ)`); `physical_positive` hides the five-term positivity (`fct:physical-positive` and its inputs) and is
 the field most likely to need a sharper form once its proof is formalised.  The `T_c^ε` set is bounded below by
 `hb_thresholds_lower`, so no field is needed for that.  The `ctWg1`, floor and bump parts of the admissibility of the total are proved (`ctWg1_stripAdmissFull`, a real combination of three
 `seedW_stripAdmissFull` by polarisation; `ctWfl_stripAdmissFull`; `ctWbump_stripAdmissFull`; assembled in `ctWtot_admissible`).
@@ -122,21 +124,15 @@ structure FctMainHankelInputs where
   K4 : ℝ
   /-- `K₄ ≥ 1`. -/
   K4_ge_one : 1 ≤ K4
-  /-- `fct:splitting` (1) (`Φ̂_c(ζ) = O(ζ³)` at `ζ = 0`) and the bound `|Φ̂_c| ≤ C(K₄) log log(4 + |τ|)` of `fct:splitting` (2) near `ζ = 1`: the corner
-  behaviour that makes `ctWwarp → 0` at `ζ = 0` (`ctWwarp_tendsto_zero`; the singularity `ζ^{-5/2}` of `H_*/G_ε` is cancelled; the bound
-  `‖D_{τ₁}‖ ≤ C` it also needs is proved, `fctDcomp_bound`). -/
-  splitting_origin : ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → ∃ C r : ℝ, 0 < r ∧ ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖ζ‖ ≤ r →
-    ‖PhiHat ε c ζ‖ ≤ C * ‖ζ‖ ^ 3 ∧ ‖PhiHat ε c (1 - ζ)‖ ≤ C
+  /-- `fct:splitting` (1)-(2) for `Φ̂_c` (`FctSplittingStmt`): holomorphic on `Re ζ > 0`, real-symmetric, `Φ̂_c = O(ζ³)` at `0`, the `log log` growth
+  on `S̄` and the edge-trace derivative bounds.  With the proved `fct:comp-D` (`fctDcomp_compData`) and `H_*/G_ε` (`uct:outer-growth`) this gives Step 1 of
+  `fct:s4-proof` for the warp summand (`fctWarp_admissible`) and the corner behaviour that makes `ctWwarp → 0` at `ζ = 0` (`ctWwarp_tendsto_zero`; the singularity
+  `ζ^{-5/2}` of `H_*/G_ε` is cancelled). -/
+  splitting : FctSplittingStmt PhiHat
   /-- `fct:splitting` (2): `N_c = 1 + O_{K₄}(c⁻¹)`. -/
   splitting_norm : FctSplittingNormStmt Nc
   /-- `fct:warp-asymp` (1): `T₁ = Δ₅^ε(c) + O(c^{-1})`, `|α| ≤ C c^{-2/3}`. -/
   warp_zero : FctWarpZeroStmt T1 alpha
-  /-- Step 1 of `fct:s4-proof` for the warp summand (`uct:admiss` (M1)-(M3) at `α = 1/2` and the `ε`-symmetry): `fct:splitting` (1)-(2)
-  (`Φ̂_c = O(ζ³)`, `log log` growth), `fct:comp-D`, `fct:phikill`, with `|H_*/G_ε| = O((1+|τ|)² e^{-π|τ|})` (`uct:outer-growth`). -/
-  warp_admissible : ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
-    StripAdmissFullData (1 / 2) (ctWwarp PhiHat (fctDcomp K4 alpha) ε c) ∧
-      ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 →
-        ctWwarp PhiHat (fctDcomp K4 alpha) ε c (1 - ζ) = (ε : ℂ) * ctWwarp PhiHat (fctDcomp K4 alpha) ε c ζ
   /-- `fct:physical-positive` (iii)-(iv) with its inputs `fct:warp-asymp` (2)-(3), `fct:splitting`, `fct:unscaled-cusp`,
   `fct:cusp-edge`, `uct:seed-asymp` (1)-(2) (`(fct:hg1-win)`-`(fct:hg1-mac)`), `fct:bump-5`, `fct:bump-sym-check`,
   `uct:pos-floor` (`Kfl = K_* ≥ 1`): `K₀, K₁` can be chosen independently of `K_d` so that the density of `W̃_c^ε` is positive on
@@ -185,14 +181,15 @@ theorem fct_main_hankel (I : FctMainHankelInputs) :
   obtain ⟨cb, hcb⟩ := hbud K1 hK1
   obtain ⟨cp, hcp⟩ := hpos Kd hKdpos
   obtain ⟨cbp, hcbp⟩ := I.bump_profile K1 hK1
-  obtain ⟨cwa, hcwa⟩ := I.warp_admissible
+  obtain ⟨cwa, hcwa⟩ := fctWarp_admissible I.K4_ge_one (alpha := I.alpha) ⟨C1, cw, fun ε c hε hc => (hwarp ε c hε hc).2⟩ I.splitting
+  obtain ⟨cs, hcs⟩ := I.splitting
   obtain ⟨CD, cD, hD⟩ := fctDcomp_bound I.K4_ge_one (alpha := I.alpha) ⟨C1, cw, fun ε c hε hc => (hwarp ε c hε hc).2⟩
   have hβ := hankelBeta1_pos
   refine ⟨|C1| + 2 * Kd / hankelBeta1 + 1,
-    max (max (max (max (max (max cw clow) (max cb cp)) (max cwa 8)) (max cT cbp)) 2) cD, by positivity, ?_⟩
+    max (max (max (max (max (max (max cw clow) (max cb cp)) (max cwa 8)) (max cT cbp)) 2) cD) cs, by positivity, ?_⟩
   intro ε c hε hc
   simp only [max_le_iff] at hc
-  obtain ⟨⟨⟨⟨⟨⟨hcw, hcl⟩, hcb', hcp'⟩, hcwa', hcfl'⟩, hcT', hcbp'⟩, hc2⟩, hcD⟩ := hc
+  obtain ⟨⟨⟨⟨⟨⟨⟨hcw, hcl⟩, hcb', hcp'⟩, hcwa', hcfl'⟩, hcT', hcbp'⟩, hc2⟩, hcD⟩, hcs'⟩ := hc
   have hc1 : 1 ≤ c := by linarith
   obtain ⟨δ, M, α, β, K, hδ, hδ1, hβ, hM, hprof⟩ := hcbp ε c hε hcbp'
   obtain ⟨hadm, hsym⟩ := ctWtot_admissible I.PhiHat I.Dcomp I.Bphys (Kfl := Kfl) (K0 := K0) (K1 := K1) (Kd := Kd) hε
@@ -206,8 +203,8 @@ theorem fct_main_hankel (I : FctMainHankelInputs) :
     have hbump := ctWbump_continuousOn hprof (by positivity) (by linarith) (by linarith) ε (by linarith : 0 < c)
     have hzero := ctWtot_zero_eq I.PhiHat I.Dcomp I.Bphys (by linarith : 0 < c) (hcT c hcT' 0 le_rfl zero_le_one) hadm
       (ctWwarp_tendsto_zero _ _ ε c (by
-        obtain ⟨Cφ, r, hr, hφ⟩ := I.splitting_origin ε c hε
-        refine ⟨max Cφ CD, r, hr, fun ζ h0 h1 hζ => ⟨?_, ?_, ?_⟩⟩
+        obtain ⟨Cφ, hφ⟩ := (hcs ε c hε hcs').corner
+        refine ⟨max Cφ CD, 1, one_pos, fun ζ h0 h1 hζ => ⟨?_, ?_, ?_⟩⟩
         · exact (hφ ζ h0 h1 hζ).1.trans (mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity))
         · exact (hφ ζ h0 h1 hζ).2.trans (le_max_left _ _)
         · exact (hD ε c hε hcD ζ ⟨h0, h1⟩).trans (le_max_right _ _))) hbump
