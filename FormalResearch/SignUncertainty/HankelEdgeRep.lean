@@ -68,19 +68,22 @@ theorem hankelEdge_kernel_pt {c Δ : ℝ} (hc : 0 < c) (hΔ : 0 < Δ) {ζ : ℂ}
   rw [hX, hX2, hρ, hA1, hD1, Complex.exp_neg]
   field_simp
 
-/-- **`u1cl:rep`, edge representation**: `W̃_c(iτ) = ∫_0^∞ K₀(iτ, ξ)⁻¹ c (f ρ₀)(cξ) dξ`. -/
-theorem hankelWtS_edge_eq {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (_hf : IsHankelEigenfn c ε f) (τ : ℝ) :
-    hankelWtS c ε f ((τ : ℂ) * Complex.I) =
-      ∫ ξ in Ioi (0 : ℝ), (mellinK0 c ((τ : ℂ) * Complex.I) ξ)⁻¹ *
+/-- **`u1cl:rep`, weighted-Mellin clause** (`u1cl:weighted-mellin`): for `0 ≤ Re ζ < 1`,
+`W̃_c(ζ) = ∫_0^∞ K₀(ζ, ξ)⁻¹ c (f ρ₀)(cξ) dξ`, i.e.
+`W̃_c(ζ) = (1-ζ)^{1/2} e^{-B_c(ζ)} e^{-c S̃₀(ζ)} ∫_0^∞ (π²ξ)^{-cζ} c (f ρ₀)(cξ) dξ` (see `hankelKernel_inv_eq`).
+**Proved** (the identity is formal: both sides are the Bochner integral, so no convergence is used). -/
+theorem hankelWtS_mel_eq {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f)
+    {ζ : ℂ} (h0 : 0 ≤ ζ.re) (h1 : ζ.re < 1) :
+    hankelWtS c ε f ζ =
+      ∫ ξ in Ioi (0 : ℝ), (mellinK0 c ζ ξ)⁻¹ *
         ((c * (f (c * ξ) * hankelRho0 c (c * ξ)) : ℝ) : ℂ) := by
   have hc0 : 0 < c := by linarith
-  set ζ : ℂ := (τ : ℂ) * Complex.I with hζ
-  have hre : ζ.re = 0 := by simp [hζ]
-  have hH : hInt ζ = stripH ζ := hInt_eq_stripH (by rw [hre]) (by rw [hre]; norm_num)
+  have hH : hInt ζ = stripH ζ := hInt_eq_stripH h0 h1
   have hW : hankelWtS c ε f ζ =
       Complex.exp (-((c : ℂ) * stripH ζ)) * mellinStrip f ((c : ℂ) * (1 - ζ)) := by
-    unfold hankelWtS mellinFm
-    rw [ite_eq_left (by rw [hre]; norm_num), hH]
+    rw [hankelWtS_eq hc hf h0 h1]
+    unfold hankelWt
+    rw [hH]
   set G : ℝ → ℂ := fun Δ => (mellinK0 c ζ (Δ / c))⁻¹ * ((f Δ * hankelRho0 c Δ : ℝ) : ℂ) with hG
   have hper : ∀ ξ : ℝ, (mellinK0 c ζ ξ)⁻¹ * ((c * (f (c * ξ) * hankelRho0 c (c * ξ)) : ℝ) : ℂ) =
       (c : ℂ) * G (c * ξ) := by
@@ -98,7 +101,7 @@ theorem hankelWtS_edge_eq {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (_hf :
       Complex.exp (-((c : ℂ) * stripH ζ)) * (((2 * Real.pi : ℝ) : ℂ) ^ ((c : ℂ) * (1 - ζ)) /
         Complex.Gamma ((c : ℂ) * (1 - ζ)) * ((f Δ : ℂ) * (Δ : ℂ) ^ ((c : ℂ) * (1 - ζ) - 1))) := by
     intro Δ hΔ
-    have := hankelEdge_kernel_pt hc0 (Set.mem_Ioi.mp hΔ) (ζ := ζ) (by rw [hre]) (by rw [hre]; norm_num)
+    have := hankelEdge_kernel_pt hc0 (Set.mem_Ioi.mp hΔ) (ζ := ζ) h0 h1
     simp only [hG]
     push_cast
     calc (mellinK0 c ζ (Δ / c))⁻¹ * ((f Δ : ℂ) * (hankelRho0 c Δ : ℂ))
@@ -107,6 +110,13 @@ theorem hankelWtS_edge_eq {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (_hf :
   rw [setIntegral_congr_fun measurableSet_Ioi hG', hW]
   unfold mellinStrip mellinRaw
   rw [← integral_const_mul, ← integral_const_mul]
+
+/-- **`u1cl:rep`, edge representation**: `W̃_c(iτ) = ∫_0^∞ K₀(iτ, ξ)⁻¹ c (f ρ₀)(cξ) dξ`. -/
+theorem hankelWtS_edge_eq {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f) (τ : ℝ) :
+    hankelWtS c ε f ((τ : ℂ) * Complex.I) =
+      ∫ ξ in Ioi (0 : ℝ), (mellinK0 c ((τ : ℂ) * Complex.I) ξ)⁻¹ *
+        ((c * (f (c * ξ) * hankelRho0 c (c * ξ)) : ℝ) : ℂ) :=
+  hankelWtS_mel_eq hc hf (by simp) (by simp)
 
 /-- The inverted kernel on `Re ζ = 0`: `K₀(iτ, ξ)⁻¹ = (1-iτ)^{1/2} e^{-B_c(iτ)} e^{-i c Φ(τ; log π²ξ)}`. -/
 theorem hankelEdge_kernel_inv_eq (c τ ξ : ℝ) (hξ : 0 < ξ) :
@@ -129,6 +139,10 @@ theorem hankelEdge_kernel_inv_eq (c τ ξ : ℝ) (hξ : 0 < ξ) :
     unfold mellinK0
     rw [hphase, Complex.cpow_neg]
   rw [hK, mul_inv, mul_inv, inv_inv, ← Complex.exp_neg, ← Complex.exp_neg]
+
+/-- info: 'FormalResearch.SignUncertainty.hankelWtS_mel_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelWtS_mel_eq
 
 /-- info: 'FormalResearch.SignUncertainty.hankelWtS_edge_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
