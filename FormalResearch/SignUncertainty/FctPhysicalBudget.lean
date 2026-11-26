@@ -630,13 +630,13 @@ theorem physical_budget_field {χ : ℝ → ℝ} (hχ : IsCutoff χ) {Bphys : �
         linarith
     _ = _ := by rw [hcm.symm]; ring
 
-/-- **The fields `bump_profile` and `physical_budget` of `FctMainHankelInputs`**, for an `I.Bphys` that is the bump `(fct:B-physical)`
-(`hdef`), from `fct:bump-sym-check` and `fct:physical-budget`; the conclusions are literally the types of the two fields.
+/-- **The statements `FctBumpProfileStmt` and `FctPhysicalBudgetStmt` (the former fields `bump_profile`, `physical_budget`)**, for a `Bphys`
+that is the bump `(fct:B-physical)` (`hdef`), from `fct:bump-sym-check` and `fct:physical-budget`.
 Inputs: `hsize`, `hR`, `hT` (the instantiated `fct:comp-D` / warp datum, uniform in `(ε, c)`) and `hvac` (the vacuum integral
 `∫ χγ(O − F) ≤ A c^{-3/4}`, `fct:physical-budget` (a)-(c)). -/
-theorem fctMainHankel_bump_fields {χ : ℝ → ℝ} (hχ : IsCutoff χ) (I : FctMainHankelInputs)
+theorem fctMainHankel_bump_fields {χ : ℝ → ℝ} (hχ : IsCutoff χ) (Bphys : ℝ → ℝ → ℝ → ℝ → ℝ)
     (δf sf L1f nf : ℝ → ℝ → ℝ) (K4 : ℝ) (Of : ℝ → ℝ → ℝ → ℝ)
-    (hdef : ∀ ε c K1 : ℝ, I.Bphys ε c K1 = physBump χ (nf ε c) c (δf ε c) (sf ε c) K1 K4 (Of ε c)
+    (hdef : ∀ ε c K1 : ℝ, Bphys ε c K1 = physBump χ (nf ε c) c (δf ε c) (sf ε c) K1 K4 (Of ε c)
       (physF (sf ε c) (L1f ε c)) (fun L => tau0 L ^ 4 * uctIfl L))
     (hsize : ∃ c₀ a₀ a₁ nmax : ℝ, 1 ≤ c₀ ∧ 0 < a₀ ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       0 < δf ε c ∧ 3 / 2 * δf ε c ≤ 1 ∧ |sf ε c| ≤ 3 / 2 * δf ε c / 2 ∧ |L1f ε c| ≤ 3 / 2 * δf ε c / 2 ∧
@@ -650,7 +650,7 @@ theorem fctMainHankel_bump_fields {χ : ℝ → ℝ} (hχ : IsCutoff χ) (I : Fc
     (hvac : ∃ A c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       (∫ x, χ (x / (3 * δf ε c)) * physGamma c (sf ε c) x * (Of ε c x - physF (sf ε c) (L1f ε c) x)) ≤
         A * c ^ (-(3 / 4 : ℝ))) :
-    type_of% I.bump_profile ∧ type_of% I.physical_budget := by
+    FctBumpProfileStmt Bphys ∧ FctPhysicalBudgetStmt Bphys := by
   refine ⟨?_, physical_budget_field hχ δf sf L1f nf K4 Of hdef hsize hR hT hvac⟩
   obtain ⟨c₁, a₀, a₁, nmax, _, _, hsz⟩ := hsize
   obtain ⟨c₂, MR, KR, hMR, hRu⟩ := hR

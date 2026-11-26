@@ -27,12 +27,12 @@ envelope `Of`; `vacuum_integral_concrete` (`FctVacuumConcrete`) proves it for th
 
 **Size reconciliation.**  `|L₁| ≲ c^{-2/3} = a⁸` (not `c^{-1/2}`): the paper's `fct:warp-asymp` (1) gives `T₁ = Δ₅^ε(c) + O(c^{-1})` and
 `Δ₅ = c/π² + A c^{1/3} + O(1)`, hence `π² T₁/c = 1 + O(c^{-2/3})` and `L₁ = O(c^{-2/3})`.  This is **proved here** from the `warp_zero` clause
-of `FctMainHankelInputs` (`physL1_le`); `L₁ ≍ δ_L ≍ c^{-1/2}` is not what the paper says (the paper has `|L₁| ≪ δ_L`).  `|s| ≲ c^{-1}`
+of the warp-zero statement (`physL1_le`); `L₁ ≍ δ_L ≍ c^{-1/2}` is not what the paper says (the paper has `|L₁| ≪ δ_L`).  `|s| ≲ c^{-1}`
 (`ctTheta1_bound`), `δ_L ≍ c^{-1/2}` and the six scale inequalities of `physical_budget_field`'s `hsize` are likewise proved
 (`physDatum_scales`).
 
-**Remaining named inputs.**  For `FctMainHankelInputs` `I`, `T₁ = I.T1` and `α = I.alpha` come with `|T₁ - Δ₅| ≤ C c⁻¹`, `|α| ≤ C c^{-2/3}`
-(`I.warp_zero`, `fct:warp-asymp` (1)) and `n_c = 1/I.Nc` with `N_c = 1 + O(c⁻¹)` (`I.splitting_norm`, `fct:splitting` (2); `nc_inv_bound`).
+**Remaining named inputs.**  `T₁`, `α` come with `|T₁ - Δ₅| ≤ C c⁻¹`, `|α| ≤ C c^{-2/3}`
+(`FctWarpZeroStmt`, `fct:warp-asymp` (1)) and `n_c = 1/N_c` with `N_c = 1 + O(c⁻¹)` (`FctSplittingNormStmt`, `fct:splitting` (2); `nc_inv_bound`).
 Left: `hdef` (`B = (fct:B-physical)`) and the symbol-class input `hR` of Lemma FCT.7b (b); `hT` is proved (`physT_symW`).
 
 Class: proved under the explicit hypotheses `hdef`, `hR` (and the fields of `I`); `hvac`, `hsize` (scales), `hα`, `hn` and `hO` are proved.
@@ -467,28 +467,28 @@ lemma nc_inv_bound (Nc : ℝ → ℝ → ℝ)
   rw [abs_of_pos (by positivity), div_le_iff₀ hNpos]
   linarith
 
-/-- **The fields `bump_profile` and `physical_budget` of `FctMainHankelInputs` for the concrete physical datum**: `fctMainHankel_bump_fields` with
-`hvac`, `hα` and `hn` removed and the scale part of `hsize` proved.  `T₁ = I.T1`, `α = I.alpha`, `hT1`, `hα` come from `I.warp_zero`
-(`fct:warp-asymp` (1)) and `n_c = 1/I.Nc` (`hn` from `I.splitting_norm`, `fct:splitting` (2)).  The conclusions are literally the types of the
-two fields. -/
+/-- **`FctBumpProfileStmt` and `FctPhysicalBudgetStmt` (the former fields `bump_profile`, `physical_budget`) for the concrete physical datum**:
+`fctMainHankel_bump_fields` with `hvac`, `hα` and `hn` removed and the scale part of `hsize` proved.  `T₁`, `α` satisfy `hwarp`
+(`fct:warp-asymp` (1): `|T₁ - Δ₅| ≤ C c⁻¹`, `|α| ≤ C c^{-2/3}`) and `n_c = 1/N_c` with `hNc` (`fct:splitting` (2)). -/
 theorem fctMainHankel_bump_fields_concrete {χ : ℝ → ℝ} (hχ : IsCutoff χ) (kind : StripKernelChoice) {K4 : ℝ} (hK4 : 1 ≤ K4)
-    (I : FctMainHankelInputs)
-    (hdef : ∀ ε c K1 : ℝ, I.Bphys ε c K1 = physBump χ (1 / I.Nc ε c) c (physDelta c) (physShift ε c) K1 K4
-      (physOscDatum kind K4 I.T1 I.alpha ε c) (physF (physShift ε c) (physL1 I.T1 ε c)) (fun L => tau0 L ^ 4 * uctIfl L))
+    (T1 alpha Nc : ℝ → ℝ → ℝ) (Bphys : ℝ → ℝ → ℝ → ℝ → ℝ)
+    (hwarp : FctWarpZeroStmt T1 alpha) (hNc : FctSplittingNormStmt Nc)
+    (hdef : ∀ ε c K1 : ℝ, Bphys ε c K1 = physBump χ (1 / Nc ε c) c (physDelta c) (physShift ε c) K1 K4
+      (physOscDatum kind K4 T1 alpha ε c) (physF (physShift ε c) (physL1 T1 ε c)) (fun L => tau0 L ^ 4 * uctIfl L))
     (hR : ∃ (c₀ MR : ℝ) (KR : ℕ → ℝ), 0 ≤ MR ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       SymW (Ici (3 / 2 * physDelta c)) (pw MR (-1) 0) KR
-        (fun x => physOscDatum kind K4 I.T1 I.alpha ε c x / physF (physShift ε c) (physL1 I.T1 ε c) x - 1))
+        (fun x => physOscDatum kind K4 T1 alpha ε c x / physF (physShift ε c) (physL1 T1 ε c) x - 1))
     :
-    type_of% I.bump_profile ∧ type_of% I.physical_budget := by
-  obtain ⟨C, c₀, hw⟩ := I.warp_zero
-  have hT1 : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |I.T1 ε c - ctDelta5 ε c| ≤ C * c⁻¹ :=
+    FctBumpProfileStmt Bphys ∧ FctPhysicalBudgetStmt Bphys := by
+  obtain ⟨C, c₀, hw⟩ := hwarp
+  have hT1 : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |T1 ε c - ctDelta5 ε c| ≤ C * c⁻¹ :=
     ⟨C, c₀, fun ε c hε hc => (hw ε c hε hc).1⟩
-  have hα : ∃ Kα c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |I.alpha ε c| ≤ Kα * c ^ (-(2 / 3 : ℝ)) :=
+  have hα : ∃ Kα c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |alpha ε c| ≤ Kα * c ^ (-(2 / 3 : ℝ)) :=
     ⟨C, c₀, fun ε c hε hc => (hw ε c hε hc).2⟩
-  exact fctMainHankel_bump_fields hχ I (fun _ c => physDelta c) (fun ε c => physShift ε c) (fun ε c => physL1 I.T1 ε c)
-    (fun ε c => 1 / I.Nc ε c) K4 (physOscDatum kind K4 I.T1 I.alpha) hdef
-    (physDatum_hsize I.T1 _ hT1 (nc_inv_bound I.Nc I.splitting_norm)) hR physT_symW
-    (physDatum_hvac hχ kind hK4 I.T1 I.alpha hT1 hα)
+  exact fctMainHankel_bump_fields hχ Bphys (fun _ c => physDelta c) (fun ε c => physShift ε c) (fun ε c => physL1 T1 ε c)
+    (fun ε c => 1 / Nc ε c) K4 (physOscDatum kind K4 T1 alpha) hdef
+    (physDatum_hsize T1 _ hT1 (nc_inv_bound Nc hNc)) hR physT_symW
+    (physDatum_hvac hχ kind hK4 T1 alpha hT1 hα)
 
 /-- info: 'FormalResearch.SignUncertainty.FctSym.physT_symW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

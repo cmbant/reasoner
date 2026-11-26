@@ -6,6 +6,7 @@ module
 
 public import FormalResearch.SignUncertainty.FctPhysicalBudgetConcrete
 public import FormalResearch.SignUncertainty.FctHN
+public import FormalResearch.SignUncertainty.FctQTSym
 
 /-!
 # `hR` of Lemma FCT.7b (b): reduction to the two factors (F2a)
@@ -26,8 +27,11 @@ constants independent of `c`, the paper's `O_{K₄}(L^{1-r})`, resp. `C_r min(L^
 the classes are combined by the calculus of `FctSymCal` (`(1+Q̃)(1+Ñ) - 1 = Q̃ + Ñ + Q̃Ñ`, class arithmetic `(-1,0)+(-1,0)=(-2,0) ≤ (-1,0)`).
 `hN` is **proved** (`hN_physical`, `FctHN.lean`: `τ₀'/τ₀` is a scale-invariant symbol, `FctTauA.lean`, composed with `φ_kill(it; a)`, `FctNSymbol.lean`);
 `physR_symW_of_factors` is `physR_symW_of_QN` with it inserted, so `hQ` is the only remaining symbol-class input.
+`hQ` is itself proved (`hQ_of_alpha`, `FctQTSym.lean`, from `fct:comp-D` (1), `(fct:th-tail)`), so
+`fctMainHankel_bump_fields_concrete_of_factors` below has `hdef` and the two size statements as its only inputs.
 
-Class: proved under the explicit hypothesis `hQ` (and `hT1`, the size input of `physL1_le`).  Axiom guard at the end.
+Class: `physR_symW_of_factors` is proved under the explicit hypothesis `hQ` (and `hT1`, the size input of `physL1_le`);
+`fctMainHankel_bump_fields_concrete_of_factors` is proved under `hdef` and the size statements `FctWarpZeroStmt`, `FctSplittingNormStmt`.  Axiom guard at the end.
 -/
 
 @[expose] public section
@@ -106,23 +110,22 @@ theorem physR_symW_of_factors (kind : StripKernelChoice) (K4 : ℝ) (T1 αf : �
         (fun x => physOscDatum kind K4 T1 αf ε c x / physF (physShift ε c) (physL1 T1 ε c) x - 1) :=
   physR_symW_of_QN kind K4 T1 αf hT1 hQ (hN_physical T1 hT1)
 
-/-- **The fields `bump_profile` and `physical_budget` of `FctMainHankelInputs` for the concrete physical datum, with `hT` proved and `hR` replaced by
-`hQ` alone** (`fctMainHankel_bump_fields_concrete` with `hR` derived from `hQ` by `physR_symW_of_factors`; `hN` is proved; `T₁ = I.T1`, `α = I.alpha`).
-Remaining inputs: `hdef` (the definition `(fct:B-physical)`) and `hQ` (7b (b): `r₀ e^v (1 + Δ_curv) ∘ τ₀ - 1 ∈ (M, -1, 0)`). -/
+/-- **`FctBumpProfileStmt` and `FctPhysicalBudgetStmt` (the former fields `bump_profile`, `physical_budget`) for the concrete physical datum, with `hT`, `hR` proved**
+(`fctMainHankel_bump_fields_concrete` with `hR` derived by `physR_symW_of_factors` from `hQ_of_alpha`; `hN` is proved).  The only remaining inputs are
+the two size statements `hwarp`, `hNc` and `hdef` (the definition `(fct:B-physical)`). -/
 theorem fctMainHankel_bump_fields_concrete_of_factors {χ : ℝ → ℝ} (hχ : IsCutoff χ) (kind : StripKernelChoice) {K4 : ℝ}
-    (hK4 : 1 ≤ K4) (I : FctMainHankelInputs)
-    (hdef : ∀ ε c K1 : ℝ, I.Bphys ε c K1 = physBump χ (1 / I.Nc ε c) c (physDelta c) (physShift ε c) K1 K4
-      (physOscDatum kind K4 I.T1 I.alpha ε c) (physF (physShift ε c) (physL1 I.T1 ε c)) (fun L => tau0 L ^ 4 * uctIfl L))
-    (hQ : ∃ (c₀ MQ : ℝ) (KQ : ℕ → ℝ), 0 ≤ MQ ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
-      SymW (Ici (3 / 2 * physDelta c)) (pw MQ (-1) 0) KQ
-        (fun x => vacP kind K4 c (I.alpha ε c) (c ^ (-(1 / 4 : ℝ))) (x - physShift ε c) /
-          uctIfl (x - physShift ε c) - 1)) :
-    type_of% I.bump_profile ∧ type_of% I.physical_budget := by
-  obtain ⟨C, c₀, hw⟩ := I.warp_zero
-  have hT1 : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |I.T1 ε c - ctDelta5 ε c| ≤ C * c⁻¹ :=
+    (hK4 : 1 ≤ K4) (T1 alpha Nc : ℝ → ℝ → ℝ) (Bphys : ℝ → ℝ → ℝ → ℝ → ℝ)
+    (hwarp : FctWarpZeroStmt T1 alpha) (hNc : FctSplittingNormStmt Nc)
+    (hdef : ∀ ε c K1 : ℝ, Bphys ε c K1 = physBump χ (1 / Nc ε c) c (physDelta c) (physShift ε c) K1 K4
+      (physOscDatum kind K4 T1 alpha ε c) (physF (physShift ε c) (physL1 T1 ε c)) (fun L => tau0 L ^ 4 * uctIfl L)) :
+    FctBumpProfileStmt Bphys ∧ FctPhysicalBudgetStmt Bphys := by
+  obtain ⟨C, c₀, hw⟩ := hwarp
+  have hT1 : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |T1 ε c - ctDelta5 ε c| ≤ C * c⁻¹ :=
     ⟨C, c₀, fun ε c hε hc => (hw ε c hε hc).1⟩
-  exact fctMainHankel_bump_fields_concrete hχ kind hK4 I hdef
-    (physR_symW_of_factors kind K4 I.T1 I.alpha hT1 hQ)
+  have hα : ∃ Kα c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |alpha ε c| ≤ Kα * c ^ (-(2 / 3 : ℝ)) :=
+    ⟨C, c₀, fun ε c hε hc => (hw ε c hε hc).2⟩
+  exact fctMainHankel_bump_fields_concrete hχ kind hK4 T1 alpha Nc Bphys ⟨C, c₀, hw⟩ hNc hdef
+    (physR_symW_of_factors kind K4 T1 alpha hT1 (hQ_of_alpha kind hK4 alpha hα))
 
 /-- info: 'FormalResearch.SignUncertainty.FctSym.fctMainHankel_bump_fields_concrete_of_factors' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
