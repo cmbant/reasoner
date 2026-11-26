@@ -238,7 +238,7 @@ Statements that Lean proves only for a special case, so that nobody cites them a
   `FixedChargeStrip` (below `c_0`), `FTH4b` (`FTH4b` is also the wrong form, see FT-H4b), `DesignPropertyP` for non-design families, `UpperMainInputs` (upper half of `thm:spinless-expansion`) and `LowerMainInputs` (lower half; its conclusion `LowerPhaseStatement` is derived from it); the satisfiability of neither structure is checked.
   Inputs that earlier plans listed and that are now proved: `MehlerOddMomentInput`, `BesselI0Asymptotic`, `BesselComplexExpansion`,
   `SDVAmplitudeInput` (for design combs), `ShiftSumEstimate`, `TwoZeroIdealApprox`, `DesignTailBounds`.
-- **Statement changes from QIprojects PR 299 (merged; labels unchanged), to carry into the rows above when they are next worked:**
+- **Statement changes from QIprojects PRs 299, 300 and 301 (merged; labels unchanged), to carry into the rows above when they are next worked:**
   - `wone:ftlfw` (FT-L.FW) no longer assumes W4. It allows normalised vacuum slack `∫ g V ≤ C_vac c'^{-1/3} M[g]`, and Theorem W1'(1),
     W1'(2) and J are its corollaries. Lean's `FixedWeightLowerBoundInput` and `theoremFTLFW_W_of_YVFor` have the W4 (sign) shape,
     which is now a special case. A slack version may also give the signed-common-source lower half of `pmix:o1` without
@@ -248,6 +248,15 @@ Statements that Lean proves only for a special case, so that nobody cites them a
     global exterior estimates. The swap-invariant integer spectra are built from a half source plus its reflection.
   - `int:sonine` (Lemma INT-A) compresses the Hankel operator directly at real weight `w ≥ 1/2`. The SPIN-D results `sd:SD`, `sd:W`, `sd:V`
     and `sd:A` now hold for `c ≥ 25`, and `ds:E` attains the reserve at the endpoint even with zero residual budget.
+  - PR 301: `int:sonine`'s small-band inverse bound \eqref{int:AB-bound} holds for every real `w ≥ 1` (one slit-plane estimate),
+    and INT-R uses the abstract projection repair (also for real `w ≥ 1`); INT-R0 needs pointwise crossing identities on the band.
+    `ds:mom` / `dsl:poly-compact` (LP-M/LP-P) are stated for abstract coercive polynomial families with Laguerre as a special
+    case, from one pointwise moment inequality, which suits the LP1 package. INT-S takes any repair budget `∑ b_k ≤ 1/8`
+    (lattice `b_k = 1/(8k(k+1))`); INT-7C drops `2πeR ≤ m`. `pmix:jets` (PM.13) is an exact integrated relative-entropy
+    identity (comparison and equality criterion kept); `pmix:rebase` (PM.1) is an exact affine pushforward identity.
+  - PR 300: Paper II's `dsl:compact-mass` is now recalled from Paper I's `lem:qual-compact` (local `L^1` convergence on a
+    locally compact σ-compact metric space), one lemma for both papers; the Clark node motion used by `gt:2.1`/W1'(2)
+    (slope in (0,1) for every node pair) is `CFT/common/clark_airy.tex#lem:clark-node-motion`.
 - **Paper findings (no stated result found false; wording to fix in TeX).** `constant_term_slit_strip.tex`, proof of `cts:airy-sum-zero` (`cts:tip-shared` (a), the statement stands): the proof applies the Hadamard sum rule to the smooth sites `b_k = b(k)`, but the rule runs over the true zeros `|a_k|/kappa = b_k + eta_k` with `eta_k = O(k^{-4/3})`; the shifts enter the `X^{-3}` coefficient, and the identity actually proved (`moment_identity`) is `Sum eta_k/kappa + Sum m_k = int_{1/4}^{1/2} b da` (`m_k` the midpoint cell defects); the stated `O(K^{-1/3})` conclusion is correct (numerically `Sum_{k<=K} |a_k|/kappa - int_0^{K+1/4} u^{2/3} du = -0.0418 K^{-1/3}`); the TeX proof step is the lead's to fix. Proof of C11 (3) (`cts:upper-design`): the text says K7 "applies verbatim" to `h0 = E_delta B_D`. It does not apply as stated: K7 (i)-(ii) need analyticity on `|Im b| < 7/8`, `|B| <= 1` on `|Im b| <= 1/2` and `Phi_1` bounded on `|Im b - 1/2| <= 1/4`, while `E_delta` has a branch point `i(1/2 + eta_delta)` with `eta_delta` of order `delta` inside that strip and `|E_delta|` is unbounded near it. What is actually used is the decay bound from the five-piece deformation (C11 (2)), `fwM_of_decay` and the vacuum identity. This is an imprecise sentence in a proof, not a false statement: paper wording to fix in `constant_term_slit_strip.tex`, C11 (3) proof (the TeX edit is the lead's decision; Lean's field `c11_membership` of `UpperMainInputs` is stated without K7).
 
 ## 6. Boundary with the Paper I session, and the fold-tip interface
