@@ -46,10 +46,10 @@ lemma integrableOn_Ioi_of_abs_le {b r M : ℝ} (hb : 0 < b) (hr : 1 < r) {f : �
 /-- `D_*(u) = I_osc^{DH₀}(u)(1 + Δ_curv(τ₀(u))) - I_fl(u) = P(u) - I_fl(u)` (`fct:comp-D` (2)). -/
 noncomputable def vacD (P : ℝ → ℝ) (u : ℝ) : ℝ := P u - uctIfl u
 
-/-- The hypotheses of the vacuum integral at one `(ε, c)`, with `a = c^{-1/12}` (so `τ₁ = a³`, `c^{-1} = a^{12}`, `δ_L ≍ a⁶`,
-`|L₁| ≲ a⁸`, `|s| = |θ₁^ε|/c ≲ a^{12}`, `|α| ≲ a⁸`, `κ = (5π²/96) c^{-2} ≤ a^{24}`), one constant `K` dominating all of them.
-`Φ(u) = φ_kill(i τ₀(u); a)`.  Every field is a named display of `fct:comp-D` / `fct:phikill`, or a size fact, as annotated. -/
-structure VacHyp (K a0 a1 a δ s L1 α κ Cfl I0 : ℝ) (P : ℝ → ℝ) (Φ : ℝ → ℂ) : Prop where
+/-- The named inputs of the vacuum integral at one `(ε, c)`, with `a = c^{-1/12}` (so `τ₁ = c^{-1/4} = a³`, `c^{-1} = a^{12}`,
+`δ_L ≍ a⁶`, `|L₁| ≲ a⁸`, `|s| = |θ₁^ε|/c ≲ a^{12}`, `|α| ≲ a⁸`), one constant `K` dominating all of them; `P = I_osc^{DH₀}(1 + Δ_curv ∘ τ₀)`,
+`Φ(u) = φ_kill(i τ₀(u); a)`.  Each field is a display of `fct:comp-D` / `fct:phikill` or a size fact of the datum, as annotated. -/
+structure VacDisp (K a0 a1 a δ s L1 α Cfl I0 : ℝ) (P : ℝ → ℝ) (Φ : ℝ → ℂ) : Prop where
   -- constants
   hK : 1 ≤ K
   ha0 : 0 < a0
@@ -64,21 +64,9 @@ structure VacHyp (K a0 a1 a δ s L1 α κ Cfl I0 : ℝ) (P : ℝ → ℝ) (Φ : 
   hs : |s| ≤ K * a ^ 12
   hL1 : |L1| ≤ K * a ^ 8
   hα : |α| ≤ K * a ^ 8
-  hκ0 : 0 ≤ κ
-  hκa : κ ≤ a ^ 24
-  -- smallness for large `c`
-  hA : |L1 - s| ≤ δ / 4
-  hs10 : |s| ≤ δ / 10
-  hL1K : |L1| * K ≤ δ / 2
-  h31 : 31 / 10 * δ ≤ 1
-  hκδ : κ * (δ ^ 3)⁻¹ ≤ 1
-  -- regularity and positivity of the datum
+  -- regularity and positivity of the datum (`P ≥ 0`: `I_osc^{DH₀} ≥ 0`, `1 + Δ_curv > 0`)
   hPm : Measurable P
-  hΦm : Measurable Φ
   hP0 : ∀ u, 0 < u → 0 ≤ P u
-  -- `fct:phikill` (1): `|φ_kill(it; a)| ≤ C min((t/a)^8, 1)`, `|Im φ_kill(it; a)| ≤ C min((t/a)^9, 1)`, `τ₀(u)² ≲ u`
-  hΦre : ∀ u, 0 < u → |(Φ u).re| ≤ K * min 1 ((u / a ^ 2) ^ 4)
-  hΦim : ∀ u, 0 < u → (Φ u).im ^ 2 ≤ K * min 1 ((u / a ^ 2) ^ 4)
   -- `(fct:Dstar-inner)` and the pointwise bounds of `fct:physical-budget` (a), (d)
   hDin : ∀ u ∈ Icc δ (31 / 10 * δ), |vacD P u| ≤ K * Real.sqrt u
   hDmid : ∀ u ∈ Icc (3 * δ) (144 * δ), |vacD P u| ≤ K * a ^ 6 * u ^ (-(3 / 2 : ℝ))
@@ -95,6 +83,23 @@ structure VacHyp (K a0 a1 a δ s L1 α κ Cfl I0 : ℝ) (P : ℝ → ℝ) (Φ : 
   -- `(fct:bump-1L)` with `fct:phikill` (3): the finite-part cancellation of `fct:physical-budget` (c)
   hcancel : |(∫ u in Ioi (3 * δ), vacD P u / u) - ∫ u in Ioi (3 * δ), (Φ u).re * P u / u| ≤
     K * (a ^ 3 + |α| * (a⁻¹) ^ 3 + a ^ 8)
+
+/-- `VacDisp` together with the facts that are proved (not assumed) in the uniform statement: measurability and the size bounds of
+`Φ = φ_kill(i τ₀(·); a)` (`fct:phikill` (1)), `κ = (5π²/96) c^{-2} ≤ a^{24}`, and the smallness of `a` (`c` large). -/
+structure VacHyp (K a0 a1 a δ s L1 α κ Cfl I0 : ℝ) (P : ℝ → ℝ) (Φ : ℝ → ℂ) : Prop extends
+    VacDisp K a0 a1 a δ s L1 α Cfl I0 P Φ where
+  hκ0 : 0 ≤ κ
+  hκa : κ ≤ a ^ 24
+  -- smallness for large `c`
+  hA : |L1 - s| ≤ δ / 4
+  hs10 : |s| ≤ δ / 10
+  hL1K : |L1| * K ≤ δ / 2
+  h31 : 31 / 10 * δ ≤ 1
+  hκδ : κ * (δ ^ 3)⁻¹ ≤ 1
+  -- `fct:phikill` (1): `|φ_kill(it; a)| ≤ C min((t/a)^8, 1)` and `τ₀(u)² ≲ u`
+  hΦm : Measurable Φ
+  hΦre : ∀ u, 0 < u → |(Φ u).re| ≤ K * min 1 ((u / a ^ 2) ^ 4)
+  hΦim : ∀ u, 0 < u → (Φ u).im ^ 2 ≤ K * min 1 ((u / a ^ 2) ^ 4)
 
 namespace VacHyp
 
@@ -656,5 +661,619 @@ lemma Y_le_II (V : VacHyp K a0 a1 a δ s L1 α κ Cfl I0 P Φ) {u : ℝ} (hu : �
   exact key
 
 end VacHyp
+
+
+/-! ### The main part `M₀` on `(3δ, ∞)` -/
+
+lemma integrableOn_div_pow {f : ℝ → ℝ} {b : ℝ} (hb : 0 < b) (hf : IntegrableOn f (Ioi b)) (k : ℕ) :
+    IntegrableOn (fun u => f u / u ^ k) (Ioi b) := by
+  have hm : AEStronglyMeasurable (fun u : ℝ => f u / u ^ k) (volume.restrict (Ioi b)) := by
+    simp only [div_eq_mul_inv]
+    exact hf.aestronglyMeasurable.mul (Measurable.aestronglyMeasurable (by fun_prop))
+  refine Integrable.mono' (hf.norm.const_mul (b ^ k)⁻¹) hm ?_
+  filter_upwards [ae_restrict_mem measurableSet_Ioi] with u hu
+  have hu0 : 0 < u := lt_trans hb hu
+  rw [norm_div, norm_pow, Real.norm_eq_abs, Real.norm_eq_abs, abs_of_pos hu0]
+  rw [div_eq_inv_mul]
+  gcongr
+  exact le_of_lt hu
+
+namespace VacHyp
+
+variable {K a0 a1 a δ s L1 α κ Cfl I0 : ℝ} {P : ℝ → ℝ} {Φ : ℝ → ℂ}
+
+lemma vacD_meas (V : VacHyp K a0 a1 a δ s L1 α κ Cfl I0 P Φ) : Measurable (vacD P) := by
+  unfold vacD uctIfl
+  have := V.hPm
+  fun_prop
+
+/-- `∫_{3δ}^∞ ρ P/u` is finite: `|ρ P/u| ≤ 2K²(u^{-5/2} + u^{-3/2})`. -/
+lemma rhoP_integrableOn (V : VacHyp K a0 a1 a δ s L1 α κ Cfl I0 P Φ) :
+    IntegrableOn (fun u => (Φ u).re * P u / u) (Ioi (3 * δ)) := by
+  have hδ := V.hδpos
+  have hK := V.hK
+  have hm : AEStronglyMeasurable (fun u => (Φ u).re * P u / u) (volume.restrict (Ioi (3 * δ))) := by
+    have := V.hPm; have := V.hΦm
+    exact (by fun_prop : Measurable (fun u => (Φ u).re * P u / u)).aestronglyMeasurable
+  have i1 := (integral_Ioi_rpow_neg (b := 3 * δ) (r := 5 / 2) (by positivity) (by norm_num)).1
+  have i2 := (integral_Ioi_rpow_neg (b := 3 * δ) (r := 3 / 2) (by positivity) (by norm_num)).1
+  refine Integrable.mono' ((i1.const_mul (2 * K ^ 2)).add (i2.const_mul (2 * K ^ 2))) hm ?_
+  filter_upwards [ae_restrict_mem measurableSet_Ioi] with u hu
+  have h3 : 3 * δ ≤ u := le_of_lt hu
+  have hu0 : 0 < u := by linarith
+  have hP0 := V.hP0 u hu0
+  have hP := V.P_bound_R h3
+  have hρ : |(Φ u).re| ≤ K := by
+    refine (V.hΦre u hu0).trans ?_
+    calc K * min 1 ((u / a ^ 2) ^ 4) ≤ K * 1 := mul_le_mul_of_nonneg_left (min_le_left _ _) (by linarith)
+      _ = K := mul_one K
+  have ht : 0 < u ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hu0 _
+  have htu := rpow_neg_half_sq hu0
+  set t := u ^ (-(1 / 2 : ℝ)) with ht_def
+  have e1 : u ^ (-(5 / 2 : ℝ)) = t ^ 5 := by
+    rw [← Real.rpow_natCast, ← Real.rpow_mul hu0.le]; norm_num
+  have e2 : u ^ (-(3 / 2 : ℝ)) = t ^ 3 := rpow_neg_three_half hu0
+  have hinv : u⁻¹ = t ^ 2 := by field_simp; linarith
+  rw [Real.norm_eq_abs, abs_div, abs_mul, abs_of_nonneg hP0, abs_of_pos hu0]
+  simp only [Pi.add_apply, e1, e2]
+  rw [div_eq_mul_inv, hinv]
+  calc |(Φ u).re| * P u * t ^ 2 ≤ K * (2 * K * (t ^ 3 + t)) * t ^ 2 := by gcongr
+    _ = 2 * K ^ 2 * t ^ 5 + 2 * K ^ 2 * t ^ 3 := by ring
+
+end VacHyp
+
+
+namespace VacHyp
+
+variable {K a0 a1 a δ s L1 α κ Cfl I0 : ℝ} {P : ℝ → ℝ} {Φ : ℝ → ℂ}
+
+/-- The constant of `M0_integral_le`. -/
+noncomputable def AM (K : ℝ) : ℝ := (2 * K + K ^ 2) + 2 * (K ^ 2 * (2 + K)) + 4 * K ^ 3 * (1 + K)
+
+/-- **Parts (b), (c), (d) combined** (`fct:physical-budget`): the main part `M₀` is integrable on `(3δ, ∞)` and
+`∫_{3δ}^∞ M₀ ≤ AM a⁹`.  Inputs: `(fct:cos-pen)`, `∫_0^{3δ}D_*`, `(fct:bump-1L)`, `(fct:bump-2L)` and the finite-part cancellation. -/
+lemma M0_integral_le (V : VacHyp K a0 a1 a δ s L1 α κ Cfl I0 P Φ) :
+    IntegrableOn (vacM0 P Φ L1 s) (Ioi (3 * δ)) ∧ ∫ u in Ioi (3 * δ), vacM0 P Φ L1 s u ≤ AM K * a ^ 9 := by
+  have hδ := V.hδpos
+  have hK := V.hK
+  have hK0 : 0 ≤ K := by linarith
+  have ha := V.ha
+  have ha1 := V.ha1
+  have hb : 0 < 3 * δ := by positivity
+  have h9 : ∀ n : ℕ, 9 ≤ n → a ^ n ≤ a ^ 9 := fun n hn => pow_le_pow_of_le_one ha.le ha1 hn
+  have hD1 : IntegrableOn (vacD P) (Ioi (3 * δ)) := V.hDint.mono_set (Ioi_subset_Ioi hb.le)
+  have hD2 : IntegrableOn (fun u => vacD P u / u) (Ioi (3 * δ)) := by
+    simpa using integrableOn_div_pow hb hD1 1
+  have hD3 : IntegrableOn (fun u => vacD P u / u ^ 2) (Ioi (3 * δ)) := integrableOn_div_pow hb hD1 2
+  have hR := V.rhoP_integrableOn
+  set A := L1 - s with hA
+  have hpt : ∀ u : ℝ, vacM0 P Φ L1 s u =
+      vacD P u + A * (vacD P u / u) + A ^ 2 * (vacD P u / u ^ 2) - L1 * ((Φ u).re * P u / u) := by
+    intro u; unfold vacM0; ring
+  have hfun : vacM0 P Φ L1 s = fun u => vacD P u + A * (vacD P u / u) + A ^ 2 * (vacD P u / u ^ 2) -
+      L1 * ((Φ u).re * P u / u) := funext hpt
+  have i12 : IntegrableOn (fun u => vacD P u + A * (vacD P u / u)) (Ioi (3 * δ)) := hD1.add (hD2.const_mul A)
+  have i123 : IntegrableOn (fun u => vacD P u + A * (vacD P u / u) + A ^ 2 * (vacD P u / u ^ 2)) (Ioi (3 * δ)) :=
+    i12.add (hD3.const_mul (A ^ 2))
+  have i4 : IntegrableOn (fun u => L1 * ((Φ u).re * P u / u)) (Ioi (3 * δ)) := hR.const_mul L1
+  have hint : IntegrableOn (vacM0 P Φ L1 s) (Ioi (3 * δ)) := by
+    rw [hfun]
+    exact i123.sub i4
+  refine ⟨hint, ?_⟩
+  have hsplit : ∫ u in Ioi (3 * δ), vacM0 P Φ L1 s u =
+      (∫ u in Ioi (3 * δ), vacD P u) + A * (∫ u in Ioi (3 * δ), vacD P u / u) +
+        A ^ 2 * (∫ u in Ioi (3 * δ), vacD P u / u ^ 2) - L1 * (∫ u in Ioi (3 * δ), (Φ u).re * P u / u) := by
+    have e1 := integral_sub i123 i4
+    have e2 := integral_add i12 (hD3.const_mul (A ^ 2))
+    have e3 := integral_add hD1 (hD2.const_mul A)
+    simp only [integral_const_mul] at e1 e2 e3
+    rw [hfun]
+    simp only [e1, e2, e3]
+  rw [hsplit]
+  set ID := ∫ u in Ioi (3 * δ), vacD P u with hID
+  set I1 := ∫ u in Ioi (3 * δ), vacD P u / u with hI1
+  set I2 := ∫ u in Ioi (3 * δ), vacD P u / u ^ 2 with hI2
+  set Iρ := ∫ u in Ioi (3 * δ), (Φ u).re * P u / u with hIρ
+  have hα := V.hα
+  have hαK : |α| * a ^ 3 ≤ K * a ^ 9 := by
+    calc |α| * a ^ 3 ≤ (K * a ^ 8) * a ^ 3 := by gcongr
+      _ = K * a ^ 11 := by ring
+      _ ≤ K * a ^ 9 := mul_le_mul_of_nonneg_left (h9 11 (by norm_num)) hK0
+  have hαinv : |α| * (a⁻¹) ^ 3 ≤ K * a ^ 5 := by
+    calc |α| * (a⁻¹) ^ 3 ≤ (K * a ^ 8) * (a⁻¹) ^ 3 := by gcongr
+      _ = K * a ^ 5 := by field_simp
+  have hαinv9 : |α| * (a⁻¹) ^ 9 ≤ K * a⁻¹ := by
+    calc |α| * (a⁻¹) ^ 9 ≤ (K * a ^ 8) * (a⁻¹) ^ 9 := by gcongr
+      _ = K * a⁻¹ := by field_simp
+  have ha5 : a ^ 5 ≤ 1 := pow_le_one₀ ha.le ha1
+  have ha3 : a ^ 3 ≤ 1 := pow_le_one₀ ha.le ha1
+  -- the integral of D over (3δ, ∞)
+  have hID : ID ≤ (2 * K + K ^ 2) * a ^ 9 := by
+    have hu : Ioc 0 (3 * δ) ∪ Ioi (3 * δ) = Ioi (0 : ℝ) := Ioc_union_Ioi_eq_Ioi hb.le
+    have hI : IntegrableOn (vacD P) (Ioc 0 (3 * δ)) := V.hDint.mono_set Ioc_subset_Ioi_self
+    have hsum : (∫ u in Ioi (0 : ℝ), vacD P u) = (∫ u in Ioc 0 (3 * δ), vacD P u) + ID := by
+      rw [← hu, setIntegral_union (Set.disjoint_left.mpr fun x (hx : x ∈ Ioc (0 : ℝ) (3 * δ)) (hx' : x ∈ Ioi (3 * δ)) => not_lt.mpr hx.2 hx') measurableSet_Ioi hI hD1]
+    have h1 := (abs_le.mp V.hcos).2
+    have h2 := (abs_le.mp V.hin).1
+    have : ID = (∫ u in Ioi (0 : ℝ), vacD P u) - ∫ u in Ioc 0 (3 * δ), vacD P u := by linarith
+    nlinarith [V.hCfl, hαK, mul_le_mul_of_nonneg_left hαK hK0]
+  have hI1b : |I1| ≤ K * (2 + K) := by
+    have h := V.hb1
+    have : |I1| ≤ |I0| + |I1 - I0| := by
+      have := abs_add_le I0 (I1 - I0); rwa [add_sub_cancel] at this
+    have h3 : K * (a ^ 3 + |α| * (a⁻¹) ^ 3) ≤ K * (1 + K) := by
+      refine mul_le_mul_of_nonneg_left ?_ hK0
+      have : K * a ^ 5 ≤ K := by nlinarith
+      linarith
+    nlinarith [V.hI0]
+  have hI2b : |I2| ≤ K * ((a⁻¹) ^ 3 + K * a⁻¹) := by
+    refine V.hb2.trans (mul_le_mul_of_nonneg_left ?_ hK0)
+    linarith
+  have ha53 : a ^ 5 ≤ a ^ 3 := pow_le_pow_of_le_one ha.le ha1 (by norm_num)
+  have ha83 : a ^ 8 ≤ a ^ 3 := pow_le_pow_of_le_one ha.le ha1 (by norm_num)
+  have hDiff : |I1 - Iρ| ≤ K * (2 + K) * a ^ 3 := by
+    refine V.hcancel.trans ?_
+    have : a ^ 3 + |α| * (a⁻¹) ^ 3 + a ^ 8 ≤ (2 + K) * a ^ 3 := by
+      have : K * a ^ 5 ≤ K * a ^ 3 := mul_le_mul_of_nonneg_left ha53 hK0
+      nlinarith
+    calc K * (a ^ 3 + |α| * (a⁻¹) ^ 3 + a ^ 8) ≤ K * ((2 + K) * a ^ 3) := mul_le_mul_of_nonneg_left this hK0
+      _ = K * (2 + K) * a ^ 3 := by ring
+  have hT2 : L1 * (I1 - Iρ) ≤ K ^ 2 * (2 + K) * a ^ 9 := by
+    calc L1 * (I1 - Iρ) ≤ |L1 * (I1 - Iρ)| := le_abs_self _
+      _ = |L1| * |I1 - Iρ| := abs_mul _ _
+      _ ≤ (K * a ^ 8) * (K * (2 + K) * a ^ 3) := mul_le_mul V.hL1 hDiff (abs_nonneg _) (by positivity)
+      _ = K ^ 2 * (2 + K) * a ^ 11 := by ring
+      _ ≤ K ^ 2 * (2 + K) * a ^ 9 := mul_le_mul_of_nonneg_left (h9 11 (by norm_num)) (by positivity)
+  have hT3 : -(s * I1) ≤ K ^ 2 * (2 + K) * a ^ 9 := by
+    calc -(s * I1) ≤ |s * I1| := neg_le_abs _
+      _ = |s| * |I1| := abs_mul _ _
+      _ ≤ (K * a ^ 12) * (K * (2 + K)) := mul_le_mul V.hs hI1b (abs_nonneg _) (by positivity)
+      _ = K ^ 2 * (2 + K) * a ^ 12 := by ring
+      _ ≤ K ^ 2 * (2 + K) * a ^ 9 := mul_le_mul_of_nonneg_left (h9 12 (by norm_num)) (by positivity)
+  have hA2 : |A| ≤ 2 * K * a ^ 8 := by
+    have h12 : a ^ 12 ≤ a ^ 8 := pow_le_pow_of_le_one ha.le ha1 (by norm_num)
+    calc |A| ≤ |L1| + |s| := abs_sub _ _
+      _ ≤ K * a ^ 8 + K * a ^ 12 := add_le_add V.hL1 V.hs
+      _ ≤ K * a ^ 8 + K * a ^ 8 := by gcongr
+      _ = 2 * K * a ^ 8 := by ring
+  have hT4 : A ^ 2 * I2 ≤ 4 * K ^ 3 * (1 + K) * a ^ 9 := by
+    have h1 : A ^ 2 ≤ (2 * K * a ^ 8) ^ 2 := by
+      have := sq_le_sq' (by linarith [abs_nonneg A, neg_abs_le A] : -(2 * K * a ^ 8) ≤ A) ((le_abs_self A).trans hA2)
+      exact this
+    have h2 : (2 * K * a ^ 8) ^ 2 * (K * ((a⁻¹) ^ 3 + K * a⁻¹)) = 4 * K ^ 3 * (a ^ 13 + K * a ^ 15) := by
+      field_simp
+      norm_num
+    calc A ^ 2 * I2 ≤ |A ^ 2 * I2| := le_abs_self _
+      _ = A ^ 2 * |I2| := by rw [abs_mul, abs_of_nonneg (sq_nonneg A)]
+      _ ≤ (2 * K * a ^ 8) ^ 2 * (K * ((a⁻¹) ^ 3 + K * a⁻¹)) := mul_le_mul h1 hI2b (abs_nonneg _) (by positivity)
+      _ = 4 * K ^ 3 * (a ^ 13 + K * a ^ 15) := h2
+      _ ≤ 4 * K ^ 3 * ((1 + K) * a ^ 9) := by
+          have h13 := h9 13 (by norm_num)
+          have h15 := h9 15 (by norm_num)
+          have : K * a ^ 15 ≤ K * a ^ 9 := mul_le_mul_of_nonneg_left h15 hK0
+          refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+          nlinarith
+      _ = 4 * K ^ 3 * (1 + K) * a ^ 9 := by ring
+  have hA' : A * I1 = L1 * I1 - s * I1 := by rw [hA]; ring
+  have hfinal : ID + A * I1 + A ^ 2 * I2 - L1 * Iρ = ID + L1 * (I1 - Iρ) + (-(s * I1)) + A ^ 2 * I2 := by
+    rw [hA']; ring
+  rw [hfinal]
+  unfold AM
+  nlinarith [hID, hT2, hT3, hT4]
+
+end VacHyp
+
+
+/-! ### The pointwise majorant and the integral of `vacG` -/
+
+namespace VacHyp
+
+variable {K a0 a1 a δ s L1 α κ Cfl I0 : ℝ} {P : ℝ → ℝ} {Φ : ℝ → ℂ}
+
+lemma vacG_le_II {χ : ℝ → ℝ} (hχ : IsCutoff χ) {c : ℝ} (V : VacHyp K a0 a1 a δ s L1 α κ Cfl I0 P Φ)
+    (hκ : κ = (5 * π ^ 2 / 96) * c⁻¹ ^ 2) {u : ℝ} (hu : δ ≤ u) (hu2 : u ≤ 31 / 10 * δ) :
+    vacG χ c δ s L1 P Φ u ≤ 11 * K ^ 4 * a ^ 3 ∧ -vacM0 P Φ L1 s u ≤ 16 * K ^ 4 * a ^ 3 := by
+  have hY := V.Y_le_II hu hu2
+  have hK4 : 0 ≤ K ^ 4 * a ^ 3 := by have := V.hK; have := V.ha; positivity
+  have h1 := vacG_le_Q hχ V hκ hu
+  have hg := V.gamma_range hu
+  have hχ0 := hχ.mem ((u + s) / (3 * δ))
+  have hc0 : 0 ≤ χ ((u + s) / (3 * δ)) * (1 - κ * (u ^ 3)⁻¹) := mul_nonneg hχ0.1 hg.1
+  have hc1 : χ ((u + s) / (3 * δ)) * (1 - κ * (u ^ 3)⁻¹) ≤ 1 := by
+    calc _ ≤ 1 * 1 := mul_le_mul hχ0.2 hg.2 hg.1 zero_le_one
+      _ = 1 := one_mul 1
+  have hQ := V.Q_abs_le hu
+  have hQ' : χ ((u + s) / (3 * δ)) * (1 - κ * (u ^ 3)⁻¹) * vacQ P Φ L1 s u ≤ |vacQ P Φ L1 s u| := by
+    calc _ ≤ |χ ((u + s) / (3 * δ)) * (1 - κ * (u ^ 3)⁻¹) * vacQ P Φ L1 s u| := le_abs_self _
+      _ = (χ ((u + s) / (3 * δ)) * (1 - κ * (u ^ 3)⁻¹)) * |vacQ P Φ L1 s u| := by rw [abs_mul, abs_of_nonneg hc0]
+      _ ≤ 1 * |vacQ P Φ L1 s u| := by gcongr
+      _ = _ := one_mul _
+  refine ⟨?_, ?_⟩
+  · calc vacG χ c δ s L1 P Φ u ≤ _ := h1
+      _ = χ ((u + s) / (3 * δ)) * (1 - κ * (u ^ 3)⁻¹) * vacQ P Φ L1 s u := by ring
+      _ ≤ |vacQ P Φ L1 s u| := hQ'
+      _ ≤ 4 / 3 * vacY P Φ L1 u := hQ
+      _ ≤ 4 / 3 * (8 * K ^ 4 * a ^ 3) := by gcongr
+      _ ≤ 11 * K ^ 4 * a ^ 3 := by nlinarith
+  · have := V.M0_abs_le hu
+    calc -vacM0 P Φ L1 s u ≤ |vacM0 P Φ L1 s u| := neg_le_abs _
+      _ ≤ 2 * vacY P Φ L1 u := this
+      _ ≤ 2 * (8 * K ^ 4 * a ^ 3) := by gcongr
+      _ = 16 * K ^ 4 * a ^ 3 := by ring
+
+lemma vacG_zero {χ : ℝ → ℝ} (hχ : IsCutoff χ) {c : ℝ} (V : VacHyp K a0 a1 a δ s L1 α κ Cfl I0 P Φ) {u : ℝ} (hu : u < δ) :
+    vacG χ c δ s L1 P Φ u = 0 := by
+  have hδ := V.hδpos
+  unfold vacG
+  rw [hχ.zero, zero_mul, zero_mul]
+  rw [div_le_iff₀ (by positivity)]
+  have := (abs_le.mp V.hs10).2
+  linarith
+
+end VacHyp
+
+/-- The pointwise majorant of `vacG`. -/
+noncomputable def vacMaj (K a δ L1 s : ℝ) (P : ℝ → ℝ) (Φ : ℝ → ℂ) (u : ℝ) : ℝ :=
+  (Ioi (3 * δ)).indicator (vacM0 P Φ L1 s) u + (Icc δ (31 / 10 * δ)).indicator (fun _ => 27 * K ^ 4 * a ^ 3) u +
+    (Ioi (31 / 10 * δ)).indicator (vacBR K a) u
+
+lemma vacG_le_maj {χ : ℝ → ℝ} (hχ : IsCutoff χ) {K a0 a1 a δ s L1 α κ Cfl I0 c : ℝ} {P : ℝ → ℝ} {Φ : ℝ → ℂ}
+    (V : VacHyp K a0 a1 a δ s L1 α κ Cfl I0 P Φ) (hκ : κ = (5 * π ^ 2 / 96) * c⁻¹ ^ 2) (u : ℝ) :
+    vacG χ c δ s L1 P Φ u ≤ vacMaj K a δ L1 s P Φ u := by
+  have hδ := V.hδpos
+  have hK4 : 0 ≤ K ^ 4 * a ^ 3 := by have := V.hK; have := V.ha; positivity
+  unfold vacMaj
+  by_cases h1 : u < δ
+  · rw [V.vacG_zero hχ h1]
+    have a1' : u ∉ Ioi (3 * δ) := by simp only [mem_Ioi, not_lt]; linarith
+    have a2' : u ∉ Icc δ (31 / 10 * δ) := by simp only [mem_Icc, not_and, not_le]; intro h; linarith
+    have a3' : u ∉ Ioi (31 / 10 * δ) := by simp only [mem_Ioi, not_lt]; linarith
+    simp [Set.indicator_of_notMem, a1', a2', a3']
+  by_cases h2 : u ≤ 31 / 10 * δ
+  · obtain ⟨hG, hM⟩ := V.vacG_le_II hχ hκ (not_lt.mp h1) h2
+    have a3' : u ∉ Ioi (31 / 10 * δ) := by simp only [mem_Ioi, not_lt]; exact h2
+    have a2' : u ∈ Icc δ (31 / 10 * δ) := ⟨not_lt.mp h1, h2⟩
+    rw [Set.indicator_of_notMem a3', Set.indicator_of_mem a2']
+    by_cases h3 : u ∈ Ioi (3 * δ)
+    · rw [Set.indicator_of_mem h3]; linarith
+    · rw [Set.indicator_of_notMem h3]; linarith
+  · have h2' := not_le.mp h2
+    have a3 : u ∈ Ioi (31 / 10 * δ) := h2'
+    have a1 : u ∈ Ioi (3 * δ) := by simp only [mem_Ioi]; linarith
+    have a2 : u ∉ Icc δ (31 / 10 * δ) := by simp only [mem_Icc, not_and, not_le]; intro _; exact h2'
+    rw [Set.indicator_of_mem a3, Set.indicator_of_mem a1, Set.indicator_of_notMem a2]
+    linarith [vacG_le_III hχ V hκ h2']
+
+
+lemma vacBR_eq {K a u : ℝ} (hu : 0 < u) :
+    vacBR K a u = 2 * K * (8 * K ^ 3 + 1) * (a ^ 30 * u ^ (-(9 / 2 : ℝ)) + a ^ 24 * u ^ (-(7 / 2 : ℝ))) +
+      (16 * K ^ 5 + 8 * K ^ 4) * a ^ 12 * u ^ (-(3 / 2 : ℝ)) := by
+  unfold vacBR
+  have e9 : (u ^ (-(1 / 2 : ℝ))) ^ 9 = u ^ (-(9 / 2 : ℝ)) := by
+    rw [← Real.rpow_natCast, ← Real.rpow_mul hu.le]; norm_num
+  have e7 : (u ^ (-(1 / 2 : ℝ))) ^ 7 = u ^ (-(7 / 2 : ℝ)) := by
+    rw [← Real.rpow_natCast, ← Real.rpow_mul hu.le]; norm_num
+  rw [e9, e7, ← rpow_neg_three_half hu]
+
+/-- The constant of `BR_integral_le`. -/
+noncomputable def ABR (K : ℝ) : ℝ := 2 * K * (8 * K ^ 3 + 1) * (K ^ 7 + K ^ 5) + 2 * (16 * K ^ 5 + 8 * K ^ 4) * K
+
+namespace VacHyp
+
+variable {K a0 a1 a δ s L1 α κ Cfl I0 : ℝ} {P : ℝ → ℝ} {Φ : ℝ → ℂ}
+
+/-- `b^{-1/2} ≤ K a^{-3}` for `b ≥ δ`. -/
+lemma rpow_neg_half_le (V : VacHyp K a0 a1 a δ s L1 α κ Cfl I0 P Φ) {b : ℝ} (hb : δ ≤ b) :
+    b ^ (-(1 / 2 : ℝ)) ≤ K * (a⁻¹) ^ 3 := by
+  have hb0 : 0 < b := lt_of_lt_of_le V.hδpos hb
+  have hK := V.hK
+  have ha := V.ha
+  have hKpos : 0 < K := by linarith
+  have hT0 : 0 ≤ b ^ (-(1 / 2 : ℝ)) := (Real.rpow_pos_of_pos hb0 _).le
+  have hTsq := rpow_neg_half_sq hb0
+  have hKa : K⁻¹ ≤ a0 := (inv_le_comm₀ V.ha0 hKpos).mp V.hKa0
+  have hba : K⁻¹ * a ^ 6 ≤ b := by
+    calc K⁻¹ * a ^ 6 ≤ a0 * a ^ 6 := by gcongr
+      _ ≤ δ := V.hδ0
+      _ ≤ b := hb
+  have h1 : (b ^ (-(1 / 2 : ℝ))) ^ 2 ≤ (K * (a⁻¹) ^ 3) ^ 2 := by
+    have h2 : (b ^ (-(1 / 2 : ℝ))) ^ 2 = b⁻¹ := by
+      have : (b ^ (-(1 / 2 : ℝ))) ^ 2 * b = 1 := hTsq
+      field_simp; linarith
+    rw [h2]
+    have h3 : b⁻¹ ≤ (K⁻¹ * a ^ 6)⁻¹ := inv_anti₀ (by positivity) hba
+    have h4 : (K⁻¹ * a ^ 6)⁻¹ = K * (a ^ 6)⁻¹ := by field_simp
+    have h5 : (K * (a⁻¹) ^ 3) ^ 2 = K ^ 2 * (a ^ 6)⁻¹ := by field_simp
+    rw [h5]
+    calc b⁻¹ ≤ K * (a ^ 6)⁻¹ := h3.trans h4.le
+      _ ≤ K ^ 2 * (a ^ 6)⁻¹ := by
+        have : K ≤ K ^ 2 := by nlinarith
+        gcongr
+  exact (pow_le_pow_iff_left₀ hT0 (by positivity) (by norm_num : (2 : ℕ) ≠ 0)).mp h1
+
+lemma BR_integral_le (V : VacHyp K a0 a1 a δ s L1 α κ Cfl I0 P Φ) :
+    IntegrableOn (vacBR K a) (Ioi (31 / 10 * δ)) ∧ ∫ u in Ioi (31 / 10 * δ), vacBR K a u ≤ ABR K * a ^ 9 := by
+  have hδ := V.hδpos
+  have hK := V.hK
+  have hK0 : 0 ≤ K := by linarith
+  have ha := V.ha
+  set b := 31 / 10 * δ with hbdef
+  have hb : 0 < b := by positivity
+  have hδb : δ ≤ b := by rw [hbdef]; linarith
+  have TB := V.rpow_neg_half_le hδb
+  set T := b ^ (-(1 / 2 : ℝ)) with hT
+  have hT0 : 0 ≤ T := (Real.rpow_pos_of_pos hb _).le
+  obtain ⟨i9, v9⟩ := integral_Ioi_rpow_neg (b := b) (r := 9 / 2) hb (by norm_num)
+  obtain ⟨i7, v7⟩ := integral_Ioi_rpow_neg (b := b) (r := 7 / 2) hb (by norm_num)
+  obtain ⟨i3, v3⟩ := integral_Ioi_rpow_neg (b := b) (r := 3 / 2) hb (by norm_num)
+  have p9 : b ^ (1 - (9 / 2 : ℝ)) = T ^ 7 := by rw [hT, ← Real.rpow_natCast, ← Real.rpow_mul hb.le]; norm_num
+  have p7 : b ^ (1 - (7 / 2 : ℝ)) = T ^ 5 := by rw [hT, ← Real.rpow_natCast, ← Real.rpow_mul hb.le]; norm_num
+  have p3 : b ^ (1 - (3 / 2 : ℝ)) = T := by rw [hT]; norm_num
+  rw [p9] at v9; rw [p7] at v7; rw [p3] at v3
+  set C1 := 2 * K * (8 * K ^ 3 + 1) with hC1
+  set C2 := 16 * K ^ 5 + 8 * K ^ 4 with hC2
+  have hfun : ∀ u ∈ Ioi b, vacBR K a u =
+      C1 * (a ^ 30 * u ^ (-(9 / 2 : ℝ)) + a ^ 24 * u ^ (-(7 / 2 : ℝ))) + C2 * a ^ 12 * u ^ (-(3 / 2 : ℝ)) :=
+    fun u hu => vacBR_eq (lt_trans hb hu)
+  have j9 : IntegrableOn (fun u : ℝ => a ^ 30 * u ^ (-(9 / 2 : ℝ))) (Ioi b) := i9.const_mul _
+  have j7 : IntegrableOn (fun u : ℝ => a ^ 24 * u ^ (-(7 / 2 : ℝ))) (Ioi b) := i7.const_mul _
+  have j97 : IntegrableOn (fun u : ℝ => a ^ 30 * u ^ (-(9 / 2 : ℝ)) + a ^ 24 * u ^ (-(7 / 2 : ℝ))) (Ioi b) := j9.add j7
+  have jA : IntegrableOn (fun u : ℝ => C1 * (a ^ 30 * u ^ (-(9 / 2 : ℝ)) + a ^ 24 * u ^ (-(7 / 2 : ℝ)))) (Ioi b) :=
+    j97.const_mul C1
+  have jB : IntegrableOn (fun u : ℝ => C2 * a ^ 12 * u ^ (-(3 / 2 : ℝ))) (Ioi b) := i3.const_mul _
+  have hI : IntegrableOn (fun u : ℝ => C1 * (a ^ 30 * u ^ (-(9 / 2 : ℝ)) + a ^ 24 * u ^ (-(7 / 2 : ℝ))) +
+      C2 * a ^ 12 * u ^ (-(3 / 2 : ℝ))) (Ioi b) := jA.add jB
+  refine ⟨hI.congr_fun (fun u hu => (hfun u hu).symm) measurableSet_Ioi, ?_⟩
+  rw [setIntegral_congr_fun measurableSet_Ioi (fun u hu => hfun u hu)]
+  have e1 := integral_add jA jB
+  have e2 := integral_add j9 j7
+  simp only [integral_const_mul] at e1 e2
+  rw [e1, e2, v9, v7, v3]
+  have hTK : T ≤ K * (a⁻¹) ^ 3 := TB
+  have hC10 : 0 ≤ C1 := by positivity
+  have hC20 : 0 ≤ C2 := by positivity
+  have t7 : T ^ 7 ≤ K ^ 7 * (a⁻¹) ^ 21 := by
+    calc T ^ 7 ≤ (K * (a⁻¹) ^ 3) ^ 7 := pow_le_pow_left₀ hT0 hTK 7
+      _ = K ^ 7 * (a⁻¹) ^ 21 := by ring
+  have t5 : T ^ 5 ≤ K ^ 5 * (a⁻¹) ^ 15 := by
+    calc T ^ 5 ≤ (K * (a⁻¹) ^ 3) ^ 5 := pow_le_pow_left₀ hT0 hTK 5
+      _ = K ^ 5 * (a⁻¹) ^ 15 := by ring
+  have q9 : a ^ 30 * (T ^ 7 / (9 / 2 - 1)) ≤ K ^ 7 * a ^ 9 := by
+    calc a ^ 30 * (T ^ 7 / (9 / 2 - 1)) ≤ a ^ 30 * (T ^ 7) :=
+          mul_le_mul_of_nonneg_left (div_le_self (pow_nonneg hT0 7) (by norm_num)) (by positivity)
+      _ ≤ a ^ 30 * (K ^ 7 * (a⁻¹) ^ 21) := by gcongr
+      _ = K ^ 7 * a ^ 9 := by field_simp
+  have q7 : a ^ 24 * (T ^ 5 / (7 / 2 - 1)) ≤ K ^ 5 * a ^ 9 := by
+    calc a ^ 24 * (T ^ 5 / (7 / 2 - 1)) ≤ a ^ 24 * (T ^ 5) :=
+          mul_le_mul_of_nonneg_left (div_le_self (pow_nonneg hT0 5) (by norm_num)) (by positivity)
+      _ ≤ a ^ 24 * (K ^ 5 * (a⁻¹) ^ 15) := by gcongr
+      _ = K ^ 5 * a ^ 9 := by field_simp
+  have q3 : (C2 * a ^ 12) * (T / (3 / 2 - 1)) ≤ 2 * C2 * K * a ^ 9 := by
+    calc (C2 * a ^ 12) * (T / (3 / 2 - 1)) = 2 * C2 * a ^ 12 * T := by ring
+      _ ≤ 2 * C2 * a ^ 12 * (K * (a⁻¹) ^ 3) := by gcongr
+      _ = 2 * C2 * K * a ^ 9 := by field_simp
+  unfold ABR
+  nlinarith [mul_le_mul_of_nonneg_left (add_le_add q9 q7) hC10]
+
+end VacHyp
+
+
+namespace VacHyp
+
+variable {K a0 a1 a δ s L1 α κ Cfl I0 : ℝ} {P : ℝ → ℝ} {Φ : ℝ → ℂ}
+
+lemma vacG_meas {χ : ℝ → ℝ} (hχ : IsCutoff χ) (c : ℝ) (V : VacHyp K a0 a1 a δ s L1 α κ Cfl I0 P Φ) :
+    Measurable (vacG χ c δ s L1 P Φ) := by
+  have h1 : Measurable χ := hχ.smooth.continuous.measurable
+  have h2 := V.hPm
+  have h3 := V.hΦm
+  unfold vacG physGamma physOsc physF uctIfl
+  fun_prop
+
+/-- The majorant is integrable, with `∫ vacMaj ≤ (AM + 57 K⁵ + ABR) a⁹`. -/
+lemma maj_integral_le (V : VacHyp K a0 a1 a δ s L1 α κ Cfl I0 P Φ) :
+    Integrable (vacMaj K a δ L1 s P Φ) ∧ ∫ u, vacMaj K a δ L1 s P Φ u ≤ (AM K + 57 * K ^ 5 + ABR K) * a ^ 9 := by
+  have hδ := V.hδpos
+  have hK := V.hK
+  have hK0 : 0 ≤ K := by linarith
+  have ha := V.ha
+  obtain ⟨h1i, h1v⟩ := V.M0_integral_le
+  obtain ⟨h3i, h3v⟩ := V.BR_integral_le
+  have h2i : IntegrableOn (fun _ : ℝ => 27 * K ^ 4 * a ^ 3) (Icc δ (31 / 10 * δ)) := integrableOn_const (by simp)
+  have e1 : Integrable ((Ioi (3 * δ)).indicator (vacM0 P Φ L1 s)) := (integrable_indicator_iff measurableSet_Ioi).mpr h1i
+  have e2 : Integrable ((Icc δ (31 / 10 * δ)).indicator (fun _ : ℝ => 27 * K ^ 4 * a ^ 3)) :=
+    (integrable_indicator_iff measurableSet_Icc).mpr h2i
+  have e3 : Integrable ((Ioi (31 / 10 * δ)).indicator (vacBR K a)) := (integrable_indicator_iff measurableSet_Ioi).mpr h3i
+  have hmaj : vacMaj K a δ L1 s P Φ = fun u => (Ioi (3 * δ)).indicator (vacM0 P Φ L1 s) u +
+      (Icc δ (31 / 10 * δ)).indicator (fun _ => 27 * K ^ 4 * a ^ 3) u +
+      (Ioi (31 / 10 * δ)).indicator (vacBR K a) u := rfl
+  refine ⟨by rw [hmaj]; exact (e1.add e2).add e3, ?_⟩
+  have e12 : Integrable (fun u => (Ioi (3 * δ)).indicator (vacM0 P Φ L1 s) u +
+      (Icc δ (31 / 10 * δ)).indicator (fun _ => 27 * K ^ 4 * a ^ 3) u) := e1.add e2
+  rw [hmaj, integral_add e12 e3, integral_add e1 e2, integral_indicator measurableSet_Ioi,
+    integral_indicator measurableSet_Icc, integral_indicator measurableSet_Ioi, setIntegral_const]
+  have hvol : volume.real (Icc δ (31 / 10 * δ)) = 21 / 10 * δ := by
+    rw [Measure.real, Real.volume_Icc, ENNReal.toReal_ofReal (by linarith)]; ring
+  rw [hvol]
+  simp only [smul_eq_mul]
+  have h57 : 21 / 10 * δ * (27 * K ^ 4 * a ^ 3) ≤ 57 * K ^ 5 * a ^ 9 := by
+    have hd : δ ≤ K * a ^ 6 := V.hδ1.trans (mul_le_mul_of_nonneg_right V.hKa1 (by positivity))
+    calc 21 / 10 * δ * (27 * K ^ 4 * a ^ 3) ≤ 21 / 10 * (K * a ^ 6) * (27 * K ^ 4 * a ^ 3) := by gcongr
+      _ = 56.7 * K ^ 5 * a ^ 9 := by ring
+      _ ≤ 57 * K ^ 5 * a ^ 9 := by
+        have : 0 ≤ K ^ 5 * a ^ 9 := by positivity
+        nlinarith
+  linarith
+
+/-- `vacG` is integrable. -/
+lemma vacG_integrable {χ : ℝ → ℝ} (hχ : IsCutoff χ) {c : ℝ} (V : VacHyp K a0 a1 a δ s L1 α κ Cfl I0 P Φ)
+    (hκ : κ = (5 * π ^ 2 / 96) * c⁻¹ ^ 2) : Integrable (vacG χ c δ s L1 P Φ) := by
+  have hδ := V.hδpos
+  have hK := V.hK
+  have hK0 : 0 ≤ K := by linarith
+  obtain ⟨hmi, -⟩ := V.maj_integral_le
+  have i3 := (integral_Ioi_rpow_neg (b := δ) (r := 3 / 2) hδ (by norm_num)).1
+  have i3' : IntegrableOn (fun u : ℝ => u ^ (-(3 / 2 : ℝ))) (Ici δ) := (integrableOn_Ici_iff_integrableOn_Ioi).mpr i3
+  have e3 : Integrable ((Ici δ).indicator (fun u : ℝ => 4 / 3 * K * u ^ (-(3 / 2 : ℝ)))) :=
+    (integrable_indicator_iff measurableSet_Ici).mpr (i3'.const_mul (4 / 3 * K))
+  have h4 : ∀ u : ℝ, 0 ≤ (Ici δ).indicator (fun u : ℝ => 4 / 3 * K * u ^ (-(3 / 2 : ℝ))) u := by
+    intro u
+    apply Set.indicator_nonneg; intro x hx; have : 0 < x := lt_of_lt_of_le hδ hx; positivity
+  refine Integrable.mono' (hmi.norm.add e3) (V.vacG_meas hχ c).aestronglyMeasurable (Filter.Eventually.of_forall fun u => ?_)
+  rw [Real.norm_eq_abs]
+  simp only [Pi.add_apply]
+  by_cases hu : u < δ
+  · rw [V.vacG_zero hχ hu, abs_zero]; exact add_nonneg (norm_nonneg _) (h4 u)
+  have hu' : δ ≤ u := not_lt.mp hu
+  have hu0 : 0 < u := lt_of_lt_of_le hδ hu'
+  by_cases hneg : 0 ≤ vacG χ c δ s L1 P Φ u
+  · rw [abs_of_nonneg hneg]
+    have := vacG_le_maj hχ V hκ u
+    have h5 : vacMaj K a δ L1 s P Φ u ≤ ‖vacMaj K a δ L1 s P Φ u‖ := by rw [Real.norm_eq_abs]; exact le_abs_self _
+    linarith [h4 u]
+  · -- lower bound: `O ≥ 0`
+    rw [abs_of_neg (not_le.mp hneg)]
+    have hAu := V.sub_A hu'
+    have hAp : 0 < u - (L1 - s) := by linarith
+    have hg := V.gamma_range hu'
+    have hχ0 := hχ.mem ((u + s) / (3 * δ))
+    have hc0 : 0 ≤ χ ((u + s) / (3 * δ)) * (1 - κ * (u ^ 3)⁻¹) := mul_nonneg hχ0.1 hg.1
+    have hc1 : χ ((u + s) / (3 * δ)) * (1 - κ * (u ^ 3)⁻¹) ≤ 1 := by
+      calc _ ≤ 1 * 1 := mul_le_mul hχ0.2 hg.2 hg.1 zero_le_one
+        _ = 1 := one_mul 1
+    have hP0 := V.hP0 u hu0
+    have hO : 0 ≤ P u * ‖(u : ℂ) - (L1 : ℂ) * Φ u‖ / (u - (L1 - s)) := by positivity
+    have hIfl : |uctIfl u| ≤ K * u ^ (-(3 / 2 : ℝ)) := by
+      unfold uctIfl
+      rw [abs_mul, abs_of_nonneg (Real.rpow_nonneg hu0.le _)]
+      exact mul_le_mul_of_nonneg_right V.hKf (Real.rpow_nonneg hu0.le _)
+    have hFv : |u / (u - (L1 - s)) * uctIfl u| ≤ 4 / 3 * (K * u ^ (-(3 / 2 : ℝ))) := by
+      rw [abs_mul, abs_of_pos (div_pos hu0 hAp)]
+      have : u / (u - (L1 - s)) ≤ 4 / 3 := by
+        rw [div_le_iff₀ hAp]; linarith
+      exact mul_le_mul this hIfl (abs_nonneg _) (by norm_num)
+    have heq := vacG_eq (χ := χ) (c := c) (δ := δ) (s := s) (L1 := L1) (P := P) (Φ := Φ) hκ hu0
+    rw [heq]
+    have hind : (Ici δ).indicator (fun u : ℝ => 4 / 3 * K * u ^ (-(3 / 2 : ℝ))) u = 4 / 3 * K * u ^ (-(3 / 2 : ℝ)) :=
+      Set.indicator_of_mem (show u ∈ Ici δ from hu') _
+    rw [hind]
+    have hn : ‖vacMaj K a δ L1 s P Φ u‖ ≥ 0 := norm_nonneg _
+    set c0 := χ ((u + s) / (3 * δ)) * (1 - κ * (u ^ 3)⁻¹) with hc0def
+    have e : -(χ ((u + s) / (3 * δ)) * (1 - κ * (u ^ 3)⁻¹) * (P u * ‖(u : ℂ) - (L1 : ℂ) * Φ u‖ / (u - (L1 - s)) -
+        u / (u - (L1 - s)) * uctIfl u)) = c0 * (u / (u - (L1 - s)) * uctIfl u - P u * ‖(u : ℂ) - (L1 : ℂ) * Φ u‖ / (u - (L1 - s))) := by
+      rw [hc0def]; ring
+    rw [e]
+    have h6 : u / (u - (L1 - s)) * uctIfl u - P u * ‖(u : ℂ) - (L1 : ℂ) * Φ u‖ / (u - (L1 - s)) ≤ 4 / 3 * (K * u ^ (-(3 / 2 : ℝ))) :=
+      by linarith [le_abs_self (u / (u - (L1 - s)) * uctIfl u)]
+    have h7 : 0 ≤ 4 / 3 * (K * u ^ (-(3 / 2 : ℝ))) := by positivity
+    calc c0 * (u / (u - (L1 - s)) * uctIfl u - P u * ‖(u : ℂ) - (L1 : ℂ) * Φ u‖ / (u - (L1 - s))) ≤ c0 * (4 / 3 * (K * u ^ (-(3 / 2 : ℝ)))) :=
+          mul_le_mul_of_nonneg_left h6 hc0
+      _ ≤ 1 * (4 / 3 * (K * u ^ (-(3 / 2 : ℝ)))) := mul_le_mul_of_nonneg_right hc1 h7
+      _ = 4 / 3 * K * u ^ (-(3 / 2 : ℝ)) := by ring
+      _ ≤ ‖vacMaj K a δ L1 s P Φ u‖ + 4 / 3 * K * u ^ (-(3 / 2 : ℝ)) := by linarith
+
+end VacHyp
+
+
+/-- **The vacuum integral at one `(ε, c)`**: under `VacHyp`, `∫ χ(L/3δ) γ(L̃)(O − F) dL ≤ (AM + 57K⁵ + ABR) a⁹`, `a⁹ = c^{-3/4}`. -/
+theorem vac_core {χ : ℝ → ℝ} (hχ : IsCutoff χ) {K a0 a1 a δ s L1 α κ Cfl I0 c : ℝ} {P : ℝ → ℝ} {Φ : ℝ → ℂ}
+    (V : VacHyp K a0 a1 a δ s L1 α κ Cfl I0 P Φ) (hκ : κ = (5 * π ^ 2 / 96) * c⁻¹ ^ 2) :
+    (∫ x, χ (x / (3 * δ)) * physGamma c s x * (physOsc P Φ s L1 x - physF s L1 x)) ≤
+      (VacHyp.AM K + 57 * K ^ 5 + ABR K) * a ^ 9 := by
+  have hshift : (∫ x, χ (x / (3 * δ)) * physGamma c s x * (physOsc P Φ s L1 x - physF s L1 x)) =
+      ∫ u, vacG χ c δ s L1 P Φ u :=
+    (integral_add_right_eq_self (fun x => χ (x / (3 * δ)) * physGamma c s x * (physOsc P Φ s L1 x - physF s L1 x)) s).symm
+  rw [hshift]
+  obtain ⟨hmi, hmv⟩ := V.maj_integral_le
+  calc ∫ u, vacG χ c δ s L1 P Φ u ≤ ∫ u, vacMaj K a δ L1 s P Φ u :=
+        integral_mono (V.vacG_integrable hχ hκ) hmi (vacG_le_maj hχ V hκ)
+    _ ≤ _ := hmv
+
+/-- The smallness and `κ`-facts of `VacHyp` from the displays, for `a = c^{-1/12}` small (`10 K³ a² ≤ 1`) and `c⁻¹ = a^{12}`. -/
+lemma VacHyp.of_disp {K a0 a1 a δ s L1 α Cfl I0 c : ℝ} {P : ℝ → ℝ} {Φ : ℝ → ℂ}
+    (D : VacDisp K a0 a1 a δ s L1 α Cfl I0 P Φ) (hc : c⁻¹ = a ^ 12) (hsm : 10 * K ^ 3 * a ^ 2 ≤ 1)
+    (hΦm : Measurable Φ) (hΦre : ∀ u, 0 < u → |(Φ u).re| ≤ K * min 1 ((u / a ^ 2) ^ 4))
+    (hΦim : ∀ u, 0 < u → (Φ u).im ^ 2 ≤ K * min 1 ((u / a ^ 2) ^ 4)) :
+    VacHyp K a0 a1 a δ s L1 α ((5 * π ^ 2 / 96) * c⁻¹ ^ 2) Cfl I0 P Φ := by
+  have hK := D.hK
+  have ha := D.ha
+  have ha1 := D.ha1
+  have hK0 : 0 < K := by linarith
+  have hKa : K⁻¹ ≤ a0 := (inv_le_comm₀ D.ha0 hK0).mp D.hKa0
+  have hδK : a ^ 6 / K ≤ δ := by
+    calc a ^ 6 / K = K⁻¹ * a ^ 6 := by ring
+      _ ≤ a0 * a ^ 6 := by gcongr
+      _ ≤ δ := D.hδ0
+  have hδ : 0 < δ := lt_of_lt_of_le (by positivity) hδK
+  have ha2 : a ^ 2 ≤ 1 / (10 * K ^ 3) := by
+    rw [le_div_iff₀ (by positivity)]; linarith
+  have hK2 : K ≤ K ^ 2 := by nlinarith
+  have hK3 : K ^ 2 ≤ K ^ 3 := by nlinarith
+  have ha68 : a ^ 8 ≤ a ^ 6 := pow_le_pow_of_le_one ha.le ha1 (by norm_num)
+  have ha126 : a ^ 12 ≤ a ^ 6 := pow_le_pow_of_le_one ha.le ha1 (by norm_num)
+  have ha62 : a ^ 6 ≤ a ^ 2 := pow_le_pow_of_le_one ha.le ha1 (by norm_num)
+  have hpi : π ^ 2 ≤ 10 := by nlinarith [Real.pi_lt_d2, Real.pi_pos]
+  have hκe : (5 * π ^ 2 / 96) * c⁻¹ ^ 2 = (5 * π ^ 2 / 96) * a ^ 24 := by rw [hc]; ring
+  have hs := D.hs
+  have hL1 := D.hL1
+  -- δ/4 ≥ a⁶/(4K)
+  have key : ∀ m : ℝ, 0 < m → m * K ≤ a ^ 6 → m ≤ δ := by
+    intro m hm h
+    have : m ≤ a ^ 6 / K := by rw [le_div_iff₀ hK0]; exact h
+    exact this.trans hδK
+  refine ⟨D, ?_, ?_, ?_, ?_, ?_, ?_, ?_, hΦm, hΦre, hΦim⟩
+  · positivity
+  · rw [hκe]
+    have : 5 * π ^ 2 / 96 ≤ 1 := by nlinarith
+    calc (5 * π ^ 2 / 96) * a ^ 24 ≤ 1 * a ^ 24 := by gcongr
+      _ = a ^ 24 := one_mul _
+  · -- `|L₁ - s| ≤ δ/4`
+    have h1 : |L1 - s| ≤ 2 * K * a ^ 8 := by
+      calc |L1 - s| ≤ |L1| + |s| := abs_sub _ _
+        _ ≤ K * a ^ 8 + K * a ^ 12 := add_le_add hL1 hs
+        _ ≤ K * a ^ 8 + K * a ^ 8 := add_le_add_right (mul_le_mul_of_nonneg_left (pow_le_pow_of_le_one ha.le ha1 (show 8 ≤ 12 by norm_num)) hK0.le) _
+        _ = 2 * K * a ^ 8 := by ring
+    have h2 : 4 * (2 * K * a ^ 8) ≤ δ := by
+      refine key _ (by positivity) ?_
+      have : 4 * (2 * K * a ^ 8) * K = 8 * K ^ 2 * a ^ 2 * a ^ 6 := by ring
+      rw [this]
+      have : 8 * K ^ 2 * a ^ 2 ≤ 1 := by nlinarith [sq_nonneg a, pow_pos ha 2]
+      nlinarith [pow_pos ha 6]
+    linarith
+  · have h2 : 10 * (K * a ^ 12) ≤ δ := by
+      refine key _ (by positivity) ?_
+      have : 10 * (K * a ^ 12) * K = 10 * K ^ 2 * a ^ 6 * a ^ 6 := by ring
+      rw [this]
+      have : 10 * K ^ 2 * a ^ 6 ≤ 1 := by nlinarith [pow_pos ha 6, pow_pos ha 2]
+      nlinarith [pow_pos ha 6]
+    linarith [hs]
+  · have h2 : 2 * (K * a ^ 8 * K) ≤ δ := by
+      refine key _ (by positivity) ?_
+      have : 2 * (K * a ^ 8 * K) * K = 2 * K ^ 3 * a ^ 2 * a ^ 6 := by ring
+      rw [this]
+      have : 2 * K ^ 3 * a ^ 2 ≤ 1 := by nlinarith [pow_pos ha 2]
+      nlinarith [pow_pos ha 6]
+    calc |L1| * K ≤ K * a ^ 8 * K := by gcongr
+      _ ≤ δ / 2 := by linarith
+  · have h2 : 31 / 10 * δ ≤ 1 := by
+      have : δ ≤ K * a ^ 6 := D.hδ1.trans (mul_le_mul_of_nonneg_right D.hKa1 (by positivity))
+      have h3 : K * a ^ 6 ≤ K * a ^ 2 := by gcongr
+      have h4 : K * a ^ 2 ≤ 1 / 10 := by nlinarith [pow_pos ha 2]
+      linarith
+    exact h2
+  · rw [hκe]
+    have hδ3 : (a ^ 6 / K) ^ 3 ≤ δ ^ 3 := pow_le_pow_left₀ (by positivity) hδK 3
+    have h1 : (δ ^ 3)⁻¹ ≤ ((a ^ 6 / K) ^ 3)⁻¹ := inv_anti₀ (by positivity) hδ3
+    have h2 : ((a ^ 6 / K) ^ 3)⁻¹ = K ^ 3 * (a ^ 18)⁻¹ := by field_simp
+    have hpi' : (5 * π ^ 2 / 96) ≤ 1 := by nlinarith
+    have h3 : (5 * π ^ 2 / 96) * a ^ 24 * (δ ^ 3)⁻¹ ≤ 1 * a ^ 24 * (K ^ 3 * (a ^ 18)⁻¹) := by
+      rw [← h2]; gcongr
+    have h4 : 1 * a ^ 24 * (K ^ 3 * (a ^ 18)⁻¹) = K ^ 3 * a ^ 6 := by field_simp
+    have h5 : K ^ 3 * a ^ 6 ≤ 1 := by nlinarith [pow_pos ha 2, pow_pos ha 6]
+    linarith
+
+/-- info: 'FormalResearch.SignUncertainty.FctSym.vac_core' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms vac_core
 
 end FormalResearch.SignUncertainty.FctSym
