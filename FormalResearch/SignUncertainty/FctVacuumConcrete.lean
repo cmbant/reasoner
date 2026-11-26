@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 module
 
 public import FormalResearch.SignUncertainty.FctVacuumCancel
+public import FormalResearch.SignUncertainty.FctVacuumPointwise
 
 /-!
 # `VacDisp` for the concrete datum: the comp-D displays of `fct:physical-budget` discharged (F2a)
@@ -15,11 +16,11 @@ For the concrete datum `P = vacP` (`I_osc^{DH₀}(1 + Δ_curv ∘ τ₀)`, so `v
 `Cfl = stripCfl`, `I0 = stripFp1`, **proved here** (`vacDisp_concrete`) from `fct_comp_D_part2` and `fct_vac_cancel`: the fields `hK`, `ha0`, `hKa0`, `hKa1`,
 `hKf`, `ha`, `ha1`, `hδ0`, `hδ1` (`m(t) ≍ t²`), `hDint`, `hCfl`, `hcos`, `hin`, `hI0`, `hb1`, `hb2`, `hcancel` of `VacDisp`.
 
-What `vacDisp_concrete` still takes as hypotheses (the structure `VacPointwise` and the three size bounds of the physical datum):
-the pointwise bounds of `(fct:Dstar-inner)` on `D_*` (`hDin`, `hDmid`, `hDfar`), measurability and nonnegativity of `P` (`hPm`, `hP0`), and the size facts
-`|s| ≲ a¹²`, `|L₁| ≲ a⁸`, `|α| ≲ a⁸` of `fct:physical-budget`.
+`vacDisp_concrete` takes the structure `VacPointwise` (pointwise bounds of `(fct:Dstar-inner)` on `D_*`, measurability and nonnegativity of `P`) and the three size
+bounds of the physical datum (`|s| ≲ a¹²`, `|L₁| ≲ a⁸`, `|α| ≲ a⁸`) as hypotheses; `VacPointwise` is **proved** for the concrete datum in `FctVacuumPointwise`
+(`vacPointwise_concrete`), so `vacuum_integral_concrete` assumes only the size bounds (`hsize`, facts about the physical datum) and the definition of `O` (`hO`).
 
-Class: proved under the explicit hypotheses `VacPointwise` and the size bounds.
+Class: proved; the only hypotheses of `vacuum_integral_concrete` are the size bounds `hsize` and the identification `hO` of `O` on the support of the cutoff.
 -/
 
 @[expose] public section
@@ -31,29 +32,6 @@ namespace FormalResearch.SignUncertainty.FctSym
 
 open FormalResearch.CohnElkies FormalResearch.SignUncertainty FormalResearch.SignUncertainty.FctCompD
   FormalResearch.SignUncertainty.FctPhiKill FormalResearch.SignUncertainty.FctMoment
-
-/-- The pointwise facts on `P` (measurability, `P ≥ 0`, and the three pointwise bounds on `D_* = vacD P` from `(fct:Dstar-inner)`) used by
-the vacuum integral and not yet derived from `fct:comp-D`. -/
-structure VacPointwise (K a δ : ℝ) (P : ℝ → ℝ) : Prop where
-  hPm : Measurable P
-  hP0 : ∀ u, 0 < u → 0 ≤ P u
-  hDin : ∀ u ∈ Icc δ (31 / 10 * δ), |vacD P u| ≤ K * Real.sqrt u
-  hDmid : ∀ u ∈ Icc (3 * δ) (144 * δ), |vacD P u| ≤ K * a ^ 6 * u ^ (-(3 / 2 : ℝ))
-  hDfar : ∀ u, 144 * δ ≤ u → |vacD P u| ≤ K * u ^ (-(1 / 2 : ℝ))
-
-lemma kmono {x y K K' : ℝ} (hy : 0 ≤ y) (h : x ≤ K * y) (hK : K ≤ K') : x ≤ K' * y :=
-  h.trans (mul_le_mul_of_nonneg_right hK hy)
-
-lemma VacPointwise.mono {K K' a δ : ℝ} {P : ℝ → ℝ} (V : VacPointwise K a δ P) (hK : K ≤ K') (hδ : 0 ≤ δ) :
-    VacPointwise K' a δ P := by
-  refine ⟨V.hPm, V.hP0, fun u hu => ?_, fun u hu => ?_, fun u hu => ?_⟩
-  · exact kmono (Real.sqrt_nonneg u) (V.hDin u hu) hK
-  · have hu0 : 0 ≤ u := by nlinarith [hu.1]
-    have := V.hDmid u hu
-    calc |vacD P u| ≤ K * a ^ 6 * u ^ (-(3 / 2 : ℝ)) := this
-      _ ≤ K' * a ^ 6 * u ^ (-(3 / 2 : ℝ)) := by gcongr
-  · have hu0 : 0 ≤ u := by nlinarith [hu]
-    exact kmono (Real.rpow_nonneg hu0 _) (V.hDfar u hu) hK
 
 /-- **`VacDisp` for the concrete datum.**  For every `K4 ≥ 1` there is `K ≥ 1` such that, for `c`, `α`, `τ₁ = c^{-1/4} ≤ τ₀`, `a³ = τ₁`, and any `K'`
 dominating the size bounds `|s| ≤ K' a¹²`, `|L₁| ≤ K' a⁸`, `|α| ≤ K' a⁸` and `VacPointwise K' a (m τ₁) (vacP …)`, the structure
@@ -137,8 +115,8 @@ theorem vacDisp_concrete (kind : StripKernelChoice) :
 `∫ χ(L/3δ_L) γ(L̃)(O − F) dL ≤ A c^{-3/4}` for `O = I_osc^{warp}` built from the concrete datum `P = vacP` (`δ_L = m(c^{-1/4})`,
 `Φ = φ_kill(iτ₀(·); c^{-1/12})`, `C_fl = stripCfl`, `I₀ = stripFp1`), with the `fct:comp-D` (2) displays `(fct:cos-pen)`, `(fct:bump-1L)`, `(fct:bump-2L)`
 and the finite-part cancellation of `fct:phikill` (3) now *proved* (not part of the hypotheses).  The hypotheses left are the size bounds of the
-datum `(s, L₁, α)`, the definition of `O` on the support of the cutoff (`hO`), and `VacPointwise` (pointwise `(fct:Dstar-inner)` bounds, `P ≥ 0`,
-measurability). -/
+datum `(s, L₁, α)` (`hsize`) and the definition of `O` on the support of the cutoff (`hO`); the pointwise facts `VacPointwise` (pointwise `(fct:Dstar-inner)`
+bounds, `P ≥ 0`, measurability) are now proved (`vacPointwise_concrete`). -/
 theorem vacuum_integral_concrete {χ : ℝ → ℝ} (hχ : IsCutoff χ) (kind : StripKernelChoice) {K4 : ℝ} (hK4 : 1 ≤ K4)
     (sf L1f αf : ℝ → ℝ → ℝ) (Of : ℝ → ℝ → ℝ → ℝ)
     (hO : ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → ∀ x : ℝ, 3 / 2 * uctM (c ^ (-(1 / 4 : ℝ))) ≤ x →
@@ -146,15 +124,14 @@ theorem vacuum_integral_concrete {χ : ℝ → ℝ} (hχ : IsCutoff χ) (kind : 
     (hsize : ∃ K c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       |sf ε c| ≤ K * (c ^ (-(1 / 12 : ℝ))) ^ 12 ∧ |L1f ε c| ≤ K * (c ^ (-(1 / 12 : ℝ))) ^ 8 ∧
         |αf ε c| ≤ K * (c ^ (-(1 / 12 : ℝ))) ^ 8)
-    (hpt : ∃ K c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
-      VacPointwise K (c ^ (-(1 / 12 : ℝ))) (uctM (c ^ (-(1 / 4 : ℝ)))) (vacP kind K4 c (αf ε c) (c ^ (-(1 / 4 : ℝ))))) :
+    :
     ∃ A c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       (∫ x, χ (x / (3 * uctM (c ^ (-(1 / 4 : ℝ))))) * physGamma c (sf ε c) x *
         (Of ε c x - physF (sf ε c) (L1f ε c) x)) ≤ A * c ^ (-(3 / 4 : ℝ)) := by
   obtain ⟨τ₀, hτ₀, hτ₀100, a0, a1, ha0, hK⟩ := vacDisp_concrete kind
   obtain ⟨K, hK1, hKd⟩ := hK K4 hK4
   obtain ⟨Ks, cs, hs⟩ := hsize
-  obtain ⟨Kp, cp, hp⟩ := hpt
+  obtain ⟨Kp, τp, hτp, hKp1, hp⟩ := vacPointwise_concrete kind K4 hK4
   set K' : ℝ := max Ks Kp with hK'def
   have hKsK' : Ks ≤ K' := le_max_left _ _
   have hKpK' : Kp ≤ K' := le_max_right _ _
@@ -164,9 +141,9 @@ theorem vacuum_integral_concrete {χ : ℝ → ℝ} (hχ : IsCutoff χ) (kind : 
   have hM0 : 0 < M := by linarith
   refine vacuum_integral_field hχ (fun _ c => uctM (c ^ (-(1 / 4 : ℝ)))) sf L1f Of
     (fun ε c => vacP kind K4 c (αf ε c) (c ^ (-(1 / 4 : ℝ)))) αf (fun _ _ => stripCfl kind) (fun _ _ => stripFp1 kind) hO
-    ⟨max K K', a0, a1, max (max cs cp) (max (τ₀⁻¹ ^ 4) (M ^ 6)), fun ε c hε hc => ?_⟩
+    ⟨max K K', a0, a1, max (max cs (τp⁻¹ ^ 4)) (max (τ₀⁻¹ ^ 4) (M ^ 6)), fun ε c hε hc => ?_⟩
   have hcs : cs ≤ c := ((le_max_left _ _).trans (le_max_left _ _)).trans hc
-  have hcp : cp ≤ c := ((le_max_right _ _).trans (le_max_left _ _)).trans hc
+  have hcp : τp⁻¹ ^ 4 ≤ c := ((le_max_right _ _).trans (le_max_left _ _)).trans hc
   have hcτ : τ₀⁻¹ ^ 4 ≤ c := ((le_max_left _ _).trans (le_max_right _ _)).trans hc
   have hcM : M ^ 6 ≤ c := ((le_max_right _ _).trans (le_max_right _ _)).trans hc
   have hc0 : 0 < c := lt_of_lt_of_le (by positivity) hcτ
@@ -195,6 +172,11 @@ theorem vacuum_integral_concrete {χ : ℝ → ℝ} (hχ : IsCutoff χ) (kind : 
       have := one_lt_pow₀ (not_le.mp hlt) (by norm_num : (6 : ℕ) ≠ 0)
       linarith
     nlinarith
+  have hτ₁_leP : τ₁ ≤ τp := by
+    have h4 : τ₁ ^ 4 ≤ τp ^ 4 := by
+      rw [hτ4, inv_le_comm₀ hc0 (by positivity)]
+      simpa [inv_pow] using hcp
+    exact le_of_pow_le_pow_left₀ (by norm_num) hτp.le h4
   obtain ⟨hs1, hL1, hα⟩ := hs ε c hε hcs
   have hα_le : |αf ε c| ≤ τ₁ ^ 2 := by
     calc |αf ε c| ≤ Ks * a ^ 8 := hα
@@ -203,7 +185,7 @@ theorem vacuum_integral_concrete {χ : ℝ → ℝ} (hχ : IsCutoff χ) (kind : 
       _ ≤ 1 * a ^ 6 := mul_le_mul_of_nonneg_right hsm (by positivity)
       _ = τ₁ ^ 2 := by rw [← ha3]; ring
   exact hKd hc0 hτ₁ hτ₁_le hc_eq hα_le ha ha3 (kmono (by positivity) hs1 hKsK') (kmono (by positivity) hL1 hKsK')
-    (kmono (by positivity) hα hKsK') ((hp ε c hε hcp).mono hKpK' (uctM_pos hτ₁).le)
+    (kmono (by positivity) hα hKsK') ((hp hc0 hτ₁ hτ₁_leP hc_eq hα_le ha ha3).mono hKpK' (uctM_pos hτ₁).le)
 
 /-- info: 'FormalResearch.SignUncertainty.FctSym.vacDisp_concrete' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.SignUncertainty.HeadlineDefs
+public import FormalResearch.SignUncertainty.ShellGapHankel
 
 /-!
 # Statement objects and input structure for `thm:ce-canonical-iff` (= `thm:intro-gap`)
@@ -17,9 +18,11 @@ Concrete objects (no free data):
 * `airyLambdaM s M` (`Λ_M(s)`), `airyLambda s` (`λ(s) = sup_M Λ_M(s)`): the constrained Airy-cardinal Rayleigh
   quotients of `ce_airy_lp.tex`, for a finite set `s` of sites, `k_n(u) = Ai(u)/(u - a_n)`.
 * `IsHbZeroEnum P Q t`: `t j` is the paper's `t_{j+1}`, the strictly decreasing enumeration of the real zeros of
-  `N = P Ai + Q Ai'` (this determines `t` uniquely; its existence is part of the paper's setup and is not
-  formalised here, so satisfiability is unchecked). `hbNode t n = t_n` is the one-indexed form.
+  `N = P Ai + Q Ai'` (this determines `t` uniquely; its existence is proved for every `D : ShellHBData` in
+  `HbZeroEnum.lean`, `exists_isHbZeroEnum`). `hbNode t n = t_n` is the one-indexed form.
 * `hbNodeWeight`, `hbNodeSquareBound`: `ω_n` and `τ_N` of `eq:hb-node-bound`.
+
+* `ProfileConv Φ L`, `ShellGapEndpoint D`: the `v = t_m` endpoint clause of `thm:ce-shell-gap`.
 
 `CeCanonicalInputs D t` is the input structure of the headline `thm_ce_canonical_iff` (in `Headlines.lean`); every
 field is an open result of the paper and names its label.
@@ -124,6 +127,45 @@ def ShellLiminf (D : ShellHBData) : Prop :=
   ∃ r : ℝ → ℕ → ℝ, ShellOffsetsSmall r ∧
     liminf (ceShellRho D r) atTop = ((-(D.tm / hankelBeta1) : ℝ) : EReal)
 
+/-! ### The `v = t_m` endpoint clause of `thm:ce-shell-gap` -/
+
+/-- `Φ_k → L` locally uniformly on `ℝ` and in `L¹` (the profiles `Φ_k` and `L` are integrable in every use below,
+so the Bochner integral is the true `L¹` distance). -/
+def ProfileConv (Φ : ℕ → ℝ → ℝ) (L : ℝ → ℝ) : Prop :=
+  TendstoLocallyUniformlyOn Φ L atTop univ ∧ Tendsto (fun k => ∫ u : ℝ, |Φ k u - L u|) atTop (𝓝 0)
+
+/-- **`thm:ce-shell-gap`, the `v = t_m` endpoint clause** (`ce_shells.tex`, Corollary H.14d and
+`thm:ce-physical-profile`), in Hankel form (dimensions `d_k ≥ 2`, `c_k = d_k/2`; the same hypotheses as
+`HankelShellGapLimit` with `u_* = t_m`: offsets `o(c^{1/3})`, Hankel Cohn–Elkies profiles `h_k = G k` with
+`h_k ≤ 0` at the prescribed shells and thresholds `T_k ≤ c/π² - (t_m/β₁)c^{1/3} + o(c^{1/3})`). With
+`M[h] = hankelMass`, `Ψ_{h,c} = hankelWindowProfile`, `f_k = ĥ_k - h_k` and `G_N/‖G_N‖₁ = D.normG`:
+`Ψ_{h_k}/M[h_k] → -G_N/‖G_N‖₁` and `Ψ_{ĥ_k}/M[h_k] → 0` (locally uniformly and in `L¹`),
+`Ψ_{f_k}/M[f_k] → G_N/‖G_N‖₁` (both senses), `M[ĥ_k]/M[f_k] → 0`, and `ℒ_y(-G_N) ≥ 0` for all `y > 0`.
+This is an open input (`CeCanonicalInputs.shell_gap_endpoint`): the paper's proof uses the zero-mass `L¹` clause
+of `thm:ce-physical-profile` (`lem:qual-compact`), which is not formalised. -/
+def ShellGapEndpoint (D : ShellHBData) : Prop :=
+  ∀ r : ℝ → ℕ → ℝ, ShellOffsetsSmall r →
+    ∀ dk : ℕ → ℕ, Tendsto dk atTop atTop → (∀ k, 2 ≤ dk k) →
+      ∀ ε : ℕ → ℝ, Tendsto ε atTop (𝓝 0) →
+        ∀ (G : ℕ → ℝ → ℝ) (T : ℕ → ℝ), (∀ k, HankelShellProfile ((dk k : ℝ) / 2) (T k) (G k)) →
+          (∀ k, ∀ t ∈ D.S, t ≠ D.tm → 0 ≤ shellSite t (r t) (dk k) →
+            G k (shellSite t (r t) (dk k)) ≤ 0) →
+          (∀ k, T k ≤ (dk k : ℝ) / (2 * π ^ 2) - (D.tm / hankelBeta1) * ((dk k : ℝ) / 2) ^ (1 / 3 : ℝ)
+            + ε k * ((dk k : ℝ) / 2) ^ (1 / 3 : ℝ)) →
+          ProfileConv (fun k u => hankelWindowProfile ((dk k : ℝ) / 2) (G k) u /
+              hankelMass ((dk k : ℝ) / 2) (G k)) (fun u => -D.normG u) ∧
+          ProfileConv (fun k u => hankelWindowProfile ((dk k : ℝ) / 2)
+              (besselHankelTransform ((dk k : ℝ) / 2) (G k)) u / hankelMass ((dk k : ℝ) / 2) (G k))
+            (fun _ => 0) ∧
+          ProfileConv (fun k u => hankelWindowProfile ((dk k : ℝ) / 2)
+              (fun Δ => besselHankelTransform ((dk k : ℝ) / 2) (G k) Δ - G k Δ) u /
+              hankelMass ((dk k : ℝ) / 2) (fun Δ => besselHankelTransform ((dk k : ℝ) / 2) (G k) Δ - G k Δ))
+            D.normG ∧
+          Tendsto (fun k => hankelMass ((dk k : ℝ) / 2) (besselHankelTransform ((dk k : ℝ) / 2) (G k)) /
+            hankelMass ((dk k : ℝ) / 2) (fun Δ => besselHankelTransform ((dk k : ℝ) / 2) (G k) Δ - G k Δ))
+            atTop (𝓝 0) ∧
+          LaplaceNonneg D
+
 /-! ### Input structure -/
 
 /-- `thm:airy-square-attained` (`ce_airy_lp.tex`), the parts used by `thm:ce-canonical-iff`, for the sites
@@ -203,6 +245,8 @@ structure CeCanonicalInputs (D : ShellHBData) (t : ℕ → ℝ) : Prop where
         at47_Nf D.P D.Q t₂ = 0 ∧ at47_Nf D.P D.Q t₃ = 0 ∧ 0 < (H (t₁ : ℂ)).re ∧
         (H (t₂ : ℂ)).re < 0 ∧ 0 < (H (t₃ : ℂ)).re) → uSh D = (b : EReal)) ∧
     (∀ b : ℝ, uLP D = (b : EReal) → hbNode t (D.S.card + 2) ≤ b → b < D.tm → uSh D = (b : EReal))
+  /-- `thm:ce-shell-gap`, the `v = t_m` endpoint clause (`ce_shells.tex`, Corollary H.14d; M9). -/
+  shell_gap_endpoint : ShellGapEndpoint D
   /-- `lem:ce-terminal-deflation` (M9, `ce_shells.tex`): for `m` odd with `ℒ_y(-G_N) ≥ 0` for all `y > 0`, the
   terminal cardinal `H_N = -G_N/(u - t_m)` has `I_N = ∫ H_N = D(t_m)/∏_{j<m}(t_j - t_m) > 0` (the node weight
   numerator `D(t_m)` is positive for Hermite–Biehler data, `gt:1.0pp`). -/
