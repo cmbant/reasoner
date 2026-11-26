@@ -437,3 +437,19 @@ lemma jet_mR {l : Filter ℝ} (hl : l ≤ 𝓝 0) : Jet l mR 0 (2 * √2) 0 (-(2
     _ ≤ 2 * √2 * |x| ^ 4 := by gcongr
 
 end FormalResearch.ModularBootstrap.FiveTerm
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.Jet.comp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.FiveTerm.Jet.comp
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.Jet.unique' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.FiveTerm.Jet.unique
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.jet_phi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.FiveTerm.jet_phi
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.jet_arccos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.FiveTerm.jet_arccos

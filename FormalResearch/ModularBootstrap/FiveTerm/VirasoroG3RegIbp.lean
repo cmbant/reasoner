@@ -182,4 +182,79 @@ theorem reg_ibp {a a' b : ℝ → ℝ} (ha : Amp a) (hd : ∀ t : ℝ, 0 < t →
   field_simp
   ring
 
+/-- `∫_{(δ,∞)} f → ∫_{(0,∞)} f` as `δ → 0⁺` for an integrable `f`. -/
+lemma tendsto_setIntegral_Ioi {f : ℝ → ℝ} (hf : Integrable f) :
+    Tendsto (fun δ : ℝ => ∫ t in Ioi δ, f t) (𝓝[>] 0) (𝓝 (∫ t in Ioi (0 : ℝ), f t)) := by
+  have h := tendsto_integral_filter_of_dominated_convergence (μ := volume) (l := 𝓝[>] (0 : ℝ))
+    (F := fun δ t => (Ioi δ).indicator f t) (f := (Ioi (0 : ℝ)).indicator f) (fun t => ‖f t‖)
+    (Eventually.of_forall fun δ => hf.aestronglyMeasurable.indicator measurableSet_Ioi)
+    (Eventually.of_forall fun δ => Eventually.of_forall fun t => by
+      by_cases ht : t ∈ Ioi δ
+      · simp [Set.indicator_of_mem ht]
+      · simp [Set.indicator_of_notMem ht])
+    hf.norm
+    (Eventually.of_forall fun t => by
+      by_cases ht : 0 < t
+      · have hev : ∀ᶠ δ : ℝ in 𝓝[>] 0, δ < t := by
+          filter_upwards [Ioo_mem_nhdsGT ht] with δ hδ using hδ.2
+        refine tendsto_const_nhds.congr' ?_
+        filter_upwards [hev] with δ hδ
+        rw [Set.indicator_of_mem (show t ∈ Ioi δ from hδ), Set.indicator_of_mem (show t ∈ Ioi (0 : ℝ) from ht)]
+      · have h0 : t ∉ Ioi (0 : ℝ) := ht
+        rw [Set.indicator_of_notMem h0]
+        refine tendsto_const_nhds.congr' ?_
+        filter_upwards [self_mem_nhdsWithin] with δ hδ
+        have : t ∉ Ioi δ := fun h => ht (lt_trans (show (0 : ℝ) < δ from hδ) h)
+        rw [Set.indicator_of_notMem this])
+  simpa [integral_indicator measurableSet_Ioi] using h
+
+/-- Evenness: `∫_ℝ f = 2 ∫_{(0,∞)} f`. -/
+lemma integral_eq_two_Ioi {f : ℝ → ℝ} (hev : ∀ t, f (-t) = f t) :
+    ∫ t : ℝ, f t = 2 * ∫ t in Ioi (0 : ℝ), f t := by
+  have h := integral_comp_abs (f := f)
+  have h2 : ∀ t : ℝ, f |t| = f t := by
+    intro t
+    rcases abs_cases t with ⟨e, _⟩ | ⟨e, _⟩
+    · rw [e]
+    · rw [e, hev]
+  simp only [h2] at h
+  exact h
+
+lemma tendsto_amp_quot_div {b : ℝ → ℝ} (hb : Amp b) :
+    Tendsto (fun δ : ℝ => (b δ - b 0) / Real.sinh (π * δ)) (𝓝[>] 0) (𝓝 0) := by
+  have hpi := Real.pi_pos
+  obtain ⟨K, r, hr, hK⟩ := amp_sq_bound hb
+  refine squeeze_zero_norm' ?_ (show Tendsto (fun δ : ℝ => |K| / π * δ) (𝓝[>] 0) (𝓝 0) by
+    have : Tendsto (fun δ : ℝ => |K| / π * δ) (𝓝 0) (𝓝 (|K| / π * 0)) :=
+      (continuous_const.mul continuous_id).tendsto 0
+    simpa using this.mono_left nhdsWithin_le_nhds)
+  filter_upwards [Ioo_mem_nhdsGT hr] with δ hδ
+  have hδ0 : 0 < δ := hδ.1
+  have h1 := hK δ (by rw [abs_of_pos hδ0]; exact hδ.2)
+  have hsh : π * δ ≤ Real.sinh (π * δ) := Real.self_le_sinh_iff.mpr (by positivity)
+  rw [Real.norm_eq_abs, abs_div, abs_of_pos (lt_of_lt_of_le (by positivity) hsh)]
+  have h2 : |b δ - b 0| ≤ |K| * δ ^ 2 := h1.trans (mul_le_mul_of_nonneg_right (le_abs_self K) (sq_nonneg δ))
+  calc |b δ - b 0| / Real.sinh (π * δ) ≤ |K| * δ ^ 2 / (π * δ) := by
+        apply div_le_div₀ (by positivity) h2 (by positivity) hsh
+    _ = |K| / π * δ := by field_simp
+
+lemma tendsto_inv_sinh_atTop : Tendsto (fun δ : ℝ => (Real.sinh (π * δ))⁻¹) (𝓝[>] 0) atTop := by
+  have h0 : Tendsto (fun δ : ℝ => Real.sinh (π * δ)) (𝓝[>] 0) (𝓝[>] 0) := by
+    refine tendsto_nhdsWithin_iff.mpr ⟨?_, ?_⟩
+    · have : Tendsto (fun δ : ℝ => Real.sinh (π * δ)) (𝓝 0) (𝓝 (Real.sinh (π * 0))) :=
+        (Real.continuous_sinh.comp (continuous_const.mul continuous_id)).tendsto 0
+      simpa using this.mono_left nhdsWithin_le_nhds
+    · filter_upwards [self_mem_nhdsWithin] with δ hδ
+      exact sinh_pos_of_pos hδ
+  exact tendsto_inv_nhdsGT_zero.comp h0
+
+lemma coeff_zero {c L : ℝ} (h : Tendsto (fun δ : ℝ => c * (Real.sinh (π * δ))⁻¹) (𝓝[>] 0) (𝓝 L)) :
+    c = 0 := by
+  by_contra hc
+  rcases lt_or_gt_of_ne hc with hneg | hpos
+  · have := tendsto_inv_sinh_atTop.const_mul_atTop_of_neg hneg
+    exact not_tendsto_nhds_of_tendsto_atBot this L h
+  · have := tendsto_inv_sinh_atTop.const_mul_atTop hpos
+    exact not_tendsto_nhds_of_tendsto_atTop this L h
+
 end FormalResearch.ModularBootstrap.FiveTerm
