@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.ModularBootstrap.LP.DerivLimit
 public import FormalResearch.ModularBootstrap.LP.PositiveRay
+public import FormalResearch.ModularBootstrap.LP.LaguerreSharp
 
 /-!
 # LP1 target statements, as `Prop`s
@@ -14,6 +15,7 @@ is re-proved here, and no hypothesis restates a conclusion.  The status table is
 | paper label | statement | home theorem |
 |---|---|---|
 | `ds:mom` (abstract odd family, Laguerre instance) | `DsMom`, `DsMomLaguerre` | `ds_mom`, `ds_mom_laguerre` |
+| `ds:mom`, Laguerre constant `C_w = (2+w)/(2π)` | `DsMomLaguerreConst` | `lagP_oddFam_sharp` |
 | `ds:mom`, mass bound | `DsMomMass` | `ds_mom_mass` |
 | `dsl:poly-compact` | `DslPolyCompact` | `poly_compact`, `poly_compact_invariant` |
 | `dsl:positive-ray` | `DslPositiveRay` | `positive_ray` |
@@ -65,6 +67,16 @@ def DsMomLaguerre : Prop :=
 
 theorem dsMomLaguerre_holds : DsMomLaguerre := fun hw μ₀ hμ₀ hint _ hM =>
   ds_mom_laguerre hw μ₀ hμ₀ hint hM
+
+/-- `ds:mom`, Laguerre clause: the monic Laguerre family at weight `w > 0` satisfies the hypotheses of
+`ds:mom` with the paper's constant `C_w = (2+w)/(2π)`. -/
+def DsMomLaguerreConst : Prop := ∀ {w : ℝ}, 0 < w → OddFam ((2 + w) / (2 * π)) (lagPC w)
+
+theorem dsMomLaguerreConst_holds : DsMomLaguerreConst := fun hw => lagP_oddFam_sharp hw
+
+/-- info: 'FormalResearch.ModularBootstrap.LP.dsMomLaguerreConst_holds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms dsMomLaguerreConst_holds
 
 /-- `ds:mom`, last sentence: the mass bound from the first odd equation (`T₀ > w/(4π)`). -/
 def DsMomMass : Prop :=
