@@ -22,7 +22,8 @@ Concrete objects (no free data):
   `HbZeroEnum.lean`, `exists_isHbZeroEnum`). `hbNode t n = t_n` is the one-indexed form.
 * `hbNodeWeight`, `hbNodeSquareBound`: `ω_n` and `τ_N` of `eq:hb-node-bound`.
 
-* `ProfileConv Φ L`, `ShellGapEndpoint D`: the `v = t_m` endpoint clause of `thm:ce-shell-gap`.
+* `ProfileConv Φ L`, `ShellGapEndpoint D`: the `v = t_m` endpoint clause of `thm:ce-shell-gap` (proved:
+  `shellGapEndpoint_proved`, `ShellGapEndpoint.lean`; no longer a field of `CeCanonicalInputs`).
 
 `CeCanonicalInputs D t` is the input structure of the headline `thm_ce_canonical_iff` (in `Headlines.lean`); every
 field is an open result of the paper and names its label.
@@ -141,8 +142,8 @@ def ProfileConv (Φ : ℕ → ℝ → ℝ) (L : ℝ → ℝ) : Prop :=
 `M[h] = hankelMass`, `Ψ_{h,c} = hankelWindowProfile`, `f_k = ĥ_k - h_k` and `G_N/‖G_N‖₁ = D.normG`:
 `Ψ_{h_k}/M[h_k] → -G_N/‖G_N‖₁` and `Ψ_{ĥ_k}/M[h_k] → 0` (locally uniformly and in `L¹`),
 `Ψ_{f_k}/M[f_k] → G_N/‖G_N‖₁` (both senses), `M[ĥ_k]/M[f_k] → 0`, and `ℒ_y(-G_N) ≥ 0` for all `y > 0`.
-This is an open input (`CeCanonicalInputs.shell_gap_endpoint`): the paper's proof uses the zero-mass `L¹` clause
-of `thm:ce-physical-profile` (`lem:qual-compact`), which is not formalised. -/
+Proved as `shellGapEndpoint_proved` (`ShellGapEndpoint.lean`): the zero-mass `L¹` clause of
+`thm:ce-physical-profile` is the equality case of `lem:qual-compact` (`Analysis.qual_compact_real`). -/
 def ShellGapEndpoint (D : ShellHBData) : Prop :=
   ∀ r : ℝ → ℕ → ℝ, ShellOffsetsSmall r →
     ∀ dk : ℕ → ℕ, Tendsto dk atTop atTop → (∀ k, 2 ≤ dk k) →
@@ -245,8 +246,6 @@ structure CeCanonicalInputs (D : ShellHBData) (t : ℕ → ℝ) : Prop where
         at47_Nf D.P D.Q t₂ = 0 ∧ at47_Nf D.P D.Q t₃ = 0 ∧ 0 < (H (t₁ : ℂ)).re ∧
         (H (t₂ : ℂ)).re < 0 ∧ 0 < (H (t₃ : ℂ)).re) → uSh D = (b : EReal)) ∧
     (∀ b : ℝ, uLP D = (b : EReal) → hbNode t (D.S.card + 2) ≤ b → b < D.tm → uSh D = (b : EReal))
-  /-- `thm:ce-shell-gap`, the `v = t_m` endpoint clause (`ce_shells.tex`, Corollary H.14d; M9). -/
-  shell_gap_endpoint : ShellGapEndpoint D
   /-- `lem:ce-terminal-deflation` (M9, `ce_shells.tex`): for `m` odd with `ℒ_y(-G_N) ≥ 0` for all `y > 0`, the
   terminal cardinal `H_N = -G_N/(u - t_m)` has `I_N = ∫ H_N = D(t_m)/∏_{j<m}(t_j - t_m) > 0` (the node weight
   numerator `D(t_m)` is positive for Hermite–Biehler data, `gt:1.0pp`). -/

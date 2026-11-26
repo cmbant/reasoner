@@ -358,6 +358,9 @@ public import FormalResearch.SignUncertainty.ShellGapLaplace
 public import FormalResearch.SignUncertainty.ShellGapMellin
 public import FormalResearch.SignUncertainty.ShellGapTransport
 public import FormalResearch.SignUncertainty.ShellGapExtract
+public import FormalResearch.SignUncertainty.ShellGapProfileConv
+public import FormalResearch.SignUncertainty.ShellGapEndpointAux
+public import FormalResearch.SignUncertainty.ShellGapEndpoint
 public import FormalResearch.SignUncertainty.EuclidCELift
 public import FormalResearch.SignUncertainty.CeHbLiftAssembly
 public import FormalResearch.SignUncertainty.MellinLiftGeneral
@@ -744,6 +747,11 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `‖Q‖₁ ≤ 1`, `∫ Q ≤ 0`, `∫_{u_*}^∞ Q_- ≥ 1/2`).
 * `FormalResearch.SignUncertainty.ShellGapExtract`: `extract_two` and `hankelShellGapLimit_proved`, the theorem
   `thm:ce-shell-gap` (Hankel form) with all constraints of `eq:ce-laplace-constraint`.
+* `FormalResearch.SignUncertainty.ShellGapProfileConv`, `ShellGapEndpointAux`, `ShellGapEndpoint` (`thm:ce-shell-gap`,
+  the `v = t_m` endpoint clause; proved, unconditional): `shellGapEndpoint_proved : ShellGapEndpoint D` (physical
+  profile `Ψ_h/M[h] → -G_N/‖G_N‖₁`, Fourier profile `→ 0`, `Ψ_f/M[f] → G_N/‖G_N‖₁`, `M[ĥ]/M[f] → 0`, `ℒ_y(-G_N) ≥ 0`),
+  from `endpoint_subseq` (normalisation by `M[h]`, uniqueness `D.uniqueness`, equality case of `lem:qual-compact`,
+  `Analysis.qual_compact_real`) and the subsequence principle `profileConv_of_subseq`.
 * `FormalResearch.SignUncertainty.RadialCompactness`: the statement of `lem:radial-compactness` (`RadialCompactness`:
   window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it

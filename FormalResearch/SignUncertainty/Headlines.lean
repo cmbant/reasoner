@@ -12,6 +12,7 @@ public import FormalResearch.SignUncertainty.CEShellReduction
 public import FormalResearch.SignUncertainty.CeCanonicalDefs
 public import FormalResearch.SignUncertainty.HbZeroEnum
 public import FormalResearch.SignUncertainty.ShellGapOrigin
+public import FormalResearch.SignUncertainty.ShellGapEndpoint
 public import FormalResearch.SignUncertainty.HbMultilevelDefs
 
 /-!
@@ -52,10 +53,11 @@ Headlines and their inputs (open fields in bold):
   **`ce_hb_lift`** (`thm:ce-hb-lift`, weak positivity), **`ce_airy_transfer_upper`** (`thm:ce-airy-transfer` (1)),
   **`airy_square_attained`** (`thm:airy-square-attained`), **`airy_square_bound`** (`lem:airy-square-bound`),
   **`airy_node_square`** (`lem:airy-node-square`), **`active_height`** (`lem:airy-active-height`),
-  **`node_sign`** (`thm:airy-node-sign`), **`shell_gap_endpoint`** (`thm:ce-shell-gap`, `v = t_m` clause), **`terminal_deflation`** (`lem:ce-terminal-deflation`). The extraction and
+  **`node_sign`** (`thm:airy-node-sign`), **`terminal_deflation`** (`lem:ce-terminal-deflation`). The extraction and
   constraint system `eq:ce-laplace-constraint` of `thm:ce-shell-gap` (Hankel form `HankelShellGapLimit`) is the
-  theorem `hankelShellGapLimit_proved` (`ShellGapExtract.lean`) and no longer a field, and `thm_ce_shell_gap` is
-  proved; `one_profile_envelope` (`gt:3.1` envelope used in `prop:ce-one-profile`) is a theorem
+  theorem `hankelShellGapLimit_proved` (`ShellGapExtract.lean`) and no longer a field, the `v = t_m` endpoint clause
+  `ShellGapEndpoint D` is the theorem `shellGapEndpoint_proved` (`ShellGapEndpoint.lean`) and no longer a field, and
+  `thm_ce_shell_gap` is proved; `one_profile_envelope` (`gt:3.1` envelope used in `prop:ce-one-profile`) is a theorem
   (`OneProfileEnvelope.lean`). Proved here: `one_profile_feasible_iff`, `one_profile_maximizer_exists`,
   `one_profile_threshold_le_and_endpoint_iff` (`prop:ce-one-profile`, `uLP_eq_tm_iff`), `even_m_laplace_sign`,
   the chain `Λ_M ≤ λ < u_sh ≤ u_LP` from the witness of `thm:airy-square-attained` and `D.uniqueness`
@@ -898,7 +900,7 @@ satisfiable for every `D` (`exists_isHbZeroEnum`, unique by `IsHbZeroEnum.unique
 remaining clauses of `thm:ce-shell-gap` (Hankel form): the origin mass identity `0 < h(0) = M[ĥ] ≤ M[h]` for Hankel
 Cohn–Elkies profiles (proved, `hankelShellProfile_origin_mass`) and the `v = t_m` endpoint clause
 (`ShellGapEndpoint D`: `Ψ_h/M[h] → -G_N/‖G_N‖₁`, `Ψ_ĥ/M[h] → 0`, `Ψ_f/M[f] → G_N/‖G_N‖₁`, `M[ĥ]/M[f] → 0`, with
-`f = ĥ - h`, and `ℒ_y(-G_N) ≥ 0`; the input field `shell_gap_endpoint`). The failure of (i) forcing a strict
+`f = ĥ - h`, and `ℒ_y(-G_N) ≥ 0`; proved, `shellGapEndpoint_proved`). The failure of (i) forcing a strict
 Airy-order gap (`thm:ce-shell-gap`, `eq:strict-gap`) is `thm_ce_shell_gap`. -/
 theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroEnum D.P D.Q t)
     (I : CeCanonicalInputs D t) :
@@ -940,7 +942,7 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
         G 0 ≤ hankelMass (((n : ℝ) + 1) / 2) G) ∧
       ShellGapEndpoint D) := by
   refine ⟨⟨uLP_le_tm D, uLP_eq_tm_iff D, fun hm => ?_, fun hlt => ⟨?_, ?_⟩⟩, ⟨?_, ?_, ?_⟩, ?_,
-    fun n hn T G hG => hankelShellProfile_origin_mass hn hG, I.shell_gap_endpoint⟩
+    fun n hn T G hG => hankelShellProfile_origin_mass hn hG, shellGapEndpoint_proved D⟩
   · obtain ⟨hΛ, -, hlt⟩ := lambda_chain I hm
     obtain ⟨hτ1, hτ2⟩ := I.airy_node_square hm
     exact ⟨hΛ, hlt, uSh_le_uLP D, I.airy_square_bound hm, hτ1, hτ2⟩
