@@ -478,27 +478,29 @@ lemma ctSecondMoment_le {c ε : ℝ} (hc : 0 < c) {f : ℝ → ℝ} (hf : IsHank
 /-! ### 5. The bundled input and `CtGRegData` -/
 
 /-- **Boundary inputs of the Cauchy-moment argument** (the part of `ct:dyadic` (1) used by (2); proved from `CtBandData c₁` in
-`ctGRegData_of_band`).  For `c ≥ c₀`, every feasible `f` with `M[f] = 1` and `ũ₁ > φ_c(a₁)` has a radius `A = √R_J` (`R_J` a good Airy
+`ctGRegData_of_band`).  For `c ≥ c₀`, every feasible `f` with `M[f] = 1`, `T < cξ(a₁)` and `ũ₁ > φ_c(a₁)` has a radius `A = √R_J` (`R_J` a good Airy
 radius of size `≍ c^{2/3}`, `9 c₁ c^{1/3} ≤ A`, i.e. `c₁` small, and `A² ≤ langerRadius c`) with arc mass
 `Σ = ∫_0^π ‖G_reg(Ae^{iy})‖ A dy ≤ C_Σ/A` and `∫_{-A}^A t²‖G_reg(t)‖ dt = ∫_0^{R_J} v (1 - v/R_J)² |Ψ̃(-v)| dv ≤ C_S A`. -/
 def CtGRegData (c₁ : ℝ) : Prop :=
   ∃ CSig CS c₀ : ℝ, 0 ≤ CSig ∧ 0 ≤ CS ∧ ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ∀ c : ℝ, c₀ ≤ c →
-    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 → 0 < ctGap ε c T →
+    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
+      T < c * hankelXi c (FormalResearch.Special.airyZero 1) → 0 < ctGap ε c T →
       ∃ A : ℝ, 9 * (c₁ * c ^ (1 / 3 : ℝ)) ≤ A ∧ A ^ 2 ≤ langerRadius c ∧
         hdArcMass A (ctGReg A c f) ≤ CSig / A ∧
         ∫ t in (-A)..A, (t : ℝ) ^ 2 * ‖ctGReg A c f (t : ℂ)‖ ≤ CS * A
 
-/-- **Top-scale inputs of `ct:dyadic` (1)** (named hypothesis).  For `c ≥ c₀`, every feasible `f` with `M[f] = 1` and `ũ₁ > φ_c(a₁)` has
+/-- **Top-scale inputs of `ct:dyadic` (1)** (`T < cξ(a₁)` is the violator regime of `ct:sec4`; it is needed because `ctUtilde` is the arbitrary `invFunOn` value when `T/c ∉ ξ([-3,0])`, where `0 < ctGap` carries no information) (named hypothesis).  For `c ≥ c₀`, every feasible `f` with `M[f] = 1`, `T < cξ(a₁)` and `ũ₁ > φ_c(a₁)` has
 a radius `A = √R_J` (`R_J` a good Airy radius of size `≍ c^{2/3}`, `9 c₁ c^{1/3} ≤ A`, i.e. `c₁` small, and `A² < R_dom(c)`) with
 
 * `(ct:cov)` on the circle `|ũ'| = R_J` (`CtCovCircle c f R_J L_{♯♯} C₂`), and
 * the first moment of `(ct:half)`, `∫_0^{R_J} v |Ψ̃(-v)| dv ≤ C_half c^{1/3}` (`CtHalfMoment`).
 
-These are the outputs of the multiscale bootstrap (Part (1)) at the top radius.  `ctGRegData_of_band` derives from them, with the
+These are the outputs of `ct:dyadic` (1) at the top radius; **proved for `0 < c₁ ≤ 1/900` in `ctBandData_small` (`CtBandTop`)**, from the top-scale bootstrap alone.  `ctGRegData_of_band` derives from them, with the
 Type-(I) bound `hankelPsi_envelope` (proved), the boundary inputs `CtGRegData` of Part (2). -/
 def CtBandData (c₁ : ℝ) : Prop :=
   ∃ Lsh C₂ Chalf c₀ : ℝ, 0 ≤ Lsh ∧ 0 ≤ C₂ ∧ 0 ≤ Chalf ∧ ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ∀ c : ℝ, c₀ ≤ c →
-    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 → 0 < ctGap ε c T →
+    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
+      T < c * hankelXi c (FormalResearch.Special.airyZero 1) → 0 < ctGap ε c T →
       ∃ A : ℝ, 9 * (c₁ * c ^ (1 / 3 : ℝ)) ≤ A ∧ A ^ 2 < langerRadius c ∧ ctGoodRadius (A ^ 2) ∧
         CtCovCircle c f (A ^ 2) Lsh C₂ ∧ CtHalfMoment c f (A ^ 2) Chalf
 
@@ -536,12 +538,12 @@ theorem ctGRegData_of_band {c₁ : ℝ} (hc₁ : 0 < c₁) (hband : CtBandData c
   have hY1 : 1 ≤ Y := le_max_left _ _
   refine ⟨8 * π * Lsh + 240 * π * (Y * Y ^ (3 / 2 : ℝ)), Chalf / (9 * c₁), max c₀ 2, by positivity,
     by positivity, ?_⟩
-  intro ε hε c hc T f hf hmass hgap
+  intro ε hε c hc T f hf hmass hviol hgap
   have hc0 : c₀ ≤ c := (le_max_left _ _).trans hc
   have hc2 : 2 ≤ c := (le_max_right _ _).trans hc
   have hcpos : 0 < c := by linarith
   have hfe := hf.toIsHankelEigenfn
-  obtain ⟨A, hA9, hAR, -, hcov, hhalf⟩ := hb ε hε c hc0 T f hf hmass hgap
+  obtain ⟨A, hA9, hAR, -, hcov, hhalf⟩ := hb ε hε c hc0 T f hf hmass hviol hgap
   have hcs : 0 < c ^ (1 / 3 : ℝ) := Real.rpow_pos_of_pos hcpos _
   have hA : 0 < A := by have := mul_pos hc₁ hcs; linarith
   refine ⟨A, hA9, hAR.le, ?_, ?_⟩

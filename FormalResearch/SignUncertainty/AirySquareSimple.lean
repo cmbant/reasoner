@@ -1,11 +1,8 @@
 module
 
-public import FormalResearch.SignUncertainty.AirySquareKernel
-public import FormalResearch.SignUncertainty.Radii
-public import Mathlib.LinearAlgebra.Dimension.Finrank
+public import FormalResearch.SignUncertainty.AirySquareBound
 public import Mathlib.LinearAlgebra.Matrix.NonsingularInverse
 public import Mathlib.Topology.MetricSpace.Lipschitz
-public import Mathlib.Algebra.Polynomial.Roots
 
 /-!
 # The attained Airy square bound for distinct sites (`ce_airy_lp.tex`, Theorem `thm:airy-square-attained`)
@@ -14,30 +11,30 @@ Source: `CFT/sign_uncertainty/paper/ce_airy_lp.tex`, Theorem `thm:airy-square-at
 (distinct sites), and `CFT/sign_uncertainty/paper/ce_airy_lp_proofs.tex` (proof of
 `thm:airy-square-attained`).
 
-Indexing convention (matching `AirySquareKernel` and `FormalResearch.Special`):
+Indexing convention (matching `AirySquareKernel`, `AirySquareBound`, and `FormalResearch.Special`):
 `airyZ n = airyZero (n + 1)` (`n : ℕ`) lists the Dirichlet Airy zeros `a_1 > a_2 > …` with `0`-based
 indices (`airyZ 0 = a_1`, `airyZ k = a_{k+1}`), so finite sections of order `M` run over `Fin M`
 (`{a_1, …, a_M}`) and infinite coefficient sequences live in `lp (fun _ : ℕ => ℝ) 2`.
+Finite-section definitions (`airyLambdaSection`, `airyLambda`, `tendsto_airyLambdaSection`) and
+`lem:airy-square-bound` (`airyLambdaSection_le_airyUSh`, `airyLambda_le_airyUSh`) are proved in and
+re-exported from `AirySquareBound`.
 
 Main declarations:
-* **Part (1):** `airyLambdaSection`, `airyLambda`, `tendsto_airyLambdaSection`,
-  `airyLambdaInf_eq_airyLambda`, `isGreatest_airySquareRayleigh` (attainment on the `ℓ²` unit sphere),
-  `locallyLipschitzOn_airyLambda` (local Lipschitz continuity on `{s | Function.Injective s}`),
-  `airyLambda_sub_section_le_on_compact` (uniform `O(M⁻¹)` rate on compacts),
-  `airyLambdaSection_first_eq_iff` (`Λ_{k+1}(s) = a_{k+1}` iff `{s_1, …, s_k} = {a_1, …, a_k}`,
-  and then `λ(s) = a_{k+1}`), and `airyLambdaSection_eq_airyLambda_iff` (`Λ_M(s) = λ(s)` iff every
-  site is a Dirichlet node).
+* **Part (1):** `airyLambdaInf_eq_airyLambda`, `isGreatest_airySquareRayleigh` (attainment on the
+  `ℓ²` unit sphere), `locallyLipschitzOn_airyLambda` (local Lipschitz continuity on
+  `{s | Function.Injective s}`), `airyLambda_sub_section_le_on_compact` (uniform `O(M⁻¹)` rate on
+  compacts), `airyLambdaSection_first_eq_iff` (`Λ_{k+1}(s) = a_{k+1}` iff
+  `{s_1, …, s_k} = {a_1, …, a_k}`, and then `λ(s) = a_{k+1}`), and
+  `airyLambdaSection_eq_airyLambda_iff` (`Λ_M(s) = λ(s)` iff every site is a Dirichlet node).
 * **Part (2):** `airySquare_maximizer_representation` — explicit Lagrange multipliers `μ_1, …, μ_k`,
   `O(|a_n|^{-2})` coefficient decay, `∑_n |c_n| < ∞`, and entire representation `(eq:airy-square-rep)`
   `(z - λ(s)) q_c(z) = (∑_n c_n) Ai(z) + ∑_j μ_j K(z, s_j)`.
 * **Part (3):** `isGreatest_airySquareClass` (full square class optimality over real entire `q ≢ 0`
-  with `q², u q² ∈ 𝒢` and `q(s_j) = 0`), `airyMaximizerWitness` (`H_λ(z) = (z - λ(s)) q_c(z)²`),
+  with `q², u q² ∈ 𝒢` and `q(s_j) = 0`), `airyMaximizerWitness` (`H_λ(z) = (z - λ(s)) q_c(z)²`), and
   `airyMaximizerWitness_properties` (`H_λ ∈ 𝒢`, `H_λ(s_j) = 0`, `∫ H_λ = 0`, `L_{H_λ}(y) > 0` for
-  `y > 0`, weak witness at `λ(s)`, `λ(s) ≤ u_LP(s)`, `u_sh(s) ≤ u_LP(s)`), and
-  `airyLambda_le_airyUSh_of_bound` (`λ(s) ≤ u_sh(s)` from `AirySquareBoundInput s`, isolating the
-  deferred `lem:airy-square-bound`).
-* **Bundled headlines:** `thm_airy_square_attained_simple` (unconditional) and
-  `thm_airy_square_attained_simple_full` (with `AirySquareBoundInput s` for `λ(s) ≤ u_sh(s)`).
+  `y > 0`, weak witness at `λ(s)`, `λ(s) ≤ u_LP(s)`, `u_sh(s) ≤ u_LP(s)`).
+* **Bundled headlines (both unconditional):** `thm_airy_square_attained_simple` and
+  `thm_airy_square_attained_simple_full` (with `λ(s) ≤ u_sh(s) ≤ u_LP(s)` via `airyLambda_le_airyUSh`).
 -/
 
 @[expose] public section
@@ -49,165 +46,7 @@ namespace FormalResearch.SignUncertainty
 
 open FormalResearch.Special
 
-/-! ### Section 1: Problem Definitions, Zero-Padding, Finite Sections, and Witness Thresholds -/
-
-/-- Cube lower bound `8 (n + 1)² ≤ (-a_{n+1})³` valid for every `n : ℕ` (including `n = 0`). -/
-lemma eight_mul_sq_le_neg_airyZ_cube (n : ℕ) :
-    8 * ((n + 1 : ℕ) : ℝ) ^ 2 ≤ (-airyZ n) ^ 3 := by
-  rcases Nat.eq_zero_or_pos n with rfl | hn
-  · have h2 : 2 < -airyZ 0 := by linarith only [airyZ_lt_neg_two 0]
-    have hcube : (2 : ℝ) ^ 3 ≤ (-airyZ 0) ^ 3 := pow_le_pow_left₀ (by norm_num) h2.le 3
-    norm_num at hcube ⊢
-    linarith only [hcube]
-  · have h := (airyZero_abs_cube_bounds (n := n + 1) (by omega)).1
-    unfold airyZ
-    have hsq : 0 ≤ ((n + 1 : ℕ) : ℝ) ^ 2 := sq_nonneg _
-    linarith only [h, hsq]
-
-/-- Telescoping tail bound `∑'_{m : ℕ} 1 / (M + m + 1)² ≤ 1 / M` for `M ≥ 1`. -/
-lemma tsum_inv_nat_add_sq_le {M : ℕ} (hM : 1 ≤ M) :
-    (∑' m : ℕ, (1 / (((M + m + 1 : ℕ) : ℝ) ^ 2))) ≤ 1 / (M : ℝ) := by
-  refine Real.tsum_le_of_sum_range_le (fun _ => by positivity) fun N => ?_
-  have hterm : ∀ m : ℕ, 1 / (((M + m + 1 : ℕ) : ℝ) ^ 2) ≤
-      1 / ((M + m : ℕ) : ℝ) - 1 / ((M + (m + 1) : ℕ) : ℝ) := by
-    intro m
-    set x : ℝ := ((M + m : ℕ) : ℝ)
-    have hx : 0 < x := by dsimp [x]; exact_mod_cast (by omega : 0 < M + m)
-    have hx1 : ((M + m + 1 : ℕ) : ℝ) = x + 1 := by dsimp [x]; push_cast; ring
-    have hx2 : ((M + (m + 1) : ℕ) : ℝ) = x + 1 := by dsimp [x]; push_cast; ring
-    rw [hx1, hx2]
-    have hdiff : 1 / x - 1 / (x + 1) = 1 / (x * (x + 1)) := by
-      have hx' : x ≠ 0 := hx.ne'
-      have hx1' : x + 1 ≠ 0 := (by linarith only [hx] : 0 < x + 1).ne'
-      field_simp
-      ring
-    rw [hdiff]
-    exact one_div_le_one_div_of_le (mul_pos hx (by linarith only [hx]))
-      (by nlinarith only [hx])
-  have hsum_le : (∑ m ∈ Finset.range N, 1 / (((M + m + 1 : ℕ) : ℝ) ^ 2)) ≤
-      ∑ m ∈ Finset.range N, (1 / ((M + m : ℕ) : ℝ) - 1 / ((M + (m + 1) : ℕ) : ℝ)) :=
-    Finset.sum_le_sum fun m _ => hterm m
-  have htele : ∀ K : ℕ, (∑ m ∈ Finset.range K,
-      (1 / ((M + m : ℕ) : ℝ) - 1 / ((M + (m + 1) : ℕ) : ℝ))) =
-      1 / (M : ℝ) - 1 / ((M + K : ℕ) : ℝ) := by
-    intro K
-    induction K with
-    | zero => simp
-    | succ K ih =>
-      rw [Finset.sum_range_succ, ih]
-      ring
-  rw [htele N] at hsum_le
-  have hpos_end : 0 ≤ 1 / ((M + N : ℕ) : ℝ) := by positivity
-  linarith only [hsum_le, hpos_end]
-
-lemma summable_inv_nat_add_sq (M : ℕ) :
-    Summable (fun m : ℕ => 1 / (((M + m + 1 : ℕ) : ℝ) ^ 2)) := by
-  have h := (summable_nat_add_iff (M + 1)).mpr (Real.summable_one_div_nat_pow.mpr (by norm_num : 1 < 2))
-  refine h.congr fun m => ?_
-  have heq : m + (M + 1) = M + m + 1 := by omega
-  rw [heq]
-
-lemma memℓp_airyPad {M : ℕ} (c : Fin M → ℝ) :
-    Memℓp (fun n : ℕ => if h : n < M then c ⟨n, h⟩ else 0) 2 := by
-  refine memℓp_gen ?_
-  refine summable_of_ne_finset_zero (s := Finset.range M) fun n hn => ?_
-  have hnot : ¬ n < M := by simpa [Finset.mem_range] using hn
-  simp [hnot]
-
-/-- Zero-padding of `c : Fin M → ℝ` into `lp (fun _ : ℕ => ℝ) 2`. -/
-noncomputable def airyPadLp {M : ℕ} (c : Fin M → ℝ) : lp (fun _ : ℕ => ℝ) 2 :=
-  ⟨fun n => if h : n < M then c ⟨n, h⟩ else 0, memℓp_airyPad c⟩
-
-lemma airyPadLp_apply_lt {M : ℕ} (c : Fin M → ℝ) {n : ℕ} (hn : n < M) :
-    airyPadLp c n = c ⟨n, hn⟩ := by
-  simp [airyPadLp, hn]
-
-lemma airyPadLp_apply_ge {M : ℕ} (c : Fin M → ℝ) {n : ℕ} (hn : M ≤ n) :
-    airyPadLp c n = 0 := by
-  simp [airyPadLp, not_lt.mpr hn]
-
-lemma hasSum_fin_of_ge_zero {M : ℕ} {f : ℕ → ℝ} (hf : ∀ n, M ≤ n → f n = 0) :
-    HasSum f (∑ n : Fin M, f n.1) := by
-  have h1 : HasSum f (∑ n ∈ Finset.range M, f n) :=
-    hasSum_sum_of_ne_finset_zero fun n hn => hf n (not_lt.mp (by simpa [Finset.mem_range] using hn))
-  have h2 : (∑ n ∈ Finset.range M, f n) = ∑ n : Fin M, f n.1 := by
-    rw [← Fin.sum_univ_eq_sum_range]
-  rwa [h2] at h1
-
-lemma norm_sq_airyPadLp {M : ℕ} (c : Fin M → ℝ) :
-    ‖airyPadLp c‖ ^ 2 = ∑ n : Fin M, (c n) ^ 2 := by
-  have h1 := lp.hasSum_norm (p := 2) (by norm_num) (airyPadLp c)
-  simp only [ENNReal.toReal_ofNat, Real.rpow_two, Real.norm_eq_abs, sq_abs] at h1
-  have h2 : HasSum (fun n : ℕ => (airyPadLp c n) ^ 2) (∑ n : Fin M, (c n) ^ 2) := by
-    have hfin := hasSum_fin_of_ge_zero (M := M) (f := fun n => (airyPadLp c n) ^ 2) fun n hn => by
-      rw [airyPadLp_apply_ge c hn, sq, zero_mul]
-    have hsum_eq : (∑ n : Fin M, (airyPadLp c n.1) ^ 2) = ∑ n : Fin M, (c n) ^ 2 := by
-      refine Finset.sum_congr rfl fun n _ => ?_
-      rw [airyPadLp_apply_lt c n.2]
-    rwa [hsum_eq] at hfin
-  exact h1.unique h2
-
-lemma summable_abs_airyZ_airyPadLp {M : ℕ} (c : Fin M → ℝ) :
-    Summable (fun n : ℕ => |airyZ n| * (airyPadLp c n) ^ 2) := by
-  refine summable_of_ne_finset_zero (s := Finset.range M) fun n hn => ?_
-  have hnot : M ≤ n := not_lt.mp (by simpa [Finset.mem_range] using hn)
-  rw [airyPadLp_apply_ge c hnot, sq, zero_mul, mul_zero]
-
-lemma hasSum_airyZ_airyPadLp {M : ℕ} (c : Fin M → ℝ) :
-    HasSum (fun n : ℕ => airyZ n * (airyPadLp c n) ^ 2) (∑ n : Fin M, airyZ n.1 * (c n) ^ 2) := by
-  have hfin := hasSum_fin_of_ge_zero (M := M) (f := fun n => airyZ n * (airyPadLp c n) ^ 2)
-    fun n hn => by rw [airyPadLp_apply_ge c hn, sq, zero_mul, mul_zero]
-  have hsum_eq : (∑ n : Fin M, airyZ n.1 * (airyPadLp c n.1) ^ 2) =
-      ∑ n : Fin M, airyZ n.1 * (c n) ^ 2 := by
-    refine Finset.sum_congr rfl fun n _ => ?_
-    rw [airyPadLp_apply_lt c n.2]
-  rwa [hsum_eq] at hfin
-
-/-- Finite-section cardinal combination `q_c(z) = ∑_{n < M} c_n k_n(z)`. -/
-noncomputable def airySectionPoly (M : ℕ) (c : Fin M → ℝ) (z : ℂ) : ℂ :=
-  ∑ n : Fin M, (c n : ℂ) * airyCardinal n.1 z
-
-/-- Real-axis finite-section cardinal combination `q_c(u) = ∑_{n < M} c_n k_n(u)`. -/
-noncomputable def airySectionPolyR (M : ℕ) (c : Fin M → ℝ) (u : ℝ) : ℝ :=
-  ∑ n : Fin M, c n * airyCardinalR n.1 u
-
-lemma airyCardinalSeries_airyPadLp {M : ℕ} (c : Fin M → ℝ) (z : ℂ) :
-    airyCardinalSeries (airyPadLp c) z = airySectionPoly M c z := by
-  have h1 := airyCardinalSeries_hasSum (airyPadLp c) z
-  have h2 : HasSum (fun n : ℕ => (airyPadLp c n : ℂ) * airyCardinal n z)
-      (∑ n ∈ Finset.range M, (airyPadLp c n : ℂ) * airyCardinal n z) :=
-    hasSum_sum_of_ne_finset_zero fun n hn => by
-      have hnot : M ≤ n := not_lt.mp (by simpa [Finset.mem_range] using hn)
-      rw [airyPadLp_apply_ge c hnot, Complex.ofReal_zero, zero_mul]
-  rw [h1.unique h2]
-  unfold airySectionPoly
-  rw [← Fin.sum_univ_eq_sum_range]
-  refine Finset.sum_congr rfl fun n _ => ?_
-  rw [airyPadLp_apply_lt c n.2]
-
-lemma airyCardinalSeriesR_airyPadLp {M : ℕ} (c : Fin M → ℝ) (u : ℝ) :
-    airyCardinalSeriesR (airyPadLp c) u = airySectionPolyR M c u := by
-  unfold airyCardinalSeriesR airySectionPolyR
-  rw [airyCardinalSeries_airyPadLp]
-  unfold airySectionPoly
-  have hre : (∑ n : Fin M, (c n : ℂ) * airyCardinal n.1 (u : ℂ)).re =
-      ∑ n : Fin M, ((c n : ℂ) * airyCardinal n.1 (u : ℂ)).re := Complex.re_sum _ _
-  rw [hre]
-  refine Finset.sum_congr rfl fun n _ => ?_
-  rw [← ofReal_airyCardinalR, ← Complex.ofReal_mul, Complex.ofReal_re]
-
-/-- Set of constrained finite-section Rayleigh quotients (`ce_airy_lp.tex`, eq. (12)). -/
-def AirySectionQuotientSet {k : ℕ} (s : Fin k → ℝ) (M : ℕ) : Set ℝ :=
-  {r : ℝ | ∃ c : Fin M → ℝ, c ≠ 0 ∧ (∀ j : Fin k, airySectionPolyR M c (s j) = 0) ∧
-    r = (∑ n : Fin M, airyZ n.1 * (c n) ^ 2) / (∑ n : Fin M, (c n) ^ 2)}
-
-/-- Finite-section Rayleigh maximum `Λ_M(s)` (`ce_airy_lp.tex`, eq. (12)). -/
-noncomputable def airyLambdaSection {k : ℕ} (s : Fin k → ℝ) (M : ℕ) : ℝ :=
-  sSup (AirySectionQuotientSet s M)
-
-/-- Limiting threshold `λ(s) = sup_{M ≥ k + 1} Λ_M(s)` (`ce_airy_lp.tex`, `thm:airy-square-attained`(1)). -/
-noncomputable def airyLambda {k : ℕ} (s : Fin k → ℝ) : ℝ :=
-  ⨆ M : {M : ℕ // k + 1 ≤ M}, airyLambdaSection s M.1
+/-! ### Section 1: Infinite Constrained Feasible Set and Full Square Class -/
 
 /-- Infinite constrained unit-sphere feasible set
 `{c ∈ ℓ² : ∑_n c_n² = 1, ∑_n |a_n| c_n² < ∞, ∀ j, q_c(s_j) = 0}`. -/
@@ -268,311 +107,6 @@ def IsAirySquareClass {k : ℕ} (s : Fin k → ℝ) (q : ℂ → ℂ) : Prop :=
 /-- Continuous Rayleigh quotient `(∫ u q(u)² du) / (∫ q(u)² du)`. -/
 noncomputable def airySquareClassQuotient (q : ℂ → ℂ) : ℝ :=
   (∫ u : ℝ, u * (q (u : ℂ)).re ^ 2) / (∫ u : ℝ, (q (u : ℂ)).re ^ 2)
-
-/-- Weak Airy LP witness at cutoff `v` for a prescribed site set `S ⊆ ℝ`
-(`ce_shells.tex`, `eq:ce-witness`). -/
-def IsAiryWeakWitness (S : Set ℝ) (v : ℝ) (H : ℂ → ℂ) : Prop :=
-  InAiryClass H ∧
-  (∃ z : ℂ, H z ≠ 0) ∧
-  (∀ s ∈ S, (H (s : ℂ)).re ≤ 0) ∧
-  (∀ u : ℝ, u ≤ v → (H (u : ℂ)).re ≤ 0) ∧
-  (∀ y : ℝ, 0 ≤ y → 0 ≤ airyLaplace (fun u => (H (u : ℂ)).re) y)
-
-/-- Strict-site Airy LP witness at cutoff `v` for `S ⊆ ℝ` (`ce_shells.tex`, `eq:ce-witness`). -/
-def IsAiryStrictWitness (S : Set ℝ) (v : ℝ) (H : ℂ → ℂ) : Prop :=
-  IsAiryWeakWitness S v H ∧ ∀ s ∈ S, (H (s : ℂ)).re < 0
-
-/-- Weak Airy LP threshold `u_LP(S)` (`ce_shells.tex`, `eq:ce-witness`). -/
-noncomputable def airyULP (S : Set ℝ) : EReal :=
-  ⨆ (v : ℝ) (_ : ∃ H, IsAiryWeakWitness S v H), (v : EReal)
-
-/-- Strict-site Airy LP threshold `u_sh(S)` (`ce_shells.tex`, `eq:ce-witness`). -/
-noncomputable def airyUSh (S : Set ℝ) : EReal :=
-  ⨆ (v : ℝ) (_ : ∃ H, IsAiryStrictWitness S v H), (v : EReal)
-
-theorem airyUSh_le_airyULP (S : Set ℝ) : airyUSh S ≤ airyULP S := by
-  unfold airyUSh airyULP
-  refine iSup₂_le fun v hv => ?_
-  obtain ⟨H, hH, _⟩ := hv
-  exact le_iSup₂_of_le v ⟨H, hH⟩ le_rfl
-
-/-- Bridge to `Radii.uLP`: for any `D : ShellHBData`, `airyULP (D.S \ {D.tm}) = uLP D`. -/
-theorem airyULP_shellHBData (D : ShellHBData) :
-    airyULP ((D.S : Set ℝ) \ {D.tm}) = uLP D := by
-  unfold airyULP uLP
-  have heq : ∀ v : ℝ,
-      (∃ H, IsAiryWeakWitness ((D.S : Set ℝ) \ {D.tm}) v H) ↔ OneProfileFeasible D v := by
-    intro v
-    constructor
-    · rintro ⟨H, h1, h2, h3, h4, h5⟩
-      refine ⟨H, h1, h2, fun t ht htm => h3 t ⟨ht, htm⟩, h4, fun y hy => ?_⟩
-      have hLy := h5 y hy
-      unfold airyLaplace at hLy
-      exact nonneg_of_mul_nonneg_right hLy (Real.exp_pos _)
-    · rintro ⟨H, h1, h2, h3, h4, h5⟩
-      refine ⟨H, h1, h2, fun t ht => h3 t ht.1 ht.2, h4, fun y hy => ?_⟩
-      unfold airyLaplace
-      exact mul_nonneg (Real.exp_pos _).le (h5 y hy)
-  exact le_antisymm
-    (iSup₂_le fun v hv => le_iSup₂_of_le v ((heq v).mp hv) le_rfl)
-    (iSup₂_le fun v hv => le_iSup₂_of_le v ((heq v).mpr hv) le_rfl)
-
-/-- The sites of a finite set `s : Finset ℝ` as an injective vector `Fin s.card → ℝ`. -/
-noncomputable def airySites (s : Finset ℝ) : Fin s.card → ℝ := fun i => (s.equivFin.symm i : ℝ)
-
-lemma airySites_injective (s : Finset ℝ) : Function.Injective (airySites s) := by
-  intro i j h
-  exact s.equivFin.symm.injective (Subtype.ext h)
-
-lemma range_airySites (s : Finset ℝ) : Set.range (airySites s) = (s : Set ℝ) := by
-  ext x
-  constructor
-  · rintro ⟨i, rfl⟩
-    exact (s.equivFin.symm i).2
-  · intro hx
-    exact ⟨s.equivFin ⟨x, hx⟩, by simp [airySites]⟩
-
-/-- Explicit single-field hypothesis for the distinct-site finite-section inequality of
-`lem:airy-square-bound` (`ce_airy_lp_proofs.tex`), deferred by the M9 step plan and used only to
-deduce `λ(s) ≤ u_sh(s)` in Part (3). -/
-structure AirySquareBoundInput {k : ℕ} (s : Fin k → ℝ) : Prop where
-  section_le_uSh : ∀ M : ℕ, k + 1 ≤ M → (airyLambdaSection s M : EReal) ≤ airyUSh (Set.range s)
-
-/-! ### Finite-section attainment, monotonicity, and universal bounds -/
-
-/-- Finite-section evaluation matrix `B_M(s)_{j,n} = k_n(s_j)`. -/
-noncomputable def airyBlockMat {k : ℕ} (s : Fin k → ℝ) (M : ℕ) : Matrix (Fin k) (Fin M) ℝ :=
-  Matrix.of fun j n => airyCardinalR n.1 (s j)
-
-lemma airyBlockMat_mulVec {k M : ℕ} (s : Fin k → ℝ) (c : Fin M → ℝ) (j : Fin k) :
-    (airyBlockMat s M).mulVec c j = airySectionPolyR M c (s j) := by
-  simp only [Matrix.mulVec, dotProduct, airyBlockMat, Matrix.of_apply, airySectionPolyR, mul_comm]
-
-lemma exists_nonzero_ker_airyBlockMat {k M : ℕ} (s : Fin k → ℝ) (hM : k + 1 ≤ M) :
-    ∃ c : Fin M → ℝ, c ≠ 0 ∧ ∀ j : Fin k, airySectionPolyR M c (s j) = 0 := by
-  let L : (Fin M → ℝ) →ₗ[ℝ] (Fin k → ℝ) := (airyBlockMat s M).mulVecLin
-  have hdim : Module.finrank ℝ (LinearMap.ker L) ≠ 0 := by
-    have hrn := LinearMap.finrank_range_add_finrank_ker L
-    have hdom : Module.finrank ℝ (Fin M → ℝ) = M := Module.finrank_fin_fun ℝ
-    have hcod : Module.finrank ℝ (Fin k → ℝ) = k := Module.finrank_fin_fun ℝ
-    have hran : Module.finrank ℝ (LinearMap.range L) ≤ k :=
-      (Submodule.finrank_le (LinearMap.range L)).trans_eq hcod
-    omega
-  have hne_bot : LinearMap.ker L ≠ ⊥ := by
-    intro hbot
-    rw [hbot, finrank_bot] at hdim
-    exact hdim rfl
-  obtain ⟨c, hc_mem, hc_ne⟩ := Submodule.exists_mem_ne_zero_of_ne_bot hne_bot
-  refine ⟨c, hc_ne, fun j => ?_⟩
-  have h0 : L c = 0 := hc_mem
-  have hj := congrFun h0 j
-  simpa only [L, Matrix.mulVecLin_apply, airyBlockMat_mulVec, Pi.zero_apply] using hj
-
-lemma sum_sq_pos_of_ne_zero {M : ℕ} {c : Fin M → ℝ} (hc : c ≠ 0) :
-    0 < ∑ n : Fin M, (c n) ^ 2 := by
-  obtain ⟨n₀, hn₀⟩ := Function.ne_iff.mp hc
-  exact lt_of_lt_of_le (sq_pos_of_ne_zero hn₀)
-    (Finset.single_le_sum (fun n _ => sq_nonneg (c n)) (Finset.mem_univ n₀))
-
-/-- Every finite section `M ≥ k + 1` attains its Rayleigh maximum `Λ_M(s)`. -/
-theorem isGreatest_airySectionQuotientSet {k M : ℕ} (s : Fin k → ℝ) (hM : k + 1 ≤ M) :
-    IsGreatest (AirySectionQuotientSet s M) (airyLambdaSection s M) := by
-  let U : Set (Fin M → ℝ) :=
-    {c : Fin M → ℝ | (∑ n : Fin M, (c n) ^ 2) = 1 ∧ ∀ j : Fin k, airySectionPolyR M c (s j) = 0}
-  have hU_sub : U ⊆ closedBall (0 : Fin M → ℝ) 1 := by
-    intro c hc
-    rw [mem_closedBall_zero_iff, pi_norm_le_iff_of_nonneg zero_le_one]
-    intro n
-    have hsq : (c n) ^ 2 ≤ 1 := by
-      rw [← hc.1]
-      exact Finset.single_le_sum (fun m _ => sq_nonneg (c m)) (Finset.mem_univ n)
-    exact (abs_le_of_sq_le_sq' (by simpa using hsq) zero_le_one).2
-  have hU_closed : IsClosed U := by
-    change IsClosed ({c : Fin M → ℝ | (∑ n : Fin M, (c n) ^ 2) = 1} ∩
-      {c : Fin M → ℝ | ∀ j : Fin k, airySectionPolyR M c (s j) = 0})
-    refine IsClosed.inter ?_ ?_
-    · exact isClosed_eq (continuous_finsetSum _ fun n _ => (continuous_apply n).pow 2)
-        (continuous_const : Continuous fun _ : Fin M → ℝ => (1 : ℝ))
-    · have hset : {c : Fin M → ℝ | ∀ j : Fin k, airySectionPolyR M c (s j) = 0} =
-          ⋂ j : Fin k, {c : Fin M → ℝ | airySectionPolyR M c (s j) = 0} := by
-        ext c; simp
-      rw [hset]
-      refine isClosed_iInter fun j => isClosed_eq ?_
-        (continuous_const : Continuous fun _ : Fin M → ℝ => (0 : ℝ))
-      unfold airySectionPolyR
-      exact continuous_finsetSum _ fun n _ => (continuous_apply n).mul continuous_const
-  have hU_comp : IsCompact U := IsCompact.of_isClosed_subset (isCompact_closedBall 0 1) hU_closed hU_sub
-  obtain ⟨v, hv_ne, hv_ker⟩ := exists_nonzero_ker_airyBlockMat s hM
-  let v₀ : Fin M → ℝ := fun n => v n / √(∑ m : Fin M, (v m) ^ 2)
-  have hv₀_mem : v₀ ∈ U := by
-    have hpos : 0 < ∑ m : Fin M, (v m) ^ 2 := sum_sq_pos_of_ne_zero hv_ne
-    refine ⟨?_, fun j => ?_⟩
-    · have hcongr : (∑ n : Fin M, (v₀ n) ^ 2) = (∑ n : Fin M, (v n) ^ 2) / (∑ m : Fin M, (v m) ^ 2) := by
-        rw [Finset.sum_div]
-        refine Finset.sum_congr rfl fun n _ => ?_
-        dsimp [v₀]
-        rw [div_pow, Real.sq_sqrt hpos.le]
-      rw [hcongr, div_self hpos.ne']
-    · have hj0 : (∑ n : Fin M, v n * airyCardinalR n.1 (s j)) = 0 := hv_ker j
-      unfold airySectionPolyR
-      have hcongr : (∑ n : Fin M, v₀ n * airyCardinalR n.1 (s j)) =
-          (∑ n : Fin M, v n * airyCardinalR n.1 (s j)) / √(∑ m : Fin M, (v m) ^ 2) := by
-        rw [Finset.sum_div]
-        refine Finset.sum_congr rfl fun n _ => ?_
-        dsimp [v₀]; ring
-      rw [hcongr, hj0, zero_div]
-  let f : (Fin M → ℝ) → ℝ := fun c => ∑ n : Fin M, airyZ n.1 * (c n) ^ 2
-  have hf_cont : Continuous f :=
-    continuous_finsetSum _ fun n _ => continuous_const.mul ((continuous_apply n).pow 2)
-  have himg_eq : f '' U = AirySectionQuotientSet s M := by
-    ext r
-    constructor
-    · rintro ⟨c, ⟨hc1, hcker⟩, rfl⟩
-      have hc_ne : c ≠ 0 := by intro h0; simp [h0] at hc1
-      exact ⟨c, hc_ne, hcker, by dsimp [f]; rw [hc1, div_one]⟩
-    · rintro ⟨c, hc_ne, hcker, rfl⟩
-      have hpos : 0 < ∑ m : Fin M, (c m) ^ 2 := sum_sq_pos_of_ne_zero hc_ne
-      let u : Fin M → ℝ := fun n => c n / √(∑ m : Fin M, (c m) ^ 2)
-      refine ⟨u, ⟨?_, fun j => ?_⟩, ?_⟩
-      · have hcongr : (∑ n : Fin M, (u n) ^ 2) = (∑ n : Fin M, (c n) ^ 2) / (∑ m : Fin M, (c m) ^ 2) := by
-          rw [Finset.sum_div]
-          refine Finset.sum_congr rfl fun n _ => ?_
-          dsimp [u]
-          rw [div_pow, Real.sq_sqrt hpos.le]
-        rw [hcongr, div_self hpos.ne']
-      · have hj0 : (∑ n : Fin M, c n * airyCardinalR n.1 (s j)) = 0 := hcker j
-        unfold airySectionPolyR
-        have hcongr : (∑ n : Fin M, u n * airyCardinalR n.1 (s j)) =
-            (∑ n : Fin M, c n * airyCardinalR n.1 (s j)) / √(∑ m : Fin M, (c m) ^ 2) := by
-          rw [Finset.sum_div]
-          refine Finset.sum_congr rfl fun n _ => ?_
-          dsimp [u]; ring
-        rw [hcongr, hj0, zero_div]
-      · dsimp [f, u]
-        rw [Finset.sum_div]
-        refine Finset.sum_congr rfl fun n _ => ?_
-        rw [div_pow, Real.sq_sqrt hpos.le, mul_div_assoc]
-  have himg_comp : IsCompact (AirySectionQuotientSet s M) :=
-    himg_eq ▸ hU_comp.image hf_cont
-  have himg_ne : (AirySectionQuotientSet s M).Nonempty :=
-    himg_eq ▸ ⟨f v₀, ⟨v₀, hv₀_mem, rfl⟩⟩
-  obtain ⟨r₀, hr₀⟩ := himg_comp.exists_isGreatest himg_ne
-  have heq : airyLambdaSection s M = r₀ := hr₀.csSup_eq
-  rwa [heq]
-
-lemma exists_unit_section_maximizer {k M : ℕ} (s : Fin k → ℝ) (hM : k + 1 ≤ M) :
-    ∃ c : Fin M → ℝ, (∑ n : Fin M, (c n) ^ 2) = 1 ∧
-      (∀ j : Fin k, airySectionPolyR M c (s j) = 0) ∧
-      (∑ n : Fin M, airyZ n.1 * (c n) ^ 2) = airyLambdaSection s M := by
-  obtain ⟨⟨c, hc_ne, hcker, hceq⟩, _⟩ := isGreatest_airySectionQuotientSet s hM
-  have hpos : 0 < ∑ m : Fin M, (c m) ^ 2 := sum_sq_pos_of_ne_zero hc_ne
-  let u : Fin M → ℝ := fun n => c n / √(∑ m : Fin M, (c m) ^ 2)
-  refine ⟨u, ?_, fun j => ?_, ?_⟩
-  · have hcongr : (∑ n : Fin M, (u n) ^ 2) = (∑ n : Fin M, (c n) ^ 2) / (∑ m : Fin M, (c m) ^ 2) := by
-      rw [Finset.sum_div]
-      refine Finset.sum_congr rfl fun n _ => ?_
-      dsimp [u]
-      rw [div_pow, Real.sq_sqrt hpos.le]
-    rw [hcongr, div_self hpos.ne']
-  · have hj0 : (∑ n : Fin M, c n * airyCardinalR n.1 (s j)) = 0 := hcker j
-    unfold airySectionPolyR
-    have hcongr : (∑ n : Fin M, u n * airyCardinalR n.1 (s j)) =
-        (∑ n : Fin M, c n * airyCardinalR n.1 (s j)) / √(∑ m : Fin M, (c m) ^ 2) := by
-      rw [Finset.sum_div]
-      refine Finset.sum_congr rfl fun n _ => ?_
-      dsimp [u]; ring
-    rw [hcongr, hj0, zero_div]
-  · rw [hceq, Finset.sum_div]
-    refine Finset.sum_congr rfl fun n _ => ?_
-    dsimp [u]
-    rw [div_pow, Real.sq_sqrt hpos.le, mul_div_assoc]
-
-lemma le_airyLambdaSection_of_mem {k M : ℕ} {s : Fin k → ℝ} (hM : k + 1 ≤ M)
-    {r : ℝ} (hr : r ∈ AirySectionQuotientSet s M) :
-    r ≤ airyLambdaSection s M :=
-  (isGreatest_airySectionQuotientSet s hM).2 hr
-
-/-- `Λ_M(s)` is nondecreasing in `M` for `M ≥ k + 1`. -/
-theorem airyLambdaSection_mono {k M₁ M₂ : ℕ} (s : Fin k → ℝ)
-    (h1 : k + 1 ≤ M₁) (h12 : M₁ ≤ M₂) :
-    airyLambdaSection s M₁ ≤ airyLambdaSection s M₂ := by
-  obtain ⟨c, hc1, hcker, hceq⟩ := exists_unit_section_maximizer s h1
-  let c' : Fin M₂ → ℝ := fun n => airyPadLp c n.1
-  have hpad_ge : ∀ n : ℕ, M₂ ≤ n → airyPadLp c n = 0 :=
-    fun n hn => airyPadLp_apply_ge c (h12.trans hn)
-  have hc'1 : (∑ n : Fin M₂, (c' n) ^ 2) = 1 := by
-    have hfin := hasSum_fin_of_ge_zero (M := M₂) (f := fun n => (airyPadLp c n) ^ 2)
-      fun n hn => by rw [hpad_ge n hn, sq, zero_mul]
-    have htot := lp.hasSum_norm (p := 2) (by norm_num) (airyPadLp c)
-    simp only [ENNReal.toReal_ofNat, Real.rpow_two, Real.norm_eq_abs, sq_abs] at htot
-    rw [norm_sq_airyPadLp, hc1] at htot
-    exact hfin.unique htot
-  have hc'_ne : c' ≠ 0 := by intro h0; simp [h0] at hc'1
-  have hc'_ker : ∀ j : Fin k, airySectionPolyR M₂ c' (s j) = 0 := by
-    intro j
-    have h1' : airySectionPolyR M₂ c' (s j) = airyCardinalSeriesR (airyPadLp c) (s j) := by
-      have hfin := hasSum_fin_of_ge_zero (M := M₂)
-        (f := fun n => airyPadLp c n * airyCardinalR n (s j))
-        fun n hn => by rw [hpad_ge n hn, zero_mul]
-      have hpoly_eq : airySectionPolyR M₂ c' (s j) =
-          ∑ n : Fin M₂, airyPadLp c n.1 * airyCardinalR n.1 (s j) := rfl
-      rw [hpoly_eq]
-      exact hfin.unique (airyCardinalSeriesR_hasSum (airyPadLp c) (s j))
-    rw [h1', airyCardinalSeriesR_airyPadLp, hcker j]
-  have hc'_val : (∑ n : Fin M₂, airyZ n.1 * (c' n) ^ 2) = airyLambdaSection s M₁ := by
-    have hfin := hasSum_fin_of_ge_zero (M := M₂) (f := fun n => airyZ n * (airyPadLp c n) ^ 2)
-      fun n hn => by rw [hpad_ge n hn, sq, zero_mul, mul_zero]
-    rw [hfin.unique (hasSum_airyZ_airyPadLp c), hceq]
-  exact le_airyLambdaSection_of_mem (h1.trans h12)
-    ⟨c', hc'_ne, hc'_ker, by rw [hc'_val, hc'1, div_one]⟩
-
-theorem airyZ_le_airyLambdaSection_first {k : ℕ} (s : Fin k → ℝ) :
-    airyZ k ≤ airyLambdaSection s (k + 1) := by
-  obtain ⟨c, hc1, _, hceq⟩ := exists_unit_section_maximizer s le_rfl
-  rw [← hceq]
-  calc airyZ k = airyZ k * ∑ n : Fin (k + 1), (c n) ^ 2 := by rw [hc1, mul_one]
-    _ = ∑ n : Fin (k + 1), airyZ k * (c n) ^ 2 := Finset.mul_sum _ _ _
-    _ ≤ ∑ n : Fin (k + 1), airyZ n.1 * (c n) ^ 2 := by
-        refine Finset.sum_le_sum fun n _ => ?_
-        exact mul_le_mul_of_nonneg_right (airyZ_anti (Nat.lt_succ_iff.mp n.2)) (sq_nonneg _)
-
-theorem airyLambdaSection_le_airyZ_zero {k M : ℕ} (s : Fin k → ℝ) (hM : k + 1 ≤ M) :
-    airyLambdaSection s M ≤ airyZ 0 := by
-  obtain ⟨c, hc1, _, hceq⟩ := exists_unit_section_maximizer s hM
-  rw [← hceq]
-  calc (∑ n : Fin M, airyZ n.1 * (c n) ^ 2)
-      ≤ ∑ n : Fin M, airyZ 0 * (c n) ^ 2 := by
-        refine Finset.sum_le_sum fun n _ => ?_
-        exact mul_le_mul_of_nonneg_right (airyZ_anti (Nat.zero_le n.1)) (sq_nonneg _)
-    _ = airyZ 0 * ∑ n : Fin M, (c n) ^ 2 := (Finset.mul_sum _ _ _).symm
-    _ = airyZ 0 := by rw [hc1, mul_one]
-
-lemma bddAbove_airyLambdaSection {k : ℕ} (s : Fin k → ℝ) :
-    BddAbove (Set.range (fun M : {M : ℕ // k + 1 ≤ M} => airyLambdaSection s M.1)) :=
-  ⟨airyZ 0, by rintro _ ⟨M, rfl⟩; exact airyLambdaSection_le_airyZ_zero s M.2⟩
-
-theorem airyLambdaSection_le_airyLambda {k M : ℕ} (s : Fin k → ℝ) (hM : k + 1 ≤ M) :
-    airyLambdaSection s M ≤ airyLambda s :=
-  le_ciSup (bddAbove_airyLambdaSection s) ⟨M, hM⟩
-
-theorem airyLambda_bounds {k : ℕ} (s : Fin k → ℝ) :
-    airyZ k ≤ airyLambda s ∧ airyLambda s ≤ airyZ 0 := by
-  refine ⟨(airyZ_le_airyLambdaSection_first s).trans (airyLambdaSection_le_airyLambda s le_rfl), ?_⟩
-  have : Nonempty {M : ℕ // k + 1 ≤ M} := ⟨⟨k + 1, le_rfl⟩⟩
-  exact ciSup_le fun M => airyLambdaSection_le_airyZ_zero s M.2
-
-/-- `lim_{M → ∞} Λ_M(s) = λ(s)`. -/
-theorem tendsto_airyLambdaSection {k : ℕ} (s : Fin k → ℝ) :
-    Tendsto (airyLambdaSection s) atTop (𝓝 (airyLambda s)) := by
-  have : Nonempty {M : ℕ // k + 1 ≤ M} := ⟨⟨k + 1, le_rfl⟩⟩
-  have hmono : Monotone (fun M : {M : ℕ // k + 1 ≤ M} => airyLambdaSection s M.1) :=
-    fun M₁ M₂ h => airyLambdaSection_mono s M₁.2 h
-  have hsub := tendsto_atTop_ciSup hmono (bddAbove_airyLambdaSection s)
-  rw [Metric.tendsto_atTop] at hsub ⊢
-  intro ε hε
-  obtain ⟨M₀, hM₀⟩ := hsub ε hε
-  refine ⟨M₀.1, fun M hM => ?_⟩
-  exact hM₀ ⟨M, M₀.2.trans hM⟩ hM
 
 /-! ### Section 2: Evaluation Map, Lipschitz Property, Row Independence, and Uniform Right Inverse -/
 
@@ -788,15 +322,6 @@ lemma sum_div_sub_airyZ_eq_zero {k : ℕ} {s : Fin k → ℝ} (hs : Function.Inj
     have hij : i ≠ j₀ := (Finset.mem_erase.mp hi).1
     exact sub_ne_zero.mpr (fun heq => hij (hs heq))
   exact (mul_eq_zero.mp heval0).resolve_right hprod_ne
-
-lemma exists_airyZ_eq_of_airyAi_eq_zero {x : ℝ} (hx : airyAi x = 0) :
-    ∃ p : ℕ, x = airyZ p := by
-  have hxc : airyAiC (x : ℂ) = 0 := by rw [airyAiC_ofReal, hx, Complex.ofReal_zero]
-  obtain ⟨m, hm1, hm⟩ := (airyAiC_eq_zero_iff (x : ℂ)).mp hxc
-  refine ⟨m - 1, ?_⟩
-  unfold airyZ
-  rw [Nat.sub_add_cancel hm1]
-  exact Complex.ofReal_injective hm
 
 /-- Row independence: for distinct sites `s_1, …, s_k`, the evaluation vectors `airyEvalVec (s_j)`
 are linearly independent in `ℓ²`. -/
@@ -2816,165 +2341,10 @@ theorem airyLambdaSection_first_eq_iff {k : ℕ} {s : Fin k → ℝ} (hs : Funct
         rw [hc_lt n.1 hlt, sq, zero_mul]
       rw [h1, h2, mul_one]
     exact ⟨hval, hsec_eq_lam.symm.trans hval⟩
-  refine ⟨⟨fun hsec => ?_, fun hrange => (h_if_range hrange).1⟩, fun hrange => (h_if_range hrange).2⟩
-  -- Every kernel vector `v` of `airyBlockMat s (k + 1)` vanishes on coordinates `< k`.
-  have hker_vanish : ∀ v : Fin (k + 1) → ℝ,
-      (∀ j : Fin k, airySectionPolyR (k + 1) v (s j) = 0) →
-      ∀ n : Fin (k + 1), n.1 < k → v n = 0 := by
-    intro v hv n hnk
-    by_cases hv0 : v = 0
-    · simp [hv0]
-    · have hle : (∑ m : Fin (k + 1), airyZ m.1 * (v m) ^ 2) / (∑ m : Fin (k + 1), (v m) ^ 2) ≤
-          airyZ k := by
-        rw [← hsec]
-        exact le_airyLambdaSection_of_mem le_rfl ⟨v, hv0, hv, rfl⟩
-      have hpos : 0 < ∑ m : Fin (k + 1), (v m) ^ 2 := sum_sq_pos_of_ne_zero hv0
-      have hmul := (div_le_iff₀ hpos).mp hle
-      have hsum_nonpos : (∑ m : Fin (k + 1), (airyZ m.1 - airyZ k) * (v m) ^ 2) ≤ 0 := by
-        have heq : (∑ m : Fin (k + 1), (airyZ m.1 - airyZ k) * (v m) ^ 2) =
-            (∑ m : Fin (k + 1), airyZ m.1 * (v m) ^ 2) -
-              airyZ k * (∑ m : Fin (k + 1), (v m) ^ 2) := by
-          simp_rw [sub_mul]
-          rw [Finset.sum_sub_distrib, ← Finset.mul_sum]
-        linarith only [hmul, heq]
-      have hterm_nn : ∀ m : Fin (k + 1), 0 ≤ (airyZ m.1 - airyZ k) * (v m) ^ 2 := fun m =>
-        mul_nonneg (sub_nonneg.mpr (airyZ_anti (Nat.lt_succ_iff.mp m.2))) (sq_nonneg _)
-      have hsum_zero : (∑ m : Fin (k + 1), (airyZ m.1 - airyZ k) * (v m) ^ 2) = 0 :=
-        le_antisymm hsum_nonpos (Finset.sum_nonneg fun m _ => hterm_nn m)
-      have hn_zero := (Finset.sum_eq_zero_iff_of_nonneg (fun m _ => hterm_nn m)).mp
-        hsum_zero n (Finset.mem_univ n)
-      have hgap_pos : 0 < airyZ n.1 - airyZ k := sub_pos.mpr (airyZ_strictAnti hnk)
-      exact sq_eq_zero_iff.mp ((mul_eq_zero.mp hn_zero).resolve_left hgap_pos.ne')
-  -- Pick a nonzero vector `v₀` in the kernel: its `k`-th coordinate is nonzero, forcing `s j = airyZ (p j)` with `p j ≠ k`.
-  obtain ⟨v₀, hv₀_ne, hv₀_ker⟩ := exists_nonzero_ker_airyBlockMat s le_rfl
-  let lastIdx : Fin (k + 1) := ⟨k, Nat.lt_succ_self k⟩
-  have hv₀_last : v₀ lastIdx ≠ 0 := by
-    intro hlast0
-    apply hv₀_ne
-    ext n
-    by_cases hnk : n.1 < k
-    · exact hker_vanish v₀ hv₀_ker n hnk
-    · have hne_eq : n = lastIdx := Fin.ext (by dsimp [lastIdx]; have := n.2; omega)
-      rw [hne_eq, hlast0]; rfl
-  have hall_dir : ∀ j : Fin k, ∃ p : ℕ, p < k ∧ s j = airyZ p := by
-    intro j
-    have heval := hv₀_ker j
-    unfold airySectionPolyR at heval
-    have hsingle : (∑ n : Fin (k + 1), v₀ n * airyCardinalR n.1 (s j)) =
-        v₀ lastIdx * airyCardinalR k (s j) := by
-      refine Finset.sum_eq_single lastIdx (fun n _ hne => ?_)
-        (fun hnot => absurd (Finset.mem_univ lastIdx) hnot)
-      have hnk : n.1 < k := Nat.lt_of_le_of_ne (Nat.lt_succ_iff.mp n.2)
-        fun heq => hne (Fin.ext heq)
-      rw [hker_vanish v₀ hv₀_ker n hnk, zero_mul]
-    rw [hsingle] at heval
-    have hcard0 : airyCardinalR k (s j) = 0 := (mul_eq_zero.mp heval).resolve_left hv₀_last
-    have hsj_ne : s j ≠ airyZ k := by
-      intro heq_z
-      rw [heq_z, airyCardinalR_airyZ] at hcard0
-      simp only [↓reduceIte] at hcard0
-      exact airyAi'_airyZ_ne_zero k hcard0
-    rw [airyCardinalR_of_ne k hsj_ne, div_eq_zero_iff] at hcard0
-    obtain ⟨p, hp⟩ := exists_airyZ_eq_of_airyAi_eq_zero
-      (hcard0.resolve_right (sub_ne_zero.mpr hsj_ne))
-    have hpk_ne : p ≠ k := fun heq_p => hsj_ne (by rw [hp, heq_p])
-    -- Rule out `k < p`: if `k + 1 ≤ p`, row `j` of `airyBlockMat s (k + 1)` is zero, leaving a nonzero kernel vector supported on `< k`.
-    have hpk_lt : p < k := by
-      by_contra hge
-      have hp_ge : k + 1 ≤ p := by omega
-      let R_sub := {i : Fin k // i ≠ j}
-      let B' : Matrix R_sub (Fin k) ℝ := Matrix.of fun i m => airyCardinalR m.1 (s i.1)
-      let L' : (Fin k → ℝ) →ₗ[ℝ] (R_sub → ℝ) := B'.mulVecLin
-      have hcard_R : Fintype.card R_sub < k := by
-        rw [Fintype.card_subtype_compl, Fintype.card_fin, Fintype.card_unique]
-        exact Nat.sub_lt (Nat.pos_of_ne_zero fun hk0 => by subst hk0; exact Fin.elim0 j) zero_lt_one
-      have hdim : Module.finrank ℝ (LinearMap.ker L') ≠ 0 := by
-        have hrn := LinearMap.finrank_range_add_finrank_ker L'
-        have hdom : Module.finrank ℝ (Fin k → ℝ) = k := Module.finrank_fin_fun ℝ
-        have hcod : Module.finrank ℝ (R_sub → ℝ) = Fintype.card R_sub := Module.finrank_pi ℝ
-        have hran : Module.finrank ℝ (LinearMap.range L') ≤ Fintype.card R_sub :=
-          (Submodule.finrank_le (LinearMap.range L')).trans_eq hcod
-        omega
-      have hne_bot : LinearMap.ker L' ≠ ⊥ := by
-        intro hbot; rw [hbot, finrank_bot] at hdim; exact hdim rfl
-      obtain ⟨w, hw_mem, hw_ne⟩ := Submodule.exists_mem_ne_zero_of_ne_bot hne_bot
-      let w' : Fin (k + 1) → ℝ := fun n => if h : n.1 < k then w ⟨n.1, h⟩ else 0
-      have hw'_ker : ∀ i : Fin k, airySectionPolyR (k + 1) w' (s i) = 0 := by
-        intro i
-        by_cases hij : i = j
-        · subst hij
-          unfold airySectionPolyR
-          refine Finset.sum_eq_zero fun n _ => ?_
-          have hnp : n.1 ≠ p := by have := n.2; omega
-          rw [hp, airyCardinalR_airyZ]
-          simp [hnp]
-        · unfold airySectionPolyR
-          have hsplit : (∑ n : Fin (k + 1), w' n * airyCardinalR n.1 (s i)) =
-              ∑ m : Fin k, w m * airyCardinalR m.1 (s i) := by
-            have h1 : (∑ n : Fin (k + 1), w' n * airyCardinalR n.1 (s i)) =
-                ∑ n ∈ Finset.range (k + 1),
-                  (if h : n < k then w ⟨n, h⟩ else 0) * airyCardinalR n (s i) :=
-              Fin.sum_univ_eq_sum_range
-                (fun n => (if h : n < k then w ⟨n, h⟩ else 0) * airyCardinalR n (s i)) (k + 1)
-            rw [h1, Finset.sum_range_succ]
-            have hlast : (if h : k < k then w ⟨k, h⟩ else 0) * airyCardinalR k (s i) = 0 := by simp
-            rw [hlast, add_zero, ← Fin.sum_univ_eq_sum_range]
-            exact Finset.sum_congr rfl fun m _ => by simp [m.2]
-          rw [hsplit]
-          have hi0 := congrFun (hw_mem : L' w = 0) ⟨i, hij⟩
-          simpa only [L', Matrix.mulVecLin_apply, Matrix.mulVec, dotProduct, B',
-            Matrix.of_apply, Pi.zero_apply, mul_comm] using hi0
-      obtain ⟨m₀, hm₀_ne⟩ := Function.ne_iff.mp hw_ne
-      have hw'_m0 : w' ⟨m₀.1, m₀.2.trans (Nat.lt_succ_self k)⟩ = 0 :=
-        hker_vanish w' hw'_ker ⟨m₀.1, m₀.2.trans (Nat.lt_succ_self k)⟩ m₀.2
-      simp [w', m₀.2] at hw'_m0
-      exact hm₀_ne hw'_m0
-    exact ⟨p, hpk_lt, hp⟩
-  choose p hp_lt hp_eq using hall_dir
-  have hp_inj : Function.Injective p := by
-    intro i j hij
-    apply hs
-    rw [hp_eq i, hp_eq j, hij]
-  have himg_eq : Finset.univ.image p = Finset.range k := by
-    refine Finset.eq_of_subset_of_card_le ?_ ?_
-    · intro m hm
-      obtain ⟨j, _, rfl⟩ := Finset.mem_image.mp hm
-      exact Finset.mem_range.mpr (hp_lt j)
-    · rw [Finset.card_image_of_injective _ hp_inj, Finset.card_univ, Fintype.card_fin,
-        Finset.card_range]
-  ext x
-  constructor
-  · rintro ⟨j, rfl⟩
-    exact ⟨p j, Finset.mem_coe.mpr (Finset.mem_range.mpr (hp_lt j)), (hp_eq j).symm⟩
-  · rintro ⟨m, hm, rfl⟩
-    have hm_img : m ∈ Finset.univ.image p := himg_eq.symm ▸ Finset.mem_coe.mp hm
-    obtain ⟨j, _, rfl⟩ := Finset.mem_image.mp hm_img
-    exact ⟨j, hp_eq j⟩
+  exact ⟨⟨airyLambdaSection_first_eq_imp_range hs, fun hrange => (h_if_range hrange).1⟩,
+    fun hrange => (h_if_range hrange).2⟩
 
 /-! ### Section 5: Part (3) — Full Square Class, Weak Witness `H_λ`, and Bundled Headlines -/
-
-lemma re_sq_of_im_eq_zero {z : ℂ} (hz : z.im = 0) : (z ^ 2).re = z.re ^ 2 := by
-  simp [sq, Complex.mul_re, hz]
-
-lemma re_mul_sq_of_im_eq_zero (u : ℝ) {z : ℂ} (hz : z.im = 0) :
-    ((u : ℂ) * z ^ 2).re = u * z.re ^ 2 := by
-  simp [sq, Complex.mul_re, Complex.mul_im, hz]
-
-/-- Real-valued Dirichlet quadrature for `F ∈ InAiryClass`:
-`∑_n Re F(a_{n+1}) / Ai'(a_{n+1})² = ∫_ℝ Re F(u) du`. -/
-lemma inAiryClass_quadrature_re {F : ℂ → ℂ} (hF : InAiryClass F) :
-    HasSum (fun n : ℕ => (F (airyZ n : ℂ)).re / airyAi' (airyZ n) ^ 2)
-      (∫ u : ℝ, (F (u : ℂ)).re) := by
-  obtain ⟨C, ν, hC, hb⟩ := hF.2.2.1
-  have hsum := airyQ_hasSum_unc hF.1 hF.2.1 hC hb
-  have hre := hsum.map Complex.reCLM.toAddMonoidHom Complex.continuous_re
-  change HasSum
-    (fun n : ℕ => (F (airyZ n : ℂ) / (deriv airyAiC (airyZ n : ℂ)) ^ 2).re)
-    (∫ x : ℝ, F (x : ℂ)).re at hre
-  have hint_re : (∫ u : ℝ, (F (u : ℂ)).re) = (∫ x : ℝ, F (x : ℂ)).re := integral_re hF.2.1
-  rw [← hint_re] at hre
-  refine hre.congr_fun fun n => ?_
-  rw [deriv_airyAiC_ofReal, ← Complex.ofReal_pow, Complex.div_ofReal_re]
 
 /-- If `f₁, f₂` are entire, real on `ℝ`, and `f₁², f₂² ∈ InAiryClass`, then `f₁ f₂ ∈ InAiryClass`. -/
 lemma InAiryClass.mul_of_sq {f₁ f₂ : ℂ → ℂ}
@@ -3406,25 +2776,6 @@ theorem airyMaximizerWitness_properties {k : ℕ} {s : Fin k → ℝ} (hs : Func
     le_iSup₂_of_le lam ⟨airyMaximizerWitness s c, hwit⟩ le_rfl
   exact ⟨hH_class, hH_sites, hH_int0, hH_lap_pos, hwit, hle_ulp⟩
 
-/-- From the deferred finite-section inequality `AirySquareBoundInput s` (`lem:airy-square-bound`),
-`λ(s) ≤ u_sh(s) ≤ u_LP(s)`. -/
-theorem airyLambda_le_airyUSh_of_bound {k : ℕ} (s : Fin k → ℝ) (h : AirySquareBoundInput s) :
-    (airyLambda s : EReal) ≤ airyUSh (Set.range s) := by
-  have : Nonempty {M : ℕ // k + 1 ≤ M} := ⟨⟨k + 1, le_rfl⟩⟩
-  generalize hu : airyUSh (Set.range s) = u
-  induction u using EReal.rec with
-  | bot =>
-    have h1 := h.section_le_uSh (k + 1) le_rfl
-    rw [hu] at h1
-    exact False.elim (not_le_of_gt (EReal.bot_lt_coe _) h1)
-  | coe r =>
-    rw [EReal.coe_le_coe_iff]
-    refine ciSup_le fun M => ?_
-    have hM := h.section_le_uSh M.1 M.2
-    rw [hu, EReal.coe_le_coe_iff] at hM
-    exact hM
-  | top => exact le_top
-
 /-- Every unit maximizer `c` at distinct sites `s` produces a member `q_c` of the full square class
 `IsAirySquareClass s` with quotient equal to `airyLambda s`. -/
 lemma airyCardinalSeries_mem_squareClass_of_maximizer {k : ℕ} {s : Fin k → ℝ}
@@ -3678,19 +3029,18 @@ theorem thm_airy_square_attained_simple {k : ℕ} {s : Fin k → ℝ} (hs : Func
   exact ⟨airySquare_maximizer_representation hs hc hc_max, hqc_mem, hqc_val,
     hH_cl, hH_s, hH_i0, hH_pos, hwit⟩
 
-/-- **Theorem `thm:airy-square-attained` (distinct sites, full chain with `AirySquareBoundInput`;
+/-- **Theorem `thm:airy-square-attained` (distinct sites, full chain with `λ(s) ≤ u_sh(s) ≤ u_LP(s)`;
 `ce_airy_lp.tex`).**
-Combines `thm_airy_square_attained_simple` with `λ(s) ≤ u_sh(s) ≤ u_LP(s)` given the deferred
-distinct-site finite-section inequality `AirySquareBoundInput s` (`lem:airy-square-bound`). -/
-theorem thm_airy_square_attained_simple_full {k : ℕ} {s : Fin k → ℝ} (hs : Function.Injective s)
-    (hbound : AirySquareBoundInput s) :
+Unconditional: combines `isGreatest_airySquareRayleigh` and `isGreatest_airySquareClass` with
+`λ(s) ≤ u_sh(s) ≤ u_LP(s)` from `lem:airy-square-bound` (`airyLambda_le_airyUSh`). -/
+theorem thm_airy_square_attained_simple_full {k : ℕ} {s : Fin k → ℝ} (hs : Function.Injective s) :
     IsGreatest (airySquareRayleigh '' {c : lp (fun _ : ℕ => ℝ) 2 | AirySquareUnitFeasible s c})
       (airyLambda s) ∧
     IsGreatest (airySquareClassQuotient '' {q : ℂ → ℂ | IsAirySquareClass s q}) (airyLambda s) ∧
     (airyLambda s : EReal) ≤ airyUSh (Set.range s) ∧
     airyUSh (Set.range s) ≤ airyULP (Set.range s) :=
   ⟨isGreatest_airySquareRayleigh hs, isGreatest_airySquareClass hs,
-    airyLambda_le_airyUSh_of_bound s hbound, airyUSh_le_airyULP (Set.range s)⟩
+    airyLambda_le_airyUSh s, airyUSh_le_airyULP (Set.range s)⟩
 
 /-- info: 'FormalResearch.SignUncertainty.isGreatest_airySquareRayleigh' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -330,6 +330,7 @@ public import FormalResearch.SignUncertainty.CtDyadicArea
 public import FormalResearch.SignUncertainty.CtDyadicGReg
 public import FormalResearch.SignUncertainty.CtDyadicRadius
 public import FormalResearch.SignUncertainty.CtDyadicStatement
+public import FormalResearch.SignUncertainty.CtBandTop
 public import FormalResearch.SignUncertainty.HankelChartCubic
 public import FormalResearch.SignUncertainty.CtLowerDefs
 public import FormalResearch.SignUncertainty.CtLowerChartGap
@@ -556,6 +557,7 @@ public import FormalResearch.SignUncertainty.FctCompDPart1
 public import FormalResearch.SignUncertainty.FctCompDPart2a
 public import FormalResearch.SignUncertainty.FctCompDPart2
 public import FormalResearch.SignUncertainty.AirySquareKernel
+public import FormalResearch.SignUncertainty.AirySquareBound
 public import FormalResearch.SignUncertainty.AirySquareSimple
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
@@ -829,11 +831,14 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.FctEdgeIbp` (`fct:edge-ibp`, Lemma FCT.5a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `edgeW`, `fct_edge_ibp_cutoff` (Part (1): removing an edge cutoff with Abel regularisation `e^{-ετ²}`), `fct_edge_ibp_shoulder` (Part (2): shoulder estimate under the corrected derivative range `1 ≤ k ≤ n` matching `Φ ∈ C^{n+1}`), and bundled `fct_edge_ibp`.
 * `FormalResearch.SignUncertainty.FctCuspEdgeIbp`, `FctCuspEdgeInner`, `FctCuspEdgeSmall`, `FctCuspEdgeLarge`, `FctCuspEdge` (`fct:cusp-edge`, Lemma FCT.7a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `CuspAmplitude`, `CuspProfile`, `cuspEdgeJ`, and `fct_cusp_edge` (`‖J_c(L)‖ ≤ C (1 + c^{2/3} L)^{-α - 1}` uniformly for `c ≥ 1`, `L ≥ 0`, `0 < α < 2`, as in the paper).
 * `FormalResearch.SignUncertainty.FctCompDStrip`, `FctCompDCauchy`, `FctCompDTargets`, `FctCompDPart1`, `FctCompDPart2a`, `FctCompDPart2` (`fct:comp-D`, Lemma FCT.3, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `fct_comp_D_part1` (localized strip outer compensator `v = v₀ + v₁ + v_α`, zeroed moments `0..4`, exact inner form `(fct:v-inner)`, all-order derivative/phase/tail/interior bounds, and all-order global closed-strip bound `norm_iteratedDeriv_stripCompGExt_le` on `S̄` repairing the paper's omission of `g_D''`), `fct_comp_D_part2` (`(fct:cos-pen)`, exact cosine identity for `H_*`, `(fct:curv-p-int)` for `p ≤ 2`, inner integral `∫_0^{3δ_L} D_*`, `(fct:bump-1L)`, and `(fct:bump-2L)`), and `fct_comp_D_part3` (exact Cauchy phase-curvature identities `(fct:cauchy-curv)` for all `m ≥ 1` with `O_m(M τ₁³)` specialization and `m = 1` leading constants `-(π/4)`, `-(π/12)`).
-* `FormalResearch.SignUncertainty.AirySquareKernel`, `AirySquareSimple` (`lem:al-kernel`,
+* `FormalResearch.SignUncertainty.AirySquareKernel`, `AirySquareBound`, `AirySquareSimple`
+  (`lem:al-kernel`, `lem:al-reference-positive`, `lem:airy-square-bound`, and
   `thm:airy-square-attained` (1)-(3) for distinct sites, `ce_airy_lp.tex` / `ce_airy_lp_proofs.tex`,
-  M9 step 1; proved, unconditional except `λ(s) ≤ u_sh(s)` isolated in `AirySquareBoundInput` for
-  the deferred `lem:airy-square-bound`): `airyCardinal`, `airyCardinalBasis`, `airyCardinal_ker_hasSum`,
+  M9; proved, unconditional): `airyCardinal`, `airyCardinalBasis`, `airyCardinal_ker_hasSum`,
   `airyCardinalSeries_sq_inAiryClass`, `lem_al_kernel`; `airyLambdaSection`, `airyLambda`,
+  `airyRefJ0`, `airyLaplace_airyRefJ0_bounds`, `exists_isAiryStrictWitness_of_lt_section_above`,
+  `airyLambdaSection_le_airyUSh`, `airyLambda_le_airyUSh`, `airyUSh_ge_rayDropped`,
+  `airyLambdaSection_hb_gt_airyZero`, `hb_m23_node_interlace`, `lem_airy_square_bound`;
   `isGreatest_airySquareRayleigh`, `locallyLipschitzOn_airyLambda`,
   `airyLambda_sub_section_le_on_compact`, `airyLambdaSection_first_eq_iff`,
   `airyLambdaSection_eq_airyLambda_iff`, `airySquare_maximizer_representation`,
