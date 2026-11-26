@@ -28,7 +28,7 @@ files that import it.
 @[expose] public section
 
 open Complex MeasureTheory Filter Topology Metric Set
-open scoped Real
+open scoped Real Interval
 
 namespace FormalResearch.ModularBootstrap.Blowup
 
@@ -98,6 +98,98 @@ lemma tail_norm (h : DensityHyp C₀ R ς δ Ψ uT) (hC0 : 0 < C₀) (hς : 0 �
 
 end DensityHyp
 
+/-- Tail bound `τ(N)` used throughout. -/
+noncomputable def tailBound (C₀ N : ℝ) : ℝ := (6 / 5 : ℝ) * C₀ * Real.exp (-(5 / 6 : ℝ) * N)
+
+lemma tailBound_tendsto (C₀ : ℝ) : Tendsto (fun N : ℕ => tailBound C₀ N) atTop (𝓝 0) := by
+  have ht_mul : Tendsto (fun N : ℕ => -(5 / 6 : ℝ) * (N : ℝ)) atTop atBot :=
+    Tendsto.const_mul_atTop_of_neg (by norm_num : -(5 / 6 : ℝ) < 0) tendsto_natCast_atTop_atTop
+  simpa [tailBound] using ((Real.tendsto_exp_atBot.comp ht_mul).const_mul ((6 / 5 : ℝ) * C₀))
+
+lemma tailBound_nonneg {C₀ : ℝ} (hC0 : 0 ≤ C₀) (N : ℝ) : 0 ≤ tailBound C₀ N := by
+  unfold tailBound; positivity
+
+namespace DensityHyp
+
+variable {C₀ R ς δ : ℝ} {Ψ : ℂ → ℂ} {uT : ℝ}
+
+lemma tail_norm' (h : DensityHyp C₀ R ς δ Ψ uT) (hC0 : 0 < C₀) (hς : 0 ≤ ς) (hς2 : ς ≤ 1 / 2)
+    {A : ℝ} (hA : 1 ≤ A) (hAR : A ≤ R) :
+    ∫ x in A..R, ‖Ψ (x : ℂ)‖ ≤ tailBound C₀ A := h.tail_norm hC0 hς hς2 hA hAR
+
+lemma norm_cont (h : DensityHyp C₀ R ς δ Ψ uT) :
+    ContinuousOn (fun x : ℝ => ‖Ψ (x : ℂ)‖) (Icc (-R) R) := h.cont_real.norm
+
+/-- `∫_{-N}^N ‖Ψ‖ ≤ 1`. -/
+lemma symm_norm_le (h : DensityHyp C₀ R ς δ Ψ uT) {N : ℝ} (hN0 : 0 ≤ N) (hNR : N ≤ R) :
+    ∫ x in (-N)..N, ‖Ψ (x : ℂ)‖ ≤ 1 := by
+  refine le_trans ?_ h.l1
+  refine intervalIntegral.integral_mono_interval (by linarith) (by linarith) (by linarith)
+    (Eventually.of_forall fun x => norm_nonneg _) ?_
+  exact h.norm_cont.intervalIntegrable_of_Icc (μ := volume) (by linarith)
+
+lemma symm_re_le (h : DensityHyp C₀ R ς δ Ψ uT) (hC0 : 0 < C₀) (hς : 0 ≤ ς) (hς2 : ς ≤ 1 / 2)
+    {N : ℝ} (hN1 : 1 ≤ N) (hNR : N ≤ R) (hNu : -N ≤ uT) :
+    ∫ x in (-N)..N, (Ψ (x : ℂ)).re ≤ δ + tailBound C₀ N := by
+  have hN0 : 0 ≤ N := by linarith
+  have hc_re : ContinuousOn (fun x : ℝ => (Ψ (x : ℂ)).re) (Icc (-R) R) :=
+    Complex.continuous_re.comp_continuousOn h.cont_real
+  have hsplit : (∫ x in (-N)..N, (Ψ (x : ℂ)).re) + (∫ x in N..R, (Ψ (x : ℂ)).re) =
+      ∫ x in (-N)..R, (Ψ (x : ℂ)).re := by
+    refine intervalIntegral.integral_add_adjacent_intervals ?_ ?_
+    · exact (hc_re.mono (Icc_subset_Icc (by linarith) hNR)).intervalIntegrable_of_Icc (by linarith)
+    · exact (hc_re.mono (Icc_subset_Icc (by linarith) le_rfl)).intervalIntegrable_of_Icc hNR
+  have htop := h.top N ⟨hN0, hNR⟩ hNu
+  have htail : -(∫ x in N..R, (Ψ (x : ℂ)).re) ≤ tailBound C₀ N := by
+    have h1 : ‖∫ x in N..R, (Ψ (x : ℂ)).re‖ ≤ ∫ x in N..R, ‖(Ψ (x : ℂ)).re‖ :=
+      intervalIntegral.norm_integral_le_integral_norm hNR
+    have h2 : ∫ x in N..R, ‖(Ψ (x : ℂ)).re‖ ≤ ∫ x in N..R, ‖Ψ (x : ℂ)‖ := by
+      refine intervalIntegral.integral_mono_on hNR
+        ((hc_re.norm.mono (Icc_subset_Icc (by linarith) le_rfl)).intervalIntegrable_of_Icc hNR)
+        ((h.norm_cont.mono (Icc_subset_Icc (by linarith) le_rfl)).intervalIntegrable_of_Icc hNR)
+        fun x _ => ?_
+      simpa [Real.norm_eq_abs] using Complex.abs_re_le_norm (Ψ (x : ℂ))
+    rw [Real.norm_eq_abs] at h1
+    have := h.tail_norm' hC0 hς hς2 hN1 hNR
+    linarith [(abs_le.mp h1).1]
+  linarith
+
+lemma symm_neg_ge (h : DensityHyp C₀ R ς δ Ψ uT) (hC0 : 0 < C₀) (hς : 0 ≤ ς) (hς2 : ς ≤ 1 / 2)
+    {N : ℝ} (hN1 : 1 ≤ N) (hNR : N ≤ R) (hNu : -N ≤ uT) :
+    (1 / 2 : ℝ) - δ - tailBound C₀ N ≤ ∫ x in (-N)..N, max 0 (-(Ψ (x : ℂ)).re) := by
+  have hc_neg : ContinuousOn (fun x : ℝ => max 0 (-(Ψ (x : ℂ)).re)) (Icc (-R) R) :=
+    ContinuousOn.sup continuousOn_const
+      (Complex.continuous_re.comp_continuousOn h.cont_real).neg
+  have h1 : (∫ x in (-R)..(-N), max 0 (-(Ψ (x : ℂ)).re)) +
+      (∫ x in (-N)..N, max 0 (-(Ψ (x : ℂ)).re)) = ∫ x in (-R)..N, max 0 (-(Ψ (x : ℂ)).re) :=
+    intervalIntegral.integral_add_adjacent_intervals
+      ((hc_neg.mono (Icc_subset_Icc le_rfl (by linarith))).intervalIntegrable_of_Icc (by linarith))
+      ((hc_neg.mono (Icc_subset_Icc (by linarith) hNR)).intervalIntegrable_of_Icc (by linarith))
+  have h2 : (∫ x in (-R)..N, max 0 (-(Ψ (x : ℂ)).re)) + (∫ x in N..R, max 0 (-(Ψ (x : ℂ)).re)) =
+      ∫ x in (-R)..R, max 0 (-(Ψ (x : ℂ)).re) :=
+    intervalIntegral.integral_add_adjacent_intervals
+      ((hc_neg.mono (Icc_subset_Icc le_rfl hNR)).intervalIntegrable_of_Icc (by linarith))
+      ((hc_neg.mono (Icc_subset_Icc (by linarith) le_rfl)).intervalIntegrable_of_Icc hNR)
+  have hzero : ∫ x in (-R)..(-N), max 0 (-(Ψ (x : ℂ)).re) = 0 := by
+    have hRN : -R ≤ -N := by linarith
+    rw [intervalIntegral.integral_of_le hRN]
+    refine setIntegral_eq_zero_of_forall_eq_zero fun x hx => ?_
+    have hx1 : x ∈ Icc (-R) R := ⟨hx.1.le, by linarith [hx.2]⟩
+    have := h.nonneg x hx1 (by linarith [hx.2])
+    exact max_eq_left (by linarith)
+  have htail : ∫ x in N..R, max 0 (-(Ψ (x : ℂ)).re) ≤ tailBound C₀ N := by
+    refine le_trans ?_ (h.tail_norm' hC0 hς hς2 hN1 hNR)
+    refine intervalIntegral.integral_mono_on hNR
+      ((hc_neg.mono (Icc_subset_Icc (by linarith) le_rfl)).intervalIntegrable_of_Icc hNR)
+      ((h.norm_cont.mono (Icc_subset_Icc (by linarith) le_rfl)).intervalIntegrable_of_Icc hNR)
+      fun x _ => ?_
+    refine max_le (norm_nonneg _) ?_
+    exact (neg_le.mp (abs_le.mp (Complex.abs_re_le_norm (Ψ (x : ℂ)))).1).trans (le_refl _)
+  have := h.neg
+  linarith
+
+end DensityHyp
+
 /-- Integral of a Lipschitz function of a locally uniformly convergent family. -/
 lemma tendsto_intervalIntegral_lip {F : ℕ → ℂ → ℂ} {Φ : ℂ → ℂ} {φ : ℕ → ℕ} {g : ℂ → ℝ}
     (hg : ∀ a b, |g a - g b| ≤ ‖a - b‖) (hg0 : Continuous g) {N : ℕ}
@@ -130,8 +222,8 @@ lemma tendsto_intervalIntegral_lip {F : ℕ → ℂ → ℂ} {Φ : ℂ → ℂ} 
     rw [Real.norm_eq_abs]
     exact (hg _ _).trans (by rw [norm_sub_rev]; exact this.le)
   have := intervalIntegral.norm_integral_le_of_norm_le_const hb
-  have h2 : |(N : ℝ) - -(N : ℝ)| * (ε / (2 * N + 1)) < ε := by
-    rw [show (N : ℝ) - -(N : ℝ) = 2 * N by ring, abs_of_nonneg hN, mul_div_assoc',
+  have h2 : ε / (2 * N + 1) * |(N : ℝ) - -(N : ℝ)| < ε := by
+    rw [show (N : ℝ) - -(N : ℝ) = 2 * N by ring, abs_of_nonneg hN, div_mul_eq_mul_div,
       div_lt_iff₀ (by positivity)]
     nlinarith
   exact this.trans_lt h2
@@ -235,6 +327,20 @@ variable {φ : ℕ → ℕ} {Φ : ℂ → ℂ}
 abbrev LocUnif (Ψ : ℕ → ℂ → ℂ) (φ : ℕ → ℕ) (Φ : ℂ → ℂ) : Prop :=
   ∀ m : ℕ, TendstoUniformlyOn (fun k => Ψ (φ k)) Φ atTop (closedBall (0 : ℂ) ((m : ℝ) + 1))
 
+
+/-- Uniform convergence on balls and a continuous limit give convergence along convergent points. -/
+lemma tendsto_comp_of_unifLocUnif {F : ℕ → ℂ → ℂ} {φ : ℕ → ℕ} {Φ : ℂ → ℂ} (hU : LocUnif F φ Φ)
+    (hΦ : Continuous Φ) {w : ℕ → ℂ} {wlim : ℂ} (hw : Tendsto w atTop (𝓝 wlim)) :
+    Tendsto (fun k => F (φ k) (w k)) atTop (𝓝 (Φ wlim)) := by
+  set m : ℕ := ⌈‖wlim‖⌉₊ with hm
+  have hmem_ball : wlim ∈ ball (0 : ℂ) ((m : ℝ) + 1) := by
+    rw [mem_ball_zero_iff]; linarith [Nat.le_ceil ‖wlim‖]
+  have hmem : closedBall (0 : ℂ) ((m : ℝ) + 1) ∈ 𝓝 wlim :=
+    mem_of_superset (isOpen_ball.mem_nhds hmem_ball) ball_subset_closedBall
+  have hg : Tendsto w atTop (𝓝[closedBall (0 : ℂ) ((m : ℝ) + 1)] wlim) :=
+    tendsto_nhdsWithin_iff.mpr ⟨hw, hw hmem⟩
+  exact (hU m).tendsto_comp hΦ.continuousWithinAt hg
+
 lemma eventually_R_ge (S : DensitySeq C₀ R ς δ Ψ uT) (hφ : StrictMono φ) (N : ℝ) :
     ∀ᶠ k in atTop, N ≤ R (φ k) := (S.hR.comp hφ.tendsto_atTop) (eventually_ge_atTop N)
 
@@ -285,10 +391,116 @@ lemma limit_integral_neg (S : DensitySeq C₀ R ς δ Ψ uT) (hφ : StrictMono �
     (continuous_const.max Complex.continuous_re.neg) (hU N) (eventually_cont S hφ N) hΦ.continuous
   have h1 := Complex.abs_re_le_norm (a - b)
   have h2 : |max 0 (-a.re) - max 0 (-b.re)| ≤ |(-a.re) - (-b.re)| := by
-    simpa using abs_max_sub_max_le_abs 0 (-a.re) (-b.re) |>.trans_eq' (by simp)
+    rw [max_comm 0, max_comm 0 (-b.re)]
+    exact abs_max_sub_max_le_abs _ _ _
   refine h2.trans ?_
-  rw [show (-a.re) - (-b.re) = -(a - b).re by simp]
-  simpa using h1
+  rw [show (-a.re) - (-b.re) = -(a.re - b.re) by ring, abs_neg]
+  simpa [Complex.sub_re] using h1
+
+
+/-- Symmetric interval integrals over `[-N, N]` converge to the full integral. -/
+lemma tendsto_symm_integral {f : ℝ → ℝ} (hf : Integrable f) :
+    Tendsto (fun N : ℕ => ∫ x in (-(N : ℝ))..N, f x) atTop (𝓝 (∫ x : ℝ, f x)) :=
+  (intervalIntegral_tendsto_integral hf tendsto_neg_atTop_atBot tendsto_id).comp
+    tendsto_natCast_atTop_atTop
+
+lemma eventually_ς_half (S : DensitySeq C₀ R ς δ Ψ uT) (hφ : StrictMono φ) :
+    ∀ᶠ k in atTop, 0 ≤ ς (φ k) ∧ ς (φ k) ≤ 1 / 2 := by
+  have h1 : ∀ᶠ k in atTop, 0 ≤ ς (φ k) := hφ.tendsto_atTop.eventually S.hς0
+  have h2 : ∀ᶠ k in atTop, ς (φ k) ≤ 1 / 2 :=
+    (S.hς.comp hφ.tendsto_atTop) (Iic_mem_nhds (by norm_num))
+  exact h1.and h2
+
+lemma limit_symm_norm_le (S : DensitySeq C₀ R ς δ Ψ uT) (hφ : StrictMono φ)
+    (hU : LocUnif Ψ φ Φ) (hΦ : Differentiable ℂ Φ) (N : ℕ) :
+    ∫ x in (-(N : ℝ))..N, ‖Φ (x : ℂ)‖ ≤ 1 := by
+  refine le_of_tendsto (limit_integral_norm S hφ hU hΦ N) ?_
+  filter_upwards [eventually_R_ge S hφ (N : ℝ)] with k hk
+  exact (S.hspec (φ k)).symm_norm_le (Nat.cast_nonneg N) hk
+
+lemma limit_integrable (S : DensitySeq C₀ R ς δ Ψ uT) (hφ : StrictMono φ)
+    (hU : LocUnif Ψ φ Φ) (hΦ : Differentiable ℂ Φ) :
+    Integrable (fun x : ℝ => Φ (x : ℂ)) :=
+  clarkIntegrable_of_symm_norm_le (limit_continuous hΦ) (limit_symm_norm_le S hφ hU hΦ)
+
+lemma limit_norm_le_one (S : DensitySeq C₀ R ς δ Ψ uT) (hφ : StrictMono φ)
+    (hU : LocUnif Ψ φ Φ) (hΦ : Differentiable ℂ Φ) :
+    ∫ x : ℝ, ‖Φ (x : ℂ)‖ ≤ 1 :=
+  le_of_tendsto (tendsto_symm_integral (limit_integrable S hφ hU hΦ).norm)
+    (Eventually.of_forall (limit_symm_norm_le S hφ hU hΦ))
+
+lemma limit_nonneg (S : DensitySeq C₀ R ς δ Ψ uT) (hφ : StrictMono φ) (hU : LocUnif Ψ φ Φ)
+    (x : ℝ) (hx : ∀ᶠ k in atTop, x ≤ uT (φ k)) : 0 ≤ (Φ (x : ℂ)).re := by
+  let m : ℕ := ⌈|x|⌉₊
+  have hx_m : (x : ℂ) ∈ closedBall (0 : ℂ) ((m : ℝ) + 1) := by
+    rw [mem_closedBall_zero_iff, Complex.norm_real, Real.norm_eq_abs]; linarith [Nat.le_ceil |x|]
+  have ht_re : Tendsto (fun k => (Ψ (φ k) (x : ℂ)).re) atTop (𝓝 (Φ (x : ℂ)).re) :=
+    Complex.continuous_re.continuousAt.tendsto.comp ((hU m).tendsto_at hx_m)
+  refine ge_of_tendsto ht_re ?_
+  filter_upwards [hx, eventually_R_ge S hφ (|x|)] with k hk1 hk2
+  exact (S.hspec (φ k)).nonneg x (abs_le.mp hk2) hk1
+
+lemma limit_re_le_zero (S : DensitySeq C₀ R ς δ Ψ uT) (hφ : StrictMono φ)
+    (hU : LocUnif Ψ φ Φ) (hΦ : Differentiable ℂ Φ) {x₀ : ℝ} (hx₀ : ∀ n, x₀ ≤ uT n) :
+    ∫ x : ℝ, (Φ (x : ℂ)).re ≤ 0 := by
+  have hint := (limit_integrable S hφ hU hΦ).re
+  have hbound : ∀ N : ℕ, 1 ≤ N → -x₀ ≤ N →
+      ∫ x in (-(N : ℝ))..N, (Φ (x : ℂ)).re ≤ tailBound C₀ N := by
+    intro N hN1 hNx
+    have hlim := limit_integral_re S hφ hU hΦ N
+    have hlim2 : Tendsto (fun k => δ (φ k) + tailBound C₀ N) atTop (𝓝 (0 + tailBound C₀ N)) :=
+      ((S.hδ.comp hφ.tendsto_atTop)).add_const _
+    rw [zero_add] at hlim2
+    refine le_of_tendsto_of_tendsto hlim hlim2 ?_
+    filter_upwards [eventually_R_ge S hφ (N : ℝ), eventually_ς_half S hφ] with k hk1 hk2
+    exact (S.hspec (φ k)).symm_re_le S.hC0 hk2.1 hk2.2 (by exact_mod_cast hN1) hk1
+      (by linarith [hx₀ (φ k)])
+  refine le_of_tendsto_of_tendsto (tendsto_symm_integral hint) (tailBound_tendsto C₀) ?_
+  filter_upwards [eventually_ge_atTop (max 1 ⌈-x₀⌉₊)] with N hN
+  refine hbound N (le_trans (le_max_left _ _) hN) ?_
+  have := Nat.le_ceil (-x₀)
+  have h2 : ((⌈-x₀⌉₊ : ℕ) : ℝ) ≤ N := by exact_mod_cast (le_max_right _ _).trans hN
+  linarith
+
+lemma limit_neg_ge (S : DensitySeq C₀ R ς δ Ψ uT) (hφ : StrictMono φ)
+    (hU : LocUnif Ψ φ Φ) (hΦ : Differentiable ℂ Φ) {x₀ : ℝ} (hx₀ : ∀ n, x₀ ≤ uT n) :
+    (1 / 2 : ℝ) ≤ ∫ x : ℝ, max 0 (-(Φ (x : ℂ)).re) := by
+  have hint : Integrable (fun x : ℝ => max 0 (-(Φ (x : ℂ)).re)) := by
+    refine (limit_integrable S hφ hU hΦ).norm.mono'
+      ((continuous_const.max (Complex.continuous_re.comp (limit_continuous hΦ)).neg).aestronglyMeasurable)
+      (Eventually.of_forall fun x => ?_)
+    rw [Real.norm_eq_abs, abs_of_nonneg (le_max_left _ _)]
+    exact max_le (norm_nonneg _)
+      ((neg_le.mp (abs_le.mp (Complex.abs_re_le_norm (Φ (x : ℂ)))).1).trans (le_refl _))
+  have hbound : ∀ N : ℕ, 1 ≤ N → -x₀ ≤ N →
+      (1 / 2 : ℝ) - tailBound C₀ N ≤ ∫ x in (-(N : ℝ))..N, max 0 (-(Φ (x : ℂ)).re) := by
+    intro N hN1 hNx
+    have hlim := limit_integral_neg S hφ hU hΦ N
+    have hlim2 : Tendsto (fun k => (1 / 2 : ℝ) - δ (φ k) - tailBound C₀ N) atTop
+        (𝓝 ((1 / 2 : ℝ) - 0 - tailBound C₀ N)) :=
+      (tendsto_const_nhds.sub (S.hδ.comp hφ.tendsto_atTop)).sub tendsto_const_nhds
+    rw [sub_zero] at hlim2
+    refine le_of_tendsto_of_tendsto hlim2 hlim ?_
+    filter_upwards [eventually_R_ge S hφ (N : ℝ), eventually_ς_half S hφ] with k hk1 hk2
+    exact (S.hspec (φ k)).symm_neg_ge S.hC0 hk2.1 hk2.2 (by exact_mod_cast hN1) hk1
+      (by linarith [hx₀ (φ k)])
+  have hmono : ∀ N : ℕ, ∫ x in (-(N : ℝ))..N, max 0 (-(Φ (x : ℂ)).re) ≤
+      ∫ x : ℝ, max 0 (-(Φ (x : ℂ)).re) := by
+    intro N
+    rw [intervalIntegral.integral_of_le (by linarith [(Nat.cast_nonneg N : (0 : ℝ) ≤ N)])]
+    exact setIntegral_le_integral hint (Eventually.of_forall fun x => le_max_left _ _)
+  have hlow : ∀ N : ℕ, 1 ≤ N → -x₀ ≤ N →
+      (1 / 2 : ℝ) - tailBound C₀ N ≤ ∫ x : ℝ, max 0 (-(Φ (x : ℂ)).re) :=
+    fun N h1 h2 => (hbound N h1 h2).trans (hmono N)
+  have hlim3 : Tendsto (fun N : ℕ => (1 / 2 : ℝ) - tailBound C₀ N) atTop (𝓝 ((1 / 2 : ℝ) - 0)) :=
+    tendsto_const_nhds.sub (tailBound_tendsto C₀)
+  rw [sub_zero] at hlim3
+  refine le_of_tendsto hlim3 ?_
+  filter_upwards [eventually_ge_atTop (max 1 ⌈-x₀⌉₊)] with N hN
+  refine hlow N (le_trans (le_max_left _ _) hN) ?_
+  have := Nat.le_ceil (-x₀)
+  have h2 : ((⌈-x₀⌉₊ : ℕ) : ℝ) ≤ N := by exact_mod_cast (le_max_right _ _).trans hN
+  linarith
 
 end Extraction
 
