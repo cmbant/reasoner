@@ -25,7 +25,7 @@ jobs:
         run: lake exe cache get
       - name: Reject placeholders
         run: |
-          if grep -R --line-number -E '\bsorry\b|\badmit\b' FormalResearch FormalResearch.lean; then
+          if grep -R --line-number --include='*.lean' -E '\bsorry\b|\badmit\b' FormalResearch FormalResearch.lean; then
             echo 'Lean placeholders found'
             exit 1
           fi
