@@ -6,6 +6,7 @@ public import Mathlib.Analysis.Calculus.Deriv.Mul
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 public import Mathlib.Analysis.Complex.Basic
 public import Mathlib.Analysis.Complex.RealDeriv
+public import Mathlib.Analysis.Complex.CauchyIntegral
 public import Mathlib.Analysis.Calculus.FDeriv.Basic
 
 /-!
@@ -81,22 +82,40 @@ lemma taylor2_seg {p p1 p2 : ℂ → ℂ} {z β : ℂ}
     ring
   rw [e]; ring
 
-/-- The derivative of a function is conjugation symmetric if the function is. -/
-lemma hasDerivAt_conj_symm {f : ℂ → ℂ} (hsym : ∀ z, f (starRingEnd ℂ z) = starRingEnd ℂ (f z)) {z f' : ℂ}
-    (hd : HasDerivAt f f' z) : HasDerivAt f (starRingEnd ℂ f') (starRingEnd ℂ z) := by
+/-- The conjugated function `w ↦ conj (f (conj w))` has the conjugated derivative at the conjugated point. -/
+lemma hasDerivAt_conj_conj {f : ℂ → ℂ} {z f' : ℂ} (hd : HasDerivAt f f' z) :
+    HasDerivAt (fun w => starRingEnd ℂ (f (starRingEnd ℂ w))) (starRingEnd ℂ f') (starRingEnd ℂ z) := by
   rw [hasDerivAt_iff_isLittleO_nhds_zero] at hd ⊢
   have h2 := hd.comp_tendsto (Complex.continuous_conj.tendsto (0 : ℂ) |>.mono_right (by simp) : Tendsto (starRingEnd ℂ) (𝓝 0) (𝓝 0))
   rw [Asymptotics.isLittleO_iff] at h2 ⊢
   intro c hc
   filter_upwards [h2 hc] with k hk
   simp only [Function.comp, id] at hk ⊢
-  have e : f (starRingEnd ℂ z + k) - f (starRingEnd ℂ z) - k • starRingEnd ℂ f' =
-      starRingEnd ℂ (f (z + starRingEnd ℂ k) - f z - starRingEnd ℂ k • f') := by
-    have e1 : starRingEnd ℂ z + k = starRingEnd ℂ (z + starRingEnd ℂ k) := by simp
-    rw [e1, hsym]
-    simp [smul_eq_mul, hsym]
+  have e : starRingEnd ℂ (f (starRingEnd ℂ (starRingEnd ℂ z + k))) - starRingEnd ℂ (f (starRingEnd ℂ (starRingEnd ℂ z))) -
+      k • starRingEnd ℂ f' = starRingEnd ℂ (f (z + starRingEnd ℂ k) - f z - starRingEnd ℂ k • f') := by
+    simp [smul_eq_mul]
   rw [e, Complex.norm_conj]
   simpa [Complex.norm_conj] using hk
+
+/-- The derivative of a function is conjugation symmetric if the function is. -/
+lemma hasDerivAt_conj_symm {f : ℂ → ℂ} (hsym : ∀ z, f (starRingEnd ℂ z) = starRingEnd ℂ (f z)) {z f' : ℂ}
+    (hd : HasDerivAt f f' z) : HasDerivAt f (starRingEnd ℂ f') (starRingEnd ℂ z) := by
+  have h := hasDerivAt_conj_conj hd
+  have e : (fun w => starRingEnd ℂ (f (starRingEnd ℂ w))) = f := by
+    funext w; rw [hsym, Complex.conj_conj]
+  rwa [e] at h
+
+/-- Conjugation conjugate of a function analytic at `0` is analytic at `0`. -/
+lemma analyticAt_conj_conj {f : ℂ → ℂ} (hf : AnalyticAt ℂ f 0) :
+    AnalyticAt ℂ (fun w => starRingEnd ℂ (f (starRingEnd ℂ w))) 0 := by
+  obtain ⟨r, hr, hb⟩ := Metric.eventually_nhds_iff_ball.mp hf.eventually_analyticAt
+  refine DifferentiableOn.analyticAt (s := Metric.ball (0 : ℂ) r) (fun w hw => ?_) (Metric.ball_mem_nhds 0 hr)
+  have hw' : starRingEnd ℂ w ∈ Metric.ball (0 : ℂ) r := by
+    simpa [Metric.mem_ball, dist_eq_norm] using hw
+  have hd := (hb _ hw').differentiableAt
+  have := (hasDerivAt_conj_conj hd.hasDerivAt)
+  simp only [Complex.conj_conj] at this
+  exact this.differentiableAt.differentiableWithinAt
 
 lemma deriv_conj_symm {f : ℂ → ℂ} (hsym : ∀ z, f (starRingEnd ℂ z) = starRingEnd ℂ (f z)) (z : ℂ) :
     deriv f (starRingEnd ℂ z) = starRingEnd ℂ (deriv f z) := by
