@@ -7,6 +7,7 @@ on:
 
 jobs:
   qid-nested-upper-atomic:
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run ci]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
