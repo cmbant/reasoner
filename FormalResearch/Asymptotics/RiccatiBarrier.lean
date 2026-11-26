@@ -56,6 +56,7 @@ lemma nonpos_of_deriv_ge_mul_aux {h h' p : ℝ → ℝ} {x0 M : ℝ}
     intro x hx
     have := (hd x (hx1.trans hx)).mul ((hQd x hx).neg.exp)
     refine this.congr_deriv ?_
+    simp only [Pi.neg_apply]
     ring
   have hφmono : MonotoneOn φ (Ici x1) := by
     apply monotoneOn_of_deriv_nonneg (convex_Ici x1)
@@ -66,7 +67,10 @@ lemma nonpos_of_deriv_ge_mul_aux {h h' p : ℝ → ℝ} {x0 M : ℝ}
         have hQc : ContinuousWithinAt Q (Ici x) x := by
           have h1 : ContinuousOn Q (Icc x (x + 1)) := by
             have := intervalIntegral.continuousOn_primitive_interval (a := x) (b := x + 1)
-              (f := p) (μ := MeasureTheory.volume) (hpint x (x + 1) le_rfl (by linarith))
+              (f := p) (μ := MeasureTheory.volume) (by
+                rw [uIcc_of_le (by linarith : x ≤ x + 1)]
+                exact (intervalIntegrable_iff_integrableOn_Icc_of_le (by linarith)).mp
+                  (hpint x (x + 1) le_rfl (by linarith)))
             simpa [uIcc_of_le (by linarith : x ≤ x + 1)] using this
           have h2 := h1 x ⟨le_rfl, by linarith⟩
           exact h2.mono_of_mem_nhdsWithin (by
@@ -110,11 +114,11 @@ theorem nonpos_of_deriv_ge_mul {h h' p : ℝ → ℝ} {x0 M : ℝ}
   have h1 := nonpos_of_deriv_ge_mul_aux (x0 := x0) (M := M) (fun x hx => hd x hx.le)
     (fun x hx => hp x hx.le) (fun x hx => hpc x hx.le) (fun x hx => hge x hx.le) (fun x hx => hM x hx.le)
   intro x hx
-  rcases hx.eq_or_lt with rfl | hlt
+  rcases hx.eq_or_lt with h0 | hlt
   · have hc : ContinuousAt h x := (hd x le_rfl).continuousAt
     have hlim : Tendsto h (𝓝[>] x) (𝓝 (h x)) := hc.continuousWithinAt.tendsto.mono_left nhdsWithin_le_nhds
     refine le_of_tendsto hlim ?_
-    filter_upwards [self_mem_nhdsWithin] with y hy using h1 y hy
+    filter_upwards [self_mem_nhdsWithin] with y hy using h1 y (by rw [h0]; exact hy)
   · exact h1 x hlt
 
 end FormalResearch.Asymptotics
