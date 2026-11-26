@@ -8,6 +8,7 @@ public import FormalResearch.SignUncertainty.FctJC
 public import Mathlib.Analysis.Real.Pi.Bounds
 public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 public import Mathlib.Analysis.Calculus.Deriv.Pow
+public import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 
 /-!
 # The scalar cubic chart with an abstract phase perturbation (F2a, `fct:comp-cfu`, Steps 2-3)
@@ -28,6 +29,8 @@ Paper Lemma `fct:comp-cfu`, Steps 2-3 of the proof.  Let `P` be a parameter spac
 * `D = d + (z - B) R`, `‖D - d*‖_{16} ≤ C ε`, the inverse `Z` of `Y = z D²` on `Y ∈ (-1/10, 36/10)`
   (`step_Z`, by `claim_G_pert`) and `V = 1/D(Z(Y))`, `‖V - τ*‖_{16} ≤ C ε`, `τ* = 1/d* = (12/π²)^{1/3}`
   (`step_V`).
+* the chart identity `ℓ - κ z + r = A D - z D³/3` (`A = d² B`; `hadH_identity` is the Taylor formula
+  `r(z) - r(B) - r_z(B)(z-B) = (z-B)² H`, `chart_alg` the algebra), i.e. `P(x) = Q(W(x))`.
 
 All jets are `JB 16`: iterated Fréchet derivatives with operator norms in the parameter space `P × ℝ`, equivalent
 to the paper's `C^k` norms up to constants depending on `k` and on the dimension.  Domains are open boxes slightly
@@ -39,7 +42,7 @@ Class: proved, no hypotheses beyond those stated.
 
 @[expose] public section
 
-open Set Filter Topology
+open Set Filter Topology MeasureTheory
 open scoped ContDiff
 
 namespace FormalResearch.SignUncertainty
@@ -157,6 +160,7 @@ lemma step_B : ∃ c : ℝ, 0 ≤ c ∧ ∃ ε0 : ℝ, 0 < ε0 ∧ ∀ {Ω : Set
     exact ⟨by linarith [this.1], this.2⟩
   · intro p hp
     have h1 := (hwspec p hp).2.1
+    simp only [neg_mul] at h1
     have h2 : m0 * (a0 * ℓ p) = ℓ p := by
       rw [hm0def, ha0def]
       have : Real.pi ^ 2 ≠ 0 := by positivity
@@ -543,8 +547,8 @@ lemma dStar_sq_inv : dStar ^ 2 * (dStar ^ 2)⁻¹ = 1 := by
 lemma step_Z (cn : ℝ) (hcn : 0 ≤ cn) :
     ∃ c : ℝ, 0 ≤ c ∧ ∃ ε0 : ℝ, 0 < ε0 ∧ ∀ {Ω : Set P}, IsOpen Ω → ∀ {ε : ℝ}, 0 ≤ ε → ε ≤ ε0 →
     ∀ {D : P × ℝ → ℝ}, JC 16 (Ω ×ˢ Ioo (-1 : ℝ) 6) (nY D) (cn * ε) →
-    ∃ Z : P × ℝ → ℝ, JC 16 (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) (fun y => Z y - (dStar ^ 2)⁻¹ * y.2) (c * ε) ∧
-      ∀ y ∈ Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10), Z y ∈ Ioo (-1 : ℝ) 6 ∧
+    ∃ Z : P × ℝ → ℝ, JC 16 (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) (fun y => Z y - (dStar ^ 2)⁻¹ * y.2) (c * ε) ∧
+      ∀ y ∈ Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10), Z y ∈ Ioo (-1 : ℝ) 6 ∧
         Z y * D (y.1, Z y) ^ 2 = y.2 := by
   have hs := dStar_bounds
   have hdpos : 0 < dStar := lt_trans (by norm_num) hs.1
@@ -560,25 +564,25 @@ lemma step_Z (cn : ℝ) (hcn : 0 ≤ cn) :
   set bw : ℝ := |a| * ((Nat.factorial 16 : ℝ) * 4) + 1 with hbw
   set cN : ℝ := (Nat.factorial 16 : ℝ) * cn * (max 1 (max 1 bw)) ^ 16 with hcN
   have hcN0 : 0 ≤ cN := by positivity
-  refine ⟨CZ * cN, by positivity, (dStar ^ 2 / 2 * (4 / 5) / 2) / (cN + 1), by positivity, ?_⟩
+  refine ⟨CZ * cN, by positivity, (dStar ^ 2 / 2 * (3 / 4) / 2) / (cN + 1), by positivity, ?_⟩
   intro Ω hΩ ε hε0 hε1 D hn
   have hW : IsOpen (Ω ×ˢ Ioo (-1 : ℝ) 6) := hΩ.prod isOpen_Ioo
   have hWd : UniqueDiffOn ℝ (Ω ×ˢ Ioo (-1 : ℝ) 6) := hW.uniqueDiffOn
-  have hΩy : IsOpen (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) := hΩ.prod isOpen_Ioo
-  have hΩyd : UniqueDiffOn ℝ (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) := hΩy.uniqueDiffOn
-  have hUN : IsOpen ((Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) ×ˢ Ioo (-(4 / 5) : ℝ) (4 / 5)) :=
+  have hΩy : IsOpen (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) := hΩ.prod isOpen_Ioo
+  have hΩyd : UniqueDiffOn ℝ (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) := hΩy.uniqueDiffOn
+  have hUN : IsOpen ((Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) ×ˢ Ioo (-(3 / 4) : ℝ) (3 / 4)) :=
     hΩy.prod isOpen_Ioo
-  have hUNd : UniqueDiffOn ℝ ((Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) ×ˢ Ioo (-(4 / 5) : ℝ) (4 / 5)) :=
+  have hUNd : UniqueDiffOn ℝ ((Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) ×ˢ Ioo (-(3 / 4) : ℝ) (3 / 4)) :=
     hUN.uniqueDiffOn
-  have hy0 : JC 16 (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) (fun y : P × ℝ => y.2) 4 :=
+  have hy0 : JC 16 (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) (fun y : P × ℝ => y.2) 4 :=
     JC.snd hΩyd (by norm_num) fun y hy => by
       have := hy.2
       rw [abs_le]; constructor <;> linarith [this.1, this.2]
-  have hy0x : JC 16 ((Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) ×ˢ Ioo (-(4 / 5) : ℝ) (4 / 5))
+  have hy0x : JC 16 ((Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) ×ˢ Ioo (-(3 / 4) : ℝ) (3 / 4))
       (fun x : (P × ℝ) × ℝ => x.1.2) ((Nat.factorial 16 : ℝ) * 4) :=
     JC.comp_clm hUNd hΩyd (ContinuousLinearMap.fst ℝ (P × ℝ) ℝ) (norm_fst_le_one _ _) (by norm_num) hy0
       (fun x hx => hx.1)
-  have hwx0 : JC 16 ((Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) ×ˢ Ioo (-(4 / 5) : ℝ) (4 / 5))
+  have hwx0 : JC 16 ((Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) ×ˢ Ioo (-(3 / 4) : ℝ) (3 / 4))
       (fun x : (P × ℝ) × ℝ => x.2) 1 :=
     JC.snd hUNd le_rfl fun x hx => by
       have := hx.2
@@ -591,11 +595,11 @@ lemma step_Z (cn : ℝ) (hcn : 0 ≤ cn) :
       have := norm_fst_le_one P ℝ
       have := norm_fst_le_one (P × ℝ) ℝ
       nlinarith [norm_nonneg (ContinuousLinearMap.fst ℝ P ℝ), norm_nonneg (ContinuousLinearMap.fst ℝ (P × ℝ) ℝ)])
-  have hu1 : ∀ i, 1 ≤ i → i ≤ 16 → ∀ y ∈ (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) ×ˢ Ioo (-(4 / 5) : ℝ) (4 / 5),
+  have hu1 : ∀ i, 1 ≤ i → i ≤ 16 → ∀ y ∈ (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) ×ˢ Ioo (-(3 / 4) : ℝ) (3 / 4),
       ‖iteratedFDerivWithin ℝ i (fun x : (P × ℝ) × ℝ => L1 x)
-        ((Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) ×ˢ Ioo (-(4 / 5) : ℝ) (4 / 5)) y‖ ≤ 1 :=
+        ((Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) ×ˢ Ioo (-(3 / 4) : ℝ) (3 / 4)) y‖ ≤ 1 :=
     fun i hi _ y hy => (norm_iteratedFDerivWithin_clm_le hUNd L1 hi hy).trans hL1n
-  have hrange : ∀ y0 w : ℝ, y0 ∈ Ioo (-(1 / 10) : ℝ) (36 / 10) → w ∈ Ioo (-(4 / 5) : ℝ) (4 / 5) →
+  have hrange : ∀ y0 w : ℝ, y0 ∈ Ioo (-(1 / 5) : ℝ) (36 / 10) → w ∈ Ioo (-(3 / 4) : ℝ) (3 / 4) →
       a * y0 + w ∈ Ioo (-1 : ℝ) 6 := by
     intro y0 w hy hw
     constructor <;> nlinarith [hy.1, hy.2, hw.1, hw.2]
@@ -605,21 +609,21 @@ lemma step_Z (cn : ℝ) (hcn : 0 ≤ cn) :
     (fun i _ hi y hy => by simpa [smul_eq_mul] using hwx.2 i hi y hy) (by
       intro x hx
       exact ⟨hx.1.1, hrange _ _ hx.1.2 hx.2⟩)
-  have hNε : JC 16 ((Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) ×ˢ Ioo (-(4 / 5) : ℝ) (4 / 5))
+  have hNε : JC 16 ((Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) ×ˢ Ioo (-(3 / 4) : ℝ) (3 / 4))
       (fun x : (P × ℝ) × ℝ => nY D (L1 x, a * x.1.2 + x.2)) (cN * ε) :=
     hN0.mono (le_of_eq (by simp only [hcN]; ring))
-  have hεN : cN * ε ≤ dStar ^ 2 / 2 * (4 / 5) / 2 := by
-    calc cN * ε ≤ cN * ((dStar ^ 2 / 2 * (4 / 5) / 2) / (cN + 1)) := mul_le_mul_of_nonneg_left hε1 hcN0
-      _ = (cN / (cN + 1)) * (dStar ^ 2 / 2 * (4 / 5) / 2) := by ring
-      _ ≤ 1 * (dStar ^ 2 / 2 * (4 / 5) / 2) := by
+  have hεN : cN * ε ≤ dStar ^ 2 / 2 * (3 / 4) / 2 := by
+    calc cN * ε ≤ cN * ((dStar ^ 2 / 2 * (3 / 4) / 2) / (cN + 1)) := mul_le_mul_of_nonneg_left hε1 hcN0
+      _ = (cN / (cN + 1)) * (dStar ^ 2 / 2 * (3 / 4) / 2) := by ring
+      _ ≤ 1 * (dStar ^ 2 / 2 * (3 / 4) / 2) := by
         gcongr
         rw [div_le_one (by positivity)]; linarith
       _ = _ := one_mul _
-  obtain ⟨w, hwd, hwb, hwspec⟩ := hGP (O := Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) hΩy (w0 := 4 / 5)
+  obtain ⟨w, hwd, hwb, hwspec⟩ := hGP (O := Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) hΩy (w0 := 3 / 4)
     (ε := cN * ε) (by positivity) (by nlinarith) (by nlinarith) (by nlinarith) (N := fun x : (P × ℝ) × ℝ =>
       nY D (L1 x, a * x.1.2 + x.2)) hNε.1 hNε.2
   refine ⟨fun y => a * y.2 + w y, ?_, ?_⟩
-  · have : JC 16 (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) w (CZ * (cN * ε)) := ⟨hwd, hwb⟩
+  · have : JC 16 (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) w (CZ * (cN * ε)) := ⟨hwd, hwb⟩
     exact (this.congr fun y _ => by simp).mono (le_of_eq (by ring))
   · intro y hy
     obtain ⟨hw1, hw2, -⟩ := hwspec y hy
@@ -633,9 +637,9 @@ lemma step_Z (cn : ℝ) (hcn : 0 ≤ cn) :
 lemma step_V (cD cZ : ℝ) (hcD : 0 ≤ cD) (hcZ : 0 ≤ cZ) :
     ∃ c : ℝ, 0 ≤ c ∧ ∃ ε0 : ℝ, 0 < ε0 ∧ ∀ {Ω : Set P}, IsOpen Ω → ∀ {ε : ℝ}, 0 ≤ ε → ε ≤ ε0 →
     ∀ {D Z : P × ℝ → ℝ}, JC 16 (Ω ×ˢ Ioo (-1 : ℝ) 6) (fun q => D q - dStar) (cD * ε) →
-    JC 16 (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) (fun y => Z y - (dStar ^ 2)⁻¹ * y.2) (cZ * ε) →
-    (∀ y ∈ Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10), Z y ∈ Ioo (-1 : ℝ) 6) →
-    JC 16 (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) (fun y => (D (y.1, Z y))⁻¹ - dStar⁻¹) (c * ε) := by
+    JC 16 (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) (fun y => Z y - (dStar ^ 2)⁻¹ * y.2) (cZ * ε) →
+    (∀ y ∈ Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10), Z y ∈ Ioo (-1 : ℝ) 6) →
+    JC 16 (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) (fun y => (D (y.1, Z y))⁻¹ - dStar⁻¹) (c * ε) := by
   have hs := dStar_bounds
   have hdpos : 0 < dStar := lt_trans (by norm_num) hs.1
   set a : ℝ := (dStar ^ 2)⁻¹ with ha
@@ -645,33 +649,33 @@ lemma step_V (cD cZ : ℝ) (hcD : 0 ≤ cD) (hcZ : 0 ≤ cZ) :
   have hcV10 : 0 ≤ cV1 := by positivity
   refine ⟨2 ^ 16 * cV1 * (2 ^ 16 * cInv * ‖dStar⁻¹‖), by positivity, 1 / 100 / (cV1 + 1), by positivity, ?_⟩
   intro Ω hΩ ε hε0 hε1 D Z hD hZ hZr
-  have hΩy : IsOpen (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) := hΩ.prod isOpen_Ioo
-  have hΩyd : UniqueDiffOn ℝ (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) := hΩy.uniqueDiffOn
+  have hΩy : IsOpen (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) := hΩ.prod isOpen_Ioo
+  have hΩyd : UniqueDiffOn ℝ (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) := hΩy.uniqueDiffOn
   have hW : IsOpen (Ω ×ˢ Ioo (-1 : ℝ) 6) := hΩ.prod isOpen_Ioo
   have hWd : UniqueDiffOn ℝ (Ω ×ˢ Ioo (-1 : ℝ) 6) := hW.uniqueDiffOn
   have hε1' : ε ≤ 1 := by
     have : 1 / 100 / (cV1 + 1) ≤ 1 := by
       rw [div_le_one (by positivity)]; linarith
     linarith
-  have hy0 : JC 16 (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) (fun y : P × ℝ => y.2) 4 :=
+  have hy0 : JC 16 (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) (fun y : P × ℝ => y.2) 4 :=
     JC.snd hΩyd (by norm_num) fun y hy => by
       have := hy.2
       rw [abs_le]; constructor <;> linarith [this.1, this.2]
-  have hZj : JC 16 (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) Z bZ := by
+  have hZj : JC 16 (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) Z bZ := by
     have h1 := hZ.add hΩyd (hy0.const_smul hΩyd a)
     refine (h1.congr fun y _ => by simp).mono ?_
     have : cZ * ε ≤ cZ := by nlinarith
     simp only [hbZ]; linarith
-  have hu1 : ∀ i, 1 ≤ i → i ≤ 16 → ∀ y ∈ Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10),
+  have hu1 : ∀ i, 1 ≤ i → i ≤ 16 → ∀ y ∈ Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10),
       ‖iteratedFDerivWithin ℝ i (fun y : P × ℝ => (ContinuousLinearMap.fst ℝ P ℝ) y)
-        (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) y‖ ≤ 1 :=
+        (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) y‖ ≤ 1 :=
     fun i hi _ y hy => (norm_iteratedFDerivWithin_clm_le hΩyd (ContinuousLinearMap.fst ℝ P ℝ) hi hy).trans
       (norm_fst_le_one P ℝ)
   have hg1 := JC.comp_pair hΩyd hWd (g := fun q : P × ℝ => D q - dStar)
     (u := fun y : P × ℝ => (ContinuousLinearMap.fst ℝ P ℝ) y) (w := Z) (b1 := 1) (b2 := bZ) (by positivity) hD
     (ContinuousLinearMap.fst ℝ P ℝ).contDiff.contDiffOn hZj.1 hu1
     (fun i _ hi y hy => hZj.2 i hi y hy) (fun y hy => ⟨hy.1, hZr y hy⟩)
-  have hg1' : JC 16 (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) (fun y => D (y.1, Z y) - dStar) (cV1 * ε) :=
+  have hg1' : JC 16 (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) (fun y => D (y.1, Z y) - dStar) (cV1 * ε) :=
     hg1.mono (le_of_eq (by simp only [hcV1]; ring))
   have hcVε : cV1 * ε ≤ 1 / 100 := by
     calc cV1 * ε ≤ cV1 * (1 / 100 / (cV1 + 1)) := mul_le_mul_of_nonneg_left hε1 hcV10
@@ -680,17 +684,17 @@ lemma step_V (cD cZ : ℝ) (hcD : 0 ≤ cD) (hcZ : 0 ≤ cZ) :
         gcongr
         rw [div_le_one (by positivity)]; linarith
       _ = 1 / 100 := one_mul _
-  have hDp : JC 16 (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) (fun y => D (y.1, Z y)) (cV1 * ε + ‖dStar‖) := by
+  have hDp : JC 16 (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) (fun y => D (y.1, Z y)) (cV1 * ε + ‖dStar‖) := by
     have := hg1'.add hΩyd (JC.const hΩyd dStar)
     exact this.congr fun y _ => by simp
-  have hmin : ∀ y ∈ Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10), (9 / 10 : ℝ) ≤ D (y.1, Z y) := by
+  have hmin : ∀ y ∈ Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10), (9 / 10 : ℝ) ≤ D (y.1, Z y) := by
     intro y hy
     have h := (abs_le.mp (JB.apply_le hg1'.2 hy)).1
     linarith [hs.1]
   have hb1 : cV1 * ε + ‖dStar‖ ≤ 1 := by
     rw [Real.norm_eq_abs, abs_of_pos hdpos]; linarith [hs.2]
   have hinv := JC.inv hΩyd (by norm_num : (0 : ℝ) < 9 / 10) hmin hDp
-  have hinv' : JC 16 (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) (fun y => (D (y.1, Z y))⁻¹) cInv := by
+  have hinv' : JC 16 (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) (fun y => (D (y.1, Z y))⁻¹) cInv := by
     refine hinv.mono (le_of_eq ?_)
     have : max 1 (cV1 * ε + ‖dStar‖) = 1 := max_eq_left hb1
     rw [this, one_pow, mul_one]
@@ -701,6 +705,69 @@ lemma step_V (cD cZ : ℝ) (hcD : 0 ≤ cD) (hcZ : 0 ≤ cZ) :
   have hDpos : 0 < D (y.1, Z y) := by linarith [hmin y hy]
   field_simp
   ring
+
+
+lemma taylor_two {f f' f'' : ℝ → ℝ} {S : Set ℝ} (hS : Convex ℝ S) (hf : ∀ t ∈ S, HasDerivAt f (f' t) t)
+    (hf' : ∀ t ∈ S, HasDerivAt f' (f'' t) t) (hc : ContinuousOn f'' S) {B z : ℝ} (hB : B ∈ S) (hz : z ∈ S) :
+    f z - f B - f' B * (z - B) = (z - B) ^ 2 * ∫ σ in Icc (0 : ℝ) 1, (1 - σ) * f'' (B + σ * (z - B)) := by
+  have hseg : uIcc B z ⊆ S := hS.ordConnected.uIcc_subset hB hz
+  have hder : ∀ t ∈ uIcc B z, HasDerivAt (fun t => f t + f' t * (z - t)) (f'' t * (z - t)) t := by
+    intro t ht
+    have h1 := hf t (hseg ht)
+    have h2 := (hf' t (hseg ht)).mul ((hasDerivAt_id t).const_sub z)
+    have := h1.add h2
+    exact this.congr_deriv (by simp)
+  have hint : IntervalIntegrable (fun t => f'' t * (z - t)) volume B z := by
+    refine ContinuousOn.intervalIntegrable ?_
+    exact (hc.mono hseg).mul (by fun_prop)
+  have hftc := intervalIntegral.integral_eq_sub_of_hasDerivAt hder hint
+  simp only [sub_self, mul_zero, add_zero] at hftc
+  have hsub : ∫ t in B..z, f'' t * (z - t) = (z - B) • ∫ σ in (0 : ℝ)..1, f'' ((z - B) * σ + B) * (z - ((z - B) * σ + B)) := by
+    have := intervalIntegral.smul_integral_comp_mul_add (a := (0 : ℝ)) (b := 1) (fun t => f'' t * (z - t)) (z - B) B
+    simpa using this.symm
+  have hconv : ∫ σ in Icc (0 : ℝ) 1, (1 - σ) * f'' (B + σ * (z - B)) =
+      ∫ σ in (0 : ℝ)..1, (1 - σ) * f'' (B + σ * (z - B)) := by
+    rw [intervalIntegral.integral_of_le zero_le_one, integral_Icc_eq_integral_Ioc]
+  rw [hconv]
+  have : f z - f B - f' B * (z - B) = ∫ t in B..z, f'' t * (z - t) := by linarith [hftc]
+  rw [this, hsub, smul_eq_mul]
+  have h3 : ∀ σ : ℝ, f'' ((z - B) * σ + B) * (z - ((z - B) * σ + B)) = (z - B) * ((1 - σ) * f'' (B + σ * (z - B))) := by
+    intro σ
+    have : (z - B) * σ + B = B + σ * (z - B) := by ring
+    rw [this]; ring
+  simp_rw [h3]
+  rw [intervalIntegral.integral_const_mul]
+  ring
+
+lemma hadH_identity {Ω : Set P} (hΩ : IsOpen Ω) {r : P × ℝ → ℝ} (hr : ContDiffOn ℝ 18 r (Ω ×ˢ Ioo (-1 : ℝ) 6))
+    {B : P → ℝ} (hBr : ∀ p ∈ Ω, B p ∈ Ioo (-1 : ℝ) 6) {q : P × ℝ} (hq : q ∈ Ω ×ˢ Ioo (-1 : ℝ) 6) :
+    r q - r (q.1, B q.1) - fderiv ℝ r (q.1, B q.1) (0, 1) * (q.2 - B q.1) =
+      (q.2 - B q.1) ^ 2 * hadH r B q := by
+  have hW : IsOpen (Ω ×ˢ Ioo (-1 : ℝ) 6) := hΩ.prod isOpen_Ioo
+  have hrz : ContDiffOn ℝ 17 (fun x : P × ℝ => fderiv ℝ r x (0, 1)) (Ω ×ˢ Ioo (-1 : ℝ) 6) :=
+    (hr.fderiv_of_isOpen hW (by norm_num)).clm_apply contDiffOn_const
+  have hrzz : ContDiffOn ℝ 16 (fun x : P × ℝ => fderiv ℝ (fun x : P × ℝ => fderiv ℝ r x (0, 1)) x (0, 1))
+      (Ω ×ˢ Ioo (-1 : ℝ) 6) := (hrz.fderiv_of_isOpen hW (by norm_num)).clm_apply contDiffOn_const
+  have hp : q.1 ∈ Ω := hq.1
+  have h1 : ∀ s ∈ Ioo (-1 : ℝ) 6, HasDerivAt (fun s => r (q.1, s)) (fderiv ℝ r (q.1, s) (0, 1)) s := fun s hs =>
+    hasDerivAt_line (((hr.contDiffAt (hW.mem_nhds (show (q.1, s) ∈ Ω ×ˢ Ioo (-1 : ℝ) 6 from ⟨hp, hs⟩))).differentiableAt (by norm_num)))
+  have h2 : ∀ s ∈ Ioo (-1 : ℝ) 6, HasDerivAt (fun s => fderiv ℝ r (q.1, s) (0, 1))
+      (fderiv ℝ (fun x : P × ℝ => fderiv ℝ r x (0, 1)) (q.1, s) (0, 1)) s := fun s hs =>
+    hasDerivAt_line (((hrz.contDiffAt (hW.mem_nhds (show (q.1, s) ∈ Ω ×ˢ Ioo (-1 : ℝ) 6 from ⟨hp, hs⟩))).differentiableAt (by norm_num)))
+  have h3 : ContinuousOn (fun s => fderiv ℝ (fun x : P × ℝ => fderiv ℝ r x (0, 1)) (q.1, s) (0, 1))
+      (Ioo (-1 : ℝ) 6) := by
+    have : ContinuousOn (fun x : P × ℝ => fderiv ℝ (fun x : P × ℝ => fderiv ℝ r x (0, 1)) x (0, 1))
+        (Ω ×ˢ Ioo (-1 : ℝ) 6) := hrzz.continuousOn
+    exact this.comp (by fun_prop) (fun s hs => ⟨hp, hs⟩)
+  exact taylor_two (convex_Ioo (-1 : ℝ) 6) h1 h2 h3 (hBr q.1 hp) hq.2
+
+/-- Algebra of the chart identity `p(z) = A D - z D³/3` (`A = d² B`, `D = d + (z-B) R`). -/
+lemma chart_alg {κ ℓ B d R H z r0 rz0 rq : ℝ}
+    (E1 : 3 * κ * B - ℓ - r0 - 2 * B * rz0 = 0) (E2 : d ^ 3 - 3 * κ + 3 * rz0 = 0)
+    (E3 : H + R * (d ^ 2 + d * z * R + 1 / 3 * z * (z - B) * R ^ 2) = 0)
+    (E4 : rq - (r0 + rz0 * (z - B) + (z - B) ^ 2 * H) = 0) :
+    ℓ - κ * z + rq = d ^ 2 * B * (d + (z - B) * R) - z * (d + (z - B) * R) ^ 3 / 3 := by
+  linear_combination (-1) * E1 + (z - B) ^ 2 * E3 + (z / 3 - B) * E2 + E4
 
 /-- `D(q) = d + (z - B) R`, the chart coefficient `W(x) = x D(x²)` (`D_λ(z) = d_λ + (z - B_λ) R_λ(z)`). -/
 noncomputable def Dfun (B d : P → ℝ) (R : P × ℝ → ℝ) (q : P × ℝ) : ℝ := d q.1 + (q.2 - B q.1) * R q
@@ -718,10 +785,12 @@ theorem cfu_chart_core : ∃ cB cd cR cD cZ cV : ℝ, 0 ≤ cB ∧ 0 ≤ cd ∧ 
       (∀ q ∈ Ω ×ˢ Ioo (-1 : ℝ) 6, |R q| < 1 / 50 ∧
         hadH r B q + R q * (d q.1 ^ 2 + d q.1 * q.2 * R q + 1 / 3 * q.2 * (q.2 - B q.1) * R q ^ 2) = 0) ∧
       JC 16 (Ω ×ˢ Ioo (-1 : ℝ) 6) (fun q => Dfun B d R q - dStar) (cD * ε) ∧
-      JC 16 (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) (fun y => Z y - (dStar ^ 2)⁻¹ * y.2) (cZ * ε) ∧
-      (∀ y ∈ Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10), Z y ∈ Ioo (-1 : ℝ) 6 ∧
+      JC 16 (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) (fun y => Z y - (dStar ^ 2)⁻¹ * y.2) (cZ * ε) ∧
+      (∀ y ∈ Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10), Z y ∈ Ioo (-1 : ℝ) 6 ∧
         Z y * Dfun B d R (y.1, Z y) ^ 2 = y.2) ∧
-      JC 16 (Ω ×ˢ Ioo (-(1 / 10) : ℝ) (36 / 10)) (fun y => (Dfun B d R (y.1, Z y))⁻¹ - dStar⁻¹) (cV * ε) := by
+      JC 16 (Ω ×ˢ Ioo (-(1 / 5) : ℝ) (36 / 10)) (fun y => (Dfun B d R (y.1, Z y))⁻¹ - dStar⁻¹) (cV * ε) ∧
+      (∀ q ∈ Ω ×ˢ Ioo (-1 : ℝ) 6, ℓ q.1 - Real.pi ^ 2 / 36 * q.2 + r q =
+        d q.1 ^ 2 * B q.1 * Dfun B d R q - q.2 * Dfun B d R q ^ 3 / 3) := by
   obtain ⟨cρ, hcρ, -⟩ := step_rho (P := P)
   obtain ⟨cB, hcB, eB, heB, hB⟩ := step_B (P := P)
   set a0 : ℝ := 12 / Real.pi ^ 2 with ha0
@@ -790,7 +859,15 @@ theorem cfu_chart_core : ∃ cB cd cR cD cZ cV : ℝ, 0 ≤ cB ∧ 0 ≤ cd ∧ 
   have hn := hnY hΩ hε0 hcDε hDjc
   obtain ⟨Z, hZjc, hZspec⟩ := hZ hΩ hε0 hεZ hn
   have hVjc := hV hΩ hε0 hεV hDjc hZjc (fun y hy => (hZspec y hy).1)
-  exact ⟨B, d, R, Z, hBjc, fun p hp => ⟨hBrange p hp, hBeq p hp⟩, hdjc, hdspec, hRjc, hRspec, hDjc, hZjc, hZspec, hVjc⟩
+  refine ⟨B, d, R, Z, hBjc, fun p hp => ⟨hBrange p hp, hBeq p hp⟩, hdjc, hdspec, hRjc, hRspec, hDjc, hZjc, hZspec,
+    hVjc, fun q hq => ?_⟩
+  have h4 := hadH_identity hΩ hr.1 hBrange hq
+  have e1 := hBeq q.1 hq.1
+  have e2 := (hdspec q.1 hq.1).2
+  have e3 := (hRspec q hq).2
+  unfold rhoF at e1
+  exact chart_alg (κ := Real.pi ^ 2 / 36) (r0 := r (q.1, B q.1)) (rz0 := fderiv ℝ r (q.1, B q.1) (0, 1))
+    (rq := r q) (by linarith) (by linarith) e3 (by linarith)
 
 end Chart
 
@@ -821,6 +898,14 @@ end Chart
 /-- info: 'FormalResearch.SignUncertainty.step_V' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms step_V
+
+/-- info: 'FormalResearch.SignUncertainty.hadH_identity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hadH_identity
+
+/-- info: 'FormalResearch.SignUncertainty.chart_alg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms chart_alg
 
 /-- info: 'FormalResearch.SignUncertainty.cfu_chart_core' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
