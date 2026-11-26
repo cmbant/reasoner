@@ -4,6 +4,7 @@ public import Mathlib
 public import FormalResearch.Special.AiryAsymSector
 public import FormalResearch.Special.AiryRatioBounds
 public import FormalResearch.Special.AiryEnvelopeSector
+public import FormalResearch.Special.AiryBiReal
 
 /-!
 # `ct:dyadic` Part (3): `h₊ = Ai + i Bi` on the upper half-plane (DLMF 9.7.5/9.7.6)
@@ -355,6 +356,78 @@ theorem calD_bound {u : ℂ} (hu : 0 ≤ u.im) (h0 : u ≠ 0) (hR : 1 ≤ ‖u�
         mul_le_mul_of_nonneg_left h (by positivity)
     _ = _ := by field_simp
 
+/-! ### The real axis (P3a) -/
+
+lemma hplus_real (x : ℝ) : hplus x = (airyAi x : ℂ) + I * (airyBi x : ℂ) := by
+  unfold hplus; rw [airyAiC_ofReal, airyBiC_ofReal]
+
+lemma hplus'_eq (u : ℂ) : hplus' u = deriv airyAiC u + I * airyBiC' u := by
+  have h1 : HasDerivAt hplus (deriv airyAiC u + I * airyBiC' u) u := by
+    have ha := (differentiable_airyAiC u).hasDerivAt
+    have hb := ((isAirySol_airyBiC u).1).const_mul I
+    exact ha.add hb
+  exact (hasDerivAt_hplus u).unique h1
+
+lemma hplus'_real (x : ℝ) : hplus' x = (airyAi' x : ℂ) + I * (airyBiDeriv x : ℂ) := by
+  rw [hplus'_eq, deriv_airyAiC_ofReal, airyBiC'_ofReal]
+
+/-- `Im(h₊(x)²) = 2 Ai(x) Bi(x)` on the real axis. -/
+lemma hplus_sq_im (x : ℝ) : (hplus x ^ 2).im = 2 * airyAi x * airyBi x := by
+  rw [hplus_real]; simp [pow_two, Complex.mul_im, Complex.mul_re]; ring
+
+lemma cpow_three_halves_neg {v : ℝ} (hv : 0 < v) :
+    ((-v : ℝ) : ℂ) ^ (3 / 2 : ℂ) = -(I * ((v ^ (3 / 2 : ℝ) : ℝ) : ℂ)) := by
+  have hne : ((-v : ℝ) : ℂ) ≠ 0 := by simp [hv.ne']
+  rw [Complex.cpow_def_of_ne_zero hne]
+  have hlog : Complex.log ((-v : ℝ) : ℂ) = (Real.log v : ℂ) + π * I := by
+    apply Complex.ext
+    · rw [Complex.log_re]; simp [abs_of_pos hv]
+    · rw [Complex.log_im, Complex.arg_ofReal_of_neg (by linarith)]; simp
+  rw [hlog]
+  have : ((Real.log v : ℂ) + π * I) * (3 / 2 : ℂ) = ((3 / 2 * Real.log v : ℝ) : ℂ) + ((3 * π / 2 : ℝ) : ℂ) * I := by
+    push_cast; ring
+  rw [this, Complex.exp_add, ← Complex.ofReal_exp]
+  have e1 : Real.exp (3 / 2 * Real.log v) = v ^ (3 / 2 : ℝ) := by
+    rw [Real.rpow_def_of_pos hv]; ring_nf
+  rw [e1, Complex.exp_mul_I]
+  have hc : Real.cos (3 * π / 2) = 0 := by
+    rw [show 3 * π / 2 = π / 2 + π by ring, Real.cos_add_pi, Real.cos_pi_div_two]; simp
+  have hs : Real.sin (3 * π / 2) = -1 := by
+    rw [show 3 * π / 2 = π / 2 + π by ring, Real.sin_add_pi, Real.sin_pi_div_two]
+  rw [← Complex.ofReal_cos, ← Complex.ofReal_sin, hc, hs]
+  push_cast; ring
+
+/-- **`Im 𝒟₊ = D` on the real axis** (`ct:dyadic` Part (3)): for real `x`,
+`Im 𝒟₊(x) = -π(Ai'(x)Bi(x) + Ai(x)Bi'(x)) + 1_{x<0} sin((4/3)(-x)^{3/2})`, i.e. the defect kernel
+`D(x) = -π(AiBi)'(x) + 1_{x<0}sin((4/3)(-x)^{3/2})`. -/
+theorem calD_im_real (x : ℝ) :
+    (calD x).im = -π * (airyAi' x * airyBi x + airyAi x * airyBiDeriv x) +
+      (if x < 0 then Real.sin ((4 / 3) * (-x) ^ (3 / 2 : ℝ)) else 0) := by
+  unfold calD
+  rw [Complex.sub_im, hplus_real, hplus'_real]
+  have h1 : (-((π : ℂ) / 2) * (2 * ((airyAi x : ℂ) + I * (airyBi x : ℂ)) *
+      ((airyAi' x : ℂ) + I * (airyBiDeriv x : ℂ)))).im =
+      -π * (airyAi' x * airyBi x + airyAi x * airyBiDeriv x) := by
+    simp [Complex.mul_im, Complex.mul_re]; ring
+  rw [h1]
+  rcases lt_trichotomy x 0 with hx | hx | hx
+  · have := cpow_three_halves_neg (v := -x) (by linarith)
+    rw [neg_neg] at this
+    rw [if_pos hx, this]
+    have e : (4 / 3 : ℂ) * -(I * (((-x) ^ (3 / 2 : ℝ) : ℝ) : ℂ)) =
+        ((-((4 / 3) * (-x) ^ (3 / 2 : ℝ)) : ℝ) : ℂ) * I := by push_cast; ring
+    rw [e, Complex.exp_ofReal_mul_I_im, Real.sin_neg]; ring
+  · subst hx
+    simp [Complex.cpow_def]
+  · rw [if_neg (not_lt.mpr hx.le)]
+    have : (x : ℂ) ^ (3 / 2 : ℂ) = ((x ^ (3 / 2 : ℝ) : ℝ) : ℂ) := by
+      have := Complex.ofReal_cpow hx.le (3 / 2 : ℝ)
+      push_cast at this
+      exact this.symm
+    rw [this]
+    have e : (4 / 3 : ℂ) * ((x ^ (3 / 2 : ℝ) : ℝ) : ℂ) = (((4 / 3) * x ^ (3 / 2 : ℝ) : ℝ) : ℂ) := by push_cast; ring
+    rw [e, ← Complex.ofReal_exp, Complex.ofReal_im]; ring
+
 /-- info: 'FormalResearch.SignUncertainty.CtAiryHplus.hplus_sq_asymp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms hplus_sq_asymp
@@ -362,5 +435,9 @@ theorem calD_bound {u : ℂ} (hu : 0 ≤ u.im) (h0 : u ≠ 0) (hR : 1 ≤ ‖u�
 /-- info: 'FormalResearch.SignUncertainty.CtAiryHplus.calD_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms calD_bound
+
+/-- info: 'FormalResearch.SignUncertainty.CtAiryHplus.calD_im_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms calD_im_real
 
 end FormalResearch.SignUncertainty.CtAiryHplus
