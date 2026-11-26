@@ -454,6 +454,8 @@ public import FormalResearch.SignUncertainty.FctSymCal
 public import FormalResearch.SignUncertainty.FctBumpSymCheck
 public import FormalResearch.SignUncertainty.FctBumpProfileField
 public import FormalResearch.SignUncertainty.FctPhysicalBudget
+public import FormalResearch.SignUncertainty.FctVacuumPaired
+public import FormalResearch.SignUncertainty.FctVacuumBudget
 public import FormalResearch.SignUncertainty.CtUpper
 public import FormalResearch.SignUncertainty.UctOuterGrowth
 public import FormalResearch.SignUncertainty.UctGenPreedge
