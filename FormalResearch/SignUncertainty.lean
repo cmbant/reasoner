@@ -314,6 +314,15 @@ public import FormalResearch.SignUncertainty.CtBoasFreeze
 public import FormalResearch.SignUncertainty.CtBoasKdW
 public import FormalResearch.SignUncertainty.CtBoasPointwise
 public import FormalResearch.SignUncertainty.CtBoasSigmaLip
+public import FormalResearch.SignUncertainty.CtBoasMoments
+public import FormalResearch.SignUncertainty.CtBoasConcrete
+public import FormalResearch.SignUncertainty.CtBoasTotal
+public import FormalResearch.SignUncertainty.CtBoasFinal
+public import FormalResearch.SignUncertainty.CtBoasEventual
+public import FormalResearch.SignUncertainty.CtLowerFinal
+public import FormalResearch.SignUncertainty.CtBoasMeasurable
+public import FormalResearch.SignUncertainty.CtBoasLmin
+public import FormalResearch.SignUncertainty.CtBoasRates
 public import FormalResearch.SignUncertainty.CtDyadicTaper
 public import FormalResearch.SignUncertainty.CtDyadicTaperChart
 public import FormalResearch.SignUncertainty.CtDyadicPsiWindow
@@ -570,6 +579,8 @@ public import FormalResearch.SignUncertainty.FctCompDPart2
 public import FormalResearch.SignUncertainty.AirySquareKernel
 public import FormalResearch.SignUncertainty.AirySquareBound
 public import FormalResearch.SignUncertainty.AirySquareSimple
+public import FormalResearch.SignUncertainty.AiryNodeSquare
+public import FormalResearch.SignUncertainty.AiryActiveHeight
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -713,7 +724,8 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.CtPhaseFar` (F1, `ct:phase-far-lem`; proved, unconditional): `integral_div_sinh` (`∫_0^∞ y/sinh y dy = π²/4`, via `y/sinh y = 2∑ y e^{-(2k+1)y}` and `∑(2k+1)^{-2} = π²/8`), `sj_tail` (`0 ≤ π²/4 - ∫_0^T y/sinh y ≤ 3(T+2)e^{-T}`), `edgePhi_at_crit` (`Φ_Ph(τ;m(τ)) = τ - π⁻¹∫_0^{πτ} y/sinh y dy`), `ct_phase_far` (for `x = Δ/c ≥ 1`, `m(τ₀) = log(π²x)`, `τ₀ > 0`: `|τ₀ - 2πx| ≤ K x e^{-2π²x}`, `|Φ_Ph(τ₀;L) - (2πx - π/4)| ≤ K x e^{-2π²x}`, `K = 16π e²`) and its `Δ, c` form `ct_phase_far_Delta` (`|cΦ_Ph - (2πΔ - πc/4)| ≤ KΔe^{-2π²Δ/c}`).
 * `FormalResearch.SignUncertainty.HankelModular` (F1, `ct:boas` Step 1 and the Gaussian identity of `gt:7.9a`; proved, unconditional): `hankel_laplace_complex` (`∫_0^∞ e^{-ps}ρ₀(s)φ_c(Δs) ds = (2π/p)^c e^{-4π²Δ/p}` for `c > 1/2`, `Δ ≥ 0`, `Re p > 0`, principal power; the identity-theorem continuation of the real-`p` `hankel_laplace`, i.e. `ĝ_b = b^{-c}g_{1/b}` for complex `b`), `kernelB` (`∫ K^{(c)}(Δ,s)e^{2πizs}ρ₀(s)ds = (-iz)^{-c}e^{2πi(-1/z)Δ}`), `hankelF_modular` (`F(z) = ε(-iz)^{-c}F(-1/z)` on `Im z > 0` for `f ∈ 𝒜_c^ε`, `ε² = 1`, `F(z) = ∫_0^∞ fρ₀ e^{2πizs}ds`), `continuousOn_hankelF` (continuity on `Im z ≥ 0`), `hankelF_modular_real` (boundary form on `ℝ∖{0}`) and `hankelF_bound` (`|F(x)| ≤ M[f]|x|^{-c}`).
 * `FormalResearch.SignUncertainty.CtAiryHplus` and `CtHalfDiscPoisson` (F1, `ct:dyadic` Parts (3) and (2), kernel inputs only; proved, unconditional): `hplus_sq_asymp`, `hplus_sq_deriv_asymp`, `calD_bound` (`h₊ = Ai + iBi`, for `Im u ≥ 0`, `‖u‖ = R ≥ 1`: `‖h₊² + π⁻¹u^{-1/2}e^{(4/3)u^{3/2}}‖ ≤ 4R^{-3/2}·π⁻¹R^{-1/2}e^{(4/3)Re u^{3/2}}`, `‖(h₊²)' + 2π⁻¹e^{(4/3)u^{3/2}}‖ ≤ 11R^{-3/2}·2π⁻¹e^{(4/3)Re u^{3/2}}`, `‖𝒟₊‖ ≤ 11R^{-3/2}e^{(4/3)Re u^{3/2}}`, from DLMF 9.7.5/9.7.6 at `s = 1/2` and `Bi - iAi = 2ε̄Ai(ω²·)`); the explicit half-disc Poisson kernel on the diameter and arc (`pDiam`, `pArc`, `ct:Pdiam`, `ct:Parc`): `pDiam_eq`, `pDiam_le` (`0 ≤ P ≤ y/(π|z-t|²) ≤ 1/(π|z-t|)`), `pArc_le` (`A·P ≤ 3(y/A)sin θ` for `|z| ≤ A/4`); `CtHalfDiscArea` (P2a, `ct:dyadic` Part (2)): `pDiam_area` (`∫_{N₊} P(z,t) dA ≤ 7r` for `|t| ≤ r/4`, `A = 4r`, TeX constant `6`) and `pDiam_lipschitz` (`|P(z,t) - P(z,0)| ≤ 400|t|/r²`, TeX `123`). `hplus_real`, `hplus_sq_im` (`Im h₊(x)² = 2Ai(x)Bi(x)`), `calD_im_real` (`Im 𝒟₊(x) = -π(Ai'Bi + AiBi') + 1_{x<0} sin((4/3)(-x)^{3/2})`). `ct:dyadic` itself is NOT formalised; see PLAN.md.
-* `FormalResearch.SignUncertainty.CtLower` (F1 skeleton; **conditional on `CtLowerInputs`**; objects in `CtLowerDefs`): `CtLowerStatement` (`thm:ct-lower`, `eq:ct-lower` left half: `Δ₅^ε(c) - C c⁻¹ log c ≤ T` for every feasible threshold `T`, `c ≥ c₀`, `ε = ±1`, with `ctDelta5`), `ct_lower : CtLowerInputs → CtLowerStatement` (the choice of `K` and the contradiction at the first Airy node), `ct_lower_hankelT`; the fields of `CtLowerInputs` are the TeX results not in Lean (`dyadic` = `ct:dyadic` (4), `boas` = `ct:boas`; `ct:dyadic` (2), the node lower bound `ct_node_lower` and `chart_gap` are proved, see below) stated about the concrete `ctGap` (`ũ(T/c) - φ_c(a₁)`) and `ctBudget` (`P_R(H) + g_vac/2π`), for feasible `f` normalised to `M[f] = 1` (`hankel_feasible_normalize`).
+* `FormalResearch.SignUncertainty.CtLower` (F1 skeleton; **conditional on `CtLowerInputs`**; objects in `CtLowerDefs`): `CtLowerStatement` (`thm:ct-lower`, `eq:ct-lower` left half: `Δ₅^ε(c) - C c⁻¹ log c ≤ T` for every feasible threshold `T`, `c ≥ c₀`, `ε = ±1`, with `ctDelta5`), `ct_lower : CtLowerInputs → CtLowerStatement` (the choice of `K` and the contradiction at the first Airy node), `ct_lower_hankelT`; the only field of `CtLowerInputs` is `dyadic` = `ct:dyadic` (4) (`ct:boas` is proved, `ct_boas_concrete`; `ct_lower` is in `CtLowerFinal`; `ct:dyadic` (2), the node lower bound `ct_node_lower` and `chart_gap` are proved, see below) stated about the concrete `ctGap` (`ũ(T/c) - φ_c(a₁)`) and `ctBudget` (`P_R(H) + g_vac/2π`), for feasible `f` normalised to `M[f] = 1` (`hankel_feasible_normalize`).
+* `FormalResearch.SignUncertainty.CtBoasMoments`, `CtBoasMeasurable`, `CtBoasLmin`, `CtBoasRates`, `CtBoasConcrete`, `CtBoasTotal`, `CtBoasFinal`, `CtBoasEventual`, `CtLowerFinal` (`ct:boas`; proved, unconditional): `ct_boas_concrete : ∃ c₁₀ > 0, ∀ c₁ ∈ (0, c₁₀], CtBoasStatement c₁` from `boas_ineq_tent` with the concrete `BoasInputs` (`boas_concrete_core`), and `ct_lower : CtLowerInputs → CtLowerStatement` (one field, `dyadic`).
 * `FormalResearch.SignUncertainty.CtBoasStrip` (`ct:boas` Step 2; proved): `S0_ineq` (`ct:S0-ineq`: `Re S̃₀(σ+iτ) + σ m(τ₀) ≤ -(4/5)σ(m(|τ|) - m(τ₀))` for `|τ| ≥ 3τ₀/2`, `0 < σ ≤ min(τ₀/4,1/4)`), with `re_stripG_eq`, `re_stripG_diff_le`, `re_stripG_imag`, `sigma_le_delta32`.
 * `FormalResearch.SignUncertainty.CtBoasShift` (`ct:boas` Step 4, phase-free core; proved, unconditional): `windowCoeff_gauss_eq` (`ĝ(ν) = ∫ e^{-2π²W²ω²-2πiωx₀} Fh h(ω-ν) dω`), `windowCoeff_gauss_shift` (contour shift to `Im ω = a` for `H` holomorphic on the strip extending `Fh h`), `windowCoeff_gauss_shift_bound`.
 * `FormalResearch.SignUncertainty.CtBoasHhatHol` (`ct:boas` Step 4 inputs; proved, unconditional): `fh_hankelHL_eq` (`Fh h z = ĥ(-2πiz/c)`), `integrable_hankelHL`, `hankelHhat_continuousOn_strip`, `hankelHhat_differentiableOn_strip`, `re_stripS0Tilde_le_cubic` (`Re S̃₀(σ+iτ) ≤ π²σ³/20`), `hankelHcoord_continuousOn`, `hankelHcoord_differentiableOn`, `hankelHcoord_bound`.
@@ -842,10 +854,11 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.FctEdgeIbp` (`fct:edge-ibp`, Lemma FCT.5a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `edgeW`, `fct_edge_ibp_cutoff` (Part (1): removing an edge cutoff with Abel regularisation `e^{-ετ²}`), `fct_edge_ibp_shoulder` (Part (2): shoulder estimate under the corrected derivative range `1 ≤ k ≤ n` matching `Φ ∈ C^{n+1}`), and bundled `fct_edge_ibp`.
 * `FormalResearch.SignUncertainty.FctCuspEdgeIbp`, `FctCuspEdgeInner`, `FctCuspEdgeSmall`, `FctCuspEdgeLarge`, `FctCuspEdge` (`fct:cusp-edge`, Lemma FCT.7a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `CuspAmplitude`, `CuspProfile`, `cuspEdgeJ`, and `fct_cusp_edge` (`‖J_c(L)‖ ≤ C (1 + c^{2/3} L)^{-α - 1}` uniformly for `c ≥ 1`, `L ≥ 0`, `0 < α < 2`, as in the paper).
 * `FormalResearch.SignUncertainty.FctCompDStrip`, `FctCompDCauchy`, `FctCompDTargets`, `FctCompDPart1`, `FctCompDPart2a`, `FctCompDPart2` (`fct:comp-D`, Lemma FCT.3, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `fct_comp_D_part1` (localized strip outer compensator `v = v₀ + v₁ + v_α`, zeroed moments `0..4`, exact inner form `(fct:v-inner)`, all-order derivative/phase/tail/interior bounds, and all-order global closed-strip bound `norm_iteratedDeriv_stripCompGExt_le` on `S̄` repairing the paper's omission of `g_D''`), `fct_comp_D_part2` (`(fct:cos-pen)`, exact cosine identity for `H_*`, `(fct:curv-p-int)` for `p ≤ 2`, inner integral `∫_0^{3δ_L} D_*`, `(fct:bump-1L)`, and `(fct:bump-2L)`), and `fct_comp_D_part3` (exact Cauchy phase-curvature identities `(fct:cauchy-curv)` for all `m ≥ 1` with `O_m(M τ₁³)` specialization and `m = 1` leading constants `-(π/4)`, `-(π/12)`).
-* `FormalResearch.SignUncertainty.AirySquareKernel`, `AirySquareBound`, `AirySquareSimple`
-  (`lem:al-kernel`, `lem:al-reference-positive`, `lem:airy-square-bound`, and
-  `thm:airy-square-attained` (1)-(3) for distinct sites, `ce_airy_lp.tex` / `ce_airy_lp_proofs.tex`,
-  M9; proved, unconditional): `airyCardinal`, `airyCardinalBasis`, `airyCardinal_ker_hasSum`,
+* `FormalResearch.SignUncertainty.AirySquareKernel`, `AirySquareBound`, `AirySquareSimple`, `AiryNodeSquare`,
+  `AiryActiveHeight` (`lem:al-kernel`, `lem:al-reference-positive`, `lem:airy-square-bound`,
+  `thm:airy-square-attained` (1)-(3) for distinct sites, `lem:airy-node-square`, `lem:deflation-identity`,
+  `lem:airy-shell-buffer`, and `lem:airy-active-height` (1)-(4), `ce_airy_lp.tex` / `ce_airy_lp_proofs.tex` /
+  `ce_shells.tex`, M9; proved, unconditional): `airyCardinal`, `airyCardinalBasis`, `airyCardinal_ker_hasSum`,
   `airyCardinalSeries_sq_inAiryClass`, `lem_al_kernel`; `airyLambdaSection`, `airyLambda`,
   `airyRefJ0`, `airyLaplace_airyRefJ0_bounds`, `exists_isAiryStrictWitness_of_lt_section_above`,
   `airyLambdaSection_le_airyUSh`, `airyLambda_le_airyUSh`, `airyUSh_ge_rayDropped`,
@@ -854,7 +867,11 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `airyLambda_sub_section_le_on_compact`, `airyLambdaSection_first_eq_iff`,
   `airyLambdaSection_eq_airyLambda_iff`, `airySquare_maximizer_representation`,
   `isGreatest_airySquareClass`, `airyMaximizerWitness_properties`,
-  `thm_airy_square_attained_simple`, `thm_airy_square_attained_simple_full`.
+  `thm_airy_square_attained_simple`, `thm_airy_square_attained_simple_full`;
+  `hbNodePolySpace`, `hbNodeTau`, `isGreatest_hbNodeTau`, `hbNodeTau_mono`, `hbNodeTau_lt_airyLambdaOf`,
+  `lem_airy_node_square`, `airy_node_square`; `laplaceL_eq_zero_of_eventuallyEq_zero`, `deflation_inAiryClass`,
+  `deflation_identity`, `deflation_laplace_pos`, `exists_airy_shell_buffer`,
+  `airy_active_height_strictify_buffer`, `airy_active_height`.
 * `FormalResearch.SignUncertainty.HbMultilevelDefs`, `CeCanonicalDefs` (M0 skeleton, statement objects and input structures of `thm_intro_hb` and `thm_ce_canonical_iff`; the structures `HbMultilevelInputs`, `CeCanonicalInputs` have the open TeX results as fields).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`, `thm_intro_hb`
   (`u1cl:multilevel`) and `thm_ce_canonical_iff` (`thm:intro-gap`, `thm:ce-canonical-iff`) of Paper I, each proved

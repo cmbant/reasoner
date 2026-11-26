@@ -9,13 +9,13 @@ public import FormalResearch.SignUncertainty.CtBoasSigmaLip
 
 `constant_terms_lower.tex`, proof of `ct:boas` Step 5 (e) (`ct:sigma-prime`): `s_j = M_j^σ W_j` with `M_j^σ = sigLip c Rt_j`
 (`tapMsig`, `Rt_j = L_j + 3δ_j`), `W_j = boasW c a j`, `L_j = x_{j+1}` (`tentNode a (j + 1)`).  With `L_far = log(π² log c)`
-(`e^{L_far} = π² log c`, i.e. `Δ(L_far) = D = c log c`), for a block `L_j ≤ L_far + 1`:
+(`e^{L_far} = π² log c`, i.e. `Δ(L_far) = D = c log c`), for a block `L_j ≤ L_far + 2`:
 
 * `sigLip_le_of_far` (`ct:sigma-prime`, Gaussian factor): if `Δ(Rt) ≤ D/2` then `sigLip c Rt ≤ 2 log c e^{-2(log c)²}`;
 * `sigLip_le_four` : `sigLip c Rt ≤ 4 e^{Rt}/π²` (`G_W ≤ 1/(√(2π)W)`, `W_far = c/4`);
 * **`boas_s_classes`** (the hypothesis `hcls` of `boas_s_moment_split`): either `s_j ≤ e^{-(log c)²}` (`L_j < L_far - 2`, using
   `W_j ≤ 1`), or `s_j ≤ 2000 log c/c` and `Q_j ⊆ [L_far - 5/2, ∞)` (`L_j ≥ L_far - 2`, using `e^{L_j} ≤ πτ₀(L_j)`,
-  `τ₀ ≍ e^L` for `L ≥ 1`).  Regime hypotheses: `3 ≤ L_far`, `L_far + 2 ≤ 2 log c`, `2000 log c ≤ c√a` (`a ≍ c^{-2/21}`,
+  `τ₀ ≍ e^L` for `L ≥ 1`).  Regime hypotheses: `3 ≤ L_far`, `L_far + 3 ≤ 2 log c`, `2000 log c ≤ c√a` (`a ≍ c^{-2/21}`,
   `W_j ≤ 1`).
 
 **Proved**, unconditional given those regime inequalities (all hold for large `c`).
@@ -128,10 +128,10 @@ lemma exp_le_twelve_eleven {x : ℝ} (hx : x ≤ 1 / 12) : Real.exp x ≤ 12 / 1
 
 /-- **The two classes of `s_j`** (`ct:Bj-pointwise` (e), `ct:sigma-prime`): the hypothesis `hcls` of `boas_s_moment_split` for
 `s_j = tapMsig c a j * boasW c a j`, `Q_j = tentQ a j`, `L_cut = L_far - 5/2`, `s₁ = e^{-(log c)²}`, `s₂ = 2000 log c/c`, for blocks
-with `L_j ≤ L_far + 1`, where `e^{L_far} = π² log c`. -/
+with `L_j ≤ L_far + 2`, where `e^{L_far} = π² log c`. -/
 theorem boas_s_classes {c a Lfar : ℝ} (hc : 3 ≤ c) (ha : 0 < a) (ha1 : a ≤ 1) (hLfar : Real.exp Lfar = π ^ 2 * Real.log c)
-    (hLf3 : 3 ≤ Lfar) (hLf : Lfar + 2 ≤ 2 * Real.log c) (hreg : 2000 * Real.log c ≤ c * √a) {j : ℕ}
-    (hj : tentNode a (j + 1) ≤ Lfar + 1) :
+    (hLf3 : 3 ≤ Lfar) (hLf : Lfar + 3 ≤ 2 * Real.log c) (hreg : 2000 * Real.log c ≤ c * √a) {j : ℕ}
+    (hj : tentNode a (j + 1) ≤ Lfar + 2) :
     tapMsig c a j * boasW c a j ≤ Real.exp (-(Real.log c ^ 2)) ∨
       (tapMsig c a j * boasW c a j ≤ 2000 * Real.log c / c ∧ tentQ a j ⊆ Ici (Lfar - 5 / 2)) := by
   have hc0 : 0 < c := by linarith
