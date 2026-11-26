@@ -30,10 +30,14 @@ namespace FormalResearch.SignUncertainty
 
 open FormalResearch.SignUncertainty.FctCompD FormalResearch.SignUncertainty.CtOuter
 
-/-- **`D_{τ₁}`** of `fct:comp-D`: `exp (g_D[v])` on the closed strip, `v = v₀ + v₁ + v_α` (`vTotal`) for `H₀ = H_*`, `τ₁ = c^{-1/4}`,
-`α = alpha ε c`. -/
+/-- **`D_{τ₁}`** of `fct:comp-D` with the parameter `α` free: `exp (g_D[v])` on the closed strip, `v = v₀ + v₁ + v_α` (`vTotal`) for `H₀ = H_*`, `τ₁ = c^{-1/4}`. -/
+noncomputable def fctDcompAt (K4 c α : ℝ) (ζ : ℂ) : ℂ :=
+  Complex.exp (stripCompGExt (vTotal StripKernelChoice.star K4 c α (c ^ (-(1 / 4 : ℝ)))) ζ)
+
+/-- `D_{τ₁}` with the zero-solve value `α = alpha ε c` (`fctDcompAt K4 c (alpha ε c)`); `ε` is a dummy argument (the compensator does not
+depend on `ε`). -/
 noncomputable def fctDcomp (K4 : ℝ) (alpha : ℝ → ℝ → ℝ) : ℝ → ℝ → ℂ → ℂ :=
-  fun ε c ζ => Complex.exp (stripCompGExt (vTotal StripKernelChoice.star K4 c (alpha ε c) (c ^ (-(1 / 4 : ℝ)))) ζ)
+  fun ε c => fctDcompAt K4 c (alpha ε c)
 
 /-- **The smooth data behind `D_{τ₁}`** (`fct:comp-D`): for large `c`, `D_{τ₁} = exp (g_D[v])` on the closed strip, with `v = vTotal` even,
 smooth and compactly supported, and `‖g_D[v^{(r)}]‖ ≤ B_r` on the closed strip for `r = 0, 1, 2`, uniformly in `(ε, c)`
