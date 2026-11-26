@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.ModularBootstrap.Spin.Statements
+public import FormalResearch.ModularBootstrap.Spin.SpinS22bFold
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFinal
 public import Mathlib.Analysis.Fourier.RiemannLebesgueLemma
 public import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
@@ -676,7 +677,7 @@ theorem spin_tip_localisation_quad (hS22 : SpinS22) (hS22b : SpinS22b) :
     have hsq : (1 + (spinLambda a)⁻¹) ^ 2 ≤ 4 := by nlinarith
     rw [hM2, mul_one] at hDelta_L1
     exact hDelta_L1.trans hsq
-  obtain ⟨⟨hS_int, hS_le⟩, hfold_b, _⟩ := hS22b_main hcn0 hΦ hM2
+  obtain ⟨⟨hS_int, hS_le, hS_ae⟩, hfold_b, _⟩ := hS22b_main hcn0 hΦ hM2
   have htel := lintegral_spinG_quad_le_tsum ha2 hΦ hE_meas hE_pos
   let A_cls1 : Set (ℝ × ℝ) :=
     {y : ℝ × ℝ | 0 < y.1 ∧ 0 < y.2 ∧ (y.1 + y.2) / 2 ≤ bStar - δ / 2 ∧ |(y.1 - y.2) / 2| ≤ D}
@@ -720,29 +721,29 @@ theorem spin_tip_localisation_quad (hS22 : SpinS22) (hS22b : SpinS22b) :
       if y ∈ A_cls1 then
         ENNReal.ofReal (K_fac * (1 + spinSlitIntegral a Φ ((y.1 - y.2) / 2)))
       else 0
-    have hpt : ∀ y ∈ A_cls1,
-        ENNReal.ofReal (|spinDeltaA a Φ y.1 y.2| * spinWc a y.1 * spinWc a y.2) ≤
-          ENNReal.ofReal (K_fac * (1 + spinSlitIntegral a Φ ((y.1 - y.2) / 2))) := by
-      intro y hy
+    have hpt : ∀ ξ d : ℝ, (ξ + d, ξ - d) ∈ A_cls1 →
+        IntegrableOn (fun s : ℝ =>
+          a * Real.exp (12 * a * spinL s) * |spinDeltaA a Φ (s + d) (s - d)|)
+          {s : ℝ | bStar ≤ |s|} →
+        ENNReal.ofReal (|spinDeltaA a Φ (ξ + d) (ξ - d)| * spinWc a (ξ + d) * spinWc a (ξ - d)) ≤
+          ENNReal.ofReal (K_fac * (1 + spinSlitIntegral a Φ d)) := by
+      intro ξ d hy hS_d
       refine ENNReal.ofReal_le_ofReal ?_
-      set ξ := (y.1 + y.2) / 2
-      set d := (y.1 - y.2) / 2
-      have hξ_pos : 0 < ξ := by dsimp [ξ]; linarith [hy.1, hy.2.1]
-      have hξ_le : ξ ≤ bStar - δ / 2 := hy.2.2.1
+      have hsum : (ξ + d + (ξ - d)) / 2 = ξ := by ring
+      have hdiff : (ξ + d - (ξ - d)) / 2 = d := by ring
+      have hξ_pos : 0 < ξ := by linarith [hy.1, hy.2.1]
+      have hξ_le : ξ ≤ bStar - δ / 2 := by simpa [hsum] using hy.2.2.1
       have hξ_lt : |ξ| < bStar := by rw [abs_of_pos hξ_pos]; linarith [hξ_le, hδ_pos]
-      have hd_le : |d| ≤ D := hy.2.2.2
+      have hd_le : |d| ≤ D := by simpa [hdiff] using hy.2.2.2
       have hδy_ge : δ / 2 ≤ bStar - |ξ| := by rw [abs_of_pos hξ_pos]; linarith [hξ_le]
-      have hw : spinWc a y.1 * spinWc a y.2 ≤ a * Real.exp (n * spinL ξ) := by
-        simpa [a, n, show 12 * (n / 12) = n by ring] using
-          spinWc_mul_le_exp ha2.le hy.1.le hy.2.1.le
+      have hw : spinWc a (ξ + d) * spinWc a (ξ - d) ≤ a * Real.exp (n * spinL ξ) := by
+        have h := spinWc_mul_le_exp ha2.le hy.1.le hy.2.1.le
+        simpa [a, n, hsum, show 12 * (n / 12) = n by ring] using h
       have hS_nn : 0 ≤ spinSlitIntegral a Φ d := by
         unfold spinSlitIntegral
         exact setIntegral_nonneg (isClosed_le continuous_const continuous_abs).measurableSet
           fun _ _ => by positivity
-      have hfb := hfold_b ξ d hξ_lt hd_le
-      have hy1 : ξ + d = y.1 := by dsimp [ξ, d]; ring
-      have hy2 : ξ - d = y.2 := by dsimp [ξ, d]; ring
-      rw [hy1, hy2] at hfb
+      have hfb := hfold_b ξ d hξ_lt hd_le hS_d
       have hinv_le : (bStar - |ξ|)⁻¹ ≤ (δ / 2)⁻¹ := inv_anti₀ (half_pos hδ_pos) hδy_ge
       have hexp_mono : Real.exp (-κ * n * (bStar - |ξ|) ^ ((3 : ℝ) / 2)) ≤
           Real.exp (-κ * n * (δ / 2) ^ ((3 : ℝ) / 2)) := by
@@ -752,27 +753,40 @@ theorem spin_tip_localisation_quad (hS22 : SpinS22) (hS22b : SpinS22b) :
         have hmul : κ * n * (δ / 2) ^ ((3 : ℝ) / 2) ≤ κ * n * (bStar - |ξ|) ^ ((3 : ℝ) / 2) :=
           mul_le_mul_of_nonneg_left hpow_le (mul_pos hκ0 hn_pos).le
         linarith
-      calc |spinDeltaA a Φ y.1 y.2| * spinWc a y.1 * spinWc a y.2
-          = |spinDeltaA a Φ y.1 y.2| * (spinWc a y.1 * spinWc a y.2) := by ring
-        _ ≤ |spinDeltaA a Φ y.1 y.2| * (a * Real.exp (n * spinL ξ)) :=
+      calc |spinDeltaA a Φ (ξ + d) (ξ - d)| * spinWc a (ξ + d) * spinWc a (ξ - d)
+          = |spinDeltaA a Φ (ξ + d) (ξ - d)| * (spinWc a (ξ + d) * spinWc a (ξ - d)) := by ring
+        _ ≤ |spinDeltaA a Φ (ξ + d) (ξ - d)| * (a * Real.exp (n * spinL ξ)) :=
             mul_le_mul_of_nonneg_left hw (abs_nonneg _)
-        _ = a * Real.exp (n * spinL ξ) * |spinDeltaA a Φ y.1 y.2| := by ring
+        _ = a * Real.exp (n * spinL ξ) * |spinDeltaA a Φ (ξ + d) (ξ - d)| := by ring
         _ ≤ C * n ^ k * (1 + spinSlitIntegral a Φ d) * (bStar - |ξ|)⁻¹ *
               Real.exp (-κ * n * (bStar - |ξ|) ^ ((3 : ℝ) / 2)) := hfb
         _ ≤ C * n ^ k * (1 + spinSlitIntegral a Φ d) * (δ / 2)⁻¹ *
               Real.exp (-κ * n * (δ / 2) ^ ((3 : ℝ) / 2)) := by gcongr
         _ ≤ C * n ^ k * (1 + spinSlitIntegral a Φ d) * (δ / 2)⁻¹ * n ^ (-(k + 4)) := by gcongr
         _ = K_fac * (1 + spinSlitIntegral a Φ d) := by dsimp [K_fac]; ring
-    have hstep1 : ∫⁻ y in A_cls1,
+    have hS_ae_prod : ∀ᵐ q : ℝ × ℝ ∂volume, q.2 ∈ Icc (-D) D →
+        IntegrableOn (fun s : ℝ =>
+          a * Real.exp (12 * a * spinL s) * |spinDeltaA a Φ (s + q.2) (s - q.2)|)
+          {s : ℝ | bStar ≤ |s|} := by
+      rw [ae_restrict_iff' measurableSet_Icc] at hS_ae
+      rw [Measure.volume_eq_prod]
+      exact Measure.quasiMeasurePreserving_snd.ae hS_ae
+    have hstep_ae : ∫⁻ y in A_cls1,
           ENNReal.ofReal (|spinDeltaA a Φ y.1 y.2| * spinWc a y.1 * spinWc a y.2) ≤
-        ∫⁻ y : ℝ × ℝ, F1 y := by
-      rw [← lintegral_indicator hA1_meas]
-      refine lintegral_mono fun y => ?_
-      by_cases hy : y ∈ A_cls1
-      · simp only [Set.indicator_of_mem hy, F1, hy, ↓reduceIte]; exact hpt y hy
-      · simp only [Set.indicator_of_notMem hy, F1, hy, ↓reduceIte, le_rfl]
-    refine hstep1.trans ?_
-    rw [lintegral_xi_d F1]
+        ENNReal.ofReal 2 * ∫⁻ q : ℝ × ℝ, F1 (q.1 + q.2, q.1 - q.2) := by
+      rw [← lintegral_indicator hA1_meas,
+        lintegral_xi_d (A_cls1.indicator (fun y =>
+          ENNReal.ofReal (|spinDeltaA a Φ y.1 y.2| * spinWc a y.1 * spinWc a y.2)))]
+      refine mul_le_mul_of_nonneg_left (lintegral_mono_ae ?_) zero_le
+      filter_upwards [hS_ae_prod] with q hq_int
+      by_cases hq : (q.1 + q.2, q.1 - q.2) ∈ A_cls1
+      · have hdiff : (q.1 + q.2 - (q.1 - q.2)) / 2 = q.2 := by ring
+        have hq2 : q.2 ∈ Icc (-D) D := by
+          have := hq.2.2.2; rw [hdiff] at this; exact abs_le.mp this
+        simp only [Set.indicator_of_mem hq, F1, hq, ↓reduceIte, hdiff]
+        exact hpt q.1 q.2 hq (hq_int hq2)
+      · simp only [Set.indicator_of_notMem hq, F1, hq, ↓reduceIte, le_rfl]
+    refine hstep_ae.trans ?_
     have hdom : ∀ q : ℝ × ℝ, F1 (q.1 + q.2, q.1 - q.2) ≤
         (Icc (0 : ℝ) bStar).indicator (1 : ℝ → ℝ≥0∞) q.1 *
         ((Icc (-D) D).indicator (fun d => ENNReal.ofReal (K_fac * (1 + spinSlitIntegral a Φ d))) q.2) := by
@@ -1487,11 +1501,20 @@ theorem spinS4_consequences_of_S3 (hS3 : SpinS3) (hS1e : SpinS1e) :
   · rw [← hL_eq_tau]; exact hlo
   · rw [← hL_eq_tau]; linarith
 
+/-- **Corollary (`spinnotes:S3` from S1(b),(c) alone)**: discharges the analytic core (`SpinS22`
+and `SpinS22b`) inside `spinS3_of_props` using `spinS22` and `spinS22b`. -/
+theorem spinS3_of_S1 (hS1b : SpinS1b) (hS1c : SpinS1c) : SpinS3 :=
+  spinS3_of_props hS1b hS1c spinS22 spinS22b
+
 /-! ### Axiom checks -/
 
 /-- info: 'FormalResearch.ModularBootstrap.Spin.spinS3_of_props' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.ModularBootstrap.Spin.spinS3_of_props
+
+/-- info: 'FormalResearch.ModularBootstrap.Spin.spinS3_of_S1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.Spin.spinS3_of_S1
 
 /-- info: 'FormalResearch.ModularBootstrap.Spin.spinS4_consequences_of_S3' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
