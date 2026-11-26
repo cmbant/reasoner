@@ -317,6 +317,21 @@ theorem airyULP_shellHBData (D : ShellHBData) :
     (iSup₂_le fun v hv => le_iSup₂_of_le v ((heq v).mp hv) le_rfl)
     (iSup₂_le fun v hv => le_iSup₂_of_le v ((heq v).mpr hv) le_rfl)
 
+/-- The sites of a finite set `s : Finset ℝ` as an injective vector `Fin s.card → ℝ`. -/
+noncomputable def airySites (s : Finset ℝ) : Fin s.card → ℝ := fun i => (s.equivFin.symm i : ℝ)
+
+lemma airySites_injective (s : Finset ℝ) : Function.Injective (airySites s) := by
+  intro i j h
+  exact s.equivFin.symm.injective (Subtype.ext h)
+
+lemma range_airySites (s : Finset ℝ) : Set.range (airySites s) = (s : Set ℝ) := by
+  ext x
+  constructor
+  · rintro ⟨i, rfl⟩
+    exact (s.equivFin.symm i).2
+  · intro hx
+    exact ⟨s.equivFin ⟨x, hx⟩, by simp [airySites]⟩
+
 /-- Explicit single-field hypothesis for the distinct-site finite-section inequality of
 `lem:airy-square-bound` (`ce_airy_lp_proofs.tex`), deferred by the M9 step plan and used only to
 deduce `λ(s) ≤ u_sh(s)` in Part (3). -/

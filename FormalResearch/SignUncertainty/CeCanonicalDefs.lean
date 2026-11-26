@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.SignUncertainty.HeadlineDefs
 public import FormalResearch.SignUncertainty.ShellGapHankel
+public import FormalResearch.SignUncertainty.AirySquareSimple
 
 /-!
 # Statement objects and input structure for `thm:ce-canonical-iff` (= `thm:intro-gap`)
@@ -15,8 +16,9 @@ Concrete objects (no free data):
 
 * `shellSites D`: the prescribed sites `t_1, …, t_{m-1}` (`D.S` minus the terminal node `t_m = D.tm`).
 * `OneProfileStrictFeasible`, `uSh`: strict-site witnesses and the cutoff `u_sh` (`uLP` is in `Radii.lean`).
-* `airyLambdaM s M` (`Λ_M(s)`), `airyLambda s` (`λ(s) = sup_M Λ_M(s)`): the constrained Airy-cardinal Rayleigh
-  quotients of `ce_airy_lp.tex`, for a finite set `s` of sites, `k_n(u) = Ai(u)/(u - a_n)`.
+* `airyLambdaM s M` (`Λ_M(s)`), `airyLambdaOf s` (`λ(s) = sup_M Λ_M(s)`): the constrained Airy-cardinal Rayleigh
+  quotients of `ce_airy_lp.tex` for a finite set `s` of sites, defined from `airyLambdaSection`, `airyLambda`
+  of `AirySquareSimple.lean` at `airySites s` (so there is one definition of `Λ_M`, `λ`).
 * `IsHbZeroEnum P Q t`: `t j` is the paper's `t_{j+1}`, the strictly decreasing enumeration of the real zeros of
   `N = P Ai + Q Ai'` (this determines `t` uniquely; its existence is proved for every `D : ShellHBData` in
   `HbZeroEnum.lean`, `exists_isHbZeroEnum`). `hbNode t n = t_n` is the one-indexed form.
@@ -50,25 +52,36 @@ def OneProfileStrictFeasible (D : ShellHBData) (u : ℝ) : Prop :=
 noncomputable def uSh (D : ShellHBData) : EReal :=
   ⨆ (u : ℝ) (_ : OneProfileStrictFeasible D u), (u : EReal)
 
-/-- The Airy cardinal `k_n(u) = Ai(u)/(u - a_n)` (removable singularity at `a_n`), `a_n = airyZero n`. -/
-noncomputable def airyCard (n : ℕ) (u : ℝ) : ℝ := dslope airyAi (airyZero n) u
+/-- Bridge: `airyUSh (D.S \ {D.tm}) = uSh D` (`AirySquareSimple.airyUSh`, for the prescribed sites). -/
+theorem airyUSh_shellHBData (D : ShellHBData) :
+    airyUSh ((D.S : Set ℝ) \ {D.tm}) = uSh D := by
+  unfold airyUSh uSh
+  have heq : ∀ v : ℝ, (∃ H, IsAiryStrictWitness ((D.S : Set ℝ) \ {D.tm}) v H) ↔
+      OneProfileStrictFeasible D v := by
+    intro v
+    constructor
+    · rintro ⟨H, ⟨h1, h2, h3, h4, h5⟩, h6⟩
+      refine ⟨H, ⟨h1, h2, fun t ht htm => h3 t ⟨ht, htm⟩, h4, fun y hy => ?_⟩,
+        fun t ht htm => h6 t ⟨ht, htm⟩⟩
+      have hLy := h5 y hy
+      unfold airyLaplace at hLy
+      exact nonneg_of_mul_nonneg_right hLy (Real.exp_pos _)
+    · rintro ⟨H, ⟨h1, h2, h3, h4, h5⟩, h6⟩
+      refine ⟨H, ⟨h1, h2, fun t ht => h3 t ht.1 ht.2, h4, fun y hy => ?_⟩,
+        fun t ht => h6 t ht.1 ht.2⟩
+      unfold airyLaplace
+      exact mul_nonneg (Real.exp_pos _).le (h5 y hy)
+  exact le_antisymm
+    (iSup₂_le fun v hv => le_iSup₂_of_le v ((heq v).mp hv) le_rfl)
+    (iSup₂_le fun v hv => le_iSup₂_of_le v ((heq v).mpr hv) le_rfl)
 
-/-- `q_c = ∑_{n ≤ M} c_n k_n` for `c : Fin M → ℝ` (`c_n` is the coefficient of `k_{n+1}`). -/
-noncomputable def airyCardSum (M : ℕ) (c : Fin M → ℝ) (u : ℝ) : ℝ :=
-  ∑ n : Fin M, c n * airyCard ((n : ℕ) + 1) u
+/-- `Λ_M(s)` (`ce_airy_lp.tex`) for a finite set of sites `s`: the finite-section maximum `airyLambdaSection`
+(`AirySquareSimple.lean`) at the sites `airySites s`. For `M ≥ |s| + 1` it is a maximum over a nonempty
+compact set (`isGreatest_airySectionQuotientSet`); for smaller `M` it is a junk value and is never used. -/
+noncomputable def airyLambdaM (s : Finset ℝ) (M : ℕ) : ℝ := airyLambdaSection (airySites s) M
 
-/-- The Rayleigh quotient `∑ a_n c_n² / ∑ c_n²`. -/
-noncomputable def airyRayleigh (M : ℕ) (c : Fin M → ℝ) : ℝ :=
-  (∑ n : Fin M, airyZero ((n : ℕ) + 1) * c n ^ 2) / ∑ n : Fin M, c n ^ 2
-
-/-- `Λ_M(s)` (`ce_airy_lp.tex`): the maximum of the Rayleigh quotient over `c ≠ 0` with `q_c(s_j) = 0`; it is a
-maximum over a compact set when `M ≥ |s| + 1`, and `sSup` of the empty set (`0`) for smaller `M`. -/
-noncomputable def airyLambdaM (s : Finset ℝ) (M : ℕ) : ℝ :=
-  sSup {x : ℝ | ∃ c : Fin M → ℝ, c ≠ 0 ∧ (∀ u ∈ s, airyCardSum M c u = 0) ∧ x = airyRayleigh M c}
-
-/-- `λ(s) = sup_{M ≥ |s|+1} Λ_M(s)` (`thm:airy-square-attained`; the supremum is over `M ≥ |s| + 1` only). -/
-noncomputable def airyLambda (s : Finset ℝ) : ℝ :=
-  ⨆ M : ℕ, airyLambdaM s (M + s.card + 1)
+/-- `λ(s) = sup_{M ≥ |s|+1} Λ_M(s)` (`thm:airy-square-attained`) for a finite set of sites. -/
+noncomputable def airyLambdaOf (s : Finset ℝ) : ℝ := airyLambda (airySites s)
 
 /-- `IsHbZeroEnum P Q t`: `t : ℕ → ℝ` enumerates the real zeros of `N = P Ai + Q Ai'` strictly decreasingly,
 `t j = t_{j+1}` of `eq:hb-profile`. -/
@@ -172,17 +185,52 @@ def ShellGapEndpoint (D : ShellHBData) : Prop :=
 /-- `thm:airy-square-attained` (`ce_airy_lp.tex`), the parts used by `thm:ce-canonical-iff`, for the sites
 `s = t_1, …, t_{m-1}` of `D`: (1) the sequence `Λ_M(s)` is bounded above (`λ(s)` is finite), and (3) for a maximizing
 cardinal series `q` the function `H_λ = (u - λ) q²` is a weak witness at `λ(s)` with `∫ H_λ = 0`, vanishing at every
-site (double zero, `q(s_j) = 0`) and `L_{H_λ}(y) > 0` for all `y > 0`. The maximum formula, the Lipschitz and
-rate statements and the dual representation `eq:airy-square-rep` are not restated. -/
+site (double zero, `q(s_j) = 0`) and `L_{H_λ}(y) > 0` for all `y > 0`. This is a restriction of the full theorem
+`thm_airy_square_attained_simple` (`AirySquareSimple.lean`); it is proved for every `D` by `airySquareAttained`. -/
 structure AirySquareAttained (D : ShellHBData) : Prop where
   bddAbove : BddAbove (Set.range fun M : ℕ => airyLambdaM (shellSites D) (M + (shellSites D).card + 1))
   witness : ∃ q : ℂ → ℂ, Differentiable ℂ q ∧ (∀ x : ℝ, (q (x : ℂ)).im = 0) ∧ (∃ z, q z ≠ 0) ∧
     (∀ s ∈ shellSites D, q (s : ℂ) = 0) ∧
-    OneProfileFeasibleWitness D (airyLambda (shellSites D))
-      (fun z => (z - (airyLambda (shellSites D) : ℂ)) * q z ^ 2) ∧
-    (∫ u : ℝ, ((u - (airyLambda (shellSites D) : ℂ)) * q (u : ℂ) ^ 2).re) = 0 ∧
+    OneProfileFeasibleWitness D (airyLambdaOf (shellSites D))
+      (fun z => (z - (airyLambdaOf (shellSites D) : ℂ)) * q z ^ 2) ∧
+    (∫ u : ℝ, ((u - (airyLambdaOf (shellSites D) : ℂ)) * q (u : ℂ) ^ 2).re) = 0 ∧
     ∀ y : ℝ, 0 < y →
-      0 < laplaceL (fun u => ((u - (airyLambda (shellSites D) : ℂ)) * q (u : ℂ) ^ 2).re) y
+      0 < laplaceL (fun u => ((u - (airyLambdaOf (shellSites D) : ℂ)) * q (u : ℂ) ^ 2).re) y
+
+/-- `thm:airy-square-attained` (1), (3) for the shell sites of `D` (proved, unconditional): `AirySquareAttained D`,
+from `isGreatest_airySquareRayleigh`, `airyMaximizerWitness_properties` and `airyCardinalSeries_mem_squareClass_of_maximizer`
+(`AirySquareSimple.lean`) at the distinct sites `airySites (shellSites D)`. -/
+theorem airySquareAttained (D : ShellHBData) : AirySquareAttained D := by
+  have hs := airySites_injective (shellSites D)
+  have hrange := range_airySites (shellSites D)
+  obtain ⟨⟨c, hc, hcmax⟩, _⟩ := isGreatest_airySquareRayleigh hs
+  obtain ⟨hmem, _⟩ := airyCardinalSeries_mem_squareClass_of_maximizer hs hc hcmax
+  obtain ⟨_, _, hint, hlap, ⟨w1, w2, w3, w4, w5⟩, _⟩ := airyMaximizerWitness_properties hs hc hcmax
+  obtain ⟨hdiff, hreal, hnz, _, _, hsites⟩ := hmem
+  have hD : ((D.S : Set ℝ) \ {D.tm}) = (shellSites D : Set ℝ) := by
+    unfold shellSites; rw [Finset.coe_erase]
+  refine ⟨?_, airyCardinalSeries c, hdiff, hreal, hnz, ?_, ?_, hint, ?_⟩
+  · refine ⟨airyLambdaOf (shellSites D), ?_⟩
+    rintro _ ⟨M, rfl⟩
+    exact airyLambdaSection_le_airyLambda (airySites (shellSites D)) (by omega)
+  · intro t ht
+    obtain ⟨j, rfl⟩ : t ∈ Set.range (airySites (shellSites D)) := hrange ▸ (Finset.mem_coe.mpr ht)
+    exact hsites j
+  · refine ⟨w1, w2, fun t ht htm => w3 t ?_, w4, fun y hy => ?_⟩
+    · rw [hrange, ← hD]; exact ⟨ht, htm⟩
+    · have := w5 y hy
+      unfold airyLaplace at this
+      exact nonneg_of_mul_nonneg_right this (Real.exp_pos _)
+  · intro y hy
+    have := hlap y hy
+    unfold airyLaplace at this
+    unfold laplaceL
+    exact pos_of_mul_pos_right this (Real.exp_pos _).le
+      |> fun h => by simpa [airyMaximizerWitness, airyLambdaOf] using h
+
+/-- info: 'FormalResearch.SignUncertainty.airySquareAttained' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.airySquareAttained
 
 /-- `lem:airy-active-height` (`ce_airy_lp_proofs.tex`, strictification and deflation), parts (1)–(4), for the
 configuration `D`; "optimizer" means a weak witness `H` at `b = u_LP` (`uLP D = b` real). Part (1) is stated in the
@@ -228,13 +276,11 @@ structure CeCanonicalInputs (D : ShellHBData) (t : ℕ → ℝ) : Prop where
     ShellOffsetsSmall r →
       ∀ᶠ d : ℕ in atTop, ∃ R ∈ ceShellRadiusSet D r d,
         R ^ 2 / 2 ≤ (d : ℝ) / (2 * π ^ 2) - (v / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ)
-  /-- `thm:airy-square-attained` (M9). -/
-  airy_square_attained : AirySquareAttained D
   /-- `lem:airy-square-bound` (M9): for `m ≥ 2`, `Λ_m > a_m` (top `m - 1` sites). -/
   airy_square_bound : 2 ≤ D.S.card → airyZero D.S.card < airyLambdaM (shellSites D) D.S.card
   /-- `lem:airy-node-square` (M9): for `m ≥ 2`, the fixed node-square bound `λ > τ_N > t_{m+e}`. -/
   airy_node_square : 2 ≤ D.S.card →
-    hbTauN D t < airyLambda (shellSites D) ∧ hbNode t (D.S.card + D.S.card / 2) < hbTauN D t
+    hbTauN D t < airyLambdaOf (shellSites D) ∧ hbNode t (D.S.card + D.S.card / 2) < hbTauN D t
   /-- `lem:airy-active-height` (M9). -/
   active_height : AiryActiveHeight D
   /-- `thm:airy-node-sign` (M9): if `b = u_LP < t_m` and an optimizer `H_*` has no zeros `t' < t'' < t'''` of `N`
