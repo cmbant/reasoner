@@ -279,6 +279,68 @@ lemma norm_segQ_csr_le (hρ : 0 < ρ) (ht0 : 0 ≤ t) (ht1 : t ≤ 1) (hCg : 0 �
     (by positivity) (by positivity)
   exact key.trans (segQ_const_bound (by positivity) hρ)
 
+/-- Size of the first and second boundary quantities `F/G`, `H/G` at a segment point (the analytic data of the join). -/
+lemma norm_seg_bdry_le (hρ : 0 < ρ) (ht0 : 0 ≤ t) (ht1 : t ≤ 1) (hCg : 0 ≤ Cg)
+    (hU : kap * |U| ≤ (ρ ^ 2) ^ 2 / 16)
+    (b0 : ‖gW (segPt (ρ ^ 2) t)‖ ≤ Cg) (b1 : ‖gW1 (segPt (ρ ^ 2) t)‖ ≤ Cg / ρ ^ 2) :
+    ‖csrF gW (segPt (ρ ^ 2) t) / (Complex.I * GG U (segPt (ρ ^ 2) t))‖ ≤ 16 * Cg / ρ ^ 3 ∧
+    ‖segH (csrF gW) (csrF1 gW gW1) (GG U) GG1 (segPt (ρ ^ 2) t) / (Complex.I * GG U (segPt (ρ ^ 2) t))‖ ≤
+      1024 * Cg / ρ ^ 9 := by
+  have hR : 0 ≤ ρ ^ 2 := by positivity
+  obtain ⟨h1, h2⟩ := norm_segPt_sq_bounds hρ ht0 ht1
+  obtain ⟨c1, c2⟩ := norm_csr_seg_bounds hρ ht0 ht1
+  have cd := norm_csr_div_seg_le hρ ht0 ht1
+  set w := segPt (ρ ^ 2) t with hw
+  have hρ4 : 0 < ρ ^ 4 := by positivity
+  have nn0 := norm_nonneg (gW w)
+  have n0 := norm_nonneg (csr w)
+  have hF : ‖csrF gW w‖ ≤ 4 * Cg * ρ := by
+    unfold csrF; rw [norm_mul]
+    calc ‖csr w‖ * ‖gW w‖ ≤ ρ * Cg := mul_le_mul c2 b0 nn0 hρ.le
+      _ ≤ 4 * Cg * ρ := by nlinarith
+  have hF1 : ‖csrF1 gW gW1 w‖ ≤ 4 * Cg / ρ := by
+    unfold csrF1
+    refine (norm_add_le _ _).trans ?_
+    rw [norm_mul, norm_mul]
+    have e1 : ‖csr w / (2 * w)‖ * ‖gW w‖ ≤ 1 / ρ * Cg := mul_le_mul cd b0 nn0 (by positivity)
+    have e2 : ‖csr w‖ * ‖gW1 w‖ ≤ ρ * (Cg / ρ ^ 2) := mul_le_mul c2 b1 (norm_nonneg _) hρ.le
+    have e3 : ρ * (Cg / ρ ^ 2) = Cg / ρ := by field_simp
+    have e4 : 1 / ρ * Cg = Cg / ρ := by ring
+    have : 0 ≤ Cg / ρ := by positivity
+    have e5 : 4 * Cg / ρ = 4 * (Cg / ρ) := by ring
+    rw [e5]; linarith
+  have hGl : ρ ^ 4 / 4 ≤ ‖GG U w‖ := by
+    have := norm_G_segPt_ge hR ht0 ht1 hU
+    unfold GG
+    nlinarith
+  have hGu : ‖GG U w‖ ≤ 2 * ρ ^ 4 := by
+    have := norm_G_segPt_le hR ht0 ht1 hU
+    unfold GG
+    nlinarith
+  have hG1 : ‖GG1 w‖ ≤ 2 * ρ ^ 2 := by
+    unfold GG1; rw [norm_mul]
+    have h2n : ‖(2 : ℂ)‖ = 2 := by simp
+    rw [h2n]; linarith
+  have hGn : 0 < ‖GG U w‖ := by linarith
+  have hH := norm_segH_le (f0 := 4 * Cg * ρ) (f1 := 4 * Cg / ρ) (g0 := ρ ^ 4 / 4) (gu := 2 * ρ ^ 4)
+    (γ1 := 2 * ρ ^ 2) hF hF1 hGl hGu hG1 (by positivity) (by positivity) (by positivity)
+  have eI : ∀ x : ℂ, ‖x / (Complex.I * GG U w)‖ = ‖x‖ / ‖GG U w‖ := by
+    intro x; rw [norm_div, norm_mul, Complex.norm_I, one_mul]
+  refine ⟨?_, ?_⟩
+  · rw [eI, div_le_iff₀ hGn]
+    have : 16 * Cg / ρ ^ 3 * ‖GG U w‖ ≥ 16 * Cg / ρ ^ 3 * (ρ ^ 4 / 4) := by
+      apply mul_le_mul_of_nonneg_left hGl (by positivity)
+    have e : 16 * Cg / ρ ^ 3 * (ρ ^ 4 / 4) = 4 * Cg * ρ := by field_simp; ring
+    linarith
+  · rw [eI, div_le_iff₀ hGn]
+    have e0 : (4 * Cg / ρ * (2 * ρ ^ 4) + 4 * Cg * ρ * (2 * ρ ^ 2)) / (ρ ^ 4 / 4) ^ 2 = 256 * Cg / ρ ^ 5 := by
+      field_simp; ring
+    rw [e0] at hH
+    have : 1024 * Cg / ρ ^ 9 * ‖GG U w‖ ≥ 1024 * Cg / ρ ^ 9 * (ρ ^ 4 / 4) :=
+      mul_le_mul_of_nonneg_left hGl (by positivity)
+    have e : 1024 * Cg / ρ ^ 9 * (ρ ^ 4 / 4) = 256 * Cg / ρ ^ 5 := by field_simp; ring
+    linarith
+
 end remainder
 
 /-- The base point and direction of the connecting segment `R e^{iπ/6} → R`. -/

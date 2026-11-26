@@ -53,18 +53,21 @@ lemma rpow_half_le_div {b : ℝ} (hb : 1 ≤ b) : b ^ (1 / 2 : ℝ) / (1 + b) �
 section
 variable {C0 : ℝ} {m m1 m2 m3 : ℝ → ℝ}
 
-/-- **Piece 3.** For `B` vanishing (with `B'`) at `a`, `|m - L| ≥ γ σ` on `[a, ∞)`, the improper integral of `B e^{iλϕ}`
-over `[a,∞)` exists and is `O(λ^{-2}(a^{-9/2} + a^{-3/2}))`. -/
-theorem piece3 (hM : MData C0 m m1 m2 m3) {γ KB lam L a : ℝ} (hγ : 0 < γ) (hKB : 0 ≤ KB) (hlam : 0 < lam)
+/-- **Piece 3, with boundary terms at `a`.** For `|m - L| ≥ γ σ` on `[a, ∞)`, the improper integral of `B e^{iλϕ}` over
+`[a,∞)` exists and equals the two explicit boundary terms at `a` plus `(iλ)^{-2} J` with `J = O(a^{-9/2} + a^{-3/2})`. -/
+theorem piece3_gen (hM : MData C0 m m1 m2 m3) {γ KB lam L a : ℝ} (hγ : 0 < γ) (hKB : 0 ≤ KB) (hlam : 0 < lam)
     (ha : 0 < a) {ϕ : ℝ → ℝ} (hϕ : ∀ τ : ℝ, 0 < τ → HasDerivAt ϕ (m τ - L) τ)
     {B B1 B2 : ℝ → ℂ} (hB : ∀ τ : ℝ, 0 < τ → HasDerivAt B (B1 τ) τ)
     (hB1 : ∀ τ : ℝ, 0 < τ → HasDerivAt B1 (B2 τ) τ) (hc2 : ContinuousOn B2 (Ioi 0))
     (hbB : ∀ τ : ℝ, 0 < τ → ‖B τ‖ ≤ KB * τ ^ (1 / 2 : ℝ) / (1 + τ))
     (hbB1 : ∀ τ : ℝ, 0 < τ → ‖B1 τ‖ ≤ KB * τ ^ (-1 / 2 : ℝ) / (1 + τ))
     (hbB2 : ∀ τ : ℝ, 0 < τ → ‖B2 τ‖ ≤ KB * τ ^ (-3 / 2 : ℝ) / (1 + τ))
-    (hB0 : B a = 0) (hB10 : B1 a = 0) (hp : ∀ τ : ℝ, a ≤ τ → γ * sg τ ≤ |m τ - L|) :
-    ∃ I : ℂ, Tendsto (fun b : ℝ => ∫ τ in a..b, B τ * Complex.exp (Complex.I * lam * (ϕ τ : ℂ))) atTop (𝓝 I) ∧
-      ‖I‖ ≤ (4 * KB * (1 + 4 * C0 / γ + 3 * C0 ^ 2 / γ ^ 2) / γ ^ 2 / lam ^ 2) *
+    (hp : ∀ τ : ℝ, a ≤ τ → γ * sg τ ≤ |m τ - L|) :
+    ∃ J : ℂ, Tendsto (fun b : ℝ => ∫ τ in a..b, B τ * Complex.exp (Complex.I * lam * (ϕ τ : ℂ))) atTop
+        (𝓝 (-((1 / (Complex.I * lam)) * (B a / ((m a - L : ℝ) : ℂ) * Complex.exp (Complex.I * lam * (ϕ a : ℂ)))) +
+          (1 / (Complex.I * lam)) ^ 2 * (ibpH B B1 (fun τ => m τ - L) m1 a / ((m a - L : ℝ) : ℂ) *
+            Complex.exp (Complex.I * lam * (ϕ a : ℂ))) + (1 / (Complex.I * lam)) ^ 2 * J)) ∧
+      ‖J‖ ≤ (4 * KB * (1 + 4 * C0 / γ + 3 * C0 ^ 2 / γ ^ 2) / γ ^ 2) *
         ((2 / 9) * a ^ (-9 / 2 : ℝ) + (2 / 3) * a ^ (-3 / 2 : ℝ)) := by
   set K0 := 1 + 4 * C0 / γ + 3 * C0 ^ 2 / γ ^ 2 with hK0
   set K1 := 4 * KB * K0 / γ ^ 2 with hK1
@@ -136,16 +139,18 @@ theorem piece3 (hM : MData C0 m m1 m2 m3) {γ KB lam L a : ℝ} (hγ : 0 < γ) (
   have hF : ∀ b : ℝ, a ≤ b → ∫ τ in a..b, B τ * E τ =
       (1 / (Complex.I * lam)) * (B b / (ϕ1 b : ℂ) * E b) -
         (1 / (Complex.I * lam)) ^ 2 * (ibpH B B1 ϕ1 m1 b / (ϕ1 b : ℂ) * E b) +
-        (1 / (Complex.I * lam)) ^ 2 * ∫ τ in a..b, Q τ * E τ := by
+        (1 / (Complex.I * lam)) ^ 2 * (∫ τ in a..b, Q τ * E τ) -
+      ((1 / (Complex.I * lam)) * (B a / (ϕ1 a : ℂ) * E a) -
+        (1 / (Complex.I * lam)) ^ 2 * (ibpH B B1 ϕ1 m1 a / (ϕ1 a : ℂ) * E a)) := by
     intro b hab
     have hI : ∀ x ∈ Icc a b, 0 < x := fun x hx => hpos x hx.1
     have := ibp_twice hab hlam.ne' (ϕ := ϕ) (ϕ1 := ϕ1) (ϕ2 := m1) (ϕ3 := m2) (B := B) (B1 := B1) (B2 := B2)
       (fun x hx => hϕ x (hI x hx)) (fun x hx => hd0 x (hI x hx)) (fun x hx => hM.d1 x (hI x hx))
       (fun x hx => hne x hx.1) (fun x hx => hB x (hI x hx)) (fun x hx => hB1 x (hI x hx))
       (hc2.mono (fun x hx => hI x hx)) (hM.cont_m2.mono (fun x hx => hI x hx))
-    have hH : ibpH B B1 ϕ1 m1 a = 0 := by unfold ibpH; simp [hB0, hB10]
-    rw [this, hH, hB0]
-    simp [hE, hQ]
+    rw [this]
+    simp only [hE, hQ]
+    ring
   have hrpow0 : Tendsto (fun b : ℝ => b ^ (-1 / 2 : ℝ)) atTop (𝓝 0) := by
     have := tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 2)
     simpa [neg_div] using this
@@ -202,16 +207,38 @@ theorem piece3 (hM : MData C0 m m1 m2 m3) {γ KB lam L a : ℝ} (hγ : 0 < γ) (
         (1 / lam) ^ 2 * (KB * (1 + C0 / γ) * b ^ (-1 / 2 : ℝ) / (γ / 2) / (γ / 2)) := by
           gcongr
       _ = 4 * KB * (1 + C0 / γ) / (γ ^ 2 * lam ^ 2) * b ^ (-1 / 2 : ℝ) := by field_simp; ring
-  refine ⟨(1 / (Complex.I * lam)) ^ 2 * J, ?_, ?_⟩
-  · have hsum := (hT1.sub hT2).add (hJt.const_mul ((1 / (Complex.I * lam)) ^ 2))
-    rw [sub_zero, zero_add] at hsum
-    refine hsum.congr' ?_
-    filter_upwards [eventually_ge_atTop a] with b hb
+  refine ⟨J, ?_, hJb⟩
+  have hsum := (((hT1.sub hT2).add (hJt.const_mul ((1 / (Complex.I * lam)) ^ 2))).sub
+    (tendsto_const_nhds (x := (1 / (Complex.I * lam)) * (B a / (ϕ1 a : ℂ) * E a) -
+        (1 / (Complex.I * lam)) ^ 2 * (ibpH B B1 ϕ1 m1 a / (ϕ1 a : ℂ) * E a))))
+  refine (hsum.congr' ?_).trans_eq ?_
+  · filter_upwards [eventually_ge_atTop a] with b hb
     exact (hF b hb).symm
+  · simp only [sub_zero, zero_add, ϕ1, E]
+    ring
+
+/-- **Piece 3.** For `B` vanishing (with `B'`) at `a`, `|m - L| ≥ γ σ` on `[a, ∞)`, the improper integral of `B e^{iλϕ}`
+over `[a,∞)` exists and is `O(λ^{-2}(a^{-9/2} + a^{-3/2}))`. -/
+theorem piece3 (hM : MData C0 m m1 m2 m3) {γ KB lam L a : ℝ} (hγ : 0 < γ) (hKB : 0 ≤ KB) (hlam : 0 < lam)
+    (ha : 0 < a) {ϕ : ℝ → ℝ} (hϕ : ∀ τ : ℝ, 0 < τ → HasDerivAt ϕ (m τ - L) τ)
+    {B B1 B2 : ℝ → ℂ} (hB : ∀ τ : ℝ, 0 < τ → HasDerivAt B (B1 τ) τ)
+    (hB1 : ∀ τ : ℝ, 0 < τ → HasDerivAt B1 (B2 τ) τ) (hc2 : ContinuousOn B2 (Ioi 0))
+    (hbB : ∀ τ : ℝ, 0 < τ → ‖B τ‖ ≤ KB * τ ^ (1 / 2 : ℝ) / (1 + τ))
+    (hbB1 : ∀ τ : ℝ, 0 < τ → ‖B1 τ‖ ≤ KB * τ ^ (-1 / 2 : ℝ) / (1 + τ))
+    (hbB2 : ∀ τ : ℝ, 0 < τ → ‖B2 τ‖ ≤ KB * τ ^ (-3 / 2 : ℝ) / (1 + τ))
+    (hB0 : B a = 0) (hB10 : B1 a = 0) (hp : ∀ τ : ℝ, a ≤ τ → γ * sg τ ≤ |m τ - L|) :
+    ∃ I : ℂ, Tendsto (fun b : ℝ => ∫ τ in a..b, B τ * Complex.exp (Complex.I * lam * (ϕ τ : ℂ))) atTop (𝓝 I) ∧
+      ‖I‖ ≤ (4 * KB * (1 + 4 * C0 / γ + 3 * C0 ^ 2 / γ ^ 2) / γ ^ 2 / lam ^ 2) *
+        ((2 / 9) * a ^ (-9 / 2 : ℝ) + (2 / 3) * a ^ (-3 / 2 : ℝ)) := by
+  obtain ⟨J, hJt, hJb⟩ := piece3_gen hM hγ hKB hlam ha hϕ hB hB1 hc2 hbB hbB1 hbB2 hp
+  refine ⟨(1 / (Complex.I * lam)) ^ 2 * J, ?_, ?_⟩
+  · have hH : ibpH B B1 (fun τ => m τ - L) m1 a = 0 := by unfold ibpH; simp [hB0, hB10]
+    simpa [hB0, hH] using hJt
   · rw [norm_mul, norm_pow, norm_inv_I_mul hlam]
-    calc (1 / lam) ^ 2 * ‖J‖ ≤ (1 / lam) ^ 2 * (K1 * ((2 / 9) * a ^ (-9 / 2 : ℝ) + (2 / 3) * a ^ (-3 / 2 : ℝ))) :=
+    calc (1 / lam) ^ 2 * ‖J‖ ≤ (1 / lam) ^ 2 * ((4 * KB * (1 + 4 * C0 / γ + 3 * C0 ^ 2 / γ ^ 2) / γ ^ 2) *
+          ((2 / 9) * a ^ (-9 / 2 : ℝ) + (2 / 3) * a ^ (-3 / 2 : ℝ))) :=
           mul_le_mul_of_nonneg_left hJb (by positivity)
-      _ = _ := by rw [hK1]; ring
+      _ = _ := by ring
 
 end
 
