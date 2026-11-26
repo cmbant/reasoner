@@ -315,6 +315,7 @@ public import FormalResearch.SignUncertainty.CtBoasKdW
 public import FormalResearch.SignUncertainty.CtBoasPointwise
 public import FormalResearch.SignUncertainty.CtBoasSigmaLip
 public import FormalResearch.SignUncertainty.CtBoasMoments
+public import FormalResearch.SignUncertainty.CtBoasMeasurable
 public import FormalResearch.SignUncertainty.CtDyadicTaper
 public import FormalResearch.SignUncertainty.CtDyadicTaperChart
 public import FormalResearch.SignUncertainty.CtDyadicPsiWindow
