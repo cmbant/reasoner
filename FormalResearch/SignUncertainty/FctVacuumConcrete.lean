@@ -19,6 +19,7 @@ For the concrete datum `P = vacP` (`I_osc^{DH₀}(1 + Δ_curv ∘ τ₀)`, so `v
 `vacDisp_concrete` takes the structure `VacPointwise` (pointwise bounds of `(fct:Dstar-inner)` on `D_*`, measurability and nonnegativity of `P`) and the three size
 bounds of the physical datum (`|s| ≲ a¹²`, `|L₁| ≲ a⁸`, `|α| ≲ a⁸`) as hypotheses; `VacPointwise` is **proved** for the concrete datum in `FctVacuumPointwise`
 (`vacPointwise_concrete`), so `vacuum_integral_concrete` assumes only the size bounds (`hsize`, facts about the physical datum) and the definition of `O` (`hO`).
+Both are discharged for the physical datum (`s = θ₁^ε/c`, `L₁ = log(π² T₁/c)`, `O = physOscDatum`) in `FctPhysicalBudgetConcrete` (`physDatum_hvac`), except `|α| ≲ c^{-2/3}`.
 
 Class: proved; the only hypotheses of `vacuum_integral_concrete` are the size bounds `hsize` and the identification `hO` of `O` on the support of the cutoff.
 -/
