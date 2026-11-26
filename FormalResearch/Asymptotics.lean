@@ -10,6 +10,7 @@ public import FormalResearch.Asymptotics.LogSeries
 public import FormalResearch.Asymptotics.GeometricExpansion
 public import FormalResearch.Asymptotics.ExpExpansion
 public import FormalResearch.Asymptotics.StirlingHalfInt
+public import FormalResearch.Asymptotics.DyadicAbsorption
 public import FormalResearch.Asymptotics.BinetRemainder
 public import FormalResearch.Asymptotics.SymbolClass
 
