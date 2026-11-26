@@ -97,6 +97,9 @@ public import FormalResearch.ModularBootstrap.FiveTerm.OuterBridge
 public import FormalResearch.ModularBootstrap.FiveTerm.OuterH3
 public import FormalResearch.ModularBootstrap.FiveTerm.OuterS1
 public import FormalResearch.ModularBootstrap.FiveTerm.OuterDphi
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterS4bPhi
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterS4b
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterS3a
 public import FormalResearch.ModularBootstrap.Mixtures.Source
 public import FormalResearch.ModularBootstrap.Mixtures.Mixture
 public import FormalResearch.ModularBootstrap.Mixtures.RebaseAnalysis
@@ -1452,5 +1455,5 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `FiveTerm.{LowerMainDefs, LowerGoodCircle, LowerGoodArea, LowerGoodWtilde, LowerGoodMain}` (FIVE-L: `cts:rosc-uncond` (1), the first good circle at Virasoro, `lowerFirstGood_of_chart_on_band` from the `chart` field, via `Complex/HalfDiscPoisson`; the `firstGood` field is removed from `LowerMainInputs`, whose fields are now restricted to the band `T <= Delta(-A_thr)`; out-of-band thresholds are handled in `lowerPhase_of_inputs`).
 * `FiveTerm.{UpperAiryMoment, UpperAiryPrimitive}` (FIVE-U: `cts:tip-shared` (a) `airyLinearMoment`, (c) `airyPrimitiveDecay`, unconditional), with the shared cores they import: `Asymptotics.{RiccatiBarrier, MidpointRule}` (`nonpos_of_deriv_ge_mul`, `abs_le_of_riccati_barrier`, `midpoint_remainder`), `Special.AiryLogDerivAsym` (`riccG_threeTerm`: three-term `Ai'/Ai` asymptotics, `airy_zero_sum_asymp`), `Special.{AiryMomentCells, AiryMomentLimit, AiryZeroLinearMoment}` (`airyZero_linear_moment`), `Special.AiryPrimitiveNeg` (`Bneg_decay`).
 * `FiveTerm.{UpperAiryBC, UpperAiryBCBounds}` (FIVE-U: `cts:tip-shared` (c), the identity `cts:BC-id` (`airyBC_id`, `airyBC_id_global`), the right-side bound with constant 40 (`airyBC_rhs_bound_paper`) and the three bounds `cts:BC-bnds` (`airyBC_bnd_W0`, `airyBC_bnd_W1`, `airyBC_bnd_W2`); with these `cts:tip-shared` is proved in full).
-* `FiveTerm.Outer*` and `Complex.StripBdryFunctional` (FIVE-S, partial: strip structure of the Virasoro outer function; statements `OuterS1`-`OuterS4` in `OuterStripStatements`; proved `outerS1` (`cts:cauchy-dual` Step 2 factorisation `G_outer = (1+z^2)^{-1} H_3^{1/4} Gtilde` bridged to `Gout`, `log |Gtilde|` on the slit), `outerS2` (`theta_out` bounds `C min(r,1)^{1/2-j} e^{-pi x}`, limit at infinity), `outerS4a` (`cts:smooth-env` (3) phase bounds uniform in `delta`); `OuterS3`, `OuterS4b` open).
+* `FiveTerm.Outer*` and `Complex.StripBdryFunctional` (FIVE-S, partial: strip structure of the Virasoro outer function; statements `OuterS1`-`OuterS4` in `OuterStripStatements`; proved `outerS1` (`cts:cauchy-dual` Step 2 factorisation `G_outer = (1+z^2)^{-1} H_3^{1/4} Gtilde` bridged to `Gout`, `log |Gtilde|` on the slit), `outerS2` (`theta_out` bounds `C min(r,1)^{1/2-j} e^{-pi x}`, limit at infinity), `outerS4a` (`cts:smooth-env` (3) phase bounds uniform in `delta`), `outerS4b` (`Delta Phi_delta` holomorphic on the band with `C^2` bounds uniform in `delta`, `Re = 0` on `E_+`; `OuterS4bPhi`), and the `OuterS3` prefix `fDelta_slit_dphi`, `fDelta_factor` (`OuterS3a`); the rest of `OuterS3` is open).
 -/
