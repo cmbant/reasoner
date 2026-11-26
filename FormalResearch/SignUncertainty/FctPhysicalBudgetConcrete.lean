@@ -6,6 +6,7 @@ module
 
 public import FormalResearch.SignUncertainty.FctVacuumConcrete
 public import FormalResearch.SignUncertainty.FctPhysicalBudget
+public import FormalResearch.SignUncertainty.FctTau0Symbol
 
 /-!
 # `fct:physical-budget` for the concrete physical datum: `hvac` discharged (F2a)
@@ -32,9 +33,9 @@ of `FctMainHankelInputs` (`physL1_le`); `L₁ ≍ δ_L ≍ c^{-1/2}` is not what
 
 **Remaining named inputs.**  For `FctMainHankelInputs` `I`, `T₁ = I.T1` and `α = I.alpha` come with `|T₁ - Δ₅| ≤ C c⁻¹`, `|α| ≤ C c^{-2/3}`
 (`I.warp_zero`, `fct:warp-asymp` (1)) and `n_c = 1/I.Nc` with `N_c = 1 + O(c⁻¹)` (`I.splitting_norm`, `fct:splitting` (2); `nc_inv_bound`).
-Left: `hdef` (`B = (fct:B-physical)`) and the symbol-class inputs `hR`, `hT` of Lemma FCT.7b.
+Left: `hdef` (`B = (fct:B-physical)`) and the symbol-class input `hR` of Lemma FCT.7b (b); `hT` is proved (`physT_symW`).
 
-Class: proved under the explicit hypotheses `hdef`, `hR`, `hT` (and the fields of `I`); `hvac`, `hsize` (scales), `hα`, `hn` and `hO` are proved.
+Class: proved under the explicit hypotheses `hdef`, `hR` (and the fields of `I`); `hvac`, `hsize` (scales), `hα`, `hn` and `hO` are proved.
 -/
 
 @[expose] public section
@@ -356,6 +357,40 @@ lemma physDatum_vacsize (T1 αf : ℝ → ℝ → ℝ)
     exact (hα' ε c hε ((le_max_right _ _).trans hc)).trans
       (mul_le_mul_of_nonneg_right ((le_max_right _ _).trans (le_max_right _ _)) hp8)
 
+/-! ### `hT`: the transition-bump symbol class -/
+
+/-- **`hT` of Lemma FCT.7b (c), proved**: `τ₀⁴ I_fl ∈ (M_T, -1/2, 3/2)` on `[3δ_L/2, 6δ_L]`, `δ_L = physDelta c`, for all large `c`
+(`m(t) = t² mQ(t)`, `τ₀(L) = ψ(√L)` with `ψ` the smooth inverse of `t√mQ(t)` (`tau0_symW`), `I_fl = α_fl L^{-3/2}`;
+`6δ_L ≤ L₀` for `c ≥ c₀` since `δ_L ≍ c^{-1/2}`).  The constants `M_T = |α_fl|`, `K_T` do not depend on `c`. -/
+theorem physT_symW : ∃ (c₀ MT : ℝ) (KT : ℕ → ℝ), 0 ≤ MT ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
+    SymW (Icc (3 / 2 * physDelta c) (6 * physDelta c)) (pw MT (-(1 / 2)) (3 / 2)) KT
+      (fun L => tau0 L ^ 4 * uctIfl L) := by
+  obtain ⟨L₀, K, hL₀, hL₀1, h⟩ := tauT_symW
+  obtain ⟨a₀, a₁, cδ, ha₀, ha₁, hcδ1, hδ⟩ := physDelta_bounds
+  obtain ⟨c₁, hc₁1, hc₁⟩ := exists_rpow_neg_le (p := 1 / 2) (η := L₀ / (6 * (a₁ + 1))) (by norm_num) (by positivity)
+  refine ⟨max cδ c₁, |uctAlphaFl|, K, abs_nonneg _, fun ε c _ hc => ?_⟩
+  have hcδ : cδ ≤ c := (le_max_left _ _).trans hc
+  have hcc₁ : c₁ ≤ c := (le_max_right _ _).trans hc
+  have hc0 : 0 < c := by linarith
+  obtain ⟨hδa, hδb⟩ := hδ c hcδ
+  have hh : 0 < c ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hc0 _
+  have hδ0 : 0 < physDelta c := lt_of_lt_of_le (by positivity) hδa
+  have h6 : 6 * physDelta c ≤ L₀ := by
+    have h3 := hc₁ c hcc₁
+    calc 6 * physDelta c ≤ 6 * (a₁ * c ^ (-(1 / 2 : ℝ))) := by linarith
+      _ ≤ 6 * (a₁ * (L₀ / (6 * (a₁ + 1)))) := by gcongr
+      _ = L₀ * (a₁ / (a₁ + 1)) := by field_simp
+      _ ≤ L₀ * 1 := by
+          gcongr
+          rw [div_le_one (by positivity)]; linarith
+      _ = L₀ := mul_one _
+  have hsub : Icc (3 / 2 * physDelta c) (6 * physDelta c) ⊆ Ioc 0 L₀ := fun x hx =>
+    ⟨by linarith [hx.1], hx.2.trans h6⟩
+  refine (h.mono_set hsub).of_le (fun x hx => ?_) (fun _ => le_rfl)
+  have hx1 : x ≤ 1 := hx.2.trans (h6.trans hL₀1)
+  simp only [pw, hx1, ite_true, neg_neg]
+  exact le_rfl
+
 /-! ### `hvac` and `hsize` for the physical datum -/
 
 /-- **`hvac` for the physical datum** (`fct:physical-budget` (a)-(d), `vacuum_integral_concrete` with `hO` and `hsize` discharged): for
@@ -393,7 +428,7 @@ lemma physDatum_hsize (T1 nf : ℝ → ℝ → ℝ)
 /-- **`physical_budget` of `FctMainHankelInputs` for the concrete physical datum** (Lemma `fct:physical-budget`): `physical_budget_field`
 with `δf = m(c^{-1/4})`, `sf = θ₁^ε/c`, `L1f = log(π² T₁/c)`, `Of = I_osc^{warp}` (`physOscDatum`), the hypothesis `hvac` **removed** (proved by
 `physDatum_hvac`) and the scale part of `hsize` proved.  Remaining inputs: `hT1`, `hα` (`fct:warp-asymp` (1)), `hn` (`n_c = 1 + O(c⁻¹)`),
-`hdef` (the definition `(fct:B-physical)`), and `hR`, `hT` (the symbol classes of Lemma FCT.7b (b)). -/
+`hdef` (the definition `(fct:B-physical)`), and `hR` (the symbol class of Lemma FCT.7b (b)); `hT` is `physT_symW`. -/
 theorem physical_budget_field_concrete {χ : ℝ → ℝ} (hχ : IsCutoff χ) (kind : StripKernelChoice) {K4 : ℝ} (hK4 : 1 ≤ K4)
     {Bphys : ℝ → ℝ → ℝ → ℝ → ℝ} (T1 αf nf : ℝ → ℝ → ℝ)
     (hT1 : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |T1 ε c - ctDelta5 ε c| ≤ C * c⁻¹)
@@ -404,13 +439,11 @@ theorem physical_budget_field_concrete {χ : ℝ → ℝ} (hχ : IsCutoff χ) (k
     (hR : ∃ (c₀ MR : ℝ) (KR : ℕ → ℝ), 0 ≤ MR ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       SymW (Ici (3 / 2 * physDelta c)) (pw MR (-1) 0) KR
         (fun x => physOscDatum kind K4 T1 αf ε c x / physF (physShift ε c) (physL1 T1 ε c) x - 1))
-    (hT : ∃ (c₀ MT : ℝ) (KT : ℕ → ℝ), 0 ≤ MT ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
-      SymW (Icc (3 / 2 * physDelta c) (6 * physDelta c)) (pw MT (-(1 / 2)) (3 / 2)) KT
-        (fun L => tau0 L ^ 4 * uctIfl L)) :
+    :
     ∃ C0 b2 : ℝ, ∀ K1 : ℝ, 0 < K1 → ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       (ctWbump (Bphys ε c K1) ε c 0).re ≤ (C0 + b2 * K1) * c ^ (-(13 / 12 : ℝ)) :=
   physical_budget_field hχ (fun _ c => physDelta c) (fun ε c => physShift ε c) (fun ε c => physL1 T1 ε c) nf K4
-    (physOscDatum kind K4 T1 αf) hdef (physDatum_hsize T1 nf hT1 hn) hR hT
+    (physOscDatum kind K4 T1 αf) hdef (physDatum_hsize T1 nf hT1 hn) hR physT_symW
     (physDatum_hvac hχ kind hK4 T1 αf hT1 hα)
 
 /-- `n_c = 1/N_c` with `N_c = 1 + O(c⁻¹)` (`fct:splitting` (2)) satisfies `0 ≤ n_c ≤ 2` for large `c`: the `hn` input. -/
@@ -445,9 +478,7 @@ theorem fctMainHankel_bump_fields_concrete {χ : ℝ → ℝ} (hχ : IsCutoff χ
     (hR : ∃ (c₀ MR : ℝ) (KR : ℕ → ℝ), 0 ≤ MR ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       SymW (Ici (3 / 2 * physDelta c)) (pw MR (-1) 0) KR
         (fun x => physOscDatum kind K4 I.T1 I.alpha ε c x / physF (physShift ε c) (physL1 I.T1 ε c) x - 1))
-    (hT : ∃ (c₀ MT : ℝ) (KT : ℕ → ℝ), 0 ≤ MT ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
-      SymW (Icc (3 / 2 * physDelta c) (6 * physDelta c)) (pw MT (-(1 / 2)) (3 / 2)) KT
-        (fun L => tau0 L ^ 4 * uctIfl L)) :
+    :
     type_of% I.bump_profile ∧ type_of% I.physical_budget := by
   obtain ⟨C, c₀, hw⟩ := I.warp_zero
   have hT1 : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |I.T1 ε c - ctDelta5 ε c| ≤ C * c⁻¹ :=
@@ -456,8 +487,12 @@ theorem fctMainHankel_bump_fields_concrete {χ : ℝ → ℝ} (hχ : IsCutoff χ
     ⟨C, c₀, fun ε c hε hc => (hw ε c hε hc).2⟩
   exact fctMainHankel_bump_fields hχ I (fun _ c => physDelta c) (fun ε c => physShift ε c) (fun ε c => physL1 I.T1 ε c)
     (fun ε c => 1 / I.Nc ε c) K4 (physOscDatum kind K4 I.T1 I.alpha) hdef
-    (physDatum_hsize I.T1 _ hT1 (nc_inv_bound I.Nc I.splitting_norm)) hR hT
+    (physDatum_hsize I.T1 _ hT1 (nc_inv_bound I.Nc I.splitting_norm)) hR physT_symW
     (physDatum_hvac hχ kind hK4 I.T1 I.alpha hT1 hα)
+
+/-- info: 'FormalResearch.SignUncertainty.FctSym.physT_symW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms physT_symW
 
 /-- info: 'FormalResearch.SignUncertainty.FctSym.physL1_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -47,22 +47,26 @@ lemma one_le_hankelWindowC : 1 ≤ hankelWindowC := by
 #print axioms one_le_hankelWindowC
 
 set_option maxHeartbeats 4000000 in
-/-- **Window lemma** (`teb:mellin` (2)-(3), proved).  For `c ≥ 10¹⁴`, `f` feasible at `T = cξ(u_T)` with `M[f] = 1`, `ε = ±1`,
-`-3 ≤ u_T ≤ 0` (hypotheses here; `hankelBoot_uT_range` supplies them from `a₁ < u_T` and `QuantC1B2Holds` in the S6a caller) and
-a radius `R ∈ [b² c^{2/3}, b² c^{2/3} + 1]`, `b = 1/100`: `YVEnvBound (hankelPsi c f) c R L'` with
-`L' = C_fb (c^{1/3}(B₁ + B₂) + 1)`, `C_fb = hankelWindowC` a fixed constant (independent of `c, ε, T, u_T, R, f`).  The
-hypotheses are exactly those of `HankelYVAt`; tail positivity `f ≥ 0` on `[cξ(u_T), ∞)` is `IsHankelFeasible.tail_nonneg`.  No
-`r_∞` slack is involved (that lives in S6a). -/
-theorem hankel_yv_window {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 1e14 ≤ c)
+/-- **Window lemma on the covered arc** (`teb:mellin` (2)-(3), proved; the top-scale case of `ct:L-fb`, `constant_terms_lower.tex`
+`ct:dyadic` (1) Step 1b, with the band reduction `hankel_band_reduction_pos` for all `cos ψ > 0`).  For `c ≥ 10¹⁴`, `f` feasible at
+`T = cξ(u_T)` with `M[f] = 1`, `ε = ±1`, `-3 ≤ u_T ≤ 0` and a radius `R ∈ [b² c^{2/3}, b² c^{2/3} + 1]`, `b = 1/100`, every `ũ` of the
+upper half annulus `R - 1 ≤ ‖ũ‖ ≤ R + 1` with `θ √‖ũ‖ ≤ Re ũ^{1/2}` (`sin φ ≥ θ`, `10⁵ ≤ θ √c`) satisfies
+`‖Ψ̃(ũ)‖ ≤ L' e(ũ) (Re ũ^{1/2})^{-3/2} ‖ũ‖^{-3/4}`, `L' = C_fb (c^{1/3}(B₁ + B₂) + 1)`, `C_fb = hankelWindowC` a fixed constant
+(independent of `c, ε, T, u_T, R, f, θ`).  This is the `(ct:cov)` form `L (Re √ũ)^{-1/2} ‖ũ‖^{-5/4} (sin φ)^{-1}` on the range
+`sin φ ≥ C₂ R^{-3/4} (log c)^{1/2}` (`C₂ ≥ 10³`), with `L = L'`.  Tail positivity `f ≥ 0` on `[cξ(u_T), ∞)` is
+`IsHankelFeasible.tail_nonneg`.  No `r_∞` slack is involved (that lives in S6a). -/
+theorem hankel_cov_window {c ε T u_T R θ : ℝ} {f : ℝ → ℝ} (hc : 1e14 ≤ c)
     (hf : IsHankelFeasible c ε T f) (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1)
     (hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T)
-    (hRlb : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ R) (hRub : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1) :
-    YVEnvBound (hankelPsi c f) c R
-      (hankelWindowC * (c ^ (1 / 3 : ℝ) * (hankelBootB1 c f R u_T + hankelBootB2 c f R) + 1)) := by
-  intro u hIm hlo hhi hX
+    (hRlb : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ R) (hRub : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1)
+    (hθ : 1e5 ≤ θ * √c) {u : ℂ} (_hIm : 0 ≤ u.im) (hlo : R - 1 ≤ ‖u‖) (hhi : ‖u‖ ≤ R + 1)
+    (hX : θ * √‖u‖ ≤ (u ^ (1 / 2 : ℂ)).re) :
+    ‖hankelPsi c f u‖ ≤
+      hankelWindowC * (c ^ (1 / 3 : ℝ) * (hankelBootB1 c f R u_T + hankelBootB2 c f R) + 1) * airyEnv u *
+        ((u ^ (1 / 2 : ℂ)).re) ^ (-(3 / 2 : ℝ)) * ‖u‖ ^ (-(3 / 4 : ℝ)) := by
   have hc3 : 3e6 ≤ c := by linarith
   have hc0 : 0 < c := by linarith
-  obtain ⟨t, ht14, hct, hk4, hK8, hτi, hc56, hlog⟩ := hankel_window_cnum hc
+  obtain ⟨t, ht14, hct, hk4, hK8, -, hc56, hlog⟩ := hankel_window_cnum hc
   have ht0 : 0 < t := by linarith
   set k : ℝ := c ^ (1 / 3 : ℝ) with hkdef
   have hk0 : 0 < k := Real.rpow_pos_of_pos hc0 _
@@ -88,10 +92,13 @@ theorem hankel_yv_window {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 1e14 ≤ c
   have hs0 : 0 < s := Real.rpow_pos_of_pos hN0 _
   have hsqrtN : Real.sqrt N = s := by rw [hsdef, Real.sqrt_eq_rpow]
   set X : ℝ := (u ^ (1 / 2 : ℂ)).re with hXdef
-  rw [hτi, hsqrtN] at hX
-  have hτi0 : 0 < t⁻¹ := inv_pos.2 ht0
+  rw [hsqrtN] at hX
+  have hθ0 : 0 < θ := by
+    by_contra hneg
+    push Not at hneg
+    nlinarith only [hθ, hneg, Real.sqrt_nonneg c]
   have hX0 : 0 < X := by
-    have : 0 < 2 * t⁻¹ * s := by positivity
+    have : 0 < θ * s := by positivity
     linarith
   have hcut := hankel_window_slit hu_ne hX0
   set K : ℝ := c ^ (2 / 3 : ℝ) * langerKappa with hK
@@ -105,8 +112,8 @@ theorem hankel_yv_window {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 1e14 ≤ c
     linarith
   obtain ⟨q, hq, hqn, hqu, hqg⟩ := chart_saddle_data langerEta_etaC hc0 hyn (by rw [huy]; exact hcut)
   rw [huy] at hqu
-  obtain ⟨σ, τ0, h, hζeq, hσpos, hσle, hτ0, hh0, hhsq, hζlo, hζhi, hhle, hcz, hnzσ, hXk, hkσ⟩ :=
-    hankel_window_saddle hc hRlb hRub hlo hhi hXorig hq hqn hqu
+  obtain ⟨σ, τ0, h, hζeq, hσpos, hσle, hτ0, hh0, hhsq, hζlo, hζhi, hhle, hnzσ, hXk, hkσ⟩ :=
+    hankel_window_saddle hc hRlb hRub hlo hhi hθ hXorig hq hqn hqu
   set ζ := saddleRoot q with hζdef
   have hζn : ‖ζ‖ ≤ 0.035 := norm_saddleRoot_le hqn
   have hσ1 : σ < 1 := by linarith
@@ -131,7 +138,7 @@ theorem hankel_yv_window {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 1e14 ≤ c
   have hW : ∀ y : ℝ, |y| ≤ 1 / 3 → |y - τ0| ≤ h →
       ‖hankelWt c f ((σ : ℂ) + (y : ℂ) * Complex.I)‖ ≤ W := fun y _ hy => by
     have := hankel_window_Wt_bound hc3 hf hε hM hT hu0 hu3 hRlb hRub hB12 hσpos hσ1 hζlo hζhi
-      hhle hcz hy
+      hhle hy
     rw [← hζeq] at this
     exact this
   set ℓ : ℂ := -(gSer etaC ζ) with hℓ
@@ -270,6 +277,34 @@ theorem hankel_yv_window {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 1e14 ≤ c
         have h2 : 0 ≤ N ^ (-(3 / 4 : ℝ)) / (X * Real.sqrt X) := by positivity
         gcongr
     _ = _ := by rw [hX32]; field_simp
+
+/-- info: 'FormalResearch.SignUncertainty.hankel_cov_window' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankel_cov_window
+
+/-- **Window lemma** (`teb:mellin` (2)-(3), proved).  For `c ≥ 10¹⁴`, `f` feasible at `T = cξ(u_T)` with `M[f] = 1`, `ε = ±1`,
+`-3 ≤ u_T ≤ 0` (hypotheses here; `hankelBoot_uT_range` supplies them from `a₁ < u_T` and `QuantC1B2Holds` in the S6a caller) and
+a radius `R ∈ [b² c^{2/3}, b² c^{2/3} + 1]`, `b = 1/100`: `YVEnvBound (hankelPsi c f) c R L'` with
+`L' = C_fb (c^{1/3}(B₁ + B₂) + 1)`, `C_fb = hankelWindowC` a fixed constant (independent of `c, ε, T, u_T, R, f`).  The
+hypotheses are exactly those of `HankelYVAt`.  The angular range `sin φ ≥ 2 c^{-1/12}` of `YVEnvBound` is the case `θ = 2 c^{-1/12}`
+of `hankel_cov_window`, which covers `sin φ ≥ 10⁵ c^{-1/2}`. -/
+theorem hankel_yv_window {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 1e14 ≤ c)
+    (hf : IsHankelFeasible c ε T f) (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1)
+    (hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T)
+    (hRlb : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ R) (hRub : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1) :
+    YVEnvBound (hankelPsi c f) c R
+      (hankelWindowC * (c ^ (1 / 3 : ℝ) * (hankelBootB1 c f R u_T + hankelBootB2 c f R) + 1)) := by
+  intro u hIm hlo hhi hX
+  obtain ⟨t, ht14, hct, -, -, hτi, -, -⟩ := hankel_window_cnum hc
+  have hsqc : √c = t ^ 6 := by
+    rw [hct, show t ^ 12 = (t ^ 6) ^ 2 by ring]; exact Real.sqrt_sq (by positivity)
+  have hθ : 1e5 ≤ 2 * c ^ (-(1 / 12 : ℝ)) * √c := by
+    rw [hτi, hsqc]
+    have ht0 : 0 < t := by linarith
+    have h5 : (14 : ℝ) ^ 5 ≤ t ^ 5 := pow_le_pow_left₀ (by norm_num) ht14 5
+    have : 2 * t⁻¹ * t ^ 6 = 2 * t ^ 5 := by field_simp
+    rw [this]; norm_num at h5; linarith
+  exact hankel_cov_window hc hf hε hM hT hu0 hu3 hRlb hRub hθ hIm hlo hhi hX
 
 /-- info: 'FormalResearch.SignUncertainty.hankel_yv_window' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

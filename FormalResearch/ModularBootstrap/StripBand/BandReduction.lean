@@ -1701,21 +1701,20 @@ private lemma teb_tail_bound {P : BandReductionParams} (I : BandReductionInstanc
   refine htri.trans ((add_le_add (add_le_add hsub_tot hmain_pos_bd) hmain_neg_bd).trans_eq ?_)
   ring
 
-/-- **Proposition TE.3(1)** (`two_edge_bootstrap.tex` `teb:mellin`, `TE.9`):
-Unified strip band reduction from `(MS1)`–`(MS2)` and the `τ₀` bounds, valid on the sector `𝔖`. -/
-theorem teb_band_reduction {P : BandReductionParams} (I : BandReductionInstance P)
+/-- **Proposition TE.3(1), first form, on the whole sector** (`two_edge_bootstrap.tex` `teb:mellin`, `TE.9`; the top-scale case
+`r = R_J` of `ct:Wbound`, `constant_terms_lower.tex` `ct:dyadic` (1) Step 1a): the band reduction
+`‖W̃_c(ζ₀)‖ ≤ C_Y c^{-5/6}(c^{1/3}(B₁ + B₂) + c^{-1/6})/cos ψ` holds for every `ζ₀` of the annulus `ρ_R/3 ≤ ‖ζ₀‖ ≤ 2ρ_R` with
+`cos ψ > 0` (that is, `σ₀ > 0`); no lower bound `cos ψ ≥ c^{-1/12}` is needed (it is only used for the second form of
+`teb_band_reduction`). -/
+theorem teb_band_reduction_pos {P : BandReductionParams} (I : BandReductionInstance P)
     {ζ₀ : ℂ} {ψ : ℝ}
     (hζ₀_lo : rhoR P I.c I.R / 3 ≤ ‖ζ₀‖)
     (hζ₀_hi : ‖ζ₀‖ ≤ 2 * rhoR P I.c I.R)
     (hcos_eq : ζ₀.re = ‖ζ₀‖ * Real.cos ψ)
-    (hcos_lb : I.c ^ (-(1 / 12 : ℝ)) ≤ Real.cos ψ) :
+    (hcos_pos : 0 < Real.cos ψ) :
     ‖I.W_tilde ζ₀‖ ≤ tebBandConst P * I.c ^ (-(5 / 6 : ℝ)) *
-        (I.c ^ (1 / 3 : ℝ) * (bandB1 I + bandB2 I) + I.c ^ (-(1 / 6 : ℝ))) / Real.cos ψ ∧
-    ‖I.W_tilde ζ₀‖ ≤ tebBandConst P * I.c ^ (-(5 / 6 : ℝ)) *
-        (I.c ^ (1 / 3 : ℝ) * (bandB1 I + bandB2 I) / Real.cos ψ + I.c ^ (-(1 / 12 : ℝ))) := by
+        (I.c ^ (1 / 3 : ℝ) * (bandB1 I + bandB2 I) + I.c ^ (-(1 / 6 : ℝ))) / Real.cos ψ := by
   have hc_pos : 0 < I.c := lt_of_lt_of_le zero_lt_one I.hc
-  have hc112_pos : 0 < I.c ^ (-(1 / 12 : ℝ)) := Real.rpow_pos_of_pos hc_pos _
-  have hcos_pos : 0 < Real.cos ψ := lt_of_lt_of_le hc112_pos hcos_lb
   set ρ_min := P.κ_ζ * P.b / 3
   have hρ_min_pos : 0 < ρ_min := div_pos (mul_pos P.hκ_ζ P.hb) (by norm_num)
   have hR_pos : 0 < I.R := lt_of_lt_of_le (by have := P.hb; positivity) I.hR_lb
@@ -1884,6 +1883,24 @@ theorem teb_band_reduction {P : BandReductionParams} (I : BandReductionInstance 
       unfold tebBandConst; rfl
     rw [hC_Y, hc_inv_split, hc_half_split]
     ring
+  exact hbound1
+
+/-- **Proposition TE.3(1)** (`two_edge_bootstrap.tex` `teb:mellin`, `TE.9`):
+Unified strip band reduction from `(MS1)`–`(MS2)` and the `τ₀` bounds, valid on the sector `𝔖`. -/
+theorem teb_band_reduction {P : BandReductionParams} (I : BandReductionInstance P)
+    {ζ₀ : ℂ} {ψ : ℝ}
+    (hζ₀_lo : rhoR P I.c I.R / 3 ≤ ‖ζ₀‖)
+    (hζ₀_hi : ‖ζ₀‖ ≤ 2 * rhoR P I.c I.R)
+    (hcos_eq : ζ₀.re = ‖ζ₀‖ * Real.cos ψ)
+    (hcos_lb : I.c ^ (-(1 / 12 : ℝ)) ≤ Real.cos ψ) :
+    ‖I.W_tilde ζ₀‖ ≤ tebBandConst P * I.c ^ (-(5 / 6 : ℝ)) *
+        (I.c ^ (1 / 3 : ℝ) * (bandB1 I + bandB2 I) + I.c ^ (-(1 / 6 : ℝ))) / Real.cos ψ ∧
+    ‖I.W_tilde ζ₀‖ ≤ tebBandConst P * I.c ^ (-(5 / 6 : ℝ)) *
+        (I.c ^ (1 / 3 : ℝ) * (bandB1 I + bandB2 I) / Real.cos ψ + I.c ^ (-(1 / 12 : ℝ))) := by
+  have hc_pos : 0 < I.c := lt_of_lt_of_le zero_lt_one I.hc
+  have hc112_pos : 0 < I.c ^ (-(1 / 12 : ℝ)) := Real.rpow_pos_of_pos hc_pos _
+  have hcos_pos : 0 < Real.cos ψ := lt_of_lt_of_le hc112_pos hcos_lb
+  have hbound1 := teb_band_reduction_pos I hζ₀_lo hζ₀_hi hcos_eq hcos_pos
   refine ⟨hbound1, hbound1.trans ?_⟩
   have hcos_inv_le : I.c ^ (-(1 / 6 : ℝ)) / Real.cos ψ ≤ I.c ^ (-(1 / 12 : ℝ)) := by
     rw [div_le_iff₀ hcos_pos]
@@ -2082,4 +2099,8 @@ info: 'FormalResearch.ModularBootstrap.StripBand.bandReductionInstance_nonvacuou
 
 end AxiomChecks
 
-end FormalResearch.ModularBootstrap.StripBand
+end FormalResearch.ModularBootstrap.StripBand/-- info: 'FormalResearch.ModularBootstrap.StripBand.teb_band_reduction_pos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.StripBand.teb_band_reduction_pos
+
+
