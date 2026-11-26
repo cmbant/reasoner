@@ -59,6 +59,20 @@ lemma tendsto_exp_neg_mul_atTop {ε : ℝ} (hε : 0 < ε) :
     Tendsto (fun T : ℝ => Real.exp (-(ε * T))) atTop (𝓝 0) :=
   Real.tendsto_exp_neg_atTop_nhds_zero.comp (tendsto_id.const_mul_atTop hε)
 
+lemma edge_left_mem {τ : ℝ} (hτ : τ ≠ 0) : (τ : ℂ) * Complex.I ∈ unitStripCl \ {0, 1} := by
+  refine ⟨by simp [unitStripCl], ?_⟩
+  simp only [mem_insert_iff, mem_singleton_iff, not_or]
+  refine ⟨?_, ?_⟩
+  · intro h; apply hτ; have := congrArg Complex.im h; simpa using this
+  · intro h; have := congrArg Complex.re h; simp at this
+
+lemma edge_right_mem {τ : ℝ} (hτ : τ ≠ 0) : 1 + (τ : ℂ) * Complex.I ∈ unitStripCl \ {0, 1} := by
+  refine ⟨by simp [unitStripCl], ?_⟩
+  simp only [mem_insert_iff, mem_singleton_iff, not_or]
+  refine ⟨?_, ?_⟩
+  · intro h; have := congrArg Complex.re h; simp at this
+  · intro h; apply hτ; have := congrArg Complex.im h; simpa using this
+
 section
 
 variable {Ψ : ℂ → ℂ} {C ε : ℝ}
@@ -161,12 +175,14 @@ lemma vertical_integral_eq (hd : DifferentiableOn ℂ Ψ unitStrip) (hε : 0 < �
     linear_combination h3
   exact smul_right_injective ℂ Complex.I_ne_zero h2
 
-/-- **Cauchy's theorem on the strip for decaying functions** (edge form):
-`∫_ℝ Ψ(i τ) dτ = ∫_ℝ Ψ(1 + i τ) dτ` for `Ψ` holomorphic on `0 < Re s < 1`, continuous on the closed strip
-off the two points `0`, `1`, and `‖Ψ s‖ ≤ C e^{-ε |Im s|}`. -/
-theorem strip_edge_integral_eq (hd : DifferentiableOn ℂ Ψ unitStrip) (hε : 0 < ε)
+/-- **Cauchy's theorem on the strip for decaying functions** (edge form), with the integrability of
+the two edge functions: `∫_ℝ Ψ(i τ) dτ = ∫_ℝ Ψ(1 + i τ) dτ` for `Ψ` holomorphic on `0 < Re s < 1`,
+continuous on the closed strip off the two points `0`, `1`, and `‖Ψ s‖ ≤ C e^{-ε |Im s|}`. -/
+theorem strip_edge_cauchy (hd : DifferentiableOn ℂ Ψ unitStrip) (hε : 0 < ε)
     (hc : ContinuousOn Ψ (unitStripCl \ {0, 1}))
     (hb : ∀ s ∈ unitStrip, ‖Ψ s‖ ≤ C * Real.exp (-(ε * |s.im|))) :
+    Integrable (fun τ : ℝ => Ψ ((τ : ℂ) * Complex.I)) ∧
+    Integrable (fun τ : ℝ => Ψ (1 + (τ : ℂ) * Complex.I)) ∧
     ∫ τ : ℝ, Ψ ((τ : ℂ) * Complex.I) = ∫ τ : ℝ, Ψ (1 + (τ : ℂ) * Complex.I) := by
   set l : Filter ℝ := 𝓝[>] (0 : ℝ) with hl
   have hbd : ∀ᶠ δ : ℝ in l, ∀ τ : ℝ, ‖Ψ ((δ : ℂ) + τ * Complex.I)‖ ≤ C * Real.exp (-(ε * |τ|)) := by
@@ -254,7 +270,34 @@ theorem strip_edge_integral_eq (hd : DifferentiableOn ℂ Ψ unitStrip) (hε : 0
     filter_upwards [Ioo_mem_nhdsGT (show (0 : ℝ) < 1 / 2 by norm_num)] with δ hδ
     exact vertical_integral_eq hd hε hb hδ.1 hδ.2
   have hne : l.NeBot := inferInstance
-  exact tendsto_nhds_unique T0 (T1.congr' heq)
+  have hcontL : ContinuousOn (fun τ : ℝ => Ψ ((τ : ℂ) * Complex.I)) {τ : ℝ | τ ≠ 0} := by
+    refine hc.comp (by fun_prop : Continuous fun τ : ℝ => (τ : ℂ) * Complex.I).continuousOn ?_
+    intro τ hτ; exact edge_left_mem hτ
+  have hcontR : ContinuousOn (fun τ : ℝ => Ψ (1 + (τ : ℂ) * Complex.I)) {τ : ℝ | τ ≠ 0} := by
+    refine hc.comp (by fun_prop : Continuous fun τ : ℝ => 1 + (τ : ℂ) * Complex.I).continuousOn ?_
+    intro τ hτ; exact edge_right_mem hτ
+  have hmL : AEStronglyMeasurable (fun τ : ℝ => Ψ ((τ : ℂ) * Complex.I)) volume := by
+    have := hcontL.aestronglyMeasurable (μ := volume) (measurableSet_singleton (0 : ℝ)).compl
+    rwa [show {τ : ℝ | τ ≠ 0} = ({0} : Set ℝ)ᶜ from rfl, MeasureTheory.restrict_compl_singleton] at this
+  have hmR : AEStronglyMeasurable (fun τ : ℝ => Ψ (1 + (τ : ℂ) * Complex.I)) volume := by
+    have := hcontR.aestronglyMeasurable (μ := volume) (measurableSet_singleton (0 : ℝ)).compl
+    rwa [show {τ : ℝ | τ ≠ 0} = ({0} : Set ℝ)ᶜ from rfl, MeasureTheory.restrict_compl_singleton] at this
+  have aeL : ∀ᵐ τ : ℝ, ‖Ψ ((τ : ℂ) * Complex.I)‖ ≤ C * Real.exp (-(ε * |τ|)) := by
+    filter_upwards [hlim0] with τ hτ
+    exact le_of_tendsto hτ.norm (by filter_upwards [hbd] with δ h using h τ)
+  have aeR : ∀ᵐ τ : ℝ, ‖Ψ (1 + (τ : ℂ) * Complex.I)‖ ≤ C * Real.exp (-(ε * |τ|)) := by
+    filter_upwards [hlim1] with τ hτ
+    exact le_of_tendsto hτ.norm (by filter_upwards [hbd'] with δ h using h τ)
+  exact ⟨Integrable.mono' hint hmL aeL, Integrable.mono' hint hmR aeR,
+    tendsto_nhds_unique T0 (T1.congr' heq)⟩
+
+/-- **Cauchy's theorem on the strip for decaying functions** (edge form):
+`∫_ℝ Ψ(i τ) dτ = ∫_ℝ Ψ(1 + i τ) dτ`. -/
+theorem strip_edge_integral_eq (hd : DifferentiableOn ℂ Ψ unitStrip) (hε : 0 < ε)
+    (hc : ContinuousOn Ψ (unitStripCl \ {0, 1}))
+    (hb : ∀ s ∈ unitStrip, ‖Ψ s‖ ≤ C * Real.exp (-(ε * |s.im|))) :
+    ∫ τ : ℝ, Ψ ((τ : ℂ) * Complex.I) = ∫ τ : ℝ, Ψ (1 + (τ : ℂ) * Complex.I) :=
+  (strip_edge_cauchy hd hε hc hb).2.2
 
 end
 
