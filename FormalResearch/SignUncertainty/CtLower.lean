@@ -20,10 +20,10 @@ and `ε = ±1`, every feasible threshold `T` of the Hankel problem satisfies
 `Δ₅^ε(c) = c/π² + A c^{1/3} + κ_ε + c₁^{Langer} c^{-1/3} + d₂^{*,ε} c^{-2/3}`,
 `κ_ε = θ₁^ε/π²`, `c₁^{Langer} = 9π²A²/25`, `d₂^{*,ε} = A(θ₁^ε + 12θ₃^ε/π²)`.
 
-**Status: conditional on `CtLowerInputs`** (`pass1`, `pass2`, `node_lower`; the inversion step `chart_gap` is proved:
+**Status: conditional on `CtLowerInputs`** (`pass`, `node_lower`; the inversion step `chart_gap` is proved:
 `ctChartGap` in `CtLowerChartGap`, with `κ_ε < 0` from `CtKappaNeg`).  The proof in the paper is by contradiction at the first Airy node: a
 feasible `f` at `T ≤ Δ₅ - K c⁻¹ log c` has `ũ₁ - φ_c(a₁) ≥ (Kβ₁/2) c^{-4/3} log c` (Langer chart inversion), and the
-dual identity at two good radii (`ct:dyadic` (2), (4) with `ct:boas`) bounds the budget `P_R(H) + g_vac/2π` above by
+dual identity at one good radius (`ct:dyadic` (2), (4) with `ct:boas`) bounds the budget `P_R(H) + g_vac/2π` above by
 `C₀ c^{-4/3} log c` with `C₀` independent of `K`, while the effective `C¹` stability at the first node
 (`gt:7.7p` (b), (d)) bounds it below by a positive multiple of `ũ₁ - φ_c(a₁)` minus an exponentially small term.  This file
 proves the last step (the choice of `K` and the contradiction) from the fields of `CtLowerInputs` and `ctChartGap`.  The TeX
@@ -56,24 +56,15 @@ All statements are about a feasible `f` with `M[f] = 1` (`hankelMass c f = 1`) a
 `ctBudget`.  `c₁ > 0` is the constant of `ct:cfu`; the good radii are the radii `R ∈ [c₁²c^{2/3}, 4c₁²c^{2/3}]` (the
 window `ctWindow`).
 
-* `pass1`: `ct:dyadic` (2) (first good radius `R₁`, `η(R₁) ≤ C`), (4) and `ct:boas`, for `ũ₁ > φ_c(a₁)`.
-* `pass2`: `ct:dyadic` (2) (second good radius `R`, `η(R) ≤ C c^{-1/3} log c`), (4) without the `𝟙_{E_un}` term and
-  `ct:boas`, given the Pass-1 bound; the constant `C₀` does not depend on `K`.
+* `pass`: `ct:dyadic` (2) (one good radius `R` with `η(R) ≤ C c^{-1/3}`, by two Cauchy moments and the absolute second moment), (4) and `ct:boas`, for `ũ₁ > φ_c(a₁)`: the budget at `R` is at most `C₀ c^{-4/3} log c`, `C₀` independent of `K`.
 * `node_lower`: `gt:7.7p` (b) and (d) (effective uniform `C¹` stability at `α = 0`, `f_*(u) = Ai(u)²/(a₁-u)`), `g_vac ≥ 0`
   (`ε f(0) ≤ 0`) and the sign of the `n ≥ 2` nodes: at every radius of the window the budget is at least `κ` times the gap
   up to an exponentially small term. -/
 structure CtLowerInputs where
   c₁ : ℝ
   hc₁ : 0 < c₁
-  C1 : ℝ
-  pass1 : ∃ c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
+  pass : ∃ C₀ c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
     ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 → 0 < ctGap ε c T →
-      ∃ R₁ : ℝ, R₁ ∈ Set.Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧
-        ctBudget R₁ ε c f ≤ C1 * c⁻¹
-  pass2 : ∃ C₀ c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
-    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 → 0 < ctGap ε c T →
-      (∃ R₁ : ℝ, R₁ ∈ Set.Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧
-        ctBudget R₁ ε c f ≤ C1 * c⁻¹) →
       ∃ R : ℝ, R ∈ Set.Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧
         ctBudget R ε c f ≤ C₀ * (c ^ (-(4 / 3) : ℝ) * Real.log c)
   node_lower : ∃ κ κ' C' c₀ : ℝ, 0 < κ ∧ 0 < κ' ∧ ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
@@ -85,8 +76,7 @@ structure CtLowerInputs where
 `K = 2(max(C₀,0)+1)/(κβ₁)` the budget is at least `(max(C₀,0)+1) c^{-4/3}log c - C' e^{-κ'c}` and at most
 `C₀ c^{-4/3}log c`, impossible for large `c`). -/
 theorem ct_lower (I : CtLowerInputs) : CtLowerStatement := by
-  obtain ⟨C₀, c₂, h2⟩ := I.pass2
-  obtain ⟨c₁, h1⟩ := I.pass1
+  obtain ⟨C₀, c₂, h2⟩ := I.pass
   obtain ⟨κ, κ', C', c₃, hκ, hκ', h3⟩ := I.node_lower
   set M : ℝ := max C₀ 0 + 1 with hM
   have hM0 : 0 < M := by positivity
@@ -99,10 +89,10 @@ theorem ct_lower (I : CtLowerInputs) : CtLowerStatement := by
   have hev : ∀ᶠ c : ℝ in atTop, c ^ (4 / 3 : ℝ) * Real.exp (-κ' * c) < 1 / (|C'| + 1) :=
     ht.eventually (gt_mem_nhds (by positivity))
   obtain ⟨c₄, hc₄⟩ := Filter.eventually_atTop.mp hev
-  refine ⟨max c₀ (max c₁ (max c₂ (max c₃ (max c₄ 3)))), K, ?_⟩
+  refine ⟨max c₀ (max c₂ (max c₃ (max c₄ 3))), K, ?_⟩
   intro c hc ε hε T f₀ hf₀
   simp only [max_le_iff] at hc
-  obtain ⟨hc₀', hc₁', hc₂', hc₃', hc₄', hc3⟩ := hc
+  obtain ⟨hc₀', hc₂', hc₃', hc₄', hc3⟩ := hc
   have hcpos : 0 < c := by linarith
   -- normalise to `M[f] = 1`
   obtain ⟨f, hf, hmass⟩ := hankel_feasible_normalize hcpos hf₀
@@ -122,8 +112,7 @@ theorem ct_lower (I : CtLowerInputs) : CtLowerStatement := by
   set g : ℝ := ctGap ε c T with hg
   have hKX : 0 < K * hankelBeta1 / 2 * X := by positivity
   have hgpos : 0 < g := lt_of_lt_of_le hKX hgapK
-  obtain ⟨R₁, hR₁, hp1⟩ := h1 c hc₁' ε hε T f hf hmass hgpos
-  obtain ⟨R, hR, hp2⟩ := h2 c hc₂' ε hε T f hf hmass hgpos ⟨R₁, hR₁, hp1⟩
+  obtain ⟨R, hR, hp2⟩ := h2 c hc₂' ε hε T f hf hmass hgpos
   have hn := h3 c hc₃' ε hε T f hf hmass hgpos R hR
   have hκK : κ * (K * hankelBeta1 / 2) = M := by
     rw [hK]; field_simp
