@@ -226,6 +226,34 @@ public import FormalResearch.SignUncertainty.CtCfuInv
 public import FormalResearch.SignUncertainty.CtCfuData
 public import FormalResearch.SignUncertainty.CtOuterBandFinal
 public import FormalResearch.SignUncertainty.CtAiryRay
+public import FormalResearch.SignUncertainty.CtChartIft
+public import FormalResearch.SignUncertainty.CtChartIntegral
+public import FormalResearch.SignUncertainty.CtChartSser
+public import FormalResearch.SignUncertainty.CtChartTaylor
+public import FormalResearch.SignUncertainty.CtChartGerm
+public import FormalResearch.SignUncertainty.CtChartData
+public import FormalResearch.SignUncertainty.CtChartMap
+public import FormalResearch.SignUncertainty.CtChartDeriv
+public import FormalResearch.SignUncertainty.CtChartAmp
+public import FormalResearch.SignUncertainty.CtChartHad
+public import FormalResearch.SignUncertainty.CtChartTheta
+public import FormalResearch.SignUncertainty.CtChartDecomp
+public import FormalResearch.SignUncertainty.CtChartReal
+public import FormalResearch.SignUncertainty.CtChartBounds
+public import FormalResearch.SignUncertainty.CtChartQeps
+public import FormalResearch.SignUncertainty.CtChartQ0
+public import FormalResearch.SignUncertainty.CtChartPsi
+public import FormalResearch.SignUncertainty.CtBinetComplex
+public import FormalResearch.SignUncertainty.CtSdBounds
+public import FormalResearch.SignUncertainty.CtSdMoments
+public import FormalResearch.SignUncertainty.CtSdContour
+public import FormalResearch.SignUncertainty.CtSdLine
+public import FormalResearch.SignUncertainty.CtSdPhase
+public import FormalResearch.SignUncertainty.CtSdChain
+public import FormalResearch.SignUncertainty.CtSdEval0
+public import FormalResearch.SignUncertainty.CtSdEval1
+public import FormalResearch.SignUncertainty.CtSdEval2
+public import FormalResearch.SignUncertainty.CtSdEval
 public import FormalResearch.SignUncertainty.HankelLangerIdentity
 public import FormalResearch.SignUncertainty.HankelWtConj
 public import FormalResearch.SignUncertainty.EuclidSplit
@@ -292,8 +320,50 @@ public import FormalResearch.SignUncertainty.UctStripIntegrals
 public import FormalResearch.SignUncertainty.UctBumpSymbol
 public import FormalResearch.SignUncertainty.UctBumpSymbolAdmiss
 public import FormalResearch.SignUncertainty.UctBumpEdge
+public import FormalResearch.SignUncertainty.UctBumpMain
+public import FormalResearch.SignUncertainty.UctFourierTwice
+public import FormalResearch.SignUncertainty.UctBumpReflEll
+public import FormalResearch.SignUncertainty.UctBumpReflAmp
+public import FormalResearch.SignUncertainty.UctBumpReflB
+public import FormalResearch.SignUncertainty.UctBumpRefl
+public import FormalResearch.SignUncertainty.UctBumpE0
+public import FormalResearch.SignUncertainty.UctWExpTaylor
+public import FormalResearch.SignUncertainty.UctWExp
+public import FormalResearch.SignUncertainty.UctE0Exp
+public import FormalResearch.SignUncertainty.UctBumpWeightedExp
+public import FormalResearch.SignUncertainty.UctBumpInvPoly
+public import FormalResearch.SignUncertainty.UctBumpWeightedLocal
+public import FormalResearch.SignUncertainty.FctBump5
 public import FormalResearch.SignUncertainty.UctOuterGrowth
+public import FormalResearch.SignUncertainty.UctGenPreedge
+public import FormalResearch.SignUncertainty.UctCeBandRef
+public import FormalResearch.SignUncertainty.UctCePreedgeAux
+public import FormalResearch.SignUncertainty.UctCeBandFarRef
+public import FormalResearch.SignUncertainty.UctCeBandFar
+public import FormalResearch.SignUncertainty.UctCeBandAiry
+public import FormalResearch.SignUncertainty.UctCeBand
 public import FormalResearch.SignUncertainty.UctSeedZ
+public import FormalResearch.SignUncertainty.UctSeedW
+public import FormalResearch.SignUncertainty.UctSeedWHolder
+public import FormalResearch.SignUncertainty.UctEnv2
+public import FormalResearch.SignUncertainty.UctEnvHolo
+public import FormalResearch.SignUncertainty.UctSeedEdgeV
+public import FormalResearch.SignUncertainty.UctSeedEdgeE
+public import FormalResearch.SignUncertainty.UctSeedEdgeZT
+public import FormalResearch.SignUncertainty.UctSeedEdgeAsm
+public import FormalResearch.SignUncertainty.UctSeedAdmiss
+public import FormalResearch.SignUncertainty.UctSeedEdgeKW
+public import FormalResearch.SignUncertainty.UctMcSmallBd
+public import FormalResearch.SignUncertainty.UctMcSmallA
+public import FormalResearch.SignUncertainty.UctMcSmallE
+public import FormalResearch.SignUncertainty.UctMcSmallPhi
+public import FormalResearch.SignUncertainty.UctMcSmall
+public import FormalResearch.SignUncertainty.UctSeedWindowDiff
+public import FormalResearch.SignUncertainty.UctSeedWindowSym
+public import FormalResearch.SignUncertainty.UctSeedWindowY
+public import FormalResearch.SignUncertainty.UctSeedWindowQ
+public import FormalResearch.SignUncertainty.UctSeedWindowRef
+public import FormalResearch.SignUncertainty.UctSeedWindow
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -429,6 +499,8 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.CtCfuSeries`, `CtCfuGerm`, `CtCfuEven`, `CtCfuTheta`, `CtCfuTaylor`, `CtCfuInv`, `CtCfuData` (F1, `ct:cfu` Step 2 data: `ct:psi-def`, `ct:psi-coeffs`, `ct:langer-inv`; proved, unconditional): `cfu_psi_langer` (`τ₀(a)`, `ψ_ε(a) = θ_ε(τ₀)/√(-a)` and `ξ = Ξ(a)`, `C^∞` at `a = 0` with `ψ₀ = (12/π²)^{1/3}θ₁`, `ψ'(0) = -(7θ₁/25 + 12θ₃/π²)`, `Ξ(0) = 1/π²` and the Langer coefficients), `langer_inv` (`cξ(-v) = c/π² + (v/β₁)c^{1/3} + (9π²/25)(v/β₁)²c^{-1/3} + O(c^{-1}v³)`). Limitation: `ψ_ε` is proved `C^∞`, not analytic, at `a = 0`; the Taylor data used downstream is unaffected. Not yet formalised: the chart `T(s;a)`, `M`/`Q_geo` and the `θ∘T` decomposition (Step 3), Steps 1, 3 of `ct:cfu` (Step 4 is in the next bullet).
 * `FormalResearch.SignUncertainty.CtOscIBP`, `CtMDeriv`, `CtOscMorse`, `CtOscD2`, `CtOscChart`, `CtOscInv`, `CtOscStat`, `CtOuterBandPt`, `CtOuterBandReg`, `CtOuterBandCut`, `CtOuterBandAmp`, `CtOuterBandTail`, `CtOuterBandLeft`, `CtOuterBandCore`, `CtOuterBandMain`, `CtOuterBandConcrete`, `CtOuterBandSqrt`, `CtOuterBandAmpMul`, `CtOuterBandExp`, `CtOuterBandGlue`, `CtOuterBandFinal` (F1, `ct:cfu` Step 4, the outer band `(ct:K-outer)`; proved, unconditional): `ct_cfu_outer` (for `ε = ±1` there are `M, K` with: `c ≥ 2`, `L > 0`, `M ≤ c·min(1, L^{3/2})` gives `τ₀` with `hankelEdgeM τ₀ = L` and the improper integral `I = ∫₀^∞ A_ε e^{-icΦ}` exists with `|-√(πc/12) Re I + sin(cΦ(τ₀) - θ_ε(τ₀))| ≤ K/(c·min(1, L^{3/2}))`; `ct_cfu_outer_tau` is the same in the saddle variable), `outer_band` (abstract form for `MData` phases and `AmpBd` amplitudes), `stat_phase` (variable-phase stationary phase with a `C²` amplitude, from `morse_expansion`), `mdata_hankel`, `outerAmp_ampBd` (`ct:A-derivs`), `m_iter_bound` (`|m^{(k)}| ≤ C_k(1+τ)^{-k}`). Limitations: only `μ₀ ≥ M` is covered (the bounded range `μ₀ < M` needs `ct:dual-id` (2), not formalised); `K_ε` appears through its integral formula; the amplitude is the paper's explicit formula `√(6m'/π²)e^{i(π/4+θ_ε)-B_c(iτ)}`, the identification with `G_ε(iτ)(1-iτ)^{1/2}e^{-B_c}` (`ct:outer` (2)) is not re-proved here. Not yet formalised: Steps 1, 3 of `ct:cfu`.
 * `FormalResearch.SignUncertainty.CtAiryOde`, `CtAiryG0`, `CtAiryId`, `CtAiryRay` (F1, `ct:cfu` Step 1, `ct:airy-id1`, `ct:airy-id2`; proved, unconditional): `G_eq_HH` (`G_0(u) = (α√π)⁻¹∫₀^∞ t^{-1/2}e^{αut - t³/3}dt = -π(Ai² + i AiBi)(u)` for real `u`, `α = 2^{2/3}e^{2πi/3}`, with `G_0'`, `G_0''`), `airy_id1` (`-π^{-1/2} Re ∫ e^{iπ/4}w^{1/2}e^{i(2^{2/3}uw + w³/3)}dw = -π(AiBi)'(u)` on the ray `w = e^{iπ/6}t`), `airy_id2` (the same with the factor `w² + 2^{2/3}u`, value `2^{-1/3}π Ai(u)Bi(u)`); support `ode3_eq_zero` (Grönwall uniqueness for `y''' = 4uy' + 2y`), `hasDerivAt_gI`, `gI_ibp`, `hasDerivAt_G2`, Gamma data at `0` (Legendre duplication at `1/6`, reflection). Identification by the third-order ODE and the data `(y, y', y'')(0)`, not by asymptotics as in the paper. Limitation: real `u` only. Not yet formalised: Step 3 of `ct:cfu`.
+* `FormalResearch.SignUncertainty.CtChartIft`, `CtChartIntegral`, `CtChartSser`, `CtChartTaylor`, `CtChartGerm`, `CtChartData`, `CtChartMap`, `CtChartDeriv`, `CtChartAmp`, `CtChartHad`, `CtChartTheta`, `CtChartDecomp`, `CtChartReal`, `CtChartBounds`, `CtChartQeps`, `CtChartQ0`, `CtChartPsi` (F1, `ct:cfu` Step 2/3, the chart `T(s;a)`, its amplitude `M` and the `θ∘T` decomposition; proved, unconditional): in the parametrisation `β = b²` (`a = -d(β)²β`), over `ℂ` with `C^∞` germs at `(0,0)`: `chart_identity` (`Φ(T(s;β);β) = -(a s + s³/3)`, `T = s U(s²;β)` odd, from the scalar holomorphic IFT twice: the divided-difference equation for `R`, then `Z V(Z)² = y`), `saddle_mu` (`M(±√(-a);a) ≡ 1`, `M = μ(s²;β) = √(U k(Z)/2) T_s`), `hasDerivAt_Tf`, `amp_decomp` (`μ e^{iX} = 1 + (s²+a) Q_ε`, `X = s(s²+a)h̃`), `theta_T_decomp` (`θ(T(s;β)) - sψ̂(β) = s(s²+a)h̃`), `Qeps_expansion` (`Q_ε = Q_0 + i h̃(0,0)s + R`, `R = O(|β|+|s|²)`, `∂_sR = O(|β|+|s|)`), `hasDerivAt_Qeps_zero` (`∂_sQ_ε(0,0) = i h̃(0,0)`), `Qgeo_zero_paper` (`Q_0 = Q_geo(0,0) = -(7/200)(18π²)^{1/3}`), `psiHat_eq` (`ψ̂ = ϑ/d`), `psiHat_link` (`CtChartPsi`: for real `a` near `0` and `β = z_A(a)`, `a_C(β) = a`, `ψ̂(β) = ψ(a)` = `psiOf th a` of Step 2 and `exp(L_C(β))/π² = Ξ(a)`; `vartheta_real2`, `dC_ofReal`), reality `htil_zero_real`, `psiHat_zero_real`; support `scalar_ift`, `contDiffAt_segInt`, `hadY_identity` (Hadamard quotient at the saddle curve), `taylor_s_bounds`, `vartheta_conj`. Limitation: germ statements (a neighbourhood of `(0,0)` in `ℂ²`, the polydisc radii are existential), `C^∞` over `ℂ` in place of "jointly real-analytic"; the contour deformation from the real axis, the arc/tail double integration by parts and the assembly of `ct:K-airy` are not yet formalised.
+* `FormalResearch.SignUncertainty.CtBinetComplex`, `CtSdBounds`, `CtSdMoments`, `CtSdContour`, `CtSdLine`, `CtSdPhase`, `CtSdChain`, `CtSdEval0`, `CtSdEval1`, `CtSdEval2`, `CtSdEval` (F1, `ct:cfu` Step 3, the steepest-descent evaluation in the `w`-plane, `s = c^{-1/3}w`; proved, unconditional, axioms `propext`, `Classical.choice`, `Quot.sound`): `norm_binetDiff_complex_le`, `norm_exp_neg_binetDiff_sub_one` (complex Binet bounds `|e^{-B_c(ζ)}-1| ≤ 8|ζ|/c`), `sqrt_primitive`/`pint_csr` (path independence of `∫ w^{1/2}g(w)dw` for `g` holomorphic on a disc, along any line chain in `Re ≥ 0` from `0`), `chainA_momOK`, `chainB_momOK` (the moment bounds `ct:sd-moments` for the ray and the two-segment-plus-ray contours `0 → v(1-i)/2 → (1+√3)v e^{iπ/6} → R e^{iπ/6}`, `U = -v²/κ`), `Chain3.ibp` (one integration by parts along a chain), and `sd_eval`: for any such chain, `∫_Γ w^{1/2}[1+(s²+a)Q(s)]E(s)e^{iPh_U(w)}dw = (1 + c^{-1}(-ψQ₀ + (3i/2)Q₁))∫_Γ w^{1/2}e^{iPh_U} + c^{-2/3}Q₀∫_Γ w^{1/2}(κU+w²)e^{iPh_U} + O(c^{-4/3}(1+|U|)^{1/2})` with explicit constant `sdC`, `a = κc^{-2/3}U - c^{-1}ψ`, `Q = Q₀+Q₁s+O(|a|+|s|²)`, `|E-1| ≤ C c^{-1}|s|`, `λ√|U| ≤ C_U`. Limitation: abstract in the amplitudes `Q`, `E` and the chain; the contour deformation of the real-axis integral to these chains, the arc/tail double integration by parts, the tail beyond `R` and the identification of the two chain integrals with `airy_id1`/`airy_id2` are not yet formalised.
 * `FormalResearch.SignUncertainty.HankelOneTwo` (M11, `thm:hankel-one-two` = `u1cl:main` at one level; proved, unconditional): `hankel_one_two`, `|T_c^ε - (c/π² + A c^{1/3})| ≤ C` for `ε = ±1`, `c ≥ c₀`, from `hb_thresholds_lower`, `hbThresholdsUpper` and `hankelT_sub_model_le`. The two-level (Clark) part is not formalised.
 * `FormalResearch.SignUncertainty.HbUpperM1`: `O.9'` at `m₀ = 1` (`N = Ai`): `O6Bricks`, `o6Bricks_holds : 3 ≤ m → O6Bricks m`, `hbThresholdsUpper_of_bricks`, `hbThresholdsUpper : HbThresholdsUpper`. Unconditional (the `GT.1` bounds are `gt1BasisInput`, the quotient bound is `o4QuotientBound`).
 * `FormalResearch.SignUncertainty.HankelLangerIdentity`: the series identity `π/sin(πz) - 1/z = 2∑η(2j+2)z^{2j+1}` for `0 < ‖z‖ < 1` (`langer_eta_identity`) and, for `‖z‖ < 1/8`, `log(tan(πz/2)/(πz/2)) = ∑η(2j+2)/(j+1) z^{2j+2}` with its derivative (`langer_g_hasSum`, `langer_g_eq_tsum`, `langer_g_hasDerivAt`).
@@ -515,9 +587,17 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.UctBumpSymbol` (`uct:bump-symbol`, first display only; proved, unconditional): `bump_laplace_decay` (`|B̂(c(σ+iτ))| ≤ C_r M Λ_α(δ) e^{-bcσδ}(1+cδ|τ|)^{-r}`).
   `FormalResearch.SignUncertainty.UctBumpSymbolAdmiss`: `bump_stripM1` ((M1) of `uct:admiss` for `ΔW_c = c^{-1/3}B̂(c·)`), `bump_holder_one` ((M2) at `ζ=1`).
   `FormalResearch.SignUncertainty.UctBumpEdge`: `bump_stripEdge0`, `bump_stripEdge1` ((M3) at both edges), `bump_holder_zero`, and `bump_stripAdmissFull` (`StripAdmissFullData (1/2)` for `ΔW_c`: the admissibility of `uct:bump-symbol`).
+  `FormalResearch.SignUncertainty.UctBumpMain` (`kernel_line_shift`: the `σ`-line integral of `K₀ ΔW_c` equals the `σ = 0` one; `bump_main_density`: `‖Δh_main‖ ≤ C M (cδ)⁻¹ Λ_α(δ) e^{-κ c δ^{3/2}}` for `log(π²ξ) ≤ bδ/2`, `σ = k√δ`; proved, unconditional). `UctFourierTwice` (`env2_fourier_decay`: `‖∫ f e^{iωτ}‖ ≤ ∫P/ω²` for `f` with `Env2` envelope `P`). `UctBumpReflEll`, `UctBumpReflAmp` (`ℓ = log(tanh(πu/2)/(πu/2))`, `N = ∫ℓ`; `kernelAmp`, `mellinK0_imag_eq`, `kernel_amp_env2`), `UctBumpReflB` (`bump_refl_env2`: `Env2` envelope of `τ ↦ B̂(c(1-iτ))`), `UctBumpRefl` (`bumpHrefl`, `bump_refl_density`: `‖Δh_refl‖ ≤ C M (cδ)⁻¹ Λ e^{-bcδ/2}` for every `L`, and with an extra `L⁻²` for `L ≥ 1`; `c ≥ 2`, `cδ ≥ 1`; proved, unconditional). `UctBumpE0` (`bump_fourier_inversion`: `(c/2π)∫ e^{icLτ}B̂(icτ)dτ = B(L)`; `bumpE0`, `bumpE0_explicit`; `bump_laplace_integrable`; `bump_E0_identity` = `(uct:E0-def)`: `Δh_main(L) - c⁻¹B(L) = (1/2π)∫E₀ e^{icLτ}B̂(icτ)dτ`, `c ≥ 2`; proved, unconditional). `UctWExpTaylor`, `UctWExp` (weighted two-scale expansions `WExp`: `WExp.mul`, `WExp.exp`, `WExp.of_smooth`, `WExp.expansion`), `UctE0Exp` (`E0_wexp`: `E₀ = kernelAmp - 1` has a weight-`N` expansion in `h = c^{-1/2}`, `v = c^{1/2}τ`, `N ≤ 7`), `UctBumpWeightedExp` (`E0_poly_expansion`: `|E₀ - ∑ a_d h^{d₀}v^{d₁}| ≤ C_R h⁴(1+|v|)^{21}` for all `τ`), `UctBumpInvPoly` (`fourier_inversion_general`, `tau_pow_inversion`), `UctBumpWeightedLocal` (`bump_weighted_local`: `uct:bump-weighted` local estimate `|Δh_main(L) - c⁻¹B(L)| ≤ C M_loc(c⁻²L⁻¹+c⁻³L⁻³) + C M Λ_α(δ) c⁻²δ` for `L ≥ bδ/2`, `δ ≥ a₀c^{-1/2}`, `c ≥ 2`; proved, unconditional). Not formalised: the far-band estimate `L ≥ ¼ log c` of `uct:bump-weighted`.
+  `FormalResearch.SignUncertainty.FctBump5` (`fct:bump-5` items (1)-(2), proved, unconditional): `BSym` (`(fct:B-sym)`), `BSym.profile`, `fct_bump5_main_small` (`|Δh_main(L)| ≤ C M e^{-c₁ c^{1/4}}` for `L ≤ 3δ_L/4`), `fct_bump5_refl` (`|Δh_refl(L)| ≤ C M e^{-c₁ c^{1/2}} min(1,L_+^{-2})`), `fct_bump5_mid` ((2) with `M_loc = M L^{-α}`); (2) in general is `bump_weighted_local`. Not formalised: item (3), the far band.
 * `FormalResearch.SignUncertainty.UctOuterGrowth` (`uct:outer-growth`; proved, unconditional): `re_outerHbar_ge` (`Re h ≥ -2 log(1+|τ|) - C` on the closed strip, from the Poisson representation `re_outerH`), `norm_exp_neg_outerHbar_le` (`|e^{-h}| ≤ C(1+τ²)`), `outerGbar_inv_le` (`|G_ε|⁻¹ ≤ C'(1+τ²)` for `|τ| ≥ 1/2`), `outerHbar_zero`/`outerHbar_one` (`h(0)=h(1)=0`), `exists_holo_H1` (extension to `D(1,1/2)`; `D(0,1/2)` is `H0` of `ct:outer`).
+* `FormalResearch.SignUncertainty.UctGenPreedge` (`uct:gen-preedge`, F2b leaf; proved, unconditional): `existsUnique_saddlePoint`, `StripM1.toTotalSaddleAmp`, `uct_gen_preedge_saddle_of_M1` (part (1), `(uct:gen-lobe)` with explicit `C_L2(M, Λ) = 8 M + 54 Λ + 109`, needing only `StripM1 W`), `uct_gen_preedge_pos_of_M1` (positivity corollary for `fct:ce-preedge` Step 1), `uct_gen_preedge_origin_of_holder` (part (2), `(uct:gen-origin)` for `c ≥ 2` and any `α > 0`), and `uct_gen_preedge` (full paper statement under `c ≥ 60`, `StripAdmissFullData (1/2) W`).
+* `FormalResearch.SignUncertainty.UctCeBand` (with `UctCeBandRef`, `UctCePreedgeAux`, `UctCeBandFarRef`, `UctCeBandFar`, `UctCeBandAiry`; `uct:ce-band` / `uct:ce-preedge`, F2b leaf; proved, unconditional): `airySquare_fourier_ref_general`, `uct_hhat_ref_id` (`(uct:hhat-ref-id)`), `half_disc_zero_of_real_segment_zero`, `uct_hhat_ref_shifted`, `uct_ce_band_airy` (Airy-window `-C_U c^{-4/3}` lower bound), `uct_ce_band_global_bound`, `regSqrt_cutoff_fourier`, `uct_ce_band_far` / `uct_ce_band_far_unit` (far-band `L ≥ (1/4) log c` asymptotic), `uct_ce_preedge_T4_pos` / `uct_ce_preedge_T4_neg` (`T₄` pre-edge floor check), and `cpow_half_I_mul_eq_integral` / `uct_sqrt_iy_inv` (`(uct:sqrt-iy-inv)`).
 * `FormalResearch.SignUncertainty.UctSeedZ` (`uct:Wseed-def`, strip factor; proved, unconditional): `uctSeedZ ε = ζ²(1-ζ)²H_*/b^{[ε=1]}` regularised at `ζ = 0, 1` (and at the zero of `b_{1/2}`), `differentiableOn_uctSeedZ`, `uctSeedZ_oneSub` (`Z(1-ζ) = ε Z(ζ)`), `uctSeedZ_conj`, `uctSeedZ_zero`/`uctSeedZ_one`, `uctSeedZ_bound` (`|Z| ≤ C(1+|τ|)⁴e^{-π|τ|}`), `seed_factor_eq` (`ζ^{5/2}(1-ζ)^{5/2}H_*/G_ε = Z e^{-h}` on `S`).
-  Not formalised: the main and reflected density bounds, the Fourier identity `(uct:E0-def)`.
+* `FormalResearch.SignUncertainty.UctSeedW` (`uct:Wseed-def`; proved, unconditional): `seedW ε δ c = T(a)⁻¹ Z_ε e^{-h} T(aζ) T(a(1-ζ))` (`T(w) = F̃_{*,δ}(iw)`, `a = c_s c^{1/3}`), `hasU2_uctFstarDelta`, `seedT_bound`, `seedW_stripM1` ((M1) of `uct:admiss` for `W^seed`).
+  `FormalResearch.SignUncertainty.UctSeedWHolder`: `seedT_holder`, `seedW_oneSub` (`W(1-ζ) = εW(ζ)`), `seedW_holder0`, `seedW_holder1` ((M2) at `ζ=0,1`).
+  `FormalResearch.SignUncertainty.UctSeedAdmiss` (with `UctSeedEdgeV` (Airy factor `v(q) = T(iq)`: `C^∞` off `0`, `|q|^{1/2-j}` near `0`, bounded far), `UctEnv2`, `UctEnvHolo` (`Env2` `C²`-envelope calculus, Cauchy estimates), `UctSeedEdgeE`, `UctSeedEdgeZT` (envelopes of `e^{-h(iτ)}`, `Z_ε(iτ)`, `T(a(1-iτ))`), `UctSeedEdgeAsm` (Leibniz bookkeeping)): (M3) for `W^seed`, `seedW_stripEdge0`, `seedW_stripEdge1` (parity), and `seedW_stripAdmissFull : StripAdmissFullData (1/2) (seedW ε δ c)` for `ε = ±1`, `0 ≤ δ ≤ 1`, `c > 0` (proved, unconditional).
+  `FormalResearch.SignUncertainty.UctSeedEdgeKW`: `uctAstar` (`A_*(τ) = cosh(πτ)(πτ/sinh πτ)² e^{-u_r(τ)}(1+τ²)^{-1/2}`, even, `C^∞`, `A_*(0)=1`; `uctAstar_eq_paper`: `= τ^{5/2}|H_*(iτ)|/√(6/π² m'(τ))`), `uctMc` (`M_c = e^{B_c(iτ)} φ_{c,δ}(1-iτ)/φ_{c,δ}(1) A_*`), `seedZ_edge_core_all`, `kw_seed_edge_all` (`(uct:KW-seed-edge)`: `K₀(iτ,ξ) W^seed(iτ) = e^{icΦ_Ph(τ;L) - iθ_ε(τ)} M_c(τ) F̃_{*,δ}(-c_s c^{1/3}τ)` for every real `τ`, `ε = ±1`, `c > 0`). `UctMcSmall` (with `UctMcSmallBd`: the class `SmallBd` and `SmallBd.mul`; `UctMcSmallA`, `UctMcSmallE`, `UctMcSmallPhi`): `mc_small` (`(uct:Mc-small)`: for `c ≥ c₀`, `0 ≤ δ ≤ 1`, `M_c` is `C³` with `|M_c-1| ≤ K(c^{-2/3}|τ|+τ²)`, `|M_c'| ≤ K(c^{-2/3}+|τ|)`, `|M_c''|,|M_c'''| ≤ K` on `|τ| ≤ 1/5`; proved, unconditional).
+  `FormalResearch.SignUncertainty.UctSeedWindow` (with `UctSeedWindowDiff`, `UctSeedWindowSym`, `UctSeedWindowY`, `UctSeedWindowQ`, `UctSeedWindowRef`; `uct:seed-asymp` (1), proved, unconditional): `seedHnorm`, `seed_window` (the fixed Airy window of `h_norm^seed`: `(k/c_s)F_{*,δ}(-β₁S_eff + β₁κ_εc^{-1/3}) + O_{S_w}(c^{-2/3})`), `main_line_diff_sym`, `seedSy_bound`, `seedYw_taylor`, `seedQ_expansion`, `ref_symbol_diff`.
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
   whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
