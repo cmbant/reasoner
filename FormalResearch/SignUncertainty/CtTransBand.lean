@@ -63,7 +63,10 @@ open FormalResearch.CohnElkies
 of the transition band.  In the Lean chart `ũ(ξ(L)) = -K g(L)` (`ctVprime`, `K = c^{2/3}κ`, `g = ctChartG`) the `c`-dependence is a
 scaling, so the identity is `c`-free: `Φ_Ph(τ₀(L); L) = (4/3) κ^{3/2} g(L)^{3/2}` for `0 < L`, `e^L - 1 ≤ 5·10⁻⁴`.  Equivalently the series chart
 `hankelXi` (`HankelLangerY`) and the CFU edge chart `Ξ(a) = exp(m(τ₀(a)))/π²` (`cfu_psi_langer`) agree (`CtCfuData`: "their identification is not
-proved").  Unproved; consistent to leading order (`g(L) = L + O(L²)`, `Φ = (2/3)(12/π²)^{1/2} L^{3/2} + O(L^{5/2})`). -/
+proved").  Here `tau0` is `CohnElkies.tau0` (the saddle with `hankelEdgeM (tau0 L) = L`, argument the edge variable `L`; **not** `CtCfu.tau0`, which takes the Langer parameter `a`),
+so `edgePhi L (tau0 L) = Φ(τ₀(L); L)` is the critical value, positive for `L > 0`.  Unproved.  Leading-order check with constants: `m(τ) = (π²/12)τ² + O(τ⁴)` gives
+`τ₀ = (12L/π²)^{1/2}`, `Φ = τ₀ m(τ₀) - ∫₀^{τ₀} m = (2/3)(π²/12)τ₀³ = (2/3)(12/π²)^{1/2}L^{3/2} = (4/3)(√3/π)L^{3/2}`; and `κ = (3/π²)^{1/3}`,
+`g(L) = L + O(L²)` give `(4/3)κ^{3/2}g^{3/2} = (4/3)(3/π²)^{1/2}L^{3/2}`, the same. (Equivalently `(2/3)(-a)^{3/2} = Φ` with `a = -2^{2/3}κ g`.) -/
 def CtLangerEdge : Prop :=
   ∀ L : ℝ, 0 < L → Real.exp L - 1 ≤ 5e-4 → edgePhi L (tau0 L) = 4 / 3 * (langerKappa * ctChartG L) ^ (3 / 2 : ℝ)
 
