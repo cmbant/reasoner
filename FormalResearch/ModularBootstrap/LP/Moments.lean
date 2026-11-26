@@ -119,17 +119,23 @@ lemma OddFam.abs_le_exp {C : ℝ} {p : ℕ → C(ℝ, ℝ)} (hF : OddFam C p) {k
         rw [e, h6]; ring
 
 
-/-- `C₂`, the bound of `∫ |P_k| dμ₀`. -/
+/-- `C₂` for a reference measure `μ₀`, bounding `∫ |P_k| dμ₀ ≤ (momC2 C μ₀ * k)^k`. -/
 noncomputable def momC2 (C : ℝ) (μ₀ : Measure ℝ) : ℝ :=
   2 * momM C * max 1 (∫ t, Real.exp (π * t) ∂μ₀)
 
-/-- `C₃`, the odd-moment constant. -/
-noncomputable def momC3 (C : ℝ) (μ₀ : Measure ℝ) (M : ℝ) : ℝ :=
-  2 * max (2 * momC2 C μ₀) (2 * (3 * C) * (2 * M + 1))
+lemma momC2_pos {C : ℝ} (hC : 0 < C) (μ₀ : Measure ℝ) : 0 < momC2 C μ₀ := by
+  unfold momC2
+  have := momM_pos hC
+  have : (0 : ℝ) < max 1 (∫ t, Real.exp (π * t) ∂μ₀) := lt_of_lt_of_le one_pos (le_max_left _ _)
+  positivity
 
-/-- The constant `C₁` of `ds:mom`. -/
-noncomputable def momC1 (C : ℝ) (μ₀ : Measure ℝ) (M : ℝ) : ℝ :=
-  2 * momC3 C μ₀ M * (M + 1)
+/-- `C₃`, the odd-moment constant, depending only on `(C, C₂, M)`. -/
+noncomputable def momC3 (C C₂ M : ℝ) : ℝ :=
+  2 * max (2 * C₂) (2 * (3 * C) * (2 * M + 1))
+
+/-- The constant `C₁` of `ds:mom`, depending only on `(C, C₂, M)`. -/
+noncomputable def momC1 (C C₂ M : ℝ) : ℝ :=
+  2 * momC3 C C₂ M * (M + 1)
 
 section Mom
 
@@ -155,9 +161,12 @@ private lemma integrable_p_of_moment (hF : OddFam C p) {M : ℝ} (hμ : μ (Iio 
   exact (hF.upper k hk t ht).trans
     (add_pow_le ht (by have := hF.C_pos; positivity) k)
 
-private lemma integral_p_mu0_le (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
+/-- Reference-measure target bound: `∫ |p_k| dμ₀ ≤ (momC2 C μ₀ * k)^k` for odd `k` when `μ₀` is
+supported on `[0, ∞)` and `∫ e^{πt} dμ₀ < ∞`.  (The paper allows a signed `μ₀` with
+`∫ e^{πt} d|μ₀| < ∞`, where the same bound holds for `|μ₀|`.) -/
+lemma integral_abs_p_mu0_le (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
     (hint : Integrable (fun t => Real.exp (π * t)) μ₀) {k : ℕ} (hk : Odd k) :
-    ∫ t, p k t ∂μ₀ ≤ (momC2 C μ₀ * k) ^ k := by
+    ∫ t, |p k t| ∂μ₀ ≤ (momC2 C μ₀ * k) ^ k := by
   set E₀ : ℝ := ∫ t, Real.exp (π * t) ∂μ₀ with hE₀
   have hE0nn : 0 ≤ E₀ := integral_nonneg fun t => (Real.exp_pos _).le
   have hbound : ∫ t, |p k t| ∂μ₀ ≤ (2 * momM C * k) ^ k * E₀ := by
@@ -173,9 +182,7 @@ private lemma integral_p_mu0_le (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
     calc E₀ ≤ max 1 E₀ := le_max_right _ _
       _ = max 1 E₀ ^ 1 := (pow_one _).symm
       _ ≤ max 1 E₀ ^ k := pow_le_pow_right₀ (le_max_left _ _) hk1
-  calc ∫ t, p k t ∂μ₀ ≤ ∫ t, |p k t| ∂μ₀ :=
-        (le_abs_self _).trans (abs_integral_le_integral_abs)
-    _ ≤ (2 * momM C * k) ^ k * E₀ := hbound
+  calc ∫ t, |p k t| ∂μ₀ ≤ (2 * momM C * k) ^ k * E₀ := hbound
     _ ≤ (2 * momM C * k) ^ k * max 1 E₀ ^ k :=
         mul_le_mul_of_nonneg_left hE (by have := momM_pos hF.C_pos; positivity)
     _ = (momC2 C μ₀ * k) ^ k := by
@@ -183,19 +190,26 @@ private lemma integral_p_mu0_le (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
         rw [← hE₀, ← mul_pow]
         congr 1; ring
 
+/-- Reference-measure odd target bound: `|∫ p_k dμ₀| ≤ (momC2 C μ₀ * k)^k` for odd `k`. -/
+lemma abs_integral_p_mu0_le (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
+    (hint : Integrable (fun t => Real.exp (π * t)) μ₀) {k : ℕ} (hk : Odd k) :
+    |∫ t, p k t ∂μ₀| ≤ (momC2 C μ₀ * k) ^ k :=
+  abs_integral_le_integral_abs.trans (integral_abs_p_mu0_le hF hμ₀ hint hk)
+
 /-- The odd-moment bound `∫ t^k dμ ≤ (C₃ k)^k` for odd `k ≥ 1`. -/
-private lemma odd_moment_bound (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
-    (hint : Integrable (fun t => Real.exp (π * t)) μ₀) (hμ : μ (Iio 0) = 0) {M : ℝ} (hM : 0 ≤ M)
+private lemma odd_moment_bound (hF : OddFam C p) {C₂ : ℝ} (hC₂ : 0 < C₂)
+    (hμ : μ (Iio 0) = 0) {M : ℝ} (hM : 0 ≤ M)
     (hmass : μ univ ≤ ENNReal.ofReal M) {k : ℕ} (hk : Odd k)
+    {b : ℕ → ℝ} (hb : |b k| ≤ (C₂ * k) ^ k)
     (hmom : Integrable (fun t : ℝ => t ^ k) μ)
-    (heq : ∫ t, p k t ∂μ = ∫ t, p k t ∂μ₀) :
-    ∫ t, t ^ k ∂μ ≤ (momC3 C μ₀ M * k) ^ k := by
+    (heq : ∫ t, p k t ∂μ = b k) :
+    ∫ t, t ^ k ∂μ ≤ (momC3 C C₂ M * k) ^ k := by
   have hk1 : 1 ≤ k := hk.pos
   have := isFiniteMeasure_of_mass hmass
   have hPint := integrable_p_of_moment hF hμ hmass hk hmom
   set B : ℝ := ((3 * C) * k) ^ k with hB
   have hBnn : 0 ≤ B := by
-    have := hF.C_pos; have := hF.C_pos; positivity
+    have := hF.C_pos; positivity
   have hmu : μ.real univ ≤ M := by
     have := ENNReal.toReal_mono ENNReal.ofReal_ne_top hmass
     rwa [ENNReal.toReal_ofReal hM] at this
@@ -208,35 +222,28 @@ private lemma odd_moment_bound (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
     have e : (1 / 2 : ℝ) ^ k * t ^ k = (t / 2) ^ k := by rw [← mul_pow]; congr 1; ring
     rw [e]; exact this
   rw [integral_const_mul, integral_add hPint (integrable_const _), integral_const, heq] at h1
-  have h2 : ∫ t, p k t ∂μ₀ ≤ (momC2 C μ₀ * k) ^ k := integral_p_mu0_le hF hμ₀ hint hk
-  have h3 : (1 / 2 : ℝ) ^ k * ∫ t, t ^ k ∂μ ≤ (momC2 C μ₀ * k) ^ k + 2 * B * M := by
+  have h2 : b k ≤ (C₂ * k) ^ k := (le_abs_self _).trans hb
+  have h3 : (1 / 2 : ℝ) ^ k * ∫ t, t ^ k ∂μ ≤ (C₂ * k) ^ k + 2 * B * M := by
     have : μ.real univ • (2 * B) ≤ M * (2 * B) := by
       rw [smul_eq_mul]; exact mul_le_mul_of_nonneg_right hmu (by positivity)
     nlinarith
-  have h4 : ∫ t, t ^ k ∂μ ≤ (2 * momC2 C μ₀ * k) ^ k + 2 * M * (2 * (3 * C) * k) ^ k := by
+  have h4 : ∫ t, t ^ k ∂μ ≤ (2 * C₂ * k) ^ k + 2 * M * (2 * (3 * C) * k) ^ k := by
     have h2k : (0 : ℝ) < 2 ^ k := by positivity
     have : ∫ t, t ^ k ∂μ = 2 ^ k * ((1 / 2 : ℝ) ^ k * ∫ t, t ^ k ∂μ) := by
       rw [← mul_assoc, ← mul_pow]; norm_num
     rw [this]
-    calc 2 ^ k * ((1 / 2 : ℝ) ^ k * ∫ t, t ^ k ∂μ) ≤ 2 ^ k * ((momC2 C μ₀ * k) ^ k + 2 * B * M) := by
+    calc 2 ^ k * ((1 / 2 : ℝ) ^ k * ∫ t, t ^ k ∂μ) ≤ 2 ^ k * ((C₂ * k) ^ k + 2 * B * M) := by
           gcongr
-      _ = (2 * momC2 C μ₀ * k) ^ k + 2 * M * (2 * (3 * C) * k) ^ k := by
-          rw [hB, mul_add, mul_assoc 2 (momC2 C μ₀), ← mul_pow]
+      _ = (2 * C₂ * k) ^ k + 2 * M * (2 * (3 * C) * k) ^ k := by
+          rw [hB, mul_add, mul_assoc 2 C₂, ← mul_pow]
           have : (2 * (3 * C) * (k : ℝ)) ^ k = 2 ^ k * ((3 * C) * k) ^ k := by
             rw [mul_assoc, mul_pow]
           rw [this]; ring
   -- combine into `(C₃ k)^k`
-  set c₁ : ℝ := 2 * momC2 C μ₀ with hc₁
+  set c₁ : ℝ := 2 * C₂ with hc₁
   set c₂ : ℝ := 2 * (3 * C) * (2 * M + 1) with hc₂
-  have hc₁nn : 0 ≤ c₁ := by
-    have : 0 ≤ momC2 C μ₀ := by
-      unfold momC2
-      have := momM_pos hF.C_pos
-      have : (0 : ℝ) ≤ max 1 (∫ t, Real.exp (π * t) ∂μ₀) := le_trans zero_le_one (le_max_left _ _)
-      positivity
-    positivity
-  have hc₂nn : 0 ≤ c₂ := by
-    have := hF.C_pos; have := hF.C_pos; positivity
+  have hc₁nn : 0 ≤ c₁ := by positivity
+  have hc₂nn : 0 ≤ c₂ := by have := hF.C_pos; positivity
   have hmx : 0 ≤ max c₁ c₂ := le_trans hc₁nn (le_max_left _ _)
   have hk0 : (0 : ℝ) < k := by exact_mod_cast hk1
   have hMk : 2 * M ≤ (2 * M + 1) ^ k := by
@@ -248,7 +255,7 @@ private lemma odd_moment_bound (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
   have hterm2 : 2 * M * (2 * (3 * C) * k) ^ k ≤ (max c₁ c₂ * k) ^ k := by
     calc 2 * M * (2 * (3 * C) * k) ^ k
         ≤ (2 * M + 1) ^ k * (2 * (3 * C) * k) ^ k := by
-          have := hF.C_pos; have := hF.C_pos
+          have := hF.C_pos
           exact mul_le_mul_of_nonneg_right hMk (by positivity)
       _ = (c₂ * k) ^ k := by
           rw [hc₂, ← mul_pow]; congr 1; ring
@@ -260,40 +267,37 @@ private lemma odd_moment_bound (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
     _ ≤ (max c₁ c₂ * k) ^ k + (max c₁ c₂ * k) ^ k := add_le_add hterm1 hterm2
     _ = 2 * (max c₁ c₂ * k) ^ k := by ring
     _ ≤ 2 ^ k * (max c₁ c₂ * k) ^ k := by gcongr
-    _ = (momC3 C μ₀ M * k) ^ k := by
+    _ = (momC3 C C₂ M * k) ^ k := by
         unfold momC3
         rw [← hc₁, ← hc₂, ← mul_pow]; congr 1; ring
 
 
-private lemma momC3_pos (hC : 0 < C) (μ₀ : Measure ℝ) (M : ℝ) : 0 < momC3 C μ₀ M := by
-  unfold momC3 momC2
-  have := momM_pos hC
-  have h1 : (0 : ℝ) < max 1 (∫ t, Real.exp (π * t) ∂μ₀) := lt_of_lt_of_le one_pos (le_max_left _ _)
-  have : 0 < 2 * momM C * max 1 (∫ t, Real.exp (π * t) ∂μ₀) := by positivity
-  have h2 : 0 < 2 * (2 * momM C * max 1 (∫ t, Real.exp (π * t) ∂μ₀)) := by positivity
-  exact mul_pos two_pos (lt_of_lt_of_le h2 (le_max_left _ _))
+private lemma momC3_pos {C₂ : ℝ} (hC₂ : 0 < C₂) (C M : ℝ) : 0 < momC3 C C₂ M := by
+  unfold momC3
+  have : 0 < 2 * C₂ := by positivity
+  exact mul_pos two_pos (lt_of_lt_of_le this (le_max_left _ _))
 
 /-- **Lemma LP-M, moment bound** (`ds:mom`, first part): the interpolation
 `t^k ≤ s^k + t^{k+1}/s` controls the even moments by the odd ones. -/
-theorem ds_mom_bound (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
-    (hint : Integrable (fun t => Real.exp (π * t)) μ₀) {M : ℝ} (hM : 0 ≤ M)
+theorem ds_mom_bound (hF : OddFam C p) {C₂ : ℝ} (hC₂ : 0 < C₂) {M : ℝ} (hM : 0 ≤ M)
+    {b : ℕ → ℝ} (hb : ∀ k, Odd k → |b k| ≤ (C₂ * k) ^ k)
     (hμ : μ (Iio 0) = 0) (hmass : μ univ ≤ ENNReal.ofReal M) {K : ℕ}
     (hmom : ∀ k ≤ K, Integrable (fun t : ℝ => t ^ k) μ)
-    (hodd : ∀ k ≤ K, Odd k → ∫ t, p k t ∂μ = ∫ t, p k t ∂μ₀)
+    (hodd : ∀ k ≤ K, Odd k → ∫ t, p k t ∂μ = b k)
     {k : ℕ} (hk : 1 ≤ k) (hkK : k + 1 ≤ K) :
-    ∫ t, t ^ k ∂μ ≤ (momC1 C μ₀ M * k) ^ k := by
+    ∫ t, t ^ k ∂μ ≤ (momC1 C C₂ M * k) ^ k := by
   have have_fin := isFiniteMeasure_of_mass hmass
-  set C₃ := momC3 C μ₀ M with hC₃
-  have hC₃pos : 0 < C₃ := momC3_pos hF.C_pos μ₀ M
+  set C₃ := momC3 C C₂ M with hC₃
+  have hC₃pos : 0 < C₃ := momC3_pos hC₂ C M
   have hMp : (1 : ℝ) ≤ M + 1 := by linarith
-  have hC₁ : momC1 C μ₀ M = 2 * C₃ * (M + 1) := rfl
+  have hC₁ : momC1 C C₂ M = 2 * C₃ * (M + 1) := rfl
   have hk0 : (0 : ℝ) < k := by exact_mod_cast hk
   rcases Nat.even_or_odd k with he | ho
   · -- even `k`: interpolate with the odd moment of order `k + 1`
     have hodd1 : Odd (k + 1) := he.add_one
-    have hb := odd_moment_bound hF hμ₀ hint hμ hM hmass (k := k + 1) hodd1 (hmom _ hkK)
+    have hbound := odd_moment_bound hF hC₂ hμ hM hmass (k := k + 1) hodd1 (hb _ hodd1) (hmom _ hkK)
       (hodd _ hkK hodd1)
-    rw [← hC₃] at hb
+    rw [← hC₃] at hbound
     set s : ℝ := C₃ * ((k : ℝ) + 1) with hs
     have hspos : 0 < s := by positivity
     have hmu : μ.real univ ≤ M := by
@@ -318,7 +322,7 @@ theorem ds_mom_bound (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
     rw [integral_add (integrable_const _) ((hmom (k + 1) hkK).div_const s), integral_const,
       integral_div, smul_eq_mul] at h1
     have h2 : ∫ t, t ^ (k + 1) ∂μ ≤ s ^ (k + 1) := by
-      refine hb.trans (le_of_eq ?_)
+      refine hbound.trans (le_of_eq ?_)
       rw [hs]; push_cast; ring
     have h3 : (∫ t, t ^ (k + 1) ∂μ) / s ≤ s ^ k := by
       rw [div_le_iff₀ hspos, ← pow_succ]; exact h2
@@ -333,27 +337,27 @@ theorem ds_mom_bound (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
           gcongr
           calc M + 1 = (M + 1) ^ 1 := (pow_one _).symm
             _ ≤ (M + 1) ^ k := pow_le_pow_right₀ hMp hk
-      _ = (momC1 C μ₀ M * k) ^ k := by rw [hC₁, ← mul_pow]; congr 1; ring
-  · have hb := odd_moment_bound hF hμ₀ hint hμ hM hmass ho (hmom k (by omega)) (hodd k (by omega) ho)
-    refine hb.trans ?_
-    have : C₃ ≤ momC1 C μ₀ M := by
+      _ = (momC1 C C₂ M * k) ^ k := by rw [hC₁, ← mul_pow]; congr 1; ring
+  · have hbound := odd_moment_bound hF hC₂ hμ hM hmass ho (hb k ho) (hmom k (by omega)) (hodd k (by omega) ho)
+    refine hbound.trans ?_
+    have : C₃ ≤ momC1 C C₂ M := by
       rw [hC₁]; nlinarith
     gcongr
 
 
 /-- **Lemma LP-M, exponential moment** (`ds:mom`, second part): if the bound holds for all `K`,
 `∫ e^{ε t} dμ ≤ M + 1` with `ε = 1/(2 e C₁)`. -/
-theorem ds_mom_exp (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
-    (hint : Integrable (fun t => Real.exp (π * t)) μ₀) {M : ℝ} (hM : 0 ≤ M)
+theorem ds_mom_exp (hF : OddFam C p) {C₂ : ℝ} (hC₂ : 0 < C₂) {M : ℝ} (hM : 0 ≤ M)
+    {b : ℕ → ℝ} (hb : ∀ k, Odd k → |b k| ≤ (C₂ * k) ^ k)
     (hμ : μ (Iio 0) = 0) (hmass : μ univ ≤ ENNReal.ofReal M)
     (hmom : ∀ k : ℕ, Integrable (fun t : ℝ => t ^ k) μ)
-    (hodd : ∀ k : ℕ, Odd k → ∫ t, p k t ∂μ = ∫ t, p k t ∂μ₀) :
-    Integrable (fun t => Real.exp (t / (2 * Real.exp 1 * momC1 C μ₀ M))) μ ∧
-      ∫ t, Real.exp (t / (2 * Real.exp 1 * momC1 C μ₀ M)) ∂μ ≤ M + 1 := by
+    (hodd : ∀ k : ℕ, Odd k → ∫ t, p k t ∂μ = b k) :
+    Integrable (fun t => Real.exp (t / (2 * Real.exp 1 * momC1 C C₂ M))) μ ∧
+      ∫ t, Real.exp (t / (2 * Real.exp 1 * momC1 C C₂ M)) ∂μ ≤ M + 1 := by
   have have_fin := isFiniteMeasure_of_mass hmass
-  set C₁ := momC1 C μ₀ M with hC₁
+  set C₁ := momC1 C C₂ M with hC₁
   have hC₁pos : 0 < C₁ := by
-    have := momC3_pos hF.C_pos μ₀ M
+    have := momC3_pos hC₂ C M
     rw [hC₁]; unfold momC1; positivity
   set ε : ℝ := 1 / (2 * Real.exp 1 * C₁) with hε
   have hεpos : 0 < ε := by positivity
@@ -363,7 +367,7 @@ theorem ds_mom_exp (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
     have := ENNReal.toReal_mono ENNReal.ofReal_ne_top hmass
     rwa [ENNReal.toReal_ofReal hM] at this
   have hmoment : ∀ k : ℕ, 1 ≤ k → ∫ t, t ^ k ∂μ ≤ (C₁ * k) ^ k := fun k hk =>
-    ds_mom_bound hF hμ₀ hint hM hμ hmass (K := k + 1) (fun j _ => hmom j) (fun j _ hj => hodd j hj)
+    ds_mom_bound hF hC₂ hM hb hμ hmass (K := k + 1) (fun j _ => hmom j) (fun j _ hj => hodd j hj)
       hk le_rfl
   -- the series coefficients
   set b : ℕ → ℝ := fun k => ε ^ k / k.factorial * ∫ t, t ^ k ∂μ with hb
@@ -437,18 +441,45 @@ theorem ds_mom_exp (hF : OddFam C p) (hμ₀ : μ₀ (Iio 0) = 0)
 
 end Mom
 
-/-- **Lemma LP-M** (`ds:mom`, `dual_spectrum_limit.tex` line 33), for an abstract family.
+/-- **Lemma LP-M** (`ds:mom`, `dual_spectrum_limit.tex` line 33), for an abstract family and
+arbitrary real odd targets `b_k` with `|b_k| ≤ (C₂ k)^k`.
 Let `p_k` (`k` odd) be continuous with `|p_k(t)| ≤ (t + Ck)^k` for `t ≥ 0` and `p_k(t) ≥ (t/2)^k` for
-`t ≥ 2Ck` (`OddFam C p`), `μ₀` a positive reference measure on `[0, ∞)` with `∫ e^{π t} dμ₀ < ∞`, and
-`M ≥ 0`.  There is `C₁ > 0`, depending only on `(C, μ₀, M)`, such that for every positive measure `μ`
-on `[0, ∞)` of total mass `≤ M` (the paper's `[T₀, ∞)`, `T₀ ≥ 0`, is covered):
+`t ≥ 2Ck` (`OddFam C p`), `C₂ > 0`, and `M ≥ 0`.  There is `C₁ > 0`, depending only on `(C, C₂, M)`,
+such that for every target sequence `b : ℕ → ℝ` with `|b_k| ≤ (C₂ k)^k` for odd `k` and every
+positive measure `μ` on `[0, ∞)` of total mass `≤ M` (the paper's `[T₀, ∞)`, `T₀ ≥ 0`, is covered):
 
-* if `μ` has finite moments of all orders `≤ K` and `∫ p_k dμ = ∫ p_k dμ₀` for odd `k ≤ K`, then
+* if `μ` has finite moments of all orders `≤ K` and `∫ p_k dμ = b_k` for odd `k ≤ K`, then
   `∫ t^k dμ ≤ (C₁ k)^k` for `1 ≤ k ≤ K - 1`;
 * if this holds for every `K`, then `∫ e^{ε t} dμ ≤ M + 1` for `ε = 1/(2 e C₁)`.
 
-The Laguerre case is `ds_mom_laguerre`, its mass bound `ds_mom_mass`. -/
-theorem ds_mom {C : ℝ} {p : ℕ → C(ℝ, ℝ)} (hF : OddFam C p) (μ₀ : Measure ℝ)
+The reference-measure corollary is `ds_mom_ref`, the Laguerre case is `ds_mom_laguerre`, and its
+mass bound is `ds_mom_mass`. -/
+theorem ds_mom {C : ℝ} {p : ℕ → C(ℝ, ℝ)} (hF : OddFam C p) {C₂ : ℝ} (hC₂ : 0 < C₂)
+    {M : ℝ} (hM : 0 ≤ M) :
+    ∃ C₁ : ℝ, 0 < C₁ ∧
+      (∀ (b : ℕ → ℝ), (∀ k, Odd k → |b k| ≤ (C₂ * k) ^ k) →
+        ∀ μ : Measure ℝ, μ (Iio 0) = 0 → μ univ ≤ ENNReal.ofReal M → ∀ K : ℕ,
+          (∀ k ≤ K, Integrable (fun t : ℝ => t ^ k) μ) →
+          (∀ k ≤ K, Odd k → ∫ t, p k t ∂μ = b k) →
+          ∀ k : ℕ, 1 ≤ k → k + 1 ≤ K → ∫ t, t ^ k ∂μ ≤ (C₁ * k) ^ k) ∧
+      (∀ (b : ℕ → ℝ), (∀ k, Odd k → |b k| ≤ (C₂ * k) ^ k) →
+        ∀ μ : Measure ℝ, μ (Iio 0) = 0 → μ univ ≤ ENNReal.ofReal M →
+          (∀ k : ℕ, Integrable (fun t : ℝ => t ^ k) μ) →
+          (∀ k : ℕ, Odd k → ∫ t, p k t ∂μ = b k) →
+          Integrable (fun t => Real.exp (t / (2 * Real.exp 1 * C₁))) μ ∧
+            ∫ t, Real.exp (t / (2 * Real.exp 1 * C₁)) ∂μ ≤ M + 1) := by
+  refine ⟨momC1 C C₂ M, ?_, ?_, ?_⟩
+  · have := momC3_pos hC₂ C M
+    unfold momC1; positivity
+  · intro b hb μ hμ hmass K hmom hodd k hk hkK
+    exact ds_mom_bound hF hC₂ hM hb hμ hmass hmom hodd hk hkK
+  · intro b hb μ hμ hmass hmom hodd
+    exact ds_mom_exp hF hC₂ hM hb hμ hmass hmom hodd
+
+/-- **Lemma LP-M, reference-measure corollary**: `ds_mom` for `b_k = ∫ p_k dμ₀`, where `μ₀` is a
+positive measure on `[0, ∞)` with `∫ e^{π t} dμ₀ < ∞`.  (The paper allows a signed `μ₀` with
+`∫ e^{π t} d|μ₀| < ∞`.) -/
+theorem ds_mom_ref {C : ℝ} {p : ℕ → C(ℝ, ℝ)} (hF : OddFam C p) (μ₀ : Measure ℝ)
     (hμ₀ : μ₀ (Iio 0) = 0) (hint : Integrable (fun t => Real.exp (π * t)) μ₀) {M : ℝ}
     (hM : 0 ≤ M) :
     ∃ C₁ : ℝ, 0 < C₁ ∧
@@ -461,13 +492,10 @@ theorem ds_mom {C : ℝ} {p : ℕ → C(ℝ, ℝ)} (hF : OddFam C p) (μ₀ : Me
         (∀ k : ℕ, Odd k → ∫ t, p k t ∂μ = ∫ t, p k t ∂μ₀) →
         Integrable (fun t => Real.exp (t / (2 * Real.exp 1 * C₁))) μ ∧
           ∫ t, Real.exp (t / (2 * Real.exp 1 * C₁)) ∂μ ≤ M + 1) := by
-  refine ⟨momC1 C μ₀ M, ?_, ?_, ?_⟩
-  · have := momC3_pos hF.C_pos μ₀ M
-    unfold momC1; positivity
-  · intro μ hμ hmass K hmom hodd k hk hkK
-    exact ds_mom_bound hF hμ₀ hint hM hμ hmass hmom hodd hk hkK
-  · intro μ hμ hmass hmom hodd
-    exact ds_mom_exp hF hμ₀ hint hM hμ hmass hmom hodd
+  obtain ⟨C₁, hC₁, h1, h2⟩ := ds_mom hF (momC2_pos hF.C_pos μ₀) hM
+  have hb : ∀ k, Odd k → |∫ t, p k t ∂μ₀| ≤ (momC2 C μ₀ * k) ^ k :=
+    fun k hk => abs_integral_p_mu0_le hF hμ₀ hint hk
+  exact ⟨C₁, hC₁, fun μ => h1 _ hb μ, fun μ => h2 _ hb μ⟩
 
 /-! ### The monic Laguerre family -/
 
@@ -497,8 +525,24 @@ theorem lagP_oddFam {w : ℝ} (hw : 0 < w) : OddFam ((1 + w) / π) (lagPC w) whe
     exact div_le_div_of_nonneg_right (by nlinarith) Real.pi_pos.le
 
 /-- **Lemma LP-M for the Laguerre family**: `ds_mom` for `p_k = P_k` at weight `w > 0`; `C₁` depends
-only on `(w, μ₀, M)`. -/
-theorem ds_mom_laguerre {w : ℝ} (hw : 0 < w) (μ₀ : Measure ℝ) (hμ₀ : μ₀ (Iio 0) = 0)
+only on `(w, C₂, M)`. -/
+theorem ds_mom_laguerre {w : ℝ} (hw : 0 < w) {C₂ : ℝ} (hC₂ : 0 < C₂) {M : ℝ} (hM : 0 ≤ M) :
+    ∃ C₁ : ℝ, 0 < C₁ ∧
+      (∀ (b : ℕ → ℝ), (∀ k, Odd k → |b k| ≤ (C₂ * k) ^ k) →
+        ∀ μ : Measure ℝ, μ (Iio 0) = 0 → μ univ ≤ ENNReal.ofReal M → ∀ K : ℕ,
+          (∀ k ≤ K, Integrable (fun t : ℝ => t ^ k) μ) →
+          (∀ k ≤ K, Odd k → ∫ t, lagP w k t ∂μ = b k) →
+          ∀ k : ℕ, 1 ≤ k → k + 1 ≤ K → ∫ t, t ^ k ∂μ ≤ (C₁ * k) ^ k) ∧
+      (∀ (b : ℕ → ℝ), (∀ k, Odd k → |b k| ≤ (C₂ * k) ^ k) →
+        ∀ μ : Measure ℝ, μ (Iio 0) = 0 → μ univ ≤ ENNReal.ofReal M →
+          (∀ k : ℕ, Integrable (fun t : ℝ => t ^ k) μ) →
+          (∀ k : ℕ, Odd k → ∫ t, lagP w k t ∂μ = b k) →
+          Integrable (fun t => Real.exp (t / (2 * Real.exp 1 * C₁))) μ ∧
+            ∫ t, Real.exp (t / (2 * Real.exp 1 * C₁)) ∂μ ≤ M + 1) :=
+  ds_mom (lagP_oddFam hw) hC₂ hM
+
+/-- **Lemma LP-M for the Laguerre family, reference-measure corollary**. -/
+theorem ds_mom_laguerre_ref {w : ℝ} (hw : 0 < w) (μ₀ : Measure ℝ) (hμ₀ : μ₀ (Iio 0) = 0)
     (hint : Integrable (fun t => Real.exp (π * t)) μ₀) {M : ℝ} (hM : 0 ≤ M) :
     ∃ C₁ : ℝ, 0 < C₁ ∧
       (∀ μ : Measure ℝ, μ (Iio 0) = 0 → μ univ ≤ ENNReal.ofReal M → ∀ K : ℕ,
@@ -510,18 +554,18 @@ theorem ds_mom_laguerre {w : ℝ} (hw : 0 < w) (μ₀ : Measure ℝ) (hμ₀ : �
         (∀ k : ℕ, Odd k → ∫ t, lagP w k t ∂μ = ∫ t, lagP w k t ∂μ₀) →
         Integrable (fun t => Real.exp (t / (2 * Real.exp 1 * C₁))) μ ∧
           ∫ t, Real.exp (t / (2 * Real.exp 1 * C₁)) ∂μ ≤ M + 1) :=
-  ds_mom (lagP_oddFam hw) μ₀ hμ₀ hint hM
+  ds_mom_ref (lagP_oddFam hw) μ₀ hμ₀ hint hM
 
 section Mass
 
 variable {w : ℝ} {μ₀ μ : Measure ℝ}
 
 /-- **Lemma LP-M, mass bound** (`ds:mom`, last sentence): if `T₀ > w/(4π)` and
-`∫ P_1 dμ = ∫ P_1 dμ₀` for a measure on `[T₀, ∞)`, then
-`μ ≤ ∫ P_1 dμ₀ / (T₀ - w/(4π))`. -/
+`∫ P_1 dμ = b₁` for a measure on `[T₀, ∞)`, then
+`μ ≤ b₁ / (T₀ - w/(4π))`. -/
 theorem ds_mom_mass {T₀ : ℝ} (hT₀ : w / (4 * π) < T₀) (hμ : μ (Iio T₀) = 0)
-    (hP : Integrable (lagP w 1) μ) (hL : ∫ t, lagP w 1 t ∂μ = ∫ t, lagP w 1 t ∂μ₀) :
-    μ univ ≤ ENNReal.ofReal ((∫ t, lagP w 1 t ∂μ₀) / (T₀ - w / (4 * π))) := by
+    (hP : Integrable (lagP w 1) μ) {b₁ : ℝ} (hL : ∫ t, lagP w 1 t ∂μ = b₁) :
+    μ univ ≤ ENNReal.ofReal (b₁ / (T₀ - w / (4 * π))) := by
   set δ : ℝ := T₀ - w / (4 * π) with hδ
   have hδpos : 0 < δ := by linarith
   have hae : ∀ᵐ t ∂μ, δ ≤ lagP w 1 t := by
@@ -539,11 +583,29 @@ theorem ds_mom_mass {T₀ : ℝ} (hT₀ : w / (4 * π) < T₀) (hμ : μ (Iio T�
     (Or.inl ENNReal.ofReal_ne_top)]
   rwa [mul_comm]
 
+/-- **Lemma LP-M, mass bound, reference-measure corollary**. -/
+theorem ds_mom_mass_ref {T₀ : ℝ} (hT₀ : w / (4 * π) < T₀) (hμ : μ (Iio T₀) = 0)
+    (hP : Integrable (lagP w 1) μ) (hL : ∫ t, lagP w 1 t ∂μ = ∫ t, lagP w 1 t ∂μ₀) :
+    μ univ ≤ ENNReal.ofReal ((∫ t, lagP w 1 t ∂μ₀) / (T₀ - w / (4 * π))) :=
+  ds_mom_mass hT₀ hμ hP hL
+
 end Mass
+
+/-- info: 'FormalResearch.ModularBootstrap.LP.integral_abs_p_mu0_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.LP.integral_abs_p_mu0_le
+
+/-- info: 'FormalResearch.ModularBootstrap.LP.abs_integral_p_mu0_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.LP.abs_integral_p_mu0_le
 
 /-- info: 'FormalResearch.ModularBootstrap.LP.ds_mom' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.ModularBootstrap.LP.ds_mom
+
+/-- info: 'FormalResearch.ModularBootstrap.LP.ds_mom_ref' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.LP.ds_mom_ref
 
 /-- info: 'FormalResearch.ModularBootstrap.LP.lagP_oddFam' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -553,8 +615,16 @@ end Mass
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.ModularBootstrap.LP.ds_mom_laguerre
 
+/-- info: 'FormalResearch.ModularBootstrap.LP.ds_mom_laguerre_ref' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.LP.ds_mom_laguerre_ref
+
 /-- info: 'FormalResearch.ModularBootstrap.LP.ds_mom_mass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.ModularBootstrap.LP.ds_mom_mass
+
+/-- info: 'FormalResearch.ModularBootstrap.LP.ds_mom_mass_ref' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.LP.ds_mom_mass_ref
 
 end FormalResearch.ModularBootstrap.LP
