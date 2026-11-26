@@ -27,8 +27,8 @@ Concrete objects (no free data):
 * `ProfileConv Φ L`, `ShellGapEndpoint D`: the `v = t_m` endpoint clause of `thm:ce-shell-gap` (proved:
   `shellGapEndpoint_proved`, `ShellGapEndpoint.lean`; no longer a field of `CeCanonicalInputs`).
 * `AiryActiveHeight D`: `lem:airy-active-height` (proved: `airy_active_height`, `AiryActiveHeight.lean`; no longer a
-  field of `CeCanonicalInputs`; `lem:airy-node-square` is `airy_node_square` in `AiryNodeSquare.lean` and also no
-  longer a field).
+  field of `CeCanonicalInputs`; `lem:airy-node-square`, `lem:ce-terminal-deflation`, and `thm:airy-node-sign` are
+  proved in `AiryNodeSquare.lean`, `CeTerminalDeflation.lean`, and `AiryNodeSign.lean`, and are also no longer fields).
 
 `CeCanonicalInputs D t` is the input structure of the headline `thm_ce_canonical_iff` (in `Headlines.lean`); every
 field is an open result of the paper and names its label.
@@ -266,9 +266,10 @@ structure AiryActiveHeight (D : ShellHBData) : Prop where
       (z ∉ shellSites D ∨ (deriv H (z : ℂ)).re ≤ 0) →
       ∫ u : ℝ, (H (u : ℂ)).re / (u - z) < 0
 
-/-- Inputs of `thm:ce-canonical-iff` for the Hermite–Biehler configuration `D` with zero enumeration `t`
-(`m = D.S.card`). Each field is an open result of the paper (the label is in its docstring). -/
-structure CeCanonicalInputs (D : ShellHBData) (t : ℕ → ℝ) : Prop where
+/-- Inputs of `thm:ce-canonical-iff` for the Hermite–Biehler configuration `D` with zero enumeration `_t`
+(`m = D.S.card`; `_t` is retained for signature stability of `thm_ce_canonical_iff`). Each field is an open result of
+the paper (the label is in its docstring). -/
+structure CeCanonicalInputs (D : ShellHBData) (_t : ℕ → ℝ) : Prop where
   /-- `thm:ce-shell-reduction` (open for `m ≥ 2`, M8; it follows from the lower half of `u1cl:multilevel`,
   `thm:intro-hb`): bounded offsets give `R²/2 ≥ d/(2π²) - (t_m/β₁)(d/2)^{1/3} - O(1)`. -/
   shell_reduction : ShellReduction D
@@ -282,34 +283,5 @@ structure CeCanonicalInputs (D : ShellHBData) (t : ℕ → ℝ) : Prop where
     ShellOffsetsSmall r →
       ∀ᶠ d : ℕ in atTop, ∃ R ∈ ceShellRadiusSet D r d,
         R ^ 2 / 2 ≤ (d : ℝ) / (2 * π ^ 2) - (v / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ)
-  /-- `thm:airy-node-sign` (M9): if `b = u_LP < t_m` and an optimizer `H_*` has no zeros `t' < t'' < t'''` of `N`
-  in `(b, t_m]` with `H_*(t') > 0`, `H_*(t'') < 0`, `H_*(t''') > 0`, then `u_sh = u_LP`; in particular
-  `u_sh = u_LP` whenever `t_{m+2} ≤ u_LP < t_m`. (The cumulative node-sum criterion is the field `node_sum`.) -/
-  node_sign :
-    (∀ b : ℝ, uLP D = (b : EReal) → b < D.tm → ∀ H : ℂ → ℂ, OneProfileFeasibleWitness D b H →
-      (¬ ∃ t₁ t₂ t₃ : ℝ, t₁ < t₂ ∧ t₂ < t₃ ∧ b < t₁ ∧ t₃ ≤ D.tm ∧ at47_Nf D.P D.Q t₁ = 0 ∧
-        at47_Nf D.P D.Q t₂ = 0 ∧ at47_Nf D.P D.Q t₃ = 0 ∧ 0 < (H (t₁ : ℂ)).re ∧
-        (H (t₂ : ℂ)).re < 0 ∧ 0 < (H (t₃ : ℂ)).re) → uSh D = (b : EReal)) ∧
-    (∀ b : ℝ, uLP D = (b : EReal) → hbNode t (D.S.card + 2) ≤ b → b < D.tm → uSh D = (b : EReal))
-  /-- `thm:airy-node-sign`, cumulative node-sum criterion (M9; `ce_airy_lp_proofs.tex`): let `b = u_LP < t_m` and `H`
-  an optimizer. If there is a real zero `c ∈ [b, t_m)` of `H` with `H(t_n) ≤ 0` for the nodes `t_n < c`,
-  `H'(c) ≥ 0` if `c` is a node, and `A(x) = ∑_{c < t_n ≤ x} η_n ≥ 0` for all `x > c`
-  (`η_n = D(t_n) H(t_n)/N'(t_n)²`; the finite set of nodes in `(c, x]` is `F`), then `u_sh = u_LP`. -/
-  node_sum : ∀ b : ℝ, uLP D = (b : EReal) → b < D.tm → ∀ H : ℂ → ℂ, OneProfileFeasibleWitness D b H →
-    (∃ c : ℝ, b ≤ c ∧ c < D.tm ∧ (H (c : ℂ)).re = 0 ∧
-      (∀ n : ℕ, t n < c → (H (t n : ℂ)).re ≤ 0) ∧
-      ((∃ n : ℕ, t n = c) → 0 ≤ (deriv H (c : ℂ)).re) ∧
-      (∀ x : ℝ, c < x → ∀ F : Finset ℕ, (∀ n : ℕ, n ∈ F ↔ (c < t n ∧ t n ≤ x)) →
-        0 ≤ ∑ n ∈ F, airyPQDr D.P D.Q (t n) * (H (t n : ℂ)).re /
-          ((airyPQN' D.P D.Q (t n : ℂ)).re) ^ 2)) →
-    uSh D = (b : EReal)
-  /-- `lem:ce-terminal-deflation` (M9, `ce_shells.tex`): for `m` odd with `ℒ_y(-G_N) ≥ 0` for all `y > 0`, the
-  terminal cardinal `H_N = -G_N/(u - t_m)` has `I_N = ∫ H_N = D(t_m)/∏_{j<m}(t_j - t_m) > 0` (the node weight
-  numerator `D(t_m)` is positive for Hermite–Biehler data, `gt:1.0pp`). -/
-  terminal_deflation : (∀ y : ℝ, 0 < y → 0 ≤ airyLaplace (fun u => -(D.G (u : ℂ)).re) y) →
-    MeasureTheory.Integrable (fun u : ℝ => (-(D.G (u : ℂ)).re) / (u - D.tm)) ∧
-    (∫ u : ℝ, (-(D.G (u : ℂ)).re) / (u - D.tm)) =
-      airyPQDr D.P D.Q D.tm / ∏ s ∈ shellSites D, (s - D.tm) ∧
-    0 < ∫ u : ℝ, (-(D.G (u : ℂ)).re) / (u - D.tm)
 
 end FormalResearch.SignUncertainty
