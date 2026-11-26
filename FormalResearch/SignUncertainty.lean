@@ -378,6 +378,11 @@ public import FormalResearch.SignUncertainty.FctMomentSolver
 public import FormalResearch.SignUncertainty.FctPhiKillCore
 public import FormalResearch.SignUncertainty.FctPhiKill
 public import FormalResearch.SignUncertainty.FctEdgeIbp
+public import FormalResearch.SignUncertainty.FctCuspEdgeIbp
+public import FormalResearch.SignUncertainty.FctCuspEdgeInner
+public import FormalResearch.SignUncertainty.FctCuspEdgeSmall
+public import FormalResearch.SignUncertainty.FctCuspEdgeLarge
+public import FormalResearch.SignUncertainty.FctCuspEdge
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -615,6 +620,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.FctMomentCore`, `FctMomentSolver` (`fct:moment-solver`, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `fctWeight`, `fctMoment`, `fctThetaD`, `momentSolver`, `momentSolver_linear`, `fct_moment_solver` (finite moment correction on `(-10τ₁, 10τ₁)` matching `f` on `[-2τ₁, 2τ₁]` with `ℳ_k[v] = 0`, `ϑ_D^{(2k+1)}(0) = 0` for `0 ≤ k < N`, uniform derivative, `L¹`, and `ϑ_D` vanishing bounds).
 * `FormalResearch.SignUncertainty.FctPhiKillCore`, `FctPhiKill` (`fct:phikill`, Lemma FCT.4, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `phiPQ`, `phiKill = phiPQ 8 8`, `fct_phikill` bundling (1) holomorphicity, real symmetry, `(0,1)` positivity on `(0,∞)`, `(fct:pk-zero)`, `(fct:pk-inf)`, uniform `{Re z ≥ 0}` and imaginary-axis bounds; (2) exact Cauchy moment vanishing `(fct:pk-cauchy)` for general `(p,q)`; and (3) exact `O(a^8)` finite-part cancellation `(fct:pk-fp)` for `H_*` (`c_{-1} = (47/20)α_osc`) and `H_CE` (`c_{-1} = -(13/20)α_osc`).
 * `FormalResearch.SignUncertainty.FctEdgeIbp` (`fct:edge-ibp`, Lemma FCT.5a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `edgeW`, `fct_edge_ibp_cutoff` (Part (1): removing an edge cutoff with Abel regularisation `e^{-ετ²}`), `fct_edge_ibp_shoulder` (Part (2): shoulder estimate under the corrected derivative range `1 ≤ k ≤ n` matching `Φ ∈ C^{n+1}`), and bundled `fct_edge_ibp`.
+* `FormalResearch.SignUncertainty.FctCuspEdgeIbp`, `FctCuspEdgeInner`, `FctCuspEdgeSmall`, `FctCuspEdgeLarge`, `FctCuspEdge` (`fct:cusp-edge`, Lemma FCT.7a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `CuspAmplitude`, `CuspProfile`, `cuspEdgeJ`, and `fct_cusp_edge` (`‖J_c(L)‖ ≤ C (1 + c^{2/3} L)^{-α - 1}` uniformly for `c ≥ 1`, `L ≥ 0`, `0 < α < 2`, as in the paper).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
   whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
