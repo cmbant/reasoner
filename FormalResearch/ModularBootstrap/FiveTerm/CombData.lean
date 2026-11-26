@@ -421,23 +421,23 @@ noncomputable def aC (ζ : ℂ) : ℂ :=
 lemma RC_ofReal (t : ℝ) : RC (t : ℂ) = ((√(Real.cosh (π * t)) : ℝ) : ℂ) := by
   unfold RC
   have e : Complex.cosh ((π : ℂ) * (t : ℂ)) = ((Real.cosh (π * t) : ℝ) : ℂ) := by
-    rw [Complex.ofReal_cosh]; push_cast; try rfl
+    rw [Complex.ofReal_cosh]; push_cast; rfl
   rw [e]
   have h := Complex.ofReal_cpow (Real.cosh_pos (π * t)).le (1 / 2 : ℝ)
   rw [show (((1 / 2 : ℝ)) : ℂ) = (1 / 2 : ℂ) by push_cast; ring] at h
   rw [← h, ← Real.sqrt_eq_rpow]
 
 lemma cosh_ofReal' (t : ℝ) (c : ℝ) : Complex.cosh ((π : ℂ) * (t : ℂ) / c) = ((Real.cosh (π * t / c) : ℝ) : ℂ) := by
-  rw [Complex.ofReal_cosh]; push_cast; try rfl
+  rw [Complex.ofReal_cosh]; push_cast; rfl
 
 lemma sinh_ofReal' (t : ℝ) (c : ℝ) : Complex.sinh ((π : ℂ) * (t : ℂ) / c) = ((Real.sinh (π * t / c) : ℝ) : ℂ) := by
-  rw [Complex.ofReal_sinh]; push_cast; try rfl
+  rw [Complex.ofReal_sinh]; push_cast; rfl
 
 lemma xC_ofReal (t : ℝ) : xC (t : ℂ) = ((xT t : ℝ) : ℂ) := by
   unfold xC
   rw [RC_ofReal, xT_eq_log]
   have h2 : Complex.cosh ((π : ℂ) * (t : ℂ) / 2) = ((Real.cosh (π * t / 2) : ℝ) : ℂ) := by
-    have := cosh_ofReal' t 2; simpa using this
+    simp
   rw [h2]
   have hpos : 0 < √(Real.cosh (π * t)) + √2 * Real.cosh (π * t / 2) := by
     have := Real.sqrt_pos.mpr (Real.cosh_pos (π * t))
@@ -452,7 +452,7 @@ lemma vC_ofReal (t : ℝ) : vC (t : ℂ) = ((vT t : ℝ) : ℂ) := by
   unfold vC
   rw [RC_ofReal, vT_eq_log]
   have h2 : Complex.sinh ((π : ℂ) * (t : ℂ) / 2) = ((Real.sinh (π * t / 2) : ℝ) : ℂ) := by
-    have := sinh_ofReal' t 2; simpa using this
+    simp
   rw [h2]
   have hpos : 0 < √(Real.cosh (π * t)) + √2 * Real.sinh (π * t / 2) := by
     have hR : 0 < √(Real.cosh (π * t)) := Real.sqrt_pos.mpr (Real.cosh_pos (π * t))
@@ -483,14 +483,12 @@ lemma lamC_ofReal (t : ℝ) : lamC (t : ℂ) = ((lamT t : ℝ) : ℂ) := by
 lemma aC_ofReal (t : ℝ) : aC (t : ℂ) = ((aAmp t : ℝ) : ℂ) := by
   unfold aC aAmp
   rw [xC_ofReal, bC_ofReal, lamC_ofReal]
-  have hc : ∀ c : ℝ, Complex.cosh ((π : ℂ) * (t : ℂ) / c) = ((Real.cosh (π * t / c) : ℝ) : ℂ) :=
-    fun c => cosh_ofReal' t c
   have h4 : Complex.cosh ((π : ℂ) * (t : ℂ) / 4) = ((Real.cosh (π * t / 4) : ℝ) : ℂ) := by
-    simpa using hc 4
+    simp
   have h2 : Complex.cosh ((π : ℂ) * (t : ℂ) / 2) = ((Real.cosh (π * t / 2) : ℝ) : ℂ) := by
-    simpa using hc 2
+    simp
   have h1 : Complex.cosh ((π : ℂ) * (t : ℂ)) = ((Real.cosh (π * t) : ℝ) : ℂ) := by
-    rw [Complex.ofReal_cosh]; push_cast; try rfl
+    rw [Complex.ofReal_cosh]; push_cast; rfl
   rw [h4, h2, h1]
   rw [← Complex.ofReal_log (xT_pos t).le, ← Complex.ofReal_log (bT_pos t).le,
     ← Complex.ofReal_log (lamT_pos t).le, ← Complex.ofReal_log (Real.cosh_pos _).le,
@@ -558,15 +556,11 @@ lemma ofReal_pos_mem_slit {r : ℝ} (hr : 0 < r) : ((r : ℝ) : ℂ) ∈ Complex
   Complex.ofReal_mem_slitPlane.2 hr
 
 lemma goodAt_ofReal (t : ℝ) : GoodAt (t : ℂ) := by
-  have hc : ∀ c : ℝ, Complex.cosh ((π : ℂ) * (t : ℂ) / c) = ((Real.cosh (π * t / c) : ℝ) : ℂ) :=
-    fun c => cosh_ofReal' t c
-  have hs : ∀ c : ℝ, Complex.sinh ((π : ℂ) * (t : ℂ) / c) = ((Real.sinh (π * t / c) : ℝ) : ℂ) :=
-    fun c => sinh_ofReal' t c
   have h1 : Complex.cosh ((π : ℂ) * (t : ℂ)) = ((Real.cosh (π * t) : ℝ) : ℂ) := by
-    rw [Complex.ofReal_cosh]; push_cast; try rfl
-  have h2 : Complex.cosh ((π : ℂ) * (t : ℂ) / 2) = ((Real.cosh (π * t / 2) : ℝ) : ℂ) := by simpa using hc 2
-  have h4 : Complex.cosh ((π : ℂ) * (t : ℂ) / 4) = ((Real.cosh (π * t / 4) : ℝ) : ℂ) := by simpa using hc 4
-  have hs2 : Complex.sinh ((π : ℂ) * (t : ℂ) / 2) = ((Real.sinh (π * t / 2) : ℝ) : ℂ) := by simpa using hs 2
+    rw [Complex.ofReal_cosh]; push_cast; rfl
+  have h2 : Complex.cosh ((π : ℂ) * (t : ℂ) / 2) = ((Real.cosh (π * t / 2) : ℝ) : ℂ) := by simp
+  have h4 : Complex.cosh ((π : ℂ) * (t : ℂ) / 4) = ((Real.cosh (π * t / 4) : ℝ) : ℂ) := by simp
+  have hs2 : Complex.sinh ((π : ℂ) * (t : ℂ) / 2) = ((Real.sinh (π * t / 2) : ℝ) : ℂ) := by simp
   have hR : 0 < √(Real.cosh (π * t)) := Real.sqrt_pos.mpr (Real.cosh_pos _)
   refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · rw [h1]; exact ofReal_pos_mem_slit (Real.cosh_pos _)

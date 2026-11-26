@@ -30,7 +30,7 @@ lemma ex_inv (a b : ℝ) : (ex a b)⁻¹ = ex (-a) (-b) := by
   unfold ex; rw [← Complex.exp_neg]; congr 1; push_cast; ring
 
 lemma ex_div (a b a' b' : ℝ) : ex a b / ex a' b' = ex (a - a') (b - b') := by
-  rw [div_eq_mul_inv, ex_inv, ex_mul]; congr 1 <;> ring
+  rw [div_eq_mul_inv, ex_inv, ex_mul]; congr 1
 
 lemma ex_pow (a b : ℝ) (n : ℕ) : ex a b ^ n = ex (n * a) (n * b) := by
   unfold ex; rw [← Complex.exp_nat_mul]; congr 1; push_cast; ring
@@ -114,7 +114,7 @@ lemma coupling_alg {y : ℝ} (hy : y ∈ Ioo (0 : ℝ) 1) :
       simp [map_add, map_mul, Complex.conj_I, Complex.conj_ofReal, sub_eq_add_neg]
     have harg : Complex.arg ((1 : ℂ) - Complex.I * (y : ℂ)) = -θ := by
       have hne : θ ≠ π := by linarith [hθ'.2]
-      rw [hconj, Complex.arg_conj, if_neg hne]
+      rw [hconj, Complex.arg_conj, ite_eq_right hne]
     rw [norm_one_sub_I_mul, harg] at h; exact h
   -- σ(iy)
   have e_σ1 : 1 - (1 - Complex.I * (y : ℂ)) / (1 + Complex.I * (y : ℂ)) =
