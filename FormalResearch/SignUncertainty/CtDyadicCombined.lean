@@ -152,6 +152,12 @@ structure CtCombinedPieces (c₁ : ℝ) : Prop where
   /-- transition band: `∫_{ξ ≥ ξ(-v₀)} w̃ sin X dm = s₂ + ∫_{ξ > ξ(-R')} sin X dm + O(c^{-4/3})`. -/
   trans : CtDyadicBound c₁ fun R ε c f => ctStr R ε c f - ctOscS2 R ε c f - ctSout R ε c f
 
+/-- `K_ε(ξ(L)) h(L) ∈ L¹(dL)` (`ct:dual-id` (2): `|K_ε| ≤ K_b` and `h ∈ L¹`; measurability of `K_ε` comes from `ct_dual_id_part2`). -/
+lemma integrable_dualK_hankelHL {c ε : ℝ} (hc : 2 ≤ c) (hε : ε = 1 ∨ ε = -1) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f) :
+    Integrable (fun L => CtDual.dualK ε c (Real.exp L / π ^ 2) * hankelHL c f L) := by
+  obtain ⟨Kb, -, H⟩ := CtDual.ct_dual_id_part2 hε
+  exact (integrable_logvar c f (CtDual.dualK ε c)).2 ((H hc).2 hf).1
+
 /-- **`ct:dual-id` (2) in the variable `L`**: for any split point `Λ`, `∫_{L ≤ Λ} K h + ∫_{L > Λ} K h = 0` (`c ≥ 2`, `f ∈ 𝒜_c^ε`). -/
 theorem ctKin_add_ctKout {c ε : ℝ} (hc : 2 ≤ c) (hε : ε = 1 ∨ ε = -1) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f) (Λ : ℝ) :
     (∫ L in Iic Λ, CtDual.dualK ε c (Real.exp L / π ^ 2) * hankelHL c f L) +
@@ -160,8 +166,7 @@ theorem ctKin_add_ctKout {c ε : ℝ} (hc : 2 ≤ c) (hε : ε = 1 ∨ ε = -1) 
   have hh := (H hc).2 hf
   have hint := hh.1
   have h0 := hh.2
-  have hI : Integrable (fun L => CtDual.dualK ε c (Real.exp L / π ^ 2) * hankelHL c f L) :=
-    (integrable_logvar c f (CtDual.dualK ε c)).2 hint
+  have hI := integrable_dualK_hankelHL hc hε hf
   have := integral_add_compl (measurableSet_Iic (a := Λ)) hI
   rw [compl_Iic, integral_logvar c f (CtDual.dualK ε c)] at this
   rw [this]; exact h0
@@ -182,6 +187,14 @@ lemma taperBand_pm : ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ 
   · exact ha c ((le_max_left _ _).trans hc) R h1 h2
   · exact hb c ((le_max_right _ _).trans hc) R h1 h2
 
+/-- `w̃ h ∈ L¹` (`h ∈ L¹`, `0 ≤ w̃ ≤ 1` measurable). -/
+lemma integrable_ctTaper_mul {ε c R : ℝ} {f : ℝ → ℝ} (hc : 0 < c) (hB : TaperBand ε c R) (hf : IsHankelEigenfn c ε f) :
+    Integrable (fun L => ctTaper ε c R L * hankelHL c f L) := by
+  have hI := hB.inputs
+  refine (integrable_hankelHL hc hf).bdd_mul (c := 1) (measurable_ctTaper hI).aestronglyMeasurable
+    (Eventually.of_forall fun L => ?_)
+  rw [Real.norm_eq_abs, abs_of_nonneg (hI.reg.mem L).1]; exact (hI.reg.mem L).2
+
 /-- The kernel integral of `(ct:combined)` splits as `M_tr - 2 S_tr` (integrability: `h ∈ L¹`, `0 ≤ w̃ ≤ 1` measurable, `sin` bounded). -/
 lemma ctKernel_split {ε c R : ℝ} {f : ℝ → ℝ} (hc : 0 < c) (hB : TaperBand ε c R) (hf : IsHankelEigenfn c ε f) :
     (∫ L in Ici (ctLv0 c), ctTaper ε c R L * (hankelHL c f L * boasKernel (boasX c ε) L)) =
@@ -190,9 +203,7 @@ lemma ctKernel_split {ε c R : ℝ} {f : ℝ → ℝ} (hc : 0 < c) (hB : TaperBa
   have hh : Integrable (hankelHL c f) := integrable_hankelHL hc hf
   have hw : Measurable (ctTaper ε c R) := measurable_ctTaper hI
   have hX : Measurable (boasX c ε) := measurable_boasX c ε
-  have h1 : Integrable (fun L => ctTaper ε c R L * hankelHL c f L) := by
-    refine hh.bdd_mul (c := 1) hw.aestronglyMeasurable (Eventually.of_forall fun L => ?_)
-    rw [Real.norm_eq_abs, abs_of_nonneg (hI.reg.mem L).1]; exact (hI.reg.mem L).2
+  have h1 := integrable_ctTaper_mul hc hB hf
   have h2 : Integrable (fun L => ctTaper ε c R L * (hankelHL c f L * Real.sin (boasX c ε L))) := by
     have : Integrable (fun L => (ctTaper ε c R L * Real.sin (boasX c ε L)) * hankelHL c f L) := by
       refine hh.bdd_mul (c := 1) (hw.mul (Real.measurable_sin.comp hX)).aestronglyMeasurable (Eventually.of_forall fun L => ?_)
