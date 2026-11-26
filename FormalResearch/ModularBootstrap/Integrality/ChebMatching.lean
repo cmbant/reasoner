@@ -325,4 +325,8 @@ theorem exists_integer_atomic_of_corr {n M R : ℕ} (hR : 1 ≤ R) (hn : M + 1 �
   rw [hTcos m k]
   ring
 
+/-- info: 'FormalResearch.ModularBootstrap.Integrality.exists_integer_atomic_of_corr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms exists_integer_atomic_of_corr
+
 end FormalResearch.ModularBootstrap.Integrality

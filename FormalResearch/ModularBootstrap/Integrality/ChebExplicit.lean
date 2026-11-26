@@ -74,4 +74,8 @@ theorem cheb_explicit {M : ℕ} (hM : 1 ≤ M) {μ : Measure ℝ} [IsFiniteMeasu
     nlinarith [h3, hss]
   exact exists_integer_atomic_of_corr hR1 (le_refl _) hcorr hsupp hN hW0pos hRle hμ
 
+/-- info: 'FormalResearch.ModularBootstrap.Integrality.cheb_explicit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms cheb_explicit
+
 end FormalResearch.ModularBootstrap.Integrality

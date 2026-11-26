@@ -243,4 +243,8 @@ theorem corr_euclid {M : ℕ} (hM : 1 ≤ M) {R : ℝ} (hR : 0 < R)
   simp only [roundingDefect]
   rw [one_div, inv_mul_eq_div]
 
+/-- info: 'FormalResearch.ModularBootstrap.Integrality.corr_euclid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms corr_euclid
+
 end FormalResearch.ModularBootstrap.Integrality
