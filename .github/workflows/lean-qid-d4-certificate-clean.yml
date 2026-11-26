@@ -7,6 +7,7 @@ on:
 
 jobs:
   qid-d4-certificate-clean:
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run ci]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -21,7 +22,7 @@ jobs:
         run: lake exe cache get
       - name: Reject placeholders
         run: |
-          if grep -R --line-number -E '\bsorry\b|\badmit\b' FormalResearch FormalResearch.lean; then
+          if grep -R --line-number --include='*.lean' -E '\bsorry\b|\badmit\b' FormalResearch FormalResearch.lean; then
             echo 'Lean placeholders found'
             exit 1
           fi

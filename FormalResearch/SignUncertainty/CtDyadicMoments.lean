@@ -21,9 +21,10 @@ public import FormalResearch.SignUncertainty.CtDyadicTaperChart
 * `boas_s_moment_split` (field `s_moment`): `Σ_j s_j∫_{Q_j}|h| ≤ K₀(s₁ ∫|h| + s₂ ∫_{L ≥ L_cut}|h|)` for blocks of two classes
   (`s_j ≤ s₁`; or `s_j ≤ s₂` with `Q_j ⊂ [L_cut, ∞)`), the aggregation of `(ct:sigma-prime)` (e).
 
-**Proved.**  Not done: the pointwise inputs (`hwle` through `ct:taper-harnack`; `e ≤ α_e v`, `e ≤ β_e` through the `τ₀`-asymptotics
-`τ₀ ≍ L^{1/2}`, `τ₀ ≍ e^L`; `s_j ≤ s₁, s₂` through `W·Δ = N/(2π tanh)`), the moments `ct:half`, `B₂ = O(c^{-1/3})` (`ct:dyadic` (1),
-the multiscale bootstrap, not in Lean), and the final `O(c^{-4/3} log c)` accounting.
+**Proved.**  The pointwise inputs are proved in `CtDyadicPointwise` and `CtDyadicSigma` (`ctE_moment_pointwise`: `e ≤ α_e v'` for `L ≤ Λ`,
+`e ≤ β_e` for `L > Λ`, from `τ₀ ≍ L^{1/2}`, `τ₀ ≍ e^L`; `boas_s_classes`: the two classes of `s_j`) from `TaperBand`
+(`CtDyadicTaperBuild`).  Not done: the moments `ct:half`, `B₂ = O(c^{-1/3})` (`ct:dyadic` (1), the multiscale bootstrap, not in Lean),
+and the final `O(c^{-4/3} log c)` accounting.
 -/
 
 @[expose] public section

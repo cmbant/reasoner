@@ -50,15 +50,32 @@ noncomputable def ctTau0 (a : ℝ) : ℝ :=
 /-- The CFU phase shift `ψ_ε(a) = θ_ε(τ₀(a)) / √(-a)` (`ct:psi-def`), for `a < 0`. -/
 noncomputable def ctPsi (ε a : ℝ) : ℝ := CtOuter.outerTheta ε (ctTau0 a) / Real.sqrt (-a)
 
-/-- `û(ũ) = ũ + 2^{-2/3} c^{-1/3} ψ_ε(2^{2/3} c^{-2/3} ũ)` (`constant_terms_lower.tex`, after `ct:psi-coeffs`), for `ũ < 0`. -/
-noncomputable def ctUhat (ε c u : ℝ) : ℝ :=
-  u + (2 : ℝ) ^ (-(2 / 3) : ℝ) * c ^ (-(1 / 3) : ℝ) *
-    ctPsi ε ((2 : ℝ) ^ ((2 : ℝ) / 3) * c ^ (-(2 / 3) : ℝ) * u)
+/-- `λ = 2^{-2/3} c^{-1/3}`. -/
+noncomputable def ctLam (c : ℝ) : ℝ := (2 : ℝ) ^ (-(2 / 3) : ℝ) * c ^ (-(1 / 3) : ℝ)
 
-/-- `φ_c = û⁻¹` on the Langer disc `|u| ≤ langerRadius c` (the TeX uses `|u| ≤ R_max = 4c₁²c^{2/3}` inside it; `û` is
-strictly increasing there, part of `ct:cfu`; `invFunOn` is arbitrary where `û` is not bijective onto the point). -/
+/-- `μ = 2^{2/3} c^{-2/3}`, the scale `a = μ ũ`. -/
+noncomputable def ctMu (c : ℝ) : ℝ := (2 : ℝ) ^ ((2 : ℝ) / 3) * c ^ (-(2 / 3) : ℝ)
+
+/-- `û(ũ) = ũ + 2^{-2/3} c^{-1/3} ψ_ε(2^{2/3} c^{-2/3} ũ)` (`constant_terms_lower.tex`, after `ct:psi-coeffs`), for `ũ < 0`
+(`= ũ + λ ψ_ε(μ ũ)`). -/
+noncomputable def ctUhat (ε c u : ℝ) : ℝ := u + ctLam c * ctPsi ε (ctMu c * u)
+
+/-- The window facts of `ctPsi_window` (`ct:psi-def`), as a predicate: `ψ_ε < 0`, `|ψ_ε|, |ψ_ε'| ≤ M` and `ψ_ε` differentiable
+on `(-ρ, 0)`. -/
+def PsiWin (ε ρ M : ℝ) : Prop :=
+  0 < ρ ∧ 0 ≤ M ∧ ∀ a ∈ Set.Ioo (-ρ) 0, ctPsi ε a < 0 ∧ |ctPsi ε a| ≤ M ∧
+      HasDerivAt (ctPsi ε) (deriv (ctPsi ε) a) a ∧ |deriv (ctPsi ε) a| ≤ M
+
+/-- **The domain of `φ_c = û⁻¹`**: the `u ≤ 0` lying in a `ψ_ε`-window (`PsiWin ε ρ M`, `μ|u| < ρ`) in which `û' = 1 + c⁻¹ψ_ε'`
+is `≥ 1/2` (`2M ≤ c`).  On it `û` is injective (`ctUhat_injOn_dom`), so `φ_c` is the genuine inverse; outside the window the Lean
+`ctPsi` takes junk values (`cfu_psi_langer` gives `ψ_ε` only near `0⁻`), where no injectivity of `û` is available.  The paper's
+`φ_c` on `|u| ≤ R_max = 4c₁²c^{2/3}` is the same function on its range of use. -/
+def ctPhiDom (ε c : ℝ) : Set ℝ :=
+  {u | u ≤ 0 ∧ ∃ ρ M : ℝ, PsiWin ε ρ M ∧ 2 * M ≤ c ∧ -ρ < ctMu c * u}
+
+/-- `φ_c = û⁻¹` on `ctPhiDom ε c` (`ct:cfu`; `invFunOn`, arbitrary at points not in the range of `û` on the domain). -/
 noncomputable def ctPhi (ε c u : ℝ) : ℝ :=
-  Function.invFunOn (ctUhat ε c) (Set.Icc (-(langerRadius c)) (langerRadius c)) u
+  Function.invFunOn (ctUhat ε c) (ctPhiDom ε c) u
 
 /-- `ũ₁ = ũ(T/c)`: the Langer-chart preimage of `T/c`, taken in `[-3, 0]` (the range of `u_T` in
 `hankel_quantC1_of_feasible`, `hankelBoot_uT_range`); the inverse of `hankelXi`. -/
