@@ -219,7 +219,7 @@ theorem boas_concrete_core {c c₁ K κ₀ Cθ ε T R LJ Lt : ℝ} {f : ℝ → 
     rw [hmass1, mul_one] at this
     exact this.trans hfE
   -- trunc_lo
-  have htlo := boas_field_trunc_lo hc3 hB hc₁ hRlo hh hmass1 hL0 hLe hLv hLΛ hLJ hLJe hK0 hMom
+  have htlo := boas_field_trunc_lo (sf := boasSf c) (fun L => ⟨sFar_nonneg hc1 _, sFar_le_one hc1 _⟩) hc3 hB hc₁ hRlo hh hmass1 hL0 hLe hLv hLΛ hLJ hLJe hK0 hMom
   -- e fields
   have hUf := boas_U_facts (J := J) (a := a) hc0 ha_def hL0 ha1 hLe hLv hB.Lam_le_small hc47
   obtain ⟨he0, heint, hemom⟩ := boas_field_e (J := J) (a := a) hc3 hB hc₁ hRlo hR1' hh hLJ0 hLJe hΛJ hgeom hUf hK0

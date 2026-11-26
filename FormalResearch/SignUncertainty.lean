@@ -339,6 +339,9 @@ public import FormalResearch.SignUncertainty.CtDyadicArea
 public import FormalResearch.SignUncertainty.CtDyadicGReg
 public import FormalResearch.SignUncertainty.CtDyadicRadius
 public import FormalResearch.SignUncertainty.CtDyadicStatement
+public import FormalResearch.SignUncertainty.CtDyadicCombined
+public import FormalResearch.SignUncertainty.CtCombinedTop
+public import FormalResearch.SignUncertainty.CtTransBand
 public import FormalResearch.SignUncertainty.CtBandTop
 public import FormalResearch.SignUncertainty.HankelChartCubic
 public import FormalResearch.SignUncertainty.CtLowerDefs
@@ -584,6 +587,8 @@ public import FormalResearch.SignUncertainty.AirySquareBound
 public import FormalResearch.SignUncertainty.AirySquareSimple
 public import FormalResearch.SignUncertainty.AiryNodeSquare
 public import FormalResearch.SignUncertainty.AiryActiveHeight
+public import FormalResearch.SignUncertainty.CeTerminalDeflation
+public import FormalResearch.SignUncertainty.AiryNodeSign
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -858,10 +863,11 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.FctCuspEdgeIbp`, `FctCuspEdgeInner`, `FctCuspEdgeSmall`, `FctCuspEdgeLarge`, `FctCuspEdge` (`fct:cusp-edge`, Lemma FCT.7a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `CuspAmplitude`, `CuspProfile`, `cuspEdgeJ`, and `fct_cusp_edge` (`‖J_c(L)‖ ≤ C (1 + c^{2/3} L)^{-α - 1}` uniformly for `c ≥ 1`, `L ≥ 0`, `0 < α < 2`, as in the paper).
 * `FormalResearch.SignUncertainty.FctCompDStrip`, `FctCompDCauchy`, `FctCompDTargets`, `FctCompDPart1`, `FctCompDPart2a`, `FctCompDPart2` (`fct:comp-D`, Lemma FCT.3, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `fct_comp_D_part1` (localized strip outer compensator `v = v₀ + v₁ + v_α`, zeroed moments `0..4`, exact inner form `(fct:v-inner)`, all-order derivative/phase/tail/interior bounds, and all-order global closed-strip bound `norm_iteratedDeriv_stripCompGExt_le` on `S̄` repairing the paper's omission of `g_D''`), `fct_comp_D_part2` (`(fct:cos-pen)`, exact cosine identity for `H_*`, `(fct:curv-p-int)` for `p ≤ 2`, inner integral `∫_0^{3δ_L} D_*`, `(fct:bump-1L)`, and `(fct:bump-2L)`), and `fct_comp_D_part3` (exact Cauchy phase-curvature identities `(fct:cauchy-curv)` for all `m ≥ 1` with `O_m(M τ₁³)` specialization and `m = 1` leading constants `-(π/4)`, `-(π/12)`).
 * `FormalResearch.SignUncertainty.AirySquareKernel`, `AirySquareBound`, `AirySquareSimple`, `AiryNodeSquare`,
-  `AiryActiveHeight` (`lem:al-kernel`, `lem:al-reference-positive`, `lem:airy-square-bound`,
-  `thm:airy-square-attained` (1)-(3) for distinct sites, `lem:airy-node-square`, `lem:deflation-identity`,
-  `lem:airy-shell-buffer`, and `lem:airy-active-height` (1)-(4), `ce_airy_lp.tex` / `ce_airy_lp_proofs.tex` /
-  `ce_shells.tex`, M9; proved, unconditional): `airyCardinal`, `airyCardinalBasis`, `airyCardinal_ker_hasSum`,
+  `AiryActiveHeight`, `CeTerminalDeflation`, `AiryNodeSign` (`lem:al-kernel`, `lem:al-reference-positive`,
+  `lem:airy-square-bound`, `thm:airy-square-attained` (1)-(3) for distinct sites, `lem:airy-node-square`,
+  `lem:deflation-identity`, `lem:airy-shell-buffer`, `lem:airy-active-height` (1)-(4), `lem:ce-terminal-deflation`,
+  and `thm:airy-node-sign`, `ce_airy_lp.tex` / `ce_airy_lp_proofs.tex` / `ce_shells.tex`, M9; proved, unconditional):
+  `airyCardinal`, `airyCardinalBasis`, `airyCardinal_ker_hasSum`,
   `airyCardinalSeries_sq_inAiryClass`, `lem_al_kernel`; `airyLambdaSection`, `airyLambda`,
   `airyRefJ0`, `airyLaplace_airyRefJ0_bounds`, `exists_isAiryStrictWitness_of_lt_section_above`,
   `airyLambdaSection_le_airyUSh`, `airyLambda_le_airyUSh`, `airyUSh_ge_rayDropped`,
@@ -874,7 +880,10 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `hbNodePolySpace`, `hbNodeTau`, `isGreatest_hbNodeTau`, `hbNodeTau_mono`, `hbNodeTau_lt_airyLambdaOf`,
   `lem_airy_node_square`, `airy_node_square`; `laplaceL_eq_zero_of_eventuallyEq_zero`, `deflation_inAiryClass`,
   `deflation_identity`, `deflation_laplace_pos`, `exists_airy_shell_buffer`,
-  `airy_active_height_strictify_buffer`, `airy_active_height`.
+  `airy_active_height_strictify_buffer`, `airy_active_height`;
+  `hb_zero_weight_pos_all`, `hb_real_quadrature`, `terminal_cardinal_integral`, `ce_terminal_deflation_full`,
+  `ce_terminal_deflation`; `not_exists_airy_node_sum_gt`, `airy_node_sum`, `airy_node_single_block`,
+  `airy_node_sign`.
 * `FormalResearch.SignUncertainty.HbMultilevelDefs`, `CeCanonicalDefs` (M0 skeleton, statement objects and input structures of `thm_intro_hb` and `thm_ce_canonical_iff`; the structures `HbMultilevelInputs`, `CeCanonicalInputs` have the open TeX results as fields).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`, `thm_intro_hb`
   (`u1cl:multilevel`) and `thm_ce_canonical_iff` (`thm:intro-gap`, `thm:ce-canonical-iff`) of Paper I, each proved
