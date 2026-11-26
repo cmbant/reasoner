@@ -490,6 +490,7 @@ public import FormalResearch.SignUncertainty.FctInnerB1
 public import FormalResearch.SignUncertainty.FctInnerSymbols
 public import FormalResearch.SignUncertainty.FctInnerSymbolsA
 public import FormalResearch.SignUncertainty.FctInnerSymbolsMono
+public import FormalResearch.SignUncertainty.FctInnerSymbolsG0
 public import FormalResearch.SignUncertainty.FctInnerB2
 public import FormalResearch.SignUncertainty.FctMainHankel
 public import FormalResearch.SignUncertainty.FctSymCal
