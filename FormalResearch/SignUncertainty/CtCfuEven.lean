@@ -4,12 +4,13 @@ public import Mathlib.Analysis.Analytic.OfScalars
 public import Mathlib.Analysis.Analytic.IsolatedZeros
 public import Mathlib.Analysis.Calculus.DSlope
 public import Mathlib.Analysis.Calculus.ContDiff.Basic
+public import Mathlib.Analysis.RCLike.Basic
 
 /-!
 # An even analytic germ is an analytic function of the square
 
 Source: `CFT/sign_uncertainty/paper/constant_terms_lower.tex`, Lemma `ct:cfu` Step 2 (`m(τ) = τ² n(τ²)`, `θ_ε(τ) = τ θ̂(τ²)`).  **Proved.**
-If `g : ℝ → ℝ` is analytic at `0` and even, there is `ĝ` analytic at `0` with `g x = ĝ (x²)` near `0`.
+If `g : 𝕜 → 𝕜` (`𝕜 = ℝ` or `ℂ`) is analytic at `0` and even, there is `ĝ` analytic at `0` with `g x = ĝ (x²)` near `0`.
 -/
 
 @[expose] public section
@@ -19,12 +20,12 @@ open scoped Real
 
 namespace FormalResearch.SignUncertainty.CtCfu
 
-lemma exists_sq_of_even {g : ℝ → ℝ} (hg : AnalyticAt ℝ g 0) (heven : ∀ x, g (-x) = g x) :
-    ∃ gh : ℝ → ℝ, AnalyticAt ℝ gh 0 ∧ ∀ᶠ x in 𝓝 (0 : ℝ), g x = gh (x ^ 2) := by
+lemma exists_sq_of_even {𝕜 : Type*} [RCLike 𝕜] {g : 𝕜 → 𝕜} (hg : AnalyticAt 𝕜 g 0) (heven : ∀ x, g (-x) = g x) :
+    ∃ gh : 𝕜 → 𝕜, AnalyticAt 𝕜 gh 0 ∧ ∀ᶠ x in 𝓝 (0 : 𝕜), g x = gh (x ^ 2) := by
   obtain ⟨p, r, hp⟩ := hg
   have hr : 0 < r := hp.r_pos
-  set c : ℕ → ℝ := fun j => p.coeff (2 * j) with hc
-  set q : FormalMultilinearSeries ℝ ℝ ℝ := FormalMultilinearSeries.ofScalars ℝ c with hq
+  set c : ℕ → 𝕜 := fun j => p.coeff (2 * j) with hc
+  set q : FormalMultilinearSeries 𝕜 𝕜 𝕜 := FormalMultilinearSeries.ofScalars 𝕜 c with hq
   -- radius of `q`
   have hrad : ∀ s : NNReal, (s : ENNReal) < r → ((s ^ 2 : NNReal) : ENNReal) ≤ q.radius := by
     intro s hs
@@ -43,9 +44,9 @@ lemma exists_sq_of_even {g : ℝ → ℝ} (hg : AnalyticAt ℝ g 0) (heven : ∀
     refine lt_of_lt_of_le ?_ (hrad s hs)
     exact_mod_cast pow_pos hs0 2
   -- the series identity
-  have hsum : ∀ x : ℝ, x ∈ Metric.eball (0 : ℝ) r → HasSum (fun j : ℕ => c j * (x ^ 2) ^ j) (g x) := by
+  have hsum : ∀ x : 𝕜, x ∈ Metric.eball (0 : 𝕜) r → HasSum (fun j : ℕ => c j * (x ^ 2) ^ j) (g x) := by
     intro x hxr
-    have hxr' : -x ∈ Metric.eball (0 : ℝ) r := by simpa using hxr
+    have hxr' : -x ∈ Metric.eball (0 : 𝕜) r := by simpa using hxr
     have h1 := hp.hasSum hxr
     have h2 := hp.hasSum hxr'
     simp only [zero_add, FormalMultilinearSeries.apply_eq_pow_smul_coeff, smul_eq_mul] at h1 h2
@@ -57,7 +58,7 @@ lemma exists_sq_of_even {g : ℝ → ℝ} (hg : AnalyticAt ℝ g 0) (heven : ∀
         intro he; obtain ⟨j, hj⟩ := he; exact hn ⟨j, by show 2 * j = n; omega⟩
       have : Odd n := Nat.not_even_iff_odd.mp this
       simp [this.neg_pow]
-    have h5 := h4.mul_left (1 / 2)
+    have h5 := h4.mul_left (1 / 2 : 𝕜)
     have e : (fun j : ℕ => 1 / 2 * ((fun n : ℕ => x ^ n * p.coeff n + (-x) ^ n * p.coeff n) ∘ (fun j : ℕ => 2 * j)) j) =
         fun j : ℕ => c j * (x ^ 2) ^ j := by
       funext j
@@ -68,7 +69,7 @@ lemma exists_sq_of_even {g : ℝ → ℝ} (hg : AnalyticAt ℝ g 0) (heven : ∀
     ring
   refine ⟨q.sum, ?_, ?_⟩
   · exact (q.hasFPowerSeriesOnBall hpos).analyticAt
-  · have hnhds : Metric.eball (0 : ℝ) r ∈ 𝓝 (0 : ℝ) := Metric.eball_mem_nhds 0 hr
+  · have hnhds : Metric.eball (0 : 𝕜) r ∈ 𝓝 (0 : 𝕜) := Metric.eball_mem_nhds 0 hr
     filter_upwards [hnhds] with x hx
     have := (hsum x hx).tsum_eq
     rw [← this]
