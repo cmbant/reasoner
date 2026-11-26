@@ -297,6 +297,7 @@ public import FormalResearch.SignUncertainty.CtBoasAverage
 public import FormalResearch.SignUncertainty.CtBoasFrozen
 public import FormalResearch.SignUncertainty.CtBoasBlocks
 public import FormalResearch.SignUncertainty.CtBoasAssembly
+public import FormalResearch.SignUncertainty.CtBoasTent
 public import FormalResearch.SignUncertainty.HankelChartCubic
 public import FormalResearch.SignUncertainty.CtLowerDefs
 public import FormalResearch.SignUncertainty.CtLowerChartGap

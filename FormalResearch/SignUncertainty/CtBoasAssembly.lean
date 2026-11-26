@@ -80,7 +80,8 @@ structure BoasSetting (h X ν wt sf : ℝ → ℝ) : Prop where
 
 /-- **The separately proved inputs of `ct:boas-ineq`.**  Notation: `L = log(π²ξ)`; `h(L)dL = dm(ξ)`; `wt = w̃_R(ξ(L))`;
 `sf = 𝔰_far(cξ(L))`; `Ω_near = wt·(1 - sf)`; `K = 1 - 2 sin X`; `T_{L₀}(L) = 1 - 2 sin(X(L₀) + ν(L₀)(L - L₀))`;
-`ω_j = Ω_near χ_j`; `Q_j = I_j^{**}`; `G_{W_j}(u)` the centred Gaussian.  Each field is a statement of
+`ω_j = Ω_near χ_j`; `Q_j = I_j^{**}` (measurable, overlapping at most `K₀` times: `hQ`, `hmult` of
+`boas_ineq_assembled`, which are geometry and not paper inputs; `tentQ_overlap` gives `K₀ = 7` for the tent partition); `G_{W_j}(u)` the centred Gaussian.  Each field is a statement of
 `constant_terms_lower.tex` proved outside the assembly (the Lean module discharging it, when it exists, in brackets):
 
 * `mass` — `∫|h| = M[f] = 1` (`integral_abs_hankelHL`).
@@ -96,25 +97,23 @@ structure BoasSetting (h X ν wt sf : ℝ → ℝ) : Prop where
   for all `L, L₀ ∈ ℝ`, `A_j = 3M_j' + 2S_jM_j^θ`, `B_j = S_jM_j''`; the far pairs `|L - L₀| > δ_j` have `|D_j| ≤ 6 ≤ Kd_j(L-L₀)²`
   with `Kd_j = 6/δ_j²` (a Chebyshev tail in place of the TeX's `O(e^{-c^{3/2}})`).  Discharged by `Ξ' = cτ₀`, `Ξ'' = c/m'(τ₀)`,
   `ct:outer`(3) (`|θ_ε'(t)| ≤ C_θ(1+t)^{-2}`), `hankelEdgeM'_bounds`, and the Lipschitz bound of `Ω_near χ_j` on the whole line
-  (`ct:Bj-pointwise`(d); the tent partition of `CtBoasTent` supplies the Lipschitz bound of `χ_j`).
+  (`ct:Bj-pointwise`(d); the tent partition of `CtBoasTent` supplies `|χ_j(L) - χ_j(L')| ≤ (3/δ_j)|L - L'|`, `tent_lipschitz_tentNode`).
 * `Kd_W`, `κ` — the far-pair cost `Kd_j W_j² ≤ κ` (`W_j ≤ C c^{-6/7}√(log c) δ_j`, Step 3 block-scale bounds).
 * `pointwise`, `s`, `e`, `Kstar` — `ct:Bj-pointwise`: `A_jW_j + B_jW_j² ≤ 3s_j + K_* e(L)` for every `L ∈ Q_j`, with
   `s_j = M_j^σ W_j` and `e(L) = w̃(L)[c(1+τ²)W²/τ + W/τ + W/ℓ]` (`ct:Bj-pointwise`(a)-(d), `ct:taper-harnack`, `ct:Wj-harnack`).
-* `mult`, `K0` — bounded overlap `K_0 = 12K_1` of the blocks `Q_j` (`ct:Bj-pointwise`(a); for the tent partition a counting lemma).
 * `e_int`, `e_moment`, `εe` — `ct:Bj-pointwise`(f): `∫_{⋃Q_j} h e dL = O(c^{-4/3} log c)` (here `h ≥ 0` on `⋃Q_j`, so `h = |h|`),
   from `ct:dyadic`(1): `∫_0^{R'} v' dm ≤ Cc^{1/3}`, `∫_{L ≥ Λ} h = B₂(R') = O(c^{-1/3})`.
 * `s_moment`, `εs` — `ct:Bj-pointwise`(e): `Σ_j s_j ∫_{Q_j}|h| = O(c^{-4/3} log c)` (the derivative of `𝔰_far`).
 -/
 structure BoasInputs (h X ν wt sf : ℝ → ℝ) (Lmin Lfar : ℝ) (J : ℕ) (χ : ℕ → ℝ → ℝ) (Q : ℕ → Set ℝ)
     (W A B Kd s : ℕ → ℝ) (e : ℝ → ℝ)
-    (M εfar εhi εlo Pb κ Kstar K0 εe εs : ℝ) : Prop where
+    (M εfar εhi εlo Pb κ Kstar εe εs : ℝ) : Prop where
   mass : ∫ L, |h L| ≤ M
   far : -εfar ≤ ∫ L in Ici Lmin, wt L * sf L * (h L * boasKernel X L)
   trunc_hi : ∫ L in Ioi (Lfar + 1), wt L * (1 - sf L) * |h L| ≤ εhi
   trunc_lo : ∫ L in Iio Lmin, wt L * (1 - sf L) * |h L| ≤ εlo
   Pb_nonneg : 0 ≤ Pb
   W_pos : ∀ j < J, 0 < W j
-  Q_meas : ∀ j < J, MeasurableSet (Q j)
   A_nonneg : ∀ j < J, 0 ≤ A j
   Kd_nonneg : ∀ j < J, 0 ≤ Kd j
   P_lb : ∀ j < J, ∀ L0, 0 < wt L0 * (1 - sf L0) * χ j L0 →
@@ -127,7 +126,6 @@ structure BoasInputs (h X ν wt sf : ℝ → ℝ) (Lmin Lfar : ℝ) (J : ℕ) (�
   pointwise : ∀ j < J, ∀ L ∈ Q j, A j * W j + B j * W j ^ 2 ≤ 3 * s j + Kstar * e L
   Kstar_nonneg : 0 ≤ Kstar
   e_nonneg : ∀ L, 0 ≤ e L
-  mult : ∀ L, ∑ j ∈ Finset.range J, (Q j).indicator (fun _ => (1 : ℝ)) L ≤ K0
   e_int : Integrable fun L => |h L| * e L
   e_moment : ∫ L in ⋃ j ∈ Finset.range J, Q j, |h L| * e L ≤ εe
   s_moment : ∑ j ∈ Finset.range J, s j * ∫ L in Q j, |h L| ≤ εs
@@ -275,7 +273,9 @@ This is `ℬ ≥ -O(c^{-4/3} log c)`: `ℬ = ℬ_near + ℬ_far` with `ℬ_far �
 theorem boas_ineq_assembled {h X ν wt sf : ℝ → ℝ} {Lmin Lfar : ℝ} {J : ℕ} {χ : ℕ → ℝ → ℝ} {Q : ℕ → Set ℝ}
     {W A B Kd s : ℕ → ℝ} {e : ℝ → ℝ} {lo hi M εfar εhi εlo Pb κ Kstar K0 εe εs : ℝ}
     (hS : BoasSetting h X ν wt sf) (hP : BoasPartition J χ Lmin (Lfar + 1) lo hi)
-    (hI : BoasInputs h X ν wt sf Lmin Lfar J χ Q W A B Kd s e M εfar εhi εlo Pb κ Kstar K0 εe εs) :
+    (hQ : ∀ j < J, MeasurableSet (Q j))
+    (hmult : ∀ L, ∑ j ∈ Finset.range J, (Q j).indicator (fun _ => (1 : ℝ)) L ≤ K0)
+    (hI : BoasInputs h X ν wt sf Lmin Lfar J χ Q W A B Kd s e M εfar εhi εlo Pb κ Kstar εe εs) :
     -(εfar + 3 * εhi + 3 * εlo + Pb * (hi - lo) + Kstar * K0 * εe + 3 * εs + J * κ * M) ≤
       ∫ L in Ici Lmin, wt L * (h L * boasKernel X L) := by
   obtain ⟨hh, hXm, hνm, hwm, hsm, hw, hsf⟩ := hS
@@ -314,7 +314,7 @@ theorem boas_ineq_assembled {h X ν wt sf : ℝ → ℝ} {Lmin Lfar : ℝ} {J : 
       (T := boasFrozenKernel X ν) (hOm.mul (hP.meas j hj)) hKm (measurable_boasFrozenKernel hXm hνm)
       (fun L => mul_nonneg (hOm0 L) (hP.nonneg j hj L))
       (fun L => by nlinarith [hOm1 L, hχ1 j hj L, hOm0 L, hP.nonneg j hj L]) (hωint j hj) hKb
-      (abs_boasFrozenKernel_le X ν) (fun L0 hL0 => hI.P_lb j hj L0 hL0) (hI.Q_meas j hj)
+      (abs_boasFrozenKernel_le X ν) (fun L0 hL0 => hI.P_lb j hj L0 hL0) (hQ j hj)
       (hI.A_nonneg j hj) (hI.Kd_nonneg j hj) (fun L L0 => hI.freeze j hj L L0)
   have hωb : ∀ j < J, ∀ L, |Om L * χ j L| ≤ 1 := fun j hj L => by
     rw [abs_of_nonneg (mul_nonneg (hOm0 L) (hP.nonneg j hj L))]
@@ -345,9 +345,9 @@ theorem boas_ineq_assembled {h X ν wt sf : ℝ → ℝ} {Lmin Lfar : ℝ} {J : 
     rw [integral_indicator_const _ measurableSet_Icc, Real.volume_real_Icc_of_le hP.lo_le_hi]
     simp
   -- the errors
-  have herr := sum_block_errors_le (W := W) (A := A) (B := B) (s := s) (fun j hj => hI.Q_meas j hj) hh
-    hI.Kstar_nonneg hI.e_nonneg hI.mult hI.e_int hI.pointwise
-  have hK0 : 0 ≤ K0 := le_trans (Finset.sum_nonneg fun j _ => Set.indicator_nonneg (fun _ _ => zero_le_one) _) (hI.mult 0)
+  have herr := sum_block_errors_le (W := W) (A := A) (B := B) (s := s) hQ hh
+    hI.Kstar_nonneg hI.e_nonneg hmult hI.e_int hI.pointwise
+  have hK0 : 0 ≤ K0 := le_trans (Finset.sum_nonneg fun j _ => Set.indicator_nonneg (fun _ _ => zero_le_one) _) (hmult 0)
   have hmass0 : 0 ≤ ∫ L, |h L| := integral_nonneg fun _ => abs_nonneg _
   have hκ : 0 ≤ (J : ℝ) * κ := by
     rcases Nat.eq_zero_or_pos J with hJ | hJ
