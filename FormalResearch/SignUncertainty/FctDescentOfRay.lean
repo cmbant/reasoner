@@ -12,12 +12,12 @@ public import FormalResearch.SignUncertainty.FctDescentRay
 
 Paper I (`constant_terms_five.tex`), Lemma FCT.6 `fct:splitting` (1), proof, steps (a)-(e).
 
-* `FctRayData K4 ε c L₁ α B₀ q₀ D₀ ζ`: the **interior-strip analytic estimates along the ray `ζ + i[0,∞)`**, for one `ζ = σ + iy`,
+* `FctRayData K4 ε c L₁ α B₀ q₀ ζ`: the **interior-strip analytic estimates along the ray `ζ + i[0,∞)`**, for one `ζ = σ + iy`,
   `5/16 ≤ σ ≤ 7/16`, `y ≥ 0`:
   1. `(b)` the ray representation `ζ ∫₀¹ K₀A_ε(sζ) ds = -i ∫₀^∞ K₀A_ε(ζ + is) ds` (Cauchy on the strip with `I_ε(L₁, α) = 0` and the decay
      `|K₀A_ε(σ'+iu)| ≤ C_c (1+u)^{C_c} e^{-πu}`);
-  2. `(a)` `Im g_tan(σ+iu) ≥ 0` (`u ≥ 0`, `0 < σ < 1`);
-  3. `(e)` `|g_tan(ζ+is) + L₁| ≥ q₀ log(2+y)` (`Re g_tan(σ+iu) = -log(πu/2) + O(1)`) and `|g_tan'| ≤ D₀` (`|Φ''| ≤ C`);
+  2. `(a)` `Im g_tan(σ+iu) ≥ 0` is proved (`im_stripG_nonneg`) and is not an input;
+  3. `(e)` `|g_tan(ζ+is) + L₁| ≥ q₀ log(2+y)` (`Re g_tan(σ+iu) = -log(πu/2) + O(1)`); `|g_tan'| ≤ D₀ = π/sin(5π/16) + 16/5` (`|Φ''| ≤ C`) is proved (`norm_deriv_stripG_le`);
   4. `(d)` `|W^{(j)}(ζ+is)| ≤ B₀ |A₀(ζ)| e^{-3s}`, `j = 0,1,2` (the paper's `C|A₀(ζ)|(1+s)^C e^{-πs}` is below `C' e^{-3s}`; `|A₀(ζ)|` is
      `‖N(ζ)‖/‖e^{cΦ(ζ)}‖`), `W = K₀A_ε/(e^{cΦ}Φ')`;
   5. `|W(ζ)/A₀(ζ) - 1| ≤ B₀ c⁻¹/log(2+y)` (`W(ζ)/A₀(ζ) = 1 - L₁(1-φ_kill)/(g_tan+L₁)`, `fct:phikill` (1)).
@@ -36,16 +36,12 @@ open FormalResearch.CohnElkies FormalResearch.SignUncertainty.CtOuter
 namespace FormalResearch.SignUncertainty
 
 /-- **The interior-strip ray estimates** of `fct:splitting` (1) at one point `ζ` (see the module docstring); `‖N(ζ)‖/‖e^{cΦ(ζ)}‖ = |A₀(ζ)|`. -/
-structure FctRayData (K4 ε c L1 α B0 q0 D0 : ℝ) (ζ : ℂ) : Prop where
+structure FctRayData (K4 ε c L1 α B0 q0 : ℝ) (ζ : ℂ) : Prop where
   /-- `(b)`: `ζ ∫₀¹ K₀A_ε(sζ) ds = -i ∫₀^∞ K₀A_ε(ζ + is) ds`. -/
   shift : ζ * ∫ s in (0 : ℝ)..1, mellinK0 c ((s : ℂ) * ζ) (fctXi1 L1) * fctWarpA K4 ε c L1 α ((s : ℂ) * ζ) =
     -(Complex.I * ∫ s in Ioi (0 : ℝ), fctWarpKA K4 ε c L1 α (ζ + (s : ℂ) * Complex.I))
-  /-- `(a)`: `Im g_tan(ζ + is) ≥ 0`. -/
-  im_nonneg : ∀ s : ℝ, 0 ≤ s → 0 ≤ (stripG (ζ + (s : ℂ) * Complex.I)).im
   /-- `(e)`: `|g_tan(ζ+is) + L₁| ≥ q₀ log(2 + y)`. -/
   phase_lower : ∀ s : ℝ, 0 ≤ s → q0 * Real.log (2 + ζ.im) ≤ ‖fctRayP L1 (ζ + (s : ℂ) * Complex.I)‖
-  /-- `|Φ''| ≤ D₀`. -/
-  phase_deriv : ∀ s : ℝ, 0 ≤ s → ‖deriv stripG (ζ + (s : ℂ) * Complex.I)‖ ≤ D0
   /-- `(d)`, `j = 0`. -/
   W0 : ∀ s : ℝ, 0 ≤ s → ‖fctRayW K4 ε c L1 α (ζ + (s : ℂ) * Complex.I)‖ ≤
     B0 * (‖fctRayN K4 ε c L1 α ζ‖ / ‖fctRayE c L1 ζ‖) * Real.exp (-3 * s)
@@ -62,8 +58,8 @@ structure FctRayData (K4 ε c L1 α B0 q0 D0 : ℝ) (ζ : ℂ) : Prop where
 /-- **The named input replacing `FctDescentStmt`** (`fct:splitting` (1), steps (a)-(e)): the interior-strip ray estimates `FctRayData` hold uniformly for `ε = ±1`,
 `c ≥ c₀`, `5/16 ≤ σ ≤ 7/16`, `y ≥ 0`, for the chosen zero pair of `fct:warp-asymp` (1) and `K₄`. -/
 def FctRayStmt {K4 : ℝ} (h : FctWarpSolveStmt K4) : Prop :=
-  ∃ B0 q0 D0 c₀ : ℝ, 0 < q0 ∧ 0 ≤ D0 ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → ∀ σ y : ℝ, 5 / 16 ≤ σ → σ ≤ 7 / 16 → 0 ≤ y →
-    FctRayData K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c) B0 q0 D0 ((σ : ℂ) + y * Complex.I)
+  ∃ B0 q0 c₀ : ℝ, 0 < q0 ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → ∀ σ y : ℝ, 5 / 16 ≤ σ → σ ≤ 7 / 16 → 0 ≤ y →
+    FctRayData K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c) B0 q0 ((σ : ℂ) + y * Complex.I)
 
 /-- `N(ζ) ≠ 0` on the band `0 < Re ζ < 1/2`. -/
 lemma fctRayN_ne_zero {K4 ε c L1 α : ℝ} {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1 / 2) :
@@ -74,7 +70,11 @@ lemma fctRayN_ne_zero {K4 ε c L1 α : ℝ} {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ
 
 /-- **`(fct:F-38-bnd)` from the ray estimates** (`fct:splitting` (1)): `FctRayStmt h → FctDescentStmt h` (`K₄ ≥ 1`). -/
 theorem fctDescent_of_ray {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolveStmt K4} (hR : FctRayStmt h) : FctDescentStmt h := by
-  obtain ⟨B0, q0, D0, c₀, hq0, hD0, hR⟩ := hR
+  obtain ⟨B0, q0, c₀, hq0, hR⟩ := hR
+  set D0 : ℝ := π / Real.sin (5 * π / 16) + 16 / 5 with hD0def
+  have hD0 : 0 ≤ D0 := by
+    have : 0 < Real.sin (5 * π / 16) := Real.sin_pos_of_pos_of_lt_pi (by positivity) (by linarith [Real.pi_pos])
+    positivity
   obtain ⟨Cz, cz, hz⟩ := fctWarpZero_of_solve h
   have hα : ∃ Kα c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |fctWarpAlpha h ε c| ≤ Kα * c ^ (-(2 / 3 : ℝ)) :=
     ⟨Cz, cz, fun ε c hε hc => (hz ε c hε hc).2⟩
@@ -106,8 +106,8 @@ theorem fctDescent_of_ray {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolveStmt K4} 
       (ζ := ζ) hζS.1 (by rw [hζre]; linarith)
     have hnear := hd.W_near_one
     rw [hζim] at hnear
-    have hray := fctPhiC_ray_bound (ε := ε) (B0 := B0) (D := D0) hcpos hq hD0 hDD.hol hζS hN hd.shift hd.im_nonneg
-      (fun s hs => by have := hd.phase_lower s hs; rw [hζim] at this; exact this) hd.phase_deriv hd.W0 hd.W1 hd.W2
+    have hray := fctPhiC_ray_bound (ε := ε) (B0 := B0) (D := D0) hcpos hq hD0 hDD.hol hζS hN hd.shift (by rw [hζim]; exact hy)
+      (fun s hs => by have := hd.phase_lower s hs; rw [hζim] at this; exact this) (fun s _ => norm_deriv_stripG_le (by simp [hζre]; linarith) (by simp [hζre]; linarith)) hd.W0 hd.W1 hd.W2
     unfold fctFint
     have h1 := norm_add_le (fctPhiC K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c) ζ - fctRayE c (fctWarpL1 h ε c) ζ *
         fctRayW K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c) ζ / fctRayN K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c) ζ)

@@ -303,4 +303,8 @@ theorem fctRay_ibp_bound {c B q D : ℝ} (hc : 0 < c) (hq : 0 < q) (hD : 0 ≤ D
   calc _ ≤ ‖e 0‖ * B / q / c ^ 2 + ‖e 0‖ * (B * (1 / q + D / q ^ 2)) / 3 / c ^ 2 := add_le_add hA hC
     _ = _ := by field_simp
 
+/-- info: 'FormalResearch.SignUncertainty.fctRay_ibp_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms fctRay_ibp_bound
+
 end FormalResearch.SignUncertainty
