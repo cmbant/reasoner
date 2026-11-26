@@ -469,6 +469,8 @@ public import FormalResearch.SignUncertainty.FctUnscaledCuspFar
 public import FormalResearch.SignUncertainty.FctUnscaledCuspLemma
 public import FormalResearch.SignUncertainty.UctFloorEdge
 public import FormalResearch.SignUncertainty.UctFloorAdmiss
+public import FormalResearch.SignUncertainty.FctMainHankelDefs
+public import FormalResearch.SignUncertainty.FctDcomp
 public import FormalResearch.SignUncertainty.FctMainHankel
 public import FormalResearch.SignUncertainty.FctSymCal
 public import FormalResearch.SignUncertainty.FctSymChain
