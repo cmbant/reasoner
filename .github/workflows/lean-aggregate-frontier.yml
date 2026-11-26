@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - 'agents/**'
+  workflow_dispatch:
 
 concurrency:
   group: lean-aggregate-frontier-${{ github.ref }}
@@ -12,7 +13,7 @@ concurrency:
 
 jobs:
   aggregate-next:
-    if: ${{ contains(github.event.head_commit.message, '[aggregate-next]') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[aggregate-next]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -27,7 +28,7 @@ jobs:
         run: lake exe cache get
       - name: Reject placeholders
         run: |
-          if grep -R --line-number -E '\bsorry\b|\badmit\b' FormalResearch FormalResearch.lean; then
+          if grep -R --line-number --include='*.lean' -E '\bsorry\b|\badmit\b' FormalResearch FormalResearch.lean; then
             echo 'Lean placeholders found'
             exit 1
           fi
