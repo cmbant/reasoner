@@ -815,8 +815,10 @@ theorem norm_iteratedDeriv_stripCompG_le (r : ℕ) {v : ℝ → ℝ} (hv : ContD
           Complex.norm_real, Real.norm_eq_abs, Real.norm_eq_abs]
     _ ≤ M := hbdry τ
 
-/-- The same global closed-strip bound holds for the continuous extension `(-i)^r stripCompGExt (v^{(r)})`
-on all of `closedStrip`. -/
+/-- The all-orders closed-strip bound of `fct:comp-D` (1) (Lemma FCT.3, `constant_terms_five.tex`):
+the continuous extension `(-i)^r stripCompGExt (v^{(r)})` of `g_D^{(r)}` is bounded on all of `closedStrip` by
+any bound `M` on the edge values `|v^{(r)}| + |ϑ_D^{(r)}|` (maximum principle). The paper's
+`|g_D^{(r)}| ≤ C_r(K_4) τ_1^{2-r}` follows with `M` from `(fct:v-derivs)`, `(fct:th-inner)`, `(fct:th-tail)`. -/
 theorem norm_iteratedDeriv_stripCompGExt_le (r : ℕ) {v : ℝ → ℝ} (hv : ContDiff ℝ (⊤ : ℕ∞) v)
     {R M : ℝ} (hR : 0 < R) (hM : 0 ≤ M) (hsupp : Function.support v ⊆ Ioo (-R) R)
     (hbdry : ∀ τ : ℝ, |iteratedDeriv r v τ| + |iteratedDeriv r (fctThetaD v) τ| ≤ M)
@@ -1308,5 +1310,9 @@ theorem abs_iteratedDeriv_fctThetaD_tail (r : ℕ) :
             (∫ s : ℝ, |v s|) * |t| ^ (-(1 + (r : ℤ))) * Real.exp (-(π / 2) * |t|) := by ring
       _ ≤ max C_small C_large * (∫ s : ℝ, |v s|) * |t| ^ (-(1 + (r : ℤ))) * Real.exp (-(π / 2) * |t|) := by
           gcongr; exact le_max_right _ _
+
+/-- info: 'FormalResearch.SignUncertainty.FctCompD.norm_iteratedDeriv_stripCompGExt_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.FctCompD.norm_iteratedDeriv_stripCompGExt_le
 
 end FormalResearch.SignUncertainty.FctCompD
