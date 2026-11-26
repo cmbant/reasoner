@@ -18,6 +18,8 @@ public import FormalResearch.SignUncertainty.CeCanonicalSide
 public import FormalResearch.SignUncertainty.HbMultilevelDefs
 public import FormalResearch.SignUncertainty.AiryNodeSquare
 public import FormalResearch.SignUncertainty.AiryActiveHeight
+public import FormalResearch.SignUncertainty.CeTerminalDeflation
+public import FormalResearch.SignUncertainty.AiryNodeSign
 
 /-!
 # Paper I headline theorems from one input structure each (M0 skeleton)
@@ -54,14 +56,13 @@ Headlines and their inputs (open fields in bold):
   seeds), **`attainment`** (`gt:7.9a`, `lem:finite-hankel-compactness`), **`exact_origin`** (`gt:7.9b`).
 * `thm_ce_canonical_iff` (`thm:intro-gap` = `thm:ce-canonical-iff`, parts (1)-(4), with (i)-(iv); the zero enumeration `t` exists and is unique: `HbZeroEnum.lean`), from
   `CeCanonicalInputs D t` (`CeCanonicalDefs.lean`): **`shell_reduction`** (`thm:ce-shell-reduction`),
-  **`ce_hb_lift`** (`thm:ce-hb-lift`, weak positivity), **`ce_airy_transfer_upper`** (`thm:ce-airy-transfer` (1)),
-  **`node_sign`**, **`node_sum`** (`thm:airy-node-sign`, the sign and the cumulative node-sum criteria),
-  **`terminal_deflation`** (`lem:ce-terminal-deflation`). The extraction and
+  **`ce_hb_lift`** (`thm:ce-hb-lift`, weak positivity), **`ce_airy_transfer_upper`** (`thm:ce-airy-transfer` (1)). The extraction and
   constraint system `eq:ce-laplace-constraint` of `thm:ce-shell-gap` (Hankel form `HankelShellGapLimit`) is the
   theorem `hankelShellGapLimit_proved` (`ShellGapExtract.lean`) and no longer a field; `thm:airy-square-attained` (1), (3) is the theorem `airySquareAttained` (`CeCanonicalDefs.lean`, from
   `AirySquareSimple.lean`) and no longer a field, nor are `lem:airy-square-bound` (`Λ_m > a_m`: `airyLambdaSection_hb_gt_airyZero`, `AirySquareBound.lean`),
-  `lem:airy-node-square` (`λ > τ_N > t_{m+e}`: `airy_node_square`, `AiryNodeSquare.lean`), or `lem:airy-active-height`
-  (`airy_active_height`, `AiryActiveHeight.lean`); the `v = t_m` endpoint clause
+  `lem:airy-node-square` (`λ > τ_N > t_{m+e}`: `airy_node_square`, `AiryNodeSquare.lean`), `lem:airy-active-height`
+  (`airy_active_height`, `AiryActiveHeight.lean`), `thm:airy-node-sign` (`airy_node_sign`, `airy_node_sum`,
+  `AiryNodeSign.lean`), or `lem:ce-terminal-deflation` (`terminal_cardinal_integral`, `ce_terminal_deflation_full`, `CeTerminalDeflation.lean`); the `v = t_m` endpoint clause
   `ShellGapEndpoint D` is the theorem `shellGapEndpoint_proved` (`ShellGapEndpoint.lean`) and no longer a field, and
   `thm_ce_shell_gap` is proved; `one_profile_envelope` (`gt:3.1` envelope used in `prop:ce-one-profile`) is a theorem
   (`OneProfileEnvelope.lean`). Proved here: `one_profile_feasible_iff`, `one_profile_maximizer_exists`,
@@ -769,10 +770,10 @@ lemma ceShellRho_tendsto {D : ShellHBData} {r : ℝ → ℕ → ℝ} {τ : ℝ}
     exact lt_of_le_of_lt (EReal.coe_le_coe_iff.2 (shellNormRadius_sInf_le h1 hu)) hwb
 
 /-- `u_sh = t_m` in the canonical case, from `lem:airy-active-height` (3) and `lem:ce-terminal-deflation`. -/
-lemma uSh_eq_tm_of_canonical {D : ShellHBData} {t : ℕ → ℝ} (I : CeCanonicalInputs D t)
+lemma uSh_eq_tm_of_canonical (D : ShellHBData)
     (hi : ∀ y : ℝ, 0 < y → 0 ≤ airyLaplace (fun u => -(D.G (u : ℂ)).re) y) : uSh D = (D.tm : EReal) := by
   have hb := (uLP_eq_tm_iff D).2 hi
-  obtain ⟨-, -, hpos⟩ := I.terminal_deflation hi
+  obtain ⟨-, -, -, hpos⟩ := terminal_cardinal_integral D
   refine (airy_active_height D).quotient_mass D.tm hb _ (negG_witness D hi) ?_
   have : (∫ u : ℝ, (((fun z => -D.G z) (u : ℂ)).re) / (u - D.tm)) =
       ∫ u : ℝ, (-(D.G (u : ℂ)).re) / (u - D.tm) := by simp
@@ -872,7 +873,7 @@ lemma shell_i_to_iii {D : ShellHBData} {t : ℕ → ℝ} (I : CeCanonicalInputs 
   intro r hr
   have hβ := hankelBeta1_pos
   have hLP := (uLP_eq_tm_iff D).2 hi
-  have hSh := uSh_eq_tm_of_canonical I hi
+  have hSh := uSh_eq_tm_of_canonical D hi
   set τ : ℝ := -(D.tm / hankelBeta1) with hτ
   have hup : ∀ w : ℝ, τ < w → ∀ᶠ d : ℕ in atTop, ∃ R ∈ ceShellRadiusSet D r d,
       R ^ 2 / 2 ≤ (d : ℝ) / (2 * π ^ 2) + w * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) := by
@@ -904,7 +905,7 @@ lemma shell_i_to_iii {D : ShellHBData} {t : ℕ → ℝ} (I : CeCanonicalInputs 
     exact shell_gap_lower D hr this
 
 
-lemma uSh_eq_of_node_bound {D : ShellHBData} {t : ℕ → ℝ} (I : CeCanonicalInputs D t)
+lemma uSh_eq_of_node_bound {D : ShellHBData} {t : ℕ → ℝ} (ht : IsHbZeroEnum D.P D.Q t)
     (h : ((hbNode t (D.S.card + 2) : ℝ) : EReal) ≤ uLP D) : uSh D = uLP D := by
   have hbot : uLP D ≠ ⊥ := fun h0 => by
     rw [h0] at h; exact absurd (le_bot_iff.1 h) (EReal.coe_ne_bot _)
@@ -913,9 +914,9 @@ lemma uSh_eq_of_node_bound {D : ShellHBData} {t : ℕ → ℝ} (I : CeCanonicalI
   have hbtm : b ≤ D.tm := EReal.coe_le_coe_iff.1 (hb ▸ uLP_le_tm D)
   rw [hb]
   rcases hbtm.lt_or_eq with hlt | heq
-  · exact I.node_sign.2 b hb (by rw [hb] at h; exact EReal.coe_le_coe_iff.1 h) hlt
+  · exact (airy_node_sign D ht).2 b hb (by rw [hb] at h; exact EReal.coe_le_coe_iff.1 h) hlt
   · subst heq
-    exact uSh_eq_tm_of_canonical I ((uLP_eq_tm_iff D).1 (hb.trans rfl))
+    exact uSh_eq_tm_of_canonical D ((uLP_eq_tm_iff D).1 (hb.trans rfl))
 
 /-- **`thm:intro-gap`** (= `thm:ce-canonical-iff`, `ce_canonical_iff.tex`), parts (1)-(3), for strict
 Hermite–Biehler data `D` (`m = D.S.card`, sites `shellSites D`) with the zero enumeration `t` (`t j = t_{j+1}`).
@@ -944,7 +945,7 @@ Airy-order gap (`thm:ce-shell-gap`, `eq:strict-gap`) is `thm_ce_shell_gap`. (5) 
 `hbNodeWeight_pos`, `hbTauN_lt_tm`, `CeCanonicalSide.lean`), the bound of `thm:ce-laplace-zeros` (the positive zeros of
 `F_N = ∫ (-G_N) e^{yu} du`, counted with multiplicity, number at most `m - 1`; proved, `laplace_zero_multiplicity_le`;
 its parenthetical "even multiplicity" and the same statement for `ℒ_y(-G_N) = e^{-y³/12} F_N` are not restated) and the
-cumulative node-sum criterion of `thm:airy-node-sign` (input field `node_sum`). -/
+cumulative node-sum criterion of `thm:airy-node-sign` (proved, `airy_node_sum`, `AiryNodeSign.lean`). -/
 theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroEnum D.P D.Q t)
     (I : CeCanonicalInputs D t) :
     -- (1) thresholds
@@ -1004,7 +1005,7 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
   refine ⟨⟨uLP_le_tm D, uLP_eq_tm_iff D, fun hm => ?_, fun hlt => ⟨?_, ?_⟩⟩, ⟨?_, ?_, ?_⟩, ?_,
     ⟨fun n hn T G hG => hankelShellProfile_origin_mass hn hG, shellGapEndpoint_proved D⟩,
     fun hm => ⟨fun n hn => hbNodeWeight_pos D ht hm hn, hbTauN_lt_tm D ht hm⟩,
-    fun Z hZ mult hmult => laplace_zero_multiplicity_le D Z hZ mult hmult, I.node_sum⟩
+    fun Z hZ mult hmult => laplace_zero_multiplicity_le D Z hZ mult hmult, airy_node_sum D ht⟩
   · obtain ⟨hΛ, -, hlt⟩ := lambda_chain D hm
     obtain ⟨hτ1, hτ2⟩ := airy_node_square D ht hm
     exact ⟨hΛ, hlt, uSh_le_uLP D, airyLambdaSection_hb_gt_airyZero D hm, hτ1, hτ2⟩
@@ -1014,8 +1015,8 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
   · intro b hb hbt H hH hc
     rcases hc with ⟨-, hnn⟩ | hno
     · exact (airy_active_height D).quotient_mass b hb H hH hnn
-    · exact I.node_sign.1 b hb hbt H hH hno
-  · exact fun h => uSh_eq_of_node_bound I h
+    · exact (airy_node_sign D ht).1 b hb hbt H hH hno
+  · exact fun h => uSh_eq_of_node_bound ht h
   · intro h5
     by_cases h1 : D.S.card = 1
     · exact uSh_eq_uLP_of_card_one D h1
@@ -1023,7 +1024,7 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
       have hm : 2 ≤ D.S.card := by omega
       obtain ⟨-, hle, -⟩ := lambda_chain D hm
       obtain ⟨hτ1, hτ2⟩ := airy_node_square D ht hm
-      refine uSh_eq_of_node_bound I ?_
+      refine uSh_eq_of_node_bound ht ?_
       have hanti : hbNode t (D.S.card + 2) ≤ hbNode t (D.S.card + D.S.card / 2) := by
         unfold hbNode
         exact ht.1.antitone (by omega)
