@@ -14,7 +14,6 @@ top-scale moments `∫_{(0,L_J]} v'|h| ≤ K c^{1/3}` and `∫_{L>L_J}|h| ≤ K 
 * `ct_combined_trunc` (`CtCombinedPieces.trunc`): `|∫ w̃ dm - ∫_{ξ ≥ ξ(-v₀)} w̃ dm| = O(c^{-29/21})`, from `boas_field_trunc_lo` with `𝔰 = 0`;
 * `ct_outer_pointwise` (`ct:cfu` (2) for `dualK` at `ξ = e^L/π²`, identifying `dualK`, `boasX` with the outer-band `τ₀`) and `ct_combined_outer`
   (`CtCombinedPieces.outer`): `∫_{ξ>ξ(-R')} K dm = -∫_{ξ>ξ(-R')} sin X dm + O(c^{-4/3})`, with `B₂(R') = O(c^{-1/3})` the Chebyshev tail of the first moment;
-* `CtCombinedOpen`, `ct_lower_of_open`: the three steps still open (`rosc`, `window`, `trans`) as the named inputs of `thm:ct-lower`.
 
 **Proved**, unconditional.
 -/
@@ -269,37 +268,5 @@ theorem ct_combined_outer : ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ �
 /-- info: 'FormalResearch.SignUncertainty.ct_combined_outer' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ct_combined_outer
-
-/-! ### What remains: `CtCombinedOpen` -/
-
-/-- **The three steps of `(ct:combined)` not yet in Lean** (the named inputs of `thm:ct-lower` now; `trunc` and `outer` are proved above):
-
-* `rosc`: `P_R(H) + g_vac/2π + ∫ w̃ dm + 2(s₁ - s₂) = O(c⁻¹η_R)` (`(ct:rosc)`, the half-disc `ap:thmD` with the `R₊ = -ih₊/Ai` comparison
-  (P3a), the mass identity `gt:7.7p` (c), the transport `gt:7.7p` (b));
-* `window`: `∫_{ξ ≤ ξ(-R')} K dm + s₁ = O(c⁻¹η_R + c^{-4/3} log c)` (`ct:cfu` (1) substituted, `(ct:H2-orth)` (P3b), `(ct:half)`, the sub-chart
-  radial compactness);
-* `trans`: `∫_{ξ ≥ ξ(-v₀)} w̃ sin X dm - s₂ - ∫_{ξ>ξ(-R')} sin X dm = O(c^{-4/3})` (the transition band: `(ct:theta-cfu-match)`, the transport `gt:7.7p` (b)
-  and the first moment). -/
-structure CtCombinedOpen (c₁ : ℝ) : Prop where
-  rosc : CtDyadicBound c₁ fun R ε c f => ctBudget R ε c f + ctMall R ε c f + 2 * (ctOscS1 R ε c f - ctOscS2 R ε c f)
-  window : CtDyadicBound c₁ fun R ε c f => ctKin R ε c f + ctOscS1 R ε c f
-  trans : CtDyadicBound c₁ fun R ε c f => ctStr R ε c f - ctOscS2 R ε c f - ctSout R ε c f
-
-/-- **`thm:ct-lower` from the three open steps of `ct:dyadic` (4)**: `ct_lower` with `CtLowerInputs.dyadic` replaced by `CtCombinedOpen`
-(`rosc`, `window`, `trans`); the steps `trunc` and `outer` are `ct_combined_trunc`, `ct_combined_outer`. -/
-theorem ct_lower_of_open
-    (P : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtCombinedOpen c₁) : CtLowerStatement := by
-  obtain ⟨c₁₀, hc₁₀, hP⟩ := P
-  obtain ⟨g₁, hg₁, hT⟩ := ct_combined_trunc
-  obtain ⟨g₂, hg₂, hO⟩ := ct_combined_outer
-  refine ct_lower_of_pieces ⟨min c₁₀ (min g₁ g₂), lt_min hc₁₀ (lt_min hg₁ hg₂), fun c₁ h1 h2 => ?_⟩
-  have a1 : c₁ ≤ c₁₀ := h2.trans (min_le_left _ _)
-  have a2 : c₁ ≤ g₁ := h2.trans ((min_le_right _ _).trans (min_le_left _ _))
-  have a3 : c₁ ≤ g₂ := h2.trans ((min_le_right _ _).trans (min_le_right _ _))
-  exact ⟨(hP c₁ h1 a1).rosc, hT c₁ h1 a2, (hP c₁ h1 a1).window, hO c₁ h1 a3, (hP c₁ h1 a1).trans⟩
-
-/-- info: 'FormalResearch.SignUncertainty.ct_lower_of_open' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms ct_lower_of_open
 
 end FormalResearch.SignUncertainty

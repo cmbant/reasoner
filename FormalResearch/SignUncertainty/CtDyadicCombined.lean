@@ -24,7 +24,9 @@ a concrete integral up to `O(c⁻¹η_R + c^{-4/3} log c)` at a good radius `R �
 * `window`: `K_in + s₁ = O(c⁻¹η_R + c^{-4/3} log c)`: the sub-chart bullet (radial compactness, `|K| ≤ K_b`) and the Airy-window bullet (`ct:cfu` (1) substituted,
   `(ct:H2-orth)`, the half moment `(ct:half)` for the CFU remainder, `|s₁| ≤ η_R`).
 * `outer`: `K_out + S_out = O(c^{-4/3})` (`ct:cfu` (2) with `B₂(R') = O(c^{-1/3})`).
-* `trans`: `S_tr - s₂ - S_out = O(c^{-4/3})` (`w̃ = 1` beyond `Λ`; the transition band: `(ct:theta-cfu-match)` and the first moment).
+* `trans`: `S_tr - s₂ - S_out = O(c^{-4/3})` (`w̃ = 1` beyond `Λ`; the transition band: `(ct:theta-cfu-match)` and the first moment); proved in `CtTransBand` (`ct_combined_trans`) from the chart identification `CtLangerEdge`.
+
+`s₁`, `s₂` are written in the Langer variable `x = ũ ∈ (-R', 0)` (`v = -û(x)`, `f_c(-v)dv = Ψ̃(x)dx`), see `ctOscS1`.
 
 Together with the proved exact duality `K_in + K_out = 0` (`ct:dual-id` (2), `ct_dual_id_part2`) they give `(ct:combined)`
 (`ct_combined_of_pieces`): the left side is `e₁ - e_T - 2e_w - 2e_o - 2e_tr`, an exact linear combination.  The assembly is **proved**; the five
@@ -40,13 +42,18 @@ namespace FormalResearch.SignUncertainty
 
 /-! ### The concrete quantities -/
 
-/-- `s₁ = ∫_0^R f_c(-v) sin(4/3 v^{3/2}) dv` (the integral bounded by `η_R` through Cauchy's theorem on the half-disc, `ct:dyadic` (4) (iv)). -/
+/-- `s₁ = ∫_0^R f_c(-v) sin(4/3 v^{3/2}) dv` (the integral bounded by `η_R` through Cauchy's theorem on the half-disc, `ct:dyadic` (4) (iv)),
+written in the Langer variable: `v = -û(x)`, `f_c(-v) dv = Ψ̃(x) dx` (exact, `f_c = Ψ̃(φ_c) φ_c'`), `x ∈ (-R', 0)`, `R' = -φ_c(-R)`.  It omits the
+sliver `v ∈ (0, -û(0⁻))` (`|û(0⁻)| = O(c^{-1/3})`), the lobe `ũ > 0` on which the Lean `ctPhi` (inverse of `û` on `u ≤ 0` only) is a junk
+value; the paper's integral over it is `O(c^{-1/2} ∫|Ψ̃|_{ũ>0}) = O(e^{-κc})`. -/
 noncomputable def ctOscS1 (R ε c : ℝ) (f : ℝ → ℝ) : ℝ :=
-  ∫ v in Ioo 0 R, ctFc ε c f (-v) * Real.sin (4 / 3 * v ^ (3 / 2 : ℝ))
+  ∫ x in Ioo (-(ctRprime ε c R)) 0, hankelPsiR c f x * Real.sin (4 / 3 * (-ctUhat ε c x) ^ (3 / 2 : ℝ))
 
-/-- `s₂ = ∫_0^R w_R(v) f_c(-v) sin(4/3 v^{3/2}) dv`, `w_R = 2(v/R)^{12} - (v/R)^{24}` (`taperW`). -/
+/-- `s₂ = ∫_0^R w_R(v) f_c(-v) sin(4/3 v^{3/2}) dv`, `w_R = 2(v/R)^{12} - (v/R)^{24}` (`taperW`), in the Langer variable as `ctOscS1`
+(`v = -û(x)`, `f_c(-v) dv = Ψ̃(x) dx`, `x ∈ (-R', 0)`). -/
 noncomputable def ctOscS2 (R ε c : ℝ) (f : ℝ → ℝ) : ℝ :=
-  ∫ v in Ioo 0 R, taperW R v * (ctFc ε c f (-v) * Real.sin (4 / 3 * v ^ (3 / 2 : ℝ)))
+  ∫ x in Ioo (-(ctRprime ε c R)) 0,
+    taperW R (-ctUhat ε c x) * (hankelPsiR c f x * Real.sin (4 / 3 * (-ctUhat ε c x) ^ (3 / 2 : ℝ)))
 
 /-- `M_all = ∫ w̃_R dm` over the whole line (`w̃ = 0` for `L ≤ 0`, i.e. `ξ ≤ ξ(0)`). -/
 noncomputable def ctMall (R ε c : ℝ) (f : ℝ → ℝ) : ℝ := ∫ L, ctTaper ε c R L * hankelHL c f L
