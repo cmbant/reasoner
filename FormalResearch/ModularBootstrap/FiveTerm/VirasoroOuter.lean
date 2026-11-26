@@ -48,7 +48,7 @@ lemma ne_of_mem_diff {z : ℂ} (hz : z ∈ closure halfDisc \ {Complex.I, -Compl
   ⟨fun h => hz.2 (by simp [h]), fun h => hz.2 (by simp [h])⟩
 
 lemma continuousOn_qBd : ContinuousOn qBd (closure halfDisc \ {Complex.I, -Complex.I}) :=
-  continuousOn_extLim (fun z hz =>
+  continuousOn_extLim (fun _z hz =>
     ⟨_, (exists_qBd hz.1 (ne_of_mem_diff hz).1 (ne_of_mem_diff hz).2).2⟩)
 
 lemma ne_of_mem_sing {z : ℂ} (hz : z ∈ closure halfDisc \ singPts) :
@@ -163,7 +163,7 @@ lemma gout_conj {z : ℂ} (hz : z ∈ halfDisc) : Gout (starRingEnd ℂ z) = sta
   have hs : sInv z ∈ closedStrip := (strip_subset_closedStrip (sInv_mem_strip hz))
   unfold Gout
   rw [sInv_conj hz, hbarA_conj amp_aAmp hs, qBd_of_mem hz, qBd_of_mem (halfDisc_conj hz), qHat_conj hz]
-  simp only [map_mul, map_div₀, map_pow, map_add, map_sub, map_one]
+  simp only [map_mul, map_div₀, map_pow, map_add, map_one]
   rw [Complex.exp_conj, conj_cpow_slit (one_sub_mem_slit hcl hz1), conj_cpow_slit (qHat_mem_slit hz)]
   have h2 : (starRingEnd ℂ) (2 : ℂ) = 2 := map_ofNat _ 2
   have h4 : (starRingEnd ℂ) (4 : ℂ) = 4 := map_ofNat _ 4

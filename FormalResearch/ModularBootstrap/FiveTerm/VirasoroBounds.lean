@@ -20,7 +20,7 @@ open FormalResearch.ModularBootstrap.FiveTerm.StripOuter
 
 namespace FormalResearch.ModularBootstrap.FiveTerm
 
-lemma norm_gout {z : ℂ} (hz : z ∈ closure halfDisc \ singPts) :
+lemma norm_gout {z : ℂ} (_hz : z ∈ closure halfDisc \ singPts) :
     ‖Gout z‖ = Real.exp (hbarA aAmp (sInv z)).re * ‖1 - z‖ ^ (1 / 2 : ℝ) / ‖1 + z‖ ^ 2 *
       ‖qBd z‖ ^ (-(1 / 4) : ℝ) := by
   have h1 : (1 / 2 : ℂ) = ((1 / 2 : ℝ) : ℂ) := by push_cast; ring

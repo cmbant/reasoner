@@ -57,7 +57,7 @@ lemma integrable_integrandA (ha : Amp a) {ζ : ℂ} (hζ : ζ ∈ strip) :
   refine (integrable_genH_integrand ha hζ).congr (Eventually.of_forall fun t => ?_)
   simp [kern0, div_eq_mul_inv]
 
-lemma differentiableOn_genH (ha : Amp a) : DifferentiableOn ℂ (genH a) strip := fun w hw =>
+lemma differentiableOn_genH (ha : Amp a) : DifferentiableOn ℂ (genH a) strip := fun _w hw =>
   (hasDerivAt_genH ha.cont ha.bdd hw).differentiableAt.differentiableWithinAt
 
 /-- Parity `H(1 - ζ) = H(ζ)` for even `a`. -/
@@ -86,7 +86,7 @@ lemma genH_conj (ha : Amp a) (ζ : ℂ) : genH a (starRingEnd ℂ ζ) = starRing
       simp only [map_mul, map_sub, Complex.conj_ofReal, Complex.conj_I]
       push_cast; ring
     rw [this, Complex.sin_conj]
-    simp [map_div₀]
+    simp
   have h1 : ∫ t : ℝ, (a t : ℂ) * kern0 (starRingEnd ℂ ζ) t =
       ∫ t : ℝ, starRingEnd ℂ ((a (-t) : ℂ) * kern0 ζ (-t)) := by
     refine integral_congr_ae (Eventually.of_forall fun t => ?_)

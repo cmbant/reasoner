@@ -402,13 +402,13 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | label | state | Lean today / note |
 |---|---|---|
 | `fct:main-hankel` | planned | M10 (upper bound): the Hankel assembly; its construction passage (`fct:s4-proof`, `fct:tab-regimes`, `fct:hg1-win`, `fct:hg1-mac`) is reused by F2b. Step 1 (admissibility) checks `uct:admiss` for the floor multiplier `W_pos` by integration by parts, `(g_1')~(i w) = -w g_1~(i w)`, then `uct:g1-int`, `uct:Fstar-int` near the edges and `u1c:U2` (1) at large height (PR 295 review; `uct:pos-floor` (2) alone does not give (M3)); dependency closure in the paragraph below the F2a tables |
-| `fct:moment-solver` | planned | M10 (upper bound): finite moment correction, any fixed number of moments (polynomial zero counting) |
+| `fct:moment-solver` | done: `fct_moment_solver` (`FctMomentCore`, `FctMomentSolver`) (reasoner master eb412f8); | M10 (upper bound): finite moment correction, any fixed number of moments (polynomial zero counting) |
 | `fct:comp-D` | planned | M10 (upper bound) |
-| `fct:phikill` | planned | M10 (upper bound) |
+| `fct:phikill` | done: `fct_phikill` (`FctPhiKillCore`, `FctPhiKill`), all parts (reasoner master eb412f8); | M10 (upper bound) |
 | `fct:comp-cfu` | planned | M10 (upper bound): compensated cubic chart via a scalar cubic and implicit differentiation; main (2026-11-26) adds explicit `C^k` chart estimates and a rigorous zero solve in Prop. `FCT.5`(1) |
 | `fct:inner-symbols` | planned | M10 (F2a): new Lemma FCT.5b (main, 2026-11-26): Airy-type oscillatory integrals and the inner amplitude on the zero-solve box (`fct:RI-bounds`, `fct:chain`); `fct:psi-real` (FCT.9 Step 1(b), real-axis equivalence) is now proved uniformly |
 | `fct:warp-asymp` | planned | M10 (upper bound); 5, 21, 7 integrations by parts through `fct:edge-ibp` |
-| `fct:edge-ibp` | planned | M10 (F2a): new Lemma FCT.5a (2026-11-25), Abel-sense edge-cutoff removal and shoulder IBP uniform in the regulator `lambda in {0, 1/c}`; shared by `fct:warp-asymp` and `fct:ce-band` |
+| `fct:edge-ibp` | done: `fct_edge_ibp` (`FctEdgeIbp`), with the corrected range `1 <= k <= n` of the paper (off-by-one fixed in TeX) (reasoner master eb412f8); | M10 (F2a): new Lemma FCT.5a (2026-11-25), Abel-sense edge-cutoff removal and shoulder IBP uniform in the regulator `lambda in {0, 1/c}`; shared by `fct:warp-asymp` and `fct:ce-band` |
 | `fct:splitting` | planned | M10 (upper bound) |
 | `fct:bump-5` | partial (items (1), (2)) | `FctBump5`: `BSym` (`(fct:B-sym)`) and `BSym.profile`, `fct_bump5_main_small` ((1) main density, `e^{-c_1 c^{1/4}}`), `fct_bump5_refl` ((1) reflected density, `e^{-c_1 c^{1/2}} min(1,L_+^{-2})`), `fct_bump5_mid` ((2), `M_loc = M L^{-alpha}`); (1) common bounds are `bump_laplace_decay`/`bump_stripAdmissFull` at `b = 3/2`. Open: (3) far band (needs `uct:bump-weighted` far band) |
 | `fct:bump-sym-check` | planned | M10 (F2a): Lemma FCT.7b (a remark until 2026-11-25); symbol-class bounds of the three bumps, cited by `fct:physical-positive`, `fct:main-hankel`, `fct:ce-band` |
