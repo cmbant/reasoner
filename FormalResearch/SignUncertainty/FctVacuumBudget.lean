@@ -7,6 +7,31 @@ module
 public import FormalResearch.SignUncertainty.FctVacuumPaired
 public import FormalResearch.SignUncertainty.FctPhysicalBudget
 
+/-!
+# `fct:physical-budget`: the vacuum integral `∫ χ(L/3δ) γ(L̃) (O − F) dL ≤ A c^{-3/4}` (parts (a)-(c) of the proof) (F2a)
+
+Source: `CFT/sign_uncertainty/paper/constant_terms_five.tex`, Lemma `fct:physical-budget`, proof parts (a)-(d) and `(fct:vac-paired)`.
+
+**Proved here** (`vac_core`), for the physical envelope `O = I_osc^{warp}` (`physOsc`, `FctVacuumPaired`) at one `(ε, c)`, `a = c^{-1/12}`
+(so `τ₁ = a³`, `c^{-1} = a^{12}`, `c^{-3/4} = a⁹`), in the variable `u = L − s` (`s = θ₁^ε/c`, `A = L₁ − s`):
+
+* the one-sided paired decomposition (`vacG_le_Q`, `vac_split`): `χ γ (O − F) ≤ χ γ Q` with `Q = (u D_* − L₁ Re Φ P + X)/(u − A)` and the exact
+  identities `γ u/(u−A) = 1 + A/u + A²/u² + (A³ − κ)/(u²(u−A))`, `γ/(u−A) = 1/u + (A − κ u^{-2})/(u(u−A))` (`P = I_osc^{DH₀}(1+Δ_curv)`);
+* region II `u ∈ [δ, 3.1δ]` (part (a)): crude bound `≤ 27 K⁴ a³` on an interval of length `2.1δ` (`regionII_Y`, `vacG_le_II`);
+* region III `u > 3.1δ` (parts (b)-(d)): `χ γ Q = M₀ + remainder`, `M₀ = D_*(1 + A/u + A²/u²) − L₁ Re Φ P/u`, remainder `≤` three power laws
+  `a^{30}u^{-9/2}, a^{24}u^{-7/2}, a^{12}u^{-3/2}` (`remR1`, `remR2`, `remR3`, using `|Re Φ|, (Im Φ)² ≤ K min(1,(u/a²)⁴)`),
+  with `∫_{3.1δ}^∞ ≤ ABR a⁹` (`BR_integral_le`);
+* `∫_{3δ}^∞ M₀ ≤ AM a⁹` (`M0_integral_le`): `(fct:cos-pen)` and `∫_0^{3δ} D_*` (part (b), `C_fl ≤ 0`), `(fct:bump-1L)` and the
+  finite-part cancellation `∫ D_*/u − ∫ Re Φ P/u` (part (c)), `(fct:bump-2L)` (part (d));
+* **integrability** of the integrand under the hypotheses (`vacG_integrable`: `vacG ≤ vacMaj`, `vacG ≥ −(4/3)|I_fl|`, both integrable),
+  so the Lean integral is not `0` by non-integrability.
+
+The named inputs are the fields of `VacDisp` (`fct:comp-D` (1), (2) displays and `fct:phikill` (3) at the datum, the size facts of
+`fct:physical-budget`); `VacHyp` adds what is proved in `FctVacuumField` (the `Φ` bounds of `fct:phikill` (1), `κ ≤ a^{24}`, smallness for large `c`).
+
+Class: proved under the explicit hypotheses `VacDisp`.
+-/
+
 @[expose] public section
 
 open Set MeasureTheory Filter Topology

@@ -8,6 +8,24 @@ public import FormalResearch.SignUncertainty.FctVacuumBudget
 public import FormalResearch.SignUncertainty.FctPhiKill
 public import FormalResearch.SignUncertainty.CtBoasBlocks
 
+/-!
+# `hvac` of `physical_budget_field`: the uniform vacuum integral from the named displays (F2a)
+
+Source: `CFT/sign_uncertainty/paper/constant_terms_five.tex`, Lemma `fct:physical-budget` (proof parts (a)-(c)).
+
+**Proved** (`vacuum_integral_field`): exactly the hypothesis `hvac` of `FctSym.physical_budget_field`,
+`∃ A c₀, ∀ ε c, (ε = ±1) → c₀ ≤ c → ∫ χ(L/3δ) γ(L̃) (O − F) ≤ A c^{-3/4}`, for the physical envelope `O = I_osc^{warp}` (`physOsc`,
+`Φ = vacPhi = φ_kill(i τ₀(·); c^{-1/12})`), from the named displays `VacDisp` (`FctVacuumBudget`).  Proved here and not assumed: measurability and the
+size bound `‖φ_kill(iτ₀(u); a)‖ ≤ K min(1,(u/a²)⁴)` (`vacPhi_norm_le`: `fct:phikill` (1), `τ₀(L) ≤ 1.105 √L`), `κ ≤ a^{24}`, and the
+passage `a = c^{-1/12}`, `c ≥ c₀`.
+
+Remaining hypotheses (fields of `VacDisp`, each a display of `fct:comp-D`/`fct:phikill` for the instantiated datum): `(fct:Dstar-inner)`
+consequences (`hDin`, `hDmid`, `hDfar`), `(fct:cos-pen)` (`hDint`, `hCfl`, `hcos`, `hin`), `(fct:bump-1L)` (`hb1`), `(fct:bump-2L)` (`hb2`),
+the finite-part cancellation of `(fct:bump-1L)` with `fct:phikill` (3) in the `L`-variable (`hcancel`), and the size/positivity facts of the datum.
+
+Class: proved under the explicit hypotheses `hO` (the definition of `O` on the support of the cutoff) and `hdisp`.
+-/
+
 @[expose] public section
 
 open Set MeasureTheory Filter Topology
