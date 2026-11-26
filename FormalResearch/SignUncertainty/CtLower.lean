@@ -64,11 +64,13 @@ structure CtLowerInputs where
   c₁ : ℝ
   hc₁ : 0 < c₁
   pass : ∃ C₀ c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
-    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 → 0 < ctGap ε c T →
+    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
+      T < c * hankelXi c (FormalResearch.Special.airyZero 1) → 0 < ctGap ε c T →
       ∃ R : ℝ, R ∈ Set.Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧
         ctBudget R ε c f ≤ C₀ * (c ^ (-(4 / 3) : ℝ) * Real.log c)
   node_lower : ∃ κ κ' C' c₀ : ℝ, 0 < κ ∧ 0 < κ' ∧ ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
-    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 → 0 < ctGap ε c T →
+    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
+      T < c * hankelXi c (FormalResearch.Special.airyZero 1) → 0 < ctGap ε c T →
       ∀ R : ℝ, R ∈ Set.Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) →
         κ * ctGap ε c T ≤ ctBudget R ε c f + C' * Real.exp (-κ' * c)
 
@@ -98,7 +100,7 @@ theorem ct_lower (I : CtLowerInputs) : CtLowerStatement := by
   obtain ⟨f, hf, hmass⟩ := hankel_feasible_normalize hcpos hf₀
   by_contra hlt
   rw [not_le] at hlt
-  have hgapK := hc₀ c hc₀' ε hε T f hf hmass hlt.le
+  obtain ⟨hguard, hgapK⟩ := hc₀ c hc₀' ε hε T f hf hmass hlt.le
   have hlog1 : 1 ≤ Real.log c := by
     have : Real.exp 1 ≤ 3 := by
       have := Real.exp_one_lt_d9; linarith
@@ -112,8 +114,8 @@ theorem ct_lower (I : CtLowerInputs) : CtLowerStatement := by
   set g : ℝ := ctGap ε c T with hg
   have hKX : 0 < K * hankelBeta1 / 2 * X := by positivity
   have hgpos : 0 < g := lt_of_lt_of_le hKX hgapK
-  obtain ⟨R, hR, hp2⟩ := h2 c hc₂' ε hε T f hf hmass hgpos
-  have hn := h3 c hc₃' ε hε T f hf hmass hgpos R hR
+  obtain ⟨R, hR, hp2⟩ := h2 c hc₂' ε hε T f hf hmass hguard hgpos
+  have hn := h3 c hc₃' ε hε T f hf hmass hguard hgpos R hR
   have hκK : κ * (K * hankelBeta1 / 2) = M := by
     rw [hK]; field_simp
   have hMX : M * X ≤ κ * g := by

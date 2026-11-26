@@ -330,6 +330,7 @@ public import FormalResearch.SignUncertainty.CtDyadicArea
 public import FormalResearch.SignUncertainty.CtDyadicGReg
 public import FormalResearch.SignUncertainty.CtDyadicRadius
 public import FormalResearch.SignUncertainty.CtDyadicStatement
+public import FormalResearch.SignUncertainty.CtBandTop
 public import FormalResearch.SignUncertainty.HankelChartCubic
 public import FormalResearch.SignUncertainty.CtLowerDefs
 public import FormalResearch.SignUncertainty.CtLowerChartGap
@@ -472,6 +473,19 @@ public import FormalResearch.SignUncertainty.FctMainHankel
 public import FormalResearch.SignUncertainty.FctSymCal
 public import FormalResearch.SignUncertainty.FctSymChain
 public import FormalResearch.SignUncertainty.FctTau0Symbol
+public import FormalResearch.SignUncertainty.FctSymScale
+public import FormalResearch.SignUncertainty.FctSymInv
+public import FormalResearch.SignUncertainty.FctTau0Global
+public import FormalResearch.SignUncertainty.FctTauA
+public import FormalResearch.SignUncertainty.FctPhiKillSymbol
+public import FormalResearch.SignUncertainty.FctTau0Comp
+public import FormalResearch.SignUncertainty.FctSymUnif
+public import FormalResearch.SignUncertainty.FctNBlocks
+public import FormalResearch.SignUncertainty.FctNPiece
+public import FormalResearch.SignUncertainty.FctNSymbol
+public import FormalResearch.SignUncertainty.FctHN
+public import FormalResearch.SignUncertainty.FctGT
+public import FormalResearch.SignUncertainty.FctHQ
 public import FormalResearch.SignUncertainty.FctBumpSymCheck
 public import FormalResearch.SignUncertainty.FctBumpProfileField
 public import FormalResearch.SignUncertainty.FctPhysicalBudget

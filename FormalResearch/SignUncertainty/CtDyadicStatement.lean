@@ -45,7 +45,8 @@ in the window `[c₁²c^{2/3}, 4c₁²c^{2/3}]` with `η(R) ≤ C c^{-1/3}`, uni
 `ũ₁ > φ_c(a₁)`. -/
 def CtDyadicRadiusStatement (c₁ : ℝ) : Prop :=
   ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
-    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 → 0 < ctGap ε c T →
+    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
+      T < c * hankelXi c (FormalResearch.Special.airyZero 1) → 0 < ctGap ε c T →
       ∃ R : ℝ, R ∈ Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧ ctGoodRadius R ∧
         ctEta c₁ ε c f R ≤ C * c ^ (-(1 / 3) : ℝ)
 
@@ -56,7 +57,8 @@ structure CtDyadicInputs (c₁ : ℝ) : Prop where
   band : CtBandData c₁
   /-- `ct:dyadic` (4), `(ct:combined)`: at every good radius in the window. -/
   combined : ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
-    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 → 0 < ctGap ε c T →
+    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
+      T < c * hankelXi c (FormalResearch.Special.airyZero 1) → 0 < ctGap ε c T →
       ∀ R : ℝ, R ∈ Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) → ctGoodRadius R →
         |ctBudget R ε c f +
             ∫ L in Ici (ctLv0 c), ctTaper ε c R L * (hankelHL c f L * boasKernel (boasX c ε) L)| ≤

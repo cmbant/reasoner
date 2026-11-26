@@ -107,16 +107,20 @@ set_option maxHeartbeats 1000000 in
 S6b from `hankel_band_reduction`) is an explicit hypothesis, so this definition is only as non-vacuous as `HankelYVAt`;
 likewise `hsmall : 4 r_c r_∞ ≤ 1` (true for large `c`, to be supplied from `r_∞ = O(c^{1/3} e^{-c/40000})`).  The core slack is the
 explicit `r_inf = 70 r_∞`; no `r_∞` is dropped (`hankelBoot_line_bound`, `hankelBoot_nodes_lb`, `hankelBoot_node_slack`). -/
-noncomputable def hankelBootHB {C_fb c_YV : ℝ} (hC_fb : 1 ≤ C_fb) (hYVat : HankelYVAt C_fb c_YV)
-    {c ε T u_T : ℝ} {f : ℝ → ℝ} (hc_YV : c_YV ≤ c) (hc : 3e6 ≤ c) (h_c12 : (3 * π) ^ (12 : ℕ) ≤ c)
-    (h48 : 48 ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ)) (hf : IsHankelFeasible c ε T f)
+noncomputable def hankelBootHBAt {C_fb c_YV : ℝ} (hC_fb : 1 ≤ C_fb) (hYVat : HankelYVAt C_fb c_YV)
+    {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc_YV : c_YV ≤ c) (hc : 3e6 ≤ c) (h_c12 : (3 * π) ^ (12 : ℕ) ≤ c)
+    (h48 : 48 ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ))
+    (hR1 : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ R) (hR2 : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1)
+    (hR_low : ∀ u : ℂ, ‖u‖ = R → 1 / (25 * π) * (1 + R) ^ (-(1 / 2) : ℝ) * airyEnv u ≤ ‖airyAiC u‖ ^ 2)
+    (hf : IsHankelFeasible c ε T f)
     (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1) (hT : c * hankelXi c u_T = T)
     (ha1 : airyZero 1 < u_T) (hB2 : QuantC1B2Holds (hankelPsi c f) u_T)
     (hsmall : 4 * langerRadius c * hankelRinf c ≤ 1) :
     let P := hankelBootParams C_fb hC_fb
     { I : BootstrapHBInstance P 0 //
       I.L ≤ P.C_fb * (I.c ^ (1 / 3 : ℝ) * (I.B_1 + I.B_2) + 1) ∧
-      I.c = c ∧ I.x_tilde = u_T - airyZero 1 } := by
+      I.c = c ∧ I.x_tilde = u_T - airyZero 1 ∧ I.R = R ∧ I.B_1 = hankelBootB1 c f R u_T ∧
+        I.B_2 = hankelBootB2 c f R } := by
   intro P
   have hc0 : 0 < c := by linarith
   have hc5 : (5000 : ℝ) ≤ c := by linarith
@@ -124,12 +128,7 @@ noncomputable def hankelBootHB {C_fb c_YV : ℝ} (hC_fb : 1 ≤ C_fb) (hYVat : H
   have hfe := hf.toIsHankelEigenfn
   obtain ⟨hu0, hu3⟩ := hankelBoot_uT_range ha1 hB2
   set t : ℝ := (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) with ht
-  have h_circ := hankelBoot_good_circle_window t (by linarith)
-  let R : ℝ := Classical.choose h_circ
-  have hR_spec := Classical.choose_spec h_circ
-  have hR1 : t ≤ R := hR_spec.1
-  have hR2 : R ≤ t + 1 := hR_spec.2.1
-  have hR_low := hR_spec.2.2
+  have hR2 : R ≤ t + 1 := hR2
   obtain ⟨hR48, hRA, hAR, hRc⟩ := hankelBoot_radius_facts hc h48 hR1 hR2
   have hR_pos : 0 < R := by linarith
   have hR10 : 10 ≤ R := by linarith
@@ -307,7 +306,24 @@ noncomputable def hankelBootHB {C_fb c_YV : ℝ} (hC_fb : 1 ≤ C_fb) (hYVat : H
       have hws : P.w_star = quantC1WStar := rfl
       rw [hkap, hws]
       linarith
-  }, le_rfl, rfl, rfl⟩
+  }, le_rfl, rfl, rfl, rfl, rfl, rfl⟩
+
+/-- **The Hankel `BootstrapHBInstance`** at the good circle chosen inside the proof (`hankelBoot_good_circle_window`); see
+`hankelBootHBAt` for the instance at a prescribed good radius. -/
+noncomputable def hankelBootHB {C_fb c_YV : ℝ} (hC_fb : 1 ≤ C_fb) (hYVat : HankelYVAt C_fb c_YV)
+    {c ε T u_T : ℝ} {f : ℝ → ℝ} (hc_YV : c_YV ≤ c) (hc : 3e6 ≤ c) (h_c12 : (3 * π) ^ (12 : ℕ) ≤ c)
+    (h48 : 48 ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ)) (hf : IsHankelFeasible c ε T f)
+    (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1) (hT : c * hankelXi c u_T = T)
+    (ha1 : airyZero 1 < u_T) (hB2 : QuantC1B2Holds (hankelPsi c f) u_T)
+    (hsmall : 4 * langerRadius c * hankelRinf c ≤ 1) :
+    let P := hankelBootParams C_fb hC_fb
+    { I : BootstrapHBInstance P 0 //
+      I.L ≤ P.C_fb * (I.c ^ (1 / 3 : ℝ) * (I.B_1 + I.B_2) + 1) ∧
+      I.c = c ∧ I.x_tilde = u_T - airyZero 1 } :=
+  let h_circ := hankelBoot_good_circle_window ((1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ)) (by linarith)
+  let J := hankelBootHBAt hC_fb hYVat hc_YV hc h_c12 h48 (Classical.choose_spec h_circ).1
+    (Classical.choose_spec h_circ).2.1 (Classical.choose_spec h_circ).2.2 hf hε hM hT ha1 hB2 hsmall
+  ⟨J.1, J.2.1, J.2.2.1, J.2.2.2.1⟩
 
 /-- info: 'FormalResearch.SignUncertainty.hankelBoot_node_slack' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -324,6 +340,10 @@ noncomputable def hankelBootHB {C_fb c_YV : ℝ} (hC_fb : 1 ≤ C_fb) (hYVat : H
 /-- info: 'FormalResearch.SignUncertainty.hankelBootParams' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms hankelBootParams
+
+/-- info: 'FormalResearch.SignUncertainty.hankelBootHBAt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelBootHBAt
 
 /-- info: 'FormalResearch.SignUncertainty.hankelBootHB' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

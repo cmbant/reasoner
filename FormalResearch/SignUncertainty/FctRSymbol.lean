@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 module
 
 public import FormalResearch.SignUncertainty.FctPhysicalBudgetConcrete
+public import FormalResearch.SignUncertainty.FctHN
 
 /-!
 # `hR` of Lemma FCT.7b (b): reduction to the two factors (F2a)
@@ -23,9 +24,10 @@ So `R = (1 + Q̃)(1 + Ñ)` where
 `physR_symW_of_factors` proves `hR` from the **two named hypotheses** `hQ`, `hN` (each: `∈ (M, -1, 0)` on `[3δ_L/2, ∞)`, with
 constants independent of `c`, the paper's `O_{K₄}(L^{1-r})`, resp. `C_r min(L^3, c^{-2/3}L^{-1}) L^{-r} ≤ C_r L^{1-r}`):
 the classes are combined by the calculus of `FctSymCal` (`(1+Q̃)(1+Ñ) - 1 = Q̃ + Ñ + Q̃Ñ`, class arithmetic `(-1,0)+(-1,0)=(-2,0) ≤ (-1,0)`).
-Both hypotheses are statements about the change of variable `L ↦ τ₀(L̃)`; neither is proved here.
+`hN` is **proved** (`hN_physical`, `FctHN.lean`: `τ₀'/τ₀` is a scale-invariant symbol, `FctTauA.lean`, composed with `φ_kill(it; a)`, `FctNSymbol.lean`);
+`physR_symW_of_factors` is `physR_symW_of_QN` with it inserted, so `hQ` is the only remaining symbol-class input.
 
-Class: proved under the explicit hypotheses `hQ`, `hN` (and `hT1`, the size input of `physL1_le`).  Axiom guard at the end.
+Class: proved under the explicit hypothesis `hQ` (and `hT1`, the size input of `physL1_le`).  Axiom guard at the end.
 -/
 
 @[expose] public section
@@ -37,9 +39,9 @@ namespace FormalResearch.SignUncertainty.FctSym
 
 open FormalResearch.SignUncertainty FormalResearch.SignUncertainty.FctCompD FormalResearch.CohnElkies
 
-/-- **`hR` from the two factors `hQ`, `hN`** (Lemma FCT.7b (b); see the module docstring).  `Q̃`, `Ñ` are the two factors of
+/-- **`hR` from the two factors `hQ`, `hN`** (Lemma FCT.7b (b); see the module docstring; the algebra of `physR_symW_of_factors`).  `Q̃`, `Ñ` are the two factors of
 `R = O/F` for the physical datum; `hT1` is the size input `T₁ = Δ₅ + O(c⁻¹)` of `physL1_le`, giving `|s|, |L₁| ≤ 3δ_L/4`. -/
-theorem physR_symW_of_factors (kind : StripKernelChoice) (K4 : ℝ) (T1 αf : ℝ → ℝ → ℝ)
+theorem physR_symW_of_QN (kind : StripKernelChoice) (K4 : ℝ) (T1 αf : ℝ → ℝ → ℝ)
     (hT1 : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |T1 ε c - ctDelta5 ε c| ≤ C * c⁻¹)
     (hQ : ∃ (c₀ MQ : ℝ) (KQ : ℕ → ℝ), 0 ≤ MQ ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       SymW (Ici (3 / 2 * physDelta c)) (pw MQ (-1) 0) KQ
@@ -92,10 +94,21 @@ theorem physR_symW_of_factors (kind : StripKernelChoice) (K4 : ℝ) (T1 αf : �
     field_simp
     ring
 
+/-- **`hR` from the compensator-and-curvature factor `hQ` alone** (Lemma FCT.7b (b)): the `φ_kill` factor `hN` (7b (a), fourth item) is
+proved (`hN_physical`).  `hT1` is the size input `T₁ = Δ₅ + O(c⁻¹)` of `physL1_le`. -/
+theorem physR_symW_of_factors (kind : StripKernelChoice) (K4 : ℝ) (T1 αf : ℝ → ℝ → ℝ)
+    (hT1 : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |T1 ε c - ctDelta5 ε c| ≤ C * c⁻¹)
+    (hQ : ∃ (c₀ MQ : ℝ) (KQ : ℕ → ℝ), 0 ≤ MQ ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
+      SymW (Ici (3 / 2 * physDelta c)) (pw MQ (-1) 0) KQ
+        (fun x => vacP kind K4 c (αf ε c) (c ^ (-(1 / 4 : ℝ))) (x - physShift ε c) / uctIfl (x - physShift ε c) - 1)) :
+    ∃ (c₀ MR : ℝ) (KR : ℕ → ℝ), 0 ≤ MR ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
+      SymW (Ici (3 / 2 * physDelta c)) (pw MR (-1) 0) KR
+        (fun x => physOscDatum kind K4 T1 αf ε c x / physF (physShift ε c) (physL1 T1 ε c) x - 1) :=
+  physR_symW_of_QN kind K4 T1 αf hT1 hQ (hN_physical T1 hT1)
+
 /-- **The fields `bump_profile` and `physical_budget` of `FctMainHankelInputs` for the concrete physical datum, with `hT` proved and `hR` replaced by
-its two factors** (`fctMainHankel_bump_fields_concrete` with `hR` derived from `hQ`, `hN` by `physR_symW_of_factors`; `T₁ = I.T1`, `α = I.alpha`).
-Remaining inputs: `hdef` (the definition `(fct:B-physical)`), `hQ` (7b (b): `r₀ e^v (1 + Δ_curv) ∘ τ₀ - 1 ∈ (M, -1, 0)`) and `hN` (7b (a), fourth
-item: `|1 - L₁ φ_kill(iτ₀)/L̃| - 1 ∈ (M, -1, 0)`). -/
+`hQ` alone** (`fctMainHankel_bump_fields_concrete` with `hR` derived from `hQ` by `physR_symW_of_factors`; `hN` is proved; `T₁ = I.T1`, `α = I.alpha`).
+Remaining inputs: `hdef` (the definition `(fct:B-physical)`) and `hQ` (7b (b): `r₀ e^v (1 + Δ_curv) ∘ τ₀ - 1 ∈ (M, -1, 0)`). -/
 theorem fctMainHankel_bump_fields_concrete_of_factors {χ : ℝ → ℝ} (hχ : IsCutoff χ) (kind : StripKernelChoice) {K4 : ℝ}
     (hK4 : 1 ≤ K4) (I : FctMainHankelInputs)
     (hdef : ∀ ε c K1 : ℝ, I.Bphys ε c K1 = physBump χ (1 / I.Nc ε c) c (physDelta c) (physShift ε c) K1 K4
@@ -103,21 +116,21 @@ theorem fctMainHankel_bump_fields_concrete_of_factors {χ : ℝ → ℝ} (hχ : 
     (hQ : ∃ (c₀ MQ : ℝ) (KQ : ℕ → ℝ), 0 ≤ MQ ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       SymW (Ici (3 / 2 * physDelta c)) (pw MQ (-1) 0) KQ
         (fun x => vacP kind K4 c (I.alpha ε c) (c ^ (-(1 / 4 : ℝ))) (x - physShift ε c) /
-          uctIfl (x - physShift ε c) - 1))
-    (hN : ∃ (c₀ MN : ℝ) (KN : ℕ → ℝ), 0 ≤ MN ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
-      SymW (Ici (3 / 2 * physDelta c)) (pw MN (-1) 0) KN
-        (fun x => ‖((x - physShift ε c : ℝ) : ℂ) - (physL1 I.T1 ε c : ℂ) *
-          vacPhi (c ^ (-(1 / 12 : ℝ))) (x - physShift ε c)‖ / (x - physShift ε c) - 1)) :
+          uctIfl (x - physShift ε c) - 1)) :
     type_of% I.bump_profile ∧ type_of% I.physical_budget := by
   obtain ⟨C, c₀, hw⟩ := I.warp_zero
   have hT1 : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |I.T1 ε c - ctDelta5 ε c| ≤ C * c⁻¹ :=
     ⟨C, c₀, fun ε c hε hc => (hw ε c hε hc).1⟩
   exact fctMainHankel_bump_fields_concrete hχ kind hK4 I hdef
-    (physR_symW_of_factors kind K4 I.T1 I.alpha hT1 hQ hN)
+    (physR_symW_of_factors kind K4 I.T1 I.alpha hT1 hQ)
 
 /-- info: 'FormalResearch.SignUncertainty.FctSym.fctMainHankel_bump_fields_concrete_of_factors' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms fctMainHankel_bump_fields_concrete_of_factors
+
+/-- info: 'FormalResearch.SignUncertainty.FctSym.physR_symW_of_QN' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms physR_symW_of_QN
 
 /-- info: 'FormalResearch.SignUncertainty.FctSym.physR_symW_of_factors' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

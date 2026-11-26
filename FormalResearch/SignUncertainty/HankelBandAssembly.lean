@@ -265,12 +265,32 @@ noncomputable def hankelBandInstance {c ε u_T R : ℝ} {f : ℝ → ℝ} (hc : 
       obtain ⟨h0, h1⟩ := hankelBand_w_band hc0 hu0 hu hR0 hR hξ
       exact (hankelBandU_continuousAt h0 h1).neg.continuousWithinAt }
 
+/-- **Proposition TE.3(1) for the Hankel strip, on the whole sector** (`teb:mellin` (1), first form of `(TE.9)`; the top-scale case
+`r = R_J` of `ct:Wbound`, `constant_terms_lower.tex` `ct:dyadic` (1) Step 1a): at a radius `R ∈ [b² c^{2/3}, b² c^{2/3} + 1]`
+(`b = 1/100`), for every `ζ₀` of the annulus `ρ_R/3 ≤ ‖ζ₀‖ ≤ 2ρ_R` with `cos ψ > 0`,
+`‖W̃_c(ζ₀)‖ ≤ C_Y c^{-5/6} (c^{1/3}(B₁ + B₂) + c^{-1/6}) / cos ψ`, with `C_Y = tebBandConst hankelBandParams` independent of
+`c, ε, f, u_T`, and the band moments `B₁, B₂` of the instance (`bandB1`, `bandB2`: integrals of `dm_+` over the band
+`[ξ(u_T), ξ(-R)]` and the tail `[ξ(-R), ∞)`).  Hypotheses as in `hankelBandInstance`; they are satisfiable
+(`hankel_band_hypotheses_nonvacuous`). -/
+theorem hankel_band_reduction_pos {c ε u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (hε : ε = 1 ∨ ε = -1)
+    (hf : IsHankelEigenfn c ε f) (hmass : hankelMass c f = 1) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T)
+    (hRlb : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ R) (hRub : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1)
+    (htail : ∀ Δ : ℝ, c * hankelXi c u_T ≤ Δ → 0 ≤ f Δ) {ζ₀ : ℂ} {ψ : ℝ}
+    (hlo : rhoR hankelBandParams c R / 3 ≤ ‖ζ₀‖)
+    (hhi : ‖ζ₀‖ ≤ 2 * rhoR hankelBandParams c R)
+    (hcos_eq : ζ₀.re = ‖ζ₀‖ * Real.cos ψ) (hcos : 0 < Real.cos ψ) :
+    ‖hankelWtS c ε f ζ₀‖ ≤ tebBandConst hankelBandParams * c ^ (-(5 / 6 : ℝ)) *
+      (c ^ (1 / 3 : ℝ) * (bandB1 (hankelBandInstance hc hε hf hmass hu0 hu3 hRlb hRub htail) +
+        bandB2 (hankelBandInstance hc hε hf hmass hu0 hu3 hRlb hRub htail)) + c ^ (-(1 / 6 : ℝ))) / Real.cos ψ :=
+  teb_band_reduction_pos (hankelBandInstance hc hε hf hmass hu0 hu3 hRlb hRub htail) hlo hhi hcos_eq hcos
+
 /-- **Proposition TE.3(1) for the Hankel strip** (`teb:mellin` (1), first form of `(TE.9)`; `(2)` window lemma
 and `(3)` feedback are not covered): at a radius `R ∈ [b² c^{2/3}, b² c^{2/3} + 1]` (`b = 1/100`), on the annulus sector around
 `|ζ| ≈ ρ_R`, `‖W̃_c(ζ₀)‖ ≤ C_Y c^{-5/6} (c^{1/3}(B₁ + B₂) + c^{-1/6}) / cos ψ`, with `C_Y = tebBandConst
 hankelBandParams` independent of `c, ε, f, u_T`, and the band moments `B₁, B₂` of the instance (`bandB1`,
 `bandB2`: integrals of `dm_+` over the band `[ξ(u_T), ξ(-R)]` and the tail `[ξ(-R), ∞)`).  Hypotheses as in
-`hankelBandInstance`; they are satisfiable (`hankel_band_hypotheses_nonvacuous`). -/
+`hankelBandInstance`; they are satisfiable (`hankel_band_hypotheses_nonvacuous`).  The restriction `cos ψ ≥ c^{-1/12}` is
+not needed for this form: see `hankel_band_reduction_pos`. -/
 theorem hankel_band_reduction {c ε u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (hε : ε = 1 ∨ ε = -1)
     (hf : IsHankelEigenfn c ε f) (hmass : hankelMass c f = 1) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T)
     (hRlb : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ R) (hRub : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1)
@@ -281,7 +301,8 @@ theorem hankel_band_reduction {c ε u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤
     ‖hankelWtS c ε f ζ₀‖ ≤ tebBandConst hankelBandParams * c ^ (-(5 / 6 : ℝ)) *
       (c ^ (1 / 3 : ℝ) * (bandB1 (hankelBandInstance hc hε hf hmass hu0 hu3 hRlb hRub htail) +
         bandB2 (hankelBandInstance hc hε hf hmass hu0 hu3 hRlb hRub htail)) + c ^ (-(1 / 6 : ℝ))) / Real.cos ψ :=
-  (teb_band_reduction (hankelBandInstance hc hε hf hmass hu0 hu3 hRlb hRub htail) hlo hhi hcos_eq hcos).1
+  hankel_band_reduction_pos hc hε hf hmass hu0 hu3 hRlb hRub htail hlo hhi hcos_eq
+    (lt_of_lt_of_le (Real.rpow_pos_of_pos (by linarith) _) hcos)
 
 /-- **Non-vacuity**: for `c ≥ 3·10⁶` the odd Laguerre mode, normalised to `M[f] = 1`, is in `𝒜_c^{-1}` and is
 `≥ 0` on `[cξ(u_T), ∞)` for every `u_T ∈ [-3, 0]`, so the hypotheses of `hankelBandInstance` and
@@ -321,6 +342,10 @@ theorem hankel_band_hypotheses_nonvacuous {c : ℝ} (hc : 3e6 ≤ c) :
 /-- info: 'FormalResearch.SignUncertainty.hankel_band_hypotheses_nonvacuous' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms hankel_band_hypotheses_nonvacuous
+
+/-- info: 'FormalResearch.SignUncertainty.hankel_band_reduction_pos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankel_band_reduction_pos
 
 /-- info: 'FormalResearch.SignUncertainty.hankel_band_reduction' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
