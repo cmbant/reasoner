@@ -343,6 +343,11 @@ public import FormalResearch.SignUncertainty.CtDyadicCombined
 public import FormalResearch.SignUncertainty.CtCombinedTop
 public import FormalResearch.SignUncertainty.CtLangerEdgeChart
 public import FormalResearch.SignUncertainty.CtLangerBeta
+public import FormalResearch.SignUncertainty.CtRoscDefect
+public import FormalResearch.SignUncertainty.CtRoscUpper
+public import FormalResearch.SignUncertainty.CtRoscChart
+public import FormalResearch.SignUncertainty.CtRoscEta
+public import FormalResearch.SignUncertainty.CtRoscAssembly
 public import FormalResearch.SignUncertainty.CtTransBand
 public import FormalResearch.SignUncertainty.CtBandTop
 public import FormalResearch.SignUncertainty.HankelChartCubic
