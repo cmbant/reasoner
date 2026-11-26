@@ -9,8 +9,8 @@ public import FormalResearch.Analysis.Scheffe
 /-!
 # Compact negative mass (`dsl:compact-mass`, `dual_spectrum_limit.tex`)
 
-Let `λ` be a positive measure, finite on compact sets, on a topological space `Y`, and let continuous
-functions `f_j` converge pointwise to `F`, uniformly on a compact set `K` outside which every `f_j`
+Let `λ` be a positive measure, finite on compact sets, on a topological space `Y`, and let
+functions `f_j` (measurable, continuous on `K`) converge pointwise to `F`, uniformly on a compact set `K` outside which every `f_j`
 is nonnegative, with `∫ |f_j| dλ = 1` and `∫ f_j dλ ≤ 0`.  Then `F ∈ L¹(λ)`, `∫ |F| ≤ 1`,
 `∫ F ≤ 0` and `F ≠ 0`; and if also `∫ F ≥ 0` then `∫ F = 0`, `∫ |F| = 1` and `∫ |f_j - F| → 0`.
 
@@ -30,7 +30,8 @@ variable {Y : Type*} [TopologicalSpace Y] [T2Space Y] [MeasurableSpace Y] [Borel
 
 /-- **Compact negative mass** (`dsl:compact-mass`). -/
 theorem compact_negative_mass {μ : Measure Y} {f : ℕ → Y → ℝ} {F : Y → ℝ} {K : Set Y}
-    (hK : IsCompact K) [IsFiniteMeasureOnCompacts μ] (hfc : ∀ j, Continuous (f j))
+    (hK : IsCompact K) [IsFiniteMeasureOnCompacts μ] (hfm : ∀ j, Measurable (f j))
+    (hfc : ∀ j, ContinuousOn (f j) K)
     (hfi : ∀ j, Integrable (f j) μ) (hnorm : ∀ j, ∫ y, |f j y| ∂μ = 1)
     (hint : ∀ j, ∫ y, f j y ∂μ ≤ 0) (hneg : ∀ j, ∀ y, y ∉ K → 0 ≤ f j y)
     (hpt : ∀ y, Tendsto (fun j => f j y) atTop (𝓝 (F y)))
@@ -45,7 +46,7 @@ theorem compact_negative_mass {μ : Measure Y} {f : ℕ → Y → ℝ} {F : Y �
   set P : Y → ℝ := fun y => max (F y) 0 with hP
   set N : Y → ℝ := fun y => max (-F y) 0 with hN
   have hFm : Measurable F :=
-    measurable_of_tendsto_metrizable (fun j => (hfc j).measurable) (tendsto_pi_nhds.2 hpt)
+    measurable_of_tendsto_metrizable hfm (tendsto_pi_nhds.2 hpt)
   have hpn : ∀ j y, f j y = p j y - n j y := fun j y => by
     simp only [hp, hn]; rcases le_total (f j y) 0 with h | h <;> simp [h]
   have hpn_abs : ∀ j y, |f j y| = p j y + n j y := fun j y => by
@@ -80,7 +81,7 @@ theorem compact_negative_mass {μ : Measure Y} {f : ℕ → Y → ℝ} {F : Y �
     ((continuous_neg.max continuous_const).continuousAt.tendsto.comp (hpt y))
   -- bound for the negative parts on `K`
   have hFc : ContinuousOn F K :=
-    hunif.continuousOn (Eventually.of_forall fun j => (hfc j).continuousOn).frequently
+    hunif.continuousOn (Eventually.of_forall hfc).frequently
   obtain ⟨B, hB⟩ := hK.exists_bound_of_continuousOn hFc
   have hfin : μ K < ∞ := hK.measure_lt_top
   have hbound_int : Integrable (K.indicator fun _ => B + 1) μ :=
@@ -139,7 +140,7 @@ theorem compact_negative_mass {μ : Measure Y} {f : ℕ → Y → ℝ} {F : Y �
           exact ((ENNReal.tendsto_ofReal (hpt_p y)).liminf_eq).symm
       _ ≤ liminf (fun j => ∫⁻ y, ENNReal.ofReal (p j y) ∂μ) atTop :=
           lintegral_liminf_le fun j =>
-            ENNReal.measurable_ofReal.comp ((hfc j).measurable.max measurable_const)
+            ENNReal.measurable_ofReal.comp ((hfm j).max measurable_const)
       _ = ENNReal.ofReal (1 - ℓ) := hlim_p.liminf_eq
   have hP_int : Integrable P μ := by
     refine ⟨hP_meas.aestronglyMeasurable, ?_⟩
