@@ -53,13 +53,12 @@ Headlines and their inputs (open fields in bold):
 * `thm_ce_canonical_iff` (`thm:intro-gap` = `thm:ce-canonical-iff`, parts (1)-(4), with (i)-(iv); the zero enumeration `t` exists and is unique: `HbZeroEnum.lean`), from
   `CeCanonicalInputs D t` (`CeCanonicalDefs.lean`): **`shell_reduction`** (`thm:ce-shell-reduction`),
   **`ce_hb_lift`** (`thm:ce-hb-lift`, weak positivity), **`ce_airy_transfer_upper`** (`thm:ce-airy-transfer` (1)),
-  **`airy_square_bound`** (`lem:airy-square-bound`),
   **`airy_node_square`** (`lem:airy-node-square`), **`active_height`** (`lem:airy-active-height`),
   **`node_sign`**, **`node_sum`** (`thm:airy-node-sign`, the sign and the cumulative node-sum criteria),
   **`terminal_deflation`** (`lem:ce-terminal-deflation`). The extraction and
   constraint system `eq:ce-laplace-constraint` of `thm:ce-shell-gap` (Hankel form `HankelShellGapLimit`) is the
   theorem `hankelShellGapLimit_proved` (`ShellGapExtract.lean`) and no longer a field; `thm:airy-square-attained` (1), (3) is the theorem `airySquareAttained` (`CeCanonicalDefs.lean`, from
-  `AirySquareSimple.lean`) and no longer a field; the `v = t_m` endpoint clause
+  `AirySquareSimple.lean`) and no longer a field, nor is `lem:airy-square-bound` (`Λ_m > a_m`: `airyLambdaSection_hb_gt_airyZero`, `AirySquareBound.lean`); the `v = t_m` endpoint clause
   `ShellGapEndpoint D` is the theorem `shellGapEndpoint_proved` (`ShellGapEndpoint.lean`) and no longer a field, and
   `thm_ce_shell_gap` is proved; `one_profile_envelope` (`gt:3.1` envelope used in `prop:ce-one-profile`) is a theorem
   (`OneProfileEnvelope.lean`). Proved here: `one_profile_feasible_iff`, `one_profile_maximizer_exists`,
@@ -1006,7 +1005,7 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
     fun Z hZ mult hmult => laplace_zero_multiplicity_le D Z hZ mult hmult, I.node_sum⟩
   · obtain ⟨hΛ, -, hlt⟩ := lambda_chain I hm
     obtain ⟨hτ1, hτ2⟩ := I.airy_node_square hm
-    exact ⟨hΛ, hlt, uSh_le_uLP D, I.airy_square_bound hm, hτ1, hτ2⟩
+    exact ⟨hΛ, hlt, uSh_le_uLP D, airyLambdaSection_hb_gt_airyZero D hm, hτ1, hτ2⟩
   · obtain ⟨y, hy, h⟩ := I.active_height.laplace_zero hlt
     exact ⟨y, hy, h⟩
   · exact fun b hb H hH z hz hz0 hs => I.active_height.deflation hlt b hb H hH z hz hz0 hs
