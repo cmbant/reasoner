@@ -453,15 +453,15 @@ lemma pow_mul_deriv_bound (h : BumpProfile b δ M α β K B) (j k : ℕ) :
     positivity
 
 
-lemma tail_bound (h : BumpProfile b δ M α β K B) (hβ : 3 / 2 ≤ β) (j : ℕ) :
-    ∃ C : ℝ, 0 ≤ C ∧ ∀ s : ℂ, 0 < s.re → ‖s‖ ≤ 1 →
-      ‖∫ x in Ioi ‖s‖⁻¹, Complex.exp (-s * (x : ℂ)) * (((x ^ j * B x : ℝ)) : ℂ)‖ ≤ C * (‖s‖⁻¹) ^ ((j : ℝ) - 1 / 2) := by
-  choose D hD0 hD using fun k => h.pow_mul_deriv_bound j k
+/-- The tail estimate of `bumpLapW_bound`, with the constant in terms of explicit bounds `D k` for the derivatives of `x^j B` on `x ≥ 1`. -/
+lemma tail_bound_D {B : ℝ → ℝ} {β : ℝ} (hBs : ContDiff ℝ (⊤ : ℕ∞) B) (hβ : 3 / 2 ≤ β) (j : ℕ) (D : ℕ → ℝ)
+    (hD0 : ∀ k, 0 ≤ D k)
+    (hD : ∀ k : ℕ, ∀ x : ℝ, 1 ≤ x → |iteratedDeriv k (fun y : ℝ => y ^ j * B y) x| ≤ D k * x ^ ((j : ℝ) - β - k)) :
+    ∀ s : ℂ, 0 < s.re → ‖s‖ ≤ 1 →
+      ‖∫ x in Ioi ‖s‖⁻¹, Complex.exp (-s * (x : ℂ)) * (((x ^ j * B x : ℝ)) : ℂ)‖ ≤
+        ((∑ m ∈ Finset.range (j + 1), D m) + D (j + 1) / β) * (‖s‖⁻¹) ^ ((j : ℝ) - 1 / 2) := by
   have hβ0 : 0 < β := by linarith
-  refine ⟨(∑ m ∈ Finset.range (j + 1), D m) + D (j + 1) / β, by
-    have : 0 ≤ ∑ m ∈ Finset.range (j + 1), D m := Finset.sum_nonneg fun m _ => hD0 m
-    have := hD0 (j + 1)
-    positivity, fun s hs hs1 => ?_⟩
+  intro s hs hs1
   have hs0 : s ≠ 0 := fun h0 => by rw [h0] at hs; simp at hs
   have hsn : 0 < ‖s‖ := norm_pos_iff.mpr hs0
   set R : ℝ := ‖s‖⁻¹ with hRdef
@@ -470,7 +470,7 @@ lemma tail_bound (h : BumpProfile b δ M α β K B) (hβ : 3 / 2 ≤ β) (j : �
   set u : ℝ → ℝ := fun y => y ^ j * B y with hu
   have hucd : ContDiff ℝ (⊤ : ℕ∞) u := by
     have hpow : ContDiff ℝ (⊤ : ℕ∞) (fun y : ℝ => y ^ j) := by fun_prop
-    exact hpow.mul h.smooth
+    exact hpow.mul hBs
   have hb : ∀ k : ℕ, k ≤ j + 1 → ∃ A p : ℝ, ∀ x ≥ R, |iteratedDeriv k u x| ≤ A * x ^ p :=
     fun k _ => ⟨D k, (j : ℝ) - β - k, fun x hx => hD k x (by linarith)⟩
   have hint : IntegrableOn (fun x : ℝ => x ^ ((j : ℝ) - β - ((j + 1 : ℕ) : ℝ))) (Ioi R) :=
@@ -524,6 +524,15 @@ lemma tail_bound (h : BumpProfile b δ M α β K B) (hβ : 3 / 2 ≤ β) (j : �
       ≤ (∑ m ∈ Finset.range (j + 1), D m) * R ^ ((j : ℝ) - 1 / 2) + D (j + 1) / β * R ^ ((j : ℝ) - 1 / 2) := add_le_add hsum hrem
     _ = _ := by ring
 
+
+lemma tail_bound (h : BumpProfile b δ M α β K B) (hβ : 3 / 2 ≤ β) (j : ℕ) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ s : ℂ, 0 < s.re → ‖s‖ ≤ 1 →
+      ‖∫ x in Ioi ‖s‖⁻¹, Complex.exp (-s * (x : ℂ)) * (((x ^ j * B x : ℝ)) : ℂ)‖ ≤ C * (‖s‖⁻¹) ^ ((j : ℝ) - 1 / 2) := by
+  choose D hD0 hD using fun k => h.pow_mul_deriv_bound j k
+  exact ⟨(∑ m ∈ Finset.range (j + 1), D m) + D (j + 1) / β, by
+    have : 0 ≤ ∑ m ∈ Finset.range (j + 1), D m := Finset.sum_nonneg fun m _ => hD0 m
+    have := hD0 (j + 1)
+    positivity, tail_bound_D h.smooth hβ j D hD0 hD⟩
 
 lemma integrableOn_Iic_pow (h : BumpProfile b δ M α β K B) (_hb0 : 0 ≤ b * δ) (j : ℕ) {R : ℝ} (hR : b * δ ≤ R) :
     IntegrableOn (fun x : ℝ => x ^ j * B x) (Iic R) := by
@@ -600,13 +609,15 @@ lemma head_bound (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ :
         nlinarith
     _ = _ := by ring
 
-lemma bumpLapW_bound (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ : b * δ ≤ 1) (hβ : 3 / 2 ≤ β) (hM : 0 ≤ M) (j : ℕ) (hj : 1 ≤ j) :
-    ∃ C : ℝ, 0 ≤ C ∧ ∀ s : ℂ, 0 < s.re → ‖s‖ ≤ 1 → ‖bumpLapW B j s‖ ≤ C * (‖s‖⁻¹) ^ ((j : ℝ) - 1 / 2) := by
-  obtain ⟨Ct, hCt0, hCt⟩ := h.tail_bound hβ j
+/-- `bumpLapW_bound` with the constant explicit in terms of a bound `Ct` for the tail integral. -/
+lemma bumpLapW_bound_of_tail (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ : b * δ ≤ 1) (hβ : 3 / 2 ≤ β) (hM : 0 ≤ M)
+    (j : ℕ) (hj : 1 ≤ j) {Ct : ℝ}
+    (hCt : ∀ s : ℂ, 0 < s.re → ‖s‖ ≤ 1 →
+      ‖∫ x in Ioi ‖s‖⁻¹, Complex.exp (-s * (x : ℂ)) * (((x ^ j * B x : ℝ)) : ℂ)‖ ≤ Ct * (‖s‖⁻¹) ^ ((j : ℝ) - 1 / 2)) :
+    ∀ s : ℂ, 0 < s.re → ‖s‖ ≤ 1 →
+      ‖bumpLapW B j s‖ ≤ ((∫ x : ℝ, ‖B x‖) + 2 * |K 0| * M + Ct) * (‖s‖⁻¹) ^ ((j : ℝ) - 1 / 2) := by
   have hβ1 : 1 < β := by linarith
-  refine ⟨(∫ x : ℝ, ‖B x‖) + 2 * |K 0| * M + Ct, by
-    have : 0 ≤ ∫ x : ℝ, ‖B x‖ := integral_nonneg fun x => norm_nonneg _
-    positivity, fun s hs hs1 => ?_⟩
+  intro s hs hs1
   have hs0 : s ≠ 0 := fun h0 => by rw [h0] at hs; simp at hs
   have hsn : 0 < ‖s‖ := norm_pos_iff.mpr hs0
   set R : ℝ := ‖s‖⁻¹ with hRdef
@@ -637,6 +648,13 @@ lemma bumpLapW_bound (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hb
         add_le_add (h1.trans h2) h3
     _ = _ := by ring
 
+
+lemma bumpLapW_bound (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ : b * δ ≤ 1) (hβ : 3 / 2 ≤ β) (hM : 0 ≤ M) (j : ℕ) (hj : 1 ≤ j) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ s : ℂ, 0 < s.re → ‖s‖ ≤ 1 → ‖bumpLapW B j s‖ ≤ C * (‖s‖⁻¹) ^ ((j : ℝ) - 1 / 2) := by
+  obtain ⟨Ct, hCt0, hCt⟩ := h.tail_bound hβ j
+  exact ⟨(∫ x : ℝ, ‖B x‖) + 2 * |K 0| * M + Ct, by
+    have : 0 ≤ ∫ x : ℝ, ‖B x‖ := integral_nonneg fun x => norm_nonneg _
+    positivity, h.bumpLapW_bound_of_tail hb0 hbδ hβ hM j hj hCt⟩
 
 lemma norm_exp_sub_one_le_lin {s : ℂ} (hs : 0 ≤ s.re) {x : ℝ} (hx : 0 ≤ x) :
     ‖Complex.exp (-s * (x : ℂ)) - 1‖ ≤ 2 * (‖s‖ * x) ∧ ‖Complex.exp (-s * (x : ℂ)) - 1‖ ≤ 2 := by

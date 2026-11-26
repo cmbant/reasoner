@@ -3,9 +3,10 @@ module
 public import FormalResearch.SignUncertainty.UctBumpRefl
 public import FormalResearch.SignUncertainty.UctBumpMain
 public import FormalResearch.SignUncertainty.UctBumpWeightedLocal
+public import FormalResearch.SignUncertainty.UctBumpWeightedFar
 
 /-!
-# `fct:bump-5` (Lemma FCT.7) items (1) and (2) (F2a)
+# `fct:bump-5` (Lemma FCT.7) items (1), (2) and (3) (F2a)
 
 Source: `CFT/sign_uncertainty/paper/constant_terms_five.tex`, Lemma `fct:bump-5`: the bump `B` with `supp B ⊂ [3δ_L/2, ∞)` and the symbol bounds `(fct:B-sym)`
 is a `BumpProfile (3/2) δ_L M α β K B`, and `δ_L ≍ c^{-1/2}` (`a₀ ≤ c^{1/2} δ_L`).
@@ -14,6 +15,8 @@ is a `BumpProfile (3/2) δ_L M α β K B`, and `δ_L ≍ c^{-1/2}` (`a₀ ≤ c^
 * `fct_bump5_refl` (1), reflected density: `|Δh_refl(L)| ≤ C M e^{-c₁ c^{1/2}} min(1, L_+^{-2})`.
 * (1), the common bounds of `uct:bump-symbol` (`bump_laplace_decay`, `bump_stripAdmissFull`) and (2), the precision inversion on `L ≥ 3δ_L/4`
   (`bump_weighted_local` with `b = 3/2`), are instances of the theorems named.
+
+* `fct_bump5_far` (3), the far band `L ≥ ¼ log c` (`c ≥ e⁸`): `|Δh_main(L) - c⁻¹B(L)| ≤ C M c⁻² L⁻²` for `α ≤ 4` (`bump_weighted_far`).
 
 Class: proved, no hypotheses beyond those displayed.
 -/
@@ -244,6 +247,25 @@ theorem fct_bump5_mid {α β : ℝ} (hβ : 3 / 2 ≤ β) (Kc : ℕ → ℝ) {a0 
     rw [← hLdef]
     field_simp
 
+/-- `fct:bump-5` (3), the far band `L ≥ ¼ log c` (`c ≥ e⁸`, so `L ≥ 2`): for `α ≤ 4` (the paper's `α ≤ 7/2` included) the correction `c⁻²δ_L^{3-α}` of `(fct:bump-far-5)`
+is absorbed and `|Δh_main(L) - c⁻¹B(L)| ≤ C M c⁻² L⁻²`; this implies the displayed `C M (1 + c⁻²δ_L^{3-α}) c⁻² L⁻²`. -/
+theorem fct_bump5_far {α β : ℝ} (hα : α ≤ 4) (hβ : 3 / 2 ≤ β) (Kc : ℕ → ℝ) {a0 : ℝ} (ha0 : 0 < a0) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ (B : ℝ → ℝ) (δ M c ξ : ℝ), 0 < δ → δ ≤ 1 → 3 / 2 * δ ≤ 1 → 0 ≤ M → Real.exp 8 ≤ c →
+      a0 ≤ Real.sqrt c * δ → 0 < ξ → Real.log c / 4 ≤ Real.log (Real.pi ^ 2 * ξ) → BSym δ M α β Kc B →
+        ‖bumpHmain c B ξ - ((c⁻¹ * B (Real.log (Real.pi ^ 2 * ξ)) : ℝ) : ℂ)‖ ≤
+          C * M * (c ^ 2)⁻¹ * ((Real.log (Real.pi ^ 2 * ξ)) ^ 2)⁻¹ := by
+  obtain ⟨C, hC, hfar⟩ := bump_weighted_far (b := 3 / 2) (α := α) (β := β) (by norm_num) hα Kc ha0
+  refine ⟨C, hC, fun B δ M c ξ hδ0 hδ1 hbδ hM hc hsc hξ hL hsym => ?_⟩
+  have hc0 : 0 < c := lt_of_lt_of_le (Real.exp_pos _) hc
+  have hlogc : 8 ≤ Real.log c := (Real.le_log_iff_exp_le hc0).mpr hc
+  have h64 : (64 : ℝ) ≤ c := by
+    refine le_trans ?_ hc
+    have h2 : (3 : ℝ) ≤ Real.exp 2 := by have := Real.add_one_le_exp (2 : ℝ); linarith
+    have : Real.exp 8 = Real.exp 2 ^ 4 := by rw [← Real.exp_nat_mul]; norm_num
+    rw [this]
+    nlinarith [pow_le_pow_left₀ (by norm_num : (0 : ℝ) ≤ 3) h2 4]
+  exact hfar B δ M c ξ hδ0 hδ1 hbδ hM h64 hξ (by linarith) hβ hsc (hsym.profile hM)
+
 /-- info: 'FormalResearch.SignUncertainty.fct_bump5_main_small' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms fct_bump5_main_small
@@ -255,6 +277,10 @@ theorem fct_bump5_mid {α β : ℝ} (hβ : 3 / 2 ≤ β) (Kc : ℕ → ℝ) {a0 
 /-- info: 'FormalResearch.SignUncertainty.fct_bump5_mid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms fct_bump5_mid
+
+/-- info: 'FormalResearch.SignUncertainty.fct_bump5_far' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms fct_bump5_far
 
 /-- info: 'FormalResearch.SignUncertainty.BSym.profile' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
