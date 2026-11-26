@@ -232,7 +232,7 @@ lemma claimG_aux (k' : ℕ) {O : Set Y} (hO : IsOpen O) {w0 m K : ℝ} (hw1 : w0
     have := JB.clm_apply_const hUd hFd ((0 : Y), (1 : ℝ)) hFdb
     rwa [hn] at this
   have hgc : ContDiffOn ℝ k' (fun p => fderiv ℝ F p (0, 1)) U := hFd.clm_apply contDiffOn_const
-  have hs : JB k' U (fun p : Y × ℝ => p.2) 1 := JB.snd hUd fun p hp => (abs_lt.mpr ⟨by linarith [hp.2.1], by linarith [hp.2.2]⟩).le
+  have hs : JB k' U (fun p : Y × ℝ => p.2) 1 := JB.snd hUd le_rfl fun p hp => (abs_lt.mpr ⟨by linarith [hp.2.1], by linarith [hp.2.2]⟩).le
   have hsc : ContDiffOn ℝ k' (fun p : Y × ℝ => p.2) U := contDiffOn_snd
   have hprod := JB.smul_mul hUd zero_le_one (mul_nonneg zero_le_one hK) hsc hgc hs hg
   have ha : JB k' U (aF F) (claimGKa k' K) := by
