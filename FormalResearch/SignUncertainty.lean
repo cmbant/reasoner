@@ -500,6 +500,7 @@ public import FormalResearch.SignUncertainty.FctInnerSymbolsG0Init
 public import FormalResearch.SignUncertainty.FctInnerSymbolsRot
 public import FormalResearch.SignUncertainty.FctInnerB2
 public import FormalResearch.SignUncertainty.FctSplittingDefs
+public import FormalResearch.SignUncertainty.FctSplittingDescent
 public import FormalResearch.SignUncertainty.FctMainHankel
 public import FormalResearch.SignUncertainty.FctSymCal
 public import FormalResearch.SignUncertainty.FctSymChain

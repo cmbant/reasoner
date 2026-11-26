@@ -9,7 +9,7 @@ public import FormalResearch.SignUncertainty.FctRSymbol
 public import FormalResearch.SignUncertainty.FctDcomp
 public import FormalResearch.SignUncertainty.FctWarpAdmiss
 public import FormalResearch.SignUncertainty.FctWarpZero
-public import FormalResearch.SignUncertainty.FctSplittingDefs
+public import FormalResearch.SignUncertainty.FctSplittingDescent
 
 /-!
 # `fct:main-hankel`: the five-term upper bound for the Hankel thresholds (F2a skeleton)
@@ -47,7 +47,7 @@ with it because the limit is `0`.)
 `K4 ≥ 1` (`fct:comp-D`).  The physical bump `Bphys` is **not** data: `fctBphys` is the definition `(fct:B-physical)` with `H₀ = H_*`, `n_c = 1/N_c`
 (`(fct:B-five-def)`).  Likewise the compensator `D_{τ₁}` is the definition `fctDcomp K4 alpha` (`FctDcomp.lean`).
 
-**Conditional on the fields of `FctMainHankelInputs`** (`splitting`, `splitting_norm`, `warp_solve`, `physical_positive`): each is
+**Conditional on the fields of `FctMainHankelInputs`** (`splitting`, `descent`, `warp_solve`, `physical_positive`): each is
 the output of the named TeX lemma(s), stated about the concrete multipliers and these data.  The former fields `bump_profile` and `physical_budget` are
 **proved** for `fctBphys` (`fctBphys_bumpProfile`, `fctBphys_physicalBudget`, from `fctMainHankel_bump_fields_concrete_of_factors`), and the former field `warp_admissible` is
 **proved** (`fctWarp_admissible`, `FctWarpAdmiss.lean`: Step 1 of `fct:s4-proof` for the warp summand, from `fct:comp-D`, `uct:outer-growth` and the field `splitting`).  Proved lemmas
@@ -126,8 +126,9 @@ structure FctMainHankelInputs where
   `fct:s4-proof` for the warp summand (`fctWarp_admissible`) and the corner behaviour that makes `ctWwarp → 0` at `ζ = 0` (`ctWwarp_tendsto_zero`; the singularity
   `ζ^{-5/2}` of `H_*/G_ε` is cancelled). -/
   splitting : FctSplittingStmt (fctPhiHat warp_solve)
-  /-- `fct:splitting` (2): `N_c = 1 + O_{K₄}(c⁻¹)`. -/
-  splitting_norm : FctSplittingNormStmt (fctNc warp_solve)
+  /-- `(fct:F-38-bnd)`, `fct:splitting` (1): `|F(σ+iy)| ≤ C c⁻¹/log(2+|y|)` on `5/16 ≤ σ ≤ 7/16` (`FctDescentStmt`).  `N_c = 1 + O(c⁻¹)`
+  (`fct:splitting` (2), the former field `splitting_norm`) is the theorem `FctMainHankelInputs.splitting_norm`. -/
+  descent : FctDescentStmt warp_solve
   /-- Integrability of the integrals defining `Ψ_c` and the Cauchy splitting `F_±` (`FctSplittingIntStmt`; `fct:splitting` (1)-(2)), so that the
   definitions of `fctPhiHat`, `fctNc` carry no Bochner junk value. -/
   splitting_int : FctSplittingIntStmt warp_solve
@@ -146,6 +147,10 @@ noncomputable abbrev FctMainHankelInputs.PhiHat (I : FctMainHankelInputs) : ℝ 
 
 /-- `N_c` of the inputs (`fct:splitting`, `(fct:Phihat-def)`): the definition `fctNc`. -/
 noncomputable abbrev FctMainHankelInputs.Nc (I : FctMainHankelInputs) : ℝ → ℝ → ℝ := fctNc I.warp_solve
+
+/-- `fct:splitting` (2): `N_c = 1 + O_{K₄}(c⁻¹)` (the former field `splitting_norm`), from `descent` (`fctSplittingNorm_of_descent`). -/
+theorem FctMainHankelInputs.splitting_norm (I : FctMainHankelInputs) : FctSplittingNormStmt I.Nc :=
+  fctSplittingNorm_of_descent I.descent
 
 /-- `T₁ = (c/π²) e^{L₁}` of the zero pair of `warp_solve` (`fct:warp-asymp` (1)). -/
 noncomputable abbrev FctMainHankelInputs.T1 (I : FctMainHankelInputs) : ℝ → ℝ → ℝ := fctWarpT1 I.warp_solve
