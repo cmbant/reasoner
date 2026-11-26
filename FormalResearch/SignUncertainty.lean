@@ -413,6 +413,9 @@ public import FormalResearch.SignUncertainty.FctUnscaledCuspBase
 public import FormalResearch.SignUncertainty.FctUnscaledCuspIbp
 public import FormalResearch.SignUncertainty.FctUnscaledCuspPhase
 public import FormalResearch.SignUncertainty.FctUnscaledCuspSetup
+public import FormalResearch.SignUncertainty.FctUnscaledCuspMidT0
+public import FormalResearch.SignUncertainty.FctUnscaledCuspMidPieces
+public import FormalResearch.SignUncertainty.FctUnscaledCuspMidFar
 public import FormalResearch.SignUncertainty.UctFloorEdge
 public import FormalResearch.SignUncertainty.UctFloorAdmiss
 public import FormalResearch.SignUncertainty.FctMainHankel
