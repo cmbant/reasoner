@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerMain
+public import FormalResearch.ModularBootstrap.FiveTerm.LowerGoodMain
 public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaQScaleBridge
 
 /-!
@@ -76,10 +77,14 @@ theorem lowerPrelim_virasoro : LowerPrelim virasoroProblem := by
     rw [hpsi]
     exact hslope θ hθ0 hθ1
 
-/-- `LowerPhaseStatement` at Virasoro from the open lemmas. -/
+/-- `LowerPhaseStatement` at Virasoro from the open lemmas, with `LowerFirstGood` discharged
+unconditionally from `h.chart` via `lowerFirstGood_of_chart_on_band`. -/
 theorem lowerPhase_virasoro (h : LowerMainInputs virasoroProblem c0Star gamma0) :
-    ∃ C : ℝ, 0 ≤ C ∧ LowerPhaseStatement virasoroProblem c0Star gamma0 C :=
-  lowerPhase_of_inputs c0Star_neg lowerPrelim_virasoro h
+    ∃ C : ℝ, 0 ≤ C ∧ LowerPhaseStatement virasoroProblem c0Star gamma0 C := by
+  obtain ⟨cc, C, hfg⟩ := lowerFirstGood_of_chart_on_band c0Star gamma0 h.c1 h.phi h.uhat
+    h.c1_pos h.c1_small h.chart
+  exact lowerPhase_of_inputs c0Star_neg lowerPrelim_virasoro h
+    ⟨cc, C, fun c hc T g hg _ hT_hi => hfg c hc T g hg hT_hi⟩
 
 /-- **Lower half of `thm:spinless-expansion`, modulo `LowerMainInputs`** (`cts:lower-main`, Theorem C9):
 `Δ_best(c) ≥ c/Λ_V + A_opt c^{1/3} + c_0^* + c_1^Langer c^{-1/3} + d_2^* c^{-2/3} - C_- c^{-1} log c`. -/
