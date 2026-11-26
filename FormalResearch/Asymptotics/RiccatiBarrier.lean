@@ -115,10 +115,52 @@ theorem nonpos_of_deriv_ge_mul {h h' p : ℝ → ℝ} {x0 M : ℝ}
     (fun x hx => hp x hx.le) (fun x hx => hpc x hx.le) (fun x hx => hge x hx.le) (fun x hx => hM x hx.le)
   intro x hx
   rcases hx.eq_or_lt with h0 | hlt
-  · have hc : ContinuousAt h x := (hd x le_rfl).continuousAt
-    have hlim : Tendsto h (𝓝[>] x) (𝓝 (h x)) := hc.continuousWithinAt.tendsto.mono_left nhdsWithin_le_nhds
+  · have hc : ContinuousAt h x := (hd x hx).continuousAt
+    have hlim : Tendsto h (𝓝[>] x) (𝓝 (h x)) := hc.tendsto.mono_left nhdsWithin_le_nhds
     refine le_of_tendsto hlim ?_
     filter_upwards [self_mem_nhdsWithin] with y hy using h1 y (by rw [h0]; exact hy)
   · exact h1 x hlt
+
+/-- **Two-sided barrier.** If `e' = p e - r` with `p ≥ 1` continuous, `e` bounded, `ρ ≥ 0` differentiable and
+`|r| ≤ p ρ - ρ'`, then `|e| ≤ ρ` on `[x₀, ∞)`. -/
+theorem abs_le_of_riccati_barrier {e e' p r ρ ρ' : ℝ → ℝ} {x0 M : ℝ}
+    (he : ∀ x, x0 ≤ x → HasDerivAt e (e' x) x) (hρ : ∀ x, x0 ≤ x → HasDerivAt ρ (ρ' x) x)
+    (hρ0 : ∀ x, x0 ≤ x → 0 ≤ ρ x) (hp : ∀ x, x0 ≤ x → 1 ≤ p x)
+    (hpc : ∀ x, x0 ≤ x → ContinuousAt p x) (heq : ∀ x, x0 ≤ x → e' x = p x * e x - r x)
+    (hr : ∀ x, x0 ≤ x → |r x| ≤ p x * ρ x - ρ' x) (hM : ∀ x, x0 ≤ x → |e x| ≤ M) :
+    ∀ x, x0 ≤ x → |e x| ≤ ρ x := by
+  have h1 := nonpos_of_deriv_ge_mul (h := fun x => e x - ρ x) (h' := fun x => e' x - ρ' x) (p := p) (M := M)
+    (fun x hx => (he x hx).sub (hρ x hx)) hp hpc
+    (fun x hx => by
+      have h3 := hr x hx
+      have h2 := heq x hx
+      have h5 := le_abs_self (r x)
+      nlinarith only [h3, h2, h5])
+    (fun x hx => by
+      have := (abs_le.mp (hM x hx)).2
+      linarith only [this, hρ0 x hx])
+  have h2 := nonpos_of_deriv_ge_mul (h := fun x => -e x - ρ x) (h' := fun x => -e' x - ρ' x) (p := p) (M := M)
+    (fun x hx => (he x hx).neg.sub (hρ x hx)) hp hpc
+    (fun x hx => by
+      have h3 := hr x hx
+      have h4 := heq x hx
+      have h5 := neg_abs_le (r x)
+      nlinarith only [h3, h4, h5])
+    (fun x hx => by
+      have := (abs_le.mp (hM x hx)).1
+      linarith only [this, hρ0 x hx])
+  intro x hx
+  have a1 := h1 x hx
+  have a2 := h2 x hx
+  rw [abs_le]
+  constructor <;> linarith only [a1, a2]
+
+/-- info: 'FormalResearch.Asymptotics.nonpos_of_deriv_ge_mul' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms nonpos_of_deriv_ge_mul
+
+/-- info: 'FormalResearch.Asymptotics.abs_le_of_riccati_barrier' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms abs_le_of_riccati_barrier
 
 end FormalResearch.Asymptotics
