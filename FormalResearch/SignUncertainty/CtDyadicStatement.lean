@@ -20,14 +20,13 @@ Both are about the concrete objects: `ctBudget R ε c f` (`= P_R(H) + g_vac/2π`
 since `CtDyadicEta`, the paper's `η(R)` (`ctEta`: the two circle integrals with the complex Airy envelope `airyEnv` and the complex
 chart `ctPhiC`) and good Airy radii (`ctGoodRadius`, `ap:E2`).
 
-* `CtDyadicRadiusStatement c₁` is `ct:dyadic` (2).  It is **proved** from the two named hypotheses `chart`, `band`
-  (`CtDyadicInputs.radius`, `ct_dyadic_radius` in `CtDyadicRadius`): the complex chart of `ct:cfu`, and the top-scale inputs of
-  `ct:dyadic` (1) that (2) uses (`(ct:cov)` at `R_J`, the first `v`-moment of `(ct:half)`; `CtBandData`).  The unfolding of the two circle integrals of `η` is proved
-  from the chart (`ct_eta_transfer`).
-* `CtDyadicInputs.combined` is `ct:dyadic` (4), not proved.
+* `CtDyadicRadiusStatement c₁` is `ct:dyadic` (2).  It is **proved** for every small `c₁` (`ct_dyadic_radius_proved` in `CtBandTop`, from
+  `ct_dyadic_radius` with `ct_chart_complex` and `ctBandData_small`; the unfolding of the two circle integrals of `η` is
+  `ct_eta_transfer`).
+* `CtDyadicInputs.combined` is `ct:dyadic` (4), not proved (the only remaining input of `ct:dyadic` (2), (4); it needs `ct:dyadic` (3), the
+  Airy-defect and `H_+^2` orthogonalities `(ct:rosc)`, `(ct:H2-orth)`, and the moments of `ct:dyadic` (1) below the top scale).
 
-Together with `ct:boas` (`∫_{L ≥ L_min} ... ≥ -O(c^{-4/3} log c)`, via the fields of `BoasInputs`) they give the field `pass` of
-`CtLowerInputs`; that combination is not done here.
+Together with `ct:boas` (`CtBoasStatement` in `CtLower`) they give `ct_pass` (`CtLower`), the budget bound used in `thm:ct-lower`.
 -/
 
 @[expose] public section
@@ -50,11 +49,9 @@ def CtDyadicRadiusStatement (c₁ : ℝ) : Prop :=
       ∃ R : ℝ, R ∈ Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧ ctGoodRadius R ∧
         ctEta c₁ ε c f R ≤ C * c ^ (-(1 / 3) : ℝ)
 
-/-- **Inputs of `ct:dyadic` (2), (4)**: the two named hypotheses behind (2) (see `CtDyadicRadius`: `CtChartComplex`, `CtBandData`) and `ct:dyadic` (4) (`(ct:combined)` at every good radius in the window, about `ctBudget`, `ctTaper`, `hankelHL`,
-`boasKernel`, `ctEta`). -/
+/-- **Input of `ct:dyadic` (4)** (`(ct:combined)` at every good radius in the window, about `ctBudget`, `ctTaper`, `hankelHL`,
+`boasKernel`, `ctEta`; `ct:dyadic` (2) is proved, `ct_dyadic_radius_proved`, so it is no longer a field). -/
 structure CtDyadicInputs (c₁ : ℝ) : Prop where
-  chart : CtChartComplex c₁
-  band : CtBandData c₁
   /-- `ct:dyadic` (4), `(ct:combined)`: at every good radius in the window. -/
   combined : ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
     ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
@@ -63,9 +60,5 @@ structure CtDyadicInputs (c₁ : ℝ) : Prop where
         |ctBudget R ε c f +
             ∫ L in Ici (ctLv0 c), ctTaper ε c R L * (hankelHL c f L * boasKernel (boasX c ε) L)| ≤
           C * (c⁻¹ * ctEta c₁ ε c f R + c ^ (-(4 / 3) : ℝ) * Real.log c)
-
-/-- **`ct:dyadic` (2) from the inputs** (`c₁ > 0`). -/
-theorem CtDyadicInputs.radius {c₁ : ℝ} (hc₁ : 0 < c₁) (I : CtDyadicInputs c₁) : CtDyadicRadiusStatement c₁ :=
-  ct_dyadic_radius hc₁ I.chart I.band
 
 end FormalResearch.SignUncertainty
