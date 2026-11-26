@@ -97,7 +97,7 @@ lemma aAmp_zero : aAmp 0 = -(1 / 4) * Real.log (2 * xiStar) := by
   have hxi := xiStar_pos
   unfold aAmp
   rw [xT_zero, bT_zero, lamT_zero]
-  simp only [mul_zero, zero_div, Real.cosh_zero, Real.log_one, mul_one]
+  simp only [mul_zero, zero_div, Real.cosh_zero, Real.log_one]
   rw [Real.log_mul (by norm_num) hxi.ne', show (1 / 2 : ℝ) = (2 : ℝ)⁻¹ by norm_num, Real.log_inv]
   ring
 
