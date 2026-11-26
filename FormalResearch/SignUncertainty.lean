@@ -360,6 +360,8 @@ public import FormalResearch.SignUncertainty.UctBumpFarTailLap
 public import FormalResearch.SignUncertainty.UctBumpFarTail
 public import FormalResearch.SignUncertainty.UctBumpWeightedFar
 public import FormalResearch.SignUncertainty.FctBump5
+public import FormalResearch.SignUncertainty.FctJet
+public import FormalResearch.SignUncertainty.FctClaimG
 public import FormalResearch.SignUncertainty.UctOuterGrowth
 public import FormalResearch.SignUncertainty.UctGenPreedge
 public import FormalResearch.SignUncertainty.UctCeBandRef
@@ -631,6 +633,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `FormalResearch.SignUncertainty.UctSeedWindow` (with `UctSeedWindowDiff`, `UctSeedWindowSym`, `UctSeedWindowY`, `UctSeedWindowQ`, `UctSeedWindowRef`; `uct:seed-asymp` (1), proved, unconditional): `seedHnorm`, `seed_window` (the fixed Airy window of `h_norm^seed`: `(k/c_s)F_{*,δ}(-β₁S_eff + β₁κ_εc^{-1/3}) + O_{S_w}(c^{-2/3})`), `main_line_diff_sym`, `seedSy_bound`, `seedYw_taylor`, `seedQ_expansion`, `ref_symbol_diff`.
 * `FormalResearch.SignUncertainty.FctMomentCore`, `FctMomentSolver` (`fct:moment-solver`, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `fctWeight`, `fctMoment`, `fctThetaD`, `momentSolver`, `momentSolver_linear`, `fct_moment_solver` (finite moment correction on `(-10τ₁, 10τ₁)` matching `f` on `[-2τ₁, 2τ₁]` with `ℳ_k[v] = 0`, `ϑ_D^{(2k+1)}(0) = 0` for `0 ≤ k < N`, uniform derivative, `L¹`, and `ϑ_D` vanishing bounds).
 * `FormalResearch.SignUncertainty.FctPhiKillCore`, `FctPhiKill` (`fct:phikill`, Lemma FCT.4, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `phiPQ`, `phiKill = phiPQ 8 8`, `fct_phikill` bundling (1) holomorphicity, real symmetry, `(0,1)` positivity on `(0,∞)`, `(fct:pk-zero)`, `(fct:pk-inf)`, uniform `{Re z ≥ 0}` and imaginary-axis bounds; (2) exact Cauchy moment vanishing `(fct:pk-cauchy)` for general `(p,q)`; and (3) exact `O(a^8)` finite-part cancellation `(fct:pk-fp)` for `H_*` (`c_{-1} = (47/20)α_osc`) and `H_CE` (`c_{-1} = -(13/20)α_osc`).
+* `FormalResearch.SignUncertainty.FctJet` and `FormalResearch.SignUncertainty.FctClaimG` (`fct:comp-cfu`, first part; proved, unconditional): `JB k U f b` (all iterated Fréchet derivatives of order `≤ k` bounded by `b` on `U`) with its closure algebra (`JB.add`, `JB.smul_mul`, `JB.clm_apply`, `JB.comp`, `JB.inv`, ...), and `claim_G` (Claim G of the paper: `E = E₀ + tF` with `‖E₀‖_{C^k} ≤ ε`, `‖F‖_{C^k} ≤ K`, `∂_tE ≥ m` has a unique root `w ∈ C^k` with `‖w‖_{C^k} ≤ C(k,m,K) ε`, on an open parameter set). The scalar cubic chart, the homotopy ODE and the `V`-jets are not yet formalised.
 * `FormalResearch.SignUncertainty.FctEdgeIbp` (`fct:edge-ibp`, Lemma FCT.5a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `edgeW`, `fct_edge_ibp_cutoff` (Part (1): removing an edge cutoff with Abel regularisation `e^{-ετ²}`), `fct_edge_ibp_shoulder` (Part (2): shoulder estimate under the corrected derivative range `1 ≤ k ≤ n` matching `Φ ∈ C^{n+1}`), and bundled `fct_edge_ibp`.
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
