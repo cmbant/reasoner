@@ -6,6 +6,7 @@ public import FormalResearch.SignUncertainty.CtDyadicRegime
 public import FormalResearch.SignUncertainty.CtBoasMeasurable
 public import FormalResearch.SignUncertainty.CtBoasHhatHol
 public import FormalResearch.SignUncertainty.CtDualLim
+public import FormalResearch.SignUncertainty.CtChartPsiAnalytic
 
 /-!
 # `ct:dyadic` (4), `(ct:combined)`: the assembly from the five steps of its proof
@@ -24,7 +25,12 @@ a concrete integral up to `O(c⁻¹η_R + c^{-4/3} log c)` at a good radius `R �
 * `window`: `K_in + s₁ = O(c⁻¹η_R + c^{-4/3} log c)`: the sub-chart bullet (radial compactness, `|K| ≤ K_b`) and the Airy-window bullet (`ct:cfu` (1) substituted,
   `(ct:H2-orth)`, the half moment `(ct:half)` for the CFU remainder, `|s₁| ≤ η_R`).
 * `outer`: `K_out + S_out = O(c^{-4/3})` (`ct:cfu` (2) with `B₂(R') = O(c^{-1/3})`).
-* `trans`: `S_tr - s₂ - S_out = O(c^{-4/3})` (`w̃ = 1` beyond `Λ`; the transition band: `(ct:theta-cfu-match)` and the first moment).
+* `trans`: `S_tr - s₂ - S_out = O(c^{-4/3})` (`w̃ = 1` beyond `Λ`; the transition band: `(ct:theta-cfu-match)` and the first moment); proved in `CtTransBand` (`ct_combined_trans`) (the chart identification `ct_langer_edge` of `CtLangerEdgeChart` is proved).
+
+`s₁` is the paper's integral `∫_0^R f_c(-v) sin(4/3 v^{3/2}) dv`, with `f_c = Ψ̃(φ_c)φ_c'` for the complex chart on `v ∈ (0, R)` (`ctOscS1`; this includes the edge
+strip `0 < v < -û(0⁻) = O(c^{-1/3})`, `ũ ∈ (0, ũ₀)`, which carries mass `Θ(c^{-5/6})` of `s₁`: an earlier Lean form of `s₁` integrated over the Langer variable
+`x ∈ (-R', 0)` only and omitted it, which made `rosc` false).  `s₂` is kept in the Langer variable `x ∈ (-R', 0)` (`ctOscS2`, `v = -û(x)`,
+`f_c(-v)dv = Ψ̃(x)dx`): there the weight `w_R(v) ≤ 2(v/R)^{12}` makes the edge strip `O(R^{-12})`.
 
 Together with the proved exact duality `K_in + K_out = 0` (`ct:dual-id` (2), `ct_dual_id_part2`) they give `(ct:combined)`
 (`ct_combined_of_pieces`): the left side is `e₁ - e_T - 2e_w - 2e_o - 2e_tr`, an exact linear combination.  The assembly is **proved**; the five
@@ -40,13 +46,29 @@ namespace FormalResearch.SignUncertainty
 
 /-! ### The concrete quantities -/
 
-/-- `s₁ = ∫_0^R f_c(-v) sin(4/3 v^{3/2}) dv` (the integral bounded by `η_R` through Cauchy's theorem on the half-disc, `ct:dyadic` (4) (iv)). -/
-noncomputable def ctOscS1 (R ε c : ℝ) (f : ℝ → ℝ) : ℝ :=
-  ∫ v in Ioo 0 R, ctFc ε c f (-v) * Real.sin (4 / 3 * v ^ (3 / 2 : ℝ))
+/-- **The chart constant of `s₁`**: `min(c₁₀, 1/900)`, `c₁₀` the constant of `ct_chart_complex` (so `CtChartComplex c₁` holds for every `0 < c₁ ≤ ctChartC1`).  It only
+fixes which of the (pairwise agreeing, `ctPhiC_agree`) complex charts `φ_c` defines `ctOscS1`: all that matters is `R ≤ 4c₁²c^{2/3} < R_max(ctChartC1)`. -/
+noncomputable def ctChartC1 : ℝ := min (Classical.choose ct_chart_complex) (1 / 900)
 
-/-- `s₂ = ∫_0^R w_R(v) f_c(-v) sin(4/3 v^{3/2}) dv`, `w_R = 2(v/R)^{12} - (v/R)^{24}` (`taperW`). -/
+lemma ctChartC1_pos : 0 < ctChartC1 :=
+  lt_min (Classical.choose_spec ct_chart_complex).1 (by norm_num)
+
+lemma ctChartC1_le : ctChartC1 ≤ 1 / 900 := min_le_right _ _
+
+lemma ctChartComplex_ctChartC1 : CtChartComplex ctChartC1 :=
+  (Classical.choose_spec ct_chart_complex).2 _ ctChartC1_pos (min_le_left _ _)
+
+/-- `s₁ = ∫_0^R f_c(-v) sin(4/3 v^{3/2}) dv` (`ct:dyadic` (3)-(4); the integral bounded by `η_R` through Cauchy's theorem on the half-disc, `ct:dyadic` (4) (iv)),
+`f_c = Ψ̃(φ_c)φ_c'` with the complex chart `φ_c` (`ctFcC`, `ctChartC1`), real on `ℝ`; the integral runs over the whole interval `v ∈ (0, R)`, including the
+edge strip `ũ ∈ (0, ũ₀)` where the real chart `ctPhi` is a junk value. -/
+noncomputable def ctOscS1 (R ε c : ℝ) (f : ℝ → ℝ) : ℝ :=
+  ∫ v in Ioo 0 R, (ctFcC ctChartC1 ε c f (-(v : ℂ))).re * Real.sin (4 / 3 * v ^ (3 / 2 : ℝ))
+
+/-- `s₂ = ∫_0^R w_R(v) f_c(-v) sin(4/3 v^{3/2}) dv`, `w_R = 2(v/R)^{12} - (v/R)^{24}` (`taperW`), in the Langer variable as `ctOscS1`
+(`v = -û(x)`, `f_c(-v) dv = Ψ̃(x) dx`, `x ∈ (-R', 0)`). -/
 noncomputable def ctOscS2 (R ε c : ℝ) (f : ℝ → ℝ) : ℝ :=
-  ∫ v in Ioo 0 R, taperW R v * (ctFc ε c f (-v) * Real.sin (4 / 3 * v ^ (3 / 2 : ℝ)))
+  ∫ x in Ioo (-(ctRprime ε c R)) 0,
+    taperW R (-ctUhat ε c x) * (hankelPsiR c f x * Real.sin (4 / 3 * (-ctUhat ε c x) ^ (3 / 2 : ℝ)))
 
 /-- `M_all = ∫ w̃_R dm` over the whole line (`w̃ = 0` for `L ≤ 0`, i.e. `ξ ≤ ξ(0)`). -/
 noncomputable def ctMall (R ε c : ℝ) (f : ℝ → ℝ) : ℝ := ∫ L, ctTaper ε c R L * hankelHL c f L
