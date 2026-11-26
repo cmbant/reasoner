@@ -29,14 +29,16 @@ open FormalResearch.CohnElkies FormalResearch.SignUncertainty.CtOuter
 namespace FormalResearch.SignUncertainty
 
 /-- The data of `D_{τ₁}` and the uniform contour bound used by the contour shift, from `FctDescentStmt` (`K₄ ≥ 1`): for `c ≥ c₀`, `ε = ±1`, with `(L₁, α)` the chosen
-zero pair, `c > 0`, `D_{τ₁}` holomorphic on `S`, continuous and bounded on `S̄`, and `‖F(σ+iy)‖ ≤ B` for `3/8 ≤ σ ≤ 7/16`. -/
+zero pair, `c > 0`, `D_{τ₁}` holomorphic on `S`, continuous, bounded and real-symmetric on `S̄`, and `‖F(σ+iy)‖ ≤ B` for `3/8 ≤ σ ≤ 7/16`. -/
 theorem fctSplitting_setup {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolveStmt K4} (hD : FctDescentStmt h) :
     ∃ c₀ B : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       0 < c ∧ DifferentiableOn ℂ (fctDcompAt K4 c (fctWarpAlpha h ε c)) strip ∧
         ContinuousOn (fctDcompAt K4 c (fctWarpAlpha h ε c)) closedStrip ∧
         (∃ B' : ℝ, ∀ ζ ∈ closedStrip, ‖fctDcompAt K4 c (fctWarpAlpha h ε c) ζ‖ ≤ B') ∧
-        ∀ σ y : ℝ, 3 / 8 ≤ σ → σ ≤ 7 / 16 →
-          ‖fctFint K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c) ((σ : ℂ) + y * Complex.I)‖ ≤ B := by
+        (∀ σ y : ℝ, 3 / 8 ≤ σ → σ ≤ 7 / 16 →
+          ‖fctFint K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c) ((σ : ℂ) + y * Complex.I)‖ ≤ B) ∧
+        ∀ ζ ∈ closedStrip, fctDcompAt K4 c (fctWarpAlpha h ε c) (starRingEnd ℂ ζ) =
+          starRingEnd ℂ (fctDcompAt K4 c (fctWarpAlpha h ε c) ζ) := by
   obtain ⟨C, c₀, hC⟩ := hD
   obtain ⟨Cz, cz, hz⟩ := fctWarpZero_of_solve h
   have hα : ∃ Kα c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |fctWarpAlpha h ε c| ≤ Kα * c ^ (-(2 / 3 : ℝ)) :=
@@ -46,7 +48,7 @@ theorem fctSplitting_setup {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolveStmt K4}
   refine ⟨max (max c₀ cD) 1, |C| / Real.log 2, fun ε c hε hc => ?_⟩
   have hc1 : 1 ≤ c := (le_max_right _ _).trans hc
   have hDD := hcD ε c hε ((le_max_right _ _).trans ((le_max_left _ _).trans hc))
-  refine ⟨by linarith, hDD.hol, hDD.cont, hDD.bd, fun σ y h1 h2 => ?_⟩
+  refine ⟨by linarith, hDD.hol, hDD.cont, hDD.bd, fun σ y h1 h2 => ?_, hDD.conj⟩
   refine (hC ε c hε ((le_max_left _ _).trans ((le_max_left _ _).trans hc)) σ y (by linarith) h2).trans ?_
   have hl : Real.log 2 ≤ Real.log (2 + |y|) := Real.log_le_log (by norm_num) (by linarith [abs_nonneg y])
   have hcpos : 0 < c := by linarith
@@ -157,7 +159,7 @@ theorem fctPhiHat_differentiableOn {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolve
       DifferentiableOn ℂ (fctPhiHat h ε c) {ζ : ℂ | 0 < ζ.re} := by
   obtain ⟨c₀, B, hB⟩ := fctSplitting_setup hK4 hD
   refine ⟨c₀, fun ε c hε hc => ?_⟩
-  obtain ⟨hc0, hDh, hDc, hDb, hF⟩ := hB ε c hε hc
+  obtain ⟨hc0, hDh, hDc, hDb, hF, -⟩ := hB ε c hε hc
   exact fctPhiHatAt_differentiableOn hc0 hDh hDc hDb hF
 
 /-- **Glued form, from the descent bound**: for `c ≥ c₀`, `Φ^warp_c = Φ_c - F_-` on `0 < Re ζ < 3/8` and `= 1 - F_+` on `Re ζ > 3/8`. -/
@@ -172,7 +174,7 @@ theorem fctPhiWarp_paper_of_descent {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolv
           1 - fctCauchy K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c) (3 / 8) ζ) := by
   obtain ⟨c₀, B, hB⟩ := fctSplitting_setup hK4 hD
   refine ⟨c₀, fun ε c hε hc => ?_⟩
-  obtain ⟨hc0, hDh, hDc, hDb, hF⟩ := hB ε c hε hc
+  obtain ⟨hc0, hDh, hDc, hDb, hF, -⟩ := hB ε c hε hc
   exact ⟨fun ζ h1 => fctPhiWarp_eq_left hc0 hDh hDc hDb hF h1, fun ζ h0 => fctPhiWarp_eq_right hc0 hDh hDc hDb hF h0⟩
 
 /-- info: 'FormalResearch.SignUncertainty.fctPhiHat_differentiableOn' depends on axioms: [propext, Classical.choice, Quot.sound] -/

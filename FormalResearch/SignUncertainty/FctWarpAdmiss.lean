@@ -16,7 +16,7 @@ Source: `CFT/sign_uncertainty/paper/constant_terms_five.tex`, `fct:s4-proof` ("E
 * Proved parts: `D_{τ₁}` (`fctDcomp_compData`: holomorphy, continuity, bound, `D(1-ζ) = D(ζ)`, real symmetry, `C²` left edge trace from `fct_comp_D_part1`);
   `H_*/G_ε` (`ctHG_oneSub`, `ctHG_conj`, `ctHG_differentiableOn`, `ctHG_continuousOn`, `ctHG_near`, `ctHG_far`); the assembly
   `warpMul_admissible` for abstract `SplittingData Φ`, `CompData D`, with the edge calculus `EJ` of `FctWarpEdge`.
-* Named input: `FctSplittingStmt` (`fct:splitting` (1)-(2) for `Φ̂_c`), the field `splitting` of `FctMainHankelInputs`.
+* Named input: `FctSplittingStmt` (`fct:splitting` (1)-(2) for `Φ̂_c`); its holomorphy and real-symmetry clauses are proved from the descent bound (`FctSplittingWarp`, `FctSplittingConj`), the rest is the field `splitting_rest` of `FctMainHankelInputs`.
 
 Class: proved under the explicit hypothesis `FctSplittingStmt`.
 -/
