@@ -2,6 +2,7 @@ module
 
 public import Mathlib
 public import FormalResearch.SignUncertainty.CtDyadicArea
+public import FormalResearch.SignUncertainty.CtDyadicGReg
 public import FormalResearch.SignUncertainty.CtDyadicRegime
 public import FormalResearch.SignUncertainty.AiryEtaUnfold
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerGoodCircle
@@ -16,11 +17,12 @@ public import FormalResearch.ModularBootstrap.FiveTerm.LowerDyadic
 radii) is formalised here down to two named hypotheses about the concrete objects:
 
 * `CtChartComplex c₁` (`CtDyadicEta`): the complex chart facts of `ct:cfu` / `ct:phic-exp`;
-* `CtGRegData c₁`: the two boundary inputs of the Cauchy-moment argument for `G_reg` (`ctGReg`) at `A = √R_J`: the arc bound
-  `∫_0^π ‖G_reg(Ae^{iy})‖ A dy ≤ C/A` (from `ct:cov` at `r = R_J` and the Type-(I) bound) and the absolute second moment
-  `∫ t²‖G_reg(t)‖ dt ≤ C A` (from the first half-moment of `(ct:half)`), i.e. the output of `ct:dyadic` (1) used by (2);
+* `CtBandData c₁` (`CtDyadicGReg`): the two top-scale outputs of `ct:dyadic` (1) used by (2): `(ct:cov)` on the circle
+  `|ũ'| = R_J` and the first `v`-moment of `(ct:half)` at `R_J`, for `A = √R_J`;
 
-Proved here from these: the unfolding `ct_eta_transfer` (`CtEtaTransfer c₁`, from `CtChartComplex c₁` and the shared
+Proved from `CtBandData c₁` and the Type-(I) envelope (`CtDyadicGReg`, `ctGRegData_of_band`): the boundary inputs `CtGRegData c₁` of
+the Cauchy-moment argument for `G_reg` (`ctGReg`) at `A = √R_J`: the arc mass `∫_0^π ‖G_reg(Ae^{iy})‖ A dy ≤ C/A` and the absolute
+second moment `∫ t²‖G_reg(t)‖ dt ≤ C A`.  Proved here from these: the unfolding `ct_eta_transfer` (`CtEtaTransfer c₁`, from `CtChartComplex c₁` and the shared
 `airy_eta_le_arcs` of `AiryEtaUnfold`: the two circle integrals of `η` bounded by the half-sector integrals of `G_reg` and
 `G_reg ∘ w̃`, `ap:lemU` (a), (c) and the comparability `e(φ_c(u)) ≍ e(u)`), the Cauchy-moment area bound (`HalfDiscMoments`,
 `CtDyadicArea`), the Markov selection on the set of good radii (Paper II's `lowerGoodSet`, of measure `≥ r₀/36`), and the
@@ -35,17 +37,6 @@ open scoped Real ENNReal
 namespace FormalResearch.SignUncertainty
 
 open FormalResearch.HalfDiscCauchy FormalResearch.ModularBootstrap.FiveTerm
-
-/-- **Boundary inputs of the Cauchy-moment argument** (named hypothesis; the part of `ct:dyadic` (1) used by (2)).  For `c ≥ c₀`,
-every feasible `f` with `M[f] = 1` and `ũ₁ > φ_c(a₁)` has a radius `A = √R_J` (`R_J` a good Airy radius of size `≍ c^{2/3}`,
-`9 c₁ c^{1/3} ≤ A`, i.e. `c₁` small, and `A² ≤ langerRadius c`) with arc mass `Σ = ∫_0^π ‖G_reg(Ae^{iy})‖ A dy ≤ C_Σ/A` and
-`∫_{-A}^A t²‖G_reg(t)‖ dt = ∫_0^{R_J} v (1 - v/R_J)² |Ψ̃(-v)| dv ≤ C_S A`. -/
-def CtGRegData (c₁ : ℝ) : Prop :=
-  ∃ CSig CS c₀ : ℝ, 0 ≤ CSig ∧ 0 ≤ CS ∧ ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ∀ c : ℝ, c₀ ≤ c →
-    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 → 0 < ctGap ε c T →
-      ∃ A : ℝ, 9 * (c₁ * c ^ (1 / 3 : ℝ)) ≤ A ∧ A ^ 2 ≤ langerRadius c ∧
-        hdArcMass A (ctGReg A c f) ≤ CSig / A ∧
-        ∫ t in (-A)..A, (t : ℝ) ^ 2 * ‖ctGReg A c f (t : ℂ)‖ ≤ CS * A
 
 /-- **The unfolding of `η`** (`ap:lemU`, `ct:dyadic` Part (2), last paragraph; proved from `CtChartComplex c₁` in `ct_eta_transfer`): for `r ∈ [r₀, (3/2) r₀]`,
 `r₀ = c₁c^{1/3}`, `η(r²) ≤ C_tr (∫_0^π r‖G_reg(re^{iφ})‖ dφ + ∫_0^π r‖G_reg(w̃(re^{iφ}))‖ dφ)`, where
@@ -210,17 +201,17 @@ theorem ct_eta_transfer {c₁ : ℝ} (hc₁ : 0 < c₁) (hch : CtChartComplex c�
 
 /-- **`ct:dyadic` (2)**, for the concrete `η = ctEta` and good radii `ctGoodRadius`: for `c ≥ c₀`, `ε = ±1` and every feasible `f` with
 `M[f] = 1` and `ũ₁ > φ_c(a₁)`, there is a good Airy radius `R ∈ [c₁²c^{2/3}, 4c₁²c^{2/3}]` with `η(R) ≤ C c^{-1/3}`
-(`C, c₀` independent of `c`, `ε`, `f`, `T`).  Conditional on the two named hypotheses `CtChartComplex c₁`, `CtGRegData c₁`
-(see the module docstring); the proof is the Cauchy-moment area bound, Markov selection on Paper II's positive-measure set of good
-radii, and the unfolding `ct_eta_transfer`. -/
-theorem ct_dyadic_radius {c₁ : ℝ} (hc₁ : 0 < c₁) (hch : CtChartComplex c₁) (hG : CtGRegData c₁) :
+(`C, c₀` independent of `c`, `ε`, `f`, `T`).  Conditional on the two named hypotheses `CtChartComplex c₁`, `CtBandData c₁`
+(see the module docstring); the proof is `ctGRegData_of_band`, the Cauchy-moment area bound, Markov selection on Paper II's
+positive-measure set of good radii, and the unfolding `ct_eta_transfer`. -/
+theorem ct_dyadic_radius {c₁ : ℝ} (hc₁ : 0 < c₁) (hch : CtChartComplex c₁) (hband : CtBandData c₁) :
     ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
       ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 → 0 < ctGap ε c T →
         ∃ R : ℝ, R ∈ Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧ ctGoodRadius R ∧
           ctEta c₁ ε c f R ≤ C * c ^ (-(1 / 3) : ℝ) := by
   obtain ⟨Ctr, ctr, hCtr, htr'⟩ := ct_eta_transfer hc₁ hch
   obtain ⟨Cφ, cch, hCφ, hch'⟩ := hch
-  obtain ⟨CSig, CS, cG, hCSig, hCS, hG'⟩ := hG
+  obtain ⟨CSig, CS, cG, hCSig, hCS, hG'⟩ := ctGRegData_of_band hc₁ hband
   set Bκ : ℝ := Real.sqrt (langerKappa * 4.94e-4) with hBκ
   set Minf : ℝ := 14 * CSig + 612 * CS * Bκ / c₁ + 1 with hMinf
   have hBκ0 : 0 ≤ Bκ := Real.sqrt_nonneg _

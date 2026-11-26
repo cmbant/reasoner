@@ -204,10 +204,15 @@ There exist absolute constants `k ≥ 0`, `C > 0`, `κ > 0`, `δ₀ > 0`, and `n
 (independent of `n, d, Φ, R`) such that for all `c ≥ n₀ + 1` (`n = c - 1`, `a = n / 12`,
 `ε = n^{-2/3}`, `b_* = \gamma_a \xi_*`, `D = 3 b_* / 4`) and every `Φ ∈ \overline{\mathcal A}_{\rm spin}`
 with `M_2[Φ] = 1`:
-- (a) `∫_{|d| ≤ D} S_d dd ≤ C` (with `S_d` integrable on `[-D, D]`);
-- (b) for `|ξ| < b_*`, `δ = b_* - |ξ|`, `|d| ≤ D`:
+- (a) `S_d` is integrable on `[-D, D]`, `∫_{|d| ≤ D} S_d dd ≤ C`, and for Lebesgue-a.e.
+  `d ∈ [-D, D]` the slit integrand `s ↦ a e^{12 a L(s)} |\Delta_a \mathcal G(s + d, s - d)|`
+  is integrable on `{|s| ≥ b_*}`;
+- (b) for `|ξ| < b_*`, `δ = b_* - |ξ|`, `|d| ≤ D`, and every slice `d` where the slit integrand
+  is integrable on `{|s| ≥ b_*}` (matching the paper's extended-real convention where `S_d = +∞`
+  makes the bound vacuous):
   `a e^{n L(ξ)} |\Delta_a \mathcal G(ξ + d, ξ - d)| ≤ C n^k (1 + S_d) δ^{-1} e^{-κ n δ^{3/2}}`;
-- (c) for any `R ≥ 1` and `δ ∈ [R ε, δ₀]`, (b) holds with `k = 0` (constants independent of `R`). -/
+- (c) for any `R ≥ 1` and `δ ∈ [R ε, δ₀]` (under the same slice-integrability hypothesis),
+  (b) holds with `k = 0` (constants independent of `R`). -/
 def SpinS22b : Prop :=
   ∃ (k C κ δ₀ n₀ : ℝ), 0 ≤ k ∧ 0 < C ∧ 0 < κ ∧ 0 < δ₀ ∧ 39 ≤ n₀ ∧
     ∀ {c : ℝ}, n₀ + 1 ≤ c →
@@ -218,13 +223,23 @@ def SpinS22b : Prop :=
       let D := 3 * bStar / 4
       ∀ {Φ : ℝ × ℝ → ℝ}, SpinTestClass a Φ → spinM2 a Φ = 1 →
         (IntegrableOn (spinSlitIntegral a Φ) (Icc (-D) D) ∧
-          ∫ d in Icc (-D) D, spinSlitIntegral a Φ d ≤ C) ∧
+          ∫ d in Icc (-D) D, spinSlitIntegral a Φ d ≤ C ∧
+          ∀ᵐ d ∂(volume.restrict (Icc (-D) D)),
+            IntegrableOn (fun s : ℝ =>
+              a * Real.exp (12 * a * spinL s) * |spinDeltaA a Φ (s + d) (s - d)|)
+              {s : ℝ | bStar ≤ |s|}) ∧
         (∀ ξ d : ℝ, |ξ| < bStar → |d| ≤ D →
+          IntegrableOn (fun s : ℝ =>
+            a * Real.exp (12 * a * spinL s) * |spinDeltaA a Φ (s + d) (s - d)|)
+            {s : ℝ | bStar ≤ |s|} →
           let δ := bStar - |ξ|
           a * Real.exp (n * spinL ξ) * |spinDeltaA a Φ (ξ + d) (ξ - d)| ≤
             C * n ^ k * (1 + spinSlitIntegral a Φ d) * δ⁻¹ *
               Real.exp (-κ * n * δ ^ (3 / 2 : ℝ))) ∧
         (∀ R : ℝ, 1 ≤ R → ∀ ξ d : ℝ, |ξ| < bStar → |d| ≤ D →
+          IntegrableOn (fun s : ℝ =>
+            a * Real.exp (12 * a * spinL s) * |spinDeltaA a Φ (s + d) (s - d)|)
+            {s : ℝ | bStar ≤ |s|} →
           let δ := bStar - |ξ|
           R * ε ≤ δ → δ ≤ δ₀ →
           a * Real.exp (n * spinL ξ) * |spinDeltaA a Φ (ξ + d) (ξ - d)| ≤

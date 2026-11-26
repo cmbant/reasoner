@@ -319,6 +319,7 @@ public import FormalResearch.SignUncertainty.CtDyadicRegime
 public import FormalResearch.SignUncertainty.AiryEtaUnfold
 public import FormalResearch.SignUncertainty.CtDyadicEta
 public import FormalResearch.SignUncertainty.CtDyadicArea
+public import FormalResearch.SignUncertainty.CtDyadicGReg
 public import FormalResearch.SignUncertainty.CtDyadicRadius
 public import FormalResearch.SignUncertainty.CtDyadicStatement
 public import FormalResearch.SignUncertainty.HankelChartCubic
