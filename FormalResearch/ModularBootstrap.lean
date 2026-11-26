@@ -81,6 +81,8 @@ public import FormalResearch.ModularBootstrap.FiveTerm.LowerMain
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerMainVirasoro
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryMoment
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryPrimitive
+public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryBC
+public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryBCBounds
 public import FormalResearch.ModularBootstrap.Mixtures.Source
 public import FormalResearch.ModularBootstrap.Mixtures.Mixture
 public import FormalResearch.ModularBootstrap.Mixtures.RebaseAnalysis
@@ -1434,4 +1436,5 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `FiveTerm.{LowerBesselTwoTerm}` (FIVE-L, partial: the two-term complex Bessel expansion behind `cts:edge-hankel` (2)); `FiveTerm.{UpperPairPhi, UpperPairTaylor, UpperPairDrift, UpperPairGamma, UpperTipSharedD}` (FIVE-U, partial: `cts:tip-shared` (b1) `pair_drift`, (b2) `pair_drift_gamma`, (d) `tipShared_d`); `FiveTerm.UpperMainInputs` (FIVE-U skeleton: `UpperMainInputs` with one field per open TeX lemma C11-C14, `sharpUpperFamily_of_inputs`, `sharp_upper_of_inputs`, `spinless_upper_of_inputs`, conditional on `UpperMainInputs`).
 * `FiveTerm.{LowerMain, LowerMainVirasoro}` (FIVE-L skeleton: `LowerMainInputs` with fields `chart` (`cts:cauchy-dual` (1)), `firstGood`, `combined` (`cts:rosc-uncond` (1), (4)), `pass2` (`ctl:pass2`), `boas` (`cts:boas`), `langer` (the u~ <-> tau bridge); `lower_pass_upper`, `lowerPhase_of_inputs` (with `LowerPrelim`, `c0 < 0`), `spinless_lower_of_inputs` (Virasoro lower half of `thm:spinless-expansion`), conditional on `LowerMainInputs`).
 * `FiveTerm.{UpperAiryMoment, UpperAiryPrimitive}` (FIVE-U: `cts:tip-shared` (a) `airyLinearMoment`, (c) `airyPrimitiveDecay`, unconditional), with the shared cores they import: `Asymptotics.{RiccatiBarrier, MidpointRule}` (`nonpos_of_deriv_ge_mul`, `abs_le_of_riccati_barrier`, `midpoint_remainder`), `Special.AiryLogDerivAsym` (`riccG_threeTerm`: three-term `Ai'/Ai` asymptotics, `airy_zero_sum_asymp`), `Special.{AiryMomentCells, AiryMomentLimit, AiryZeroLinearMoment}` (`airyZero_linear_moment`), `Special.AiryPrimitiveNeg` (`Bneg_decay`).
+* `FiveTerm.{UpperAiryBC, UpperAiryBCBounds}` (FIVE-U: `cts:tip-shared` (c), the identity `cts:BC-id` (`airyBC_id`, `airyBC_id_global`), the right-side bound with constant 40 (`airyBC_rhs_bound_paper`) and the three bounds `cts:BC-bnds` (`airyBC_bnd_W0`, `airyBC_bnd_W1`, `airyBC_bnd_W2`); with these `cts:tip-shared` is proved in full).
 -/
