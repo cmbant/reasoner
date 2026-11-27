@@ -873,9 +873,17 @@ theorem ce_post_edge_convSource
 #guard_msgs (whitespace := lax) in
 #print axioms gt1Bounds_convSource_unif
 
+/-- info: 'FormalResearch.SignUncertainty.ce_post_edge_unif' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ce_post_edge_unif
+
 /-- info: 'FormalResearch.SignUncertainty.ce_post_edge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ce_post_edge
+
+/-- info: 'FormalResearch.SignUncertainty.ce_post_edge_convSource_unif' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ce_post_edge_convSource_unif
 
 /-- info: 'FormalResearch.SignUncertainty.ce_post_edge_convSource' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
