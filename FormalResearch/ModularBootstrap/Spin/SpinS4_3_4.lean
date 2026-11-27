@@ -465,9 +465,8 @@ private lemma spinCalNorm_le_of_window
   have hz_even : ∀ b : ℝ, z (-b) = z b := fun b => by
     dsimp [z]
     have hL : spinL (-b) = spinL b := by unfold spinL; rw [abs_neg]
-    change a * Real.exp (n * spinL (-b)) * |(spinGcal a Φ ((-b : ℝ) : ℂ)).re| =
-      a * Real.exp (n * spinL b) * |(spinGcal a Φ (b : ℂ)).re|
-    rw [hL, spinGcal_re_even ha0 hΦ b]
+    have hce : ((-b : ℝ) : ℂ) = -(b : ℂ) := by push_cast; rfl
+    rw [hL, hce, spinGcal_re_even ha0 hΦ b]
   have hpre_KR : abs ⁻¹' K_R = K_R ∪ (Neg.neg ⁻¹' K_R) := by
     ext b
     simp only [Set.mem_preimage, Set.mem_union, Set.mem_Icc, K_R]
@@ -517,25 +516,21 @@ private lemma spinCalNorm_le_of_window
       · rw [Set.indicator_of_notMem hb, Set.indicator_of_notMem (show -b ∉ K_R from hb)]
     have hcov : ∫ b in K_R, z b = ∫ u in Icc (-R) R, |spinFProfile c Φ u| := by
       rw [← integral_indicator hKR_meas, ← integral_indicator measurableSet_Icc]
-      let e' : ℝ ≃ᵐ ℝ := (MeasurableEquiv.mulLeft₀ ε hε_pos.ne').trans (MeasurableEquiv.addLeft xiStar)
-      have hmp : Measure.map e' (volume : Measure ℝ) = ENNReal.ofReal ε⁻¹ • (volume : Measure ℝ) := by
-        have he_fn : (e' : ℝ → ℝ) = fun u => xiStar + ε * u := funext fun u => by
-          simp [e', add_comm]
-        rw [he_fn]
-        have hcomp : (fun u => xiStar + ε * u) = (fun y => xiStar + y) ∘ (fun u => ε * u) := rfl
-        have hadd_mp : Measure.map (fun y : ℝ => xiStar + y) (volume : Measure ℝ) = volume := by
-          simpa using (measurePreserving_add_left (volume : Measure ℝ) xiStar).map_eq
-        rw [hcomp, ← Measure.map_map (measurable_const_add xiStar) (measurable_const_mul ε),
-          Real.map_volume_mul_left hε_pos.ne', Measure.map_smul, hadd_mp,
-          abs_of_pos (inv_pos.mpr hε_pos)]
-      have heq := integral_map_equiv (μ := (volume : Measure ℝ)) e'
-        (fun b => K_R.indicator z b)
-      rw [hmp, integral_smul_measure, ENNReal.toReal_ofReal (inv_pos.mpr hε_pos).le,
-        smul_eq_mul] at heq
-      have hmul := congrArg (ε * ·) heq
-      change ε * (ε⁻¹ * _) = ε * _ at hmul
-      rw [← mul_assoc, mul_inv_cancel₀ hε_pos.ne', one_mul] at hmul
-      rw [hmul, ← integral_const_mul]
+      have hshift : (∫ y : ℝ, K_R.indicator z (xiStar + y)) = ∫ b : ℝ, K_R.indicator z b :=
+        integral_add_left_eq_self (K_R.indicator z) xiStar
+      have hscale : (∫ u : ℝ, K_R.indicator z (xiStar + ε * u)) =
+          ε⁻¹ * ∫ y : ℝ, K_R.indicator z (xiStar + y) := by
+        let e₀ : ℝ ≃ᵐ ℝ := MeasurableEquiv.mulLeft₀ ε hε_pos.ne'
+        have heq := integral_map_equiv (μ := (volume : Measure ℝ)) e₀
+          (fun y => K_R.indicator z (xiStar + y))
+        have he₀ : (e₀ : ℝ → ℝ) = fun x => ε * x := rfl
+        rw [he₀, Real.map_volume_mul_left hε_pos.ne', integral_smul_measure,
+          abs_of_pos (inv_pos.mpr hε_pos), ENNReal.toReal_ofReal (inv_pos.mpr hε_pos).le,
+          smul_eq_mul] at heq
+        exact heq.symm
+      rw [← hshift, show (∫ y : ℝ, K_R.indicator z (xiStar + y)) =
+          ε * ∫ u : ℝ, K_R.indicator z (xiStar + ε * u) by
+            rw [hscale, ← mul_assoc, mul_inv_cancel₀ hε_pos.ne', one_mul], ← integral_const_mul]
       refine integral_congr_ae (Eventually.of_forall fun u => ?_)
       change ε * K_R.indicator z (xiStar + ε * u) = (Icc (-R) R).indicator (fun u => |spinFProfile c Φ u|) u
       have hmem : xiStar + ε * u ∈ K_R ↔ u ∈ Icc (-R) R := by
@@ -543,14 +538,16 @@ private lemma spinCalNorm_le_of_window
         simp only [Set.mem_Icc]
         constructor
         · rintro ⟨h1, h2⟩
-          constructor <;> nlinarith
+          refine ⟨le_of_mul_le_mul_left (by linarith) hε_pos, le_of_mul_le_mul_left (by linarith) hε_pos⟩
         · rintro ⟨h1, h2⟩
-          constructor <;> nlinarith
+          have h1' : ε * (-R) ≤ ε * u := mul_le_mul_of_nonneg_left h1 hε_pos.le
+          have h2' : ε * u ≤ ε * R := mul_le_mul_of_nonneg_left h2 hε_pos.le
+          constructor <;> linarith
       by_cases hu : u ∈ Icc (-R) R
       · rw [Set.indicator_of_mem (hmem.mpr hu), Set.indicator_of_mem hu]
         unfold spinFProfile
         dsimp [z]
-        rw [abs_mul, abs_mul, abs_of_nonneg ha0, abs_of_nonneg hε_pos.le,
+        rw [abs_mul, abs_mul, abs_mul, abs_of_nonneg ha0, abs_of_nonneg hε_pos.le,
           abs_of_nonneg (Real.exp_pos _).le]
         ring
       · rw [Set.indicator_of_notMem (mt hmem.mp hu), Set.indicator_of_notMem hu, mul_zero]

@@ -26,7 +26,65 @@ open scoped Real ENNReal
 namespace FormalResearch.ModularBootstrap.Spin
 
 open FormalResearch.ModularBootstrap
+open FormalResearch.ModularBootstrap.PoissonJensen
 open FormalResearch.Special
+
+private lemma spinS4_4_2_finish {w₀ : ℂ} {R C_pj : ℝ} {f_sub : ℂ → ℂ}
+    (hR : 0 < R) (hw₀_norm : ‖w₀‖ ≤ 2 * R + 1 / 2)
+    (han_disc : AnalyticOnNhd ℂ f_sub (closedBall w₀ (1 / 2 * (1 + ‖w₀‖) ^ (-(1 / 2 : ℝ)))))
+    (hf_sub_ne : f_sub w₀ ≠ 0)
+    (hB_ae : ∀ᵐ w ∂(volume.restrict (ball w₀ (1 / 2 * (1 + ‖w₀‖) ^ (-(1 / 2 : ℝ))))),
+      Real.log ‖f_sub w‖ ≤ (C_pj + tipH w₀ + 3 * KTip / 4) - Real.log (tipDist w)) :
+    ‖f_sub w₀‖ ≤ Real.exp (C_pj + KTip * (2 * R + 1) ^ (3 / 2 : ℝ) + 3 * KTip / 4 +
+      (Real.log 2 + 1 / 2 * Real.log (2 * R + 2) + Real.log 2 + 4 / π)) := by
+  let R_box : ℝ := 2 * R + 1
+  let C_neg_log : ℝ := Real.log 2 + 1 / 2 * Real.log (2 * R + 2) + Real.log 2 + 4 / π
+  let C_RV : ℝ := Real.exp (C_pj + KTip * R_box ^ (3 / 2 : ℝ) + 3 * KTip / 4 + C_neg_log)
+  have hCRV_pos : 0 < C_RV := Real.exp_pos _
+  let r_disc : ℝ := (1 / 2 : ℝ) * (1 + ‖w₀‖) ^ (-(1 / 2 : ℝ))
+  have hr_pos : 0 < r_disc := by positivity
+  let B_fn : ℂ → ℝ := fun w => (C_pj + tipH w₀ + 3 * KTip / 4) - Real.log (tipDist w)
+  have hc_int : IntegrableOn (fun _ : ℂ => C_pj + tipH w₀ + 3 * KTip / 4) (ball w₀ r_disc) :=
+    integrableOn_const (hs := measure_ball_lt_top.ne)
+  have hdist_int : IntegrableOn (fun w : ℂ => -Real.log (tipDist w)) (ball w₀ r_disc) :=
+    (disc_avg_neg_log_tipDist w₀).1
+  have hB_int : IntegrableOn B_fn (ball w₀ r_disc) := hc_int.add hdist_int
+  have havg := subharmonic_disc_avg_le hr_pos han_disc hf_sub_ne hB_int hB_ae
+  have hball_vol_pos : 0 < π * r_disc ^ 2 := by positivity
+  have hvol : volume.real (ball w₀ r_disc) = π * r_disc ^ 2 := by
+    simp [Measure.real_def, Complex.volume_ball, hr_pos.le, mul_comm]
+  have hB_eval : (π * r_disc ^ 2)⁻¹ * ∫ w in ball w₀ r_disc, B_fn w =
+      (C_pj + tipH w₀ + 3 * KTip / 4) + (π * r_disc ^ 2)⁻¹ * ∫ w in ball w₀ r_disc, -Real.log (tipDist w) := by
+    have hsub_eq : B_fn = fun w => (C_pj + tipH w₀ + 3 * KTip / 4) + (-Real.log (tipDist w)) :=
+      funext fun _ => by dsimp [B_fn]; ring
+    rw [hsub_eq, integral_add hc_int hdist_int, setIntegral_const, hvol, smul_eq_mul, mul_add,
+      ← mul_assoc, inv_mul_cancel₀ hball_vol_pos.ne', one_mul]
+  have hdist_avg : (π * r_disc ^ 2)⁻¹ * ∫ w in ball w₀ r_disc, -Real.log (tipDist w) ≤ C_neg_log := by
+    have h1 := (disc_avg_neg_log_tipDist w₀).2.1
+    have hr_log : Real.log (1 / r_disc) ≤ Real.log 2 + (1 / 2 : ℝ) * Real.log (2 * R + 2) := by
+      have hinv : 1 / r_disc = 2 * (1 + ‖w₀‖) ^ (1 / 2 : ℝ) := by
+        dsimp [r_disc]
+        rw [one_div, mul_inv, ← Real.rpow_neg (by linarith [norm_nonneg w₀])]
+        norm_num
+      rw [hinv, Real.log_mul two_pos.ne' (Real.rpow_pos_of_pos (by linarith [norm_nonneg w₀]) _).ne',
+        Real.log_rpow (by linarith [norm_nonneg w₀])]
+      have hle : 1 + ‖w₀‖ ≤ 2 * R + 2 := by linarith only [hw₀_norm]
+      have hlog := Real.log_le_log (by linarith [norm_nonneg w₀]) hle
+      linarith only [hlog]
+    dsimp [C_neg_log]; linarith only [h1, hr_log]
+  have hH_w₀ : tipH w₀ ≤ KTip * R_box ^ (3 / 2 : ℝ) := by
+    refine (tipH_le_KTip_norm w₀).trans ?_
+    have hw₀_Rbox : ‖w₀‖ ≤ R_box := by dsimp [R_box]; linarith only [hw₀_norm]
+    exact mul_le_mul_of_nonneg_left (Real.rpow_le_rpow (norm_nonneg _) hw₀_Rbox (by norm_num)) KTip_pos.le
+  have hlog_final : Real.log ‖f_sub w₀‖ ≤ Real.log C_RV := by
+    calc Real.log ‖f_sub w₀‖
+        ≤ (π * r_disc ^ 2)⁻¹ * ∫ w in ball w₀ r_disc, B_fn w := havg
+      _ = (C_pj + tipH w₀ + 3 * KTip / 4) +
+            (π * r_disc ^ 2)⁻¹ * ∫ w in ball w₀ r_disc, -Real.log (tipDist w) := hB_eval
+      _ ≤ (C_pj + KTip * R_box ^ (3 / 2 : ℝ) + 3 * KTip / 4) + C_neg_log :=
+            add_le_add (by linarith only [hH_w₀]) hdist_avg
+      _ = Real.log C_RV := by dsimp [C_RV]; rw [Real.log_exp]
+  exact (Real.log_le_log_iff (norm_pos_iff.mpr hf_sub_ne) hCRV_pos).mp hlog_final
 
 /-- **`s4:4.2` (`spinning_s4.tex`, Lemma 4.2): uniform adaptive transverse-slice normal family.** -/
 theorem spinS4_4_2 : SpinS4_4_2 := by
@@ -34,7 +92,7 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
   obtain ⟨C_r, C_V, c₄₁, hCr_pos, hCV_pos, hc₄₁_40, h41_all⟩ :=
     spinS4_4_1 (r₀ := xiStar / 4) (V := V) (by positivity [xiStar_pos]) hV
   obtain ⟨ρ₁, C_T1, _ψ, hρ1_pos, hCT1_nn, _hψ_an, _hψ0, _hψd, _hψr, hT1⟩ := lemma_T1
-  obtain ⟨ρ₂, C_T2, hρ2_pos, hCT2_nn, hT2⟩ := lemma_T2 lemmaGPotentialInput_virasoro
+  obtain ⟨ρ₂, C_T2, hρ2_pos, hCT2_nn, hT2⟩ := lemma_T2 TipFront.lemmaGPotentialInput_virasoro
   have hT1_spec : ∀ {c' : ℝ} {ζ : ℂ}, 0 < c' → ¬ (ζ.im = 0 ∧ 0 ≤ ζ.re) →
       tipEps c' * ‖ζ‖ ≤ ρ₁ →
       ∃ z_b : ℂ, 0 < z_b.im ∧ ‖z_b - (sigmaStar : ℂ)‖ ≤ 0.1 ∧
@@ -51,7 +109,7 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
       |c' * (majorant2D (bScale c' ζ) + (tipL (bScale c' ζ)).re) - tipH ζ| ≤
         C_T2 * tipEps c' * ‖ζ‖ ^ (5 / 2 : ℝ) := by
     intro c' ζ hc' hζ hεζ
-    simpa [lemmaGPotentialInput_virasoro_U] using (hT2 hc' hζ hεζ).2
+    simpa [TipFront.lemmaGPotentialInput_virasoro_U] using (hT2 hc' hζ hεζ).2
   let R_box : ℝ := 2 * R + 1
   let B_slit : ℝ := max 1 (8 * C_r / spinSlitConst0)
   let C_pj : ℝ := Real.log 80 + Real.log B_slit + 1 + slitEntropyComplexConst + Real.log (2 * slitQ) + 2
@@ -68,7 +126,7 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
       have heq : (fun n : ℝ => (Real.log n + 1) / n ^ (1 / 3 : ℝ)) =ᶠ[atTop]
           fun n => Real.log n / n ^ (1 / 3 : ℝ) + n ^ (-(1 / 3 : ℝ)) := by
         filter_upwards [eventually_gt_atTop (0 : ℝ)] with n hn
-        rw [add_div, Real.rpow_neg hn.le, one_div]
+        rw [add_div, Real.rpow_neg hn.le, ← one_div]
       exact ((h1.add h2).congr' heq.symm).trans (by simp)
     refine squeeze_zero' ?_ ?_ ht0
     · filter_upwards [eventually_ge_atTop (1 : ℝ)] with n hn; positivity
@@ -99,7 +157,7 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
             have heq : (fun n : ℝ => (Real.log n + 1) / n ^ (1 / 6 : ℝ)) =ᶠ[atTop]
                 fun n => Real.log n / n ^ (1 / 6 : ℝ) + n ^ (-(1 / 6 : ℝ)) := by
               filter_upwards [eventually_gt_atTop (0 : ℝ)] with n hn
-              rw [add_div, Real.rpow_neg hn.le, one_div]
+              rw [add_div, Real.rpow_neg hn.le, ← one_div]
             exact ((hN16.add (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 6))).congr' heq.symm).trans
               (by simp)
           exact squeeze_zero'
@@ -110,7 +168,7 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
         simpa using hbase.pow 2
       refine h1.congr' ?_
       filter_upwards [eventually_gt_atTop (0 : ℝ)] with n hn
-      rw [div_pow, ← Real.rpow_natCast, ← Real.rpow_mul hn.le]; norm_num
+      rw [div_pow, ← Real.rpow_natCast (n ^ (1 / 6 : ℝ)) 2, ← Real.rpow_mul hn.le]; norm_num
     have hres : Tendsto (fun n : ℝ => (32 * V * C_V) * ((Nat.ceil (Real.log n) : ℝ) ^ 2 / n ^ (1 / 3 : ℝ)))
         atTop (𝓝 0) := by simpa using hN_sq.const_mul (32 * V * C_V)
     refine hres.congr' ?_
@@ -136,7 +194,7 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
       have heq2 : (fun n : ℝ => Real.log n / n ^ (1 / 3 : ℝ) - Real.log 12 * n ^ (-(1 / 3 : ℝ))) =ᶠ[atTop]
           fun n => (Real.log n - Real.log 12) / n ^ (1 / 3 : ℝ) := by
         filter_upwards [eventually_gt_atTop (0 : ℝ)] with n hn
-        rw [sub_div, Real.rpow_neg hn.le, div_eq_mul_inv]
+        rw [sub_div, Real.rpow_neg hn.le]; ring
       exact hsub.congr' (heq2.trans heq.symm)
     let C_la : ℝ := (2 / (0.3 * π)) * ((3 / 2 : ℝ) * √(2 / slitQ) * √R_box)
     have hres : Tendsto (fun n : ℝ => C_la * (|Real.log (n / 12)| / n ^ (1 / 3 : ℝ))) atTop (𝓝 0) := by
@@ -165,24 +223,27 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
     have hV_sqrt : Tendsto (fun n : ℝ => V * Real.sqrt (n ^ (-(2 / 3 : ℝ)))) atTop (𝓝 0) := by
       simpa using (ht_eps.sqrt.const_mul V)
     have he1 : ∀ᶠ n : ℝ in atTop, n ^ (-(2 / 3 : ℝ)) * (2 * R + 3) < 1 / 4 :=
-      (ht_eps.mul_const (2 * R + 3)).eventually (gt_mem_nhds (by positivity))
+      ((by simpa using ht_eps.mul_const (2 * R + 3) :
+        Tendsto (fun n : ℝ => n ^ (-(2 / 3 : ℝ)) * (2 * R + 3)) atTop (𝓝 0))).eventually
+        (gt_mem_nhds (by norm_num))
     have he2 : ∀ᶠ n : ℝ in atTop, V * Real.sqrt (n ^ (-(2 / 3 : ℝ))) ≤ xiStar / 4 :=
       (hV_sqrt.eventually (gt_mem_nhds (by positivity [xiStar_pos]))).mono fun _ h => h.le
     have he3 : ∀ᶠ n : ℝ in atTop, 48 * (Nat.ceil (Real.log n) : ℝ) * xiStar / n ^ (1 / 3 : ℝ) ≤ 1 / 2 :=
-      ((hN_delta.eventually (gt_mem_nhds (by positivity : (0 : ℝ) < 1 / 2))).mono fun n hn => by
+      ((hN_delta.eventually (gt_mem_nhds (by norm_num : (0 : ℝ) < 1 / 2))).mono fun n hn => by
         linarith [show 48 * (Nat.ceil (Real.log n) : ℝ) * xiStar / n ^ (1 / 3 : ℝ) =
           48 * xiStar * ((Nat.ceil (Real.log n) : ℝ) / n ^ (1 / 3 : ℝ)) by ring])
     have he4 : ∀ᶠ n : ℝ in atTop, (2 * n ^ (-(2 / 3 : ℝ))) * R_box ≤ min ρ₁ ρ₂ :=
-      (((ht_eps.const_mul 2).mul_const R_box).eventually
+      (((by simpa using ((ht_eps.const_mul 2).mul_const R_box) :
+          Tendsto (fun n : ℝ => (2 * n ^ (-(2 / 3 : ℝ))) * R_box) atTop (𝓝 0))).eventually
         (gt_mem_nhds (lt_min hρ1_pos hρ2_pos))).mono fun _ h => h.le
     have he5 : ∀ᶠ n : ℝ in atTop, C_T1 * √((2 * n ^ (-(2 / 3 : ℝ))) * R_box) ≤ 1 / 2 :=
-      (((((ht_eps.const_mul 2).mul_const R_box).sqrt).const_mul C_T1).eventually
+      (((by simpa using ((((ht_eps.const_mul 2).mul_const R_box).sqrt).const_mul C_T1) :
+          Tendsto (fun n : ℝ => C_T1 * √((2 * n ^ (-(2 / 3 : ℝ))) * R_box)) atTop (𝓝 0))).eventually
         (gt_mem_nhds (by norm_num))).mono fun _ h => h.le
     have he6 : ∀ᶠ n : ℝ in atTop, C_T2 * (2 * n ^ (-(2 / 3 : ℝ))) * R_box ^ (5 / 2 : ℝ) ≤ 1 :=
-      ((((((ht_eps.const_mul 2).const_mul C_T2).mul_const (R_box ^ (5 / 2 : ℝ))).eventually
-        (gt_mem_nhds zero_lt_one))).mono fun n hn => by
-          linarith [show C_T2 * (2 * n ^ (-(2 / 3 : ℝ))) * R_box ^ (5 / 2 : ℝ) =
-            C_T2 * (2 * n ^ (-(2 / 3 : ℝ))) * R_box ^ (5 / 2 : ℝ) by ring])
+      ((by simpa using (((ht_eps.const_mul 2).const_mul C_T2).mul_const (R_box ^ (5 / 2 : ℝ))) :
+          Tendsto (fun n : ℝ => C_T2 * (2 * n ^ (-(2 / 3 : ℝ))) * R_box ^ (5 / 2 : ℝ)) atTop (𝓝 0)).eventually
+        (gt_mem_nhds zero_lt_one)).mono fun _ h => h.le
     filter_upwards [eventually_ge_atTop (max 48 (c₄₁ - 1)),
       (ht_N_n.eventually (gt_mem_nhds zero_lt_one)).mono fun _ h => h.le,
       he1, he2,
@@ -193,7 +254,7 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
     exact ⟨(le_max_left _ _).trans h1, (le_max_right _ _).trans h1, h2, h3, h4, h5, h6, h7, h8, h9, h10⟩
   obtain ⟨N₀, hN₀⟩ := eventually_atTop.mp hev_n
   let c₀ : ℝ := max 49 (max c₄₁ (N₀ + 1))
-  refine ⟨C_RV, c₀, hCRV_pos, le_max_left _ _, fun {c} hc => ?_⟩
+  refine ⟨C_RV, c₀, hCRV_pos, (by norm_num : (40 : ℝ) ≤ 49).trans (le_max_left _ _), fun {c} hc => ?_⟩
   intro n a N Φ χ hΦ hM2 hχ_meas hχ_bd hχ_supp
   have hn_N0 : N₀ ≤ n := by dsimp [n]; linarith [le_max_right c₄₁ (N₀ + 1), le_max_right (49 : ℝ) (max c₄₁ (N₀ + 1))]
   obtain ⟨hn48, hc41_n, hNn, hεR_lt, hV_eps, hM_edge, hδ_le, hρ_le, hT1_ub, hT2_ub, hloga_ub⟩ :=
@@ -214,7 +275,7 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
   refine ⟨hdiff_big.mono (closedBall_subset_closedBall (by linarith)), fun ζ₀ hζ₀ => ?_⟩
   by_cases hH0 : spinHProfile c N Φ χ ζ₀ = 0
   · rw [hH0, norm_zero]; exact hCRV_pos.le
-  obtain ⟨h41_L1, _, h41_poly⟩ := h41_all hc41 hΦ hM2
+  obtain ⟨_, h41_L1, h41_poly⟩ := h41_all hc41 hΦ hM2
   let c' : ℝ := n * γN
   have hc'_pos : 0 < c' := mul_pos hn_pos hγN_pos
   have hε_tip_le : tipEps c' ≤ 2 * ε := by
@@ -223,7 +284,7 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
       rw [div_eq_mul_inv, Real.mul_rpow (by positivity) (by positivity),
         show (2⁻¹ : ℝ) ^ (-(2 / 3 : ℝ)) = 2 ^ (2 / 3 : ℝ) by rw [← Real.rpow_neg_one, ← Real.rpow_mul (by positivity)]; norm_num]
       ring
-    have h2 : 2 ^ (2 / 3 : ℝ) ≤ 2 := Real.rpow_le_self_of_one_le (by norm_num) (by norm_num)
+    have h2 : (2 : ℝ) ^ (2 / 3 : ℝ) ≤ 2 := Real.rpow_le_self_of_one_le (by norm_num) (by norm_num)
     have hc'_ge : n / 2 ≤ c' := by dsimp [c']; nlinarith
     exact (Real.rpow_le_rpow_of_nonpos (by linarith) hc'_ge (by norm_num)).trans
       (h1.le.trans (by gcongr))
@@ -252,11 +313,14 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
         ≤ (xiStar * (48 * (N : ℝ) / n)) / (n ^ (-(2 / 3 : ℝ))) :=
           div_le_div₀ (by positivity [xiStar_pos]) h1 hε_pos h2
       _ = 48 * (N : ℝ) * xiStar / n ^ (1 / 3 : ℝ) := by
-          rw [Real.rpow_neg hn_pos.le]
+          have hr13_pos : 0 < n ^ (1 / 3 : ℝ) := Real.rpow_pos_of_pos hn_pos _
+          rw [Real.rpow_neg hn_pos.le, div_inv_eq_mul, mul_div_assoc', div_mul_eq_mul_div,
+            div_eq_div_iff hn_pos.ne' hr13_pos.ne']
           have hadd : n ^ (2 / 3 : ℝ) * n ^ (1 / 3 : ℝ) = n := by
             rw [← Real.rpow_add hn_pos]; norm_num
-          field_simp [hn_pos.ne', (Real.rpow_pos_of_pos hn_pos (1 / 3)).ne']
-          rw [← hadd]; ring
+          calc (xiStar * (48 * (N : ℝ))) * n ^ (2 / 3 : ℝ) * n ^ (1 / 3 : ℝ)
+              = (xiStar * (48 * (N : ℝ))) * (n ^ (2 / 3 : ℝ) * n ^ (1 / 3 : ℝ)) := by ring
+            _ = (48 * (N : ℝ) * xiStar) * n := by rw [hadd]; ring
       _ ≤ 1 / 2 := hδ_le
   have hrel : ∀ w : ℂ,
       (γN : ℂ) * bScale c' w = (xiStar : ℂ) + (ε : ℂ) * ((w - (δ_shift : ℂ)) / (s_N : ℂ)) := fun w => by
@@ -281,9 +345,7 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
           field_simp [hsN_ne]; push_cast; ring
       _ = (xiStar : ℂ) + (ε : ℂ) * ((w - (δ_shift : ℂ)) / (s_N : ℂ)) := by
           have h1 : (γN : ℂ) * (xiStar : ℂ) + ((γN * tipEps c' : ℝ) : ℂ) * (δ_shift : ℂ) = (xiStar : ℂ) := by
-            have := congrArg (Complex.ofReal) hγ_tip_δ
-            push_cast at this ⊢
-            linarith
+            norm_cast; linarith only [hγ_tip_δ]
           rw [h1, hγ_tip_s]
   let w₀ : ℂ := (δ_shift : ℂ) + (s_N : ℂ) * ζ₀
   let f_sub : ℂ → ℂ := fun w => spinHProfile c N Φ χ ((w - (δ_shift : ℂ)) / (s_N : ℂ))
@@ -303,9 +365,9 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
   let r_disc : ℝ := (1 / 2 : ℝ) * (1 + ‖w₀‖) ^ (-(1 / 2 : ℝ))
   have hr_pos : 0 < r_disc := by positivity
   have hr_le_half : r_disc ≤ 1 / 2 := by
-    have : (1 + ‖w₀‖) ^ (-(1 / 2 : ℝ)) ≤ 1 :=
-      Real.rpow_le_one_of_one_le_of_nonpos (by linarith [norm_nonneg w₀]) (by norm_num)
-    dsimp [r_disc]; linarith
+    have this : (1 + ‖w₀‖) ^ (-(1 / 2 : ℝ)) ≤ 1 :=
+      Real.rpow_le_one_of_one_le_of_nonpos (by linarith only [norm_nonneg w₀]) (by norm_num)
+    dsimp [r_disc]; linarith only [this]
   have hcl_sub : closedBall w₀ r_disc ⊆ ball (0 : ℂ) (2 * R + 2) := by
     intro w hw
     rw [mem_ball, dist_zero_right]
@@ -313,8 +375,8 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
     rw [dist_eq_norm] at h1
     calc ‖w‖ ≤ ‖w - w₀‖ + ‖w₀‖ := by
           simpa [sub_add_cancel] using norm_add_le (w - w₀) w₀
-      _ ≤ r_disc + R_box := add_le_add h1 hw₀_norm
-      _ < 2 * R + 2 := by dsimp [R_box]; linarith
+      _ ≤ r_disc + R_box := add_le_add h1 (by dsimp [R_box]; linarith only [hw₀_norm])
+      _ < 2 * R + 2 := by dsimp [R_box]; linarith only [hr_le_half]
   have han_sub : AnalyticOnNhd ℂ f_sub (ball (0 : ℂ) (2 * R + 2)) := by
     have hmap : MapsTo (fun w : ℂ => (w - (δ_shift : ℂ)) / (s_N : ℂ))
         (ball (0 : ℂ) (2 * R + 2)) (ball (0 : ℂ) (2 * R + 3)) := by
@@ -323,14 +385,13 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
       rw [norm_div, Complex.norm_real, Real.norm_eq_abs, abs_of_pos (by positivity : 0 < s_N)]
       calc ‖w - (δ_shift : ℂ)‖ / s_N ≤ (‖w‖ + δ_shift) / 1 := by
             gcongr
-            · exact (norm_sub_le _ _).trans (by rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hδ_nn])
-            · exact hsN_ge1
-        _ < 2 * R + 3 := by rw [div_one]; linarith
+            exact (norm_sub_le _ _).trans (by rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hδ_nn])
+        _ < 2 * R + 3 := by rw [div_one]; linarith only [hw, hδ_le_half]
     have han_H : AnalyticOnNhd ℂ (spinHProfile c N Φ χ) (ball (0 : ℂ) (2 * R + 3)) :=
       (hdiff_big.mono ball_subset_closedBall).analyticOnNhd isOpen_ball
-    have haff : Differentiable ℂ (fun w : ℂ => (w - (δ_shift : ℂ)) / (s_N : ℂ)) :=
-      ((differentiable_id.sub_const _).div_const _)
-    exact han_H.comp (haff.analyticOnNhd) hmap
+    have haff : AnalyticOnNhd ℂ (fun w : ℂ => (w - (δ_shift : ℂ)) / (s_N : ℂ)) univ :=
+      ((differentiable_id.sub_const _).div_const _).differentiableOn.analyticOnNhd isOpen_univ
+    exact han_H.comp (haff.mono (subset_univ _)) (fun w hw => hmap hw)
   have han_disc : AnalyticOnNhd ℂ f_sub (closedBall w₀ r_disc) := han_sub.mono hcl_sub
   -- Measure zero of zeros + real cut in `ball w₀ r_disc`
   have hbad_null : volume ({w ∈ ball w₀ r_disc | f_sub w = 0} ∪ {w : ℂ | w.im = 0}) = 0 := by
@@ -341,8 +402,9 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
           rw [mem_ball, dist_zero_right]
           rw [mem_ball, dist_eq_norm] at hw
           calc ‖w‖ ≤ ‖w - w₀‖ + ‖w₀‖ := by simpa [sub_add_cancel] using norm_add_le (w - w₀) w₀
-            _ < r_disc + 1 / 4 + R_box := add_lt_add_right hw _
-            _ ≤ 2 * R + 2 := by dsimp [R_box]; linarith
+            _ < r_disc + 1 / 4 + R_box :=
+                add_lt_add_of_lt_of_le hw (by dsimp [R_box]; linarith only [hw₀_norm])
+            _ ≤ 2 * R + 2 := by dsimp [R_box]; linarith only [hr_le_half]
       have hnot0 : ¬ EqOn f_sub 0 (ball w₀ (r_disc + 1 / 4)) := fun h =>
         hf_sub_ne (h (mem_ball_self (by positivity)))
       have hev : ∀ z ∈ ball w₀ (r_disc + 1 / 4), ∀ᶠ w in 𝓝[≠] z, f_sub w ≠ 0 := by
@@ -356,7 +418,7 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
           · exact hw1
           · exact absurd hw2 hw1
       have hopen : ∀ z ∈ closedBall w₀ r_disc, ∃ δ > 0, ∀ w ∈ ball z δ, w ≠ z → f_sub w ≠ 0 := fun z hz => by
-        obtain ⟨U, hU, hUf⟩ := (hev z (closedBall_subset_ball (by linarith) hz)).exists_mem
+        obtain ⟨U, hU, hUf⟩ := (hev z (closedBall_subset_ball (by linarith only) hz)).exists_mem
         obtain ⟨V', hV', hzV, hVU⟩ := mem_nhdsWithin.mp hU
         obtain ⟨δ, hδ_pos, hδ_sub⟩ := Metric.isOpen_iff.mp hV' z hzV
         exact ⟨δ, hδ_pos, fun w hw hwz => hUf w (hVU ⟨hδ_sub hw, hwz⟩)⟩
@@ -375,11 +437,11 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
     have hre_null : volume {w : ℂ | w.im = 0} = 0 := by
       let L : Submodule ℝ ℂ := LinearMap.ker Complex.imCLM.toLinearMap
       have hne : L ≠ ⊤ := fun htop => by
-        have hI : (Complex.imCLM.toLinearMap I) = 0 := htop ▸ Submodule.mem_top
-        simp at hI
+        have hI : I ∈ L := htop.symm ▸ Submodule.mem_top
+        simp [L, LinearMap.mem_ker] at hI
       have hsub : {w : ℂ | w.im = 0} = (L : Set ℂ) := by ext w; simp [L, LinearMap.mem_ker]
       rw [hsub]; exact MeasureTheory.Measure.addHaar_submodule volume L hne
-    exact le_antisymm ((measure_union_le _ _).trans (by rw [hzero_null, hre_null, add_zero])) (zero_le _)
+    exact le_antisymm ((measure_union_le _ _).trans (by rw [hzero_null, hre_null, add_zero])) bot_le
   let B_fn : ℂ → ℝ := fun w => (C_pj + tipH w₀ + 3 * KTip / 4) - Real.log (tipDist w)
   have hB_int : IntegrableOn B_fn (ball w₀ r_disc) := by
     have hc_int : IntegrableOn (fun _ : ℂ => C_pj + tipH w₀ + 3 * KTip / 4) (ball w₀ r_disc) :=
@@ -396,103 +458,70 @@ theorem spinS4_4_2 : SpinS4_4_2 := by
       rw [dist_eq_norm] at h1
       calc ‖w‖ ≤ ‖w - w₀‖ + ‖w₀‖ := by simpa [sub_add_cancel] using norm_add_le (w - w₀) w₀
         _ ≤ r_disc + (2 * R + 1 / 2) := add_le_add h1.le hw₀_norm
-        _ ≤ R_box := by dsimp [R_box]; linarith
+        _ ≤ R_box := by dsimp [R_box]; linarith only [hr_le_half]
     have hεw_pos : 0 ≤ tipEps c' * ‖w‖ := mul_nonneg (tipEps_pos hc'_pos).le (norm_nonneg _)
-    have hεw_ρ₁₂ : tipEps c' * ‖w‖ ≤ min ρ₁ ρ₂ := by
-      calc tipEps c' * ‖w‖ ≤ (2 * ε) * R_box := mul_le_mul hε_tip_le hw_norm (norm_nonneg _) (by positivity)
-        _ ≤ min ρ₁ ρ₂ := hρ_le
-    have hT1_half : C_T1 * √(tipEps c' * ‖w‖) ≤ 1 / 2 := by
-      calc C_T1 * √(tipEps c' * ‖w‖) ≤ C_T1 * √((2 * ε) * R_box) := by
-            gcongr
-            exact Real.sqrt_le_sqrt (mul_le_mul hε_tip_le hw_norm (norm_nonneg _) (by positivity))
-        _ ≤ 1 / 2 := hT1_ub
+    have h2ε_nn : 0 ≤ 2 * ε := mul_nonneg zero_le_two hε_pos.le
+    have hεw_mul : tipEps c' * ‖w‖ ≤ (2 * ε) * R_box :=
+      mul_le_mul hε_tip_le hw_norm (norm_nonneg w) h2ε_nn
+    have hεw_ρ₁₂ : tipEps c' * ‖w‖ ≤ min ρ₁ ρ₂ := hεw_mul.trans hρ_le
+    have hT1_half : C_T1 * √(tipEps c' * ‖w‖) ≤ 1 / 2 :=
+      (mul_le_mul_of_nonneg_left (Real.sqrt_le_sqrt hεw_mul) hCT1_nn).trans hT1_ub
     have hT2_one : C_T2 * tipEps c' * ‖w‖ ^ (5 / 2 : ℝ) ≤ 1 := by
-      calc C_T2 * tipEps c' * ‖w‖ ^ (5 / 2 : ℝ)
-          ≤ C_T2 * (2 * ε) * R_box ^ (5 / 2 : ℝ) := by
-            gcongr; exact Real.rpow_le_rpow (norm_nonneg _) hw_norm (by norm_num)
-        _ ≤ 1 := hT2_ub
+      have hpow : ‖w‖ ^ (5 / 2 : ℝ) ≤ R_box ^ (5 / 2 : ℝ) :=
+        Real.rpow_le_rpow (norm_nonneg w) hw_norm (by norm_num)
+      have h1 : C_T2 * tipEps c' ≤ C_T2 * (2 * ε) := mul_le_mul_of_nonneg_left hε_tip_le hCT2_nn
+      exact (mul_le_mul h1 hpow (Real.rpow_nonneg (norm_nonneg w) _)
+        (mul_nonneg hCT2_nn h2ε_nn)).trans hT2_ub
     have hlog_a : (2 / (0.3 * π)) * ((3 / 2 : ℝ) * √(tipEps c' / slitQ) * √‖w‖) * |Real.log a| ≤ 1 := by
       have heq_a : a = n / 12 := rfl
       rw [heq_a]
-      have hsq1 : √(tipEps c' / slitQ) ≤ √(2 * ε / slitQ) := by
-        gcongr; exact slitQ_pos.le
+      have hsq1 : √(tipEps c' / slitQ) ≤ √(2 * ε / slitQ) :=
+        Real.sqrt_le_sqrt (div_le_div_of_nonneg_right hε_tip_le slitQ_pos.le)
       have hsq2 : √‖w‖ ≤ √R_box := Real.sqrt_le_sqrt hw_norm
-      calc (2 / (0.3 * π)) * ((3 / 2 : ℝ) * √(tipEps c' / slitQ) * √‖w‖) * |Real.log (n / 12)|
-          ≤ (2 / (0.3 * π)) * ((3 / 2 : ℝ) * √(2 * ε / slitQ) * √R_box) * |Real.log (n / 12)| := by
-            gcongr
-        _ ≤ 1 := hloga_ub
+      have hmid : (3 / 2 : ℝ) * √(tipEps c' / slitQ) * √‖w‖ ≤
+          (3 / 2 : ℝ) * √(2 * ε / slitQ) * √R_box :=
+        mul_le_mul (mul_le_mul_of_nonneg_left hsq1 (by norm_num)) hsq2 (Real.sqrt_nonneg _)
+          (mul_nonneg (by norm_num) (Real.sqrt_nonneg _))
+      have hleft : (2 / (0.3 * π)) * ((3 / 2 : ℝ) * √(tipEps c' / slitQ) * √‖w‖) ≤
+          (2 / (0.3 * π)) * ((3 / 2 : ℝ) * √(2 * ε / slitQ) * √R_box) :=
+        mul_le_mul_of_nonneg_left hmid (by positivity)
+      exact (mul_le_mul_of_nonneg_right hleft (abs_nonneg _)).trans hloga_ub
     have hq_ne' : spinQSlice c N Φ χ ((γN : ℂ) * bScale c' w) ≠ 0 := by
       intro hq0
       apply hw_ne0
-      dsimp [f_sub]; unfold spinHProfile
+      dsimp only [f_sub, spinHProfile]
       rw [← hrel w, hq0, mul_zero]
     have hpj := spinQSlice_tip_pj_bound hc49 hV hCr_pos hCV_pos hρ1_pos hCT1_nn hρ2_pos hCT2_nn
       hγ_34 hγ_1 hV_eps hM_edge hΦ hχ_meas hχ_bd hχ_supp h41_L1 h41_poly hT1_spec hT2_spec
       hw_cut (hεw_ρ₁₂.trans (min_le_left _ _)) (hεw_ρ₁₂.trans (min_le_right _ _))
       hT1_half hT2_one hlog_a hq_ne'
+    have ha_pos : 0 < a := by dsimp [a, n]; linarith only [hc49]
     have hnorm_sub : ‖f_sub w‖ =
         (ε * a) * Real.exp (c' * (tipL (bScale c' w)).re) *
           ‖spinQSlice c N Φ χ ((γN : ℂ) * bScale c' w)‖ := by
-      dsimp [f_sub]; unfold spinHProfile
+      dsimp only [f_sub, spinHProfile]
       rw [← hrel w, norm_mul, norm_mul, Complex.norm_real, Real.norm_eq_abs,
-        abs_of_pos (mul_pos hε_pos (by linarith : 0 < a)), Complex.norm_exp]
+        abs_of_pos (mul_pos hε_pos ha_pos), Complex.norm_exp]
       congr 2; congr 1
-      unfold bScale tipL
-      simp only [c', Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
+      unfold tipL
+      simp only [c', Complex.mul_re, Complex.mul_im, Complex.ofReal_re, Complex.ofReal_im,
+        zero_mul, mul_zero, add_zero, sub_zero]
+      dsimp [n]
       ring
     have hlog_sub : Real.log ‖f_sub w‖ =
         Real.log (ε * a) + c' * (tipL (bScale c' w)).re +
           Real.log ‖spinQSlice c N Φ χ ((γN : ℂ) * bScale c' w)‖ := by
-      rw [hnorm_sub, Real.log_mul (mul_pos (mul_pos hε_pos (by linarith : 0 < a)) (Real.exp_pos _)).ne'
+      rw [hnorm_sub, Real.log_mul (mul_pos (mul_pos hε_pos ha_pos) (Real.exp_pos _)).ne'
         (norm_pos_iff.mpr hq_ne').ne',
-        Real.log_mul (mul_pos hε_pos (by linarith : 0 < a)).ne' (Real.exp_pos _).ne',
+        Real.log_mul (mul_pos hε_pos ha_pos).ne' (Real.exp_pos _).ne',
         Real.log_exp]
     have hosc : tipH w ≤ tipH w₀ + 3 * KTip / 4 := by
-      have h1 := tipH_disc_oscillation w₀ w (mem_ball.mp hw_ball).le
-      linarith [(abs_le.mp h1).2]
+      have h1 := tipH_disc_oscillation w₀ w hw_ball
+      linarith only [(abs_le.mp h1).2]
     dsimp [B_fn]
-    linarith [hpj, hlog_sub, hosc]
-  have havg := subharmonic_disc_avg_le hr_pos han_disc hf_sub_ne hB_int hB_ae
-  have hball_vol_pos : 0 < π * r_disc ^ 2 := by positivity
-  have hB_eval : (π * r_disc ^ 2)⁻¹ * ∫ w in ball w₀ r_disc, B_fn w =
-      (C_pj + tipH w₀ + 3 * KTip / 4) + (π * r_disc ^ 2)⁻¹ * ∫ w in ball w₀ r_disc, -Real.log (tipDist w) := by
-    have hc_int : IntegrableOn (fun _ : ℂ => C_pj + tipH w₀ + 3 * KTip / 4) (ball w₀ r_disc) :=
-      integrableOn_const (hs := measure_ball_lt_top.ne)
-    have hsub_eq : (fun w : ℂ => C_pj + tipH w₀ + 3 * KTip / 4 - Real.log (tipDist w)) =
-        fun w => (C_pj + tipH w₀ + 3 * KTip / 4) + (-Real.log (tipDist w)) := funext fun _ => by ring
-    change (π * r_disc ^ 2)⁻¹ * ∫ w in ball w₀ r_disc,
-      (C_pj + tipH w₀ + 3 * KTip / 4 - Real.log (tipDist w)) = _
-    rw [hsub_eq, integral_add hc_int (disc_avg_neg_log_tipDist w₀).1, setIntegral_const,
-      Complex.volume_ball, ENNReal.toReal_ofReal (by positivity), smul_eq_mul]
-    field_simp [hball_vol_pos.ne']
-    ring
-  have hdist_avg : (π * r_disc ^ 2)⁻¹ * ∫ w in ball w₀ r_disc, -Real.log (tipDist w) ≤ C_neg_log := by
-    have h1 := (disc_avg_neg_log_tipDist w₀).2.1
-    have hr_log : Real.log (1 / r_disc) ≤ Real.log 2 + (1 / 2 : ℝ) * Real.log (2 * R + 2) := by
-      have hinv : 1 / r_disc = 2 * (1 + ‖w₀‖) ^ (1 / 2 : ℝ) := by
-        dsimp [r_disc]
-        rw [one_div, mul_inv, ← Real.rpow_neg (by linarith [norm_nonneg w₀]), neg_neg]
-        norm_num; ring
-      rw [hinv, Real.log_mul two_pos.ne' (Real.rpow_pos_of_pos (by linarith [norm_nonneg w₀]) _).ne',
-        Real.log_rpow (by linarith [norm_nonneg w₀])]
-      have hle : 1 + ‖w₀‖ ≤ 2 * R + 2 := by linarith [hw₀_norm]
-      have := Real.log_le_log (by linarith [norm_nonneg w₀]) hle
-      linarith
-    dsimp [C_neg_log]; linarith
-  have hH_w₀ : tipH w₀ ≤ KTip * R_box ^ (3 / 2 : ℝ) := by
-    refine (tipH_le_KTip_norm w₀).trans ?_
-    have hw₀_Rbox : ‖w₀‖ ≤ R_box := by dsimp [R_box]; linarith [hw₀_norm]
-    exact mul_le_mul_of_nonneg_left (Real.rpow_le_rpow (norm_nonneg _) hw₀_Rbox (by norm_num)) KTip_pos.le
-  have hlog_final : Real.log ‖spinHProfile c N Φ χ ζ₀‖ ≤ Real.log C_RV := by
-    rw [← hf_sub_w₀]
-    calc Real.log ‖f_sub w₀‖
-        ≤ (π * r_disc ^ 2)⁻¹ * ∫ w in ball w₀ r_disc, B_fn w := havg
-      _ = (C_pj + tipH w₀ + 3 * KTip / 4) +
-            (π * r_disc ^ 2)⁻¹ * ∫ w in ball w₀ r_disc, -Real.log (tipDist w) := hB_eval
-      _ ≤ (C_pj + KTip * R_box ^ (3 / 2 : ℝ) + 3 * KTip / 4) + C_neg_log := add_le_add
-            (by linarith) hdist_avg
-      _ = Real.log C_RV := by dsimp [C_RV]; rw [Real.log_exp]; ring
-  exact (Real.log_le_log (norm_pos_iff.mpr hH0) hCRV_pos).mp hlog_final
+    linarith only [hpj, hlog_sub, hosc]
+  rw [← hf_sub_w₀]
+  exact spinS4_4_2_finish hR hw₀_norm han_disc hf_sub_ne hB_ae
 
 /-- info: 'FormalResearch.ModularBootstrap.Spin.spinS4_4_2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

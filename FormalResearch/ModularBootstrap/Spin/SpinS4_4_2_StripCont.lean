@@ -46,12 +46,14 @@ lemma spinGamma_pow_bounds {c : ℝ} {N : ℕ} (hc : 49 ≤ c) (hN_pos : 1 ≤ N
   have hn_pos : 0 < n := by dsimp [n]; linarith
   have ha2 : 2 < a := by dsimp [a, n]; linarith
   have hgam_pos : 0 < spinGamma a := spinGamma_pos (by linarith)
-  have h2a_le : 2 / a ≤ 1 / 2 := by rw [div_le_div_iff₀ (by linarith : 0 < a) (by norm_num)]; linarith
+  have h2a_le : 2 / a ≤ 1 / 2 := by
+    have ha4 : 4 ≤ a := by dsimp [a, n]; linarith
+    rw [div_le_div_iff₀ (by linarith) (by norm_num)]; linarith
   have hgam_le1 : spinGamma a ≤ 1 := by
     unfold spinGamma
     exact (Real.sqrt_le_one).mpr (by linarith [show 0 < 2 / a by positivity])
   have hgam_ge : 1 - 24 / n ≤ spinGamma a := by
-    have h24 : 2 / a = 24 / n := by dsimp [a]; ring
+    have h24 : 2 / a = 24 / n := by dsimp [a]; field_simp [hn_pos.ne']; norm_num
     have hsq : 1 - 24 / n ≤ Real.sqrt (1 - 2 / a) := by
       rw [← h24]
       exact Real.le_sqrt_of_sq_le (by nlinarith [h2a_le, show (0 : ℝ) < 2 / a by positivity])
@@ -72,7 +74,9 @@ lemma spinGamma_pow_bounds {c : ℝ} {N : ℕ} (hc : 49 ≤ c) (hN_pos : 1 ≤ N
       _ ≤ (1 - 24 / n) ^ N := hbern
       _ ≤ spinGamma a ^ N := pow_le_pow_left₀ (by linarith) hgam_ge N
       _ = γN := hγ_eq.symm
-  have hγ_34 : 3 / 4 ≤ γN := by linarith
+  have hγ_34 : 3 / 4 ≤ γN := by
+    have h24_eq : (N : ℝ) * (24 / n) = 24 * (N : ℝ) / n := by ring
+    linarith only [hγ_ge_pow, h24N_n, h24_eq]
   have hinv_sub : γN⁻¹ - 1 ≤ 48 * (N : ℝ) / n := by
     have hγ_pos : 0 < γN := by linarith
     have h48n : 0 ≤ 48 * (N : ℝ) / n := div_nonneg (by positivity) hn_pos.le
@@ -213,7 +217,9 @@ lemma continuousOn_spinQSlice_closedStrip {c V C_V : ℝ} (hc : 49 ≤ c) (hV : 
           calc |b.re - b₀.re| = |(b - b₀).re| := by simp
             _ ≤ ‖b - b₀‖ := Complex.abs_re_le_norm _
             _ ≤ 1 := by rw [← dist_eq_norm]; exact (Metric.mem_ball.mp hb_ball).le
-        simpa [sub_eq_add_neg, add_comm] using (abs_sub_le b.re b₀.re 0).trans (by linarith)
+        calc |b.re| = |(b.re - b₀.re) + b₀.re| := by ring_nf
+          _ ≤ |b.re - b₀.re| + |b₀.re| := abs_add_le _ _
+          _ ≤ |b₀.re| + 1 := by linarith only [h1]
       have h41 := h41_poly d b (abs_le.mpr hd) hbS
       have hχ1 : |χ (d / Real.sqrt ε)| ≤ 1 := by
         have := hχ_bd (d / Real.sqrt ε); exact abs_le.mpr ⟨by linarith, this.2⟩
@@ -267,13 +273,30 @@ lemma continuousOn_spinQSlice_closedStrip {c V C_V : ℝ} (hc : 49 ≤ c) (hV : 
                 _ = (spinLambda a ^ N * γN) / 2 := by ring
                 _ = 1 / 2 := by rw [hglam]
           have him' : |(((spinLambda a ^ (ℓ + 1) : ℝ) : ℂ) * (b - (d : ℂ))).im| ≤ 1 / 2 := by
-            have := him ℓ hℓ
-            simpa [Complex.im_ofReal_mul, Complex.add_im, Complex.sub_im, Complex.ofReal_im] using this
+            rw [Complex.im_ofReal_mul, Complex.sub_im, Complex.ofReal_im, sub_zero, abs_mul,
+              abs_of_pos (pow_pos (lt_trans zero_lt_one hlam_gt1) _)]
+            have hpow : spinLambda a ^ (ℓ + 1) ≤ spinLambda a ^ N := pow_le_pow_right₀ hlam_gt1.le hℓ
+            calc spinLambda a ^ (ℓ + 1) * |b.im| ≤ spinLambda a ^ N * |b.im| :=
+                  mul_le_mul_of_nonneg_right hpow (abs_nonneg _)
+              _ ≤ spinLambda a ^ N * (γN / 2) :=
+                  mul_le_mul_of_nonneg_left hbS (pow_nonneg (lt_trans zero_lt_one hlam_gt1).le _)
+              _ = (spinLambda a ^ N * γN) / 2 := by ring
+              _ = 1 / 2 := by rw [hglam]
           exact ⟨him j hj, him'⟩
-        have hcomp := (hDa_cont _ (hmaps hb₀)).comp (hpair_m b₀ hb₀) hmaps
+        have hcomp : ContinuousWithinAt
+            ((fun q : ℂ × ℂ => spinDaC a Φ q.1 q.2) ∘
+              (fun b : ℂ => (((spinLambda a ^ (j + 1) : ℝ) : ℂ) * (b + (d : ℂ)),
+                ((spinLambda a ^ (ℓ + 1) : ℝ) : ℂ) * (b - (d : ℂ))))) S_c b₀ :=
+          ContinuousWithinAt.comp
+            (g := fun q : ℂ × ℂ => spinDaC a Φ q.1 q.2)
+            (f := fun b : ℂ => (((spinLambda a ^ (j + 1) : ℝ) : ℂ) * (b + (d : ℂ)),
+              ((spinLambda a ^ (ℓ + 1) : ℝ) : ℂ) * (b - (d : ℂ))))
+            (hDa_cont _ (hmaps hb₀)) (hpair_m b₀ hb₀) hmaps
         refine hcomp.congr_of_eventuallyEq (Eventually.of_forall fun b => ?_) ?_
-        · unfold spinDeltaAC; rw [pow_succ', pow_succ']; congr 1 <;> (push_cast; ring)
-        · unfold spinDeltaAC; rw [pow_succ', pow_succ']; congr 1 <;> (push_cast; ring)
+        · unfold spinDeltaAC; rw [pow_succ', pow_succ']
+          exact congr_arg₂ (spinDaC a Φ) (by push_cast; ring) (by push_cast; ring)
+        · unfold spinDeltaAC; rw [pow_succ', pow_succ']
+          exact congr_arg₂ (spinDaC a Φ) (by push_cast; ring) (by push_cast; ring)
       have hcw_sum : ∀ (M : ℕ) (F : ℕ → ℂ → ℂ),
           (∀ m < M, ContinuousWithinAt (F m) S_c b₀) →
           ContinuousWithinAt (fun b => ∑ m ∈ Finset.range M, F m b) S_c b₀ := fun M F hF => by
@@ -287,8 +310,7 @@ lemma continuousOn_spinQSlice_closedStrip {c V C_V : ℝ} (hc : 49 ≤ c) (hV : 
             spinDeltaAC a Φ ((spinLambda a ^ j : ℝ) * (b + (d : ℂ)))
               ((spinLambda a ^ ℓ : ℝ) * (b - (d : ℂ))) := rfl
       rw [heq]
-      exact hcw_sum N _ fun j hj => hcw_sum N _ fun ℓ hℓ =>
-        hsum_c j ℓ (Finset.mem_range.mp hj) (Finset.mem_range.mp hℓ)
+      exact hcw_sum N _ fun j hj => hcw_sum N _ fun ℓ hℓ => hsum_c j ℓ hj hℓ
     exact continuousWithinAt_const.mul hT_cont
   have hres := continuousWithinAt_of_dominated hFq_meas hFq_bd hbd_int hFq_cont
   exact hres
@@ -386,7 +408,7 @@ lemma spinQSlice_bdy_ne_zero_ae {c V : ℝ} (hc : 49 ≤ c) (hV : 0 < V)
           rw [Metric.mem_ball, Complex.dist_eq, ← mul_sub, norm_mul, Complex.norm_real,
             Real.norm_eq_abs, abs_of_pos hγN_pos, ← Complex.ofReal_sub, Complex.norm_real,
             Real.norm_eq_abs]
-          have hrb : γN * |r - r₀| < δ := by simpa [Metric.mem_ball, Real.dist_eq, mul_comm] using hr_ball
+          have hrb : |r - r₀| < δ / γN := by simpa [Metric.mem_ball, Real.dist_eq] using hr_ball
           exact (lt_div_iff₀' hγN_pos).mp hrb
         exact ⟨(γN : ℂ) * (r : ℂ), hVU ⟨hball hrC_ball, hrC_ne⟩, hr_mem.2⟩
       have hzero := han.eqOn_zero_of_preconnected_of_frequently_eq_zero hpre hr₀_mem hfreq
