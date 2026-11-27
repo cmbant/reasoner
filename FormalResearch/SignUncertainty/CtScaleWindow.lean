@@ -342,26 +342,120 @@ private lemma scale_comb_algebra {c r R_J u_norm X L_r B1_til B2_r B2_RJ : ℝ}
   rw [mul_add]
   linarith [hmain, herr, h_res_nn]
 
-set_option maxHeartbeats 800000 in
-private lemma scale_saddle_params {c R_J r θ : ℝ} {u : ℂ}
+private structure ScaleSaddleData (c r : ℝ) (u : ℂ) where
+  q : ℂ
+  ζ : ℂ
+  σ : ℝ
+  τ0 : ℝ
+  h : ℝ
+  hq : q ∈ slitPlane
+  hqn : ‖q‖ ≤ 0.035 ^ 2
+  hqu : langerUtilde etaC c q = u
+  hζdef : ζ = saddleRoot q
+  hqg : -gSer etaC ζ = Complex.log (1 + chartYinv etaC (u / ((c ^ (2 / 3 : ℝ) * langerKappa : ℝ) : ℂ)))
+  hζeq : ζ = (σ : ℂ) + (τ0 : ℂ) * Complex.I
+  hσpos : 0 < σ
+  hσle : σ ≤ 0.035
+  hτ0 : |τ0| ≤ 0.035
+  hζn : ‖ζ‖ ≤ 0.035
+  hh0 : 0 ≤ h
+  hhsq : h ^ 2 = 5 * Real.log c / (c * σ)
+  hhle : h ≤ 1 / 10 * ‖ζ‖
+  hcσ_lb : 30 * Real.log c ≤ c * σ
+  hcσ_X23 : (u ^ (1 / 2 : ℂ)).re * c ^ (2 / 3 : ℝ) / 0.751 ≤ c * σ
+  hζ_rho_lo : 9 / 10 * rhoR hankelBandParams c r ≤ ‖ζ‖
+  hζ_rho_hi : ‖ζ‖ ≤ 11 / 10 * rhoR hankelBandParams c r
+  hζsig_ratio : ‖ζ‖ / σ ≤ 1.002 * ‖u‖ ^ (1 / 2 : ℝ) / (u ^ (1 / 2 : ℂ)).re
+
+private lemma scale_cσ_bounds {c R_J r θ σ ζ_norm u_norm : ℝ}
+    (hc : 1e14 ≤ c) (hRJ_ub : R_J ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1)
+    (hr_lb : 256 ≤ r) (hr_RJ : r ≤ R_J) (hlo : r - 1 ≤ u_norm) (_hhi : u_norm ≤ r + 1)
+    (hs1 : 0.99 * √r ≤ u_norm ^ (1 / 2 : ℝ))
+    (hθ_pos : 0 < θ) (hθr : 250 * Real.log c ≤ θ * r ^ (3 / 2 : ℝ))
+    (hσ_lb : θ * √u_norm / (0.751 * c ^ (1 / 3 : ℝ)) ≤ σ)
+    (hζ_lb : u_norm ^ (1 / 2 : ℝ) / (0.751 * c ^ (1 / 3 : ℝ)) ≤ ζ_norm) :
+    500 * Real.log c ≤ c * σ * ζ_norm ^ 2 ∧ 30 * Real.log c ≤ c * σ := by
+  have hc0 : 0 < c := by linarith
+  have hr0 : 0 < r := by linarith
+  have hN0 : 0 < u_norm := by linarith
+  set k : ℝ := c ^ (1 / 3 : ℝ)
+  have hk0 : 0 < k := Real.rpow_pos_of_pos hc0 _
+  have hkc23 : c = k * k ^ 2 := by
+    dsimp [k]; rw [← Real.rpow_natCast (c ^ (1 / 3 : ℝ)) 2, ← Real.rpow_mul hc0.le, ← Real.rpow_add hc0]; norm_num
+  have hc23_eq : k ^ 2 = c ^ (2 / 3 : ℝ) := by
+    dsimp [k]; rw [← Real.rpow_natCast, ← Real.rpow_mul hc0.le]; norm_num
+  have hsqrtN_eq : √u_norm = u_norm ^ (1 / 2 : ℝ) := Real.sqrt_eq_rpow _
+  have hu32_eq : √u_norm * (u_norm ^ (1 / 2 : ℝ)) ^ 2 = u_norm ^ (3 / 2 : ℝ) := by
+    rw [hsqrtN_eq, ← Real.rpow_natCast (u_norm ^ (1 / 2 : ℝ)) 2, ← Real.rpow_mul hN0.le, ← Real.rpow_add hN0]; norm_num
+  have hu32_lb : 0.99 * r ^ (3 / 2 : ℝ) ≤ u_norm ^ (3 / 2 : ℝ) := by
+    have h1 : 0.994 * r ≤ u_norm := by linarith
+    have h2 := Real.rpow_le_rpow (by positivity) h1 (by norm_num : (0 : ℝ) ≤ 3 / 2)
+    rw [Real.mul_rpow (by norm_num) hr0.le] at h2
+    have h0994 : (0.99 : ℝ) ≤ (0.994 : ℝ) ^ (3 / 2 : ℝ) := by
+      have hsq : (0.99 : ℝ) ^ 2 ≤ ((0.994 : ℝ) ^ (3 / 2 : ℝ)) ^ 2 := by
+        rw [← Real.rpow_natCast ((0.994 : ℝ) ^ (3 / 2 : ℝ)) 2, ← Real.rpow_mul (by norm_num)]; norm_num
+      exact (abs_le_of_sq_le_sq' hsq (Real.rpow_nonneg (by norm_num) _)).2
+    calc 0.99 * r ^ (3 / 2 : ℝ) ≤ (0.994 : ℝ) ^ (3 / 2 : ℝ) * r ^ (3 / 2 : ℝ) :=
+          mul_le_mul_of_nonneg_right h0994 (Real.rpow_nonneg hr0.le _)
+      _ ≤ u_norm ^ (3 / 2 : ℝ) := h2
+  have hcσζ : 500 * Real.log c ≤ c * σ * ζ_norm ^ 2 := by
+    have h1 : (u_norm ^ (1 / 2 : ℝ)) ^ 2 / (0.751 * k) ^ 2 ≤ ζ_norm ^ 2 := by
+      rw [← div_pow]; exact pow_le_pow_left₀ (by positivity) hζ_lb 2
+    have hσ0_nn : 0 ≤ σ :=
+      (div_nonneg (mul_nonneg hθ_pos.le (Real.sqrt_nonneg _)) (by positivity)).trans hσ_lb
+    have h2 : (θ * √u_norm / (0.751 * k)) * ((u_norm ^ (1 / 2 : ℝ)) ^ 2 / (0.751 * k) ^ 2) ≤ σ * ζ_norm ^ 2 :=
+      mul_le_mul hσ_lb h1 (by positivity) hσ0_nn
+    have h3 : c * ((θ * √u_norm / (0.751 * k)) * ((u_norm ^ (1 / 2 : ℝ)) ^ 2 / (0.751 * k) ^ 2)) =
+        θ * u_norm ^ (3 / 2 : ℝ) / 0.751 ^ 3 := by
+      have hden : c = k ^ 3 := by rw [hkc23]; ring
+      rw [hden, ← hu32_eq]; field_simp [hk0.ne']
+    have h4 : 500 * Real.log c ≤ θ * u_norm ^ (3 / 2 : ℝ) / 0.751 ^ 3 := by
+      have hlog0 : 0 ≤ Real.log c := Real.log_nonneg (by linarith)
+      have hmul : 0.99 * (θ * r ^ (3 / 2 : ℝ)) ≤ θ * u_norm ^ (3 / 2 : ℝ) := by
+        calc 0.99 * (θ * r ^ (3 / 2 : ℝ)) = θ * (0.99 * r ^ (3 / 2 : ℝ)) := by ring
+          _ ≤ θ * u_norm ^ (3 / 2 : ℝ) := mul_le_mul_of_nonneg_left hu32_lb hθ_pos.le
+      rw [le_div_iff₀ (by positivity)]
+      calc (500 * Real.log c) * 0.751 ^ 3 ≤ 0.99 * (250 * Real.log c) := by nlinarith [hlog0]
+        _ ≤ 0.99 * (θ * r ^ (3 / 2 : ℝ)) := mul_le_mul_of_nonneg_left hθr (by norm_num)
+        _ ≤ θ * u_norm ^ (3 / 2 : ℝ) := hmul
+    linarith [h3, h4, mul_le_mul_of_nonneg_left h2 hc0.le]
+  have hcσ_lb : 30 * Real.log c ≤ c * σ := by
+    have hr_half : √r = r ^ (1 / 2 : ℝ) := Real.sqrt_eq_rpow r
+    have h1 : 0.99 * r ^ (1 / 2 : ℝ) ≤ √u_norm := by rwa [← hsqrtN_eq, hr_half] at hs1
+    have h2 : c / (0.751 * k) = k ^ 2 / 0.751 := by rw [hkc23]; field_simp [hk0.ne']
+    have h3 : (k ^ 2 / 0.751) * (θ * (0.99 * r ^ (1 / 2 : ℝ))) ≤ c * σ := by
+      calc (k ^ 2 / 0.751) * (θ * (0.99 * r ^ (1 / 2 : ℝ)))
+          = c * (θ * (0.99 * r ^ (1 / 2 : ℝ)) / (0.751 * k)) := by rw [← h2]; ring
+        _ ≤ c * (θ * √u_norm / (0.751 * k)) := by gcongr
+        _ ≤ c * σ := mul_le_mul_of_nonneg_left hσ_lb hc0.le
+    have hk2_r : 5000 * r ≤ k ^ 2 := by
+      rw [hc23_eq]
+      have hc23_1e9 := scale_c23_ge hc
+      have : r ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1 := hr_RJ.trans hRJ_ub
+      linarith
+    have hr32_eq : r ^ (3 / 2 : ℝ) = r * r ^ (1 / 2 : ℝ) := by
+      have hadd := Real.rpow_add hr0 1 (1 / 2)
+      rw [Real.rpow_one] at hadd
+      rw [← hadd]; congr 1; norm_num
+    have h4 : 5000 * (θ * r ^ (3 / 2 : ℝ)) = 5000 * r * (θ * r ^ (1 / 2 : ℝ)) := by rw [hr32_eq]; ring
+    have h5 : 5000 * (250 * Real.log c) ≤ k ^ 2 * (θ * r ^ (1 / 2 : ℝ)) := by
+      have hmul := mul_le_mul_of_nonneg_right hk2_r (mul_nonneg hθ_pos.le (Real.rpow_nonneg hr0.le (1 / 2 : ℝ)))
+      linarith [hθr, h4]
+    have hlog0 : 0 ≤ Real.log c := Real.log_nonneg (by linarith)
+    calc 30 * Real.log c ≤ (0.99 / 0.751) * (5000 * (250 * Real.log c)) := by nlinarith only [hlog0]
+      _ ≤ (0.99 / 0.751) * (k ^ 2 * (θ * r ^ (1 / 2 : ℝ))) :=
+          mul_le_mul_of_nonneg_left h5 (by norm_num)
+      _ = (k ^ 2 / 0.751) * (θ * (0.99 * r ^ (1 / 2 : ℝ))) := by ring
+      _ ≤ c * σ := h3
+  exact ⟨hcσζ, hcσ_lb⟩
+
+private noncomputable def scale_saddle_params {c R_J r θ : ℝ} {u : ℂ}
     (hc : 1e14 ≤ c)
     (hRJ_ub : R_J ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1)
     (hr_lb : 256 ≤ r) (hr_RJ : r ≤ R_J)
     (hlo : r - 1 ≤ ‖u‖) (hhi : ‖u‖ ≤ r + 1)
     (hθ_pos : 0 < θ) (hθr : 250 * Real.log c ≤ θ * r ^ (3 / 2 : ℝ))
-    (hX_lb : θ * √‖u‖ ≤ (u ^ (1 / 2 : ℂ)).re) :
-    ∃ q ζ : ℂ, ∃ σ τ0 h : ℝ,
-      q ∈ slitPlane ∧ ‖q‖ ≤ 0.035 ^ 2 ∧ langerUtilde etaC c q = u ∧
-      ζ = saddleRoot q ∧
-      -gSer etaC ζ = Complex.log (1 + chartYinv etaC (u / ((c ^ (2 / 3 : ℝ) * langerKappa : ℝ) : ℂ))) ∧
-      ζ = (σ : ℂ) + (τ0 : ℂ) * Complex.I ∧
-      0 < σ ∧ σ ≤ 0.035 ∧ |τ0| ≤ 0.035 ∧ ‖ζ‖ ≤ 0.035 ∧
-      0 ≤ h ∧ h ^ 2 = 5 * Real.log c / (c * σ) ∧ h ≤ 1 / 10 * ‖ζ‖ ∧
-      30 * Real.log c ≤ c * σ ∧
-      (u ^ (1 / 2 : ℂ)).re * c ^ (1 / 3 : ℝ) / 0.751 ≤ c * σ ∧
-      9 / 10 * rhoR hankelBandParams c r ≤ ‖ζ‖ ∧
-      ‖ζ‖ ≤ 11 / 10 * rhoR hankelBandParams c r ∧
-      ‖ζ‖ / σ ≤ 1.002 * ‖u‖ ^ (1 / 2 : ℝ) / (u ^ (1 / 2 : ℂ)).re := by
+    (hX_lb : θ * √‖u‖ ≤ (u ^ (1 / 2 : ℂ)).re) : ScaleSaddleData c r u := by
   have hc0 : 0 < c := by linarith
   have hr0 : 0 < r := by linarith
   have hN0 : 0 < ‖u‖ := by linarith
@@ -378,19 +472,22 @@ private lemma scale_saddle_params {c R_J r θ : ℝ} {u : ℂ}
     dsimp [y]
     rw [norm_div, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hK0, div_le_iff₀ hK0]
     exact hdisc.trans_eq (by unfold langerRadius langerScale; ring)
-  obtain ⟨q, hq, hqn, hqu, hqg⟩ := chart_saddle_data langerEta_etaC hc0 hyn (by rw [huy]; exact hcut)
-  rw [huy] at hqu
+  have hsd := chart_saddle_data langerEta_etaC hc0 hyn (by rw [huy]; exact hcut)
+  let q := hsd.choose
+  have hq : q ∈ slitPlane := hsd.choose_spec.1
+  have hqn : ‖q‖ ≤ 0.035 ^ 2 := hsd.choose_spec.2.1
+  have hqu : langerUtilde etaC c q = u := by rw [← huy]; exact hsd.choose_spec.2.2.1
+  have hqg : -gSer etaC (saddleRoot q) = Complex.log (1 + chartYinv etaC y) :=
+    hsd.choose_spec.2.2.2
   have hgeom := hankel_saddle_geom hc0 hq hqn hqu
   set ζ := saddleRoot q
   have hζn : ‖ζ‖ ≤ 0.035 := norm_saddleRoot_le hqn
   have hσpos : 0 < ζ.re := re_saddleRoot_pos hq
-  obtain ⟨σ, τ0, hζeq⟩ : ∃ σ τ0 : ℝ, ζ = (σ : ℂ) + (τ0 : ℂ) * Complex.I :=
-    ⟨ζ.re, ζ.im, (Complex.re_add_im ζ).symm⟩
-  have hσre : ζ.re = σ := by rw [hζeq]; simp
-  have hτ0im : ζ.im = τ0 := by rw [hζeq]; simp
-  rw [hσre] at hσpos hgeom
-  have hσle : σ ≤ 0.035 := hσre ▸ ((Complex.re_le_norm ζ).trans hζn)
-  have hτ0 : |τ0| ≤ 0.035 := hτ0im ▸ ((Complex.abs_im_le_norm ζ).trans hζn)
+  set σ : ℝ := ζ.re
+  set τ0 : ℝ := ζ.im
+  have hζeq : ζ = (σ : ℂ) + (τ0 : ℂ) * Complex.I := (Complex.re_add_im ζ).symm
+  have hσle : σ ≤ 0.035 := (Complex.re_le_norm ζ).trans hζn
+  have hτ0 : |τ0| ≤ 0.035 := (Complex.abs_im_le_norm ζ).trans hζn
   set k : ℝ := c ^ (1 / 3 : ℝ)
   have hk0 : 0 < k := Real.rpow_pos_of_pos hc0 _
   set M : ℝ := k * langerMu
@@ -403,101 +500,24 @@ private lemma scale_saddle_params {c R_J r θ : ℝ} {u : ℂ}
       _ = 0.751 * k := by ring
   have hσ_lb : θ * √‖u‖ / (0.751 * k) ≤ σ := by
     have h1 : θ * √‖u‖ ≤ 0.751 * k * σ := (hX_lb.trans g4).trans (mul_le_mul_of_nonneg_right hμ_bound hσpos.le)
-    rw [div_le_iff₀ (by positivity)]
-    linarith
+    rw [div_le_iff₀ (by positivity)]; linarith
   have hζ_lb : ‖u‖ ^ (1 / 2 : ℝ) / (0.751 * k) ≤ ‖ζ‖ := by
     have h1 : ‖u‖ ^ (1 / 2 : ℝ) ≤ 0.751 * k * ‖ζ‖ := g2.trans (mul_le_mul_of_nonneg_right hμ_bound (norm_nonneg ζ))
-    rw [div_le_iff₀ (by positivity)]
-    linarith
-  have hkc23 : c = k * k ^ 2 := by
-    dsimp [k]; rw [← Real.rpow_natCast (c ^ (1 / 3 : ℝ)) 2, ← Real.rpow_mul hc0.le, ← Real.rpow_add hc0]; norm_num
+    rw [div_le_iff₀ (by positivity)]; linarith
+  obtain ⟨hcσζ, hcσ_lb⟩ := scale_cσ_bounds hc hRJ_ub hr_lb hr_RJ hlo hhi hs1 hθ_pos hθr hσ_lb hζ_lb
   have hc23_eq : k ^ 2 = c ^ (2 / 3 : ℝ) := by
     dsimp [k]; rw [← Real.rpow_natCast, ← Real.rpow_mul hc0.le]; norm_num
-  have hsqrtN_eq : √‖u‖ = ‖u‖ ^ (1 / 2 : ℝ) := Real.sqrt_eq_rpow _
-  have hu32_eq : √‖u‖ * (‖u‖ ^ (1 / 2 : ℝ)) ^ 2 = ‖u‖ ^ (3 / 2 : ℝ) := by
-    rw [hsqrtN_eq, ← Real.rpow_natCast (‖u‖ ^ (1 / 2 : ℝ)) 2, ← Real.rpow_mul hN0.le, ← Real.rpow_add hN0]; norm_num
-  have hu32_lb : 0.99 * r ^ (3 / 2 : ℝ) ≤ ‖u‖ ^ (3 / 2 : ℝ) := by
-    have h1 : 0.994 * r ≤ ‖u‖ := by linarith
-    have h2 := Real.rpow_le_rpow (by positivity) h1 (by norm_num : (0 : ℝ) ≤ 3 / 2)
-    rw [Real.mul_rpow (by norm_num) hr0.le] at h2
-    have h0994 : (0.99 : ℝ) ≤ (0.994 : ℝ) ^ (3 / 2 : ℝ) := by
-      have hsq : (0.99 : ℝ) ^ 2 ≤ ((0.994 : ℝ) ^ (3 / 2 : ℝ)) ^ 2 := by
-        rw [← Real.rpow_natCast ((0.994 : ℝ) ^ (3 / 2 : ℝ)) 2, ← Real.rpow_mul (by norm_num)]; norm_num
-      exact (abs_le_of_sq_le_sq' hsq (Real.rpow_nonneg (by norm_num) _)).2
-    calc 0.99 * r ^ (3 / 2 : ℝ) ≤ (0.994 : ℝ) ^ (3 / 2 : ℝ) * r ^ (3 / 2 : ℝ) :=
-          mul_le_mul_of_nonneg_right h0994 (Real.rpow_nonneg hr0.le _)
-      _ ≤ ‖u‖ ^ (3 / 2 : ℝ) := h2
-  have hcσζ : 500 * Real.log c ≤ c * σ * ‖ζ‖ ^ 2 := by
-    have h1 : (‖u‖ ^ (1 / 2 : ℝ)) ^ 2 / (0.751 * k) ^ 2 ≤ ‖ζ‖ ^ 2 := by
-      rw [← div_pow]; exact pow_le_pow_left₀ (by positivity) hζ_lb 2
-    have h2 : (θ * √‖u‖ / (0.751 * k)) * ((‖u‖ ^ (1 / 2 : ℝ)) ^ 2 / (0.751 * k) ^ 2) ≤ σ * ‖ζ‖ ^ 2 :=
-      mul_le_mul hσ_lb h1 (by positivity) (by positivity)
-    have h3 : c * ((θ * √‖u‖ / (0.751 * k)) * ((‖u‖ ^ (1 / 2 : ℝ)) ^ 2 / (0.751 * k) ^ 2)) =
-        θ * ‖u‖ ^ (3 / 2 : ℝ) / 0.751 ^ 3 := by
-      have hden : c = k ^ 3 := by rw [hkc23]; ring
-      rw [hden, ← hu32_eq]; field_simp [hk0.ne']
-    have h4 : 500 * Real.log c ≤ θ * ‖u‖ ^ (3 / 2 : ℝ) / 0.751 ^ 3 := by
-      have hlog0 : 0 ≤ Real.log c := Real.log_nonneg (by linarith)
-      have hmul : 0.99 * (θ * r ^ (3 / 2 : ℝ)) ≤ θ * ‖u‖ ^ (3 / 2 : ℝ) := by
-        calc 0.99 * (θ * r ^ (3 / 2 : ℝ)) = θ * (0.99 * r ^ (3 / 2 : ℝ)) := by ring
-          _ ≤ θ * ‖u‖ ^ (3 / 2 : ℝ) := mul_le_mul_of_nonneg_left hu32_lb hθ_pos.le
-      rw [le_div_iff₀ (by positivity)]
-      calc (500 * Real.log c) * 0.751 ^ 3 ≤ 0.99 * (250 * Real.log c) := by nlinarith [hlog0]
-        _ ≤ 0.99 * (θ * r ^ (3 / 2 : ℝ)) := mul_le_mul_of_nonneg_left hθr (by norm_num)
-        _ ≤ θ * ‖u‖ ^ (3 / 2 : ℝ) := hmul
-    linarith [h3, h4, mul_le_mul_of_nonneg_left h2 hc0.le]
-  have hcσ_lb : 30 * Real.log c ≤ c * σ := by
-    have hr_half : √r = r ^ (1 / 2 : ℝ) := Real.sqrt_eq_rpow r
-    have h1 : 0.99 * r ^ (1 / 2 : ℝ) ≤ √‖u‖ := by rwa [← hsqrtN_eq, hr_half] at hs1
-    have h2 : c / (0.751 * k) = k ^ 2 / 0.751 := by rw [hkc23]; field_simp [hk0.ne']
-    have h3 : (k ^ 2 / 0.751) * (θ * (0.99 * r ^ (1 / 2 : ℝ))) ≤ c * σ := by
-      calc (k ^ 2 / 0.751) * (θ * (0.99 * r ^ (1 / 2 : ℝ)))
-          = c * (θ * (0.99 * r ^ (1 / 2 : ℝ)) / (0.751 * k)) := by rw [← h2]; ring
-        _ ≤ c * (θ * √‖u‖ / (0.751 * k)) := by gcongr
-        _ ≤ c * σ := mul_le_mul_of_nonneg_left hσ_lb hc0.le
-    have hk2_r : 5000 * r ≤ k ^ 2 := by
-      rw [hc23_eq]
-      have hc23_1e9 := scale_c23_ge hc
-      have : r ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1 := hr_RJ.trans hRJ_ub
-      linarith
-    have hr32_eq : r ^ (3 / 2 : ℝ) = r * r ^ (1 / 2 : ℝ) := by
-      have hadd := Real.rpow_add hr0 1 (1 / 2)
-      rw [Real.rpow_one] at hadd
-      rw [← hadd]; congr 1; norm_num
-    have h4 : 5000 * (θ * r ^ (3 / 2 : ℝ)) = 5000 * r * (θ * r ^ (1 / 2 : ℝ)) := by rw [hr32_eq]; ring
-    have h5 : 5000 * (250 * Real.log c) ≤ k ^ 2 * (θ * r ^ (1 / 2 : ℝ)) := by
-      have hmul := mul_le_mul_of_nonneg_right hk2_r (mul_nonneg hθ_pos.le (Real.rpow_nonneg hr0.le (1 / 2 : ℝ)))
-      linarith [hθr, h4]
-    nlinarith [h3, h5]
-  have hcσ_X : X * k / 0.751 ≤ c * σ := by
+  have hkc23 : c = k * k ^ 2 := by
+    dsimp [k]; rw [← Real.rpow_natCast (c ^ (1 / 3 : ℝ)) 2, ← Real.rpow_mul hc0.le, ← Real.rpow_add hc0]; norm_num
+  have hcσ_X23 : X * c ^ (2 / 3 : ℝ) / 0.751 ≤ c * σ := by
     have h1 : X ≤ 0.751 * k * σ := g4.trans (mul_le_mul_of_nonneg_right hμ_bound hσpos.le)
-    rw [div_le_iff₀ (by norm_num)]
-    calc X * k ≤ (0.751 * k * σ) * k := mul_le_mul_of_nonneg_right h1 hk0.le
-      _ = 0.751 * (k * k * σ) := by ring
-      _ ≤ 0.751 * (c * σ) := by
-          have hk2_le_c : k ^ 2 ≤ c := by
-            have hk_ge1 : 1 ≤ k := Real.one_le_rpow (by linarith) (by norm_num)
-            nlinarith [hkc23, sq_nonneg k]
-          -- Wait: actually `X * k / 0.751 ≤ c * σ` needs `X * k / 0.751 ≤ X * k^3 / 0.751`, wait:
-          -- in fact `X * k ≤ 0.751 * k^2 * σ ≤ 0.751 * c * σ` since `1 ≤ k`!
-          have h1k : k ≤ k ^ 2 := by nlinarith [Real.one_le_rpow (by linarith : (1 : ℝ) ≤ c) (by norm_num : (0 : ℝ) ≤ 1 / 3)]
-          have : k * k ≤ k * k ^ 2 := mul_le_mul_of_nonneg_left h1k hk0.le
-          rw [← hkc23] at this
-          nlinarith [mul_le_mul_of_nonneg_right this hσpos.le]
-  -- Wait: we need `X * k / 0.751` OR `X * k^2 / 0.751 ≤ c * σ`! Let's prove `X * k^2 / 0.751 ≤ c * σ` below!
-  -- Actually `scale_local_window` needs `(u^(1/2)).re * c^(1/3) / 0.751 ≤ c * σ` OR `X * c^(2/3) / 0.751 ≤ c * σ`:
-  -- WAIT: `(100/81) * (Q_r * u^{1/2}/X) * √(π/(2/5 c σ))` needs `√(...) ≤ 2.5 * c^{-1/3} * X^{-1/2}`, which needs
-  -- `X * c^{2/3} / 0.751 ≤ c * σ`!! Let's check: `c * σ ≥ c * X / (0.751 * c^{1/3}) = c^{2/3} * X / 0.751`!
-  -- Let's make sure the postcondition states `X * c ^ (2 / 3 : ℝ) / 0.751 ≤ c * σ`!
-  have hcσ_X23 : X * k ^ 2 / 0.751 ≤ c * σ := by
-    have h1 : X ≤ 0.751 * k * σ := g4.trans (mul_le_mul_of_nonneg_right hμ_bound hσpos.le)
-    rw [div_le_iff₀ (by norm_num)]
+    rw [div_le_iff₀ (by norm_num), ← hc23_eq]
     calc X * k ^ 2 ≤ (0.751 * k * σ) * k ^ 2 := mul_le_mul_of_nonneg_right h1 (by positivity)
       _ = 0.751 * (k * k ^ 2 * σ) := by ring
-      _ = 0.751 * (c * σ) := by rw [← hkc23]
-  have hlogc_pos : 0 < Real.log c := Real.log_pos (by linarith)
+      _ = c * σ * 0.751 := by rw [← hkc23]; ring
   set h := Real.sqrt (5 * Real.log c / (c * σ))
   have hcσ0 : 0 < c * σ := by positivity
+  have hlog0 : 0 ≤ Real.log c := Real.log_nonneg (by linarith)
   have hh0 : 0 ≤ h := Real.sqrt_nonneg _
   have hhsq : h ^ 2 = 5 * Real.log c / (c * σ) := Real.sq_sqrt (by positivity)
   have hhle : h ≤ 1 / 10 * ‖ζ‖ := by
@@ -511,11 +531,20 @@ private lemma scale_saddle_params {c R_J r θ : ℝ} {u : ℂ}
     rw [hρ, mul_div_assoc', le_div_iff₀ hM0]; linarith [g1, hs2]
   have hζsig_ratio : ‖ζ‖ / σ ≤ 1.002 * ‖u‖ ^ (1 / 2 : ℝ) / X := by
     rw [div_le_div_iff₀ hσpos hXpos]
-    have h1 := mul_le_mul_of_nonneg_left g4 (norm_nonneg ζ)
-    have h2 := mul_le_mul_of_nonneg_right g1 hσpos.le
-    nlinarith [h1, h2, mul_pos (Real.rpow_pos_of_pos hN0 (1 / 2 : ℝ)) hσpos]
+    have h1 : ‖ζ‖ * X ≤ 1.0009 * (M * ‖ζ‖ * σ) := by
+      calc ‖ζ‖ * X ≤ ‖ζ‖ * (1.0009 * M * σ) := mul_le_mul_of_nonneg_left g4 (norm_nonneg ζ)
+        _ = 1.0009 * (M * ‖ζ‖ * σ) := by ring
+    have h2 : 0.9991 * (M * ‖ζ‖ * σ) ≤ ‖u‖ ^ (1 / 2 : ℝ) * σ := by
+      calc 0.9991 * (M * ‖ζ‖ * σ) = (0.9991 * M * ‖ζ‖) * σ := by ring
+        _ ≤ ‖u‖ ^ (1 / 2 : ℝ) * σ := mul_le_mul_of_nonneg_right g1 hσpos.le
+    have hMζσ : 0 ≤ M * ‖ζ‖ * σ := mul_nonneg (mul_nonneg hM0.le (norm_nonneg ζ)) hσpos.le
+    have hmul : 1.0009 * (M * ‖ζ‖ * σ) ≤ 1.002 * (0.9991 * (M * ‖ζ‖ * σ)) := by nlinarith only [hMζσ]
+    calc ‖ζ‖ * X ≤ 1.0009 * (M * ‖ζ‖ * σ) := h1
+      _ ≤ 1.002 * (0.9991 * (M * ‖ζ‖ * σ)) := hmul
+      _ ≤ 1.002 * (‖u‖ ^ (1 / 2 : ℝ) * σ) := mul_le_mul_of_nonneg_left h2 (by norm_num)
+      _ = 1.002 * ‖u‖ ^ (1 / 2 : ℝ) * σ := by ring
   exact ⟨q, ζ, σ, τ0, h, hq, hqn, hqu, rfl, hqg, hζeq, hσpos, hσle, hτ0, hζn, hh0, hhsq, hhle,
-    hcσ_lb, hcσ_X, hζ_rho_lo, hζ_rho_hi, hζsig_ratio⟩
+    hcσ_lb, hcσ_X23, hζ_rho_lo, hζ_rho_hi, hζsig_ratio⟩
 
 private lemma scale_W_bound {c ε T u_T R_J r σ τ0 h u_norm X Q_r : ℝ} {f : ℝ → ℝ} {ζ : ℂ}
     (hc3e6 : 3e6 ≤ c) (hf : IsHankelFeasible c ε T f) (hε : ε = 1 ∨ ε = -1)
@@ -613,32 +642,14 @@ theorem hankel_scale_cov_window {c ε T u_T R_J r θ : ℝ} {f : ℝ → ℝ} {u
       rw [Complex.norm_cpow_of_ne_zero (norm_pos_iff.mp hN0)]
       simp
     exact (Complex.re_le_norm _).trans_eq hnorm
-  obtain ⟨q, ζ, σ, τ0, h, hq, hqn, hqu, hζdef, hqg, hζeq, hσpos, hσle, hτ0, hζn,
-    hh0, hhsq, hhle, hcσ_lb, hcσ_X13, hζ_rho_lo, hζ_rho_hi, hζsig_ratio⟩ :=
-    scale_saddle_params hc hRJ_ub hr_lb hr_RJ hlo hhi hθ_pos hθr hX_lb
-  -- Wait: use `scale_saddle_params`'s `σ` upper-bound `X ≤ 0.751 c^{1/3} σ`?
-  -- Notice from `hζsig_ratio` we actually want `c^{2/3} X / 0.751 ≤ c σ`; let's derive that in 3 lines from `hqu` or `hankel_saddle_geom`!
+  have sd := scale_saddle_params hc hRJ_ub hr_lb hr_RJ hlo hhi hθ_pos hθr hX_lb
+  set q := sd.q; set ζ := sd.ζ; set σ := sd.σ; set τ0 := sd.τ0; set h := sd.h
+  have hq := sd.hq; have hqn := sd.hqn; have hqu := sd.hqu; have hζdef := sd.hζdef
+  have hqg := sd.hqg; have hζeq := sd.hζeq; have hσpos := sd.hσpos; have hσle := sd.hσle
+  have hτ0 := sd.hτ0; have hζn := sd.hζn; have hh0 := sd.hh0; have hhsq := sd.hhsq
+  have hhle := sd.hhle; have hcσ_lb := sd.hcσ_lb; have hcσ_X23 := sd.hcσ_X23
+  have hζ_rho_lo := sd.hζ_rho_lo; have hζ_rho_hi := sd.hζ_rho_hi; have hζsig_ratio := sd.hζsig_ratio
   have hσ1 : σ < 1 := by linarith
-  have hgeom2 := (hankel_saddle_geom hc0 hq hqn hqu).2.2.2
-  have hσre' : ζ.re = σ := by rw [hζeq]; simp
-  rw [← hζdef, hσre'] at hgeom2
-  have hcσ_X23 : X * c ^ (2 / 3 : ℝ) / 0.751 ≤ c * σ := by
-    set k := c ^ (1 / 3 : ℝ)
-    have hk0 : 0 < k := Real.rpow_pos_of_pos hc0 _
-    have hμ : 1.0009 * (k * langerMu) ≤ 0.751 * k := by
-      have : 1.0009 * langerMu ≤ 0.751 := by nlinarith [langerMu_lt]
-      calc 1.0009 * (k * langerMu) = k * (1.0009 * langerMu) := by ring
-        _ ≤ k * 0.751 := mul_le_mul_of_nonneg_left this hk0.le
-        _ = 0.751 * k := by ring
-    have hXle : X ≤ 0.751 * k * σ := hgeom2.trans (mul_le_mul_of_nonneg_right hμ hσpos.le)
-    have hk3 : k * k ^ 2 = c := by
-      dsimp [k]; rw [← Real.rpow_natCast (c ^ (1 / 3 : ℝ)) 2, ← Real.rpow_mul hc0.le, ← Real.rpow_add hc0]; norm_num
-    have hk2 : k ^ 2 = c ^ (2 / 3 : ℝ) := by
-      dsimp [k]; rw [← Real.rpow_natCast, ← Real.rpow_mul hc0.le]; norm_num
-    rw [div_le_iff₀ (by norm_num), ← hk2]
-    calc X * k ^ 2 ≤ (0.751 * k * σ) * k ^ 2 := mul_le_mul_of_nonneg_right hXle (by positivity)
-      _ = 0.751 * (k * k ^ 2 * σ) := by ring
-      _ = c * σ * 0.751 := by rw [hk3]; ring
   set r_til := min (1028 * r) R_J
   set Q_r : ℝ := hankelScaleBandC *
     (r ^ (-(3 / 2 : ℝ)) + r ^ (-(7 / 4 : ℝ)) * r_til * hankelBootB1 c f r_til u_T +
@@ -667,12 +678,15 @@ theorem hankel_scale_cov_window {c ε T u_T R_J r θ : ℝ} {f : ℝ → ℝ} {u
     rw [show ℓ = -(gSer etaC ζ) from rfl, norm_neg] at h1
     exact h1.trans (norm_gSer_small hζn)
   have hcrit : gSer etaC ((σ : ℂ) + (τ0 : ℂ) * Complex.I) + ℓ = 0 := by
-    rw [← hζeq]; simp [ℓ]
+    dsimp [ℓ, ζ]; rw [← hζeq]; ring
   have hwin := hankel_local_density_window (by linarith) hfe hε hmass ℓ hl hσpos hσle hτ0 hcrit
     hh0 hW0 hW_bd
   have hph : (c : ℂ) * hankelLocPhi ℓ ((σ : ℂ) + (τ0 : ℂ) * Complex.I) =
       -(4 / 3 : ℂ) * u ^ (3 / 2 : ℂ) := by
-    rw [← hζeq, ← hqu]; dsimp [ℓ]; rw [hζdef, ← phase_at_saddle langerEta_etaC hc0 hq hqn]
+    rw [← hζeq]
+    conv_rhs => rw [← hqu]
+    dsimp [ℓ, ζ]
+    rw [hζdef, ← phase_at_saddle langerEta_etaC hc0 hq hqn]
     unfold hankelLocPhi; ring
   have hexp : Real.exp (c * (hankelLocPhi ℓ ((σ : ℂ) + (τ0 : ℂ) * Complex.I)).re) = airyEnv u := by
     rw [← scale_norm_exp_eq_airyEnv u, ← hph, Complex.norm_exp]
@@ -707,11 +721,13 @@ theorem hankel_scale_cov_window {c ε T u_T R_J r θ : ℝ} {f : ℝ → ℝ} {u
           gcongr
       _ = 2.5 ^ 2 * (c ^ (2 / 3 : ℝ))⁻¹ * X⁻¹ * ((2 / 5) * c * σ) := by ring
   have hgauss : Real.exp (-((2 / 5) * c * σ * h ^ 2)) = c ^ (-(2 : ℝ)) := by
-    rw [hhsq, show (2 / 5 : ℝ) * c * σ * (5 * Real.log c / (c * σ)) = 2 * Real.log c by
-      field_simp [hcσ0.ne']; ring]
-    rw [neg_mul_eq_mul_neg, mul_comm, Real.exp_mul, Real.exp_neg, Real.exp_log hc0,
+    rw [hhsq]
+    have hmul_eq : (2 / 5 : ℝ) * c * σ * (5 * Real.log c / (c * sd.σ)) = 2 * Real.log c := by
+      change (2 / 5 : ℝ) * c * sd.σ * (5 * Real.log c / (c * sd.σ)) = 2 * Real.log c
+      field_simp [hc0.ne', hσpos.ne']
+    rw [hmul_eq, neg_mul_eq_mul_neg, mul_comm, Real.exp_mul, Real.exp_neg, Real.exp_log hc0,
       ← Real.rpow_neg_one, ← Real.rpow_mul hc0.le]
-    norm_num
+    congr 1; norm_num
   have htail_e : 2 * (2 * Real.exp (-(0.035 * c * σ)) / (0.07 * c)) ≤ 60 * c ^ (-(2 : ℝ)) := by
     have hexp_le : Real.exp (-(0.035 * c * σ)) ≤ c⁻¹ := by
       calc Real.exp (-(0.035 * c * σ)) ≤ Real.exp (-Real.log c) :=
