@@ -9,26 +9,29 @@ public import FormalResearch.SignUncertainty.FctSplittingCont
 public import FormalResearch.SignUncertainty.FctSplittingEdgeDeriv
 public import FormalResearch.SignUncertainty.FctSplittingLeftC2
 public import FormalResearch.SignUncertainty.FctSplittingNearDeriv
+public import FormalResearch.SignUncertainty.FctSplittingPsiFar
 
 /-!
-# `FctSplittingStmt` and `WarpLeftFar` from the remaining `fct:splitting` clauses
+# `FctSplittingStmt` and `WarpLeftFar` from the remaining `fct:splitting` clause
 
 Paper I (`constant_terms_five.tex`), `fct:splitting` (1)-(3) and `fct:s4-proof` Step 1.
 Holomorphy (`fctPhiHat_differentiableOn`), real symmetry (`fctPhiHat_conj`), continuity on `S̄`
 and corner bound `O(ζ³)` (`fctPhiHat_cont_cubic`), right-edge derivatives (`fctPhiHat_right_deriv`,
 `(fct:Eminus-edge)`), `C²` left-edge trace off `0` (`fctPhiHat_left_c2`), small-`|τ|` left-edge
-derivatives (`fctPhiHat_left_near_deriv`, `(fct:Psi-edge)`), and the `F_-`/`q₁` left-edge tail
-(`fctPhiHat_left_tail_EJ`, `(fct:Fminus-edge)`) are **proved** from `FctDescentStmt` (`K₄ ≥ 1`).
+derivatives (`fctPhiHat_left_near_deriv`, `(fct:Psi-edge)`), the `F_-`/`q₁` left-edge tail
+(`fctPhiHat_left_tail_EJ`, `(fct:Fminus-edge)`), and far-edge `Ψ_c` exponential decay
+(`fctPsi_far`) are **proved** from `FctDescentStmt` (`K₄ ≥ 1`).
 
-The remaining open clauses of `fct:splitting` (2)-(3) are collected in `SplittingRest` /
+The remaining open clause of `fct:splitting` (2) is collected in `SplittingRest` /
 `FctSplittingRestStmt`:
-* `loglog` (`|Φ̂_c| ≤ M log log(4 + |τ|)` on `S̄`);
-* `FctPsiFarStmt` (`‖∂_τ^j Ψ_c(iτ)‖ ≤ M (1 + |τ|)^N e^{-π|τ|}` for `|τ| ≥ 1/2`, `fct:splitting` (3)).
+* `loglog` (`|Φ̂_c| ≤ M log log(4 + |τ|)` on `S̄`).
 
 `fctSplitting_of_rest` produces `FctSplittingStmt (fctPhiHat h)` and `fctWarp_far_of_rest`
-produces the separated large-`|τ|` left-edge bound `WarpLeftFar` used by `fctWarp_admissible`.
+produces the separated large-`|τ|` left-edge bound `WarpLeftFar` used by `fctWarp_admissible`
+from `FctDescentStmt` alone.
 
-Class: proved from `FctDescentStmt` (named input) and `FctSplittingRestStmt` (named input).
+Class: `fctSplitting_of_rest` is proved from `FctDescentStmt` and `FctSplittingRestStmt`;
+`fctWarp_far_of_rest` is proved from `FctDescentStmt` alone.
 -/
 @[expose] public section
 
@@ -46,22 +49,11 @@ derivative bounds are **proved** from `FctDescentStmt`.) -/
 structure SplittingRest (Φ : ℂ → ℂ) : Prop where
   loglog : ∃ M : ℝ, 0 ≤ M ∧ ∀ ζ ∈ closedStrip, ‖Φ ζ‖ ≤ M * Real.log (Real.log (4 + |ζ.im|))
 
-/-- **`fct:splitting` (3), far-edge trace bound for `Ψ_c`** (`constant_terms_five.tex`, line 1007):
-for `c ≥ c₀`, `ε = ±1`, and `|τ| ≥ 1/2`, `‖∂_τ^j Ψ_c(iτ)‖ ≤ M (1 + |τ|)^N e^{-π|τ|}` (`j = 0, 1, 2`). -/
-def FctPsiFarStmt {K4 : ℝ} (h : FctWarpSolveStmt K4) : Prop :=
-  ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
-    let ψ := fun t : ℝ => fctPsi K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c) ((t : ℂ) * Complex.I)
-    ∃ (N : ℕ) (M : ℝ), 0 ≤ M ∧ ∀ τ : ℝ, 1 / 2 ≤ |τ| →
-      ‖ψ τ‖ ≤ M * (1 + |τ|) ^ N * Real.exp (-(π * |τ|)) ∧
-      ‖deriv ψ τ‖ ≤ M * (1 + |τ|) ^ N * Real.exp (-(π * |τ|)) ∧
-      ‖deriv (deriv ψ) τ‖ ≤ M * (1 + |τ|) ^ N * Real.exp (-(π * |τ|))
-
-/-- The remaining open clauses of `fct:splitting` (2)-(3) for `fctPhiHat h` / `fctPsi`. -/
+/-- The remaining open clause of `fct:splitting` (2) for `fctPhiHat h` (`log log` growth on `S̄`). -/
 def FctSplittingRestStmt {K4 : ℝ} (h : FctWarpSolveStmt K4) : Prop :=
-  (∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → SplittingRest (fctPhiHat h ε c)) ∧
-  FctPsiFarStmt h
+  ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → SplittingRest (fctPhiHat h ε c)
 
-/-- **`FctSplittingStmt` from the remaining clauses**: holomorphy, real symmetry, continuity on `S̄`,
+/-- **`FctSplittingStmt` from the remaining clause**: holomorphy, real symmetry, continuity on `S̄`,
 `Φ̂_c = O(ζ³)`, and right-edge derivatives `(fct:Eminus-edge)` are proved from `FctDescentStmt` (`K₄ ≥ 1`). -/
 theorem fctSplitting_of_rest {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolveStmt K4} (hD : FctDescentStmt h)
     (hR : FctSplittingRestStmt h) : FctSplittingStmt (fctPhiHat h) := by
@@ -71,7 +63,7 @@ theorem fctSplitting_of_rest {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolveStmt K
   obtain ⟨crt, hrt⟩ := fctPhiHat_right_deriv hK4 hD
   obtain ⟨cc2, hc2⟩ := fctPhiHat_left_c2 hK4 hD
   obtain ⟨cld, hld⟩ := fctPhiHat_left_near_deriv hK4 hD
-  obtain ⟨cr, hr⟩ := hR.1
+  obtain ⟨cr, hr⟩ := hR
   refine ⟨max (max (max ch cc) (max ct crt)) (max (max cc2 cld) cr), fun ε c hε hcb => ?_⟩
   have hr' := hr ε c hε ((le_max_right _ _).trans (le_max_right _ _) |>.trans hcb)
   have hld' := hld ε c hε ((le_max_right _ _).trans (le_max_left _ _) |>.trans (le_max_right _ _) |>.trans hcb)
@@ -151,11 +143,10 @@ private lemma ej_far_poly_exp {f : ℝ → ℂ} {a M : ℝ} {N : ℕ}
       _ ≤ M * (32 * ((1 + |τ|) ^ (N + 2) * Real.exp (-(π * |τ|)))) := by gcongr; exact key 2 (by norm_num)
       _ = _ := by ring
 
-/-- **Separated far-edge trace bound `WarpLeftFar` from `FctSplittingRestStmt` and `FctDescentStmt`**
+/-- **Separated far-edge trace bound `WarpLeftFar` from `FctDescentStmt`**
 (`fct:s4-proof` Step 1 for `|τ| ≥ 1/2`): decomposes `Φ̂_c(iτ) D_{τ₁}(iτ) (H_*/G_ε)(iτ) = (c/N_c) Ψ_c(iτ) + tail(τ) D_{τ₁}(iτ) (H_*/G_ε)(iτ)`,
-using `FctPsiFarStmt` for `Ψ_c` and `fctPhiHat_left_tail_EJ` (`(fct:Fminus-edge)`) for the tail. -/
-theorem fctWarp_far_of_rest {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolveStmt K4} (hD : FctDescentStmt h)
-    (hR : FctSplittingRestStmt h) :
+using `FctSplittingPsiFar.fctPsi_far` for `Ψ_c` and `fctPhiHat_left_tail_EJ` (`(fct:Fminus-edge)`) for the tail. -/
+theorem fctWarp_far_of_rest {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolveStmt K4} (hD : FctDescentStmt h) :
     ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       WarpLeftFar ε (fctPhiHat h ε c) (fctDcomp K4 (fctWarpAlpha h) ε c) := by
   obtain ⟨Cz, cz, hz⟩ := fctWarpZero_of_solve h
@@ -163,7 +154,7 @@ theorem fctWarp_far_of_rest {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolveStmt K4
   obtain ⟨c0N, hNc⟩ := fctNcC_inv_bound hK4 hD
   obtain ⟨c0T, hTail⟩ := fctPhiHat_left_tail_EJ hK4 hD
   obtain ⟨c0R, hC2⟩ := fctPhiHat_left_c2 hK4 hD
-  obtain ⟨c0P, hPsi⟩ := hR.2
+  obtain ⟨c0P, hPsi⟩ := fctPsi_far hK4 hD
   refine ⟨max (max (max c0D c0N) c0T) (max c0R c0P), fun ε c hε hc => ?_⟩
   have hDD := hcD ε c hε (((le_max_left _ _).trans (le_max_left _ _)).trans (le_max_left _ _) |>.trans hc)
   have hNc_inv := hNc ε c hε (((le_max_right _ _).trans (le_max_left _ _)).trans (le_max_left _ _) |>.trans hc)

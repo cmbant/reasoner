@@ -27,7 +27,7 @@ open scoped Real
 
 namespace FormalResearch.SignUncertainty
 
-private lemma fct_Nc_beta_bounds {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolveStmt K4} (hD : FctDescentStmt h) :
+lemma fct_Nc_beta_bounds {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolveStmt K4} (hD : FctDescentStmt h) :
     ∃ Kβ c₀ : ℝ, 0 ≤ Kβ ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       ‖(fctNcC K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c))⁻¹‖ ≤ 2 ∧
       ‖fctBetaC K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c)‖ ≤ Kβ * c⁻¹ ∧

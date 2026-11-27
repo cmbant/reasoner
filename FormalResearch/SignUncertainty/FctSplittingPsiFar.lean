@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 module
 
 public import FormalResearch.SignUncertainty.FctSplittingPsiFarBase
+public import FormalResearch.SignUncertainty.FctSplittingHorizFTC
 
 /-!
 # Exponential decay of `Ψ_c(iτ)` and its first two derivatives on the far left edge `|τ| ≥ 1/2`
@@ -13,7 +14,7 @@ Source: `CFT/sign_uncertainty/paper/constant_terms_five.tex`, Lemma FCT.8 (`fct:
 estimate for `Ψ_c(iτ)` (`|τ| ≥ 1/2`, `j = 0, 1, 2`).
 
 Starting from `FctDescentStmt h` alone (horizontal strip descent at `σ = 3/8 ∈ [5/16, 7/16]`):
-* Horizontal FTC (`Fubini` on `[ε₀, 3/8] × [δ, 1]`, `δ ↓ 0`, `ε₀ ↓ 0`) expresses
+* Horizontal FTC (`FctSplittingHorizFTC.horiz_ftc_gen`) expresses
   `K₀(iτ) Ψ_c(iτ) = K₀(3/8 + iτ) Ψ_c(3/8 + iτ) - ∫_{0}^{3/8} K₀(r + iτ) A_ε(r + iτ) dr`
   for `τ > 0`, giving `‖Ψ_c(iτ)‖ ≤ M₀ (1 + τ)^8 exp(-π τ)` on `τ ≥ 1/2`.
 * Using the ODE `Ψ_c'(iτ) = i (A_ε(iτ) - (K₀'/K₀)(iτ) Ψ_c(iτ))` from `fctPsi_hasDerivAt_pos`,
@@ -31,17 +32,9 @@ open FormalResearch.CohnElkies FormalResearch.SignUncertainty.CtOuter
 
 namespace FormalResearch.SignUncertainty
 
-private lemma strip_half_mem {r τ : ℝ} (hr0 : 0 ≤ r) (hr1 : r ≤ 3 / 8) (hτ : 0 < τ) :
-    ((r : ℂ) + (τ : ℂ) * Complex.I) ∈ psiDom := by
-  refine ⟨by simpa using hr0, by simp; linarith, ?_⟩
-  intro h
-  have := congr_arg Complex.im h
-  simp at this
-  linarith
+/-! ### Part 1: Zero-order `Ψ_c(iτ)` bound on `τ ≥ 1/2` -/
 
-/-! ### Part 1: Horizontal FTC and zero-order `Ψ_c(iτ)` bound on `τ ≥ 1/2` -/
-
-private lemma mellinK0_mul_fctPsi_eq {K4 ε c L1 α : ℝ} (hc : 0 < c) {ζ : ℂ} (hζ : ζ.re < 1) :
+private lemma mellinK0_mul_fctPsi_eq {K4 ε c L1 α : ℝ} {ζ : ℂ} (hζ : ζ.re < 1) :
     mellinK0 c ζ (fctXi1 L1) * fctPsi K4 ε c L1 α ζ =
       ζ * ∫ s in (0 : ℝ)..1, fctWarpKA K4 ε c L1 α ((s : ℂ) * ζ) := by
   unfold fctPsi fctWarpKA
@@ -58,316 +51,25 @@ private lemma fctPsi_horiz_ftc {K4 ε c L1 α : ℝ} (hc : 0 < c)
       mellinK0 c ((τ : ℂ) * Complex.I) (fctXi1 L1) *
         fctPsi K4 ε c L1 α ((τ : ℂ) * Complex.I) =
       ∫ r in (0 : ℝ)..(3 / 8 : ℝ), fctWarpKA K4 ε c L1 α ((r : ℂ) + (τ : ℂ) * Complex.I) := by
-  set f : ℂ → ℂ := fctWarpKA K4 ε c L1 α
-  have hf_hol : DifferentiableOn ℂ f strip := fctWarpKA_differentiableOn hc hDh
-  have hf_deriv_cont : ContinuousOn (deriv f) strip :=
-    (hf_hol.contDiffOn isOpen_strip).continuousOn_deriv_of_isOpen isOpen_strip (by norm_num)
-  let Φ : ℝ → ℝ → ℂ := fun r s =>
-    f ((s : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I)) +
-      (s : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I) *
-        deriv f ((s : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I))
-  have hmem_strip : ∀ {r s : ℝ}, 0 < r → r < 1 → 0 < s → s ≤ 1 →
-      (s : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I) ∈ strip := fun hr0 hr1 hs0 hs1 => by
-    simp only [strip, mem_setOf_eq, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im,
-      Complex.add_re, Complex.I_re, mul_zero, sub_zero, Complex.add_im, Complex.I_im,
-      mul_one, zero_add, zero_mul]
-    exact ⟨mul_pos hs0 hr0, by nlinarith⟩
-  have hbox : ∀ {ε₀ δ : ℝ}, 0 < ε₀ → ε₀ < 3 / 8 → 0 < δ → δ < 1 →
-      ∫ r in ε₀..(3 / 8 : ℝ), f ((r : ℂ) + (τ : ℂ) * Complex.I) -
-        ∫ r in ε₀..(3 / 8 : ℝ), (δ : ℂ) * f ((δ : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I)) =
-      ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) *
-          ∫ s in δ..1, f ((s : ℂ) * ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)) -
-        ((ε₀ : ℂ) + (τ : ℂ) * Complex.I) *
-          ∫ s in δ..1, f ((s : ℂ) * ((ε₀ : ℂ) + (τ : ℂ) * Complex.I)) := by
-    intro ε₀ δ hε0 hε38 hδ0 hδ1
-    have hcont_Φ : ContinuousOn (fun p : ℝ × ℝ => Φ p.1 p.2) (Icc ε₀ (3 / 8) ×ˢ Icc δ 1) := by
-      have harg : Continuous (fun p : ℝ × ℝ => (p.2 : ℂ) * ((p.1 : ℂ) + (τ : ℂ) * Complex.I)) := by
-        fun_prop
-      have hmap : MapsTo (fun p : ℝ × ℝ => (p.2 : ℂ) * ((p.1 : ℂ) + (τ : ℂ) * Complex.I))
-          (Icc ε₀ (3 / 8) ×ˢ Icc δ 1) strip := fun p hp =>
-        hmem_strip (hε0.trans_le hp.1.1) (hp.1.2.trans_lt (by norm_num))
-          (hδ0.trans_le hp.2.1) hp.2.2
-      exact (hf_hol.continuousOn.comp harg.continuousOn hmap).add
-        (harg.continuousOn.mul (hf_deriv_cont.comp harg.continuousOn hmap))
-    have hInt_prod : Integrable (fun p : ℝ × ℝ => Φ p.1 p.2)
-        ((volume.restrict (Ioc ε₀ (3 / 8))).prod (volume.restrict (Ioc δ 1))) := by
-      have hIcc : IntegrableOn (fun p : ℝ × ℝ => Φ p.1 p.2) (Icc ε₀ (3 / 8) ×ˢ Icc δ 1) :=
-        hcont_Φ.integrableOn_compact (isCompact_Icc.prod isCompact_Icc)
-      have hIoc := hIcc.mono_set (Set.prod_mono Ioc_subset_Icc_self Ioc_subset_Icc_self)
-      rwa [IntegrableOn, ← Measure.volume_eq_prod, ← Measure.prod_restrict] at hIoc
-    have hswap : ∫ r in ε₀..(3 / 8 : ℝ), (∫ s in δ..1, Φ r s) =
-        ∫ s in δ..1, (∫ r in ε₀..(3 / 8 : ℝ), Φ r s) := by
-      simp only [intervalIntegral.integral_of_le hε38.le, intervalIntegral.integral_of_le hδ1.le]
-      exact integral_integral_swap hInt_prod
-    have hLHS_inner : ∀ r ∈ Icc ε₀ (3 / 8),
-        ∫ s in δ..1, Φ r s = f ((r : ℂ) + (τ : ℂ) * Complex.I) -
-          (δ : ℂ) * f ((δ : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I)) := by
-      intro r hr
-      have hint_s : IntervalIntegrable (Φ r) volume δ 1 := by
-        refine ContinuousOn.intervalIntegrable ?_
-        rw [uIcc_of_le hδ1.le]
-        exact hcont_Φ.comp (continuousOn_const.prodMk continuousOn_id) fun s hs => ⟨hr, hs⟩
-      have hderiv_s : ∀ s ∈ uIcc δ 1,
-          HasDerivAt (fun t : ℝ => (t : ℂ) * f ((t : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I)))
-            (Φ r s) s := by
-        intro s hs
-        rw [uIcc_of_le hδ1.le] at hs
-        have hms := hmem_strip (hε0.trans_le hr.1) (hr.2.trans_lt (by norm_num))
-          (hδ0.trans_le hs.1) hs.2
-        have hdf := (hf_hol.differentiableAt (isOpen_strip.mem_nhds hms)).hasDerivAt
-        have harg : HasDerivAt (fun t : ℝ => (t : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I))
-            ((r : ℂ) + (τ : ℂ) * Complex.I) s := by
-          simpa using (Complex.ofRealCLM.hasDerivAt (x := s)).mul_const ((r : ℂ) + (τ : ℂ) * Complex.I)
-        have hcomp := (Complex.ofRealCLM.hasDerivAt (x := s)).mul (hdf.comp s harg)
-        refine hcomp.congr_deriv ?_
-        simp [Φ]; ring
-      rw [intervalIntegral.integral_eq_sub_of_hasDerivAt hderiv_s hint_s]
-      simp
-    have hRHS_inner : ∀ s ∈ Icc δ 1,
-        ∫ r in ε₀..(3 / 8 : ℝ), Φ r s =
-          ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) *
-              f ((s : ℂ) * ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)) -
-            ((ε₀ : ℂ) + (τ : ℂ) * Complex.I) *
-              f ((s : ℂ) * ((ε₀ : ℂ) + (τ : ℂ) * Complex.I)) := by
-      intro s hs
-      have hint_r : IntervalIntegrable (fun r => Φ r s) volume ε₀ (3 / 8) := by
-        refine ContinuousOn.intervalIntegrable ?_
-        rw [uIcc_of_le hε38.le]
-        exact hcont_Φ.comp (continuousOn_id.prodMk continuousOn_const) fun r hr => ⟨hr, hs⟩
-      have hderiv_r : ∀ r ∈ uIcc ε₀ (3 / 8),
-          HasDerivAt (fun x : ℝ => ((x : ℂ) + (τ : ℂ) * Complex.I) *
-              f ((s : ℂ) * ((x : ℂ) + (τ : ℂ) * Complex.I)))
-            (Φ r s) r := by
-        intro r hr
-        rw [uIcc_of_le hε38.le] at hr
-        have hms := hmem_strip (hε0.trans_le hr.1) (hr.2.trans_lt (by norm_num))
-          (hδ0.trans_le hs.1) hs.2
-        have hdf := (hf_hol.differentiableAt (isOpen_strip.mem_nhds hms)).hasDerivAt
-        have hz_d : HasDerivAt (fun x : ℝ => (x : ℂ) + (τ : ℂ) * Complex.I) 1 r := by
-          simpa using (Complex.ofRealCLM.hasDerivAt (x := r)).add_const ((τ : ℂ) * Complex.I)
-        have harg : HasDerivAt (fun x : ℝ => (s : ℂ) * ((x : ℂ) + (τ : ℂ) * Complex.I))
-            (s : ℂ) r := by
-          simpa using hz_d.const_mul (s : ℂ)
-        have hcomp := hz_d.mul (hdf.comp r harg)
-        refine hcomp.congr_deriv ?_
-        simp [Φ]; ring
-      rw [intervalIntegral.integral_eq_sub_of_hasDerivAt hderiv_r hint_r]
-      norm_num
-    have hL : ∫ r in ε₀..(3 / 8 : ℝ), (∫ s in δ..1, Φ r s) =
-        ∫ r in ε₀..(3 / 8 : ℝ), f ((r : ℂ) + (τ : ℂ) * Complex.I) -
-          ∫ r in ε₀..(3 / 8 : ℝ), (δ : ℂ) * f ((δ : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I)) := by
-      have hc1 : IntervalIntegrable (fun r : ℝ => f ((r : ℂ) + (τ : ℂ) * Complex.I)) volume ε₀ (3 / 8) := by
-        refine ContinuousOn.intervalIntegrable ?_
-        rw [uIcc_of_le hε38.le]
-        refine hf_hol.continuousOn.comp (by fun_prop) fun r hr => ?_
-        simp only [strip, mem_setOf_eq, Complex.add_re, Complex.ofReal_re, Complex.mul_re,
-          Complex.I_re, mul_zero, Complex.ofReal_im, Complex.I_im, mul_one, sub_zero, add_zero]
-        exact ⟨hε0.trans_le hr.1, hr.2.trans_lt (by norm_num)⟩
-      have hc2 : IntervalIntegrable (fun r : ℝ => (δ : ℂ) * f ((δ : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I)))
-          volume ε₀ (3 / 8) := by
-        refine ContinuousOn.intervalIntegrable ?_
-        rw [uIcc_of_le hε38.le]
-        refine continuousOn_const.mul (hf_hol.continuousOn.comp (by fun_prop) fun r hr => ?_)
-        exact hmem_strip (hε0.trans_le hr.1) (hr.2.trans_lt (by norm_num)) hδ0 hδ1.le
-      rw [intervalIntegral.integral_congr (fun r hr => hLHS_inner r (by rwa [uIcc_of_le hε38.le] at hr))]
-      exact intervalIntegral.integral_sub hc1 hc2
-    have hR : ∫ s in δ..1, (∫ r in ε₀..(3 / 8 : ℝ), Φ r s) =
-        ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) *
-            ∫ s in δ..1, f ((s : ℂ) * ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)) -
-          ((ε₀ : ℂ) + (τ : ℂ) * Complex.I) *
-            ∫ s in δ..1, f ((s : ℂ) * ((ε₀ : ℂ) + (τ : ℂ) * Complex.I)) := by
-      have hc1 : IntervalIntegrable (fun s : ℝ => f ((s : ℂ) * ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)))
-          volume δ 1 := by
-        refine ContinuousOn.intervalIntegrable ?_
-        rw [uIcc_of_le hδ1.le]
-        refine hf_hol.continuousOn.comp (by fun_prop) fun s hs => ?_
-        exact hmem_strip (by norm_num) (by norm_num) (hδ0.trans_le hs.1) hs.2
-      have hc2 : IntervalIntegrable (fun s : ℝ => f ((s : ℂ) * ((ε₀ : ℂ) + (τ : ℂ) * Complex.I)))
-          volume δ 1 := by
-        refine ContinuousOn.intervalIntegrable ?_
-        rw [uIcc_of_le hδ1.le]
-        refine hf_hol.continuousOn.comp (by fun_prop) fun s hs => ?_
-        exact hmem_strip hε0 (hε38.trans (by norm_num)) (hδ0.trans_le hs.1) hs.2
-      rw [intervalIntegral.integral_congr (fun s hs => hRHS_inner s (by rwa [uIcc_of_le hδ1.le] at hs))]
-      rw [intervalIntegral.integral_sub (hc1.const_mul _) (hc2.const_mul _),
-        intervalIntegral.integral_const_mul, intervalIntegral.integral_const_mul]
-    rw [← hL, hswap, hR]
-  have heps_eq : ∀ {ε₀ : ℝ}, 0 < ε₀ → ε₀ < 3 / 8 →
-      ∫ r in ε₀..(3 / 8 : ℝ), f ((r : ℂ) + (τ : ℂ) * Complex.I) =
-        ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) *
-            ∫ s in (0 : ℝ)..1, f ((s : ℂ) * ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)) -
-          ((ε₀ : ℂ) + (τ : ℂ) * Complex.I) *
-            ∫ s in (0 : ℝ)..1, f ((s : ℂ) * ((ε₀ : ℂ) + (τ : ℂ) * Complex.I)) := by
-    intro ε₀ hε0 hε38
-    obtain ⟨r₀, M₀, hr₀, hM₀, hnear⟩ := fctWarpKA_near_zero (K4 := K4) (ε := ε) (L1 := L1) (α := α) hc hDb
-    have hRHS_lim : Tendsto (fun δ : ℝ =>
-        ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) *
-            ∫ s in δ..1, f ((s : ℂ) * ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)) -
-          ((ε₀ : ℂ) + (τ : ℂ) * Complex.I) *
-            ∫ s in δ..1, f ((s : ℂ) * ((ε₀ : ℂ) + (τ : ℂ) * Complex.I)))
-        (𝓝[>] (0 : ℝ))
-        (𝓝 (((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) *
-            ∫ s in (0 : ℝ)..1, f ((s : ℂ) * ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)) -
-          ((ε₀ : ℂ) + (τ : ℂ) * Complex.I) *
-            ∫ s in (0 : ℝ)..1, f ((s : ℂ) * ((ε₀ : ℂ) + (τ : ℂ) * Complex.I)))) := by
-      have hi1 : IntervalIntegrable (fun s : ℝ => f ((s : ℂ) * ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)))
-          volume 0 1 := by
-        refine fctWarpKA_segment_integrable hc hDc hDb ?_ ?_ ?_
-        · norm_num
-        · norm_num
-        · intro h0; have := congr_arg Complex.im h0; simp at this; linarith
-      have hi2 : IntervalIntegrable (fun s : ℝ => f ((s : ℂ) * ((ε₀ : ℂ) + (τ : ℂ) * Complex.I)))
-          volume 0 1 := by
-        refine fctWarpKA_segment_integrable hc hDc hDb ?_ ?_ ?_
-        · simpa using hε0.le
-        · simp; linarith
-        · intro h0; have := congr_arg Complex.im h0; simp at this; linarith
-      have hc1 := (intervalIntegral.continuousOn_primitive_interval' hi1 (by simp)).continuousWithinAt
-      have hc2 := (intervalIntegral.continuousOn_primitive_interval' hi2 (by simp)).continuousWithinAt
-      have hnh_le : 𝓝[>] (0 : ℝ) ≤ 𝓝[Icc 0 1] (0 : ℝ) := nhdsWithin_le_nhdsWithin
-        (by filter_upwards [Ioo_mem_nhdsGT (by norm_num : (0 : ℝ) < 1)] with x hx; exact Ioo_subset_Icc_self hx)
-      exact (tendsto_const_nhds.mul (hc1.mono_left hnh_le)).sub
-        (tendsto_const_nhds.mul (hc2.mono_left hnh_le))
-    have htail_lim : Tendsto (fun δ : ℝ =>
-        ∫ r in ε₀..(3 / 8 : ℝ), (δ : ℂ) * f ((δ : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I)))
-        (𝓝[>] (0 : ℝ)) (𝓝 0) := by
-      rw [Metric.tendsto_nhdsWithin_nhds]
-      intro e he
-      set δ_cap : ℝ := min (1 / 2) (r₀ / (1 + τ))
-      have hδ_cap : 0 < δ_cap := lt_min (by norm_num) (div_pos hr₀ (by positivity))
-      set K_e : ℝ := (3 / 8) * M₀ * τ ^ (-(1 / 2 : ℝ))
-      have hKe : 0 ≤ K_e := by positivity
-      refine ⟨min δ_cap ((e / (K_e + 1)) ^ 2), lt_min hδ_cap (pow_pos (div_pos he (by positivity)) 2),
-        fun δ hδ hdist => ?_⟩
-      have hδpos : 0 < δ := hδ
-      rw [Real.dist_eq, sub_zero, abs_of_pos hδpos] at hdist
-      have hδ_lt_cap : δ < δ_cap := hdist.trans_le (min_le_left _ _)
-      have hδr0 : δ * (1 + τ) ≤ r₀ := by
-        have hlt : δ ≤ r₀ / (1 + τ) := hδ_lt_cap.le.trans (min_le_right _ _)
-        rwa [le_div_iff₀ (by positivity)] at hlt
-      have hbd_int : ∀ r ∈ uIoc ε₀ (3 / 8),
-          ‖(δ : ℂ) * f ((δ : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I))‖ ≤
-            M₀ * τ ^ (-(1 / 2 : ℝ)) * δ ^ (1 / 2 : ℝ) := by
-        intro r hr
-        rw [uIoc_of_le hε38.le] at hr
-        set t : ℂ := (δ : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I)
-        have ht_re0 : 0 ≤ t.re := by simp [t]; exact mul_nonneg hδpos.le (by linarith [hr.1])
-        have ht_re1 : t.re < 1 := by
-          have : δ < 1 := hδ_lt_cap.trans_le ((min_le_left _ _).trans (by norm_num))
-          simp [t]; nlinarith [hr.2]
-        have ht_ne : t ≠ 0 := by
-          intro h0; have := congr_arg Complex.im h0
-          simp [t] at this; exact absurd this (mul_ne_zero hδpos.ne' hτ.ne')
-        have hnr : ‖(r : ℂ) + (τ : ℂ) * Complex.I‖ ≤ 1 + τ := by
-          have := Complex.norm_le_abs_re_add_abs_im ((r : ℂ) + (τ : ℂ) * Complex.I)
-          simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.I_re, mul_zero,
-            Complex.ofReal_im, Complex.I_im, mul_one, sub_zero, add_zero, Complex.add_im,
-            zero_add, abs_of_pos (hε0.trans_le hr.1), abs_of_pos hτ] at this
-          linarith [hr.2]
-        have hnt_hi : ‖t‖ ≤ r₀ := by
-          calc ‖t‖ = δ * ‖(r : ℂ) + (τ : ℂ) * Complex.I‖ := by
-                simp [t, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hδpos]
-            _ ≤ δ * (1 + τ) := mul_le_mul_of_nonneg_left hnr hδpos.le
-            _ ≤ r₀ := hδr0
-        have hnt_lo : δ * τ ≤ ‖t‖ := by
-          have := Complex.abs_im_le_norm t
-          simpa [t, abs_of_pos hδpos, abs_of_pos hτ] using this
-        have hpow : ‖t‖ ^ (-(1 / 2 : ℝ)) ≤ (δ * τ) ^ (-(1 / 2 : ℝ)) :=
-          Real.rpow_le_rpow_of_nonpos (mul_pos hδpos hτ) hnt_lo (by norm_num)
-        have hft := hnear t ht_re0 ht_re1 ht_ne hnt_hi
-        calc ‖(δ : ℂ) * f t‖ = δ * ‖f t‖ := by
-              rw [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hδpos]
-          _ ≤ δ * (M₀ * ‖t‖ ^ (-(1 / 2 : ℝ))) := mul_le_mul_of_nonneg_left hft hδpos.le
-          _ ≤ δ * (M₀ * (δ * τ) ^ (-(1 / 2 : ℝ))) := by gcongr
-          _ = M₀ * τ ^ (-(1 / 2 : ℝ)) * (δ ^ (1 : ℝ) * δ ^ (-(1 / 2 : ℝ))) := by
-              rw [Real.mul_rpow hδpos.le hτ.le, Real.rpow_one]; ring
-          _ = M₀ * τ ^ (-(1 / 2 : ℝ)) * δ ^ (1 / 2 : ℝ) := by
-              rw [← Real.rpow_add hδpos, show (1 : ℝ) + -(1 / 2 : ℝ) = 1 / 2 by ring]
-      have hint_norm := intervalIntegral.norm_integral_le_of_norm_le_const hbd_int
-      have hlen : |((3 / 8 : ℝ) - ε₀)| ≤ 3 / 8 := by rw [abs_of_nonneg (by linarith)]; linarith
-      have hsqrt : δ ^ (1 / 2 : ℝ) < e / (K_e + 1) := by
-        have h1 : δ < (e / (K_e + 1)) ^ 2 := hdist.trans_le (min_le_right _ _)
-        rw [← Real.sqrt_eq_rpow]
-        exact (Real.sqrt_lt' (div_pos he (by positivity))).mpr h1
-      rw [dist_zero_right]
-      calc ‖∫ r in ε₀..(3 / 8 : ℝ), (δ : ℂ) * f ((δ : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I))‖
-          ≤ M₀ * τ ^ (-(1 / 2 : ℝ)) * δ ^ (1 / 2 : ℝ) * |3 / 8 - ε₀| := hint_norm
-        _ ≤ K_e * δ ^ (1 / 2 : ℝ) := by
-            have := mul_le_mul_of_nonneg_left hlen (by positivity : 0 ≤ M₀ * τ ^ (-(1 / 2 : ℝ)) * δ ^ (1 / 2 : ℝ))
-            linarith [show M₀ * τ ^ (-(1 / 2 : ℝ)) * δ ^ (1 / 2 : ℝ) * (3 / 8) = K_e * δ ^ (1 / 2 : ℝ) from by ring]
-        _ ≤ (K_e + 1) * δ ^ (1 / 2 : ℝ) := by gcongr; linarith
-        _ < (K_e + 1) * (e / (K_e + 1)) := mul_lt_mul_of_pos_left hsqrt (by positivity)
-        _ = e := by field_simp
-    have hLHS_lim : Tendsto (fun δ : ℝ =>
-        ∫ r in ε₀..(3 / 8 : ℝ), f ((r : ℂ) + (τ : ℂ) * Complex.I) -
-          ∫ r in ε₀..(3 / 8 : ℝ), (δ : ℂ) * f ((δ : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I)))
-        (𝓝[>] (0 : ℝ))
-        (𝓝 (∫ r in ε₀..(3 / 8 : ℝ), f ((r : ℂ) + (τ : ℂ) * Complex.I))) := by
-      simpa using tendsto_const_nhds.sub htail_lim
-    have hev_eq : (fun δ : ℝ =>
-        ∫ r in ε₀..(3 / 8 : ℝ), f ((r : ℂ) + (τ : ℂ) * Complex.I) -
-          ∫ r in ε₀..(3 / 8 : ℝ), (δ : ℂ) * f ((δ : ℂ) * ((r : ℂ) + (τ : ℂ) * Complex.I))) =ᶠ[𝓝[>] (0 : ℝ)]
-        (fun δ : ℝ =>
-          ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) *
-              ∫ s in δ..1, f ((s : ℂ) * ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)) -
-            ((ε₀ : ℂ) + (τ : ℂ) * Complex.I) *
-              ∫ s in δ..1, f ((s : ℂ) * ((ε₀ : ℂ) + (τ : ℂ) * Complex.I))) := by
-      filter_upwards [Ioo_mem_nhdsGT (by norm_num : (0 : ℝ) < 1)] with δ hδ
-      exact hbox hε0 hε38 hδ.1 hδ.2
-    exact tendsto_nhds_unique hLHS_lim (hRHS_lim.congr' hev_eq.symm)
-  have hi_r : IntervalIntegrable (fun r : ℝ => f ((r : ℂ) + (τ : ℂ) * Complex.I)) volume 0 (3 / 8) := by
-    refine ContinuousOn.intervalIntegrable ?_
-    rw [uIcc_of_le (by norm_num)]
-    refine (fctWarpKA_continuousOn hc hDc).comp (by fun_prop) fun r hr => ?_
-    exact strip_half_mem hr.1 hr.2 hτ
-  have hnh0_le : 𝓝[>] (0 : ℝ) ≤ 𝓝[Icc 0 (3 / 8)] (0 : ℝ) := nhdsWithin_le_nhdsWithin
-    (by filter_upwards [Ioo_mem_nhdsGT (by norm_num : (0 : ℝ) < 3 / 8)] with x hx; exact Ioo_subset_Icc_self hx)
-  have hLHS_lim0 : Tendsto (fun ε₀ : ℝ => ∫ r in ε₀..(3 / 8 : ℝ), f ((r : ℂ) + (τ : ℂ) * Complex.I))
-      (𝓝[>] (0 : ℝ)) (𝓝 (∫ r in (0 : ℝ)..(3 / 8 : ℝ), f ((r : ℂ) + (τ : ℂ) * Complex.I))) :=
-    ((intervalIntegral.continuousOn_primitive_interval' hi_r (by simp)).continuousWithinAt).mono_left hnh0_le
-  have hPsi_cont : ContinuousOn (fun ε₀ : ℝ => ((ε₀ : ℂ) + (τ : ℂ) * Complex.I) *
-      ∫ s in (0 : ℝ)..1, f ((s : ℂ) * ((ε₀ : ℂ) + (τ : ℂ) * Complex.I))) (Icc (0 : ℝ) (3 / 8)) := by
-    have hcont_g := fctPsi_integral_continuousOn (K4 := K4) (ε := ε) (L1 := L1) (α := α) hc hDc hDb
-    have hmap : MapsTo (fun ε₀ : ℝ => (ε₀ : ℂ) + (τ : ℂ) * Complex.I) (Icc (0 : ℝ) (3 / 8)) psiDom :=
-      fun ε₀ hε₀ => strip_half_mem hε₀.1 hε₀.2 hτ
-    exact (by fun_prop : ContinuousOn (fun ε₀ : ℝ => (ε₀ : ℂ) + (τ : ℂ) * Complex.I) (Icc 0 (3 / 8))).mul
-      (hcont_g.comp (by fun_prop) hmap)
-  have hRHS_lim0 : Tendsto (fun ε₀ : ℝ =>
-      ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) *
-          ∫ s in (0 : ℝ)..1, f ((s : ℂ) * ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)) -
-        ((ε₀ : ℂ) + (τ : ℂ) * Complex.I) *
-          ∫ s in (0 : ℝ)..1, f ((s : ℂ) * ((ε₀ : ℂ) + (τ : ℂ) * Complex.I)))
-      (𝓝[>] (0 : ℝ))
-      (𝓝 (((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) *
-          ∫ s in (0 : ℝ)..1, f ((s : ℂ) * ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)) -
-        ((τ : ℂ) * Complex.I) *
-          ∫ s in (0 : ℝ)..1, f ((s : ℂ) * ((τ : ℂ) * Complex.I)))) := by
-    have hc1 := hPsi_cont.continuousWithinAt (by simp)
-    have hlim2 : Tendsto (fun ε₀ : ℝ => ((ε₀ : ℂ) + (τ : ℂ) * Complex.I) *
-        ∫ s in (0 : ℝ)..1, f ((s : ℂ) * ((ε₀ : ℂ) + (τ : ℂ) * Complex.I)))
-        (𝓝[>] (0 : ℝ)) (𝓝 (((τ : ℂ) * Complex.I) *
-          ∫ s in (0 : ℝ)..1, f ((s : ℂ) * ((τ : ℂ) * Complex.I)))) := by
-      simpa using hc1.mono_left hnh0_le
-    exact tendsto_const_nhds.sub hlim2
-  have hev0 : (fun ε₀ : ℝ => ∫ r in ε₀..(3 / 8 : ℝ), f ((r : ℂ) + (τ : ℂ) * Complex.I)) =ᶠ[𝓝[>] (0 : ℝ)]
-      (fun ε₀ : ℝ =>
-        ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) *
-            ∫ s in (0 : ℝ)..1, f ((s : ℂ) * ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)) -
-          ((ε₀ : ℂ) + (τ : ℂ) * Complex.I) *
-            ∫ s in (0 : ℝ)..1, f ((s : ℂ) * ((ε₀ : ℂ) + (τ : ℂ) * Complex.I))) := by
-    filter_upwards [Ioo_mem_nhdsGT (by norm_num : (0 : ℝ) < 3 / 8)] with ε₀ hε₀
-    exact heps_eq hε₀.1 hε₀.2
-  have hfin := tendsto_nhds_unique hLHS_lim0 (hRHS_lim0.congr' hev0.symm)
-  rw [mellinK0_mul_fctPsi_eq hc (by simp : ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I).re < 1),
-    mellinK0_mul_fctPsi_eq hc (by simp : ((τ : ℂ) * Complex.I).re < 1)]
-  exact hfin.symm
+  have hgen := horiz_ftc_gen (f := fctWarpKA K4 ε c L1 α)
+    (fctWarpKA_differentiableOn (K4 := K4) (ε := ε) (L1 := L1) (α := α) hc hDh)
+    (fctWarpKA_continuousOn (K4 := K4) (ε := ε) (L1 := L1) (α := α) hc hDc)
+    (fctWarpKA_near_zero (K4 := K4) (ε := ε) (L1 := L1) (α := α) hc hDb)
+    (fun z hz0 hz1 _ => fctWarpKA_segment_integrable (K4 := K4) (ε := ε) (L1 := L1) (α := α) hc hDc hDb hz0 hz1)
+    (fctPsi_integral_continuousOn (K4 := K4) (ε := ε) (L1 := L1) (α := α) hc hDc hDb)
+    hτ
+  rw [mellinK0_mul_fctPsi_eq (by norm_num : ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I).re < 1),
+    mellinK0_mul_fctPsi_eq (by simp : ((τ : ℂ) * Complex.I).re < 1)]
+  exact hgen
 
 private lemma mellinK0_imag_inv_le {c ξ τ : ℝ} (hc : 0 < c) (hξ : 0 < ξ) (hτ : 0 ≤ τ) :
     ‖mellinK0 c ((τ : ℂ) * Complex.I) ξ‖⁻¹ ≤ Real.exp (1 / (6 * c)) * (1 + τ) := by
   have hmag := (norm_mellinK0_imag_le hc hξ τ).1
   have hbin : ‖FormalResearch.Asymptotics.binetDiff c ((τ : ℂ) * Complex.I)‖ ≤ 1 / (6 * c) := by
     have hb := FormalResearch.Asymptotics.binetDiff_norm_le hc (by simp : ((τ : ℂ) * Complex.I).re < 1)
-    simpa using hb.trans_eq (by ring)
+    simp only [Complex.mul_re, Complex.ofReal_re, Complex.I_re, mul_zero, Complex.ofReal_im,
+      Complex.I_im, mul_one, sub_zero, div_one] at hb
+    exact hb.trans_eq (by ring)
   have hre : -(1 / (6 * c)) ≤ (FormalResearch.Asymptotics.binetDiff c ((τ : ℂ) * Complex.I)).re := by
     linarith [neg_le_of_abs_le ((Complex.abs_re_le_norm _).trans hbin)]
   have hexp : Real.exp (-(1 / (6 * c))) ≤
@@ -387,7 +89,7 @@ private lemma mellinK0_imag_inv_le {c ξ τ : ℝ} (hc : 0 < c) (hξ : 0 < ξ) (
   have hlo : (1 + τ)⁻¹ * Real.exp (-(1 / (6 * c))) ≤ ‖mellinK0 c ((τ : ℂ) * Complex.I) ξ‖ := by
     rw [hmag]; exact mul_le_mul hpow hexp (by positivity) (by positivity)
   have hinv := inv_anti₀ (by positivity) hlo
-  rwa [mul_inv, inv_inv, ← Real.exp_neg, neg_neg, mul_comm] at hinv
+  rwa [mul_inv, inv_inv, Real.exp_neg, inv_inv, mul_comm (1 + τ)] at hinv
 
 private lemma fctPsi_far_zero_pos {K4 ε c L1 α B Cdesc : ℝ} (hc : 0 < c)
     (hDh : DifferentiableOn ℂ (fctDcompAt K4 c α) strip)
@@ -415,7 +117,13 @@ private lemma fctPsi_far_zero_pos {K4 ε c L1 α B Cdesc : ℝ} (hc : 0 < c)
   set M0 : ℝ := Real.exp (1 / (6 * c)) * (M_right + M_int)
   refine ⟨M0, by positivity, fun τ hτ => ?_⟩
   have hτpos : 0 < τ := lt_of_lt_of_le (by norm_num) hτ
-  have hftc := fctPsi_horiz_ftc hc hDh hDc ⟨B, hDb⟩ hτpos
+  have him_ge : 1 / 2 ≤ |((3 / 8 : ℂ) + (τ : ℂ) * Complex.I).im| := by
+    rw [Complex.add_im, Complex.mul_im, Complex.ofReal_re, Complex.I_im, mul_one,
+      Complex.ofReal_im, Complex.I_re, mul_zero, add_zero]
+    have him0 : ((3 / 8 : ℂ)).im = 0 := by simp
+    rw [him0, zero_add, abs_of_pos hτpos]
+    exact hτ
+  have hftc := fctPsi_horiz_ftc (K4 := K4) (ε := ε) (L1 := L1) (α := α) hc hDh hDc ⟨B, hDb⟩ hτpos
   have hmul : mellinK0 c ((τ : ℂ) * Complex.I) (fctXi1 L1) *
       fctPsi K4 ε c L1 α ((τ : ℂ) * Complex.I) =
       mellinK0 c ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) (fctXi1 L1) *
@@ -423,7 +131,8 @@ private lemma fctPsi_far_zero_pos {K4 ε c L1 α B Cdesc : ℝ} (hc : 0 < c)
       ∫ r in (0 : ℝ)..(3 / 8 : ℝ), fctWarpKA K4 ε c L1 α ((r : ℂ) + (τ : ℂ) * Complex.I) := by
     linear_combination -hftc
   have hK_38 : ‖mellinK0 c ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) (fctXi1 L1)‖ ≤ Kk := by
-    have h1 := hKk (3 / 8) τ (by norm_num) (by norm_num)
+    have h1 := hKk (3 / 8 : ℝ) τ (by norm_num) (by norm_num)
+    norm_num at h1
     have hp : (1 + |τ|) ^ (-(1 / 2 : ℝ)) ≤ 1 :=
       Real.rpow_le_one_of_one_le_of_nonpos (by linarith [abs_nonneg τ]) (by norm_num)
     exact h1.trans (mul_le_of_le_one_right hKk0 hp)
@@ -433,13 +142,17 @@ private lemma fctPsi_far_zero_pos {K4 ε c L1 α B Cdesc : ℝ} (hc : 0 < c)
       (fctFint K4 ε c L1 α ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) + 1) *
         (fctDcompAt K4 c α ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) *
           ctHG ε ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)) * (c : ℂ)⁻¹ := by
-    have hHG_ne := ctHG_ne_zero_of_band ε (by simp : 0 < ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I).re)
-      (by simp : ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I).re < 1 / 2)
+    have hre0 : 0 < ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I).re := by simp
+    have hre1 : ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I).re < 1 / 2 := by
+      simp only [Complex.add_re, Complex.mul_re, Complex.ofReal_re, Complex.I_re, mul_zero,
+        Complex.ofReal_im, Complex.I_im, mul_one, sub_zero]
+      norm_num
+    have hHG_ne := ctHG_ne_zero_of_band ε hre0 hre1
     have hD_ne := fctDcompAt_ne_zero (K4 := K4) (c := c) (α := α) ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)
     have hc_ne : (c : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hc.ne'
     unfold fctFint fctPhiC
-    field_simp [hc_ne, hD_ne, hHG_ne]
-    ring
+    rw [sub_add_cancel, div_mul_cancel₀ _ (mul_ne_zero hD_ne hHG_ne), mul_comm (c : ℂ) _,
+      mul_inv_cancel_right₀ hc_ne]
   have hFint_bd : ‖fctFint K4 ε c L1 α ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) + 1‖ ≤
       Cdesc * c⁻¹ / Real.log 2 + 1 := by
     have h1 := hCD τ hτ
@@ -450,7 +163,9 @@ private lemma fctPsi_far_zero_pos {K4 ε c L1 α B Cdesc : ℝ} (hc : 0 < c)
   have hD_38 : ‖fctDcompAt K4 c α ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)‖ ≤ B := hDb _ hmem_38
   have hHG_38 : ‖ctHG ε ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)‖ ≤
       Khg * ((1 + τ) ^ 6 * Real.exp (-(Real.pi * τ))) := by
-    simpa [abs_of_pos hτpos] using hKhg _ hmem_38 (by simp [abs_of_pos hτpos, hτ])
+    have h := hKhg _ hmem_38 him_ge
+    have him38 : ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I).im = τ := by simp
+    rwa [him38, abs_of_pos hτpos] at h
   have hbd_right :
       ‖mellinK0 c ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I) (fctXi1 L1) *
           fctPsi K4 ε c L1 α ((3 / 8 : ℂ) + (τ : ℂ) * Complex.I)‖ ≤
@@ -472,28 +187,37 @@ private lemma fctPsi_far_zero_pos {K4 ε c L1 α B Cdesc : ℝ} (hc : 0 < c)
     intro r hr
     rw [uIoc_of_le (by norm_num)] at hr
     set t : ℂ := (r : ℂ) + (τ : ℂ) * Complex.I
-    have ht_mem : t ∈ closedStrip := ⟨by simp; linarith [hr.1], by simp; linarith [hr.2]⟩
+    have ht_re : t.re = r := by simp [t]
+    have ht_im : t.im = τ := by simp [t]
+    have ht_mem : t ∈ closedStrip := ⟨by simp [ht_re]; linarith [hr.1], by simp [ht_re]; linarith [hr.2]⟩
     have ht_K0 : ‖mellinK0 c t (fctXi1 L1)‖ ≤ Kk := by
       have h1 := hKk r τ hr.1.le (hr.2.trans (by norm_num))
       have hp : (1 + |τ|) ^ (-(1 / 2 : ℝ)) ≤ 1 :=
         Real.rpow_le_one_of_one_le_of_nonpos (by linarith [abs_nonneg τ]) (by norm_num)
       exact h1.trans (mul_le_of_le_one_right hKk0 hp)
     have ht_g : ‖stripG t‖ ≤ Cg * (1 + τ) := by
-      simpa [t, abs_of_pos hτpos] using hCg t (by simp [abs_le]; constructor <;> linarith [hr.1, hr.2])
-        (by simp [abs_of_pos hτpos, hτ])
+      have hre1 : |t.re| ≤ 1 := by
+        rw [ht_re, abs_le]; constructor <;> linarith [hr.1, hr.2]
+      have him1 : 1 / 2 ≤ |t.im| := by rw [ht_im, abs_of_pos hτpos]; exact hτ
+      have h := hCg t hre1 him1
+      rwa [ht_im, abs_of_pos hτpos] at h
     have ht_pk : ‖FctPhiKill.phiKill a t‖ ≤ Cpk := by
-      have h1 := hCpk (a := a) (z := t) ha (by simp [t]; linarith [hr.1])
+      have h1 := hCpk (a := a) (z := t) ha (by simp [ht_re]; linarith [hr.1])
       exact h1.trans (mul_le_of_le_one_right hCpk0 (min_le_right _ _))
     have ht_fac : ‖stripG t + (L1 : ℂ) * FctPhiKill.phiKill a t‖ ≤ (Cg + |L1| * Cpk) * (1 + τ) := by
+      have ht_pk' : ‖FctPhiKill.phiKill a t‖ ≤ Cpk * (1 + τ) :=
+        ht_pk.trans (le_mul_of_one_le_right hCpk0 (by linarith))
       calc ‖stripG t + (L1 : ℂ) * FctPhiKill.phiKill a t‖
           ≤ ‖stripG t‖ + |L1| * ‖FctPhiKill.phiKill a t‖ := by
             simpa [Complex.norm_real, Real.norm_eq_abs] using norm_add_le (stripG t) ((L1 : ℂ) * FctPhiKill.phiKill a t)
-        _ ≤ Cg * (1 + τ) + |L1| * (Cpk * (1 + τ)) := by
-            gcongr; exact le_mul_of_one_le_right hCpk0 (by linarith)
+        _ ≤ Cg * (1 + τ) + |L1| * (Cpk * (1 + τ)) :=
+            add_le_add ht_g (mul_le_mul_of_nonneg_left ht_pk' (abs_nonneg _))
         _ = (Cg + |L1| * Cpk) * (1 + τ) := by ring
     have ht_D : ‖fctDcompAt K4 c α t‖ ≤ B := hDb t ht_mem
     have ht_HG : ‖ctHG ε t‖ ≤ Khg * ((1 + τ) ^ 6 * Real.exp (-(Real.pi * τ))) := by
-      simpa [t, abs_of_pos hτpos] using hKhg t ht_mem (by simp [t, abs_of_pos hτpos, hτ])
+      have him1 : 1 / 2 ≤ |t.im| := by rw [ht_im, abs_of_pos hτpos]; exact hτ
+      have h := hKhg t ht_mem him1
+      rwa [ht_im, abs_of_pos hτpos] at h
     unfold fctWarpKA fctWarpA
     rw [norm_mul, norm_mul, norm_mul]
     calc ‖mellinK0 c t (fctXi1 L1)‖ * (‖stripG t + (L1 : ℂ) * FctPhiKill.phiKill a t‖ *
@@ -548,35 +272,30 @@ private lemma mellinK0_log_deriv_imag {c L1 : ℝ} (hc : 0 < c) (τ : ℝ) :
   have hpow : HasDerivAt (fun z : ℂ => (1 - z) ^ (-(1 / 2 : ℂ)))
       ((1 / (2 * (1 - w))) * (1 - w) ^ (-(1 / 2 : ℂ))) w := by
     have hlin : HasDerivAt (fun z : ℂ => 1 - z) (-1) w :=
-      (hasDerivAt_const w (1 : ℂ)).sub (hasDerivAt_id w)
+      ((hasDerivAt_const w (1 : ℂ)).sub (hasDerivAt_id w)).congr_deriv (by ring)
     have h1 := hlin.cpow_const hsp (c := -(1 / 2 : ℂ))
     refine h1.congr_deriv ?_
     have hsub : (1 - w) ^ (-(1 / 2 : ℂ) - 1) = (1 - w) ^ (-(1 / 2 : ℂ)) * (1 - w)⁻¹ := by
       rw [show (-(1 / 2 : ℂ) - 1) = -(1 / 2 : ℂ) + (-1 : ℂ) by ring,
         Complex.cpow_add _ _ h1w_ne, Complex.cpow_neg_one]
-    dsimp only
     rw [hsub]
     field_simp [h1w_ne]
-    ring
   have hopen_b : IsOpen {z : ℂ | z.re < 1} := isOpen_lt Complex.continuous_re continuous_const
   have hbd_at : HasDerivAt (FormalResearch.Asymptotics.binetDiff c)
       (deriv (FormalResearch.Asymptotics.binetDiff c) w) w :=
     ((binetDiff_differentiableOn hc).differentiableAt (hopen_b.mem_nhds hw_lt1)).hasDerivAt
   have hbin := hbd_at.cexp
   have hphi := ((hasDerivAt_mellinPhi_fct L1 hw_abs).const_mul (c : ℂ)).cexp
-  have hmul := (hpow.mul hbin).mul hphi
-  have hm_eq : (fun z : ℂ => (1 - z) ^ (-(1 / 2 : ℂ)) *
-      Complex.exp (FormalResearch.Asymptotics.binetDiff c z) *
-      Complex.exp ((c : ℂ) * mellinPhi z (fctXi1 L1))) =
-      fun z : ℂ => mellinK0 c z (fctXi1 L1) := funext fun _ => rfl
-  rw [hm_eq] at hmul
+  have hmul : HasDerivAt (fun z : ℂ => mellinK0 c z (fctXi1 L1)) _ w := (hpow.mul hbin).mul hphi
   rw [hmul.deriv]
   have hKne := mellinK0_ne_zero c hw_lt1 (fctXi1 L1)
   have h1ne : (1 - w) ^ (-(1 / 2 : ℂ)) ≠ 0 := Complex.cpow_ne_zero_iff.mpr (Or.inl h1w_ne)
   have h2ne : Complex.exp (FormalResearch.Asymptotics.binetDiff c w) ≠ 0 := Complex.exp_ne_zero _
   have h3ne : Complex.exp ((c : ℂ) * mellinPhi w (fctXi1 L1)) ≠ 0 := Complex.exp_ne_zero _
   unfold fctRk mellinK0 fctRayP
-  field_simp [hKne, h1ne, h2ne, h3ne]
+  rw [show (τ : ℂ) * Complex.I = w from rfl]
+  field_simp [h1w_ne, h1ne, h2ne, h3ne]
+  dsimp only [Pi.mul_apply]
   ring
 
 private lemma fctRk_far_bounds {c L1 : ℝ} (hc : 0 < c) :
@@ -599,7 +318,11 @@ private lemma fctRk_far_bounds {c L1 : ℝ} (hc : 0 < c) :
       (by simp : ((τ : ℂ) * Complex.I).re ≤ 0) (r := 1) le_rfl
     simpa [iteratedDeriv_one] using h
   have hsg_norm : ‖stripG ((τ : ℂ) * Complex.I) + (L1 : ℂ)‖ ≤ (Cg + |L1|) * (1 + τ) := by
-    have hsg := hCg ((τ : ℂ) * Complex.I) (by simp) (by simp [abs_of_pos hτpos, hτ])
+    have him : 1 / 2 ≤ |((τ : ℂ) * Complex.I).im| := by
+      rw [Complex.mul_im, Complex.ofReal_re, Complex.I_im, mul_one, Complex.ofReal_im,
+        Complex.I_re, mul_zero, add_zero, abs_of_pos hτpos]
+      exact hτ
+    have hsg := hCg ((τ : ℂ) * Complex.I) (by simp) him
     simp only [Complex.mul_im, Complex.ofReal_re, Complex.I_im, mul_one, Complex.ofReal_im,
       Complex.I_re, mul_zero, add_zero, abs_of_pos hτpos] at hsg
     calc ‖stripG ((τ : ℂ) * Complex.I) + (L1 : ℂ)‖
@@ -623,6 +346,7 @@ private lemma fctRk_far_bounds {c L1 : ℝ} (hc : 0 < c) :
         _ = (c * (Cg + |L1|)) * (1 + τ) := by ring
     calc ‖_‖ ≤ (1 / 2 + 1 / (12 * c)) * (1 + τ) + (c * (Cg + |L1|)) * (1 + τ) :=
           (norm_add_le _ _).trans (add_le_add hb1 hb2)
+      _ = (1 / 2 + 1 / (12 * c) + c * (Cg + |L1|)) * (1 + τ) := by ring
       _ ≤ Mr * (1 + τ) := by
           gcongr
           simp only [Mr]
@@ -639,7 +363,7 @@ private lemma fctRk_far_bounds {c L1 : ℝ} (hc : 0 < c) :
     have hlin : HasDerivAt (fun t : ℝ => (2 : ℂ) * (1 - (t : ℂ) * Complex.I)) (-2 * Complex.I) τ := by
       have h1 := ((Complex.ofRealCLM.hasDerivAt (x := τ)).mul_const Complex.I)
       have h2 := ((hasDerivAt_const τ (1 : ℂ)).sub h1).const_mul (2 : ℂ)
-      refine h2.congr_deriv ?_; simp; ring
+      refine h2.congr_deriv ?_; simp
     have hd := (hasDerivAt_const τ (1 : ℂ)).div hlin hden_ne
     refine hd.congr_deriv ?_
     field_simp [hden_ne]; ring
@@ -662,17 +386,12 @@ private lemma fctRk_far_bounds {c L1 : ℝ} (hc : 0 < c) :
     rw [← hsg.deriv] at hsg
     exact (hsg.add_const (L1 : ℂ)).const_mul (c : ℂ)
   have hd_tot := (hd1.add hd2).add hd3
-  have hd_eq : (fun t : ℝ => 1 / (2 * (1 - (t : ℂ) * Complex.I)) +
-      deriv (FormalResearch.Asymptotics.binetDiff c) ((t : ℂ) * Complex.I) +
-      (c : ℂ) * (stripG ((t : ℂ) * Complex.I) + (L1 : ℂ))) = fctRk c L1 := rfl
-  rw [hd_eq] at hd_tot
   have hRk1 : ‖deriv (fctRk c L1) τ‖ ≤ Mr := by
-    rw [hd_tot.deriv]
+    rw [show deriv (fctRk c L1) τ = _ from hd_tot.deriv]
     have hb1 : ‖Complex.I / (2 * (1 - (τ : ℂ) * Complex.I) ^ 2)‖ ≤ 1 / 2 := by
       rw [norm_div, Complex.norm_I, norm_mul, norm_pow, show ‖(2 : ℂ)‖ = 2 by simp,
         div_le_iff₀ (by have := one_le_pow₀ h1τ_ge (n := 2); positivity)]
-      have : 1 ≤ ‖1 - (τ : ℂ) * Complex.I‖ ^ 2 := one_le_pow₀ h1τ_ge
-      linarith
+      linarith [one_le_pow₀ h1τ_ge (n := 2)]
     have hb2 : ‖Complex.I * iteratedDeriv 2 (FormalResearch.Asymptotics.binetDiff c) ((τ : ℂ) * Complex.I)‖ ≤
         1 / (6 * c) := by
       rw [norm_mul, Complex.norm_I, one_mul]
@@ -682,10 +401,14 @@ private lemma fctRk_far_bounds {c L1 : ℝ} (hc : 0 < c) :
     have hb3 : ‖(c : ℂ) * deriv (fun t : ℝ => stripG ((t : ℂ) * Complex.I)) τ‖ ≤ c * (Real.pi + 2) := by
       rw [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hc]
       exact mul_le_mul_of_nonneg_left (stripG_imag_deriv_far_bounds hτ).1 hc.le
-    calc ‖_‖ ≤ ‖Complex.I / (2 * (1 - (τ : ℂ) * Complex.I) ^ 2)‖ +
-          ‖Complex.I * iteratedDeriv 2 (FormalResearch.Asymptotics.binetDiff c) ((τ : ℂ) * Complex.I)‖ +
+    calc ‖_‖ ≤ ‖Complex.I / (2 * (1 - (τ : ℂ) * Complex.I) ^ 2) +
+            Complex.I * iteratedDeriv 2 (FormalResearch.Asymptotics.binetDiff c) ((τ : ℂ) * Complex.I)‖ +
           ‖(c : ℂ) * deriv (fun t : ℝ => stripG ((t : ℂ) * Complex.I)) τ‖ :=
-          (norm_add_le _ _).trans (add_le_add_right (norm_add_le _ _) _)
+          norm_add_le _ _
+      _ ≤ (‖Complex.I / (2 * (1 - (τ : ℂ) * Complex.I) ^ 2)‖ +
+            ‖Complex.I * iteratedDeriv 2 (FormalResearch.Asymptotics.binetDiff c) ((τ : ℂ) * Complex.I)‖) +
+          ‖(c : ℂ) * deriv (fun t : ℝ => stripG ((t : ℂ) * Complex.I)) τ‖ :=
+          add_le_add (norm_add_le _ _) le_rfl
       _ ≤ 1 / 2 + 1 / (6 * c) + c * (Real.pi + 2) := by linarith
       _ ≤ Mr := by
           simp only [Mr]
@@ -729,7 +452,9 @@ private lemma fctPsi_far_pos {K4 ε c L1 α P B Cdesc : ℝ} (hc : 0 < c) (hP : 
     rwa [mellinK0_log_deriv_imag hc t] at h1
   have hA0 : ‖A τ‖ ≤ Ma * (1 + τ) ^ 11 * Real.exp (-(Real.pi * τ)) := by
     have h := hA_ej.b0 τ hτ hτpos.ne'
-    simpa [ejW, abs_of_pos hτpos] using h
+    simp only [ejW, sub_zero, Nat.cast_zero, add_zero, mul_one, Real.rpow_zero, one_mul,
+      abs_of_pos hτpos] at h
+    rwa [mul_assoc]
   have hA1 : ‖deriv A τ‖ ≤ (2 * Ma) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) := by
     have h := hA_ej.b1 τ hτ hτpos.ne'
     simp only [ejW, zero_sub, Nat.cast_one, abs_of_pos hτpos, Real.rpow_neg hτpos.le,
@@ -737,22 +462,24 @@ private lemma fctPsi_far_pos {K4 ε c L1 α P B Cdesc : ℝ} (hc : 0 < c) (hP : 
     have hτinv : τ⁻¹ ≤ 2 := by
       simpa using inv_anti₀ (by norm_num : (0 : ℝ) < 1 / 2) hτ
     have h12 : (1 + τ) ^ (11 + 1) = (1 + τ) ^ 12 := rfl
-    rw [h12] at h
+    rw [h12, mul_one] at h
     calc ‖deriv A τ‖ ≤ Ma * (τ⁻¹ * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ))) := h
       _ ≤ Ma * (2 * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ))) := by gcongr
       _ = (2 * Ma) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) := by ring
-  have hRk := hRk_bd τ hτ
+  obtain ⟨hRk0, hRk1⟩ := hRk_bd τ hτ
+  have h9_11 : (1 + τ) ^ 9 ≤ (1 + τ) ^ 11 := pow_le_pow_right₀ h1τ (by norm_num)
+  have h8_12 : (1 + τ) ^ 8 ≤ (1 + τ) ^ 12 := pow_le_pow_right₀ h1τ (by norm_num)
   have hb1_raw : ‖deriv ψ τ‖ ≤ M1 * (1 + τ) ^ 11 * Real.exp (-(Real.pi * τ)) := by
     rw [hode τ hτpos, norm_mul, Complex.norm_I, one_mul]
-    calc ‖A τ - fctRk c L1 τ * ψ τ‖ ≤ ‖A τ‖ + ‖fctRk c L1 τ‖ * ‖ψ τ‖ := by
-          simpa [norm_mul] using norm_sub_le (A τ) (fctRk c L1 τ * ψ τ)
+    have hterm : ‖fctRk c L1 τ * ψ τ‖ ≤ (Mr * M0) * (1 + τ) ^ 11 * Real.exp (-(Real.pi * τ)) := by
+      calc ‖fctRk c L1 τ * ψ τ‖ = ‖fctRk c L1 τ‖ * ‖ψ τ‖ := norm_mul _ _
+        _ ≤ (Mr * (1 + τ)) * (M0 * (1 + τ) ^ 8 * Real.exp (-(Real.pi * τ))) :=
+            mul_le_mul hRk0 hb0_raw (norm_nonneg _) (by positivity)
+        _ = (Mr * M0) * (1 + τ) ^ 9 * Real.exp (-(Real.pi * τ)) := by ring
+        _ ≤ (Mr * M0) * (1 + τ) ^ 11 * Real.exp (-(Real.pi * τ)) := by gcongr
+    calc ‖A τ - fctRk c L1 τ * ψ τ‖ ≤ ‖A τ‖ + ‖fctRk c L1 τ * ψ τ‖ := norm_sub_le _ _
       _ ≤ Ma * (1 + τ) ^ 11 * Real.exp (-(Real.pi * τ)) +
-          (Mr * (1 + τ)) * (M0 * (1 + τ) ^ 8 * Real.exp (-(Real.pi * τ))) := by gcongr
-      _ = Ma * (1 + τ) ^ 11 * Real.exp (-(Real.pi * τ)) +
-          (Mr * M0) * (1 + τ) ^ 9 * Real.exp (-(Real.pi * τ)) := by ring
-      _ ≤ Ma * (1 + τ) ^ 11 * Real.exp (-(Real.pi * τ)) +
-          (Mr * M0) * (1 + τ) ^ 11 * Real.exp (-(Real.pi * τ)) := by
-          gcongr; exact pow_le_pow_right₀ h1τ (by norm_num)
+            (Mr * M0) * (1 + τ) ^ 11 * Real.exp (-(Real.pi * τ)) := add_le_add hA0 hterm
       _ = M1 * (1 + τ) ^ 11 * Real.exp (-(Real.pi * τ)) := by simp only [M1]; ring
   have hb1 : ‖deriv ψ τ‖ ≤ M * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) := by
     have hpow : (1 + τ) ^ 11 ≤ (1 + τ) ^ 12 := pow_le_pow_right₀ h1τ (by norm_num)
@@ -780,36 +507,38 @@ private lemma fctPsi_far_pos {K4 ε c L1 α P B Cdesc : ℝ} (hc : 0 < c) (hP : 
         have hopen : IsOpen {z : ℂ | z.re < 1} := isOpen_lt Complex.continuous_re continuous_const
         have hcd := (binetDiff_differentiableOn hc).contDiffOn hopen (n := 2)
         have hcd1 := (contDiffOn_succ_iff_deriv_of_isOpen hopen (n := 1)).mp hcd |>.2.2
-        exact ((hcd1.differentiableOn (by norm_num)).differentiableAt
-          (hopen.mem_nhds (by simp : ((τ : ℂ) * Complex.I).re < 1))).comp τ (by fun_prop)
+        have hdiff_at := ((hcd1.differentiableOn (by norm_num)).differentiableAt
+          (hopen.mem_nhds (by simp : ((τ : ℂ) * Complex.I).re < 1))).hasDerivAt
+        have hl : HasDerivAt (fun t : ℝ => (t : ℂ) * Complex.I) Complex.I τ :=
+          ((hasDerivAt_id τ).ofReal_comp).mul_const Complex.I |>.congr_deriv (by simp)
+        exact (hdiff_at.comp τ hl).differentiableAt
       have h3d : DifferentiableAt ℝ (fun t : ℝ => (c : ℂ) * (stripG ((t : ℂ) * Complex.I) + (L1 : ℂ))) τ :=
         (((stripG_imag_deriv_pos hτpos).differentiableAt).add_const _).const_mul _
       exact ((h1d.add h2d).add h3d).hasDerivAt
     have hprod := hdRk.mul hdψ
     have hcomb := (hdA.sub hprod).const_mul Complex.I
-    rw [hev.deriv_eq, hcomb.deriv]
+    rw [hev.deriv_eq, show deriv (fun t : ℝ => Complex.I * (A t - fctRk c L1 t * ψ t)) τ = _ from hcomb.deriv]
   have hb2_raw : ‖deriv (deriv ψ) τ‖ ≤ M2 * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) := by
     rw [hderiv2, norm_mul, Complex.norm_I, one_mul]
-    have htri : ‖deriv A τ - (deriv (fctRk c L1) τ * ψ τ + fctRk c L1 τ * deriv ψ τ)‖ ≤
-        ‖deriv A τ‖ + (‖deriv (fctRk c L1) τ‖ * ‖ψ τ‖ + ‖fctRk c L1 τ‖ * ‖deriv ψ τ‖) := by
-      calc ‖deriv A τ - (deriv (fctRk c L1) τ * ψ τ + fctRk c L1 τ * deriv ψ τ)‖
-          ≤ ‖deriv A τ‖ + ‖deriv (fctRk c L1) τ * ψ τ + fctRk c L1 τ * deriv ψ τ‖ := norm_sub_le _ _
-        _ ≤ ‖deriv A τ‖ + (‖deriv (fctRk c L1) τ * ψ τ‖ + ‖fctRk c L1 τ * deriv ψ τ‖) :=
-            add_le_add_left (norm_add_le _ _) _
-        _ = ‖deriv A τ‖ + (‖deriv (fctRk c L1) τ‖ * ‖ψ τ‖ + ‖fctRk c L1 τ‖ * ‖deriv ψ τ‖) := by
-            rw [norm_mul, norm_mul]
+    have ht1 : ‖deriv (fctRk c L1) τ * ψ τ‖ ≤ (Mr * M0) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) := by
+      calc ‖deriv (fctRk c L1) τ * ψ τ‖ = ‖deriv (fctRk c L1) τ‖ * ‖ψ τ‖ := norm_mul _ _
+        _ ≤ Mr * (M0 * (1 + τ) ^ 8 * Real.exp (-(Real.pi * τ))) :=
+            mul_le_mul hRk1 hb0_raw (norm_nonneg _) hMr
+        _ = (Mr * M0) * (1 + τ) ^ 8 * Real.exp (-(Real.pi * τ)) := by ring
+        _ ≤ (Mr * M0) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) := by gcongr
+    have ht2 : ‖fctRk c L1 τ * deriv ψ τ‖ ≤ (Mr * M1) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) := by
+      calc ‖fctRk c L1 τ * deriv ψ τ‖ = ‖fctRk c L1 τ‖ * ‖deriv ψ τ‖ := norm_mul _ _
+        _ ≤ (Mr * (1 + τ)) * (M1 * (1 + τ) ^ 11 * Real.exp (-(Real.pi * τ))) :=
+            mul_le_mul hRk0 hb1_raw (norm_nonneg _) (by positivity)
+        _ = (Mr * M1) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) := by ring
     calc ‖deriv A τ - (deriv (fctRk c L1) τ * ψ τ + fctRk c L1 τ * deriv ψ τ)‖
-        ≤ ‖deriv A τ‖ + (‖deriv (fctRk c L1) τ‖ * ‖ψ τ‖ + ‖fctRk c L1 τ‖ * ‖deriv ψ τ‖) := htri
+        ≤ ‖deriv A τ‖ + ‖deriv (fctRk c L1) τ * ψ τ + fctRk c L1 τ * deriv ψ τ‖ := norm_sub_le _ _
+      _ ≤ ‖deriv A τ‖ + (‖deriv (fctRk c L1) τ * ψ τ‖ + ‖fctRk c L1 τ * deriv ψ τ‖) :=
+          add_le_add le_rfl (norm_add_le (deriv (fctRk c L1) τ * ψ τ) (fctRk c L1 τ * deriv ψ τ))
       _ ≤ (2 * Ma) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) +
-          (Mr * (M0 * (1 + τ) ^ 8 * Real.exp (-(Real.pi * τ))) +
-            (Mr * (1 + τ)) * (M1 * (1 + τ) ^ 11 * Real.exp (-(Real.pi * τ)))) := by gcongr
-      _ = (2 * Ma) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) +
-          ((Mr * M0) * (1 + τ) ^ 8 * Real.exp (-(Real.pi * τ)) +
-            (Mr * M1) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ))) := by ring
-      _ ≤ (2 * Ma) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) +
-          ((Mr * M0) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) +
-            (Mr * M1) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ))) := by
-          gcongr; exact pow_le_pow_right₀ h1τ (by norm_num)
+            ((Mr * M0) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) +
+              (Mr * M1) * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ))) :=
+          add_le_add hA1 (add_le_add ht1 ht2)
       _ = M2 * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) := by simp only [M2]; ring
   have hb2 : ‖deriv (deriv ψ) τ‖ ≤ M * (1 + τ) ^ 12 * Real.exp (-(Real.pi * τ)) :=
     hb2_raw.trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right
@@ -830,24 +559,22 @@ private lemma conj_reflect_derivs {ψ : ℝ → ℂ} (hconj : ∀ t : ℝ, ψ (-
   have heq : ψ = fun t : ℝ => Complex.conjCLE (ψ (-t)) := by
     funext t; simpa using (congr_arg (starRingEnd ℂ) (hconj t)).symm
   have hrefl1 : ∀ t : ℝ, t < 0 → deriv ψ t = -Complex.conjCLE (deriv ψ (-t)) := fun t ht => by
-    have hpt : HasDerivAt (fun x : ℝ => Complex.conjCLE (ψ (-x)))
-        (Complex.conjCLE (deriv ψ (-t) * (-1))) t := by
-      have h0 : HasDerivAt ψ (deriv ψ (-t)) (-t) :=
-        (hdiff.differentiableAt (isOpen_Ioi.mem_nhds (neg_pos.mpr ht))).hasDerivAt
-      have h1 := h0.scomp t (hasDerivAt_neg t)
-      exact Complex.conjCLE.hasFDerivAt.comp_hasDerivAt t h1
-    rw [← heq] at hpt
+    have h0 : HasDerivAt ψ (deriv ψ (-t)) (-t) :=
+      (hdiff.differentiableAt (isOpen_Ioi.mem_nhds (neg_pos.mpr ht))).hasDerivAt
+    have h1 := h0.scomp t (hasDerivAt_neg t)
+    have hpt := Complex.conjCLE.hasFDerivAt.comp_hasDerivAt t h1
+    have hfn : (⇑Complex.conjCLE ∘ ψ ∘ Neg.neg) = ψ := heq.symm
+    rw [hfn] at hpt
     rw [hpt.deriv]; simp
   have hd2 : HasDerivAt (deriv ψ) (deriv (deriv ψ) (-τ)) (-τ) := (hdiff2.differentiableAt hnh).hasDerivAt
   have hrefl2_at : deriv (deriv ψ) τ = Complex.conjCLE (deriv (deriv ψ) (-τ)) := by
     have hev : deriv ψ =ᶠ[𝓝 τ] fun t : ℝ => -Complex.conjCLE (deriv ψ (-t)) := by
       filter_upwards [isOpen_Iio.mem_nhds hτ] with t ht
       exact hrefl1 t ht
-    have hpt : HasDerivAt (fun t : ℝ => -Complex.conjCLE (deriv ψ (-t)))
-        (-(Complex.conjCLE (deriv (deriv ψ) (-τ) * (-1)))) τ := by
-      have h1 := hd2.scomp τ (hasDerivAt_neg τ)
-      exact (Complex.conjCLE.hasFDerivAt.comp_hasDerivAt τ h1).neg
-    rw [hev.deriv_eq, hpt.deriv]; simp
+    have h1 := hd2.scomp τ (hasDerivAt_neg τ)
+    have hpt := (Complex.conjCLE.hasFDerivAt.comp_hasDerivAt τ h1).neg
+    rw [hev.deriv_eq, show deriv (fun t : ℝ => -Complex.conjCLE (deriv ψ (-t))) τ = _ from hpt.deriv]
+    simp
   refine ⟨?_, ?_, ?_⟩
   · conv_lhs => rw [show τ = -(-τ) by ring, hconj (-τ), Complex.norm_conj]
   · rw [hrefl1 τ hτ, norm_neg]; simp
