@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.ModularBootstrap.Mixtures.DualMajorant
 public import FormalResearch.ModularBootstrap.Mixtures.CrossingPort
+public import FormalResearch.ModularBootstrap.Mixtures.CrossingCommon
 public import FormalResearch.ModularBootstrap.Duality.ThermalSeparation
 public import FormalResearch.ModularBootstrap.Duality.ConstrainedThreshold
 public import FormalResearch.ModularBootstrap.Duality.ReserveSeparation
@@ -33,52 +34,73 @@ open FormalResearch.ModularBootstrap.Crossing
 open FormalResearch.ModularBootstrap.Duality
 open FormalResearch.ModularBootstrap.FixedWeight
 
-/-! ### Local finiteness and span tests for `ShiftSource` -/
+/-! ### Basic measure and Cardy-density helpers -/
+
+lemma restrict_Ici_eq_self_src {src : ShiftSource} {a : ℝ}
+    (meas : SourceCrossingMeasure src a) : meas.ν.restrict (Ici 0) = meas.ν := by
+  refine Measure.restrict_eq_self_of_ae_mem ?_
+  have : ∀ᵐ t ∂meas.ν, t ∉ Iio 0 := measure_eq_zero_iff_ae_notMem.1 meas.supp_nonneg
+  filter_upwards [this] with t ht using not_lt.1 ht
 
 /-- Every `SourceCrossingMeasure` is finite on compact sets (from `finite_laplace` at `β = 1`). -/
 lemma isFiniteMeasureOnCompacts_src (src : ShiftSource) {a : ℝ}
     (meas : SourceCrossingMeasure src a) : IsFiniteMeasureOnCompacts meas.ν := by
   refine ⟨fun K hK => ?_⟩
-  rcases eq_empty_or_nonempty K with rfl | hKne
-  · simp
-  obtain ⟨M, hM⟩ := hK.bddAbove
-  have hpos_c : 0 < Real.exp (-2 * π * max M 0) := Real.exp_pos _
-  have hfin1 := meas.finite_laplace one_pos
-  have hmeas_int : ∫⁻ t in Ici (0 : ℝ), ENNReal.ofReal (Real.exp (-2 * π * 1 * t)) ∂meas.ν < ⊤ :=
-    hfin1.2
-  have hK_le : meas.ν K ≤ meas.ν (Icc 0 (max M 0)) := by
-    have h0 : meas.ν (K ∩ (Ici 0)ᶜ) = 0 := measure_mono_null inter_subset_right meas.support
-    calc meas.ν K ≤ meas.ν (K ∩ Ici 0) + meas.ν (K ∩ (Ici 0)ᶜ) := by
-          refine measure_mono (fun t ht => ?_)
-          by_cases ht0 : t ∈ Ici (0 : ℝ)
-          · exact Or.inl ⟨ht, ht0⟩
-          · exact Or.inr ⟨ht, ht0⟩
-      _ = meas.ν (K ∩ Ici 0) := by rw [h0, add_zero]
-      _ ≤ meas.ν (Icc 0 (max M 0)) :=
-          measure_mono fun t ⟨htK, ht0⟩ => ⟨ht0, (hM htK).trans (le_max_left M 0)⟩
-  refine lt_of_le_of_lt hK_le ?_
-  have hmul : ENNReal.ofReal (Real.exp (-2 * π * max M 0)) * meas.ν (Icc 0 (max M 0)) ≤
-      ∫⁻ t in Ici (0 : ℝ), ENNReal.ofReal (Real.exp (-2 * π * 1 * t)) ∂meas.ν := by
-    calc ENNReal.ofReal (Real.exp (-2 * π * max M 0)) * meas.ν (Icc 0 (max M 0))
-        = ∫⁻ _ in Icc 0 (max M 0), ENNReal.ofReal (Real.exp (-2 * π * max M 0)) ∂meas.ν := by
-          rw [setLIntegral_const, Measure.restrict_apply measurableSet_Icc, univ_inter]
-      _ ≤ ∫⁻ t in Icc 0 (max M 0), ENNReal.ofReal (Real.exp (-2 * π * 1 * t)) ∂meas.ν := by
-          refine setLIntegral_mono' measurableSet_Icc fun t ht => ENNReal.ofReal_le_ofReal ?_
-          exact Real.exp_le_exp.mpr (by nlinarith [Real.pi_pos, ht.1, ht.2])
-      _ ≤ ∫⁻ t in Ici (0 : ℝ), ENNReal.ofReal (Real.exp (-2 * π * 1 * t)) ∂meas.ν :=
-          lintegral_mono_set Icc_subset_Ici_self
-  have hmul_lt : ENNReal.ofReal (Real.exp (-2 * π * max M 0)) * meas.ν (Icc 0 (max M 0)) < ⊤ :=
-    lt_of_le_of_lt hmul hmeas_int
-  rcases ENNReal.mul_lt_top_iff.mp hmul_lt with ⟨_, hlt⟩ | h0 | h0
-  · exact hlt
-  · exact absurd h0 (ENNReal.ofReal_pos.mpr hpos_c).ne'
-  · rw [h0]; exact ENNReal.zero_lt_top
+  obtain ⟨R, hR⟩ := hK.bddAbove
+  have hsub : K ⊆ Iio 0 ∪ Icc 0 (max R 0) := by
+    intro x hx
+    by_cases hx0 : x < 0
+    · exact Or.inl hx0
+    · exact Or.inr ⟨not_lt.1 hx0, (hR hx).trans (le_max_left _ _)⟩
+  refine lt_of_le_of_lt (measure_mono hsub) (lt_of_le_of_lt (measure_union_le _ _) ?_)
+  rw [meas.supp_nonneg, zero_add]
+  have hint := (meas.finite_laplace one_pos).mono_set
+    (Icc_subset_Ici_self : Icc (0 : ℝ) (max R 0) ⊆ Ici 0)
+  set ε : ℝ := Real.exp (-2 * π * 1 * max R 0) with hε
+  have hεpos : 0 < ε := Real.exp_pos _
+  have h1 := hint.measure_norm_ge_lt_top hεpos
+  have hset : Icc 0 (max R 0) ⊆ {x | ε ≤ ‖Real.exp (-2 * π * 1 * x)‖} := by
+    intro x hx
+    simp only [mem_ofPred_eq, Real.norm_eq_abs, abs_of_pos (Real.exp_pos _)]
+    refine Real.exp_le_exp.2 ?_
+    nlinarith [Real.pi_pos, hx.2]
+  calc meas.ν (Icc 0 (max R 0)) = (meas.ν.restrict (Icc 0 (max R 0))) (Icc 0 (max R 0)) :=
+        (Measure.restrict_apply_self _ _).symm
+    _ ≤ _ := measure_mono hset
+    _ < ⊤ := h1
+
+lemma integral_cardyDensity_eq_neg_gVac (src : ShiftSource) (a : ℝ) (g : ℝ → ℝ) :
+    ∫ t in Ioi 0, g t * src.cardyDensity a t = -src.gVac a g := by
+  unfold ShiftSource.gVac ShiftSource.cardyDensity
+  have : ∀ t : ℝ, g t * (2 * π * src.cardyV a t) = 2 * π * (g t * src.cardyV a t) := fun t => by ring
+  simp_rw [this]
+  rw [integral_const_mul]
+  ring
+
+lemma integrableOn_thermalDiff_src (src : ShiftSource) {a : ℝ}
+    (meas : SourceCrossingMeasure src a) {β : ℝ} (hβ : 0 < β) :
+    IntegrableOn (thermalDiff src.w β) (Ici 0) meas.ν := by
+  have h1 := meas.finite_laplace hβ
+  have h2 := meas.finite_laplace (inv_pos.2 hβ)
+  have hdom : IntegrableOn (fun t => Real.exp (-2 * π * β * t) +
+      β ^ (-(src.w : ℝ)) * Real.exp (-2 * π * β⁻¹ * t)) (Ici 0) meas.ν :=
+    h1.add (h2.const_mul _)
+  refine hdom.mono' (by unfold thermalDiff; fun_prop :
+      Continuous (thermalDiff src.w β)).aestronglyMeasurable ?_
+  refine Eventually.of_forall fun t => ?_
+  have hle := abs_thermalDiff_le (w := src.w) hβ t
+  rw [Real.norm_eq_abs]
+  have e : -2 * π * t / β = -2 * π * β⁻¹ * t := by ring
+  rw [e] at hle
+  exact hle
+
+/-! ### Span tests `span{Ξ_β, h}` and exact crossing pairing -/
 
 /-- Finite linear combination `∑ l_β Ξ_β + μ h` in `span{Ξ_β, h}` for `ShiftSource`. -/
 noncomputable def spanTestS (src : ShiftSource) (l : ℝ →₀ ℝ) (μ : ℝ) (a β₀ : ℝ) : ℝ → ℝ :=
-  fun t => (∑ β ∈ l.support, l β * thermalDiff src.w β t) + μ * hMaj src.w a β₀ t
+  fun t => (∑ β ∈ l.support, l β * thermalDiff src.w β t) + μ * FixedWeight.hMaj src.w a β₀ t
 
-lemma spanTestS_mem {src : ShiftSource} {a β₀ : ℝ} (ha0 : 0 < a) (hβ₀ : 0 < β₀)
+lemma spanTestS_mem {src : ShiftSource} {a β₀ : ℝ} (ha0 : 0 < a)
     (hnonneg : ∀ {t : ℝ}, 0 ≤ t → 0 ≤ src.cardyV a t)
     (hupper : ∀ {t : ℝ}, 0 ≤ t → src.cardyV a t ≤ src.tv * kernelK src.w a t)
     {l : ℝ →₀ ℝ} (hl : ∀ β ∈ l.support, 0 < β) (μ : ℝ) :
@@ -86,11 +108,11 @@ lemma spanTestS_mem {src : ShiftSource} {a β₀ : ℝ} (ha0 : 0 < a) (hβ₀ : 
   have h1 : TestClass src a (fun t => ∑ β ∈ l.support, l β * thermalDiff src.w β t) :=
     testClass_sum_src l.support (fun β => l β) (fun β => thermalDiff src.w β)
       fun β hβ => thermalDiff_mem_TestClass_src ha0 hnonneg hupper (hl β hβ)
-  have h2 : TestClass src a (fun t => μ * hMaj src.w a β₀ t) :=
-    testClass_smul_src μ (hMaj_mem_TestClass_src ha0 hβ₀ hnonneg hupper)
+  have h2 : TestClass src a (fun t => μ * FixedWeight.hMaj src.w a β₀ t) :=
+    testClass_smul_src μ (hMaj_mem_TestClass_src ha0 hnonneg hupper)
   exact testClass_add_src h1 h2
 
-lemma gVac_spanTestS {src : ShiftSource} {a β₀ : ℝ} (ha0 : 0 < a) (hβ₀ : 0 < β₀)
+lemma gVac_spanTestS {src : ShiftSource} {a β₀ : ℝ} (ha0 : 0 < a)
     (hnonneg : ∀ {t : ℝ}, 0 ≤ t → 0 ≤ src.cardyV a t)
     (hupper : ∀ {t : ℝ}, 0 ≤ t → src.cardyV a t ≤ src.tv * kernelK src.w a t)
     {l : ℝ →₀ ℝ} (hl : ∀ β ∈ l.support, 0 < β) (μ : ℝ) :
@@ -99,66 +121,15 @@ lemma gVac_spanTestS {src : ShiftSource} {a β₀ : ℝ} (ha0 : 0 < a) (hβ₀ :
   have h1 : TestClass src a (fun t => ∑ β ∈ l.support, l β * thermalDiff src.w β t) :=
     testClass_sum_src l.support (fun β => l β) (fun β => thermalDiff src.w β)
       fun β hβ => thermalDiff_mem_TestClass_src ha0 hnonneg hupper (hl β hβ)
-  have h2 : TestClass src a (fun t => μ * hMaj src.w a β₀ t) :=
-    testClass_smul_src μ (hMaj_mem_TestClass_src ha0 hβ₀ hnonneg hupper)
+  have h2 : TestClass src a (fun t => μ * FixedWeight.hMaj src.w a β₀ t) :=
+    testClass_smul_src μ (hMaj_mem_TestClass_src ha0 hnonneg hupper)
   unfold spanTestS
   rw [gVac_add_src h1 h2,
-    gVac_sum_src _ (fun β hβ => thermalDiff_mem_TestClass_src ha0 hnonneg hupper (hl β hβ)),
-    gVac_smul_src μ (hMaj_mem_TestClass_src ha0 hβ₀ hnonneg hupper)]
+    gVac_sum_src l.support (fun β => l β) (fun β => thermalDiff src.w β)
+      (fun β hβ => thermalDiff_mem_TestClass_src ha0 hnonneg hupper (hl β hβ)),
+    gVac_smul_src μ]
   unfold dualC0S
   ring
-
-lemma spanTestS_decay {src : ShiftSource} {a β₀ : ℝ} (ha0 : 0 < a) (hβ₀ : 0 < β₀)
-    {l : ℝ →₀ ℝ} (hl : ∀ β ∈ l.support, 0 < β) (μ : ℝ) {q : ℝ} (hq : 0 < q) :
-    ∃ C_g : ℝ, 0 ≤ C_g ∧ ∀ t : ℝ, 0 ≤ t →
-      |spanTestS src l μ a β₀ t| ≤ C_g * (1 + t) ^ (-q) * Real.exp (-4 * π * Real.sqrt (a * t)) := by
-  obtain ⟨C_h, hC_h, hbd_h⟩ := Duality.abs_hMaj_le ha0 hβ₀ q
-  have hbd_th : ∀ β : ℝ, 0 < β → ∃ C_β : ℝ, 0 ≤ C_β ∧ ∀ t : ℝ, 0 ≤ t →
-      |thermalDiff src.w β t| ≤ C_β * (1 + t) ^ (-q) * Real.exp (-4 * π * Real.sqrt (a * t)) := by
-    intro β hβ
-    obtain ⟨C₁, hC₁, hbd₁⟩ := exp_neg_mul_sqrt_le ha0 hβ q
-    obtain ⟨C₂, hC₂, hbd₂⟩ := exp_neg_mul_sqrt_le ha0 (inv_pos.mpr hβ) q
-    refine ⟨C₁ + β ^ (-(src.w : ℝ)) * C₂, by positivity, fun t ht => ?_⟩
-    have hexp_eq : -2 * π * t / β = -2 * π * β⁻¹ * t := by ring
-    unfold thermalDiff
-    rw [hexp_eq]
-    calc |Real.exp (-2 * π * β * t) - β ^ (-(src.w : ℝ)) * Real.exp (-2 * π * β⁻¹ * t)|
-        ≤ |Real.exp (-2 * π * β * t)| + |β ^ (-(src.w : ℝ)) * Real.exp (-2 * π * β⁻¹ * t)| :=
-          abs_sub _ _
-      _ = Real.exp (-2 * π * β * t) + β ^ (-(src.w : ℝ)) * Real.exp (-2 * π * β⁻¹ * t) := by
-          rw [abs_of_pos (Real.exp_pos _), abs_mul,
-            abs_of_pos (Real.rpow_pos_of_pos hβ _), abs_of_pos (Real.exp_pos _)]
-      _ ≤ C₁ * (1 + t) ^ (-q) * Real.exp (-4 * π * Real.sqrt (a * t)) +
-            β ^ (-(src.w : ℝ)) * (C₂ * (1 + t) ^ (-q) * Real.exp (-4 * π * Real.sqrt (a * t))) := by
-          gcongr
-          · exact hbd₁ t ht
-          · exact hbd₂ t ht
-      _ = (C₁ + β ^ (-(src.w : ℝ)) * C₂) * (1 + t) ^ (-q) * Real.exp (-4 * π * Real.sqrt (a * t)) := by
-          ring
-  choose C_f hC_f_nn hbd_f using fun β : l.support => hbd_th β.1 (hl β.1 β.2)
-  refine ⟨(∑ β : l.support, |l β.1| * C_f β) + |μ| * C_h,
-    add_nonneg (Finset.sum_nonneg fun _ _ => mul_nonneg (abs_nonneg _) (hC_f_nn _))
-      (mul_nonneg (abs_nonneg _) hC_h), fun t ht => ?_⟩
-  unfold spanTestS
-  calc |∑ β ∈ l.support, l β * thermalDiff src.w β t + μ * hMaj src.w a β₀ t|
-      ≤ |∑ β ∈ l.support, l β * thermalDiff src.w β t| + |μ * hMaj src.w a β₀ t| := abs_add_le _ _
-    _ ≤ ∑ β ∈ l.support, |l β * thermalDiff src.w β t| + |μ| * |hMaj src.w a β₀ t| := by
-        rw [abs_mul]; exact add_le_add (Finset.abs_sum_le_sum_abs _ _) le_rfl
-    _ = ∑ β : l.support, |l β.1| * |thermalDiff src.w β.1 t| + |μ| * |hMaj src.w a β₀ t| := by
-        congr 1
-        rw [← Finset.sum_coe_sort l.support]
-        refine Finset.sum_congr rfl fun β _ => by rw [abs_mul]
-    _ ≤ ∑ β : l.support, |l β.1| * (C_f β * (1 + t) ^ (-q) * Real.exp (-4 * π * Real.sqrt (a * t))) +
-          |μ| * (C_h * (1 + t) ^ (-q) * Real.exp (-4 * π * Real.sqrt (a * t))) := by
-        gcongr with β
-        · exact hbd_f β t ht
-        · exact hbd_h t ht
-    _ = ((∑ β : l.support, |l β.1| * C_f β) + |μ| * C_h) * (1 + t) ^ (-q) *
-          Real.exp (-4 * π * Real.sqrt (a * t)) := by
-        rw [← Finset.sum_mul, ← Finset.sum_mul]
-        simp_rw [mul_assoc]
-        rw [← Finset.mul_sum]
-        ring
 
 /-- Every crossing measure pairs with any `spanTestS` by exact equality `∫ g dν = -g_vac(g)`. -/
 lemma crossing_pairing_span_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
@@ -168,11 +139,37 @@ lemma crossing_pairing_span_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     IntegrableOn (spanTestS src l μ (cTilde / 12) β₀) (Ici 0) meas.ν ∧
       src.gVac (cTilde / 12) (spanTestS src l μ (cTilde / 12) β₀) +
         ∫ t in Ici 0, spanTestS src l μ (cTilde / 12) β₀ t ∂meas.ν = 0 := by
-  have htc := spanTestS_mem S.ha0 S.hβ₀ S.hnonneg S.hupper hl μ
-  have hq : (src.w + 1 : ℝ) / 2 < (src.w + 3 : ℝ) / 2 := by linarith
-  have hqpos : 0 < (src.w + 3 : ℝ) / 2 := by positivity
-  obtain ⟨C_g, hC_g, hdec⟩ := spanTestS_decay S.ha0 S.hβ₀ hl μ hqpos
-  exact lemma_fwX_equality_src src hcb S.ha0 meas htc hq hC_g hdec
+  have ha0 := S.ha_pos
+  obtain ⟨C, hC, hdec⟩ := hMaj_decay src.hw ha0 S.hβ₀ S.hβ₀2
+  have hq : (src.w + 1 : ℝ) / 2 < (((src.w + 2 : ℕ) : ℝ) / 2) := by push_cast; linarith
+  obtain ⟨hhint, hhval⟩ := lemma_fwX_equality_src src hcb ha0 meas
+    (hMaj_mem_TestClass_src ha0 S.hnonneg S.hupper) hq hC hdec
+  have hΞint : ∀ β ∈ l.support,
+      IntegrableOn (fun t => l β * thermalDiff src.w β t) (Ici 0) meas.ν :=
+    fun β hβ => (integrableOn_thermalDiff_src src meas (hl β hβ)).const_mul _
+  have hsumint : IntegrableOn (fun t => ∑ β ∈ l.support, l β * thermalDiff src.w β t)
+      (Ici 0) meas.ν :=
+    integrable_finsetSum _ hΞint
+  refine ⟨hsumint.add (hhint.const_mul μ), ?_⟩
+  have hvac_eq := gVac_spanTestS ha0 S.hnonneg S.hupper hl μ (β₀ := β₀)
+  unfold spanTestS at hvac_eq ⊢
+  rw [integral_add hsumint (hhint.const_mul μ), integral_finsetSum _ hΞint, integral_const_mul]
+  have hΞ : ∀ β ∈ l.support, ∫ t in Ici 0, l β * thermalDiff src.w β t ∂meas.ν =
+      l β * (-src.gVac (cTilde / 12) (thermalDiff src.w β)) := by
+    intro β hβ
+    rw [integral_const_mul, meas.crossing (hl β hβ), integral_cardyDensity_eq_neg_gVac]
+  rw [Finset.sum_congr rfl hΞ]
+  have hc0 : -dualC0S src (cTilde / 12) β₀ =
+      src.gVac (cTilde / 12) (FixedWeight.hMaj src.w (cTilde / 12) β₀) := by
+    unfold dualC0S; ring
+  have hsum_neg : ∑ β ∈ l.support, l β * -src.gVac (cTilde / 12) (thermalDiff src.w β) =
+      -(∑ β ∈ l.support, l β * src.gVac (cTilde / 12) (thermalDiff src.w β)) := by
+    rw [← Finset.sum_neg_distrib]
+    exact Finset.sum_congr rfl fun β _ => by ring
+  have hI : ∫ t in Ici 0, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂meas.ν = dualC0S src (cTilde / 12) β₀ := by
+    linarith [hhval, hc0]
+  rw [hvac_eq, hsum_neg, hI]
+  ring
 
 /-! ### `NoSpanFeasibleS` and forward direction -/
 
@@ -198,60 +195,45 @@ lemma noSpanFeasibleS_of_crossingMeasure (src : ShiftSource) {cTilde β₀ T₀ 
 
 /-! ### Constructing `SourceCrossingMeasure` and Farkas separation helper -/
 
-private lemma wStar_ge_exp_beta_src {w : ℕ} {β₀ β t : ℝ} (hβ₀ : 0 < β₀) (hβ : β₀ ≤ β) (ht : 0 ≤ t) :
-    Real.exp (-2 * π * β * t) ≤ wStar w β₀ t := by
-  have hpi := Real.pi_pos
-  have h1 : Real.exp (-2 * π * β * t) ≤ Real.exp (-2 * π * β₀ * t) :=
-    Real.exp_le_exp.2 (by nlinarith)
-  exact h1.trans (le_add_of_nonneg_right (Real.exp_pos _).le)
+private lemma integrable_wTilde_of_bud {a β₀ T₀ B : ℝ} (ha : 0 < a) (hβ₀ : 0 < β₀) (hT₀ : 0 < T₀)
+    {ν : Measure ℝ}
+    (hbud : ∫⁻ y, ENNReal.ofReal (wTilde a β₀ T₀ y) ∂ν ≤ ENNReal.ofReal B) :
+    Integrable (wTilde a β₀ T₀) ν := by
+  refine ⟨(continuous_wTilde (β₀ := β₀) ha hT₀).aestronglyMeasurable, ?_⟩
+  rw [hasFiniteIntegral_iff_ofReal (Eventually.of_forall fun y => (wTilde_pos ha hβ₀ hT₀ y).le)]
+  exact lt_of_le_of_lt hbud ENNReal.ofReal_lt_top
 
-private lemma build_crossingMeasure_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
+private def build_crossingMeasure_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     (S : SourceDualSetupCore src cTilde β₀ T₀) {X : Set ℝ} (hXsub : X ⊆ Ici T₀)
     {ν : Measure ℝ} (hsupp : ν Xᶜ = 0)
-    (hw : Integrable (wTilde src.w β₀ T₀) ν)
+    (hw : Integrable (wTilde (cTilde / 12) β₀ T₀) ν)
     (hc : ∀ β : Ioi (0 : ℝ), Integrable (fTilde src.w T₀ β.1) ν ∧
       ∫ t, fTilde src.w T₀ β.1 t ∂ν = -src.gVac (cTilde / 12) (thermalDiff src.w β.1)) :
     SourceCrossingMeasure src (cTilde / 12) := by
   have haeT : ∀ᵐ t ∂ν, T₀ ≤ t := by
     have := measure_eq_zero_iff_ae_notMem.1 hsupp
     exact this.mono fun t ht => hXsub (Set.notMem_compl_iff.1 ht)
-  have hIci : ν (Ici 0)ᶜ = 0 :=
-    measure_mono_null (compl_subset_compl.2 (hXsub.trans (Ici_subset_Ici.2 S.hT₀.le))) hsupp
-  have hmeas_exp : ∀ β : ℝ, Continuous (fun t => Real.exp (-2 * π * β * t)) := fun β => by
-    fun_prop
-  have hw_dom : ∀ {β : ℝ}, β₀ ≤ β → Integrable (fun t => Real.exp (-2 * π * β * t)) ν := by
-    intro β hβ
-    refine hw.mono' (hmeas_exp β).aestronglyMeasurable ?_
-    filter_upwards [haeT] with t ht
-    rw [Real.norm_of_nonneg (Real.exp_pos _).le, wTilde_of_le _ _ ht]
-    exact wStar_ge_exp_beta_src S.hβ₀ hβ (S.hT₀.le.trans ht)
+  have hIio : ν (Iio 0) = 0 :=
+    measure_mono_null (fun t ht => fun htX =>
+      by linarith [mem_Iio.1 ht, S.hT₀pos, show T₀ ≤ t from hXsub htX]) hsupp
+  have hIci_sub : ∀ᵐ t ∂ν, t ∈ Ici (0 : ℝ) :=
+    haeT.mono fun t ht => S.hT₀pos.le.trans ht
   have hlap : ∀ {β : ℝ}, 0 < β →
       IntegrableOn (fun t => Real.exp (-2 * π * β * t)) (Ici 0) ν := by
     intro β hβ
-    rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem
-      (haeT.mono fun t ht => S.hT₀.le.trans ht)]
-    by_cases hle : β₀ ≤ β
-    · exact hw_dom hle
-    · have hβlt : β < β₀ := lt_of_not_ge hle
-      have hinv : β₀ ≤ β⁻¹ := by
-        have h1 : 1 < β⁻¹ := (one_lt_inv₀ hβ).2 (hβlt.trans_le S.hβ₀2 |>.trans (by norm_num))
-        exact S.hβ₀2.trans (by linarith)
-      have hfi : Integrable (fTilde src.w T₀ β) ν := (hc ⟨β, hβ⟩).1
-      have hinv_int : Integrable (fun t => β ^ (-(src.w : ℝ)) * Real.exp (-2 * π * β⁻¹ * t)) ν :=
-        (hw_dom hinv).const_mul _
-      refine (hfi.add hinv_int).congr' (hmeas_exp β).aestronglyMeasurable ?_
-      filter_upwards [haeT] with t ht
-      rw [fTilde_of_le _ _ ht]
-      unfold thermalDiff
-      rw [show -2 * π * t / β = -2 * π * β⁻¹ * t by ring]
-      ring
-  refine ⟨ν, hIci, hlap, fun {β} hβ => ?_⟩
+    obtain ⟨C, _, hC⟩ := exp_le_const_wStar (a := cTilde / 12) (β₀ := β₀) S.ha_pos.le S.hβ₀ hβ
+    rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem hIci_sub]
+    refine (hw.const_mul C).mono' (by fun_prop : Continuous fun t : ℝ =>
+      Real.exp (-2 * π * β * t)).aestronglyMeasurable ?_
+    filter_upwards [haeT] with t ht
+    rw [Real.norm_of_nonneg (Real.exp_pos _).le, wTilde_of_le ht]
+    exact hC t (S.hT₀pos.le.trans ht)
+  refine ⟨ν, hIio, hlap, fun {β} hβ => ?_⟩
   have heq1 : ∫ t in Ici 0, thermalDiff src.w β t ∂ν = ∫ t, fTilde src.w T₀ β t ∂ν := by
-    rw [Measure.restrict_eq_self_of_ae_mem (haeT.mono fun t ht => S.hT₀.le.trans ht)]
+    rw [Measure.restrict_eq_self_of_ae_mem hIci_sub]
     refine integral_congr_ae (haeT.mono fun t ht => ?_)
-    exact (fTilde_of_le _ _ ht).symm
-  rw [heq1, (hc ⟨β, hβ⟩).2, gVac_thermalDiff_src_eq src (cTilde / 12) hβ]
-  ring
+    exact (fTilde_of_le ht).symm
+  rw [heq1, (hc ⟨β, hβ⟩).2, integral_cardyDensity_eq_neg_gVac]
 
 private lemma finsupp_sum_single_mul (u : Finset (Ioi (0 : ℝ))) (lam : Ioi (0 : ℝ) → ℝ)
     (F : ℝ → ℝ) :
@@ -293,36 +275,43 @@ private lemma span_pos_mom_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     (S : SourceDualSetupCore src cTilde β₀ T₀) {X : Set ℝ} (hXsub : X ⊆ Ici T₀)
     (hns : NoSpanFeasibleS src cTilde β₀ X) (u : Finset (Ioi (0 : ℝ))) (lam : Ioi (0 : ℝ) → ℝ)
     {b : ℝ} (hb : 0 ≤ b)
-    (hpos : ∀ t ∈ X, 0 ≤ b + ∑ i ∈ u, lam i * fTilde src.w T₀ i.1 t / wTilde src.w β₀ T₀ t) :
+    (hpos : ∀ t ∈ X, 0 ≤ b + ∑ i ∈ u, lam i * (fTilde src.w T₀ i.1 t / wTilde (cTilde / 12) β₀ T₀ t)) :
     0 ≤ b * dualC0S src (cTilde / 12) β₀ +
       ∑ i ∈ u, lam i * (-src.gVac (cTilde / 12) (thermalDiff src.w i.1)) := by
   let l : ℝ →₀ ℝ := ∑ i ∈ u, Finsupp.single i.1 (lam i)
   have hl : ∀ β ∈ l.support, 0 < β := support_sum_single_pos u lam
+  have hm_ge_all : ∀ t : ℝ, T₀ ≤ t →
+      wStar (cTilde / 12) β₀ t ≤ FixedWeight.hMaj src.w (cTilde / 12) β₀ t :=
+    (lemma_M_src S).2.2.2.1
   have hnn : ∀ t ∈ X, 0 ≤ spanTestS src l b (cTilde / 12) β₀ t := by
     intro t ht
     have htT : T₀ ≤ t := hXsub ht
-    have ht0 : 0 ≤ t := S.hT₀.le.trans htT
-    have hwpos : 0 < wStar src.w β₀ t := wStar_pos S.hβ₀ ht0
+    have ht0 : 0 ≤ t := S.hT₀pos.le.trans htT
+    have hwpos : 0 < wStar (cTilde / 12) β₀ t := wStar_pos S.ha_pos.le S.hβ₀ ht0
     have hmul := mul_nonneg (hpos t ht) hwpos.le
     have hl_sum : (∑ β ∈ l.support, l β * thermalDiff src.w β t) =
-        ∑ i ∈ u, lam i * thermalDiff src.w i.1 t := finsupp_sum_single_mul u lam (fun β => thermalDiff src.w β t)
-    have hrhs_eq : (b + ∑ i ∈ u, lam i * fTilde src.w T₀ i.1 t / wTilde src.w β₀ T₀ t) * wStar src.w β₀ t =
-        b * wStar src.w β₀ t + ∑ i ∈ u, lam i * thermalDiff src.w i.1 t := by
+        ∑ i ∈ u, lam i * thermalDiff src.w i.1 t :=
+      finsupp_sum_single_mul u lam (fun β => thermalDiff src.w β t)
+    have hrhs_eq : (b + ∑ i ∈ u, lam i * (fTilde src.w T₀ i.1 t / wTilde (cTilde / 12) β₀ T₀ t)) *
+          wStar (cTilde / 12) β₀ t =
+        b * wStar (cTilde / 12) β₀ t + ∑ i ∈ u, lam i * thermalDiff src.w i.1 t := by
       rw [add_mul, Finset.sum_mul]
       congr 1
       refine Finset.sum_congr rfl fun i _ => ?_
-      rw [wTilde_of_le _ _ htT, fTilde_of_le _ _ htT]
+      rw [wTilde_of_le htT, fTilde_of_le htT]
       field_simp [hwpos.ne']
-    have hm_ge : wStar src.w β₀ t ≤ hMaj src.w (cTilde / 12) β₀ t :=
-      (S.lemma_M htT).2
-    have hbw : b * wStar src.w β₀ t ≤ b * hMaj src.w (cTilde / 12) β₀ t :=
-      mul_le_mul_of_nonneg_left hm_ge hb
+    have hbw : b * wStar (cTilde / 12) β₀ t ≤ b * FixedWeight.hMaj src.w (cTilde / 12) β₀ t :=
+      mul_le_mul_of_nonneg_left (hm_ge_all t htT) hb
     unfold spanTestS
     rw [hl_sum]
     linarith
   have hvac := hns l b hl hnn
-  rw [gVac_spanTestS S.ha0 S.hβ₀ S.hnonneg S.hupper hl b,
+  rw [gVac_spanTestS S.ha_pos S.hnonneg S.hupper hl b,
     finsupp_sum_single_mul u lam (fun β => src.gVac (cTilde / 12) (thermalDiff src.w β))] at hvac
+  have hsum_neg : (∑ i ∈ u, lam i * (-src.gVac (cTilde / 12) (thermalDiff src.w i.1))) =
+      -(∑ i ∈ u, lam i * src.gVac (cTilde / 12) (thermalDiff src.w i.1)) := by
+    simp_rw [mul_neg, Finset.sum_neg_distrib]
+  rw [hsum_neg]
   linarith
 
 /-! ### Theorem E(a) (`ds:E`(a)) for `SourceDualSetupCore` -/
@@ -334,38 +323,36 @@ theorem theorem_E_a_decreasing_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     (hns : ∀ j, NoSpanFeasibleS src cTilde β₀ (X j)) :
     ∃ meas : SourceCrossingMeasure src (cTilde / 12),
       meas.ν (⋂ j, X j)ᶜ = 0 ∧
-      IntegrableOn (wStar src.w β₀) (Ici 0) meas.ν ∧
-      ∫ t in Ici 0, wStar src.w β₀ t ∂meas.ν ≤ dualC0S src (cTilde / 12) β₀ := by
-  have hC₀ : 0 < dualC0S src (cTilde / 12) β₀ := S.C₀_pos
-  have hwpos : ∀ y : ℝ, 0 < wTilde src.w β₀ T₀ y := fun y =>
-    wTilde_pos S.hβ₀ S.hT₀.le
+      IntegrableOn (wStar (cTilde / 12) β₀) (Ici 0) meas.ν ∧
+      ∫ t in Ici 0, wStar (cTilde / 12) β₀ t ∂meas.ν ≤ dualC0S src (cTilde / 12) β₀ := by
+  have hC₀ : 0 < dualC0S src (cTilde / 12) β₀ := dualC0S_pos S
+  have hwpos : ∀ y : ℝ, 0 < wTilde (cTilde / 12) β₀ T₀ y := fun y =>
+    wTilde_pos S.ha_pos S.hβ₀ S.hT₀pos y
   obtain ⟨ν, _, hsupp, hbud, hmom⟩ := farkas_separation (Y := ℝ) (I := Ioi (0 : ℝ))
-    (continuous_wTilde S.hβ₀) hwpos hC₀ hXc hXa
-    (fun β => continuous_fTilde (w := src.w) (T₀ := T₀) β.2)
-    (fun β ε hε => fTilde_decay S.hβ₀ S.hT₀.le β.2 hε)
+    (continuous_wTilde (β₀ := β₀) S.ha_pos S.hT₀pos) hwpos hC₀ hXc hXa
+    (fun β => continuous_fTilde src.w T₀ β.1)
+    (fun β ε hε => fTilde_decay (w := src.w) S.ha_pos S.hβ₀ S.hT₀pos β.2 hX0 ε hε)
     (a := fun β : Ioi (0 : ℝ) => -src.gVac (cTilde / 12) (thermalDiff src.w β.1))
     (fun j u lam b hb hpos =>
       span_pos_mom_src src S ((hXa (Nat.zero_le j)).trans hX0) (hns j) u lam hb fun t ht => by
-        simpa [mul_div_assoc] using hpos t ht)
-  have hw_int : Integrable (wTilde src.w β₀ T₀) ν :=
-    ⟨(continuous_wTilde S.hβ₀).aestronglyMeasurable,
-      lt_of_le_of_lt hbud ENNReal.ofReal_lt_top⟩
+        exact hpos t ht)
+  have hw_int : Integrable (wTilde (cTilde / 12) β₀ T₀) ν :=
+    integrable_wTilde_of_bud S.ha_pos S.hβ₀ S.hT₀pos hbud
   have haeT : ∀ᵐ t ∂ν, T₀ ≤ t := by
     have := measure_eq_zero_iff_ae_notMem.1 hsupp
     exact this.mono fun t ht => hX0 (Set.mem_iInter.1 (Set.notMem_compl_iff.1 ht) 0)
-  let meas := build_crossingMeasure_src src S (fun t ht => hX0 (Set.mem_iInter.1 ht 0)) hsupp hw_int hmom
+  let meas := build_crossingMeasure_src src S (fun t ht => hX0 (Set.mem_iInter.1 ht 0))
+    hsupp hw_int hmom
   refine ⟨meas, hsupp, ?_, ?_⟩
-  · rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem
-      (haeT.mono fun t ht => S.hT₀.le.trans ht)]
-    refine hw_int.congr' ((continuous_wStar S.hβ₀).aestronglyMeasurable) ?_
-    filter_upwards [haeT] with t ht
-    exact wTilde_of_le _ _ ht
-  · have heq : ∫ t in Ici 0, wStar src.w β₀ t ∂meas.ν = ∫ t, wTilde src.w β₀ T₀ t ∂ν := by
-      rw [Measure.restrict_eq_self_of_ae_mem (haeT.mono fun t ht => S.hT₀.le.trans ht)]
-      refine integral_congr_ae (haeT.mono fun t ht => (wTilde_of_le _ _ ht).symm)
+  · rw [IntegrableOn, restrict_Ici_eq_self_src meas]
+    refine hw_int.congr (haeT.mono fun t ht => wTilde_of_le ht)
+  · have heq : ∫ t in Ici 0, wStar (cTilde / 12) β₀ t ∂meas.ν =
+        ∫ t, wTilde (cTilde / 12) β₀ T₀ t ∂ν := by
+      rw [restrict_Ici_eq_self_src meas]
+      refine integral_congr_ae (haeT.mono fun t ht => (wTilde_of_le ht).symm)
     rw [heq]
-    have hof : ENNReal.ofReal (∫ t, wTilde src.w β₀ T₀ t ∂ν) =
-        ∫⁻ t, ENNReal.ofReal (wTilde src.w β₀ T₀ t) ∂ν :=
+    have hof : ENNReal.ofReal (∫ t, wTilde (cTilde / 12) β₀ T₀ t ∂ν) =
+        ∫⁻ t, ENNReal.ofReal (wTilde (cTilde / 12) β₀ T₀ t) ∂ν :=
       ofReal_integral_eq_lintegral_ofReal hw_int (Eventually.of_forall fun t => (hwpos t).le)
     rw [← ENNReal.ofReal_le_ofReal_iff hC₀.le, hof]
     exact hbud
@@ -377,8 +364,8 @@ theorem theorem_E_a_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     (NoSpanFeasibleS src cTilde β₀ X ↔
       ∃ meas : SourceCrossingMeasure src (cTilde / 12), meas.ν Xᶜ = 0) ∧
     (∀ meas : SourceCrossingMeasure src (cTilde / 12), meas.ν Xᶜ = 0 →
-      IntegrableOn (wStar src.w β₀) (Ici 0) meas.ν ∧
-      ∫ t in Ici 0, wStar src.w β₀ t ∂meas.ν ≤ dualC0S src (cTilde / 12) β₀) := by
+      IntegrableOn (wStar (cTilde / 12) β₀) (Ici 0) meas.ν ∧
+      ∫ t in Ici 0, wStar (cTilde / 12) β₀ t ∂meas.ν ≤ dualC0S src (cTilde / 12) β₀) := by
   have heq : (∃ meas : SourceCrossingMeasure src (cTilde / 12), meas.ν Xᶜ = 0) ↔
       NoSpanFeasibleS src cTilde β₀ X := by
     refine ⟨fun ⟨meas, hν⟩ => noSpanFeasibleS_of_crossingMeasure src S hcb meas hν, fun hns => ?_⟩
@@ -387,96 +374,90 @@ theorem theorem_E_a_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     refine ⟨meas, ?_⟩
     rwa [iInter_const] at hν
   refine ⟨heq.symm, fun meas hν => ?_⟩
-  obtain ⟨_, hmem, _, hle⟩ := lemma_fwX_one_sided_src src hcb S.ha0 meas
-    (hMaj_mem_TestClass_src S.ha0 S.hβ₀ S.hnonneg S.hupper) (T := T₀) fun t ht =>
-      (S.lemma_M ht).1.le.trans (S.lemma_M ht).2
+  have hm_ge := (lemma_M_src S).2.2.2.1
+  obtain ⟨hmem, hle⟩ := lemma_fwX_one_sided_src src hcb S.ha_pos meas
+    (hMaj_mem_TestClass_src S.ha_pos S.hnonneg S.hupper) (T := T₀) fun t ht =>
+      (wStar_pos S.ha_pos.le S.hβ₀ (S.hT₀pos.le.trans ht)).le.trans (hm_ge t ht)
   have haeT : ∀ᵐ t ∂meas.ν, T₀ ≤ t := by
     have := measure_eq_zero_iff_ae_notMem.1 hν
     exact this.mono fun t ht => hX (Set.notMem_compl_iff.1 ht)
-  have hint_w : IntegrableOn (wStar src.w β₀) (Ici 0) meas.ν := by
-    rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem
-      (haeT.mono fun t ht => S.hT₀.le.trans ht)]
-    rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem
-      (haeT.mono fun t ht => S.hT₀.le.trans ht)] at hmem
-    refine hmem.mono' (continuous_wStar S.hβ₀).aestronglyMeasurable ?_
+  have hint_w : IntegrableOn (wStar (cTilde / 12) β₀) (Ici 0) meas.ν := by
+    rw [IntegrableOn, restrict_Ici_eq_self_src meas] at hmem ⊢
+    refine hmem.mono' (measurable_wStar (cTilde / 12) β₀).aestronglyMeasurable ?_
     filter_upwards [haeT] with t ht
-    rw [Real.norm_of_nonneg (wStar_pos S.hβ₀ (S.hT₀.le.trans ht)).le,
-      Real.norm_of_nonneg ((S.lemma_M ht).1.le.trans (S.lemma_M ht).2)]
-    exact (S.lemma_M ht).2
-  have hle_w : ∫ t in Ici 0, wStar src.w β₀ t ∂meas.ν ≤
-      ∫ t in Ici 0, hMaj src.w (cTilde / 12) β₀ t ∂meas.ν := by
-    rw [Measure.restrict_eq_self_of_ae_mem (haeT.mono fun t ht => S.hT₀.le.trans ht),
-      Measure.restrict_eq_self_of_ae_mem (haeT.mono fun t ht => S.hT₀.le.trans ht)]
-    refine integral_mono_ae ?_ ?_ (haeT.mono fun t ht => (S.lemma_M ht).2)
-    · rw [← Measure.restrict_eq_self_of_ae_mem (haeT.mono fun t ht => S.hT₀.le.trans ht)]
-      exact hint_w
-    · rw [← Measure.restrict_eq_self_of_ae_mem (haeT.mono fun t ht => S.hT₀.le.trans ht)]
-      exact hmem
+    rw [Real.norm_of_nonneg (wStar_pos S.ha_pos.le S.hβ₀ (S.hT₀pos.le.trans ht)).le]
+    exact hm_ge t ht
+  have hle_w : ∫ t in Ici 0, wStar (cTilde / 12) β₀ t ∂meas.ν ≤
+      ∫ t in Ici 0, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂meas.ν := by
+    rw [restrict_Ici_eq_self_src meas]
+    rw [IntegrableOn, restrict_Ici_eq_self_src meas] at hint_w hmem
+    exact integral_mono_ae hint_w hmem (haeT.mono fun t ht => hm_ge t ht)
   refine ⟨hint_w, ?_⟩
-  have hc0 : dualC0S src (cTilde / 12) β₀ = -src.gVac (cTilde / 12) (hMaj src.w (cTilde / 12) β₀) := by
+  have hc0 : dualC0S src (cTilde / 12) β₀ =
+      -src.gVac (cTilde / 12) (FixedWeight.hMaj src.w (cTilde / 12) β₀) := by
     unfold dualC0S; rfl
   linarith
 
-/-- Finite-atomic `Carathéodory` corollary of `ds:E`(a) for `SourceDualSetupCore`. -/
+/-- Finite-atomic Carathéodory corollary of `ds:E`(a) for `SourceDualSetupCore`. -/
 theorem theorem_E_a_finite_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     (S : SourceDualSetupCore src cTilde β₀ T₀) {X : Set ℝ} (hXc : IsClosed X) (hX : X ⊆ Ici T₀)
     (hns : NoSpanFeasibleS src cTilde β₀ X) (u : Finset (Ioi (0 : ℝ))) :
     ∃ (ι : Type) (_ : Fintype ι) (y : ι → ℝ) (r : ι → ℝ), Fintype.card ι ≤ u.card + 1 ∧
-      (∀ k, y k ∈ X) ∧ (∀ k, 0 ≤ r k) ∧ ∑ k, r k * wStar src.w β₀ (y k) ≤ dualC0S src (cTilde / 12) β₀ ∧
+      (∀ k, y k ∈ X) ∧ (∀ k, 0 ≤ r k) ∧
+      ∑ k, r k * wStar (cTilde / 12) β₀ (y k) ≤ dualC0S src (cTilde / 12) β₀ ∧
       ∀ β ∈ u, ∑ k, r k * thermalDiff src.w β.1 (y k) =
         -src.gVac (cTilde / 12) (thermalDiff src.w β.1) := by
-  have hC₀ : 0 < dualC0S src (cTilde / 12) β₀ := S.C₀_pos
-  have hwpos : ∀ y : ℝ, 0 < wTilde src.w β₀ T₀ y := fun y => wTilde_pos S.hβ₀ S.hT₀.le
+  have hC₀ : 0 < dualC0S src (cTilde / 12) β₀ := dualC0S_pos S
+  have hwpos : ∀ y : ℝ, 0 < wTilde (cTilde / 12) β₀ T₀ y := fun y =>
+    wTilde_pos S.ha_pos S.hβ₀ S.hT₀pos y
   obtain ⟨ι, hι, y, r, hcard, hyX, hr, hbud, hmom⟩ := farkas_finite (Y := ℝ) hXc
-    (continuous_wTilde S.hβ₀) hwpos hC₀
-    (fun β : Ioi (0 : ℝ) => continuous_fTilde (w := src.w) (T₀ := T₀) β.2)
-    (fun β ε hε => fTilde_decay S.hβ₀ S.hT₀.le β.2 hε) u
-    (fun lam b hb hpos => span_pos_mom_src src S hX hns u lam hb fun t ht => by
-      simpa [mul_div_assoc] using hpos t ht)
+    (continuous_wTilde (β₀ := β₀) S.ha_pos S.hT₀pos) hwpos hC₀
+    (fun β : Ioi (0 : ℝ) => continuous_fTilde src.w T₀ β.1)
+    (fun β ε hε => fTilde_decay (w := src.w) S.ha_pos S.hβ₀ S.hT₀pos β.2 hX ε hε) u
+    (fun lam b hb hpos => span_pos_mom_src src S hX hns u lam hb fun t ht => hpos t ht)
   refine ⟨ι, hι, y, r, hcard, hyX, hr, ?_, fun β hβ => ?_⟩
   · refine le_trans (Finset.sum_le_sum fun k _ => ?_) hbud
-    rw [wTilde_of_le _ _ (hX (hyX k))]
+    rw [wTilde_of_le (hX (hyX k))]
   · have := hmom β hβ
     rw [← this]
     refine Finset.sum_congr rfl fun k _ => ?_
-    rw [fTilde_of_le _ _ (hX (hyX k))]
+    rw [fTilde_of_le (hX (hyX k))]
 
 /-- Vague compactness (`ds:E`(a)) along a decreasing sequence of closed supports for `SourceDualSetupCore`. -/
 theorem theorem_E_a_compactness_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     (S : SourceDualSetupCore src cTilde β₀ T₀) (hcb : CrossingBounds src (cTilde / 12))
     {X : ℕ → Set ℝ} (hXc : ∀ j, IsClosed (X j)) (hXa : Antitone X) (hX0 : X 0 ⊆ Ici T₀)
-    (meas : ∀ j, SourceCrossingMeasure src (cTilde / 12))
+    (meas : ℕ → SourceCrossingMeasure src (cTilde / 12))
     (hsupp : ∀ j, (meas j).ν (X j)ᶜ = 0)
     (𝒰 : Ultrafilter ℕ) (h𝒰 : (𝒰 : Filter ℕ) ≤ atTop) :
     ∃ meas' : SourceCrossingMeasure src (cTilde / 12),
       IsVagueLimitAlong (𝒰 : Filter ℕ) (fun j => (meas j).ν) meas'.ν ∧
       meas'.ν (⋂ j, X j)ᶜ = 0 ∧
-      IntegrableOn (wStar src.w β₀) (Ici 0) meas'.ν ∧
-      ∫ t in Ici 0, wStar src.w β₀ t ∂meas'.ν ≤ dualC0S src (cTilde / 12) β₀ := by
-  have hC₀ : 0 < dualC0S src (cTilde / 12) β₀ := S.C₀_pos
-  have hwpos : ∀ y : ℝ, 0 < wTilde src.w β₀ T₀ y := fun y => wTilde_pos S.hβ₀ S.hT₀.le
-  haveI : ∀ j, IsFiniteMeasureOnCompacts (meas j).ν := fun j =>
+      IntegrableOn (wStar (cTilde / 12) β₀) (Ici 0) meas'.ν ∧
+      ∫ t in Ici 0, wStar (cTilde / 12) β₀ t ∂meas'.ν ≤ dualC0S src (cTilde / 12) β₀ := by
+  have hC₀ : 0 < dualC0S src (cTilde / 12) β₀ := dualC0S_pos S
+  have hwpos : ∀ y : ℝ, 0 < wTilde (cTilde / 12) β₀ T₀ y := fun y =>
+    wTilde_pos S.ha_pos S.hβ₀ S.hT₀pos y
+  have : ∀ j, IsFiniteMeasureOnCompacts (meas j).ν := fun j =>
     isFiniteMeasureOnCompacts_src src (meas j)
-  have hbud : ∀ j, ∫⁻ y, ENNReal.ofReal (wTilde src.w β₀ T₀ y) ∂(meas j).ν ≤
+  have hbud : ∀ j, ∫⁻ y, ENNReal.ofReal (wTilde (cTilde / 12) β₀ T₀ y) ∂(meas j).ν ≤
       ENNReal.ofReal (dualC0S src (cTilde / 12) β₀) := fun j => by
     have hE := (theorem_E_a_src src S hcb (hXc j) ((hXa (Nat.zero_le j)).trans hX0)).2 (meas j) (hsupp j)
     have haeT : ∀ᵐ t ∂(meas j).ν, T₀ ≤ t := by
       have := measure_eq_zero_iff_ae_notMem.1 (hsupp j)
       exact this.mono fun t ht => (hXa (Nat.zero_le j) |>.trans hX0) (Set.notMem_compl_iff.1 ht)
-    have hint_w : Integrable (wTilde src.w β₀ T₀) (meas j).ν := by
-      rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem
-        (haeT.mono fun t ht => S.hT₀.le.trans ht)] at hE
-      exact hE.1.congr' (continuous_wTilde S.hβ₀).aestronglyMeasurable
-        (haeT.mono fun t ht => (wTilde_of_le _ _ ht).symm)
-    have hof : ENNReal.ofReal (∫ t, wTilde src.w β₀ T₀ t ∂(meas j).ν) =
-        ∫⁻ t, ENNReal.ofReal (wTilde src.w β₀ T₀ t) ∂(meas j).ν :=
+    have hint_w : Integrable (wTilde (cTilde / 12) β₀ T₀) (meas j).ν := by
+      rw [IntegrableOn, restrict_Ici_eq_self_src (meas j)] at hE
+      exact hE.1.congr (haeT.mono fun t ht => (wTilde_of_le ht).symm)
+    have hof : ENNReal.ofReal (∫ t, wTilde (cTilde / 12) β₀ T₀ t ∂(meas j).ν) =
+        ∫⁻ t, ENNReal.ofReal (wTilde (cTilde / 12) β₀ T₀ t) ∂(meas j).ν :=
       ofReal_integral_eq_lintegral_ofReal hint_w (Eventually.of_forall fun t => (hwpos t).le)
     rw [← hof]
     refine ENNReal.ofReal_le_ofReal ?_
-    have heq : ∫ t, wTilde src.w β₀ T₀ t ∂(meas j).ν =
-        ∫ t in Ici 0, wStar src.w β₀ t ∂(meas j).ν := by
-      rw [Measure.restrict_eq_self_of_ae_mem (haeT.mono fun t ht => S.hT₀.le.trans ht)]
-      exact integral_congr_ae (haeT.mono fun t ht => wTilde_of_le _ _ ht)
+    have heq : ∫ t, wTilde (cTilde / 12) β₀ T₀ t ∂(meas j).ν =
+        ∫ t in Ici 0, wStar (cTilde / 12) β₀ t ∂(meas j).ν := by
+      rw [restrict_Ici_eq_self_src (meas j)]
+      exact integral_congr_ae (haeT.mono fun t ht => wTilde_of_le ht)
     rw [heq]
     exact hE.2
   have hmom : ∀ j (β : Ioi (0 : ℝ)), ∫ y, fTilde src.w T₀ β.1 y ∂(meas j).ν =
@@ -486,17 +467,16 @@ theorem theorem_E_a_compactness_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ
       exact this.mono fun t ht => (hXa (Nat.zero_le j) |>.trans hX0) (Set.notMem_compl_iff.1 ht)
     have heq : ∫ y, fTilde src.w T₀ β.1 y ∂(meas j).ν =
         ∫ y in Ici 0, thermalDiff src.w β.1 y ∂(meas j).ν := by
-      rw [Measure.restrict_eq_self_of_ae_mem (haeT.mono fun t ht => S.hT₀.le.trans ht)]
-      exact integral_congr_ae (haeT.mono fun t ht => fTilde_of_le _ _ ht)
-    rw [heq, (meas j).crossing β.2, gVac_thermalDiff_src_eq src (cTilde / 12) β.2]
-    ring
+      rw [restrict_Ici_eq_self_src (meas j)]
+      exact integral_congr_ae (haeT.mono fun t ht => fTilde_of_le ht)
+    rw [heq, (meas j).crossing β.2, integral_cardyDensity_eq_neg_gVac]
   obtain ⟨ν', _, hlim, hsupp', hbud', hmom'⟩ := farkas_compactness (Y := ℝ)
-    (continuous_wTilde S.hβ₀) hwpos hC₀ hXc hXa
-    (fun β : Ioi (0 : ℝ) => continuous_fTilde (w := src.w) (T₀ := T₀) β.2)
-    (fun β ε hε => fTilde_decay S.hβ₀ S.hT₀.le β.2 hε)
+    (continuous_wTilde (β₀ := β₀) S.ha_pos S.hT₀pos) hwpos hC₀ hXc hXa
+    (fun β : Ioi (0 : ℝ) => continuous_fTilde src.w T₀ β.1)
+    (fun β ε hε => fTilde_decay (w := src.w) S.ha_pos S.hβ₀ S.hT₀pos β.2 hX0 ε hε)
     (fun j => (meas j).ν) hsupp hbud hmom 𝒰 h𝒰
-  have hw_int : Integrable (wTilde src.w β₀ T₀) ν' :=
-    ⟨(continuous_wTilde S.hβ₀).aestronglyMeasurable, lt_of_le_of_lt hbud' ENNReal.ofReal_lt_top⟩
+  have hw_int : Integrable (wTilde (cTilde / 12) β₀ T₀) ν' :=
+    integrable_wTilde_of_bud S.ha_pos S.hβ₀ S.hT₀pos hbud'
   let meas' := build_crossingMeasure_src src S (fun t ht => hX0 (Set.mem_iInter.1 ht 0))
     hsupp' hw_int hmom'
   have hE' := (theorem_E_a_src src S hcb (isClosed_iInter hXc)
@@ -521,7 +501,7 @@ lemma le_constrainedThresholdS_of_crossingMeasure (src : ShiftSource) {cTilde β
   refine le_csInf hne fun τ' ⟨_, g, hg_tc, hg_vac, hg_nn⟩ => ?_
   by_contra hlt
   have hτ : τ' < τ := lt_of_not_ge hlt
-  obtain ⟨_, hle⟩ := lemma_fwX_one_sided_src src hcb S.ha0 meas hg_tc (T := τ') fun t ht =>
+  obtain ⟨_, hle⟩ := lemma_fwX_one_sided_src src hcb S.ha_pos meas hg_tc (T := τ') fun t ht =>
     hg_nn t (Or.inr ht)
   have hae : 0 ≤ᵐ[meas.ν.restrict (Ici 0)] g := by
     have hnot : ∀ᵐ t ∂meas.ν, t ∉ (F ∪ Ici τ)ᶜ := measure_eq_zero_iff_ae_notMem.1 hν
@@ -561,7 +541,6 @@ theorem theorem_E_b_compact_src {src : ShiftSource} {Fl : FloorData src} {cTilde
   have exists_meas_for : ∀ τ : ℝ, 0 < τ → τ < TF →
       ∃ meas : SourceCrossingMeasure src (cTilde / 12), meas.ν (F ∪ Ici τ)ᶜ = 0 := by
     intro τ hτ_pos hτ_lt
-    -- Pick T₀ > 0 below both `τ` and `min F`
     have hT₀_ex : ∃ T₀ : ℝ, 0 < T₀ ∧ T₀ ≤ τ ∧ F ⊆ Ici T₀ := by
       rcases F.eq_empty_or_nonempty with rfl | hFne
       · exact ⟨τ, hτ_pos, le_rfl, empty_subset _⟩
@@ -580,8 +559,9 @@ theorem theorem_E_b_compact_src {src : ShiftSource} {Fl : FloorData src} {cTilde
       lt_of_not_ge hvac
     have hmem : τ ∈ constrainedGapsS src cTilde F :=
       ⟨hτ_pos, spanTestS src l μ (cTilde / 12) β₀,
-        spanTestS_mem S.ha0 S.hβ₀ S.hnonneg S.hupper hl μ, hvac_pos, hnn⟩
-    have hle := csInf_le ⟨0, fun t ht => ht.1.le⟩ hmem
+        spanTestS_mem S.ha_pos S.hnonneg S.hupper hl μ, hvac_pos, hnn⟩
+    have hbdd : BddBelow (constrainedGapsS src cTilde F) := ⟨0, fun _ ht => ht.1.le⟩
+    have hle : TF ≤ τ := csInf_le hbdd hmem
     linarith
   have hT₀_ex : ∃ T₀ : ℝ, 0 < T₀ ∧ T₀ ≤ TF / 2 ∧ F ⊆ Ici T₀ := by
     rcases F.eq_empty_or_nonempty with rfl | hFne
@@ -657,12 +637,12 @@ theorem theorem_E_b_compact_empty_src {src : ShiftSource} {Fl : FloorData src} {
   have heq : constrainedThresholdS src cTilde ∅ = src.T_V cTilde := by
     unfold constrainedThresholdS constrainedGapsS ShiftSource.T_V
     congr 1; ext τ
-    simp only [mem_setOf_eq, empty_union, isFeasibleOn_Ici_iff_src]
+    simp only [mem_ofPred_eq, empty_union, isFeasibleOn_Ici_iff_src]
   have hE := theorem_E_b_compact_src hAt isCompact_empty (empty_subset _) hTV
   rcases hE with ⟨_, ⟨_, meas, hν⟩, hmax, _⟩
-  rw [heq, empty_union] at hν hmax
-  refine ⟨heq, ⟨meas, hν⟩, ?_⟩
-  simpa only [empty_union] using hmax
+  rw [heq, empty_union] at hν
+  simp only [empty_union, heq] at hmax
+  exact ⟨heq, ⟨meas, hν⟩, hmax⟩
 
 /-! ### Theorem E(c) (`ds:E`(c)): Reserve separation -/
 
@@ -674,30 +654,30 @@ private lemma ae_mem_of_null_src {X : Set ℝ} {σ : Measure ℝ} (hσ : σ Xᶜ
 /-- `w̃ ∈ L¹(σ)` when `h ∈ L¹(σ)` and `σ` is carried by `X ⊆ [T₀, ∞)`. -/
 lemma integrable_wTilde_of_h_src {src : ShiftSource} {cTilde β₀ T₀ : ℝ}
     (S : SourceDualSetupCore src cTilde β₀ T₀) {X : Set ℝ} (hX : X ⊆ Ici T₀) {σ : Measure ℝ}
-    (hσ : σ Xᶜ = 0) (hh : Integrable (hMaj src.w (cTilde / 12) β₀) σ) :
+    (hσ : σ Xᶜ = 0) (hh : Integrable (FixedWeight.hMaj src.w (cTilde / 12) β₀) σ) :
     Integrable (wTilde (cTilde / 12) β₀ T₀) σ := by
-  refine hh.mono' (continuous_wTilde S.hβ₀).aestronglyMeasurable ?_
+  refine hh.mono' (measurable_wTilde (cTilde / 12) β₀ T₀).aestronglyMeasurable ?_
   filter_upwards [ae_mem_of_null_src hσ] with y hy
   have hy0 := hX hy
-  rw [Real.norm_eq_abs, abs_of_pos (wTilde_pos S.hβ₀ S.hT₀.le), wTilde_of_le _ _ hy0]
-  exact (S.lemma_M hy0).2
+  rw [Real.norm_eq_abs, abs_of_pos (wTilde_pos S.ha_pos S.hβ₀ S.hT₀pos y), wTilde_of_le hy0]
+  exact (lemma_M_src S).2.2.2.1 y hy0
 
 /-- `f̃_β ∈ L¹(σ)` for every `β > 0`, when `h ∈ L¹(σ)`. -/
 lemma integrable_fTilde_of_h_src {src : ShiftSource} {cTilde β₀ T₀ : ℝ}
     (S : SourceDualSetupCore src cTilde β₀ T₀) {X : Set ℝ} (hX : X ⊆ Ici T₀) {σ : Measure ℝ}
     (hσ : σ Xᶜ = 0) [IsFiniteMeasureOnCompacts σ]
-    (hh : Integrable (hMaj src.w (cTilde / 12) β₀) σ) {β : ℝ} (hβ : 0 < β) :
+    (hh : Integrable (FixedWeight.hMaj src.w (cTilde / 12) β₀) σ) {β : ℝ} (hβ : 0 < β) :
     Integrable (fTilde src.w T₀ β) σ := by
   have hw := integrable_wTilde_of_h_src S hX hσ hh
-  obtain ⟨K, hK, hKd⟩ := fTilde_decay (w := src.w) S.hβ₀ S.hT₀.le hβ 1 one_pos
-  have hf := continuous_fTilde (w := src.w) (T₀ := T₀) hβ
+  obtain ⟨K, hK, hKd⟩ := fTilde_decay (w := src.w) S.ha_pos S.hβ₀ S.hT₀pos hβ hX 1 one_pos
+  have hf := continuous_fTilde src.w T₀ β
   have h1 : IntegrableOn (fTilde src.w T₀ β) K σ := hf.continuousOn.integrableOn_compact hK
   have h2 : IntegrableOn (fTilde src.w T₀ β) Kᶜ σ := by
     refine Integrable.mono' (hw.mono_measure Measure.restrict_le_self)
       hf.aestronglyMeasurable ?_
     rw [ae_restrict_iff' hK.isClosed.measurableSet.compl]
     filter_upwards [ae_mem_of_null_src hσ] with y hy hyK
-    have := hKd y (hX hy) hyK
+    have := hKd y hy hyK
     rw [Real.norm_eq_abs]
     linarith
   have := h1.union h2
@@ -706,20 +686,20 @@ lemma integrable_fTilde_of_h_src {src : ShiftSource} {cTilde β₀ T₀ : ℝ}
 lemma integrable_thermalDiff_of_h_src {src : ShiftSource} {cTilde β₀ T₀ : ℝ}
     (S : SourceDualSetupCore src cTilde β₀ T₀) {X : Set ℝ} (hX : X ⊆ Ici T₀) {σ : Measure ℝ}
     (hσ : σ Xᶜ = 0) [IsFiniteMeasureOnCompacts σ]
-    (hh : Integrable (hMaj src.w (cTilde / 12) β₀) σ) {β : ℝ} (hβ : 0 < β) :
+    (hh : Integrable (FixedWeight.hMaj src.w (cTilde / 12) β₀) σ) {β : ℝ} (hβ : 0 < β) :
     Integrable (thermalDiff src.w β) σ := by
   refine (integrable_fTilde_of_h_src S hX hσ hh hβ).congr ?_
-  filter_upwards [ae_mem_of_null_src hσ] with y hy using fTilde_of_le _ _ (hX hy)
+  filter_upwards [ae_mem_of_null_src hσ] with y hy using fTilde_of_le (hX hy)
 
 lemma integral_spanTestS_of_h {src : ShiftSource} {cTilde β₀ T₀ : ℝ}
     (S : SourceDualSetupCore src cTilde β₀ T₀) {X : Set ℝ} (hX : X ⊆ Ici T₀) {σ : Measure ℝ}
     (hσ : σ Xᶜ = 0) [IsFiniteMeasureOnCompacts σ]
-    (hh : Integrable (hMaj src.w (cTilde / 12) β₀) σ)
+    (hh : Integrable (FixedWeight.hMaj src.w (cTilde / 12) β₀) σ)
     {l : ℝ →₀ ℝ} (hl : ∀ β ∈ l.support, 0 < β) (μ : ℝ) :
     Integrable (spanTestS src l μ (cTilde / 12) β₀) σ ∧
     ∫ t, spanTestS src l μ (cTilde / 12) β₀ t ∂σ =
       (∑ β ∈ l.support, l β * ∫ t, thermalDiff src.w β t ∂σ) +
-        μ * ∫ t, hMaj src.w (cTilde / 12) β₀ t ∂σ := by
+        μ * ∫ t, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂σ := by
   have hXi : ∀ β ∈ l.support, Integrable (fun t => l β * thermalDiff src.w β t) σ := fun β hβ =>
     (integrable_thermalDiff_of_h_src S hX hσ hh (hl β hβ)).const_mul _
   have hsum : Integrable (fun t => ∑ β ∈ l.support, l β * thermalDiff src.w β t) σ :=
@@ -737,29 +717,31 @@ there is a crossing measure `meas` carried by `X` with `r • σ ≤ meas.ν`,
 theorem theorem_E_c_separation_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     (S : SourceDualSetupCore src cTilde β₀ T₀) {X : Set ℝ} (hXc : IsClosed X) (hX : X ⊆ Ici T₀)
     {σ : Measure ℝ} [IsFiniteMeasureOnCompacts σ] (hσ : σ Xᶜ = 0)
-    (hh : Integrable (hMaj src.w (cTilde / 12) β₀) σ) {r : ℝ} (hr : 0 ≤ r)
-    (hbud : r * ∫ t, hMaj src.w (cTilde / 12) β₀ t ∂σ < dualC0S src (cTilde / 12) β₀)
+    (hh : Integrable (FixedWeight.hMaj src.w (cTilde / 12) β₀) σ) {r : ℝ} (hr : 0 ≤ r)
+    (hbud : r * ∫ t, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂σ < dualC0S src (cTilde / 12) β₀)
     (hH : ∀ (l : ℝ →₀ ℝ) (μ : ℝ), (∀ β ∈ l.support, 0 < β) → 0 ≤ μ →
       (∀ t ∈ X, 0 ≤ spanTestS src l μ (cTilde / 12) β₀ t) →
       r * ∫ t, spanTestS src l μ (cTilde / 12) β₀ t ∂σ ≤
         -src.gVac (cTilde / 12) (spanTestS src l μ (cTilde / 12) β₀)) :
     ∃ meas : SourceCrossingMeasure src (cTilde / 12), meas.ν Xᶜ = 0 ∧
-      ENNReal.ofReal r • σ ≤ meas.ν ∧ IntegrableOn (wStar src.w β₀) (Ici 0) meas.ν ∧
-      ∫ t in Ici 0, wStar src.w β₀ t ∂meas.ν ≤ dualC0S src (cTilde / 12) β₀ := by
+      ENNReal.ofReal r • σ ≤ meas.ν ∧ IntegrableOn (wStar (cTilde / 12) β₀) (Ici 0) meas.ν ∧
+      ∫ t in Ici 0, wStar (cTilde / 12) β₀ t ∂meas.ν ≤ dualC0S src (cTilde / 12) β₀ := by
   classical
-  have hC₀ : 0 < dualC0S src (cTilde / 12) β₀ := S.C₀_pos
+  have hC₀ : 0 < dualC0S src (cTilde / 12) β₀ := dualC0S_pos S
   set C₀ := dualC0S src (cTilde / 12) β₀ with hC₀def
-  set H := ∫ t, hMaj src.w (cTilde / 12) β₀ t ∂σ with hHdef
+  set H := ∫ t, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂σ with hHdef
   have hC₀' : 0 < C₀ - r * H := by linarith
-  have hwpos : ∀ y : ℝ, 0 < wTilde src.w β₀ T₀ y := fun y => wTilde_pos S.hβ₀ S.hT₀.le
+  have hwpos : ∀ y : ℝ, 0 < wTilde (cTilde / 12) β₀ T₀ y := fun y =>
+    wTilde_pos S.ha_pos S.hβ₀ S.hT₀pos y
   have hfint : ∀ β : ℝ, 0 < β → Integrable (fTilde src.w T₀ β) σ := fun β hβ =>
     integrable_fTilde_of_h_src S hX hσ hh hβ
   have hw_int_σ : Integrable (wTilde (cTilde / 12) β₀ T₀) σ :=
     integrable_wTilde_of_h_src S hX hσ hh
   let a' : Ioi (0 : ℝ) → ℝ := fun β =>
     -src.gVac (cTilde / 12) (thermalDiff src.w β.1) - r * ∫ t, thermalDiff src.w β.1 t ∂σ
+  have hm_ge_all := (lemma_M_src S).2.2.2.1
   have hsep : ∀ (j : ℕ) (u : Finset (Ioi (0 : ℝ))) (lam : Ioi (0 : ℝ) → ℝ) (b : ℝ), 0 ≤ b →
-      (∀ y ∈ X, 0 ≤ b + ∑ i ∈ u, lam i * (fTilde src.w T₀ i.1 y / wTilde src.w β₀ T₀ y)) →
+      (∀ y ∈ X, 0 ≤ b + ∑ i ∈ u, lam i * (fTilde src.w T₀ i.1 y / wTilde (cTilde / 12) β₀ T₀ y)) →
       0 ≤ b * (C₀ - r * H) + ∑ i ∈ u, lam i * a' i := by
     intro _ u lam b hb hpos
     let l : ℝ →₀ ℝ := ∑ i ∈ u, Finsupp.single i.1 (lam i)
@@ -767,29 +749,29 @@ theorem theorem_E_c_separation_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     have hnn : ∀ t ∈ X, 0 ≤ spanTestS src l b (cTilde / 12) β₀ t := by
       intro t ht
       have htT : T₀ ≤ t := hX ht
-      have ht0 : 0 ≤ t := S.hT₀.le.trans htT
-      have hwpos_t : 0 < wStar src.w β₀ t := wStar_pos S.hβ₀ ht0
+      have ht0 : 0 ≤ t := S.hT₀pos.le.trans htT
+      have hwpos_t : 0 < wStar (cTilde / 12) β₀ t := wStar_pos S.ha_pos.le S.hβ₀ ht0
       have hmul := mul_nonneg (hpos t ht) hwpos_t.le
       have hl_sum : (∑ β ∈ l.support, l β * thermalDiff src.w β t) =
           ∑ i ∈ u, lam i * thermalDiff src.w i.1 t :=
         finsupp_sum_single_mul u lam (fun β => thermalDiff src.w β t)
-      have hrhs_eq : (b + ∑ i ∈ u, lam i * (fTilde src.w T₀ i.1 t / wTilde src.w β₀ T₀ t)) *
-            wStar src.w β₀ t =
-          b * wStar src.w β₀ t + ∑ i ∈ u, lam i * thermalDiff src.w i.1 t := by
+      have hrhs_eq : (b + ∑ i ∈ u, lam i * (fTilde src.w T₀ i.1 t / wTilde (cTilde / 12) β₀ T₀ t)) *
+            wStar (cTilde / 12) β₀ t =
+          b * wStar (cTilde / 12) β₀ t + ∑ i ∈ u, lam i * thermalDiff src.w i.1 t := by
         rw [add_mul, Finset.sum_mul]
         congr 1
         refine Finset.sum_congr rfl fun i _ => ?_
-        rw [wTilde_of_le _ _ htT, fTilde_of_le _ _ htT]
+        rw [wTilde_of_le htT, fTilde_of_le htT]
         field_simp [hwpos_t.ne']
-      have hbw : b * wStar src.w β₀ t ≤ b * hMaj src.w (cTilde / 12) β₀ t :=
-        mul_le_mul_of_nonneg_left (S.lemma_M htT).2 hb
+      have hbw : b * wStar (cTilde / 12) β₀ t ≤ b * FixedWeight.hMaj src.w (cTilde / 12) β₀ t :=
+        mul_le_mul_of_nonneg_left (hm_ge_all t htT) hb
       unfold spanTestS
       rw [hl_sum]
       linarith
     have hint_g := integral_spanTestS_of_h S hX hσ hh hl b
     have hg_H := hH l b hl hb hnn
     rw [hint_g.2, finsupp_sum_single_mul u lam (fun β => ∫ t, thermalDiff src.w β t ∂σ),
-      gVac_spanTestS S.ha0 S.hβ₀ S.hnonneg S.hupper hl b,
+      gVac_spanTestS S.ha_pos S.hnonneg S.hupper hl b,
       finsupp_sum_single_mul u lam (fun β => src.gVac (cTilde / 12) (thermalDiff src.w β))] at hg_H
     have ha_sum : ∑ i ∈ u, lam i * a' i =
         (∑ i ∈ u, lam i * (-src.gVac (cTilde / 12) (thermalDiff src.w i.1))) -
@@ -799,19 +781,35 @@ theorem theorem_E_c_separation_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     rw [ha_sum]
     change 0 ≤ b * (C₀ - r * H) + _
     dsimp only [C₀, H] at hg_H ⊢
-    linarith
+    have hlin : r * (∑ i ∈ u, lam i * ∫ t, thermalDiff src.w i.1 t ∂σ) +
+        b * (r * ∫ t, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂σ) ≤
+        b * dualC0S src (cTilde / 12) β₀ - ∑ i ∈ u, lam i * src.gVac (cTilde / 12) (thermalDiff src.w i.1) := by
+      linarith [show r * (∑ i ∈ u, lam i * ∫ t, thermalDiff src.w i.1 t ∂σ +
+          b * ∫ t, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂σ) =
+        r * (∑ i ∈ u, lam i * ∫ t, thermalDiff src.w i.1 t ∂σ) +
+          b * (r * ∫ t, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂σ) by ring]
+    have hlin' : b * (dualC0S src (cTilde / 12) β₀ -
+          r * ∫ t, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂σ) +
+        ((∑ i ∈ u, lam i * (-src.gVac (cTilde / 12) (thermalDiff src.w i.1))) -
+          r * ∑ i ∈ u, lam i * ∫ t, thermalDiff src.w i.1 t ∂σ) =
+        b * dualC0S src (cTilde / 12) β₀ -
+          ∑ i ∈ u, lam i * src.gVac (cTilde / 12) (thermalDiff src.w i.1) -
+          (r * (∑ i ∈ u, lam i * ∫ t, thermalDiff src.w i.1 t ∂σ) +
+            b * (r * ∫ t, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂σ)) := by
+      simp only [mul_neg, Finset.sum_neg_distrib]; ring
+    linarith [hlin, hlin']
   obtain ⟨ν₀, _, hsupp0, hbud0, hmom0⟩ := farkas_separation (Y := ℝ) (I := Ioi (0 : ℝ))
-    (continuous_wTilde S.hβ₀) hwpos hC₀' (fun _ => hXc) (fun _ _ _ => Subset.rfl)
-    (fun β => continuous_fTilde (w := src.w) (T₀ := T₀) β.2)
-    (fun β ε hε => fTilde_decay S.hβ₀ S.hT₀.le β.2 hε)
+    (continuous_wTilde (β₀ := β₀) S.ha_pos S.hT₀pos) hwpos hC₀' (fun _ => hXc) (fun _ _ _ => Subset.rfl)
+    (fun β => continuous_fTilde src.w T₀ β.1)
+    (fun β ε hε => fTilde_decay (w := src.w) S.ha_pos S.hβ₀ S.hT₀pos β.2 hX ε hε)
     (a := a') hsep
   rw [iInter_const] at hsupp0
   let ν : Measure ℝ := ν₀ + ENNReal.ofReal r • σ
   have hν_supp : ν Xᶜ = 0 := by
     simp [ν, hsupp0, hσ]
-  have hw_int0 : Integrable (wTilde src.w β₀ T₀) ν₀ :=
-    ⟨(continuous_wTilde S.hβ₀).aestronglyMeasurable, lt_of_le_of_lt hbud0 ENNReal.ofReal_lt_top⟩
-  have hw_int_ν : Integrable (wTilde src.w β₀ T₀) ν := by
+  have hw_int0 : Integrable (wTilde (cTilde / 12) β₀ T₀) ν₀ :=
+    integrable_wTilde_of_bud S.ha_pos S.hβ₀ S.hT₀pos hbud0
+  have hw_int_ν : Integrable (wTilde (cTilde / 12) β₀ T₀) ν := by
     refine hw_int0.add_measure ?_
     exact hw_int_σ.smul_measure ENNReal.ofReal_ne_top
   have hmom_ν : ∀ β : Ioi (0 : ℝ), Integrable (fTilde src.w T₀ β.1) ν ∧
@@ -824,42 +822,41 @@ theorem theorem_E_c_separation_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     rw [integral_add_measure hf0 hsm, integral_smul_measure, ENNReal.toReal_ofReal hr, smul_eq_mul,
       (hmom0 β).2]
     have heq_f : ∫ t, fTilde src.w T₀ β.1 t ∂σ = ∫ t, thermalDiff src.w β.1 t ∂σ :=
-      integral_congr_ae (ae_mem_of_null_src hσ |>.mono fun t ht => fTilde_of_le _ _ (hX ht))
+      integral_congr_ae (ae_mem_of_null_src hσ |>.mono fun t ht => fTilde_of_le (hX ht))
     rw [heq_f]
     dsimp [a']
     ring
   let meas := build_crossingMeasure_src src S hX hν_supp hw_int_ν hmom_ν
   have haeT : ∀ᵐ t ∂ν, T₀ ≤ t :=
     ae_mem_of_null_src hν_supp |>.mono fun t ht => hX ht
-  have hw_meas : IntegrableOn (wStar src.w β₀) (Ici 0) meas.ν := by
-    rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem
-      (haeT.mono fun t ht => S.hT₀.le.trans ht)]
-    exact hw_int_ν.congr' (continuous_wStar S.hβ₀).aestronglyMeasurable
-      (haeT.mono fun t ht => wTilde_of_le _ _ ht)
-  have hbud_meas : ∫ t in Ici 0, wStar src.w β₀ t ∂meas.ν ≤ C₀ := by
-    have heq : ∫ t in Ici 0, wStar src.w β₀ t ∂meas.ν = ∫ t, wTilde src.w β₀ T₀ t ∂ν := by
-      rw [Measure.restrict_eq_self_of_ae_mem (haeT.mono fun t ht => S.hT₀.le.trans ht)]
-      exact integral_congr_ae (haeT.mono fun t ht => (wTilde_of_le _ _ ht).symm)
+  have hw_meas : IntegrableOn (wStar (cTilde / 12) β₀) (Ici 0) meas.ν := by
+    rw [IntegrableOn, restrict_Ici_eq_self_src meas]
+    exact hw_int_ν.congr (haeT.mono fun t ht => wTilde_of_le ht)
+  have hbud_meas : ∫ t in Ici 0, wStar (cTilde / 12) β₀ t ∂meas.ν ≤ C₀ := by
+    have heq : ∫ t in Ici 0, wStar (cTilde / 12) β₀ t ∂meas.ν =
+        ∫ t, wTilde (cTilde / 12) β₀ T₀ t ∂ν := by
+      rw [restrict_Ici_eq_self_src meas]
+      exact integral_congr_ae (haeT.mono fun t ht => (wTilde_of_le ht).symm)
     rw [heq]
-    have hsm_w : Integrable (wTilde src.w β₀ T₀) (ENNReal.ofReal r • σ) :=
+    have hsm_w : Integrable (wTilde (cTilde / 12) β₀ T₀) (ENNReal.ofReal r • σ) :=
       hw_int_σ.smul_measure ENNReal.ofReal_ne_top
     rw [integral_add_measure hw_int0 hsm_w, integral_smul_measure, ENNReal.toReal_ofReal hr,
       smul_eq_mul]
-    have h1 : ∫ t, wTilde src.w β₀ T₀ t ∂ν₀ ≤ C₀ - r * H := by
-      have hof : ENNReal.ofReal (∫ t, wTilde src.w β₀ T₀ t ∂ν₀) =
-          ∫⁻ t, ENNReal.ofReal (wTilde src.w β₀ T₀ t) ∂ν₀ :=
+    have h1 : ∫ t, wTilde (cTilde / 12) β₀ T₀ t ∂ν₀ ≤ C₀ - r * H := by
+      have hof : ENNReal.ofReal (∫ t, wTilde (cTilde / 12) β₀ T₀ t ∂ν₀) =
+          ∫⁻ t, ENNReal.ofReal (wTilde (cTilde / 12) β₀ T₀ t) ∂ν₀ :=
         ofReal_integral_eq_lintegral_ofReal hw_int0 (Eventually.of_forall fun t => (hwpos t).le)
       rw [← ENNReal.ofReal_le_ofReal_iff hC₀'.le, hof]
       exact hbud0
-    have h2 : ∫ t, wTilde src.w β₀ T₀ t ∂σ ≤ H := by
-      have h_eq : ∫ t, wTilde src.w β₀ T₀ t ∂σ = ∫ t, wStar src.w β₀ t ∂σ :=
-        integral_congr_ae (ae_mem_of_null_src hσ |>.mono fun t ht => wTilde_of_le _ _ (hX ht))
+    have h2 : ∫ t, wTilde (cTilde / 12) β₀ T₀ t ∂σ ≤ H := by
+      have h_eq : ∫ t, wTilde (cTilde / 12) β₀ T₀ t ∂σ = ∫ t, wStar (cTilde / 12) β₀ t ∂σ :=
+        integral_congr_ae (ae_mem_of_null_src hσ |>.mono fun t ht => wTilde_of_le (hX ht))
       rw [h_eq]
       exact integral_mono_ae
-        (hw_int_σ.congr (ae_mem_of_null_src hσ |>.mono fun t ht => wTilde_of_le _ _ (hX ht)))
-        hh (ae_mem_of_null_src hσ |>.mono fun t ht => (S.lemma_M (hX ht)).2)
+        (hw_int_σ.congr (ae_mem_of_null_src hσ |>.mono fun t ht => wTilde_of_le (hX ht)))
+        hh (ae_mem_of_null_src hσ |>.mono fun t ht => hm_ge_all t (hX ht))
     nlinarith
-  exact ⟨meas, hν_supp, meas_le_add_self ν₀ _, hw_meas, hbud_meas⟩
+  exact ⟨meas, hν_supp, Measure.le_add_left le_rfl, hw_meas, hbud_meas⟩
 
 /-- Supremal reserve multiplier `r` for `r σ ≤ ν`. -/
 noncomputable def reserveRatiosS (src : ShiftSource) (cTilde β₀ : ℝ) (X : Set ℝ)
@@ -880,30 +877,33 @@ theorem theorem_E_c_reserve_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     (S : SourceDualSetupCore src cTilde β₀ T₀) (hcb : CrossingBounds src (cTilde / 12))
     {X : Set ℝ} (hXc : IsClosed X) (hX : X ⊆ Ici T₀) {σ : Measure ℝ}
     [IsFiniteMeasureOnCompacts σ] (hσ : σ Xᶜ = 0)
-    (hh : Integrable (hMaj src.w (cTilde / 12) β₀) σ)
-    (hHpos : 0 < ∫ t, hMaj src.w (cTilde / 12) β₀ t ∂σ)
+    (hh : Integrable (FixedWeight.hMaj src.w (cTilde / 12) β₀) σ)
+    (hHpos : 0 < ∫ t, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂σ)
     (hcross : ∃ meas : SourceCrossingMeasure src (cTilde / 12), meas.ν Xᶜ = 0) :
     IsGreatest {r : ℝ | 0 ≤ r ∧ ∃ meas : SourceCrossingMeasure src (cTilde / 12),
         meas.ν Xᶜ = 0 ∧ ENNReal.ofReal r • σ ≤ meas.ν} (reserveMaxS src cTilde β₀ X σ) ∧
       reserveMaxS src cTilde β₀ X σ ≤
-        dualC0S src (cTilde / 12) β₀ / ∫ t, hMaj src.w (cTilde / 12) β₀ t ∂σ := by
+        dualC0S src (cTilde / 12) β₀ / ∫ t, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂σ := by
   classical
-  have hC₀ : 0 < dualC0S src (cTilde / 12) β₀ := S.C₀_pos
+  have hC₀ : 0 < dualC0S src (cTilde / 12) β₀ := dualC0S_pos S
   set C₀ := dualC0S src (cTilde / 12) β₀ with hC₀def
-  set H := ∫ t, hMaj src.w (cTilde / 12) β₀ t ∂σ with hHdef
+  set H := ∫ t, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂σ with hHdef
   obtain ⟨meas0, hν0⟩ := hcross
   set R := reserveMaxS src cTilde β₀ X σ with hRdef
+  have hm_ge_all := (lemma_M_src S).2.2.2.1
   have hxh : C₀ / H ∈ reserveRatiosS src cTilde β₀ X σ := by
     refine ⟨0, 1, by simp, zero_le_one, ?_, ?_, ?_⟩
     · intro t ht
-      have := (S.lemma_M (hX ht)).1.le.trans (S.lemma_M (hX ht)).2
+      have hwp := (wStar_pos S.ha_pos.le S.hβ₀ (S.hT₀pos.le.trans (hX ht))).le
+      have := hwp.trans (hm_ge_all t (hX ht))
       unfold spanTestS; simpa using this
     · unfold spanTestS; simpa using hHpos
     · unfold spanTestS
       have h0 : (fun t => (∑ β ∈ (0 : ℝ →₀ ℝ).support, (0 : ℝ →₀ ℝ) β * thermalDiff src.w β t) +
-          1 * hMaj src.w (cTilde / 12) β₀ t) = hMaj src.w (cTilde / 12) β₀ := by ext t; simp
+          1 * FixedWeight.hMaj src.w (cTilde / 12) β₀ t) =
+          FixedWeight.hMaj src.w (cTilde / 12) β₀ := by ext t; simp
       rw [h0]
-      change -src.gVac (cTilde / 12) (hMaj src.w (cTilde / 12) β₀) / H = C₀ / H
+      change -src.gVac (cTilde / 12) (FixedWeight.hMaj src.w (cTilde / 12) β₀) / H = C₀ / H
       rfl
   have hne : (reserveRatiosS src cTilde β₀ X σ).Nonempty := ⟨_, hxh⟩
   have hnn_ratio : ∀ x ∈ reserveRatiosS src cTilde β₀ X σ, 0 ≤ x := by
@@ -955,26 +955,42 @@ theorem theorem_E_c_reserve_src (src : ShiftSource) {cTilde β₀ T₀ : ℝ}
     obtain ⟨meas', hlim, hsupp', -, -⟩ := theorem_E_a_compactness_src src S hcb (X := fun _ => X)
       (fun _ => hXc) (fun _ _ _ => le_rfl) hX meas hmsupp 𝒰 h𝒰
     simp only [iInter_const] at hsupp'
-    haveI : ∀ j, IsFiniteMeasureOnCompacts (meas j).ν := fun j =>
+    have : ∀ j, IsFiniteMeasureOnCompacts (meas j).ν := fun j =>
       isFiniteMeasureOnCompacts_src src (meas j)
-    haveI := isFiniteMeasureOnCompacts_src src meas'
+    have := isFiniteMeasureOnCompacts_src src meas'
     have hrt : Tendsto r atTop (𝓝 R) := by
       have h1 : Tendsto (fun n : ℕ => R / ((n : ℝ) + 1)) atTop (𝓝 0) := by
         simpa [div_eq_mul_inv, mul_comm] using
           (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ)).const_mul R
       simpa using (tendsto_const_nhds (x := R)).sub h1
     exact ⟨meas', hsupp', hlim.smul_le (hrt.mono_left h𝒰) hr_nn hmdom⟩
-  · rintro r ⟨_, meas, hν, hle⟩
+  · rintro r ⟨hr, meas, hν, hle⟩
     refine le_csInf hne ?_
     rintro x ⟨l, μ, hl, _, hg, hpos, rfl⟩
     obtain ⟨hint, heq⟩ := crossing_pairing_span_src src S hcb meas hl μ
-    rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem
-      (ae_mem_of_null_src hν |>.mono fun t ht => S.hT₀.le.trans (hX ht))] at hint heq
-    have hmono : r * ∫ t, spanTestS src l μ (cTilde / 12) β₀ t ∂σ ≤
-        ∫ t, spanTestS src l μ (cTilde / 12) β₀ t ∂meas.ν := by
-      have h1 := integral_mono_measure (le_trans hle le_rfl) (ae_mem_of_null_src hν |>.mono fun t ht => hg t ht) hint
-      rw [integral_smul_measure, ENNReal.toReal_ofReal (by linarith : 0 ≤ r), smul_eq_mul] at h1
-      exact h1
+    rw [IntegrableOn, restrict_Ici_eq_self_src meas] at hint
+    rw [restrict_Ici_eq_self_src meas] at heq
+    have hI := (integral_spanTestS_of_h S hX hσ hh hl μ).1
+    have hsm : Integrable (spanTestS src l μ (cTilde / 12) β₀) (ENNReal.ofReal r • σ) :=
+      hI.smul_measure ENNReal.ofReal_ne_top
+    have hae_r : 0 ≤ᵐ[ENNReal.ofReal r • σ] spanTestS src l μ (cTilde / 12) β₀ := by
+      have hnull : (ENNReal.ofReal r • σ) Xᶜ = 0 := by simp [hσ]
+      exact ae_mem_of_null_src hnull |>.mono fun t ht => hg t ht
+    have hae_ν : 0 ≤ᵐ[meas.ν] spanTestS src l μ (cTilde / 12) β₀ :=
+      ae_mem_of_null_src hν |>.mono fun t ht => hg t ht
+    have hmono_en : ENNReal.ofReal (r * ∫ t, spanTestS src l μ (cTilde / 12) β₀ t ∂σ) ≤
+        ENNReal.ofReal (∫ t, spanTestS src l μ (cTilde / 12) β₀ t ∂meas.ν) := by
+      calc ENNReal.ofReal (r * ∫ t, spanTestS src l μ (cTilde / 12) β₀ t ∂σ)
+          = ENNReal.ofReal (∫ t, spanTestS src l μ (cTilde / 12) β₀ t ∂(ENNReal.ofReal r • σ)) := by
+            rw [integral_smul_measure, ENNReal.toReal_ofReal hr, smul_eq_mul]
+        _ = ∫⁻ t, ENNReal.ofReal (spanTestS src l μ (cTilde / 12) β₀ t) ∂(ENNReal.ofReal r • σ) :=
+            ofReal_integral_eq_lintegral_ofReal hsm hae_r
+        _ ≤ ∫⁻ t, ENNReal.ofReal (spanTestS src l μ (cTilde / 12) β₀ t) ∂meas.ν :=
+            lintegral_mono' hle le_rfl
+        _ = ENNReal.ofReal (∫ t, spanTestS src l μ (cTilde / 12) β₀ t ∂meas.ν) :=
+            (ofReal_integral_eq_lintegral_ofReal hint hae_ν).symm
+    have hint_nn : 0 ≤ ∫ t, spanTestS src l μ (cTilde / 12) β₀ t ∂meas.ν := integral_nonneg_of_ae hae_ν
+    have hmono := (ENNReal.ofReal_le_ofReal_iff hint_nn).1 hmono_en
     rw [le_div_iff₀ hpos]
     linarith
 
@@ -985,8 +1001,8 @@ theorem theorem_E_c_reserve_testClass_src (src : ShiftSource) {cTilde β₀ T₀
     (S : SourceDualSetupCore src cTilde β₀ T₀) (hcb : CrossingBounds src (cTilde / 12))
     {X : Set ℝ} (hXc : IsClosed X) (hX : X ⊆ Ici T₀) (hray : ∃ τ, Ici τ ⊆ X)
     {σ : Measure ℝ} [IsFiniteMeasureOnCompacts σ] (hσ : σ Xᶜ = 0)
-    (hh : Integrable (hMaj src.w (cTilde / 12) β₀) σ)
-    (hHpos : 0 < ∫ t, hMaj src.w (cTilde / 12) β₀ t ∂σ)
+    (hh : Integrable (FixedWeight.hMaj src.w (cTilde / 12) β₀) σ)
+    (hHpos : 0 < ∫ t, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂σ)
     (hcross : ∃ meas : SourceCrossingMeasure src (cTilde / 12), meas.ν Xᶜ = 0) :
     ENNReal.ofReal (reserveMaxS src cTilde β₀ X σ) =
       ⨅ (g : ℝ → ℝ) (_ : TestClass src (cTilde / 12) g) (_ : ∀ t ∈ X, 0 ≤ g t)
@@ -997,30 +1013,30 @@ theorem theorem_E_c_reserve_testClass_src (src : ShiftSource) {cTilde β₀ T₀
     theorem_E_c_reserve_src src S hcb hXc hX hσ hh hHpos hcross
   obtain ⟨τ, hτ⟩ := hray
   set R := reserveMaxS src cTilde β₀ X σ with hRdef
-  obtain ⟨meas0, hν0⟩ := hcross
-  have hC₀ : 0 < dualC0S src (cTilde / 12) β₀ := S.C₀_pos
+  have hC₀ : 0 < dualC0S src (cTilde / 12) β₀ := dualC0S_pos S
   set C₀ := dualC0S src (cTilde / 12) β₀
-  set H := ∫ t, hMaj src.w (cTilde / 12) β₀ t ∂σ
+  set H := ∫ t, FixedWeight.hMaj src.w (cTilde / 12) β₀ t ∂σ
+  have hm_ge_all := (lemma_M_src S).2.2.2.1
   have hxh : C₀ / H ∈ reserveRatiosS src cTilde β₀ X σ := by
     refine ⟨0, 1, by simp, zero_le_one, ?_, ?_, ?_⟩
     · intro t ht
-      have := (S.lemma_M (hX ht)).1.le.trans (S.lemma_M (hX ht)).2
-      unfold spanTestS; simpa using this
+      have hwp := (wStar_pos S.ha_pos.le S.hβ₀ (S.hT₀pos.le.trans (hX ht))).le
+      unfold spanTestS; simpa using hwp.trans (hm_ge_all t (hX ht))
     · unfold spanTestS; simpa using hHpos
     · unfold spanTestS
       have h0 : (fun t => (∑ β ∈ (0 : ℝ →₀ ℝ).support, (0 : ℝ →₀ ℝ) β * thermalDiff src.w β t) +
-          1 * hMaj src.w (cTilde / 12) β₀ t) = hMaj src.w (cTilde / 12) β₀ := by ext t; simp
+          1 * FixedWeight.hMaj src.w (cTilde / 12) β₀ t) =
+          FixedWeight.hMaj src.w (cTilde / 12) β₀ := by ext t; simp
       rw [h0]
-      change -src.gVac (cTilde / 12) (hMaj src.w (cTilde / 12) β₀) / H = C₀ / H
+      change -src.gVac (cTilde / 12) (FixedWeight.hMaj src.w (cTilde / 12) β₀) / H = C₀ / H
       rfl
   have hne : (reserveRatiosS src cTilde β₀ X σ).Nonempty := ⟨_, hxh⟩
   apply le_antisymm
   · refine le_iInf fun g => le_iInf fun hg => le_iInf fun hnn => le_iInf fun hL => ?_
-    obtain ⟨hint, hle⟩ := lemma_fwX_one_sided_src src hcb S.ha0 meas hg
+    obtain ⟨hint, hle⟩ := lemma_fwX_one_sided_src src hcb S.ha_pos meas hg
       (T := τ) fun t ht => hnn t (hτ ht)
-    have hae0 : ∀ᵐ t ∂meas.ν, 0 ≤ t :=
-      ae_mem_of_null_src hν |>.mono fun t ht => S.hT₀.le.trans (hX ht)
-    rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem hae0] at hint hle
+    rw [IntegrableOn, restrict_Ici_eq_self_src meas] at hint
+    rw [restrict_Ici_eq_self_src meas] at hle
     have hae : ∀ᵐ t ∂meas.ν, 0 ≤ g t :=
       ae_mem_of_null_src hν |>.mono fun t ht => hnn t ht
     have h1 : ENNReal.ofReal (∫ t, g t ∂meas.ν) = ∫⁻ t, ENNReal.ofReal (g t) ∂meas.ν :=
@@ -1050,7 +1066,7 @@ theorem theorem_E_c_reserve_testClass_src (src : ShiftSource) {cTilde β₀ T₀
     have hLpos : 0 < ∫⁻ t, ENNReal.ofReal (spanTestS src l μ (cTilde / 12) β₀ t) ∂σ := by
       rw [hL]; exact ENNReal.ofReal_pos.2 hpos
     refine le_trans (iInf_le _ (spanTestS src l μ (cTilde / 12) β₀))
-      (le_trans (iInf_le _ (spanTestS_mem S.ha0 S.hβ₀ S.hnonneg S.hupper hl μ))
+      (le_trans (iInf_le _ (spanTestS_mem S.ha_pos S.hnonneg S.hupper hl μ))
         (le_trans (iInf_le _ hg) (le_trans (iInf_le _ hLpos) ?_)))
     rw [hL, ← ENNReal.ofReal_div_of_pos hpos]
     calc _ ≤ ENNReal.ofReal (R + ε) := ENNReal.ofReal_le_ofReal hxlt.le

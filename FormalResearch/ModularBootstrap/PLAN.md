@@ -150,11 +150,8 @@ Each step names its inputs. "Check" marks a question to settle before writing Le
    `theorem_primal`.
 
 **Headline 4 (universality).**
-1. *PM-4 `pmix:duality` (S-M), now unblocked* (PM-0, DU-G, LP1 in; PA1 at large charge): first build the DU-G input
-   `DualSetupCore` (and `FixedWeightProblem`-free versions of the LP1 inputs) from a `CommonSource`, then instantiate `ds:M`,
-   `ds:E`, `ds:primal`, `ds:LP`.
-2. *FT-CC (M, no open parent):* the base structure `ChartCompactness` (section 6); also wanted by Paper I's M8 (its
-   `HbMultilevelInputs.lower` docstring routes TE.0' through it). Not on master yet (no declaration of that name).
+1. *PM-4 `pmix:duality` (**done**):* `Mixtures/{DualMajorant,ThermalSeparation,Primal,DualityLP,Duality}.lean` prove `SourceDualSetupCore`, `FixedChargeStripS`, `0 < T_weak ≤ T_V < ∞`, `ds:M`, `ds:E` (a)–(c), `ds:primal` (a)–(d), and `ds:LP` (i)–(iii) for every `CommonSource` and positive `MixtureData` (`pmix_duality_common`, `pmix_duality_mixture`) at large charge.
+2. *FT-CC (**done**):* `FoldTip/ChartCompactness.lean` proves `ChartCompactness` (`uT_bddAbove`, `subseq_extremal`, `chartCompactness_limsup_ereal`, `chartCompactness_limsup`, `chartCompactness_profile`), importing only `HermiteBiehlerData`, `Analysis.Scheffe`, and Mathlib.
 3. *PM-1 signed-source lower half of `pmix:o1`:* first check whether the slack form of `wone:ftlfw` (since PR 299 it allows
    `int g V <= C_vac c'^{-1/3} M[g]`, no W4) gives it directly; otherwise rerun Theorem W1'(1) (`theoremFTLFW_W_of_YVFor`) against
    `SourceUniformAxioms`.
@@ -291,8 +288,7 @@ uniform in `d in [0, d_0]` (rerun `rampedBumped_positive` with `d` variable; no 
 lines); the two-sided second limit (at `(2,1)` within reach: `int_{|u|>R} |W_2| -> 0` and the window limit; `pmix:rigidity` uses
 only `limsup_le`); the consumer ports (section 1.1).
 
-**PM-4** (headline 4; S-M). `pmix:duality`: instances of `ds:M`, `ds:E`, `ds:primal`, `ds:LP` for mixtures. Needs PM-0, DU-G,
-PA1, LP1 (all in to the scope used).
+**PM-4** (headline 4; **done** — moved to section 2.2).
 
 **FT-H4b** (headline 4; M-L). Realign `FTH4b` to the paper's H4b (`fold_tip_universality.tex`, `ft:hyp`, `\textlabel` `ft:H4b`):
 general Hermite-Biehler data `(P,Q)`, terminal index `m`, support clause (a), one-sided designs (D1)-(D4); then Lemma WP
@@ -300,8 +296,7 @@ general Hermite-Biehler data `(P,Q)`, terminal index `m`, support clause (a), on
 field assumes tail bounds that are conclusions of WP, so it is replaced, not extended; re-point Concordance row C5c. Needs FT-1,
 `Upper/Rigidity`.
 
-**FT-CC** (headline 4; M). The base structure `ChartCompactness` (`compactness_subseq` plus site and tail positivity, abstract
-setting, importing nothing Hankel- or Virasoro-specific). No open parent.
+**FT-CC** (headline 4; **done** — moved to section 2.2).
 
 **PM-3** (headline 4; L). `pmix:hbphase`, `pmix:hbtap`, `pmix:rigidity`; `gt:2.1`, `gt:2.4`-`gt:2.6` for mixtures. Needs PM-1,
 PM-2 (`pmix:vac` and the consumer ports), PM-4, PA2 (one-level part: `dsl:one-level-clusters`, `dsl:near-opt-mass`;
@@ -433,6 +428,8 @@ uses `dsl:reserve` with weights `(1/2,1/2)` and the Virasoro product source, whi
   (`Integrality/`).
 - **PM-0, PM-1, PM-2** (to their scopes, all labels partial): `Mixtures/` (designs `PM0_DESIGN.md`, `PM1_DESIGN.md`,
   `PM2_DESIGN.md`).
+- **PM-4** (`pmix:duality` at large charge): `Mixtures/{DualMajorant,ThermalSeparation,Primal,DualityLP,Duality}.lean` (`pmix_duality_common`, `pmix_duality_mixture`).
+- **FT-CC**: `FoldTip/ChartCompactness.lean` (`ChartCompactness`, `uT_bddAbove`, `subseq_extremal`, `chartCompactness_limsup_ereal`, `chartCompactness_limsup`, `chartCompactness_profile`).
 - Earlier lanes: **A** (`O(1)` upper bound at `w = 1`, `Upper/Ramped/`), **B** (`Sigma_0`, `Sigma`), **C** (`N = 1`), **D**
   (bump at `w > 1`, P1-P4), **TL1-TL6** (two-level lane), **FT-0, FT-1, FT-2** (`FoldTip/`). Lessons kept: state the general lemma
   in its own file and re-derive the old declaration under its old name; state weight-one lemmas in an abstract-integrand form
