@@ -15,10 +15,11 @@ roots `(ω²u)^{1/2} = -ω u^{1/2}` the leading terms satisfy `Λ(ω²u) = ε e^
 Near the negative axis (`Re u ≤ -‖u‖/2`) `Ai(u)` has two exponentials; the rotation identity `Ai(u) = -ω²Ai(ω²u) - ωAi(ωu)` with
 `Λ(ωu) = -ω² Λ(u)` (`airyAiLead_omega`, from `(ωu)^{1/2} = ω² u^{1/2}`) shows `Ai(u) = Λ(u)(1 + O(‖u‖^{-3/2} + ‖E‖))` and
 
-* `airyRplus_sub_two_exp_neg` (`Re u ≤ -‖u‖/2`, `Im u ≥ 0`, `‖E‖ ≤ ‖u‖^{-3/2}`): `‖R₊ - 2E‖ ≤ 22 ‖u‖^{-3/2} ‖E‖`.
+* `airyRplus_sub_two_exp_neg` (`Re u ≤ -‖u‖/2`, `Im u ≥ 0`, `‖E‖ ≤ ‖u‖^{-3/2}`): `‖R₊ - 2E‖ ≤ 24 ‖u‖^{-3/2} ‖E‖`;
+* `airyRp_norm_exp_le`: `‖E‖ ≤ ‖u‖^{-3/2}` when `‖u‖ = σ⁴`, `Re u ≤ -‖u‖/2` and `Im u ≥ 2σ`.
 
 Both for `‖u‖^{3/2} ≥ 8`.  No good-radius hypothesis is needed: the region where `‖E‖` is not small is the one handled by
-`airy_Rplus_bound`.  All proved.
+`airy_Rplus_bound` (used with a good radius in `SignUncertainty.CtRoscAiry`).  All proved.
 -/
 
 @[expose] public section
@@ -448,5 +449,25 @@ theorem airyRp_norm_exp_le {u : ℂ} {σ : ℝ} (hσ : 0 < σ) (hR : ‖u‖ = �
   calc Real.exp _ ≤ Real.exp (-(8 / 3 * σ ^ 3)) := Real.exp_le_exp.2 hre4
     _ = (Real.exp (8 / 3 * σ ^ 3))⁻¹ := Real.exp_neg _
     _ ≤ (σ ^ 6)⁻¹ := inv_anti₀ hpos h6
+
+/-- info: 'FormalResearch.Special.airyAiLead_omega_sq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms airyAiLead_omega_sq
+
+/-- info: 'FormalResearch.Special.airyAiLead_omega' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms airyAiLead_omega
+
+/-- info: 'FormalResearch.Special.airyRplus_sub_two_exp_mid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms airyRplus_sub_two_exp_mid
+
+/-- info: 'FormalResearch.Special.airyRplus_sub_two_exp_neg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms airyRplus_sub_two_exp_neg
+
+/-- info: 'FormalResearch.Special.airyRp_norm_exp_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms airyRp_norm_exp_le
 
 end FormalResearch.Special

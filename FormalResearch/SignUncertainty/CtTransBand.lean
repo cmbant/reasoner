@@ -18,7 +18,7 @@ identification `ct_langer_edge` of the Lean series Langer chart `ũ(ξ)` with th
 * `ct_trans_transport`: `s₂` in the Langer variable `x = ũ`, `L = log π²ξ(x)`, with the transport error `R' r_∞`;
 * `ct_trans_decomp`, `trans_rate_bound`, `ct_combined_trans`: the assembly with the taper estimate `boas_field_trunc_lo` for `L < L_min`.
 
-`CtCombinedOpen` (the one step `window`) is here; `CtRoscInputs` and `ct_lower_of_open` are in `CtLowerOfOpen` (after the proof `ct_rosc_book` of `CtRoscBook`).-/
+`CtCombinedOpen` (the one step `window`) is here; `ct_lower_of_open` is in `CtLowerOfOpen` (after the proof `ct_rosc_book` of `CtRoscBook`).-/
 
 @[expose] public section
 

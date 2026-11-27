@@ -3,6 +3,7 @@ module
 public import Mathlib
 public import FormalResearch.SignUncertainty.CtRoscDefect
 public import FormalResearch.SignUncertainty.CtRoscUpper
+public import FormalResearch.SignUncertainty.CtRoscAiry
 public import FormalResearch.SignUncertainty.CtRoscChart
 public import FormalResearch.SignUncertainty.CtRoscEta
 public import FormalResearch.SignUncertainty.CtDyadicCombined
@@ -15,7 +16,7 @@ public import FormalResearch.SignUncertainty.CtDyadicPsiWindow
 Core estimate for `CtCombinedPieces.rosc`: with `W₆(u) = (1-(u/R)^{12})²` and `F = f_c = ctFcC ctChartC1 ε c f` (holomorphic and conjugation-symmetric on a
 disc of radius `> R_max`, `ctFcC_holo`), the half-disc defect formula `airy_halfdisc_rosc` and the pure-Airy comparison `AiryRplusComparison`
 bound `ctRoscAiry` (the Airy-side quantity `Σ_{n≤N} H(a_n)/Ai'(a_n)² - ∫_{-R}^R H + 2∫_0^R Re H(-v) sin(4/3 v^{3/2}) dv`, `H = W₆ F`) by `K η(R)`.
-Proved, given the named input `AiryRplusComparison`.
+All proved (`AiryRplusComparison` is `airyRplusComparison`, `CtRoscAiry`).
 -/
 
 @[expose] public section
@@ -26,15 +27,6 @@ open scoped Real
 namespace FormalResearch.SignUncertainty
 
 open FormalResearch.Special FormalResearch.HalfDiscCauchy
-
-/-- **Named input `AiryRplusComparison`** (pure Airy asymptotics, `ap:thmD`, DLMF 9.7.5/9.7.9): at good radii the reflection function
-`R₊ = (Bi - iAi)/Ai` of the upper semicircle is `2 e^{(4/3)u^{3/2}}` up to relative error `O(R^{-3/2})`:
-`‖W₆(w)‖ ‖R₊(w) - 2E(w)‖ ≤ C R^{-3/2} ‖E(w)‖` on `w = Re^{iθ}`, `θ ∈ [0, π]`, with `W₆(w) = (1-(w/R)^{12})²`.  Numerically `C ≈ 1.67`
-(scratch check `R ∈ [10, 400]`, good radii). -/
-def AiryRplusComparison : Prop :=
-  ∃ C R₀ : ℝ, 0 ≤ C ∧ ∀ R : ℝ, R₀ ≤ R → ctGoodRadius R → ∀ θ ∈ Icc (0 : ℝ) π,
-    ‖(1 - (circleMap 0 R θ / (R : ℂ)) ^ 12) ^ 2‖ * ‖airyRplus (circleMap 0 R θ) - 2 * airyUpE (circleMap 0 R θ)‖ ≤
-      C * R ^ (-(3 / 2 : ℝ)) * ‖airyUpE (circleMap 0 R θ)‖
 
 /-- The taper `W₆(u) = (1 - (u/R)^{12})²` on `ℂ`. -/
 noncomputable def ctW6 (R : ℝ) (u : ℂ) : ℂ := (1 - (u / (R : ℂ)) ^ 12) ^ 2
@@ -182,15 +174,15 @@ lemma rosc_arith {q d a Cb B x cn lg : ℝ} (hq : |q| ≤ d + a) (hd : d ≤ Cb 
   have h2 : B * x ≤ B * (x + cn * lg) := mul_le_mul_of_nonneg_left (by nlinarith [mul_nonneg hcn (by linarith : (0:ℝ) ≤ lg)]) hB
   nlinarith [abs_nonneg Cb]
 
-/-- **`CtCombinedPieces.rosc`** (`(ct:rosc)`, `ct:dyadic` (4)), from the named input `AiryRplusComparison` (pure Airy) and `CtRoscBook`
+/-- **`CtCombinedPieces.rosc`** (`(ct:rosc)`, `ct:dyadic` (4)), from the Airy comparison `airyRplusComparison` (`CtRoscAiry`, proved) and `CtRoscBook`
 (Hankel bookkeeping, proved: `ct_rosc_book`): for small `c₁`, `|budget + M_all + 2(s₁ - s₂)| ≤ C(c⁻¹ η_R + c^{-4/3} log c)` at good radii.  The Airy part is the half-disc
-defect formula `airy_halfdisc_rosc` with `W₆ f_c`, `K = C R^{-3/2} ≤ C c₁^{-3} c⁻¹`.  Proved given the Airy input `hA` and the hypothesis `CtRoscBook c₁` (itself proved, `ct_rosc_book`). -/
-theorem ct_combined_rosc (hA : AiryRplusComparison) :
+defect formula `airy_halfdisc_rosc` with `W₆ f_c`, `K = C R^{-3/2} ≤ C c₁^{-3} c⁻¹`.  Proved given the hypothesis `CtRoscBook c₁` (itself proved, `ct_rosc_book`). -/
+theorem ct_combined_rosc :
     ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ → CtRoscBook c₁ →
       CtDyadicBound c₁ fun R ε c f => ctBudget R ε c f + ctMall R ε c f + 2 * (ctOscS1 R ε c f - ctOscS2 R ε c f) := by
   obtain ⟨ρ₁, M₁, hρ₁, hM₁, hw₁⟩ := ctPsi_window (ε := 1) (Or.inl rfl)
   obtain ⟨ρ₂, M₂, hρ₂, hM₂, hw₂⟩ := ctPsi_window (ε := -1) (Or.inr rfl)
-  obtain ⟨Ccmp, R₀, hCcmp, hcmp⟩ := hA
+  obtain ⟨Ccmp, R₀, hCcmp, hcmp⟩ := airyRplusComparison
   refine ⟨min ctChartC1 (min (ρ₁ / 16) (ρ₂ / 16)), lt_min ctChartC1_pos (lt_min (by positivity) (by positivity)), ?_⟩
   intro c₁ hc₁ hγ hBook
   have hle : c₁ ≤ ctChartC1 := hγ.trans (min_le_left _ _)

@@ -347,6 +347,7 @@ public import FormalResearch.SignUncertainty.CtRoscDefect
 public import FormalResearch.SignUncertainty.CtRoscUpper
 public import FormalResearch.SignUncertainty.CtRoscChart
 public import FormalResearch.SignUncertainty.CtRoscEta
+public import FormalResearch.SignUncertainty.CtRoscAiry
 public import FormalResearch.SignUncertainty.CtRoscAssembly
 public import FormalResearch.SignUncertainty.CtTransBand
 public import FormalResearch.SignUncertainty.CtRoscRealChart
