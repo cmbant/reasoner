@@ -16,8 +16,7 @@ Supports `Integrality/Atom.lean` (`int:atom`, Theorem INT-1):
    lower envelope `c_vac * rhoLowerCore w a t ≤ C.src.cardyDensity a t` for any `C : CommonSource`.
 3. `commonSource_counting_bound` (`int:counting`): unconditional upper bound on `Z_0(1)` and
    `ν([T, R])` for any `SourceCrossingMeasure C.src a` supported on `[T, ∞)`.
-4. `IntRepairSonineInput`: explicit repair & Sonine compression interface (`int:repair`,
-   `int:sonine`) plus `rpow_weighted_taylor_le` and `rpow_half_mul_exp_neg_le_one`.
+4. `rpow_weighted_taylor_le` and `rpow_half_mul_exp_neg_le_one`: tail arithmetic helpers.
 -/
 
 @[expose] public section
@@ -689,31 +688,7 @@ theorem commonSource_counting_bound (C : CommonSource) {a T : ℝ}
       _ = 3 * C.src.tv * R ^ ((C.src.w : ℝ) / 2) * Real.exp (6 * π * a + 4 * π * Real.sqrt (a * R)) := by
           ring
 
-/-! ### Section 4: Repair & Sonine input (`int:repair`, `int:sonine`) -/
-
-/-- Operator-theoretic & Hankel repair input for `int:atom` (`int:repair` and `int:sonine`
-from `integrality.tex`, whose polynomial Taylor step `hankelDual_bound` and projection identity
-`repair_identity_*` are already proved in `Integrality/RepairTaylor.lean` and
-`Integrality/RepairIdentity.lean`, while Weber's identity and `int:sonine` remain open). -/
-structure IntRepairSonineInput (w : ℕ) where
-  C_son : ℝ
-  hC_son_nn : 0 ≤ C_son
-  repair : ∀ {B₀ B : ℝ}, 0 < B₀ → B₀ < B → ∀ (M : ℕ)
-    {σ μ : Measure ℝ} [IsFiniteMeasure σ] [IsFiniteMeasure μ],
-    σ (Icc B₀ B)ᶜ = 0 → μ (Icc B₀ B)ᶜ = 0 →
-    (∀ P : ℝ[X], P.degree ≤ M → ∫ s, P.eval s ∂σ = ∫ s, P.eval s ∂μ) →
-    ∃ r : ℝ → ℝ, ContinuousOn r (Ioi B) ∧
-      (∀ {β : ℝ}, 0 < β →
-        IntegrableOn (fun t => Real.exp (-2 * π * β * t) * |r t|) (Ioi B) ∧
-        (∫ s, thermalDiff w β s ∂σ - ∫ s, thermalDiff w β s ∂μ +
-          ∫ t in Ioi B, thermalDiff w β t * r t = 0)) ∧
-      (∀ {t : ℝ}, B < t →
-        let h := (B - B₀) / 2
-        let m : ℕ := M + 1
-        |r t| ≤ 2 * π * (σ.real univ + μ.real univ) * (t / B₀) ^ (((w - 1 : ℕ) : ℝ) / 2) *
-          (min 1 ((2 * π * Real.exp 1 * h * Real.sqrt t / ((m : ℝ) * Real.sqrt B₀)) ^ m) +
-            C_son * Real.exp (C_son * (B + w)) *
-              (2 * π * Real.exp 1 * h * Real.sqrt B / ((m : ℝ) * Real.sqrt B₀)) ^ m))
+/-! ### Section 4: Tail arithmetic helpers -/
 
 lemma rpow_weighted_taylor_le {P : ℝ} (hP : 0 < P) (m : ℕ) {x : ℝ} (hx : 0 ≤ x) :
     Real.exp (-2 * π * x) * (2 * π * Real.exp 1 * x / ((m : ℝ) * Real.sqrt P)) ^ m ≤

@@ -182,12 +182,12 @@ def SpinS4_2_2 : Prop :=
 
 /-- **`s4:2.3` (Corollary 2.3, calibrated vacuum remainder).** -/
 def SpinS4_2_3 : Prop :=
-  ∃ (c_σ C c₀ : ℝ), 0 < c_σ ∧ 0 < C ∧ 40 ≤ c₀ ∧
+  ∀ {C_x : ℝ}, ∃ (c_σ C c₀ : ℝ), 0 < c_σ ∧ 0 < C ∧ 40 ≤ c₀ ∧
     ∀ {c x₁ : ℝ}, c₀ ≤ c →
       let n := c - 1
       let a := n / 12
       let δ_n := n ^ (-(2 / 3 : ℝ)) * Real.log n
-      ∀ {C_x : ℝ}, x₁ ≤ xiStar + C_x * n ^ (-(2 / 3 : ℝ)) →
+      0 ≤ x₁ → x₁ ≤ xiStar + C_x * n ^ (-(2 / 3 : ℝ)) →
         ∀ {Φ : ℝ × ℝ → ℝ}, SpinTestClass a Φ → spinM2 a Φ = 1 →
           (∀ ξ d : ℝ, x₁ ^ 2 ≤ ξ ^ 2 + d ^ 2 → 0 ≤ spinG a Φ (ξ + d) (ξ - d)) →
           spinCalInt c Φ ≤ -spinPhiVac a Φ - c_σ * spinPosAngVar a Φ + C * δ_n ∧

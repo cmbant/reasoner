@@ -96,7 +96,7 @@ lemma kerTransform_band_sq_le {w : ℕ} (hw : 1 ≤ w) {B : ℝ} (hB : 0 < B)
         rw [fourier_radialLift_eq_hankelTransform hw hB hφ_cont hφ_supp hξ,
           Complex.norm_real, Real.norm_eq_abs, sq_abs]
       · have hm2 : ‖ξ‖ ^ 2 / 2 ∉ Ioc (0 : ℝ) B := fun hm => hmem (hiff.mpr hm)
-        simp [Set.indicator_of_notMem hmem, Set.indicator_of_notMem hm2]
+        rw [Set.indicator_of_notMem hmem, Set.indicator_of_notMem hm2]
     rw [← integral_indicator Metric.isClosed_closedBall.measurableSet, integral_congr_ae h_ae_ball,
       integral_radialLiftReal hw (fun t => (Ioc (0 : ℝ) B).indicator (fun t => (Uφ t) ^ 2) t)]
     congr 1
@@ -230,11 +230,11 @@ lemma rawHankelBand_sq_le {w : ℕ} (_hw : 1 ≤ w) {B : ℝ} (hB : 0 < B)
         ≤ ∫ _s in Ioc (0 : ℝ) B, (2 * π) ^ 2 * t ^ (-((w - 1 : ℕ) : ℝ)) :=
           setIntegral_mono_on hker_int hconst_int measurableSet_Ioc hk_bound
       _ = volume.real (Ioc (0 : ℝ) B) • ((2 * π) ^ 2 * t ^ (-((w - 1 : ℕ) : ℝ))) :=
-          setIntegral_const _ _
+          setIntegral_const _
       _ = B * ((2 * π) ^ 2 * t ^ (-((w - 1 : ℕ) : ℝ))) := by
           rw [smul_eq_mul, Real.volume_real_Ioc_of_le hB.le, sub_zero]
       _ = (2 * π) ^ 2 * B * t ^ (-((w - 1 : ℕ) : ℝ)) := by ring
-  have hcs := norm_inner_le_norm g f
+  have hcs := norm_inner_le_norm (𝕜 := ℝ) g f
   rw [hinner]
   calc (inner ℝ g f) ^ 2 = ‖inner ℝ g f‖ ^ 2 := (sq_abs _).symm
     _ ≤ (‖g‖ * ‖f‖) ^ 2 := by gcongr
@@ -312,8 +312,9 @@ noncomputable def hankelBandOp {w : ℕ} (hw : 1 ≤ w) {B : ℝ} (hB : 0 < B) :
         rfl }
     (2 * π * B)
     fun f => by
-      rw [← sq_le_sq₀ (norm_nonneg _) (by positivity),
-        lp_norm_sq_hankelBandMeasure (rawHankelBand_memLp hw hB f)]
+      rw [← sq_le_sq₀ (norm_nonneg _) (by positivity)]
+      change ‖(rawHankelBand_memLp hw hB f).toLp _‖ ^ 2 ≤ (2 * π * B * ‖f‖) ^ 2
+      rw [lp_norm_sq_hankelBandMeasure (rawHankelBand_memLp hw hB f)]
       have hconst_int : IntegrableOn (fun _ : ℝ => (2 * π) ^ 2 * B * ‖f‖ ^ 2) (Ioc 0 B) :=
         integrableOn_const (hs := measure_Ioc_lt_top.ne)
       have hlhs_int : IntegrableOn (fun t => t ^ (w - 1) * (rawHankelBand w B f t) ^ 2) (Ioc 0 B) :=
@@ -330,7 +331,7 @@ noncomputable def hankelBandOp {w : ℕ} (hw : 1 ≤ w) {B : ℝ} (hB : 0 < B) :
                   mul_le_mul_of_nonneg_left hsq (pow_nonneg ht.1.le _)
               _ = (2 * π) ^ 2 * B * ‖f‖ ^ 2 * (t ^ (w - 1) * t ^ (-((w - 1 : ℕ) : ℝ))) := by ring
               _ = (2 * π) ^ 2 * B * ‖f‖ ^ 2 := by rw [hpow, mul_one]
-        _ = volume.real (Ioc (0 : ℝ) B) • ((2 * π) ^ 2 * B * ‖f‖ ^ 2) := setIntegral_const _ _
+        _ = volume.real (Ioc (0 : ℝ) B) • ((2 * π) ^ 2 * B * ‖f‖ ^ 2) := setIntegral_const _
         _ = B * ((2 * π) ^ 2 * B * ‖f‖ ^ 2) := by
             rw [smul_eq_mul, Real.volume_real_Ioc_of_le hB.le, sub_zero]
         _ = (2 * π * B * ‖f‖) ^ 2 := by ring
@@ -419,7 +420,8 @@ lemma hankelBandOp_norm_le {w : ℕ} (hw : 1 ≤ w) {B : ℝ} (hB : 0 < B) :
         refine integral_congr_ae (Eventually.of_forall fun s => ?_)
         by_cases hm : s ∈ Ioc 0 B
         · simp [hm, hm.1]
-        · simp [hm, hχ_supp n s hm]
+        · by_cases hs0 : s ∈ Ioi 0 <;> simp [hm, hs0]
+          exact Or.inr (Or.inr (hχ_supp n s hm))
       have hlhs : ‖hankelBandOp hw hB ((hφ_mem n).toLp φ)‖ ^ 2 =
           ∫ t in Ioc (0 : ℝ) B, t ^ (w - 1) * (kerTransform (hankelMeasure w) (hankelKernel w) φ t) ^ 2 := by
         rw [show hankelBandOp hw hB ((hφ_mem n).toLp φ) =
@@ -445,7 +447,7 @@ lemma hankelBandOp_norm_le {w : ℕ} (hw : 1 ≤ w) {B : ℝ} (hB : 0 < B) :
             have hvol : (volume.restrict (Ioc (0 : ℝ) B)) ({B} : Set ℝ) = 0 := by
               rw [Measure.restrict_apply (MeasurableSet.singleton B)]
               exact measure_mono_null inter_subset_left (measure_singleton B)
-            exact setLIntegral_measure_zero ({B} : Set ℝ) hvol _
+            exact setLIntegral_measure_zero _ _ hvol
           have h_nB : ∀ᵐ s ∂(hankelBandMeasure w B), s ≠ B :=
             ae_iff.mpr (by simpa [ne_eq, not_not] using hB_zero)
           filter_upwards [h_ioc, h_nB] with s hs hns
@@ -505,16 +507,16 @@ lemma hankelBandOp_norm_le {w : ℕ} (hw : 1 ≤ w) {B : ℝ} (hB : 0 < B) :
       obtain ⟨N, hN⟩ := h_sq_lim (δ ^ 2) (sq_pos_of_pos hδ)
       refine ⟨N, fun n hn => ?_⟩
       rw [dist_eq_norm, ← MemLp.toLp_sub (hφ_mem n) hg_mem]
-      have hsq_eq : ‖(hφ_mem n - hg_mem).toLp (fun s => χ n s * g s - g s)‖ ^ 2 =
+      have hsq_eq : ‖((hφ_mem n).sub hg_mem).toLp ((fun s => χ n s * g s) - ⇑g)‖ ^ 2 =
           ∫ s, (χ n s * g s - g s) ^ 2 ∂(hankelBandMeasure w B) := by
         rw [← real_inner_self_eq_norm_sq, MeasureTheory.L2.inner_def]
         refine integral_congr_ae ?_
-        filter_upwards [(hφ_mem n - hg_mem).coeFn_toLp] with s hs
-        rw [hs, RCLike.inner_apply, conj_trivial, sq]
+        filter_upwards [((hφ_mem n).sub hg_mem).coeFn_toLp] with s hs
+        rw [hs, Pi.sub_apply, RCLike.inner_apply, conj_trivial, sq]
       have hlt := hN n hn
       rw [Real.dist_eq, sub_zero, abs_of_nonneg (integral_nonneg fun _ => sq_nonneg _)] at hlt
       rw [← hsq_eq] at hlt
-      exact lt_of_sq_lt_sq hlt hδ.le
+      exact (sq_lt_sq₀ (norm_nonneg _) hδ.le).mp hlt
     have h_op_tend : Tendsto (fun n => ‖hankelBandOp hw hB ((hφ_mem n).toLp (fun s => χ n s * g s))‖)
         atTop (𝓝 ‖hankelBandOp hw hB (hg_mem.toLp g)‖) :=
       (((hankelBandOp hw hB).continuous.tendsto _).comp h_tend).norm
@@ -532,19 +534,20 @@ lemma hankelBandOp_norm_le {w : ℕ} (hw : 1 ≤ w) {B : ℝ} (hB : 0 < B) :
       (sq_pos_of_pos hε)
     have g_mem2 : MemLp (g : ℝ → ℝ) 2 (hankelBandMeasure w B) := by simpa using g_mem
     have hdist : ‖f - g_mem2.toLp g‖ ≤ ε := by
-      have hsub_eq : f - g_mem2.toLp g = ((Lp.memLp f).sub g_mem2).toLp (fun s => (f : ℝ → ℝ) s - g s) := by
-        rw [MemLp.toLp_sub, Lp.toLp_coeFn]
+      have hf2 : f = (Lp.memLp f).toLp f := (Lp.toLp_coeFn f (Lp.memLp f)).symm
+      have hsub_eq : f - g_mem2.toLp g = ((Lp.memLp f).sub g_mem2).toLp ((f : ℝ → ℝ) - ⇑g) := by
+        nth_rw 1 [hf2]
+        rw [MemLp.toLp_sub]
       rw [hsub_eq, ← sq_le_sq₀ (norm_nonneg _) hε.le, ← real_inner_self_eq_norm_sq,
         MeasureTheory.L2.inner_def]
-      have heq_in : (fun s => inner ℝ ((((Lp.memLp f).sub g_mem2).toLp _ : ℝ → ℝ) s)
-          ((((Lp.memLp f).sub g_mem2).toLp _ : ℝ → ℝ) s)) =ᵐ[hankelBandMeasure w B]
+      have heq_in : (fun s => inner ℝ ((((Lp.memLp f).sub g_mem2).toLp ((f : ℝ → ℝ) - ⇑g) : ℝ → ℝ) s)
+          ((((Lp.memLp f).sub g_mem2).toLp ((f : ℝ → ℝ) - ⇑g) : ℝ → ℝ) s)) =ᵐ[hankelBandMeasure w B]
           fun s => ‖(f : ℝ → ℝ) s - g s‖ ^ (2 : ℝ) := by
         filter_upwards [((Lp.memLp f).sub g_mem2).coeFn_toLp] with s hs
-        rw [hs, RCLike.inner_apply, conj_trivial, Real.norm_eq_abs, sq_abs]
-        norm_cast
+        rw [hs, Pi.sub_apply, RCLike.inner_apply, conj_trivial, Real.rpow_two, Real.norm_eq_abs,
+          sq_abs, sq]
       rw [integral_congr_ae heq_in]
       exact hg_int
-    have htri := norm_le_norm_add_norm_sub' (hankelBandOp hw hB f) (hankelBandOp hw hB (g_mem2.toLp g))
     have hdiff_op : ‖hankelBandOp hw hB f - hankelBandOp hw hB (g_mem2.toLp g)‖ ≤
         ‖hankelBandOp hw hB‖ * ε := by
       rw [← map_sub]
@@ -647,7 +650,7 @@ theorem hankelSonine_inv {w : ℕ} (hw : 1 ≤ w) {B : ℝ} (hB : 0 < B) :
         have hC2 : 2 < C := by
           rwa [one_div, one_div, inv_lt_inv₀ hC (by norm_num)] at hgt
         rw [min_eq_right hgt.le, max_eq_right]
-        · simp only [C]; ring_nf
+        · simp only [C, one_div, div_inv_eq_mul]; ring
         · calc (4 : ℝ) ≤ 2 * C := by linarith
             _ = 2048 * π ^ 2 * B ^ 2 * Real.exp (16 * π * B) := by simp only [C]; ring
     exact h_geo'.trans (h_inv_le.trans (h_two_div.trans_eq h_max_eq))

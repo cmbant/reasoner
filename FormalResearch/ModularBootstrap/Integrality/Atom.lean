@@ -15,7 +15,8 @@ integer-degeneracy crossing spectrum `ν_ℤ` (`IsIntegerCounting ν_ℤ`) at th
 
 The supporting infrastructure lives in:
 * `Integrality.AtomBounds` (`SufficientMomentFloor`, `sufficientMomentFloor_cheb_explicit`,
-  `commonSource_cardyDensity_lower`, `commonSource_counting_bound`, `IntRepairSonineInput`),
+  `commonSource_cardyDensity_lower`, `commonSource_counting_bound`),
+* `Integrality.RepairHankel` (`sonineRepairConst`, `hankel_repair`),
 * `Integrality.AtomCell` (`atomShellSetup`, `atom_cell_step`).
 -/
 
@@ -33,8 +34,7 @@ open FormalResearch.ModularBootstrap.Mixtures
 
 /-- **Theorem INT-1 (`int:atom`)** for any `CommonSource` (covering `(H_w)`, `(H_{w,mix})`,
 and dominated atomic sources) and any abstract sufficient density floor `W`. -/
-theorem int_atom_common (C : CommonSource) {W : ℕ → ℝ} (hW : SufficientMomentFloor W)
-    (repair : IntRepairSonineInput C.src.w) :
+theorem int_atom_common (C : CommonSource) {W : ℕ → ℝ} (hW : SufficientMomentFloor W) :
     ∃ K a₁ : ℝ, 0 < K ∧ max C.a₀ 24 ≤ a₁ ∧
       ∀ {a T δ : ℝ}, a₁ ≤ a → a / 8 ≤ T → 0 < δ → δ ≤ 1 →
         ∀ (meas : SourceCrossingMeasure C.src a), meas.ν (Ici T)ᶜ = 0 →
@@ -57,11 +57,11 @@ theorem int_atom_common (C : CommonSource) {W : ℕ → ℝ} (hW : SufficientMom
   let c0 : ℝ := max (1 : ℝ) (wR / 2)
   let C_w_fac : ℝ := (8 : ℝ) ^ (((C.src.w - 1 : ℕ) : ℝ) / 2)
   let C_count_fac : ℝ := 3 * max C.src.tv 1 * c0 ^ (wR / 2)
-  let C_const : ℝ := 2 * π * (9 / 4 * C_count_fac) * C_w_fac * (1 + repair.C_son) / c_vac
-  let C_exp : ℝ := 9 * π + repair.C_son + 1
+  let C_const : ℝ := 2 * π * (9 / 4 * C_count_fac) * C_w_fac * (1 + sonineRepairConst) / c_vac
+  let C_exp : ℝ := 9 * π + sonineRepairConst + 1
   let K : ℝ := 2 * (C_exp + 2)
   let a₁ : ℝ := max (max C.a₀ 24) (max (max a_star (8 * max 1 wR)) (Real.log (max C_const 1) + 1))
-  have hK_pos : 0 < K := by dsimp [K, C_exp]; have := repair.hC_son_nn; positivity
+  have hK_pos : 0 < K := by dsimp [K, C_exp]; have := sonineRepairConst_nonneg; positivity
   refine ⟨K, a₁, hK_pos, le_max_left _ _, fun {a T δ} ha hT hδ0 hδ1 meas hsupp hres M hM1 hM_ord hM_fl => ?_⟩
   have ha0 : C.a₀ ≤ a := (le_max_left _ _).trans ((le_max_left _ _).trans ha)
   have ha24 : 24 ≤ a := (le_max_right _ _).trans ((le_max_left _ _).trans ha)
@@ -84,7 +84,7 @@ theorem int_atom_common (C : CommonSource) {W : ℕ → ℝ} (hW : SufficientMom
   have hcells : ∀ (j : ℕ) (Sg lam : Measure X), S.Inv j Sg lam →
       ∃ (ι : Type) (_ : Fintype ι) (U : ι → Set X) (μ σ Rp Rm : ι → Measure X),
         S.CellStep j lam U μ σ Rp Rm := fun j Sg lam hInv =>
-    atom_cell_step C hW repair hc_vac_pos ha0 ha24 hT hδ0 hδ1
+    atom_cell_step C hW hc_vac_pos ha0 ha24 hT hδ0 hδ1
       (fun {t'} ht' => hrho_lb ha_star ht') meas hsupp hres hcount.2 ha_const M hM1 hM_ord hM_fl
       j Sg lam hInv
   obtain ⟨σ, hσ_atom, _, _, hσ_e_int, hσ_K⟩ := @ShellSetup.shell_inv _ _ _ _ S hsig hcells
@@ -232,7 +232,7 @@ theorem int_atom_common (C : CommonSource) {W : ℕ → ℝ} (hW : SufficientMom
 
 /-- **Theorem INT-1 (`int:atom`)**, concrete Chebyshev instantiation with
 `W(M) = 8 (M + 1)^{5/2}` (`cheb_explicit`). -/
-theorem int_atom_cheb_explicit (C : CommonSource) (repair : IntRepairSonineInput C.src.w) :
+theorem int_atom_cheb_explicit (C : CommonSource) :
     ∃ K a₁ : ℝ, 0 < K ∧ max C.a₀ 24 ≤ a₁ ∧
       ∀ {a T δ : ℝ}, a₁ ≤ a → a / 8 ≤ T → 0 < δ → δ ≤ 1 →
         ∀ (meas : SourceCrossingMeasure C.src a), meas.ν (Ici T)ᶜ = 0 →
@@ -251,10 +251,10 @@ theorem int_atom_cheb_explicit (C : CommonSource) (repair : IntRepairSonineInput
               (δ / 8) * C.src.cardyDensity a s) →
           ∃ measZ : SourceCrossingMeasure C.src a,
             measZ.ν (Ici T)ᶜ = 0 ∧ IsIntegerCounting measZ.ν :=
-  int_atom_common C sufficientMomentFloor_cheb_explicit repair
+  int_atom_common C sufficientMomentFloor_cheb_explicit
 
 /-- **Theorem INT-1 (`int:atom`)**, fixed-weight `(H_w)` specialisation (`AdmissibleCrossingMeasure prob a`). -/
-theorem int_atom_fixedWeight (prob : FixedWeightProblem) (repair : IntRepairSonineInput prob.w) :
+theorem int_atom_fixedWeight (prob : FixedWeightProblem) :
     ∃ K a₁ : ℝ, 0 < K ∧ max (max prob.totalShift 1) 24 ≤ a₁ ∧
       ∀ {a T δ : ℝ}, a₁ ≤ a → a / 8 ≤ T → 0 < δ → δ ≤ 1 →
         ∀ (meas : AdmissibleCrossingMeasure prob a), meas.ν (Ici T)ᶜ = 0 →
@@ -285,7 +285,7 @@ theorem int_atom_fixedWeight (prob : FixedWeightProblem) (repair : IntRepairSoni
           shift := hshift ha
           prob_shift := (le_max_left _ _).trans ha
           floor := fun _ _ => by dsimp [F]; rw [one_mul]; exact le_refl _ } }
-  obtain ⟨K, a₁, hK, ha₁, hmain⟩ := int_atom_cheb_explicit C repair
+  obtain ⟨K, a₁, hK, ha₁, hmain⟩ := int_atom_cheb_explicit C
   refine ⟨K, a₁, hK, ha₁, fun {a T δ} ha hT hδ0 hδ1 meas hsupp hres M hM1 hM_ord hM_fl => ?_⟩
   let smeas : SourceCrossingMeasure C.src a :=
     { ν := meas.ν
