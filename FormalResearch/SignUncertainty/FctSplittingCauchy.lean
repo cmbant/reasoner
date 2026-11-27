@@ -17,7 +17,7 @@ Everything here takes as hypotheses only the data of `D_{τ₁}` (`CompData`-typ
 
 * (`fctKsp_div_le_unif`, in `FctSplittingDescent`): the kernel bound `|K_sp(t,ζ)/(t-ζ)| ≤ K (1+|y|)⁻²` on `Re t = σ`, uniform for `ζ` in a set with `|ζ| ≤ R`, `|ζ+1| ≥ m`, `|Re ζ - σ| ≥ δ`.
 * `fctKsp_div_le_horiz`: on horizontal segments `Re t ∈ [3/8, 7/16]`, `|Im t| ≥ Y₀`: `|K_sp/(t-ζ)| ≤ K/|y|²`.
-* `fctCauchy_differentiableOn`: `ζ ↦ fctCauchy σ ζ` is holomorphic on any open set of `ζ` with `Re ζ > 0`, `Re ζ ≠ σ`.
+* `fctCauchy_differentiableOn`: `ζ ↦ fctCauchy σ ζ` is holomorphic on any open set of `ζ` with `Re ζ > -1`, `Re ζ ≠ σ`.
 * `fctCauchy_shift`: **`F_-^{7/16}(ζ) - F_+^{3/8}(ζ) = F(ζ)` for `3/8 < Re ζ < 7/16`** (rectangle residue `rectInt_residue`, horizontal sides `→ 0`), and
   `fctCauchy_shift_left`: the two contours agree for `0 < Re ζ < 3/8` (Cauchy's theorem).
 
@@ -71,12 +71,12 @@ lemma fctKsp_div_le_horiz (ζ : ℂ) :
         apply div_le_div₀ (by positivity) hnum (by positivity) h3
     _ = 18 * ‖ζ‖ ^ 3 * a ^ 2 / y ^ 2 := by rw [hy2]; field_simp; ring
 
-/-- **Holomorphy of the Cauchy integral `ζ ↦ fctCauchy σ ζ`** in `ζ`, on any open set with `Re ζ > 0` and `Re ζ ≠ σ` (`3/8 ≤ σ ≤ 7/16`),
+/-- **Holomorphy of the Cauchy integral `ζ ↦ fctCauchy σ ζ`** in `ζ`, on any open set with `Re ζ > -1` and `Re ζ ≠ σ` (`3/8 ≤ σ ≤ 7/16`),
 when `‖F(σ+iy)‖ ≤ B` on the contour (`(fct:Fpm-def)`: `F_±` holomorphic).  Parameter integral with the dominating function `K B (1+|y|)⁻²`. -/
 theorem fctCauchy_differentiableOn {K4 ε c L1 α σ B : ℝ} (hc : 0 < c)
     (hDc : ContinuousOn (fctDcompAt K4 c α) closedStrip) (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16)
     (hF : ∀ y : ℝ, ‖fctFint K4 ε c L1 α ((σ : ℂ) + y * Complex.I)‖ ≤ B)
-    {U : Set ℂ} (hU : IsOpen U) (hUσ : ∀ w ∈ U, 0 < w.re ∧ w.re ≠ σ) :
+    {U : Set ℂ} (hU : IsOpen U) (hUσ : ∀ w ∈ U, -1 < w.re ∧ w.re ≠ σ) :
     DifferentiableOn ℂ (fctCauchy K4 ε c L1 α σ) U := by
   have hB : 0 ≤ B := (norm_nonneg _).trans (hF 0)
   unfold fctCauchy
@@ -106,22 +106,22 @@ theorem fctCauchy_differentiableOn {K4 ε c L1 α σ B : ℝ} (hc : 0 < c)
     obtain ⟨hre0, hne0⟩ := hUσ w0 hw0
     set δ0 : ℝ := |w0.re - σ| with hδ0
     have hδ0pos : 0 < δ0 := abs_pos.mpr (sub_ne_zero.mpr hne0)
-    set r : ℝ := min (min 1 (δ0 / 2)) (w0.re / 2) with hr
-    have hrpos : 0 < r := lt_min (lt_min one_pos (by positivity)) (by positivity)
-    obtain ⟨K, hK0, hK⟩ := fctKsp_div_le_unif hσ hσ' (R := ‖w0‖ + 1) (m := 1) (δ := δ0 / 2) (by positivity) one_pos (by positivity)
+    set r : ℝ := min (min 1 (δ0 / 2)) ((1 + w0.re) / 2) with hr
+    have hrpos : 0 < r := lt_min (lt_min one_pos (by positivity)) (by linarith)
+    obtain ⟨K, hK0, hK⟩ := fctKsp_div_le_unif hσ hσ' (R := ‖w0‖ + 1) (m := (1 + w0.re) / 2) (δ := δ0 / 2) (by positivity) (by linarith) (by positivity)
     refine ⟨r, hrpos, fun y => K / (1 + |y|) ^ 2 * B, (integrable_inv_one_add_abs_sq.const_mul (K * B)).congr
       (Filter.Eventually.of_forall fun y => by ring), Filter.Eventually.of_forall fun y w hw => ?_⟩
     have hwd : ‖w - w0‖ < r := by simpa [Metric.mem_ball, dist_eq_norm] using hw
     have hr1 : r ≤ 1 := (min_le_left _ _).trans (min_le_left _ _)
     have hr2 : r ≤ δ0 / 2 := (min_le_left _ _).trans (min_le_right _ _)
-    have hr3 : r ≤ w0.re / 2 := min_le_right _ _
+    have hr3 : r ≤ (1 + w0.re) / 2 := min_le_right _ _
     have hwre : |w.re - w0.re| ≤ ‖w - w0‖ := by simpa using Complex.abs_re_le_norm (w - w0)
     have h1 : ‖w‖ ≤ ‖w0‖ + 1 := by
       calc ‖w‖ = ‖w0 + (w - w0)‖ := by ring_nf
         _ ≤ ‖w0‖ + ‖w - w0‖ := norm_add_le _ _
         _ ≤ _ := by linarith
-    have h2 : 1 ≤ ‖w + 1‖ := by
-      have hwre' : w0.re / 2 ≤ w.re := by
+    have h2 : (1 + w0.re) / 2 ≤ ‖w + 1‖ := by
+      have hwre' : (w0.re - 1) / 2 ≤ w.re := by
         have := (abs_le.mp (hwre.trans hwd.le)).1; linarith
       have := Complex.re_le_norm (w + 1)
       simp only [Complex.add_re, Complex.one_re] at this

@@ -42,7 +42,7 @@ and `ctWtot` (`(fct:Wtot-hankel)`) are defined from the existing Lean objects.  
 (`|Re W̃^fl(0)| ≤ C`).  No fact depends on a junk value at the corners: the value `W̃_c^ε(0)` is computed as the limit along the strip
 (`ctWtot_zero_eq`, from the Hölder clause (M2) of `StripAdmissFullData` and the limits of the summands; `ctWg1`, `ctWfl`,
 `ctWbump` are continuous on the closed strip, `ctWg1_continuousOn` etc.), and `W̃^warp → 0` is `ctWwarp_tendsto_zero`, proved from
-the corner bound `Φ̂_c = O(ζ³)` of `splitting` (the field `splitting_rest`; it cancels the `ζ^{-5/2}` singularity of `H_*/G_ε`, `ctHG_bound`).  (Lean's
+the corner bound `Φ̂_c = O(ζ³)` of `splitting` (proved from `descent`, `fctPhiHat_cont_cubic`; it cancels the `ζ^{-5/2}` singularity of `H_*/G_ε`, `ctHG_bound`).  (Lean's
 value of `ctHG`/`ctWwarp` at `ζ = 0` is a division-by-zero value; it is never used, and the Hölder clause of `fctWarp_admissible` is consistent
 with it because the limit is `0`.)
 
@@ -124,8 +124,8 @@ structure FctMainHankelInputs where
   /-- `fct:warp-asymp` (1) (`FctWarpSolveStmt`): exact complex zero solve, a unique `(L₁, α)` with `I_ε(L₁, α) = 0`, `|T₁ - Δ₅^ε(c)| ≤ C c⁻¹`,
   `|α| ≤ C c^{-2/3}`. -/
   warp_solve : FctWarpSolveStmt K4
-  /-- `fct:splitting` (1)-(2) for `Φ̂_c`, the clauses not yet proved (`FctSplittingRestStmt`): continuity on `S̄`, `C²` left edge trace, `Φ̂_c = O(ζ³)` at `0`, the `log log` growth
-  on `S̄` and the edge-trace derivative bounds.  Holomorphy on `Re ζ > 0` and real symmetry are proved from `descent` (`fctPhiHat_differentiableOn`, `fctPhiHat_conj`), so
+  /-- `fct:splitting` (1)-(2) for `Φ̂_c`, the clauses not yet proved (`FctSplittingRestStmt`): `C²` left edge trace, the `log log` growth
+  on `S̄` and the edge-trace derivative bounds.  Holomorphy on `Re ζ > 0`, real symmetry, continuity on `S̄` and `Φ̂_c = O(ζ³)` at `0` are proved from `descent` (`fctPhiHat_differentiableOn`, `fctPhiHat_conj`, `fctPhiHat_cont_cubic`), so
   `FctSplittingStmt (fctPhiHat ·)` is the theorem `FctMainHankelInputs.splitting` (`fctSplitting_of_rest`).  With the proved `fct:comp-D` (`fctDcomp_compData`) and `H_*/G_ε`
   (`uct:outer-growth`) it gives Step 1 of `fct:s4-proof` for the warp summand (`fctWarp_admissible`) and the corner behaviour that makes `ctWwarp → 0` at `ζ = 0`
   (`ctWwarp_tendsto_zero`; the singularity `ζ^{-5/2}` of `H_*/G_ε` is cancelled). -/

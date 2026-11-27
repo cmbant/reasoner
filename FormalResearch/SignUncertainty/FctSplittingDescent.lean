@@ -84,14 +84,14 @@ lemma norm_line_sub_ge {σ : ℝ} {ζ : ℂ} (hd : ζ.re ≠ σ) (y : ℝ) :
   · have : d * (1 + |y|) ≤ (|y| - M) * (1 + M + d) := by nlinarith [abs_nonneg y]
     nlinarith [abs_nonneg y]
 
-/-- **Uniform kernel bound** on `Re t = σ`, `3/8 ≤ σ ≤ 7/16`: `|K_sp(t,ζ)/(t-ζ)| ≤ K/(1+|y|)²`, with `K` depending only on `σ` and on bounds `|ζ| ≤ R`,
+/-- **Uniform cubic kernel bound** on `Re t = σ`, `3/8 ≤ σ ≤ 7/16`: `|K_sp(t,ζ)/(t-ζ)| ≤ K |ζ|³/(1+|y|)²` (the factor `ζ³` of `K_sp`), with `K` depending only on `σ` and on bounds `|ζ| ≤ R`,
 `|ζ+1| ≥ m > 0`, `|Re ζ - σ| ≥ δ > 0`. -/
-lemma fctKsp_div_le_unif {σ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16) {R m δ : ℝ} (hR : 0 ≤ R) (hm : 0 < m) (hδ : 0 < δ) :
+lemma fctKsp_div_le_unif_cubic {σ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16) {R m δ : ℝ} (hR : 0 ≤ R) (hm : 0 < m) (hδ : 0 < δ) :
     ∃ K : ℝ, 0 ≤ K ∧ ∀ ζ : ℂ, ‖ζ‖ ≤ R → m ≤ ‖ζ + 1‖ → δ ≤ |ζ.re - σ| → ∀ y : ℝ,
-      ‖fctKsp ((σ : ℂ) + y * Complex.I) ζ / ((σ : ℂ) + y * Complex.I - ζ)‖ ≤ K / (1 + |y|) ^ 2 := by
+      ‖fctKsp ((σ : ℂ) + y * Complex.I) ζ / ((σ : ℂ) + y * Complex.I - ζ)‖ ≤ K * ‖ζ‖ ^ 3 / (1 + |y|) ^ 2 := by
   set κ0 : ℝ := δ / (2 + 2 * R) with hκ0
   have hκ0pos : 0 < κ0 := by positivity
-  refine ⟨R ^ 3 * (m⁻¹) ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ0, by positivity, fun ζ hζR hζm hζδ y => ?_⟩
+  refine ⟨(m⁻¹) ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ0, by positivity, fun ζ hζR hζm hζδ y => ?_⟩
   set t : ℂ := (σ : ℂ) + y * Complex.I with ht
   have hy : 0 < 1 + |y| := by positivity
   have hd : ζ.re ≠ σ := fun h => by rw [h, sub_self, abs_zero] at hζδ; linarith
@@ -135,10 +135,23 @@ lemma fctKsp_div_le_unif {σ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16) 
         apply div_le_div₀ (by positivity) hnum (by positivity) h3
     _ = ‖ζ‖ ^ 3 * a ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ / (1 + |y|) ^ 2 := by
         field_simp
-    _ ≤ R ^ 3 * (m⁻¹) ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ0 / (1 + |y|) ^ 2 := by
-        have hn3 : ‖ζ‖ ^ 3 ≤ R ^ 3 := pow_le_pow_left₀ (norm_nonneg _) hζR 3
+    _ ≤ (m⁻¹) ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ0 * ‖ζ‖ ^ 3 / (1 + |y|) ^ 2 := by
         have ha2 : a ^ 2 ≤ (m⁻¹) ^ 2 := pow_le_pow_left₀ ha0 haR 2
-        gcongr
+        have : 0 ≤ ‖ζ‖ ^ 3 := by positivity
+        have h1 : ‖ζ‖ ^ 3 * a ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ ≤ ‖ζ‖ ^ 3 * (m⁻¹) ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ0 := by
+          gcongr
+        calc _ ≤ ‖ζ‖ ^ 3 * (m⁻¹) ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ0 / (1 + |y|) ^ 2 := by gcongr
+          _ = _ := by ring
+
+/-- **Uniform kernel bound** on `Re t = σ`, `3/8 ≤ σ ≤ 7/16`: `|K_sp(t,ζ)/(t-ζ)| ≤ K/(1+|y|)²`, with `K` depending only on `σ` and on bounds `|ζ| ≤ R`,
+`|ζ+1| ≥ m > 0`, `|Re ζ - σ| ≥ δ > 0` (from `fctKsp_div_le_unif_cubic`). -/
+lemma fctKsp_div_le_unif {σ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16) {R m δ : ℝ} (hR : 0 ≤ R) (hm : 0 < m) (hδ : 0 < δ) :
+    ∃ K : ℝ, 0 ≤ K ∧ ∀ ζ : ℂ, ‖ζ‖ ≤ R → m ≤ ‖ζ + 1‖ → δ ≤ |ζ.re - σ| → ∀ y : ℝ,
+      ‖fctKsp ((σ : ℂ) + y * Complex.I) ζ / ((σ : ℂ) + y * Complex.I - ζ)‖ ≤ K / (1 + |y|) ^ 2 := by
+  obtain ⟨K, hK0, hK⟩ := fctKsp_div_le_unif_cubic hσ hσ' hR hm hδ
+  refine ⟨K * R ^ 3, by positivity, fun ζ hζR hζm hζδ y => (hK ζ hζR hζm hζδ y).trans ?_⟩
+  have : ‖ζ‖ ^ 3 ≤ R ^ 3 := pow_le_pow_left₀ (norm_nonneg _) hζR 3
+  gcongr
 
 /-- **Kernel bound.**  On `Re t = σ`, `3/8 ≤ σ ≤ 7/16`, with `Re ζ ≠ σ`: `|K_sp(t, ζ)/(t - ζ)| ≤ K (1+|y|)⁻²`, `K` depending only on `ζ` and `σ`
 (the case `R = ‖ζ‖` of `fctKsp_div_le_unif`; at `ζ = -1`, `K_sp = 0`). -/
@@ -182,6 +195,38 @@ lemma fctCauchy_norm_le {σ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16) {
   rw [integral_const_mul] at hint
   calc 1 / (2 * π) * ‖∫ y : ℝ, fctCauchyIntegrand K4 ε c L1 α σ ζ y‖
       ≤ 1 / (2 * π) * (K * B * ∫ y : ℝ, 1 / (1 + |y|) ^ 2) := by gcongr
+    _ = _ := by ring
+
+/-- **The Cauchy integral near `ζ = 0` is `O(|ζ|³)`** (the factor `ζ³` of `K_sp`): for `3/8 ≤ σ ≤ 7/16`, `K ≥ 0` (depending only on `σ`) with
+`‖C_σ(ζ)‖ ≤ K B ‖ζ‖³` for `‖ζ‖ ≤ 1/4` whenever `|F(σ+iy)| ≤ B` for all `y`. -/
+lemma fctCauchy_norm_le_cubic {σ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16) :
+    ∃ K : ℝ, 0 ≤ K ∧ ∀ K4 ε c L1 α B : ℝ, 0 ≤ B →
+      (∀ y : ℝ, ‖fctFint K4 ε c L1 α ((σ : ℂ) + y * Complex.I)‖ ≤ B) → ∀ ζ : ℂ, ‖ζ‖ ≤ 1 / 4 →
+        ‖fctCauchy K4 ε c L1 α σ ζ‖ ≤ K * B * ‖ζ‖ ^ 3 := by
+  obtain ⟨K, hK0, hK⟩ := fctKsp_div_le_unif_cubic hσ hσ' (R := 1 / 4) (m := 3 / 4) (δ := 1 / 8) (by norm_num) (by norm_num) (by norm_num)
+  refine ⟨(1 / (2 * π)) * K * ∫ y : ℝ, 1 / (1 + |y|) ^ 2, ?_, fun K4 ε c L1 α B hB hF ζ hζ => ?_⟩
+  · have : 0 ≤ ∫ y : ℝ, 1 / (1 + |y|) ^ 2 := integral_nonneg fun y => by positivity
+    positivity
+  have h1 : (3 / 4 : ℝ) ≤ ‖ζ + 1‖ := by
+    have := norm_sub_norm_le (1 : ℂ) (-ζ)
+    simp only [norm_neg, norm_one, sub_neg_eq_add, add_comm] at this
+    linarith
+  have h2 : (1 / 8 : ℝ) ≤ |ζ.re - σ| := by
+    have : ζ.re ≤ 1 / 4 := (Complex.re_le_norm ζ).trans hζ
+    rw [abs_sub_comm, abs_of_nonneg (by linarith)]
+    linarith
+  unfold fctCauchy
+  rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg (by positivity)]
+  have hint : ‖∫ y : ℝ, fctCauchyIntegrand K4 ε c L1 α σ ζ y‖ ≤ ∫ y : ℝ, K * B * ‖ζ‖ ^ 3 * (1 / (1 + |y|) ^ 2) := by
+    refine norm_integral_le_of_norm_le (integrable_inv_one_add_abs_sq.const_mul (K * B * ‖ζ‖ ^ 3)) (Filter.Eventually.of_forall fun y => ?_)
+    unfold fctCauchyIntegrand
+    rw [mul_div_right_comm, norm_mul]
+    calc _ ≤ (K * ‖ζ‖ ^ 3 / (1 + |y|) ^ 2) * B := by
+          exact mul_le_mul (hK ζ hζ h1 h2 y) (hF y) (norm_nonneg _) (by positivity)
+      _ = _ := by ring
+  rw [integral_const_mul] at hint
+  calc 1 / (2 * π) * ‖∫ y : ℝ, fctCauchyIntegrand K4 ε c L1 α σ ζ y‖
+      ≤ 1 / (2 * π) * (K * B * ‖ζ‖ ^ 3 * ∫ y : ℝ, 1 / (1 + |y|) ^ 2) := by gcongr
     _ = _ := by ring
 
 /-- **`fct:splitting` (2), `N_c = 1 + O_{K₄}(c⁻¹)`** (the former field `splitting_norm`), from the descent bound `(fct:F-38-bnd)`: `N_c = Re(1 - F₊(1))`,

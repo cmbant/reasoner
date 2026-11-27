@@ -35,7 +35,7 @@ namespace FormalResearch.SignUncertainty
 
 /-! ### Zero-freeness on the band -/
 
-lemma seedA_ne_zero_of_band (ε : ℝ) {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1 / 2) : seedA ε ζ ≠ 0 := by
+lemma seedA_ne_zero_of_band (ε : ℝ) {ζ : ℂ} (h0 : 0 ≤ ζ.re) (h1 : ζ.re < 1 / 2) : seedA ε ζ ≠ 0 := by
   unfold seedA
   split_ifs with hε
   · intro h
@@ -73,8 +73,8 @@ lemma seedA_ne_zero_of_band (ε : ℝ) {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re <
     · have : (k : ℝ) ≤ -1 := by exact_mod_cast (by omega : k ≤ -1)
       linarith
 
-/-- `sincInv (π ζ) ≠ 0` for `0 < Re ζ < 1/2`. -/
-lemma sincInv_pi_ne_zero_of_band {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1 / 2) : sincInv (π * ζ) ≠ 0 := by
+/-- `sincInv (π ζ) ≠ 0` for `0 ≤ Re ζ < 1/2`. -/
+lemma sincInv_pi_ne_zero_of_band {ζ : ℂ} (h0 : 0 ≤ ζ.re) (h1 : ζ.re < 1 / 2) : sincInv (π * ζ) ≠ 0 := by
   unfold sincInv
   refine inv_ne_zero (dslope_sin_ne_zero fun n hn hz => ?_)
   have hπ : (π : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_ne_zero
@@ -89,9 +89,8 @@ lemma sincInv_pi_ne_zero_of_band {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1 / 2
   · have : (n : ℝ) ≤ -1 := by exact_mod_cast (by omega : n ≤ -1)
     linarith
 
-/-- **`H_*/G_ε` is zero-free on `0 < Re ζ < 1/2`** (so on the band `5/16 ≤ Re ζ ≤ 7/16` of `fct:splitting`). -/
-theorem ctHG_ne_zero_of_band (ε : ℝ) {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1 / 2) : ctHG ε ζ ≠ 0 := by
-  have hζ : ζ ≠ 0 := fun h => by rw [h] at h0; simp at h0
+/-- **`H_*/G_ε` is zero-free on `0 ≤ Re ζ < 1/2`, `ζ ≠ 0`** (including the left edge `Re ζ = 0`; at `ζ = 0` the value is Lean's junk `0`). -/
+theorem ctHG_ne_zero_of_closed_band (ε : ℝ) {ζ : ℂ} (h0 : 0 ≤ ζ.re) (h1 : ζ.re < 1 / 2) (hζ : ζ ≠ 0) : ctHG ε ζ ≠ 0 := by
   have h1ζ : 1 - ζ ≠ 0 := fun h => by
     have := congrArg Complex.re h; simp at this; linarith
   unfold ctHG
@@ -102,6 +101,21 @@ theorem ctHG_ne_zero_of_band (ε : ℝ) {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re 
       (pow_ne_zero 2 (mul_ne_zero h1ζ (sincInv_pi_ne_zero_of_band h0 h1)))
   · rw [Ne, Complex.cpow_eq_zero_iff]; tauto
   · rw [Ne, Complex.cpow_eq_zero_iff]; tauto
+
+/-- **`H_*/G_ε` is zero-free on `0 < Re ζ < 1/2`** (so on the band `5/16 ≤ Re ζ ≤ 7/16` of `fct:splitting`). -/
+theorem ctHG_ne_zero_of_band (ε : ℝ) {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1 / 2) : ctHG ε ζ ≠ 0 :=
+  ctHG_ne_zero_of_closed_band ε h0.le h1 (fun h => by rw [h] at h0; simp at h0)
+
+/-- The numerator `Z_ε(ζ) e^{-h̄(ζ)}` of `H_*/G_ε` is nonzero on `0 ≤ Re ζ < 1/2` (also at `ζ = 0`). -/
+lemma uctSeedZ_mul_exp_ne_zero (ε : ℝ) {ζ : ℂ} (h0 : 0 ≤ ζ.re) (h1 : ζ.re < 1 / 2) :
+    uctSeedZ ε ζ * Complex.exp (-outerHbar ζ) ≠ 0 := by
+  have h1ζ : 1 - ζ ≠ 0 := fun h => by
+    have := congrArg Complex.re h; simp at this; linarith
+  rw [uctSeedZ_of_le (by linarith)]
+  refine mul_ne_zero ?_ (Complex.exp_ne_zero _)
+  unfold seedZL
+  exact mul_ne_zero (seedA_ne_zero_of_band ε h0 h1)
+    (pow_ne_zero 2 (mul_ne_zero h1ζ (sincInv_pi_ne_zero_of_band h0 h1)))
 
 /-- `K₀(ζ, ξ) ≠ 0` for `Re ζ < 1`: `K₀ = (1-ζ)^{-1/2} e^{B_c} e^{cΦ_Mel}`. -/
 lemma mellinK0_ne_zero (c : ℝ) {ζ : ℂ} (h : ζ.re < 1) (ξ : ℝ) : mellinK0 c ζ ξ ≠ 0 := by

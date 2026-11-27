@@ -108,7 +108,7 @@ theorem fctPhiWarp_differentiableOn (hc : 0 < c) (hDh : DifferentiableOn ℂ (fc
     (isOpen_lt continuous_const Complex.continuous_re).inter (isOpen_lt Complex.continuous_re continuous_const)
   have hU2 : IsOpen {ζ : ℂ | 3 / 8 < ζ.re} := isOpen_lt continuous_const Complex.continuous_re
   have hC7 := fctCauchy_differentiableOn (ε := ε) (L1 := L1) (α := α) hc hDc (σ := 7 / 16) (by norm_num) le_rfl
-    (fun y => hF _ y (by norm_num) le_rfl) hU1 (fun w (hw : 0 < w.re ∧ w.re < 7 / 16) => ⟨hw.1, hw.2.ne⟩)
+    (fun y => hF _ y (by norm_num) le_rfl) hU1 (fun w (hw : 0 < w.re ∧ w.re < 7 / 16) => ⟨by linarith [hw.1], hw.2.ne⟩)
   have hC3 := fctCauchy_differentiableOn (ε := ε) (L1 := L1) (α := α) hc hDc (σ := 3 / 8) le_rfl (by norm_num)
     (fun y => hF _ y le_rfl (by norm_num)) hU2 (fun w (hw : 3 / 8 < w.re) => ⟨by linarith, by intro h; rw [h] at hw; norm_num at hw⟩)
   have hFb := fctFint_differentiableOn_band (ε := ε) (L1 := L1) (α := α) hc hDh hDc hDb
