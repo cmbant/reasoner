@@ -73,8 +73,8 @@ def SpinS1a : Prop :=
         ∫ p : ℝ × ℝ, spinThermalX βL βR p.1 p.2 ∂ν = -spinThermalXVac a βL βR) ↔
       (∀ m n : ℕ, Odd (m + n) →
         ∫ p : ℝ × ℝ, lagPsi (1 / 2) m p.1 * lagPsi (1 / 2) n p.2 ∂ν =
-          -(∫ p : ℝ × ℝ, lagPsi (1 / 2) m (p.1 ^ 2 / 2) * lagPsi (1 / 2) n (p.2 ^ 2 / 2) *
-              spinV1 a p.1 * spinV1 a p.2)))
+          ∫ p : ℝ × ℝ, lagPsi (1 / 2) m (p.1 ^ 2 / 2) * lagPsi (1 / 2) n (p.2 ^ 2 / 2) *
+              spinV1 a p.1 * spinV1 a p.2))
 
 /-- **`spinnotes:S1`(b) (Cardy harmonics and radial subspace).**
 For all `a ≥ 2`, `ℓ : ℕ`, and `t ≥ 0`:

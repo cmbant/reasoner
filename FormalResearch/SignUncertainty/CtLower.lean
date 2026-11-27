@@ -22,20 +22,16 @@ and `ε = ±1`, every feasible threshold `T` of the Hankel problem satisfies
 `Δ₅^ε(c) = c/π² + A c^{1/3} + c₀^ε + c₁^{Langer} c^{-1/3} + d₂^{*,ε} c^{-2/3}`,
 `c₀^ε = θ₁^ε/π²`, `c₁^{Langer} = 9π²A²/25`, `d₂^{*,ε} = A(θ₁^ε + 12θ₃^ε/π²)`.
 
-**Status: conditional on `CtLowerInputs`** (`dyadic` = `ct:dyadic` (4); `ct:boas` is proved, `ct_boas_concrete` in `CtBoasEventual`; `ct:dyadic` (2) and the node lower bound are proved; the inversion step `chart_gap` is proved:
-`ctChartGap` in `CtLowerChartGap`, with `c₀^ε < 0` from `CtKappaNeg`).  The proof in the paper is by contradiction at the first Airy node: a
-feasible `f` at `T ≤ Δ₅ - K c⁻¹ log c` has `ũ₁ - φ_c(a₁) ≥ (Kβ₁/2) c^{-4/3} log c` (Langer chart inversion), and the
-dual identity at one good radius (`ct:dyadic` (2), (4) with `ct:boas`) bounds the budget `P_R(H) + g_vac/2π` above by
-`C₀ c^{-4/3} log c` with `C₀` independent of `K`, while the effective `C¹` stability at the first node
-(`gt:7.7p` (b), (d)) bounds it below by a positive multiple of `ũ₁ - φ_c(a₁)` minus an exponentially small term.  This file
-proves the last step (the choice of `K` and the contradiction) from `CtLowerInputs`, `ct:boas` (`ct_lower_of_boas`) and `ctChartGap`;
-`CtLowerFinal` supplies `ct:boas` (`ct_lower`).  The TeX
-objects are defined concretely in `CtLowerDefs` (`ctGap`, `ctBudget`; see their docstrings): `ũ(T/c)` is the inverse of the
-Lean Langer chart `hankelXi`, `φ_c` the inverse of `û` built from the CFU phase `ψ_ε = θ_ε(τ₀(a))/√(-a)`, `Ψ̃` is
-`hankelPsi`, and `P_R`, `g_vac` are as in `ap:thmD` and `ct:gvac-def`.  Instantiating the structure means proving the
-statements about these definitions (see `PLAN.md`, the `ct:dyadic` row).  The only parts of the definitions that are
-junk outside the regime of the TeX are noted in their docstrings (`invFunOn` returns an arbitrary point where `û` is not
-bijective); the fields are only used inside that regime.  No result of this file is unconditional.
+**Status:** `ct:boas` is proved (`ct_boas_concrete` in `CtBoasEventual`); `ct:dyadic` (2), the node lower bound (`ct_node_lower` in
+`CtNodeLower`), the inversion step (`ctChartGap` in `CtLowerChartGap`, with `c₀^ε < 0` from `CtKappaNeg`), and
+`(ct:combined)` (`ct_combined` in `CtLowerFinal`) are all proved, making `ct_lower : CtLowerStatement` unconditional in
+`CtLowerFinal`.  The proof in the paper is by contradiction at the first Airy node: a feasible `f` at `T ≤ Δ₅ - K c⁻¹ log c`
+has `ũ₁ - φ_c(a₁) ≥ (Kβ₁/2) c^{-4/3} log c` (Langer chart inversion), and the dual identity at one good radius
+(`ct:dyadic` (2), (4) with `ct:boas`) bounds the budget `P_R(H) + g_vac/2π` above by `C₀ c^{-4/3} log c` with `C₀`
+independent of `K`, while the effective `C¹` stability at the first node (`gt:7.7p` (b), (d)) bounds it below by a positive
+multiple of `ũ₁ - φ_c(a₁)` minus an exponentially small term.  This file proves the last step (the choice of `K` and the
+contradiction) from `CtDyadicCombinedStatement` and `CtBoasStatement` (`ct_lower_of_boas`) and `ctChartGap`.  The TeX objects
+are defined concretely in `CtLowerDefs` (`ctGap`, `ctBudget`; see their docstrings).
 -/
 
 @[expose] public section
@@ -75,10 +71,10 @@ def CtPassStatement (c₁ : ℝ) : Prop :=
 
 /-- **`ct:dyadic` (4) and `ct:boas`, `ct:dyadic` (2) → the pass.**  `ct:dyadic` (2) is the proved `ct_dyadic_radius_proved` (small `c₁`);
 `(ct:combined)` gives `|budget + B| ≤ C(c⁻¹η + c^{-4/3}log c)` with `η ≤ C c^{-1/3}`, and `ct:boas` gives `B ≥ -O(c^{-4/3}log c)`. -/
-theorem ct_pass {c₁ : ℝ} (hr : CtDyadicRadiusStatement c₁) (hd : CtDyadicInputs c₁) (hb : CtBoasStatement c₁) :
+theorem ct_pass {c₁ : ℝ} (hr : CtDyadicRadiusStatement c₁) (hd : CtDyadicCombinedStatement c₁) (hb : CtBoasStatement c₁) :
     CtPassStatement c₁ := by
   obtain ⟨Cr, cr, hr⟩ := hr
-  obtain ⟨Cd, cd, hd⟩ := hd.combined
+  obtain ⟨Cd, cd, hd⟩ := hd
   obtain ⟨Cb, cb, hb⟩ := hb
   refine ⟨|Cb| + |Cd| * (|Cr| + 1), max cr (max cd (max cb 3)), ?_⟩
   intro c hc ε hε T f hf hm hT hg
@@ -206,21 +202,12 @@ theorem ct_lower_of_pass_node {c₁ : ℝ} (hP : CtPassStatement c₁) (hN : CtN
   have hE := Real.exp_pos (-κ' * c)
   nlinarith [mul_le_mul_of_nonneg_right this hE.le]
 
-/-- **The TeX result of `constant_terms_lower.tex` not yet in Lean** (`ct:dyadic` (2), `ct:boas` and the chart inversion are proved:
-`ct_dyadic_radius_proved`, `ct_boas_concrete`, `ctChartGap`).  Each field holds for every small window constant `c₁ > 0` (the constant of `ct:cfu`; the
-windows are `[c₁²c^{2/3}, 4c₁²c^{2/3}]`), about a feasible `f` with `M[f] = 1`, the violator `T < cξ(a₁)` and `ũ₁ > φ_c(a₁)`:
-
-* `dyadic`: `ct:dyadic` (4), `(ct:combined)` (`CtDyadicInputs`).
-
-The node lower bound (`gt:7.7p` (b), (d), `g_vac ≥ 0`, the sign of the `n ≥ 2` nodes) is the proved `ct_node_lower` (`CtNodeLower`). -/
-structure CtLowerInputs : Prop where
-  dyadic : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtDyadicInputs c₁
-
-/-- **`thm:ct-lower` from `CtLowerInputs` and `ct:boas`**: take `c₁` below the three thresholds and the radius threshold of
-`ct_dyadic_radius_proved`.  (`ct:boas` is `ct_boas_concrete`; `ct_lower` in `CtLowerFinal` instantiates it.) -/
-theorem ct_lower_of_boas (I : CtLowerInputs)
+/-- **`thm:ct-lower` from `ct:dyadic` (4) and `ct:boas`**: take `c₁` below the thresholds of `D`, `B`, `ct_node_lower`, and
+`ct_dyadic_radius_proved`.  (`CtLowerFinal.ct_lower` instantiates both unconditionally.) -/
+theorem ct_lower_of_boas
+    (D : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtDyadicCombinedStatement c₁)
     (B : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtBoasStatement c₁) : CtLowerStatement := by
-  obtain ⟨a₁, ha₁, hd⟩ := I.dyadic
+  obtain ⟨a₁, ha₁, hd⟩ := D
   obtain ⟨a₂, ha₂, hb⟩ := B
   obtain ⟨a₃, ha₃, hn⟩ := ct_node_lower
   obtain ⟨a₄, ha₄, hr⟩ := ct_dyadic_radius_proved

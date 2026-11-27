@@ -71,6 +71,7 @@ public import FormalResearch.ModularBootstrap.FiveTerm.LowerBoasResidue
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerDyadic
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerEdgeHankel
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerBesselTwoTerm
+public import FormalResearch.ModularBootstrap.FiveTerm.LowerEdgeAsymp
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperPairPhi
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperPairTaylor
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperPairDrift
@@ -88,7 +89,12 @@ public import FormalResearch.Complex.SchwarzReflection
 public import FormalResearch.ModularBootstrap.LP.Statements
 public import FormalResearch.ModularBootstrap.Spin.Assembly
 public import FormalResearch.ModularBootstrap.Spin.SpinS22Outward
+public import FormalResearch.ModularBootstrap.Spin.ScalC3
+public import FormalResearch.ModularBootstrap.Spin.ScalC1
 public import FormalResearch.ModularBootstrap.Spin.SpinS1c
+public import FormalResearch.ModularBootstrap.Spin.SpinS1
+public import FormalResearch.ModularBootstrap.Spin.SpinS4Statements
+public import FormalResearch.ModularBootstrap.Spin.SpinS4Assembly
 public import FormalResearch.ModularBootstrap.Spin.SpinS2xS21
 public import FormalResearch.ModularBootstrap.Spin.SpinS2xS23
 public import FormalResearch.ModularBootstrap.Spin.SpinS2xS23b
@@ -156,9 +162,12 @@ public import FormalResearch.ModularBootstrap.Mixtures.VacCompare
 public import FormalResearch.ModularBootstrap.Mixtures.VacWindow
 public import FormalResearch.ModularBootstrap.Mixtures.VacCore
 public import FormalResearch.ModularBootstrap.Mixtures.VacProp
-public import FormalResearch.ModularBootstrap.Mixtures.VacTwoZeroWindow
-public import FormalResearch.ModularBootstrap.Mixtures.VacTwoZeroCore
 public import FormalResearch.ModularBootstrap.Mixtures.VacTwoZero
+public import FormalResearch.ModularBootstrap.Mixtures.DualMajorant
+public import FormalResearch.ModularBootstrap.Mixtures.ThermalSeparation
+public import FormalResearch.ModularBootstrap.Mixtures.Primal
+public import FormalResearch.ModularBootstrap.Mixtures.DualityLP
+public import FormalResearch.ModularBootstrap.Mixtures.Duality
 public import FormalResearch.ModularBootstrap.Blowup.NormLimitCore
 public import FormalResearch.ModularBootstrap.Blowup.NormLimitIdentify
 public import FormalResearch.ModularBootstrap.Blowup.AiryNormLimit
@@ -544,6 +553,7 @@ public import FormalResearch.ModularBootstrap.FoldTip.Hypotheses
 public import FormalResearch.ModularBootstrap.FoldTip.Instances
 public import FormalResearch.ModularBootstrap.FoldTip.InstancesAllWeights
 public import FormalResearch.ModularBootstrap.FoldTip.InstancesAllWeightsUnconditional
+public import FormalResearch.ModularBootstrap.FoldTip.ChartCompactness
 public import FormalResearch.ModularBootstrap.TwoLevel.ConstrainedDuality
 public import FormalResearch.ModularBootstrap.TwoLevel.CorollaryTwoFour
 public import FormalResearch.ModularBootstrap.TwoLevel.CorollaryTwoFourAllWeights
@@ -674,6 +684,10 @@ public import FormalResearch.ModularBootstrap.Integrality.ShellInv
 public import FormalResearch.ModularBootstrap.Integrality.ShellInvCells
 public import FormalResearch.ModularBootstrap.Integrality.RepairIdentity
 public import FormalResearch.ModularBootstrap.Integrality.RepairTaylor
+public import FormalResearch.ModularBootstrap.Integrality.IntegerObstruction
+public import FormalResearch.ModularBootstrap.Integrality.AtomBounds
+public import FormalResearch.ModularBootstrap.Integrality.AtomCell
+public import FormalResearch.ModularBootstrap.Integrality.Atom
 
 /-!
 # Modular Bootstrap at Large Central Charge
