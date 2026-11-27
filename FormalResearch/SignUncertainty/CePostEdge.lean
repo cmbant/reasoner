@@ -118,21 +118,22 @@ private lemma liftSymbol_norm_of_rhp_unif {X : ℝ → ℝ} {CS : ℝ} (hCS : 0 
 private lemma ce_post_edge_small_L
     {p lam : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hlam : 0 < lam)
     {m : ℕ} (hm : 4 ≤ m)
-    {S D : ℝ → ℝ → ℝ}
+    {S : ℝ → ℝ → ℝ}
     (hU2S : ∀ {c : ℝ}, 2 ≤ c → HasU2 (S c))
     (hcontS : ∀ {c : ℝ}, 2 ≤ c → Continuous (S c))
     (hgt1S : ∃ AS : ℝ, 0 ≤ AS ∧ ∀ {c δ₀ : ℝ}, 2 ≤ c → δ₀ ∈ Icc (0 : ℝ) 2 →
       Gt1Bounds AS (liftW (S c) δ₀ m))
     (hrayS : ∃ b_ray > 0, ∃ x₁ ≥ (1 : ℝ), ∀ {c x : ℝ}, 2 ≤ c → x₁ ≤ x →
       b_ray * (min 1 (lam * liftEps c ^ 2 * x)) ^ p * x ^ (-(3 / 2 : ℝ)) ≤ S c (-x))
-    {CD : ℝ} (hCD : 0 ≤ CD)
-    (hdiffD : ∀ {c : ℝ}, 2 ≤ c → DifferentiableOn ℂ (airyTwistedLaplaceC (D c)) {y : ℂ | 0 < y.re})
-    (hbdD : ∀ {c : ℝ} {w : ℂ}, 2 ≤ c → 0 ≤ w.re →
-      ‖airyTwistedLaplaceC (D c) ((ceCs : ℂ) * w)‖ ≤ CD * ‖1 + w‖ ^ (-(5 / 2 : ℝ))) :
+    {CD : ℝ} (hCD : 0 ≤ CD) :
     ∃ L_F S_star : ℝ, 0 < L_F ∧ L_F ≤ 0.002 ∧ 100 ≤ S_star ∧
-      ∀ {κ : ℝ}, 1 ≤ κ → ∃ c₁ ≥ (2 : ℝ), ∀ {c ξ : ℝ}, c₁ ≤ c → 0 < ξ →
-        S_star ≤ hbS c ξ → Real.log (Real.pi ^ 2 * ξ) ≤ L_F →
-        0 < (iMain (S c) (κ * liftEps c) m c ξ + iDual (D c) (κ * liftEps c) m c ξ).re := by
+      ∀ {κ : ℝ}, 1 ≤ κ → ∀ {D : ℝ → ℝ → ℝ},
+        (∀ {c : ℝ}, 2 ≤ c → DifferentiableOn ℂ (airyTwistedLaplaceC (D c)) {y : ℂ | 0 < y.re}) →
+        (∀ {c : ℝ} {w : ℂ}, 2 ≤ c → 0 ≤ w.re →
+          ‖airyTwistedLaplaceC (D c) ((ceCs : ℂ) * w)‖ ≤ CD * ‖1 + w‖ ^ (-(5 / 2 : ℝ))) →
+        ∃ c₁ ≥ (2 : ℝ), ∀ {c ξ : ℝ}, c₁ ≤ c → 0 < ξ →
+          S_star ≤ hbS c ξ → Real.log (Real.pi ^ 2 * ξ) ≤ L_F →
+          0 < (iMain (S c) (κ * liftEps c) m c ξ + iDual (D c) (κ * liftEps c) m c ξ).re := by
   obtain ⟨ϑ, K1, K2, hϑ⟩ := prof_exists
   obtain ⟨AS, hAS, hgt⟩ := hgt1S
   obtain ⟨C_mt, hCmt, hmid⟩ := middle_transfer_gt1 hϑ AS hAS
@@ -165,7 +166,7 @@ private lemma ce_post_edge_small_L
   have hLF_A2 : L_F ≤ A₂ := by rw [hLF_def]; exact (min_le_right _ _).trans (min_le_right _ _)
   set S_star : ℝ := max 100 ((x₁ + 4) / ceBeta1)
   have hSstar : 100 ≤ S_star := le_max_left _ _
-  refine ⟨L_F, S_star, hLF_pos, hLF_002, hSstar, fun {κ} hκ => ?_⟩
+  refine ⟨L_F, S_star, hLF_pos, hLF_002, hSstar, fun {κ} hκ {D} hdiffD hbdD => ?_⟩
   obtain ⟨R_c2, hRc2_def⟩ : ∃ R_c2 : ℝ,
       R_c2 = ((4 * (C_mt + 1)) / (b_mid * Real.pi ^ 3 * L_F ^ (p - 3 / 2))) ^ (2 / 3 : ℝ) := ⟨_, rfl⟩
   set c₁ : ℝ := max 2 (max ((κ / 2) ^ 3 + 1) (R_c2 + 1))
@@ -430,25 +431,26 @@ private lemma ce_post_edge_small_L
 
 private lemma ce_post_edge_far_L
     {m : ℕ} (hm : 4 ≤ m) {L_F : ℝ} (hLF : 0 < L_F)
-    {S D : ℝ → ℝ → ℝ}
+    {S : ℝ → ℝ → ℝ}
     (hfarS : ∃ b_F > 0, ∀ {κ : ℝ}, 0 < κ → ∃ C_err > 0, ∃ c₀ ≥ (2 : ℝ),
       ∀ {c ξ : ℝ}, c₀ ≤ c → 0 < ξ → L_F ≤ Real.log (Real.pi ^ 2 * ξ) →
         (c * ξ) * (iMain (S c) (κ * liftEps c) m c ξ).re ≥
           (b_F - C_err * c ^ (-(1 / 6 : ℝ))) * (1 + Real.log (Real.pi ^ 2 * ξ)) ^ (-(3 / 2 : ℝ)))
-    {CD : ℝ} (hCD : 0 ≤ CD)
-    (hdiffD : ∀ {c : ℝ}, 2 ≤ c → DifferentiableOn ℂ (airyTwistedLaplaceC (D c)) {y : ℂ | 0 < y.re})
-    (hbdD : ∀ {c : ℝ} {w : ℂ}, 2 ≤ c → 0 ≤ w.re →
-      ‖airyTwistedLaplaceC (D c) ((ceCs : ℂ) * w)‖ ≤ CD * ‖1 + w‖ ^ (-(5 / 2 : ℝ))) :
-    ∃ κ₀ ≥ (1 : ℝ), ∀ {κ : ℝ}, κ₀ ≤ κ → ∃ c₀ ≥ (2 : ℝ), ∀ {c ξ : ℝ}, c₀ ≤ c → 0 < ξ →
-      L_F ≤ Real.log (Real.pi ^ 2 * ξ) →
-      0 < (iMain (S c) (κ * liftEps c) m c ξ + iDual (D c) (κ * liftEps c) m c ξ).re := by
+    {CD : ℝ} (hCD : 0 ≤ CD) :
+    ∃ κ₀ ≥ (1 : ℝ), ∀ {κ : ℝ}, κ₀ ≤ κ → ∀ {D : ℝ → ℝ → ℝ},
+      (∀ {c : ℝ}, 2 ≤ c → DifferentiableOn ℂ (airyTwistedLaplaceC (D c)) {y : ℂ | 0 < y.re}) →
+      (∀ {c : ℝ} {w : ℂ}, 2 ≤ c → 0 ≤ w.re →
+        ‖airyTwistedLaplaceC (D c) ((ceCs : ℂ) * w)‖ ≤ CD * ‖1 + w‖ ^ (-(5 / 2 : ℝ))) →
+      ∃ c₀ ≥ (2 : ℝ), ∀ {c ξ : ℝ}, c₀ ≤ c → 0 < ξ →
+        L_F ≤ Real.log (Real.pi ^ 2 * ξ) →
+        0 < (iMain (S c) (κ * liftEps c) m c ξ + iDual (D c) (κ * liftEps c) m c ξ).re := by
   obtain ⟨b_F, hbF, hfar⟩ := hfarS
   obtain ⟨C_e3, hCe3, he3⟩ := iDual_bound_e3 (by omega : 3 ≤ m) hCD
   set C_LF : ℝ := C_e3 * 2 ^ (3 / 2 : ℝ) * max 1 (L_F ^ (-(1 / 4 : ℝ)))
   have hCLF : 0 < C_LF := by positivity
   set κ₀ : ℝ := max 1 ((4 * C_LF / b_F) ^ (1 / (m : ℝ)) + 1)
   have hm0 : (0 : ℝ) < m := by exact_mod_cast (by omega : 0 < m)
-  refine ⟨κ₀, le_max_left _ _, fun {κ} hκ => ?_⟩
+  refine ⟨κ₀, le_max_left _ _, fun {κ} hκ {D} hdiffD hbdD => ?_⟩
   obtain ⟨C_err, hCerr, c_f, hcf, hmain_f⟩ :=
     hfar (by linarith [le_max_left (1 : ℝ) ((4 * C_LF / b_F) ^ (1 / (m : ℝ)) + 1), hκ] : 0 < κ)
   set c_err6 : ℝ := (4 * C_err / b_F) ^ 6
@@ -706,13 +708,54 @@ private lemma ce_post_edge_window
       _ ≤ M_win := hM_floor
   exact re_pos_of_norm_lt (lt_of_le_of_lt htrans herr_le)
 
-/-- **Post-edge Fourier sign (`thm:ce-post-edge`, `cegt:GT3`)**:
-for any moving source family `S_c` with uniform `U.2`/`GT.1` symbol bounds, compact-interval
-`b_comp ε` floor, power-law negative-ray floor `b_ray min(1, λ ε² x)^p x^{-3/2}`, and far
-transfer lower bound, and any dual family `D_c` with uniform `U.2` right-half-plane bound `CD`,
-for all sufficiently large fixed `κ ≥ 1` and any fixed `U ≥ 0`,
-`Re(I_main[S_c](ξ) + I_dual[D_c](ξ)) > 0` for all sufficiently large `c` and all `ξ > 0`
-with `-U ≤ hbS c ξ`. -/
+/-- **Post-edge Fourier sign (`thm:ce-post-edge`), uniform over dual families `D`**:
+version of `ce_post_edge` in which the threshold `κ₀ ≥ 1` depends only on `CD` and not on the choice of `D`. -/
+theorem ce_post_edge_unif
+    {p lam : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hlam : 0 < lam)
+    {m : ℕ} (hm : 4 ≤ m)
+    {S : ℝ → ℝ → ℝ}
+    (hU2S : ∀ {c : ℝ}, 2 ≤ c → HasU2 (S c))
+    (hcontS : ∀ {c : ℝ}, 2 ≤ c → Continuous (S c))
+    (hgt1S : ∃ AS : ℝ, 0 ≤ AS ∧ ∀ {c δ₀ : ℝ}, 2 ≤ c → δ₀ ∈ Icc (0 : ℝ) 2 →
+      Gt1Bounds AS (liftW (S c) δ₀ m))
+    {CS : ℝ} (hCS : 0 ≤ CS)
+    (hbdS : ∀ {c : ℝ} {w : ℂ}, 2 ≤ c → 0 ≤ w.re →
+      ‖airyTwistedLaplaceC (S c) ((ceCs : ℂ) * w)‖ ≤ CS * ‖1 + w‖ ^ (-(5 / 2 : ℝ)))
+    (hcompS : ∀ {A B : ℝ}, 0 ≤ A → A ≤ B → ∃ b_comp > 0, ∀ {c u : ℝ}, 2 ≤ c →
+      u ∈ Icc (-A) B → b_comp * liftEps c ≤ S c u)
+    (hrayS : ∃ b_ray > 0, ∃ x₁ ≥ (1 : ℝ), ∀ {c x : ℝ}, 2 ≤ c → x₁ ≤ x →
+      b_ray * (min 1 (lam * liftEps c ^ 2 * x)) ^ p * x ^ (-(3 / 2 : ℝ)) ≤ S c (-x))
+    (hfarS : ∀ {L_F : ℝ}, 0 < L_F → ∃ b_F > 0, ∀ {κ : ℝ}, 0 < κ → ∃ C_err > 0, ∃ c₀ ≥ (2 : ℝ),
+      ∀ {c ξ : ℝ}, c₀ ≤ c → 0 < ξ → L_F ≤ Real.log (Real.pi ^ 2 * ξ) →
+        (c * ξ) * (iMain (S c) (κ * liftEps c) m c ξ).re ≥
+          (b_F - C_err * c ^ (-(1 / 6 : ℝ))) * (1 + Real.log (Real.pi ^ 2 * ξ)) ^ (-(3 / 2 : ℝ)))
+    {CD : ℝ} (hCD : 0 ≤ CD) :
+    ∃ κ₀ : ℝ, 1 ≤ κ₀ ∧ ∀ {κ : ℝ}, κ₀ ≤ κ → ∀ {U : ℝ}, 0 ≤ U → ∀ {D : ℝ → ℝ → ℝ},
+      (∀ {c : ℝ}, 2 ≤ c → DifferentiableOn ℂ (airyTwistedLaplaceC (D c)) {y : ℂ | 0 < y.re}) →
+      (∀ {c : ℝ} {w : ℂ}, 2 ≤ c → 0 ≤ w.re →
+        ‖airyTwistedLaplaceC (D c) ((ceCs : ℂ) * w)‖ ≤ CD * ‖1 + w‖ ^ (-(5 / 2 : ℝ))) →
+      ∃ c₀ ≥ (2 : ℝ),
+        ∀ {c ξ : ℝ}, c₀ ≤ c → 0 < ξ → -U ≤ hbS c ξ →
+          0 < (iMain (S c) (κ * liftEps c) m c ξ + iDual (D c) (κ * liftEps c) m c ξ).re := by
+  obtain ⟨L_F, S_star, hLF_pos, _, hSstar, hsmall⟩ :=
+    ce_post_edge_small_L hp hp1 hlam hm hU2S hcontS hgt1S hrayS hCD
+  obtain ⟨κ₀, hκ₀, hfar⟩ := ce_post_edge_far_L hm hLF_pos (hfarS hLF_pos) hCD
+  refine ⟨κ₀, hκ₀, fun {κ} hκ {U} hU {D} hdiffD hbdD => ?_⟩
+  have hκ1 : 1 ≤ κ := hκ₀.trans hκ
+  obtain ⟨c₁, hc₁, h1⟩ := hsmall hκ1 hdiffD hbdD
+  obtain ⟨c₂, hc₂, h2⟩ := hfar hκ hdiffD hbdD
+  obtain ⟨c₃, hc₃, h3⟩ :=
+    ce_post_edge_window hm hκ1 hU (by linarith : 0 ≤ S_star) hU2S hcontS hCS hCD hbdS hbdD hcompS
+  refine ⟨max c₁ (max c₂ c₃), hc₁.trans (le_max_left _ _), fun {c ξ} hc hξ hUlo => ?_⟩
+  have hc_1 : c₁ ≤ c := (le_max_left _ _).trans hc
+  have hc_2 : c₂ ≤ c := ((le_max_left _ _).trans (le_max_right _ _)).trans hc
+  have hc_3 : c₃ ≤ c := ((le_max_right _ _).trans (le_max_right _ _)).trans hc
+  rcases le_or_gt (hbS c ξ) S_star with hS_le | hS_gt
+  · exact h3 hc_3 hξ hUlo hS_le
+  · rcases le_or_gt (Real.log (Real.pi ^ 2 * ξ)) L_F with hL_le | hL_gt
+    · exact h1 hc_1 hξ hS_gt.le hL_le
+    · exact h2 hc_2 hξ hL_gt.le
+
 theorem ce_post_edge
     {p lam : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hlam : 0 < lam)
     {m : ℕ} (hm : 4 ≤ m)
@@ -739,39 +782,24 @@ theorem ce_post_edge
     ∃ κ₀ : ℝ, 1 ≤ κ₀ ∧ ∀ {κ : ℝ}, κ₀ ≤ κ → ∀ {U : ℝ}, 0 ≤ U → ∃ c₀ ≥ (2 : ℝ),
       ∀ {c ξ : ℝ}, c₀ ≤ c → 0 < ξ → -U ≤ hbS c ξ →
         0 < (iMain (S c) (κ * liftEps c) m c ξ + iDual (D c) (κ * liftEps c) m c ξ).re := by
-  obtain ⟨L_F, S_star, hLF_pos, _, hSstar, hsmall⟩ :=
-    ce_post_edge_small_L hp hp1 hlam hm hU2S hcontS hgt1S hrayS hCD hdiffD hbdD
-  obtain ⟨κ₀, hκ₀, hfar⟩ := ce_post_edge_far_L hm hLF_pos (hfarS hLF_pos) hCD hdiffD hbdD
-  refine ⟨κ₀, hκ₀, fun {κ} hκ {U} hU => ?_⟩
-  have hκ1 : 1 ≤ κ := hκ₀.trans hκ
-  obtain ⟨c₁, hc₁, h1⟩ := hsmall hκ1
-  obtain ⟨c₂, hc₂, h2⟩ := hfar hκ
-  obtain ⟨c₃, hc₃, h3⟩ :=
-    ce_post_edge_window hm hκ1 hU (by linarith : 0 ≤ S_star) hU2S hcontS hCS hCD hbdS hbdD hcompS
-  refine ⟨max c₁ (max c₂ c₃), hc₁.trans (le_max_left _ _), fun {c ξ} hc hξ hUlo => ?_⟩
-  have hc_1 : c₁ ≤ c := (le_max_left _ _).trans hc
-  have hc_2 : c₂ ≤ c := ((le_max_left _ _).trans (le_max_right _ _)).trans hc
-  have hc_3 : c₃ ≤ c := ((le_max_right _ _).trans (le_max_right _ _)).trans hc
-  rcases le_or_gt (hbS c ξ) S_star with hS_le | hS_gt
-  · exact h3 hc_3 hξ hUlo hS_le
-  · rcases le_or_gt (Real.log (Real.pi ^ 2 * ξ)) L_F with hL_le | hL_gt
-    · exact h1 hc_1 hξ hS_gt.le hL_le
-    · exact h2 hc_2 hξ hL_gt.le
+  obtain ⟨κ₀, hκ₀, h⟩ :=
+    ce_post_edge_unif hp hp1 hlam hm hU2S hcontS hgt1S hCS hbdS hcompS hrayS hfarS hCD
+  exact ⟨κ₀, hκ₀, fun {κ} hκ {U} hU => h hκ hU (fun {c} => hdiffD) (fun {c w} => hbdD)⟩
 
-/-- **Post-edge Fourier sign for the convolution source `convSourceFamily`**:
-specialization of `ce_post_edge` to `S_c = convSourceFamily p γ θ lam c` for
-`p ∈ (1/2, 1)`, `γ > 0`, `θ > 0`, `λ > 0`, `m ≥ 4`. -/
-theorem ce_post_edge_convSource
+/-- **Post-edge Fourier sign for `convSourceFamily`**, uniform over all dual families `D`
+sharing the right-half-plane bound `CD`. -/
+theorem ce_post_edge_convSource_unif
     {p γ θ lam : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hγ : 0 < γ) (hθ : 0 < θ) (hlam : 0 < lam)
     {m : ℕ} (hm : 4 ≤ m)
-    {D : ℝ → ℝ → ℝ} {CD : ℝ} (hCD : 0 ≤ CD)
-    (hdiffD : ∀ {c : ℝ}, 2 ≤ c → DifferentiableOn ℂ (airyTwistedLaplaceC (D c)) {y : ℂ | 0 < y.re})
-    (hbdD : ∀ {c : ℝ} {w : ℂ}, 2 ≤ c → 0 ≤ w.re →
-      ‖airyTwistedLaplaceC (D c) ((ceCs : ℂ) * w)‖ ≤ CD * ‖1 + w‖ ^ (-(5 / 2 : ℝ))) :
-    ∃ κ₀ : ℝ, 1 ≤ κ₀ ∧ ∀ {κ : ℝ}, κ₀ ≤ κ → ∀ {U : ℝ}, 0 ≤ U → ∃ c₀ ≥ (2 : ℝ),
-      ∀ {c ξ : ℝ}, c₀ ≤ c → 0 < ξ → -U ≤ hbS c ξ →
-        0 < (iMain (convSourceFamily p γ θ lam c) (κ * liftEps c) m c ξ +
-          iDual (D c) (κ * liftEps c) m c ξ).re := by
+    {CD : ℝ} (hCD : 0 ≤ CD) :
+    ∃ κ₀ : ℝ, 1 ≤ κ₀ ∧ ∀ {κ : ℝ}, κ₀ ≤ κ → ∀ {U : ℝ}, 0 ≤ U → ∀ {D : ℝ → ℝ → ℝ},
+      (∀ {c : ℝ}, 2 ≤ c → DifferentiableOn ℂ (airyTwistedLaplaceC (D c)) {y : ℂ | 0 < y.re}) →
+      (∀ {c : ℝ} {w : ℂ}, 2 ≤ c → 0 ≤ w.re →
+        ‖airyTwistedLaplaceC (D c) ((ceCs : ℂ) * w)‖ ≤ CD * ‖1 + w‖ ^ (-(5 / 2 : ℝ))) →
+      ∃ c₀ ≥ (2 : ℝ),
+        ∀ {c ξ : ℝ}, c₀ ≤ c → 0 < ξ → -U ≤ hbS c ξ →
+          0 < (iMain (convSourceFamily p γ θ lam c) (κ * liftEps c) m c ξ +
+            iDual (D c) (κ * liftEps c) m c ξ).re := by
   have hU2S : ∀ {c : ℝ}, 2 ≤ c → HasU2 (convSourceFamily p γ θ lam c) := fun {c} hc =>
     hasU2_convSource hp hp1 (by have := liftEps_pos (show 0 < c by linarith); positivity)
   have hcontS : ∀ {c : ℝ}, 2 ≤ c → Continuous (convSourceFamily p γ θ lam c) := fun {c} hc => by
@@ -797,11 +825,11 @@ theorem ce_post_edge_convSource
   obtain ⟨AS, hAS, hgt⟩ := gt1Bounds_convSource_unif (p := p) (γ := γ) (θ := θ) hp hp1 hlam (by omega : 3 ≤ m)
   obtain ⟨CS, hCS, hS_rhp⟩ := convSource_twisted_unif (p := p) (γ := γ) (θ := θ) (lam := lam) hp hp1 hγ.le hθ.le hlam
   obtain ⟨b_r0, hbr0, hray0⟩ := convSource_neg_tail_lower
-  refine ce_post_edge hp hp1 hlam hm hU2S hcontS ⟨AS, hAS, fun {c δ₀} hc hδ => hgt (by linarith) hδ⟩
+  refine ce_post_edge_unif hp hp1 hlam hm hU2S hcontS ⟨AS, hAS, fun {c δ₀} hc hδ => hgt (by linarith) hδ⟩
     hCS.le (fun {c w} hc hw => hS_rhp (liftEps_pos (by linarith)) (liftEps_le_one (by linarith)) hw)
     (fun {A B} hA hAB => ?_) ?_
     (fun {L_F} hLF => convSourceFamily_far_transfer hp hp1 hγ.le hθ hlam hLF hm)
-    hCD hdiffD hbdD
+    hCD
   · set U_ab : ℝ := max A B
     obtain ⟨b_c0, hbc0, hfl⟩ := convSource_compact_floor U_ab
     refine ⟨b_c0 * γ, mul_pos hbc0 hγ, fun {c u} hc hu => ?_⟩
@@ -823,6 +851,23 @@ theorem ce_post_edge_convSource
         = b_r0 * θ * ((1 / 2 : ℝ) ^ p * (min 1 (lam * liftEps c ^ 2 * x)) ^ p) * x ^ (-(3 / 2 : ℝ)) := by ring
       _ ≤ b_r0 * θ * convRho p (lam * liftEps c ^ 2 * x) * x ^ (-(3 / 2 : ℝ)) := by gcongr
       _ ≤ convSourceFamily p γ θ lam c (-x) := hlow
+
+/-- **Post-edge Fourier sign for the convolution source `convSourceFamily`**:
+specialization of `ce_post_edge` to `S_c = convSourceFamily p γ θ lam c` for
+`p ∈ (1/2, 1)`, `γ > 0`, `θ > 0`, `λ > 0`, `m ≥ 4`. -/
+theorem ce_post_edge_convSource
+    {p γ θ lam : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hγ : 0 < γ) (hθ : 0 < θ) (hlam : 0 < lam)
+    {m : ℕ} (hm : 4 ≤ m)
+    {D : ℝ → ℝ → ℝ} {CD : ℝ} (hCD : 0 ≤ CD)
+    (hdiffD : ∀ {c : ℝ}, 2 ≤ c → DifferentiableOn ℂ (airyTwistedLaplaceC (D c)) {y : ℂ | 0 < y.re})
+    (hbdD : ∀ {c : ℝ} {w : ℂ}, 2 ≤ c → 0 ≤ w.re →
+      ‖airyTwistedLaplaceC (D c) ((ceCs : ℂ) * w)‖ ≤ CD * ‖1 + w‖ ^ (-(5 / 2 : ℝ))) :
+    ∃ κ₀ : ℝ, 1 ≤ κ₀ ∧ ∀ {κ : ℝ}, κ₀ ≤ κ → ∀ {U : ℝ}, 0 ≤ U → ∃ c₀ ≥ (2 : ℝ),
+      ∀ {c ξ : ℝ}, c₀ ≤ c → 0 < ξ → -U ≤ hbS c ξ →
+        0 < (iMain (convSourceFamily p γ θ lam c) (κ * liftEps c) m c ξ +
+          iDual (D c) (κ * liftEps c) m c ξ).re := by
+  obtain ⟨κ₀, hκ₀, h⟩ := ce_post_edge_convSource_unif hp hp1 hγ hθ hlam hm hCD
+  exact ⟨κ₀, hκ₀, fun {κ} hκ {U} hU => h hκ hU (fun {c} => hdiffD) (fun {c w} => hbdD)⟩
 
 /-- info: 'FormalResearch.SignUncertainty.gt1Bounds_convSource_unif' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
