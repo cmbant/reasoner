@@ -384,8 +384,7 @@ mixtures, modulo the `bl:norm` check; upper half needs PA2 (section 1.1 step 5).
 clauses at every fixed terminal or later HB node). Needs INT-1, INT-2, INT-T, W-P6; PA2 (`dsl:one-level-clusters`, `dsl:hb-mass`,
 `dsl:near-opt-mass`) for the cluster clauses; FIVE-W (`ctu:main`) for the five-term corollary; INT-2HB for `int:hb-integer`.
 
-**INT-4** (headline 1; M). `int:obstr`(a): the supremal integer gap is attained; `Delta^Z = Delta^R` iff some attaining real
-measure is integer-weighted (the "iff" needs PA1); (b), swap-invariant spin cones, is INT-S.
+**INT-4** (headline 1; M). `int:obstr`(a): **done at `(H_w)`** (`Integrality/IntegerObstruction.lean`: `int_obstr_a`, `int_obstr_a_primal`, `int_obstr_a_large`; supremal integer gap attained, `Delta^Z = Delta^R` iff some attaining real measure is integer-weighted, and under `FixedChargeStrip` / at `c~ >= c_0(w,Q)` strictness iff every attaining real measure has a non-integer atom); mixtures/common sources wait for PM-4; (b), swap-invariant spin cones, is INT-S.
 
 **INT-S** (headline 1; L). `int:axis-trace` (since PR 299 a weighted Hölder bound `||Phi||_1 <= 50 a^{-1/7} M_2[Phi]`, S2.4, no
 axis-trace decomposition), `int:cheb2d`, `int:cheb2d-explicit`, `int:cos2d-repair`, `int:cont-spin` (any repair budget
@@ -526,7 +525,7 @@ Unconditional, pinned axioms. "Scope" is the Lean statement's scope, sometimes s
 | Five-term constants | `cts:langer`, `cts:phaselock`, `cts:main`, `pm:tip-match`, `cts:tip-shared` | `comb_minimum_virasoro_c0Star`, `g3Out_eq_g3Vir`, `gamma0_eq_gamma0Of_out`, `tip_match`, `airyLinearMoment`, `airyBC_id` | Virasoro |
 | Five-term halves (conditional) | `thm:spinless-expansion` | `spinless_upper_of_inputs`, `spinless_lower_of_inputs` | Virasoro, modulo `UpperMainInputs`, `LowerMainInputs` |
 | Continuous spin | `spinnotes:S3`, `sd:*` | `spinS3`, `spinDSD`, `spinDA`, `spinDR`, `spinDLP` | `a >= 2` (`c >= 25`) |
-| Mixtures, integrality tools | `pmix:*`, `int:*` | `MixtureData.pmix_o1_mixture`, `pmix_vac_f1`, `twoSimpleZeroTransfer_src`, `int_closed`, `cheb_explicit` | see section 7 rows |
+| Mixtures, integrality tools/obstruction | `pmix:*`, `int:*` | `MixtureData.pmix_o1_mixture`, `pmix_vac_f1`, `twoSimpleZeroTransfer_src`, `int_closed`, `cheb_explicit`, `int_obstr_a`, `int_obstr_a_large` | see section 7 rows |
 
 ## 5. Scope caveats, hypotheses and paper findings
 
@@ -737,12 +736,14 @@ One line per group; labels by state are in Appendix A, declarations in `THEOREM_
   `crossingBounds_ofProblem`); general Borel `lambda`.
 
 ### 7.8 Integrality
-- **INT** (`int:int-closed`, `int:shell-inv`, `int:cheb-explicit`, `int:repair-identity` done; `int:repair` partial; `int:cheb`,
-  `int:sonine`, `int:atom`, `int:reserve`, `int:strict-weak`, `int:hb-reserve`, `int:main`, `int:obstr`, `int:hb-integer`
+- **INT** (`int:int-closed`, `int:shell-inv`, `int:cheb-explicit`, `int:repair-identity` done; `int:repair`, `int:obstr` partial; `int:cheb`,
+  `int:sonine`, `int:atom`, `int:reserve`, `int:strict-weak`, `int:hb-reserve`, `int:main`, `int:hb-integer`
   planned). `int:int-closed` for proper metric spaces (the paper's closed `Y ⊆ R^d` is a special case); `int:shell-inv` with the
   cell step a hypothesis (as in the paper's use), Lean stage `j` = paper `k-1`, `nu_Z` a `Measure.sum` (merging coincident atoms
   not formalised); `int:repair-identity` with the existence of `f` from `||P U P|| < 1` a hypothesis; `int:repair`: the Taylor core
-  `hankelDual_bound` (`int:Hw-eta` in the `1/m!` form) and part (2).
+  `hankelDual_bound` (`int:Hw-eta` in the `1/m!` form) and part (2); `int:obstr`(a) done at `(H_w)` (`int_obstr_a`,
+  `int_obstr_a_primal`, `int_obstr_a_large` in `Integrality/IntegerObstruction.lean`), mixtures/common sources wait for PM-4,
+  and (b) is INT-S.
 - **INTL** (5 not planned). **INTS** (5 planned).
 
 ### 7.9 Spin
@@ -830,8 +831,8 @@ PL planned, NP not planned, R recalled from Paper I. Groups are those of section
 
 **`integrality.tex`** (14)
 - D / INT: `int:int-closed`, `int:shell-inv`, `int:cheb-explicit`, `int:repair-identity`
-- P / INT: `int:repair`
-- PL / INT: `int:sonine`, `int:cheb`, `int:atom`, `int:reserve`, `int:hb-reserve`, `int:strict-weak`, `int:main`, `int:obstr`,
+- P / INT: `int:repair`, `int:obstr`
+- PL / INT: `int:sonine`, `int:cheb`, `int:atom`, `int:reserve`, `int:hb-reserve`, `int:strict-weak`, `int:main`,
   `int:hb-integer`
 
 **`integrality_lattice.tex`** (5)

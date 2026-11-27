@@ -674,6 +674,7 @@ public import FormalResearch.ModularBootstrap.Integrality.ShellInv
 public import FormalResearch.ModularBootstrap.Integrality.ShellInvCells
 public import FormalResearch.ModularBootstrap.Integrality.RepairIdentity
 public import FormalResearch.ModularBootstrap.Integrality.RepairTaylor
+public import FormalResearch.ModularBootstrap.Integrality.IntegerObstruction
 
 /-!
 # Modular Bootstrap at Large Central Charge
