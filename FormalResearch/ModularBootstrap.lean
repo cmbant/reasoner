@@ -685,6 +685,8 @@ public import FormalResearch.ModularBootstrap.Integrality.ShellInvCells
 public import FormalResearch.ModularBootstrap.Integrality.RepairIdentity
 public import FormalResearch.ModularBootstrap.Integrality.RepairTaylor
 public import FormalResearch.ModularBootstrap.Integrality.IntegerObstruction
+public import FormalResearch.ModularBootstrap.Integrality.AtomBounds
+public import FormalResearch.ModularBootstrap.Integrality.AtomCell
 public import FormalResearch.ModularBootstrap.Integrality.Atom
 
 /-!

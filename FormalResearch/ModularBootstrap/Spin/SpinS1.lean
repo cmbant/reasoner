@@ -383,28 +383,8 @@ private lemma spin_diffStrip_crossing_analyticOnNhd (a : ℝ) {ν : Measure (ℝ
       Complex.mem_slitPlane_iff.mpr (Or.inl (spin_prod_re_pos_on_diffStrip hx hw))
   exact (hdiff1.sub (hdiff_pref.mul hdiff2)).analyticOnNhd hU
 
-/-- Temporary check alias matching the paper sign (`-Φ_vac = +∬ Φ V₁ ⊗ V₁`);
-will replace `SpinS1a` in `Spin/Statements.lean` once leaf checks pass. -/
-def SpinS1a_paper : Prop :=
-  ∀ {a : ℝ}, 2 ≤ a → ∀ (ν : Measure (ℝ × ℝ)),
-    ν ({p : ℝ × ℝ | 0 ≤ p.1 ∧ 0 ≤ p.2}ᶜ) = 0 →
-    (∀ {β : ℝ}, 0 < β → Integrable (fun p : ℝ × ℝ => Real.exp (-2 * π * β * (p.1 + p.2))) ν) →
-    ((∀ z₂ : ℂ, 0 < z₂.re → DifferentiableOn ℂ (fun z₁ => spinZHatC a ν z₁ z₂) {z : ℂ | 0 < z.re}) ∧
-     (∀ z₁ : ℂ, 0 < z₁.re → DifferentiableOn ℂ (fun z₂ => spinZHatC a ν z₁ z₂) {z : ℂ | 0 < z.re})) ∧
-    ((∀ z : ℂ, 0 < z.re →
-        spinZHatC a ν z (starRingEnd ℂ z) =
-          (z * starRingEnd ℂ z) ^ (-(1 / 2 : ℂ)) * spinZHatC a ν z⁻¹ (starRingEnd ℂ z)⁻¹) ↔
-      (∀ {βL βR : ℝ}, 0 < βL → 0 < βR →
-        ∫ p : ℝ × ℝ, spinThermalX βL βR p.1 p.2 ∂ν = -spinThermalXVac a βL βR)) ∧
-    ((∀ {βL βR : ℝ}, 0 < βL → 0 < βR →
-        ∫ p : ℝ × ℝ, spinThermalX βL βR p.1 p.2 ∂ν = -spinThermalXVac a βL βR) ↔
-      (∀ m n : ℕ, Odd (m + n) →
-        ∫ p : ℝ × ℝ, lagPsi (1 / 2) m p.1 * lagPsi (1 / 2) n p.2 ∂ν =
-          ∫ p : ℝ × ℝ, lagPsi (1 / 2) m (p.1 ^ 2 / 2) * lagPsi (1 / 2) n (p.2 ^ 2 / 2) *
-              spinV1 a p.1 * spinV1 a p.2))
-
 /-- **Theorem S1 (`spinnotes:S1`(a), Crossing).** -/
-theorem spinS1a : SpinS1a_paper := by
+theorem spinS1a : SpinS1a := by
   intro a ha ν hsupp hlap
   refine ⟨?_, ?_, ?_⟩
   · -- Part 1: Separate holomorphy on `{Re z > 0}²`
