@@ -163,13 +163,9 @@ Each step names its inputs. "Check" marks a question to settle before writing Le
 **Headline 1 (spin, integrality).**
 1. *INT-4 `int:obstr`(a) (M):* inputs `int_closed`, DU-G, `fw:crossing`(1) (all done); the "iff" needs PA1 (large charge is
    enough at large `c`).
-2. *SPIN-F rest (S-M each), inputs of SPIN-S4:* `scal:C1` (cited 18 times by `spinning_s4.tex`), `scal:C3`, and the parts of
-   `spinnotes:S1` (a), (d), (e) that `spinning_s4.tex` uses; `rem:thmOloc` (elementary: `E = g'^2 + x g^2`, `Ai(0)`, the DLMF
-   9.7.15 lobe bound) is also cited there.
-3. *SPIN-S4 skeleton (S):* state the 14 `s4:*` targets as `Prop`s and `s4:S4` modulo them (as the SPIN-F skeleton did); inputs
-   also `bl:T1`-`bl:T5`, `rem:thmL`, `lam:thmB`, `sd:SD` (all done). Then the lemmas in dependency order (L, 25k+).
-4. *INT-1 `int:atom` (M-L):* the abstract floor `W(M) = 8 (M+1)^{5/2}` of `cheb_explicit` and `shell_inv`; moment order
-   `M_k >= K H_k / log P_k`.
+2. *SPIN-F rest (**done** in `Spin/ScalC3.lean`, `Spin/ScalC1.lean`, `Spin/SpinS1.lean`):* `scalC3`, `scalC1`, and `spinS1a`, `spinS1d`, `spinS1e` (after fixing the spurious `-` sign in `SpinS1a` in `Spin/Statements.lean`); `rem:thmOloc` (elementary: `E = g'^2 + x g^2`, `Ai(0)`, the DLMF 9.7.15 lobe bound) remains open.
+3. *SPIN-S4 skeleton (**done** in `Spin/SpinS4Statements.lean`, `Spin/SpinS4Assembly.lean`):* states the 14 `s4:*` targets as `Prop`s and proves `spinS4_4_4_of_props` and `spinS4_of_props` modulo them, using `spinS1c`, `spinS1e`, `spinS3`, `spinS24`, `spinDLP`, `spinDSD`, `spinS4_consequences_of_S3`; inputs also `bl:T1`-`bl:T5`, `rem:thmL`, `lam:thmB` (all done). Then the 12 intermediate `s4:2.1`-`s4:6.1` lemmas in dependency order (L, 25k+).
+4. *INT-1 `int:atom` (**done modulo `IntRepairSonineInput`** in `Integrality/{AtomBounds,AtomCell,Atom}.lean`):* `int_atom_common` (arbitrary `SufficientMomentFloor W`), `int_atom_cheb_explicit` (`W(M) = 8 (M+1)^{5/2}`), `int_atom_fixedWeight`, plus `commonSource_cardyDensity_lower`, `commonSource_counting_bound`, `atomShellSetup`, `atom_cell_step`. Discharging `IntRepairSonineInput` waits for Weber's exponential integral and `int:sonine`.
 5. *INT-2 `int:reserve`, `int:strict-weak` (M-L) at `(H_w)`, lower half first:* in the TeX, INT-2 is the canonical case
    `m_0 = 1` of `int:hb-reserve`. Its lower bounds (a)-(c) at `m_0 = 1` use only `bl:norm`(b) (SLK: `airy_blnorm`, `u`-variable;
    check that its conclusion gives the local `C^1` and `L^1` convergence used, `C^1` following from locally uniform holomorphic
@@ -317,12 +313,7 @@ PA1, LP1, FT-CC, Paper I M8 (TE.0' for all `(P,Q)`, via `ChartCompactness`).
 (PM-S0: uniform Cardy floor iff `lambda({0}) > 0` and `A(x) > 0`; cf. Lean `FloorData`). Needs PM-0 to PM-4, PA2 (`pmix:main`
 (3)-(5)), INT-2HB, INT-3, INT-4, FIVE-W (`ctu:c0`), PM-0b.
 
-**SPIN-F, rest** (headline 1; S-M). `spinnotes:S1` (a), (d), (e), `scal:C1`, `scal:C3` (stated as `Prop`s in `Spin/Statements`).
-Modelling choices of the skeleton: holomorphy in two variables stated separately in each variable (no Hartogs in Mathlib); the
-derivative-bound clause of S2.4 (1) and the `T`-invariance remark of S1 (a) omitted.
-
-**SPIN-S4** (headline 1; L, 25k+). The fourteen `s4:*` labels. Needs SPIN-F rest, `rem:thmOloc`; done inputs SPIN-D (`sd:SD`),
-`spinnotes:S21`-`S23`, `S22b`, `bl:T*`, `rem:thmL`, `lam:thmB`. Since PR 304 `s4:6.1` is restated (scope of the slack theorem).
+**SPIN-S4** (headline 1; skeleton done, lemmas L, 25k+). The fourteen `s4:*` `Prop`s (`Spin/SpinS4Statements.lean`) and the assemblies `spinS4_4_4_of_props`, `spinS4_of_props` (`Spin/SpinS4Assembly.lean`) are done; remaining are the twelve intermediate lemmas `s4:2.1`-`s4:6.1`, which need `rem:thmOloc` and consume SPIN-F (done), SPIN-D (`sd:SD`), `spinnotes:S21`-`S24`, `bl:T*`, `rem:thmL`, `lam:thmB`. Since PR 304 `s4:6.1` is restated (scope of the slack theorem).
 
 **SPIN-Z** (headline 1; M analytic part, certificates later). `isl:main`, `isl:finite`, `spinnotes:K1`-`K4a`, `L0a`-`L9`.
 Computer-assisted in the paper: exact-rational certificates for the real collar, the slit excesses and the first
@@ -369,7 +360,7 @@ an `H^1` pointwise bound, Phragmén-Lindelöf in the slit plane, tensorisation `
 e^{-2 pi s/beta}` (for `int:repair` (1); absent from the repo). INT-R uses the abstract projection repair (real `w >= 1`); INT-R0
 needs pointwise crossing identities on the band.
 
-**INT-1** (headline 1; M-L). `int:atom` (abstract floor `W(M)`, moment order `M_k >= K H_k / log P_k`). Inputs done (INT-T).
+**INT-1** (headline 1; **done modulo `IntRepairSonineInput`** in `Integrality/{AtomBounds,AtomCell,Atom}.lean`). `int_atom_common`, `int_atom_cheb_explicit`, `int_atom_fixedWeight`, `commonSource_cardyDensity_lower`, `commonSource_counting_bound`, `atom_cell_step`. Remaining: discharge `IntRepairSonineInput` via Weber's identity and `int:sonine`.
 
 **INT-2** (headlines 1, 4; M-L). `int:reserve` (sharp joint large-charge law: normalised slope `(kappa_res + o(1))
 c^{-1/3} eta`, maximal reserve `(2 kappa_res + o(1)) c^{-1/3} eta`, `kappa_res = 1/(2 ell_V L_*)`, uniformly for `0 < eta <= 1`;
@@ -415,8 +406,9 @@ uses `dsl:reserve` with weights `(1/2,1/2)` and the Virasoro product source, whi
   (`Duality/Primal/`).
 - **LP1, LP1b**: `ds_cay_*`, `ds_cont`, `ds_mom` (with `lagP_oddFam_sharp`: `C_w = (2+w)/(2 pi)`), `poly_compact`,
   `positive_ray`, `ds_LP_i/ii/iii` (`LP/`, `Measure/PolyGrowthExtension`; design `LP/LP1_DESIGN.md`).
-- **SPIN-F** (all but S1 (a),(d),(e), `scal:C1`, `scal:C3`): `spinS1b`, `spinS1c`, `spinS21`, `spinS22`, `spinS22b`, `spinS23`,
-  `spinS24`, `spinS3` (`Spin/`).
+- **SPIN-F** (`Spin/`): `spinS1a`, `spinS1b`, `spinS1c`, `spinS1d`, `spinS1e`, `spinS21`, `spinS22`, `spinS22b`, `spinS23`,
+  `spinS24`, `spinS3`, `scalC1`, `scalC3`. Modelling choices of the S1-S2.4 skeleton: holomorphy in two variables is stated separately in each variable (no Hartogs in Mathlib); the derivative-bound clause of S2.4 (1) and the `T`-invariance remark of S1 (a) are omitted.
+- **SPIN-S4 skeleton** (`Spin/SpinS4Statements.lean`, `Spin/SpinS4Assembly.lean`): `SpinS4_2_1`-`SpinS4_6_1`, `SpinS4_4_4`, `SpinS4`, `spinS4_4_4_of_props`, `spinS4_of_props` (proves `s4:4.4` and `s4:S4` modulo the 12 intermediate `s4:*` lemmas).
 - **SPIN-D** (`sd:R` partial since PR 307): `spinDM`, `spinDP`, `spinDSD`, `spinDW`, `spinDV`, `spinDA`, `spinDLP`, `spinDR`
   (the marginal Airy law; the `dsl:hb-mass` concentration clause of `sd:R` waits for PA2, then extend `SpinDR` in place), and
   `dslReserve` (`dsl:reserve`,
@@ -734,20 +726,20 @@ One line per group; labels by state are in Appendix A, declarations in `THEOREM_
   `crossingBounds_ofProblem`); general Borel `lambda`.
 
 ### 7.8 Integrality
-- **INT** (`int:int-closed`, `int:shell-inv`, `int:cheb-explicit`, `int:repair-identity` done; `int:repair`, `int:obstr` partial; `int:cheb`,
-  `int:sonine`, `int:atom`, `int:reserve`, `int:strict-weak`, `int:hb-reserve`, `int:main`, `int:hb-integer`
+- **INT** (`int:int-closed`, `int:shell-inv`, `int:cheb-explicit`, `int:repair-identity` done; `int:repair`, `int:obstr`, `int:atom` partial; `int:cheb`,
+  `int:sonine`, `int:reserve`, `int:strict-weak`, `int:hb-reserve`, `int:main`, `int:hb-integer`
   planned). `int:int-closed` for proper metric spaces (the paper's closed `Y ⊆ R^d` is a special case); `int:shell-inv` with the
   cell step a hypothesis (as in the paper's use), Lean stage `j` = paper `k-1`, `nu_Z` a `Measure.sum` (merging coincident atoms
   not formalised); `int:repair-identity` with the existence of `f` from `||P U P|| < 1` a hypothesis; `int:repair`: the Taylor core
-  `hankelDual_bound` (`int:Hw-eta` in the `1/m!` form) and part (2); `int:obstr`(a) done at `(H_w)` (`int_obstr_a`,
+  `hankelDual_bound` (`int:Hw-eta` in the `1/m!` form) and part (2); `int:atom` proved modulo `IntRepairSonineInput` in `Integrality/{AtomBounds,AtomCell,Atom}.lean` (`int_atom_common`, `int_atom_cheb_explicit`, `int_atom_fixedWeight`); `int:obstr`(a) done at `(H_w)` (`int_obstr_a`,
   `int_obstr_a_primal`, `int_obstr_a_large` in `Integrality/IntegerObstruction.lean`), mixtures/common sources wait for PM-4,
   and (b) is INT-S.
 - **INTL** (5 not planned). **INTS** (5 planned).
 
 ### 7.9 Spin
-- **SPINF** (`spinnotes:S21`, `S22`, `S22b`, `S23`, `S24`, `S3` done; `spinnotes:S1` partial; `scal:C1`, `scal:C3` planned).
+- **SPINF** (`spinnotes:S21`, `S22`, `S22b`, `S23`, `S24`, `S3`, `scal:C1`, `scal:C3` done; `spinnotes:S1` done to stated skeleton scope with `spinS1a`, `spinS1b`, `spinS1c`, `spinS1d`, `spinS1e`, partial relative to the `T`-invariance remark of S1(a)).
 - **SPIND** (seven `sd:*` done; `sd:R` partial: the concentration clause via `dsl:hb-mass`).
-- **SPIN4** (fourteen `s4:*` planned). **SPINZ** (eighteen labels planned; enclosures as `SpinZEnclosures`).
+- **SPIN4** (`s4:4.4`, `s4:S4` partial modulo `SpinS4_2_1`-`SpinS4_6_1` in `Spin/SpinS4Statements.lean`, `Spin/SpinS4Assembly.lean`; twelve `s4:*` planned). **SPINZ** (eighteen labels planned; enclosures as `SpinZEnclosures`).
 
 ### 7.10 Results recalled from Paper I (`recalled_paper1.tex`)
 
@@ -829,8 +821,8 @@ PL planned, NP not planned, R recalled from Paper I. Groups are those of section
 
 **`integrality.tex`** (14)
 - D / INT: `int:int-closed`, `int:shell-inv`, `int:cheb-explicit`, `int:repair-identity`
-- P / INT: `int:repair`, `int:obstr`
-- PL / INT: `int:sonine`, `int:cheb`, `int:atom`, `int:reserve`, `int:hb-reserve`, `int:strict-weak`, `int:main`,
+- P / INT: `int:repair`, `int:obstr`, `int:atom`
+- PL / INT: `int:sonine`, `int:cheb`, `int:reserve`, `int:hb-reserve`, `int:strict-weak`, `int:main`,
   `int:hb-integer`
 
 **`integrality_lattice.tex`** (5)
@@ -882,7 +874,7 @@ PL planned, NP not planned, R recalled from Paper I. Groups are those of section
 - PL / SR: `sr:single-level`
 
 **`spinning_calibration.tex`** (2)
-- PL / SPINF: `scal:C1`, `scal:C3`
+- D / SPINF: `scal:C1`, `scal:C3`
 
 **`spinning_dual.tex`** (8)
 - D / SPIND: `sd:M`, `sd:P`, `sd:SD`, `sd:W`, `sd:V`, `sd:A`, `sd:LP`
@@ -890,7 +882,7 @@ PL planned, NP not planned, R recalled from Paper I. Groups are those of section
 
 **`spinning_foundations.tex`** (7)
 - D / SPINF: `spinnotes:S21`, `spinnotes:S22`, `spinnotes:S22b`, `spinnotes:S23`, `spinnotes:S24`, `spinnotes:S3`
-- P / SPINF: `spinnotes:S1` ((b), (c) proved; (a), (d), (e) stated as `Prop`s)
+- P / SPINF: `spinnotes:S1` ((a), (b), (c), (d), (e) all proved to stated skeleton scope; `T`-invariance remark of (a) omitted)
 
 **`spinning_integer_exact_slope.tex`** (5)
 - PL / SPINZ: `spinnotes:K1`, `spinnotes:K2`, `spinnotes:K3`, `spinnotes:K4`, `spinnotes:K4a`
@@ -903,8 +895,9 @@ PL planned, NP not planned, R recalled from Paper I. Groups are those of section
 - PL / SPINZ: `isl:main`, `isl:finite`
 
 **`spinning_s4.tex`** (14)
-- PL / SPIN4: `s4:S4`, `s4:2.1`, `s4:2.2`, `s4:2.3`, `s4:2.4`, `s4:3.3`, `s4:3.4`, `s4:4.1`, `s4:4.2`, `s4:4.3`, `s4:5.1`, `s4:5.2`,
-  `s4:6.1`, `s4:4.4`
+- P / SPIN4: `s4:S4`, `s4:4.4` (proved modulo `s4:2.1`-`s4:6.1`)
+- PL / SPIN4: `s4:2.1`, `s4:2.2`, `s4:2.3`, `s4:2.4`, `s4:3.3`, `s4:3.4`, `s4:4.1`, `s4:4.2`, `s4:4.3`, `s4:5.1`, `s4:5.2`,
+  `s4:6.1`
 
 **`upper_transfer.tex`** (20)
 - D / UTW: `ut:Z`, `ut:P`, `ut:Phi`, `fw:FWM`, `fw:SDp`, `ut:W`, `ut:ID`, `ut:G`, `ut:V` (`uc:V`), `ut:E`

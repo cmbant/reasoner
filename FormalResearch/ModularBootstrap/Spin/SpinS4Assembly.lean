@@ -4,6 +4,7 @@ public import FormalResearch.ModularBootstrap.Spin.SpinS4Statements
 public import FormalResearch.ModularBootstrap.Spin.SpinS1
 public import FormalResearch.ModularBootstrap.Spin.SpinS1c
 public import FormalResearch.ModularBootstrap.Spin.SpinS2xS24
+public import FormalResearch.ModularBootstrap.Duality.ConstrainedThreshold
 
 /-!
 # SPIN-S4 Assembly (`s4:4.4` and `s4:S4` modulo the intermediate `s4:*` `Prop`s)
@@ -29,6 +30,9 @@ namespace FormalResearch.ModularBootstrap.Spin
 open FormalResearch.ModularBootstrap
 open FormalResearch.ModularBootstrap.Crossing
 open FormalResearch.ModularBootstrap.LP
+open FormalResearch.ModularBootstrap.Duality
+open FormalResearch.ModularBootstrap.FixedWeight
+open FormalResearch.Special
 
 /-! ### Section 1: Corollary 6.2 (`s4:4.4`) assembly -/
 
@@ -45,7 +49,7 @@ theorem spinS4_4_4_of_props
   have hc_40 : 40 ≤ c := ((le_max_left _ _).trans (le_max_right _ _)).trans hc
   have hc_S3 : c₀_S3 ≤ c := ((le_max_right _ _).trans (le_max_right _ _)).trans hc
   obtain ⟨_, _, hlo⟩ := h61_main hc_61
-  obtain ⟨hL_spin, hspin_vir, _⟩ := spinS1c hc_40
+  obtain ⟨_, hL_spin, hspin_vir⟩ := spinS1c hc_40
   obtain ⟨_, _, _, hvir_hi⟩ := hS3_main hc_S3
   refine ⟨hlo, hL_spin, hspin_vir, hvir_hi⟩
 
@@ -72,7 +76,7 @@ private lemma spin_sep_holo_eq_on_strip {f g : ℂ → ℂ → ℂ}
   have hP := spinStrip_isPreconnected (1 / 2)
   have h0_mem : (0 : ℂ) ∈ spinStrip (1 / 2) := by simp [spinStrip]
   have hreal_mem : ∀ x : ℝ, (x : ℂ) ∈ spinStrip (1 / 2) := fun x => by simp [spinStrip]
-  have htend : Tendsto (fun x : ℝ => (x : ℂ)) (𝓝[(≠)] (0 : ℝ)) (𝓝[(≠)] (0 : ℂ)) := by
+  have htend : Tendsto (fun x : ℝ => (x : ℂ)) (𝓝[≠] (0 : ℝ)) (𝓝[≠] (0 : ℂ)) := by
     refine tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within _ ?_ ?_
     · exact Complex.continuous_ofReal.continuousAt.tendsto.mono_left nhdsWithin_le_nhds
     · exact eventually_nhdsWithin_of_forall fun x hx => Complex.ofReal_ne_zero.mpr hx
@@ -80,43 +84,51 @@ private lemma spin_sep_holo_eq_on_strip {f g : ℂ → ℂ → ℂ}
     intro xR bL hbL
     have han : AnalyticOnNhd ℂ (fun z => f z (xR : ℂ) - g z (xR : ℂ)) (spinStrip (1 / 2)) :=
       ((hfL (xR : ℂ) (hreal_mem xR)).sub (hgL (xR : ℂ) (hreal_mem xR))).analyticOnNhd hO
-    have hfreq : ∃ᶠ z in 𝓝[(≠)] (0 : ℂ), f z (xR : ℂ) - g z (xR : ℂ) = 0 := by
+    have hfreq : ∃ᶠ z in 𝓝[≠] (0 : ℂ), f z (xR : ℂ) - g z (xR : ℂ) = 0 := by
       refine htend.frequently (Filter.Eventually.frequently (eventually_nhdsWithin_of_forall fun x _ => ?_))
       rw [hreal x xR, sub_self]
     exact sub_eq_zero.mp (han.eqOn_zero_of_preconnected_of_frequently_eq_zero hP h0_mem hfreq hbL)
   intro bL hbL bR hbR
   have han : AnalyticOnNhd ℂ (fun z => f bL z - g bL z) (spinStrip (1 / 2)) :=
     ((hfR bL hbL).sub (hgR bL hbL)).analyticOnNhd hO
-  have hfreq : ∃ᶠ z in 𝓝[(≠)] (0 : ℂ), f bL z - g bL z = 0 := by
+  have hfreq : ∃ᶠ z in 𝓝[≠] (0 : ℂ), f bL z - g bL z = 0 := by
     refine htend.frequently (Filter.Eventually.frequently (eventually_nhdsWithin_of_forall fun x _ => ?_))
     rw [hstepL x bL hbL, sub_self]
   exact sub_eq_zero.mp (han.eqOn_zero_of_preconnected_of_frequently_eq_zero hP h0_mem hfreq hbR)
 
 private lemma complex_sqrt_ofReal_nonneg {r : ℝ} (hr : 0 ≤ r) :
     Complex.sqrt (r : ℂ) = ((Real.sqrt r : ℝ) : ℂ) := by
-  have hsq : ((Real.sqrt r : ℝ) : ℂ) ^ 2 = (r : ℂ) := by
-    norm_cast; exact Real.sq_sqrt hr
-  rcases eq_or_lt_of_le hr with rfl | hpos
-  · simp
-  · refine Complex.sqrt_eq_iff.mpr ⟨hsq, Or.inl ?_⟩
-    simp [Real.sqrt_pos.mpr hpos]
+  rw [Complex.sqrt_eq_real_add_ite]
+  have h1 : (‖(r : ℂ)‖ + (r : ℂ).re) / 2 = r := by
+    simp [abs_of_nonneg hr]
+  have h2 : (‖(r : ℂ)‖ - (r : ℂ).re) / 2 = 0 := by
+    simp [abs_of_nonneg hr]
+  rw [h1, h2]
+  simp
 
 private lemma complex_sqrt_ofReal_neg {r : ℝ} (hr : r < 0) :
     Complex.sqrt (r : ℂ) = Complex.I * ((Real.sqrt (-r) : ℝ) : ℂ) := by
-  have hsq : (Complex.I * ((Real.sqrt (-r) : ℝ) : ℂ)) ^ 2 = (r : ℂ) := by
-    calc (Complex.I * ((Real.sqrt (-r) : ℝ) : ℂ)) ^ 2
-        = Complex.I ^ 2 * ((Real.sqrt (-r) ^ 2 : ℝ) : ℂ) := by push_cast; ring
-      _ = (-1) * ((-r : ℝ) : ℂ) := by rw [Complex.I_sq, Real.sq_sqrt (by linarith)]
-      _ = (r : ℂ) := by push_cast; ring
-  refine Complex.sqrt_eq_iff.mpr ⟨hsq, Or.inr ⟨?_, ?_⟩⟩
-  · simp
-  · simp [Real.sqrt_nonneg (-r)]
+  rw [Complex.sqrt_eq_real_add_ite]
+  have h1 : (‖(r : ℂ)‖ + (r : ℂ).re) / 2 = 0 := by
+    simp [abs_of_neg hr]
+  have h2 : (‖(r : ℂ)‖ - (r : ℂ).re) / 2 = -r := by
+    simp [abs_of_neg hr]; ring
+  rw [h1, h2]
+  simp; ring
 
-private lemma wider_b_mem_spinStrip {a η t : ℝ} (ha : 0 < a) (hη0 : 0 ≤ η) (hη1 : η < 1 / 2)
+private lemma complex_sqrt_ofReal_sq (r : ℝ) : (Complex.sqrt (r : ℂ)) ^ 2 = (r : ℂ) := by
+  rcases lt_or_ge r 0 with hr | hr
+  · rw [complex_sqrt_ofReal_neg hr, mul_pow, Complex.I_sq]
+    have hsq : ((Real.sqrt (-r) : ℝ) : ℂ) ^ 2 = ((-r : ℝ) : ℂ) := by
+      norm_cast; exact Real.sq_sqrt (by linarith)
+    rw [hsq]; push_cast; ring
+  · rw [complex_sqrt_ofReal_nonneg hr]
+    norm_cast; exact Real.sq_sqrt hr
+
+private lemma wider_b_mem_spinStrip {a η t : ℝ} (ha : 0 < a) (_hη0 : 0 ≤ η) (hη1 : η < 1 / 2)
     (ht : -(η * a) ≤ t) :
     Complex.sqrt (2 * (t : ℂ)) / (2 * (Real.sqrt a : ℂ)) ∈ spinStrip (1 / 2) := by
-  unfold spinStrip
-  rw [mem_setOf_eq]
+  change |(Complex.sqrt (2 * (t : ℂ)) / (2 * (Real.sqrt a : ℂ))).im| < 1 / 2
   by_cases htnn : 0 ≤ t
   · have h2t : 2 * (t : ℂ) = ((2 * t : ℝ) : ℂ) := by push_cast; rfl
     rw [h2t, complex_sqrt_ofReal_nonneg (by linarith)]
@@ -128,13 +140,15 @@ private lemma wider_b_mem_spinStrip {a η t : ℝ} (ha : 0 < a) (hη0 : 0 ≤ η
   · have htlt : t < 0 := not_le.mp htnn
     have h2t : 2 * (t : ℂ) = ((2 * t : ℝ) : ℂ) := by push_cast; rfl
     rw [h2t, complex_sqrt_ofReal_neg (by linarith)]
-    have hdiv : Complex.I * ((Real.sqrt (-(2 * t)) : ℝ) : ℂ) / (2 * (Real.sqrt a : ℂ)) =
+    have h2t' : -(2 * t) = -2 * t := by ring
+    rw [h2t']
+    have hdiv : Complex.I * ((Real.sqrt (-2 * t) : ℝ) : ℂ) / (2 * (Real.sqrt a : ℂ)) =
         ((Real.sqrt (-2 * t) / (2 * Real.sqrt a) : ℝ) : ℂ) * Complex.I := by
       push_cast; ring
     rw [hdiv]
     have him : (((Real.sqrt (-2 * t) / (2 * Real.sqrt a) : ℝ) : ℂ) * Complex.I).im =
         Real.sqrt (-2 * t) / (2 * Real.sqrt a) := by
-      simp
+      rw [Complex.mul_I_im, Complex.ofReal_re]
     rw [him, abs_of_nonneg (div_nonneg (Real.sqrt_nonneg _) (by positivity))]
     have hsqa : 0 < 2 * Real.sqrt a := by positivity
     rw [div_lt_iff₀ hsqa]
@@ -149,7 +163,7 @@ private lemma spinEvalWider_eq_spinEvalT {a : ℝ} (ha : 2 ≤ a) {Φ : ℝ × �
   have hc25 : 25 ≤ 12 * a + 1 := by linarith
   have ha_pos : 0 < a := by linarith
   have hS24 := spinS24.1 hc25 (θ := 1 / 4) (by norm_num) (by norm_num)
-  obtain ⟨_, _, _, _, hagree, _⟩ := hS24
+  obtain ⟨_, _, hagree⟩ := hS24
   have hΦ_alg : SpinTestClass (((12 * a + 1) - 1) / 12) Φ := by
     simpa [show ((12 * a + 1) - 1) / 12 = a by ring] using hΦ
   have hreal_eq := (hagree hΦ_alg).2.2.2.2.1
@@ -177,7 +191,7 @@ private lemma spinEvalWider_eq_spinEvalT {a : ℝ} (ha : 2 ≤ a) {Φ : ℝ × �
   rw [hxL, hxR]
 
 private noncomputable def lagPsiC (w : ℝ) (k : ℕ) (z : ℂ) : ℂ :=
-  Complex.exp (-2 * π * z) * (Polynomial.map (algebraMap ℝ ℂ) (lagL w k)).eval (4 * π * z)
+  Complex.exp (-2 * π * z) * (Polynomial.map (algebraMap ℝ ℂ) (lagPoly w k)).eval (4 * π * z)
 
 private lemma lagPsiC_differentiable (w : ℝ) (k : ℕ) : Differentiable ℂ (lagPsiC w k) := by
   unfold lagPsiC
@@ -187,21 +201,16 @@ private lemma lagPsiC_differentiable (w : ℝ) (k : ℕ) : Differentiable ℂ (l
 private lemma lagPsiC_ofReal (w : ℝ) (k : ℕ) (t : ℝ) :
     lagPsiC w k (t : ℂ) = ((lagPsi w k t : ℝ) : ℂ) := by
   unfold lagPsiC lagPsi lagL
-  have hexp : Complex.exp (-2 * π * (t : ℂ)) = ((Real.exp (-2 * π * t) : ℝ) : ℂ) := by
-    rw [← Complex.ofReal_exp]; push_cast; rfl
-  have hpoly : (Polynomial.map (algebraMap ℝ ℂ)
-        (∑ j ∈ range (k + 1), Polynomial.C ((-1 : ℝ) ^ j * lagCoef (w + j) (k - j) / (j ! : ℝ)) *
-          Polynomial.X ^ j)).eval (4 * π * (t : ℂ)) =
-      (((∑ j ∈ range (k + 1), Polynomial.C ((-1 : ℝ) ^ j * lagCoef (w + j) (k - j) / (j ! : ℝ)) *
-          Polynomial.X ^ j).eval (4 * π * t) : ℝ) : ℂ) := by
-    rw [← Polynomial.eval₂_eq_eval_map]
-    change Polynomial.eval₂ (algebraMap ℝ ℂ) ((algebraMap ℝ ℂ) (4 * π * t)) _ = _
-    rw [← Polynomial.hom_eval₂]
+  have hexp : Complex.exp (-2 * (π : ℂ) * (t : ℂ)) = ((Real.exp (-2 * π * t) : ℝ) : ℂ) := by
+    rw [show (-2 * (π : ℂ) * (t : ℂ)) = ((-2 * π * t : ℝ) : ℂ) by push_cast; ring]
+    exact (Complex.ofReal_exp _).symm
+  have hpoly : (Polynomial.map (algebraMap ℝ ℂ) (lagPoly w k)).eval (4 * (π : ℂ) * (t : ℂ)) =
+      (((lagPoly w k).eval (4 * π * t) : ℝ) : ℂ) := by
+    have h4 : 4 * (π : ℂ) * (t : ℂ) = (algebraMap ℝ ℂ) (4 * π * t) := by
+      rw [Complex.coe_algebraMap]; push_cast; ring
+    rw [h4, Polynomial.eval_map, Polynomial.eval₂_hom]
     rfl
-  rw [hexp, ← Complex.ofReal_mul]
-  congr 1
-  rw [← hpoly]
-  push_cast; rfl
+  rw [hexp, hpoly, Complex.ofReal_mul]
 
 private lemma spinEvalWider_oddLagPoly {a : ℝ} (ha : 2 ≤ a) {N : ℕ} {q : ℝ × ℝ → ℝ}
     (hq : q ∈ spinOddLagPolySpace N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η < 1 / 2)
@@ -211,7 +220,7 @@ private lemma spinEvalWider_oddLagPoly {a : ℝ} (ha : 2 ≤ a) {N : ℕ} {q : �
   have ha_pos : 0 < a := by linarith
   have hc25 : 25 ≤ 12 * a + 1 := by linarith
   have hS24 := spinS24.1 hc25 (θ := 1 / 4) (by norm_num) (by norm_num)
-  obtain ⟨_, _, _, _, hagree, _⟩ := hS24
+  obtain ⟨_, _, hagree⟩ := hS24
   have hΨ_cert : SpinCertifiedT a (fun r => Real.exp (-2 * π * (r.1 + r.2)) * q r) :=
     exp_mul_mem_SpinCertifiedT hq
   have hΦ_test : SpinTestClass a (spinLiftTToR (fun r => Real.exp (-2 * π * (r.1 + r.2)) * q r)) :=
@@ -243,12 +252,13 @@ private lemma spinEvalWider_oddLagPoly {a : ℝ} (ha : 2 ≤ a) {N : ℕ} {q : �
           ((lagPsiC_differentiable _ _).const_mul _))).const_mul _
       · exact ((((lagPsiC_differentiable _ _).const_mul _).add
           ((lagPsiC_differentiable _ _).mul_const _))).const_mul _
-      · rw [lagPsiC_ofReal, lagPsiC_ofReal, lagPsiC_ofReal, lagPsiC_ofReal]
+      · dsimp only
+        rw [lagPsiC_ofReal, lagPsiC_ofReal, lagPsiC_ofReal, lagPsiC_ofReal]
         unfold spinOddLagPolyBasis lagPsi
         have hexp : Real.exp (-2 * π * (tL + tR)) =
             Real.exp (-2 * π * tL) * Real.exp (-2 * π * tR) := by
           rw [← Real.exp_add]; congr 1; ring
-        push_cast; rw [hexp]; ring
+        rw [hexp]; push_cast; ring
     · refine ⟨fun _ _ => 0, fun _ => differentiable_const 0, fun _ => differentiable_const 0,
         fun _ _ => by simp⟩
     · rintro f g _ _ ⟨F, hFL, hFR, hFeq⟩ ⟨G, hGL, hGR, hGeq⟩
@@ -258,7 +268,7 @@ private lemma spinEvalWider_oddLagPoly {a : ℝ} (ha : 2 ≤ a) {N : ℕ} {q : �
     · rintro c f _ ⟨F, hFL, hFR, hFeq⟩
       refine ⟨fun z₁ z₂ => (c : ℂ) * F z₁ z₂,
         fun z₂ => (hFL z₂).const_mul _, fun z₁ => (hFR z₁).const_mul _, fun tL tR => ?_⟩
-      simp [hFeq]; push_cast; ring
+      simp [hFeq]; ring
   obtain ⟨ΨC, hΨL, hΨR, hΨeq⟩ := hex_hol
   have hcomp_eq : ∀ bL ∈ spinStrip (1 / 2), ∀ bR ∈ spinStrip (1 / 2),
       spinGC a (spinLiftTToR (fun r => Real.exp (-2 * π * (r.1 + r.2)) * q r)) bL bR =
@@ -283,17 +293,19 @@ private lemma spinEvalWider_oddLagPoly {a : ℝ} (ha : 2 ≤ a) {N : ℕ} {q : �
   have hbL_mem : bL ∈ spinStrip (1 / 2) := wider_b_mem_spinStrip ha_pos hη0 hη1 hp.1
   have hbR_mem : bR ∈ spinStrip (1 / 2) := wider_b_mem_spinStrip ha_pos hη0 hη1 hp.2
   have hsqa_c : (Real.sqrt a : ℂ) ^ 2 = (a : ℂ) := by norm_cast; exact Real.sq_sqrt ha_pos.le
-  have hsqa_ne : (Real.sqrt a : ℂ) ≠ 0 := by exact_mod_cast (Real.sqrt_pos.mpr ha_pos).ne'
+  have ha_ne_c : (a : ℂ) ≠ 0 := by exact_mod_cast ha_pos.ne'
   have h2a_bL : 2 * (a : ℂ) * bL ^ 2 = (p.1 : ℂ) := by
     dsimp [bL]
-    rw [div_pow, Complex.sq_sqrt, mul_pow, hsqa_c]
-    field_simp [hsqa_ne]
-    ring
+    have h2p1 : 2 * (p.1 : ℂ) = ((2 * p.1 : ℝ) : ℂ) := by push_cast; rfl
+    rw [div_pow, h2p1, complex_sqrt_ofReal_sq, mul_pow, hsqa_c]
+    push_cast
+    field_simp [ha_ne_c]
   have h2a_bR : 2 * (a : ℂ) * bR ^ 2 = (p.2 : ℂ) := by
     dsimp [bR]
-    rw [div_pow, Complex.sq_sqrt, mul_pow, hsqa_c]
-    field_simp [hsqa_ne]
-    ring
+    have h2p2 : 2 * (p.2 : ℂ) = ((2 * p.2 : ℝ) : ℂ) := by push_cast; rfl
+    rw [div_pow, h2p2, complex_sqrt_ofReal_sq, mul_pow, hsqa_c]
+    push_cast
+    field_simp [ha_ne_c]
   unfold spinEvalWider
   rw [hcomp_eq bL hbL_mem bR hbR_mem, h2a_bL, h2a_bR, hΨeq, Complex.ofReal_re]
 
@@ -316,7 +328,7 @@ theorem spinS4_of_props
   have hCm_pos : 0 < C_minus := lt_max_of_lt_left hCm61_pos
   have hxiBar_pos : 0 < xiBar := by unfold xiBar; have := xiStar_pos; positivity
   obtain ⟨N₀, hN₀⟩ := eventually_atTop.mp
-    ((isLittleO_log_id_atTop.tendsto_div_zero).eventually
+    ((isLittleO_log_id_atTop.tendsto_div_nhds_zero).eventually
       (gt_mem_nhds (div_pos hxiBar_pos hCm_pos)))
   let c₁ : ℝ := max (max c₁_61 c₁_44) (max (max c₁_S3 40) (N₀ + 2))
   have hc₁_40 : 40 ≤ c₁ := (le_max_right _ _).trans ((le_max_left _ _).trans (le_max_right _ _))
@@ -351,11 +363,7 @@ theorem spinS4_of_props
         _ < n * (C_minus * (xiBar / C_minus)) := mul_lt_mul_of_pos_left h1 hn_pos
         _ = xiBar * n := by field_simp [hCm_ne]
     have hAopt_nn : 0 ≤ Aopt * n ^ ((1 : ℝ) / 3) := by
-      have hA : 0 ≤ Aopt := by
-        unfold Aopt
-        have := xiStar_pos
-        have := abs_nonneg (airyZero 1)
-        positivity
+      have hA : 0 ≤ Aopt := by unfold Aopt; exact mul_nonneg cStar_pos.le (abs_nonneg _)
       exact mul_nonneg hA (Real.rpow_nonneg hn_pos.le _)
     linarith
   have hlo : n / lambdaV + Aopt * n ^ ((1 : ℝ) / 3) - C_minus * Real.log n ≤ spinDeltaL c := by
@@ -380,7 +388,7 @@ theorem spinS4_of_props
         ∃ (N : ℕ) (q : ℝ × ℝ → ℝ), spinOddLagFeasible a N (widerCone a η T) q := by
       intro T hTV hTpos
       by_contra hno
-      push_neg at hno
+      push Not at hno
       have hB : 0 ≤ η * a := mul_nonneg hη0 ha_nn
       have hXc : IsClosed (widerCone a η T) := by
         rw [← hΩ₀_slice]
@@ -391,24 +399,26 @@ theorem spinS4_of_props
       have hXsub : widerCone a η T ⊆ spinConeB (η * a) ∩ {p : ℝ × ℝ | T ≤ p.1 + p.2} := by
         rw [← hΩ₀_slice]; exact Subset.rfl
       obtain ⟨meas, -⟩ := (spinDLPi ha2 hB hTpos hXc hXs hXsub).1 hno
-      have hrad_sub : widerCone a η T ⊆ {p : ℝ × ℝ | 0 ≤ p.1 + p.2} := fun _ hp =>
-        hTpos.le.trans hp.2.2
-      let rmeas : AdmissibleCrossingMeasure virasoroProblem a := meas.toRadAdmissible hrad_sub
-      have ha_shift : virasoroProblem.totalShift ≤ a := by
+      have hc_pos : (0 : ℝ) < 12 * a := by linarith
+      have ha_shift : 12 * virasoroProblem.totalShift ≤ 12 * a := by
         rw [virasoroProblem_totalShift]; linarith
+      obtain ⟨τ₁, hτ₁, g₁, hg₁⟩ := exists_feasible_of_compact virasoroProblem hc_pos ha_shift
+        isCompact_empty (empty_subset _)
+      have hne : (constrainedGaps virasoroProblem (12 * a) ∅).Nonempty := ⟨τ₁, hτ₁, g₁, hg₁⟩
+      let meas_12 : SpinCrossingMeasureOn (12 * a / 12) (widerCone a η T) :=
+        { ν := meas.ν
+          supp := meas.supp
+          finite_laplace := meas.finite_laplace
+          crossing := fun hL hR => by
+            rw [show 12 * a / 12 = a by ring]
+            exact meas.crossing hL hR }
+      let rmeas : AdmissibleCrossingMeasure virasoroProblem (12 * a / 12) :=
+        meas_12.toRadAdmissible (fun _ hp => hTpos.le.trans (hXsub hp).2)
       have hrad_supp : rmeas.ν (∅ ∪ Ici T)ᶜ = 0 := by
-        rw [empty_union]
-        change (meas.ν.map (fun p : ℝ × ℝ => p.1 + p.2)) (Ici T)ᶜ = 0
-        rw [Measure.map_apply (continuous_fst.add continuous_snd).measurable
-          measurableSet_Ici.compl]
-        have hsub : (fun p : ℝ × ℝ => p.1 + p.2) ⁻¹' (Ici T)ᶜ ⊆ (widerCone a η T)ᶜ := by
-          intro p hp hpW
-          exact hp hpW.2.2
-        exact measure_mono_null hsub meas.supp
+        rw [empty_union, Set.compl_Ici]
+        exact meas_12.toRadAdmissible_atGap hTpos.le (fun _ hp => (hXsub hp).2)
       have hle_thr : T ≤ constrainedThreshold virasoroProblem (12 * a) ∅ :=
-        le_constrainedThreshold_of_crossingMeasure virasoroProblem (by linarith : 0 < 12 * a)
-          (by linarith : 12 * virasoroProblem.totalShift ≤ 12 * a)
-          (by simpa [a, n] using rmeas) rmeas hrad_supp
+        le_constrainedThreshold_of_crossingMeasure virasoroProblem hc_pos ha_shift hne rmeas hrad_supp
       rw [constrainedThreshold_empty] at hle_thr
       linarith
     have hcert_set_mem : ∀ {T : ℝ}, virasoroProblem.T_V (12 * a) < T → 0 < T →
@@ -421,7 +431,6 @@ theorem spinS4_of_props
       have hΨ_cert : SpinCertifiedT a Ψ := exp_mul_mem_SpinCertifiedT hq_mem
       have hΦ_cert : SpinCertifiedClass a Φ := by
         unfold Φ SpinCertifiedClass
-        clear hlo44 hslack61 hcons hcert_exists
         unfold SpinCertifiedT at hΨ_cert
         refine Submodule.span_induction (p := fun Ψ₀ _ => SpinCertifiedClass a (spinLiftTToR Ψ₀))
           ?_ ?_ ?_ ?_ hΨ_cert
@@ -429,7 +438,7 @@ theorem spinS4_of_props
           · exact Submodule.subset_span (Or.inl ⟨m, n₀, hmn, rfl⟩)
           · have heq : spinLiftTToR (fun p : ℝ × ℝ => hMaj a β₀ (p.1 + p.2)) =
                 spinRadialLift (hMaj a β₀) := by
-              ext r; unfold spinLiftTToR spinRadialLift; rfl
+              ext r; dsimp [spinLiftTToR, spinRadialLift]; congr 1; ring
             rw [heq]
             exact Submodule.subset_span (Or.inr ⟨β₀, hβ₀0, hβ₀1, rfl⟩)
         · exact Submodule.zero_mem _
@@ -458,7 +467,7 @@ theorem spinS4_of_props
               Submodule.subset_span (Or.inl ⟨m, n₀, hmn, rfl⟩), rfl⟩
           · refine ⟨fun p => hMaj a β₀ (p.1 + p.2),
               Submodule.subset_span (Or.inr ⟨β₀, hβ₀0, hβ₀1, rfl⟩), ?_⟩
-            ext r; unfold spinLiftTToR spinRadialLift; rfl
+            ext r; dsimp [spinLiftTToR, spinRadialLift]; congr 1; ring
         · exact ⟨0, Submodule.zero_mem _, rfl⟩
         · rintro f g _ _ ⟨Ψ₁, h₁, rfl⟩ ⟨Ψ₂, h₂, rfl⟩
           exact ⟨Ψ₁ + Ψ₂, Submodule.add_mem _ h₁ h₂, rfl⟩
@@ -498,10 +507,15 @@ theorem spinS4_of_props
       exact hle
     have hΔ_vir : virasoroProblem.Delta_best n = a + virasoroProblem.T_V (12 * a) := by
       unfold FixedWeightProblem.Delta_best
-      simp [a, n, show (c - 1) / 12 * 12 = c - 1 by ring, show 12 * ((c - 1) / 12) = c - 1 by ring]
+      change n / 12 + virasoroProblem.T_V n = a + virasoroProblem.T_V (12 * a)
+      rw [show 12 * a = n by dsimp [a]; ring]
+    have hL_eq : spinDeltaL c = (c - 1) / 12 + spinThrInf (SpinTestClass a) liouvilleCone a := by
+      unfold spinDeltaL; rfl
+    have hS_eq : spinDeltaSpin c = (c - 1) / 12 + spinThrInf (SpinTestClassJ a) liouvilleCone a := by
+      unfold spinDeltaSpin; rfl
     refine ⟨?_, ?_, ?_⟩
-    · unfold spinDeltaL; linarith
-    · unfold spinDeltaSpin; linarith
+    · rw [hL_eq]; change a + _ ≤ _; linarith
+    · rw [hS_eq]; change a + _ ≤ _; linarith
     · rw [hΔ_vir]; linarith
   refine ⟨hTm_pos, hlo, hL_spin, hspin_vir, hvir_hi, hslack, hthr_pos, ?_, hattain, hwider⟩
   have hCons := hcons hc_S3
