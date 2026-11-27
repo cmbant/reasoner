@@ -5,32 +5,26 @@ public import FormalResearch.SignUncertainty.CtTransBand
 public import FormalResearch.SignUncertainty.CtRoscBookProof
 
 /-!
-# `thm:ct-lower` from `window` and the Airy comparison
+# `thm:ct-lower` from `window`
 
-`ct_lower` with `CtLowerInputs.dyadic` replaced by `CtCombinedOpen` (the one step `window`) and `CtRoscInputs`.  The steps `trunc`, `outer`, `trans`, `rosc` are `ct_combined_trunc`,
-`ct_combined_outer`, `ct_combined_trans`, `ct_combined_rosc`; the Hankel bookkeeping `CtRoscBook` of `rosc` is proved (`ct_rosc_book`), so the only named input of `rosc` left is
-the pure-Airy comparison `AiryRplusComparison`.
+`ct_lower` with `CtLowerInputs.dyadic` replaced by `CtCombinedOpen` (the one step `window`).  The steps `trunc`, `outer`, `trans`, `rosc` are `ct_combined_trunc`,
+`ct_combined_outer`, `ct_combined_trans`, `ct_combined_rosc`; `rosc` has no named input left: the Hankel bookkeeping `CtRoscBook` is proved (`ct_rosc_book`) and so is
+the pure-Airy comparison `AiryRplusComparison` (`airyRplusComparison`, `CtRoscAiry`).
 -/
 
 @[expose] public section
 
 namespace FormalResearch.SignUncertainty
 
-/-- **The named input of `rosc`** (`(ct:rosc)`, `CtRoscAssembly`): the pure-Airy comparison `AiryRplusComparison` (DLMF 9.7.5/9.7.9 on the upper
-semicircle).  (The Hankel bookkeeping `CtRoscBook` is proved, `ct_rosc_book`.) -/
-structure CtRoscInputs : Prop where
-  airy : AiryRplusComparison
-
-/-- **`thm:ct-lower` from `window` and the input of `rosc`**: `ct_lower` with `CtLowerInputs.dyadic` replaced by `CtCombinedOpen` (`window`) and
-`CtRoscInputs`; the steps `trunc`, `outer`, `trans`, `rosc` are `ct_combined_trunc`, `ct_combined_outer`, `ct_combined_trans`, `ct_combined_rosc`. -/
+/-- **`thm:ct-lower` from `window`**: `ct_lower` with `CtLowerInputs.dyadic` replaced by `CtCombinedOpen` (`window`); the steps `trunc`, `outer`, `trans`, `rosc` are `ct_combined_trunc`, `ct_combined_outer`, `ct_combined_trans`, `ct_combined_rosc`. -/
 theorem ct_lower_of_open
-    (P : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtCombinedOpen c₁) (Q : CtRoscInputs) :
+    (P : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtCombinedOpen c₁) :
     CtLowerStatement := by
   obtain ⟨c₁₀, hc₁₀, hP⟩ := P
   obtain ⟨g₁, hg₁, hT⟩ := ct_combined_trunc
   obtain ⟨g₂, hg₂, hO⟩ := ct_combined_outer
   obtain ⟨g₃, hg₃, hR⟩ := ct_combined_trans
-  obtain ⟨g₄, hg₄, hRo⟩ := ct_combined_rosc Q.airy
+  obtain ⟨g₄, hg₄, hRo⟩ := ct_combined_rosc
   refine ct_lower_of_pieces ⟨min c₁₀ (min g₁ (min g₂ (min g₃ (min g₄ ctChartC1)))),
     lt_min hc₁₀ (lt_min hg₁ (lt_min hg₂ (lt_min hg₃ (lt_min hg₄ ctChartC1_pos)))), fun c₁ h1 h2 => ?_⟩
   have a1 : c₁ ≤ c₁₀ := h2.trans (min_le_left _ _)

@@ -30,6 +30,7 @@ public import FormalResearch.Special.AiryAsymSector
 public import FormalResearch.Special.AiryAsymNegComplex
 public import FormalResearch.Special.AiryGoodCircles
 public import FormalResearch.Special.AiryRatioBounds
+public import FormalResearch.Special.AiryRplusAsym
 public import FormalResearch.Special.AiryAsymSaddle
 public import FormalResearch.Special.AiryAsymNeg
 public import FormalResearch.Special.AiryAsymReal
@@ -137,7 +138,8 @@ an Abelian theorem), `AiryHypergeometric` (`Ai` through Mathlib's regularized `�
 level: `∫(K_u f)² ≤ N_Ai(u)² ∫f²`, symmetric, positive; the operator on `Lp` and `K_u = A_u A_u*` are in `AiryTransform*`, see below), `AiryGram` (Abel-regularised orthogonality of translates),
 `AiryEnvCalculus`, `AiryAsymSector`, `AiryAsymNegComplex`, `AiryGoodCircles`, `AiryRatioBounds` (envelope calculus `e(u+τ) ≤ e(u)e^{-2τ Re√u}`,
 sector asymptotics with relative remainder, `Ai` near the negative axis for complex phase, zero-free good circles with
-`‖Ai‖² ≥ c(1+r)^{-1/2} e` for the pure-`Ai` case of (E2), and `|(Bi ∓ iAi)/Ai| e ≤ C` there),
+`‖Ai‖² ≥ c(1+r)^{-1/2} e` for the pure-`Ai` case of (E2), and `|(Bi ∓ iAi)/Ai| e ≤ C` there), `AiryRplusAsym` (`(Bi - iAi)/Ai = 2e^{(4/3)u^{3/2}}(1 + O(|u|^{-3/2}))`
+in the closed upper half plane wherever `e^{(4/3)u^{3/2}}` is `O(|u|^{-3/2})` or `|arg u| ≤ 2π/3`),
 `AiryAsym{Saddle,Neg,Real,Pos,Zeros}` (exact
 saddle-point formula `Ai(w²) = (e^{-(2/3)w³}/2π) ∫ exp(-w s² - i s³/3) ds`, `Re w > 0`, with the second-order
 estimate; hence `Ai, Ai', Bi` on the negative axis with explicit `O(y^{-3/2})` relative error, the amplitude
