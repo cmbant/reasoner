@@ -278,7 +278,9 @@ structure CeCanonicalInputs (D : ShellHBData) (_t : ℕ → ℝ) : Prop where
   /-- `thm:ce-airy-transfer` (1), upper bound (via `thm:ce-shifted-lift` and `thm:al-rational-density`), for
   the shell class of `D` with offsets `o(c^{1/3})`: for each `v < u_sh` and all large `d` there is an admissible
   pair, strictly negative on the shells and on `[c/π² - (v/β₁) c^{1/3}, ∞)` (stated in the weaker form
-  `R²/2 ≤ d/(2π²) - (v/β₁)(d/2)^{1/3}` for some radius `R` of the shell class). -/
+  `R²/2 ≤ d/(2π²) - (v/β₁)(d/2)^{1/3}` for some radius `R` of the shell class). The Airy-LP rational-density
+  half (`thm:al-rational-density`) and Euclidean reduction `ce_airy_transfer_upper_of_shifted_lift` to the open M6
+  Hankel lift `CeShiftedLift` (`thm:ce-shifted-lift`) are proved in `AiryRationalDensity.lean`. -/
   ce_airy_transfer_upper : ∀ v : ℝ, (v : EReal) < uSh D → ∀ r : ℝ → ℕ → ℝ,
     ShellOffsetsSmall r →
       ∀ᶠ d : ℕ in atTop, ∃ R ∈ ceShellRadiusSet D r d,

@@ -622,6 +622,12 @@ public import FormalResearch.SignUncertainty.AiryNodeSquare
 public import FormalResearch.SignUncertainty.AiryActiveHeight
 public import FormalResearch.SignUncertainty.CeTerminalDeflation
 public import FormalResearch.SignUncertainty.AiryNodeSign
+public import FormalResearch.SignUncertainty.AiryRationalSeeds
+public import FormalResearch.SignUncertainty.AiryFarCardinalLaplace
+public import FormalResearch.SignUncertainty.AiryCauchyBounds
+public import FormalResearch.SignUncertainty.AirySmoothApprox
+public import FormalResearch.SignUncertainty.AiryHermiteApprox
+public import FormalResearch.SignUncertainty.AiryRationalDensity
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -917,6 +923,19 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `hb_zero_weight_pos_all`, `hb_real_quadrature`, `terminal_cardinal_integral`, `ce_terminal_deflation_full`,
   `ce_terminal_deflation`; `not_exists_airy_node_sum_gt`, `airy_node_sum`, `airy_node_single_block`,
   `airy_node_sign`.
+* `FormalResearch.SignUncertainty.AiryRationalSeeds`, `AiryFarCardinalLaplace`, `AiryCauchyBounds`,
+  `AirySmoothApprox`, `AiryHermiteApprox`, `AiryRationalDensity` (`lem:al-seeds`, `lem:al-far-cardinal-laplace`,
+  `lem:al-smooth`, `lem:al-hermite-approx`, `thm:al-rational-density`, M9, proved, unconditional; and
+  `thm:ce-airy-transfer` (1) upper bound reduced to `CeShiftedLift`, conditional on `thm:ce-shifted-lift` M6):
+  `HasGenRationalAiryCoeffs`, `InGenRationalAiry`, `airyBeta00`/`airyBeta11`/`airyBetaInf`/`airyBetaPlus`,
+  `airySeedF`, `airySeedG`, `airySeedG1Deriv`, `lem_al_seeds`; `airySeed_neg_weighted_bounds`,
+  `airySeed_l1_and_laplace_bounds`, `lem_al_far_cardinal_laplace`; `re_cpow_three_halves_ball_abs_sub_le`,
+  `airyEnv_ball_le`, `deriv_inAiryClass_bound`, `inAiryClass_shift_nonneg`, `schwartz_shift`;
+  `airySmoothM`, `airySmoothMSq`, `airySmoothReg`, `lem_al_smooth`; `airyHermiteTerm`, `airyHermitePartialSum`,
+  `lem_al_hermite_approx`; `IsAiryStrictLiftSeed`, `IsAiryLiftSeed`, `airyUStrict`, `thm_al_rational_density`,
+  `thm_al_rational_density_hb`, `airyUStrict_eq_airyUSh`, `CeShiftedLift` (**not proved**, open M6
+  `thm:ce-shifted-lift`), and `ce_airy_transfer_upper_of_shifted_lift` (derives the
+  `CeCanonicalInputs.ce_airy_transfer_upper` field from `CeShiftedLift`).
 * `FormalResearch.SignUncertainty.HbMultilevelDefs`, `CeCanonicalDefs` (M0 skeleton, statement objects and input structures of `thm_intro_hb` and `thm_ce_canonical_iff`; the structures `HbMultilevelInputs`, `CeCanonicalInputs` have the open TeX results as fields).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`, `thm_intro_hb`
   (`u1cl:multilevel`) and `thm_ce_canonical_iff` (`thm:intro-gap`, `thm:ce-canonical-iff`) of Paper I, each proved
