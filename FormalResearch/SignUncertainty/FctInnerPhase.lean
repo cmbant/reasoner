@@ -778,13 +778,20 @@ set_option maxHeartbeats 400000 in
 /-- **Instantiation of `FctPhaseBox` and `(b1)` data** for `concretePhiTilde K4 ε c`,
 with all structural constants `(ellMin, τ_lim_box)` independent of `(K4, ε, c)` for `K4 τ₁² ≤ 1`. -/
 theorem concretePhaseBox_exist :
-    ∃ (ellMin τ_lim_box : ℝ), 0 < ellMin ∧ 0 < τ_lim_box ∧ τ_lim_box ≤ 1 / 20 ∧
+    ∃ (M_cfu cV C0 ellMin τ_lim_box : ℝ),
+      0 ≤ M_cfu ∧ 0 ≤ cV ∧ 0 ≤ C0 ∧ 0 < ellMin ∧ 0 < τ_lim_box ∧ τ_lim_box ≤ 1 / 20 ∧
       ∀ {K4 ε c : ℝ}, 1 ≤ K4 → (ε = 1 ∨ ε = -1) → 0 < c →
         let τ₁ := c ^ (-(1 / 4 : ℝ))
         τ₁ ≤ τ_lim_box → K4 * τ₁ ^ 2 ≤ 1 →
-        ∃ (B d : ℝ × ℝ × ℝ → ℝ) (R Z : (ℝ × ℝ × ℝ) × ℝ → ℝ) (S : ChartSetup (ℝ × ℝ × ℝ)),
-          S.Ω = OmT τ₁ ∧ S.ℓ = (fun p : ℝ × ℝ × ℝ => p.1) ∧
+        ∃ (T : CfuTheta) (B d : ℝ × ℝ × ℝ → ℝ) (R Z : (ℝ × ℝ × ℝ) × ℝ → ℝ) (S : ChartSetup (ℝ × ℝ × ℝ)),
+          T.M = M_cfu ∧
+          S.Ω = OmT τ₁ ∧ S.ℓ = (fun p : ℝ × ℝ × ℝ => p.1) ∧ S.r = T.r τ₁ K4 ∧
+          S.ε = C0 * τ₁ ^ 2 ∧ S.cV = cV ∧
           S.B = B ∧ S.d = d ∧ S.R = R ∧ S.Z = Z ∧
+          (∀ {lam L1 α x : ℝ}, 0 ≤ x → x ≤ 2.4 →
+            τ₁ ^ 3 * (x * ((L1 - ctTheta1 ε / c) / τ₁ ^ 2 - π ^ 2 / 36 * x ^ 2 +
+              T.r τ₁ K4 (((L1 - ctTheta1 ε / c) / τ₁ ^ 2, lam, α), x ^ 2))) =
+              concretePhiLambda K4 ε c lam (τ₁ * x) L1 α) ∧
           FctPhaseBox (concretePhiTilde K4 ε c) (concretePhaseDom ellMin ε c) (concreteTau0 ε c S) ∧
           (∀ p ∈ concretePhaseDom ellMin ε c,
             let q := (concreteEll1 ε c p.1, (1 : ℝ), p.2)
@@ -816,7 +823,7 @@ theorem concretePhaseBox_exist :
   have hτ_D10 : 0 < τ_D1 := by positivity
   have hτlim_box_pos : 0 < τ_lim_box := by positivity
   have hτlim_box_le : τ_lim_box ≤ 1 / 20 := ((min_le_left _ _).trans (min_le_left _ _)).trans hτlim_le
-  refine ⟨ellMin, τ_lim_box, hellMin_pos, hτlim_box_pos, hτlim_box_le, ?_⟩
+  refine ⟨M_cfu, cV, C0, ellMin, τ_lim_box, hM0, hcV, hC0, hellMin_pos, hτlim_box_pos, hτlim_box_le, ?_⟩
   intro K4 ε c hK4 hε hc τ₁ hτ₁_box hK4t
   have hτ₁_pos : 0 < τ₁ := Real.rpow_pos_of_pos hc _
   have hτ₁_cfu : τ₁ ≤ τ_lim_cfu := hτ₁_box.trans ((min_le_left _ _).trans (min_le_left _ _))
@@ -846,9 +853,9 @@ theorem concretePhaseBox_exist :
     have hpos : (0 : ℝ) < 10 * (D1 + 1) := by positivity
     calc D1 * τ₁ ≤ (D1 + 1) * τ_D1 := mul_le_mul (by linarith) hτ₁_D1 hτ₁_pos.le (by positivity)
       _ = 1 / 10 := by simp only [τ_D1]; field_simp [hpos.ne']
-  obtain ⟨T, -, hT_id, B, d, R, Z, S, hSΩ, hSℓ, hSr, hSε, hcBs, hcds, hcRs, hcDs, hcZs, hcVs,
+  obtain ⟨T, hTM, hT_id, B, d, R, Z, S, hSΩ, hSℓ, hSr, hSε, hcBs, hcds, hcRs, hcDs, hcZs, hcVs,
     hSB, hSd, hSR, hSZ, hout⟩ := hcfu hK4 hε hc hτ₁_cfu hK4t
-  refine ⟨B, d, R, Z, S, hSΩ, hSℓ, hSB, hSd, hSR, hSZ, ?_⟩
+  refine ⟨T, B, d, R, Z, S, hTM, hSΩ, hSℓ, hSr, hSε, hcVs, hSB, hSd, hSR, hSZ, hT_id, ?_⟩
   -- Shared geometric facts for `p ∈ concretePhaseDom ellMin ε c`
   have hp_facts : ∀ p ∈ concretePhaseDom ellMin ε c,
       let q := (concreteEll1 ε c p.1, (1 : ℝ), p.2)
@@ -1292,7 +1299,8 @@ theorem concretePhaseBox_exist :
   have hatil_val : fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) p = τ₁ ^ 2 * S.A q := by
     set τ₀ := concreteTau0 ε c S p
     have hτZ : (τ₀ / τ₁) ^ 2 = S.Z (q, S.A q) := by
-      dsimp only [τ₀]; unfold concreteTau0; rw [mul_div_cancel_left₀ _ hτ₁_pos.ne', Real.sq_sqrt hZ_pos.le]
+      dsimp only [τ₀]; unfold concreteTau0
+      rw [show (c ^ (-(1 / 4 : ℝ))) = τ₁ from rfl, mul_div_cancel_left₀ _ hτ₁_pos.ne', Real.sq_sqrt hZ_pos.le]
     have hW0_sq : ((τ₀ / τ₁) * S.D (q, (τ₀ / τ₁) ^ 2)) ^ 2 = S.A q := by
       calc ((τ₀ / τ₁) * S.D (q, (τ₀ / τ₁) ^ 2)) ^ 2
           = (τ₀ / τ₁) ^ 2 * S.D (q, (τ₀ / τ₁) ^ 2) ^ 2 := by ring
@@ -1322,8 +1330,8 @@ theorem concretePhaseBox_exist :
         _ = τ₁ ^ 3 * (Real.sqrt (S.A q) ^ 2 * Real.sqrt (S.A q)) := by rw [hsqA]
         _ = (τ₁ * Real.sqrt (S.A q)) ^ 3 := by ring
     unfold fctAtil
-    rw [h32, ← Real.rpow_natCast, ← Real.rpow_mul (mul_nonneg hτ₁_pos.le (Real.sqrt_nonneg _))]
-    norm_num [Real.rpow_two, mul_pow, Real.sq_sqrt hA_mem.1.le]
+    rw [h32, ← Real.rpow_natCast, ← Real.rpow_mul (mul_nonneg hτ₁_pos.le (Real.sqrt_nonneg _)),
+      show ((3 : ℕ) : ℝ) * (2 / 3 : ℝ) = 2 by norm_num, Real.rpow_two, mul_pow, Real.sq_sqrt hA_mem.1.le]
   have hdf := hbox.hasFDerivAt_atil hp
   refine ⟨hτ0_2, hA_mem, hatil_val, ?_, ?_⟩
   · have hd10 : fderiv ℝ (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S)) p (1, 0) =
@@ -1341,7 +1349,7 @@ theorem concretePhaseBox_exist :
       rw [hZ_eq, Real.sqrt_mul hA_mem.1.le, Real.sqrt_sq hV_pos.le]
     have hsqA_ne : Real.sqrt (S.A q) ≠ 0 := (Real.sqrt_pos.mpr hA_mem.1).ne'
     unfold concreteTau0
-    rw [hsqrt_a, hsqrt_Z]
+    rw [show (c ^ (-(1 / 4 : ℝ))) = τ₁ from rfl, hsqrt_a, hsqrt_Z]
     field_simp [hτ₁_pos.ne', hsqA_ne]
   · have hd01 : fderiv ℝ (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S)) p (0, 1) =
         fderiv ℝ (fctPh (concretePhiTilde K4 ε c)) (concreteTau0 ε c S p, p) (0, (0, 1)) /
