@@ -30,8 +30,9 @@ private lemma continuous_fsJ_K_Kp :
     continuous_iff_continuousAt.2 fun x => (hasDerivAt_airyBiDeriv x).continuousAt
   refine ⟨hcAi.mul hcBi, continuous_iff_continuousAt.2 fun x => (hasDerivAt_fsK x).continuousAt, ?_⟩
   unfold fsKp
-  exact continuous_const.mul (((continuous_const.mul hcAi').mul hcBi').add
-    ((continuous_const.mul continuous_id).mul (hcAi.mul hcBi)))
+  exact continuous_const.mul (Continuous.add
+    (Continuous.mul (Continuous.mul continuous_const hcAi') hcBi')
+    (Continuous.mul (Continuous.mul (continuous_const.mul continuous_id) hcAi) hcBi))
 
 private lemma continuousOn_re_real {f : ℂ → ℂ} {R ρ : ℝ} (hRρ : R < ρ)
     (hf : DifferentiableOn ℂ f (ball 0 ρ)) :
@@ -68,7 +69,7 @@ theorem fs_pairing_coeffs {F b cJ cK cKp : ℂ → ℂ} {err : ℝ → ℝ}
         n ^ (-(4 / 3 : ℝ)) * (cKp (x : ℂ)).re * fsKp x + err x)| ≤
       Bn * ((12 * MK + (5 / (2 * π)) * cl ^ (-(1 / 2 : ℝ)) * MJ +
         32 * cu ^ (1 / 2 : ℝ) * MKp) * n⁻¹ *
-          ∫ θ in (0 : ℝ)..π, R * ‖F (circleMap 0 R θ)‖ / airyEnv (circleMap 0 R θ) +
+          (∫ θ in (0 : ℝ)..π, R * ‖F (circleMap 0 R θ)‖ / airyEnv (circleMap 0 R θ)) +
         E_bd * MF) := by
   have hn0 : 0 < n := by linarith
   have hR0 : 0 < R := by linarith
@@ -135,6 +136,7 @@ theorem fs_pairing_coeffs {F b cJ cK cKp : ℂ → ℂ} {err : ℝ → ℝ}
           (F (x : ℂ)).re * (b (x : ℂ)).re * err x) (uIcc (-R) R) := by
       intro x hx
       rw [uIcc_of_le hle_R] at hx
+      dsimp only
       rw [hre_prod cK hcK_real x hx, hre_prod cJ hcJ_real x hx, hre_prod cKp hcKp_real x hx]
       ring
     rw [intervalIntegral.integral_congr hpoint,
@@ -154,9 +156,11 @@ theorem fs_pairing_coeffs {F b cJ cK cKp : ℂ → ℂ} {err : ℝ → ℝ}
       Bn * ((5 / (2 * π)) * cl ^ (-(1 / 2 : ℝ)) * MJ * n⁻¹ *
         ∫ θ in (0 : ℝ)..π, R * ‖F (circleMap 0 R θ)‖ / airyEnv (circleMap 0 R θ)) := by
     have hRm : R ^ (-(1 / 2 : ℝ)) ≤ cl ^ (-(1 / 2 : ℝ)) * n ^ (-(1 / 3 : ℝ)) := by
-      have h1 := Real.rpow_le_rpow_of_nonpos (by positivity : 0 < cl * n ^ (2 / 3 : ℝ)) hR_lo (by norm_num)
-      rw [Real.mul_rpow hcl.le (Real.rpow_nonneg hn0.le _), ← Real.rpow_mul hn0.le] at h1
-      simpa [show (2 / 3 : ℝ) * -(1 / 2 : ℝ) = -(1 / 3 : ℝ) by norm_num] using h1
+      have h1 := Real.rpow_le_rpow_of_nonpos (by positivity : 0 < cl * n ^ (2 / 3 : ℝ)) hR_lo
+        (by norm_num : -(1 / 2 : ℝ) ≤ 0)
+      rw [Real.mul_rpow hcl.le (Real.rpow_nonneg hn0.le _), ← Real.rpow_mul hn0.le,
+        show (2 / 3 : ℝ) * -(1 / 2 : ℝ) = -(1 / 3 : ℝ) by norm_num] at h1
+      exact h1
     have hpow_n : n ^ (-(2 / 3 : ℝ)) * n ^ (-(1 / 3 : ℝ)) = n⁻¹ := by
       rw [← Real.rpow_add hn0, ← Real.rpow_neg_one]; congr 1; norm_num
     rw [intervalIntegral.integral_const_mul, abs_mul, abs_of_pos (Real.rpow_pos_of_pos hn0 _)]
@@ -175,8 +179,9 @@ theorem fs_pairing_coeffs {F b cJ cK cKp : ℂ → ℂ} {err : ℝ → ℝ}
         ∫ θ in (0 : ℝ)..π, R * ‖F (circleMap 0 R θ)‖ / airyEnv (circleMap 0 R θ)) := by
     have hRp : R ^ (1 / 2 : ℝ) ≤ cu ^ (1 / 2 : ℝ) * n ^ (1 / 3 : ℝ) := by
       have h1 := Real.rpow_le_rpow hR0.le hR_hi (by norm_num : (0 : ℝ) ≤ 1 / 2)
-      rw [Real.mul_rpow hcu0 (Real.rpow_nonneg hn0.le _), ← Real.rpow_mul hn0.le] at h1
-      simpa [show (2 / 3 : ℝ) * (1 / 2 : ℝ) = 1 / 3 by norm_num] using h1
+      rw [Real.mul_rpow hcu0 (Real.rpow_nonneg hn0.le _), ← Real.rpow_mul hn0.le,
+        show (2 / 3 : ℝ) * (1 / 2 : ℝ) = 1 / 3 by norm_num] at h1
+      exact h1
     have hpow_n : n ^ (-(4 / 3 : ℝ)) * n ^ (1 / 3 : ℝ) = n⁻¹ := by
       rw [← Real.rpow_add hn0, ← Real.rpow_neg_one]; congr 1; norm_num
     rw [intervalIntegral.integral_const_mul, abs_mul, abs_of_pos (Real.rpow_pos_of_pos hn0 _)]
@@ -191,10 +196,10 @@ theorem fs_pairing_coeffs {F b cJ cK cKp : ℂ → ℂ} {err : ℝ → ℝ}
       _ = _ := by rw [hpow_n]
   have hbd_err : |∫ x in (-R)..R, (F (x : ℂ)).re * (b (x : ℂ)).re * err x| ≤ Bn * (E_bd * MF) := by
     have hF_n_int : IntervalIntegrable (fun x : ℝ => Bn * E_bd * ‖F (x : ℂ)‖) volume (-R) R :=
-      ((Complex.continuous_norm.comp (hF_d.continuousOn.comp Complex.continuous_ofReal.continuousOn
+      (((hF_d.continuousOn.comp Complex.continuous_ofReal.continuousOn
         fun x hx => by
           rw [mem_ball_zero_iff, Complex.norm_real, Real.norm_eq_abs]
-          exact (abs_le.2 hx).trans_lt hRρ)).const_mul _).intervalIntegrable_of_Icc hle_R
+          exact (abs_le.2 hx).trans_lt hRρ).norm).const_mul _).intervalIntegrable_of_Icc hle_R
     have hmono := intervalIntegral.integral_mono_on hle_R herr_int.norm hF_n_int fun x hx => by
       have hbx : ‖b (x : ℂ)‖ ≤ Bn := hb_bd x (mem_closedBall_zero_iff.2 (by
         rw [Complex.norm_real, Real.norm_eq_abs]; exact abs_le.2 hx))
@@ -206,14 +211,15 @@ theorem fs_pairing_coeffs {F b cJ cK cKp : ℂ → ℂ} {err : ℝ → ℝ}
         _ ≤ ‖F (x : ℂ)‖ * Bn * E_bd := by gcongr
         _ = Bn * E_bd * ‖F (x : ℂ)‖ := by ring
     calc |∫ x in (-R)..R, (F (x : ℂ)).re * (b (x : ℂ)).re * err x|
-        ≤ ∫ x in (-R)..R, ‖(F (x : ℂ)).re * (b (x : ℂ)).re * err x‖ :=
-          intervalIntegral.norm_integral_le_integral_norm hle_R
+        ≤ ∫ x in (-R)..R, ‖(F (x : ℂ)).re * (b (x : ℂ)).re * err x‖ := by
+          rw [← Real.norm_eq_abs]; exact intervalIntegral.norm_integral_le_integral_norm hle_R
       _ ≤ ∫ x in (-R)..R, Bn * E_bd * ‖F (x : ℂ)‖ := hmono
       _ = Bn * E_bd * ∫ x in (-R)..R, ‖F (x : ℂ)‖ := intervalIntegral.integral_const_mul _ _
       _ ≤ Bn * E_bd * MF := by gcongr
       _ = Bn * (E_bd * MF) := by ring
-  rw [hcongr_main]
-  refine (norm_add₄_le _ _ _ _).trans ?_
+  rw [hcongr_main, ← Real.norm_eq_abs]
+  refine (norm_add₄_le (E := ℝ)).trans ?_
+  simp only [Real.norm_eq_abs]
   calc |∫ x in (-R)..R, n⁻¹ * ((F (x : ℂ)).re * (b x * cK x).re * fsK x)| +
         |∫ x in (-R)..R, n ^ (-(2 / 3 : ℝ)) * ((F (x : ℂ)).re * (b x * cJ x).re * fsJ x)| +
         |∫ x in (-R)..R, n ^ (-(4 / 3 : ℝ)) * ((F (x : ℂ)).re * (b x * cKp x).re * fsKp x)| +
@@ -223,7 +229,7 @@ theorem fs_pairing_coeffs {F b cJ cK cKp : ℂ → ℂ} {err : ℝ → ℝ}
           ∫ θ in (0 : ℝ)..π, R * ‖F (circleMap 0 R θ)‖ / airyEnv (circleMap 0 R θ)) +
         Bn * (32 * cu ^ (1 / 2 : ℝ) * MKp * n⁻¹ *
           ∫ θ in (0 : ℝ)..π, R * ‖F (circleMap 0 R θ)‖ / airyEnv (circleMap 0 R θ)) +
-        Bn * (E_bd * MF) := add_le_add_four hbd_K hbd_J hbd_Kp hbd_err
+        Bn * (E_bd * MF) := add_le_add (add_le_add (add_le_add hbd_K hbd_J) hbd_Kp) hbd_err
     _ = _ := by ring
 
 /-- **Lemma FS.1 Part (3) (`fs:pairing`), principal form**: pairing `L(u) - K(u)` (where `L` is
@@ -255,7 +261,7 @@ theorem fs_pairing_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_
             (fun w => d.B n ax ((lam : ℂ) * w))| ≤ C_ext * n ^ (-(3 / 2 : ℝ))) →
         IntervalIntegrable (fun x : ℝ => (F (x : ℂ)).re * (b (x : ℂ)).re * (L x - fsK x)) volume (-R) R →
         |∫ x in (-R)..R, (F (x : ℂ)).re * (b (x : ℂ)).re * (L x - fsK x)| ≤
-          Bn * (C_eta * n⁻¹ * ∫ θ in (0 : ℝ)..π, R * ‖F (circleMap 0 R θ)‖ / airyEnv (circleMap 0 R θ) +
+          Bn * (C_eta * n⁻¹ * (∫ θ in (0 : ℝ)..π, R * ‖F (circleMap 0 R θ)‖ / airyEnv (circleMap 0 R θ)) +
             (C_rem * n ^ (-(5 / 3 : ℝ)) + C_ext * n ^ (-(3 / 2 : ℝ))) * MF) := by
   obtain ⟨M_C, M_Q, M_T, C_rem, hMC, hMQ, hMT, hCrem, hpr⟩ :=
     fs_principal d hKE hKO hEnorm hOnorm
@@ -308,18 +314,24 @@ theorem fs_pairing_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_
     obtain ⟨hRc1, hRcR, hURc, _⟩ := uReal_facts d hn hax_r
     have hc1 := hL_close x hax hRc1 hRcR hURc
     have hc2 := hexp _ hax_r hRc1 hRcR hURc
-    rw [hu_eq x hax, ha_real_eq x hax] at hc2
+    have hK_x : fsK (d.uReal n (aInv (x : ℂ)).re) = fsK x := by rw [hu_eq x hax]
+    have hJ_x : fsJ (d.uReal n (aInv (x : ℂ)).re) = fsJ x := by rw [hu_eq x hax]
+    have hKp_x : fsKp (d.uReal n (aInv (x : ℂ)).re) = fsKp x := by rw [hu_eq x hax]
+    have hC_x : d.Cn n (((aInv (x : ℂ)).re : ℝ) : ℂ) = cK (x : ℂ) := by dsimp [cK]; rw [ha_real_eq x hax]
+    have hQ_x : d.Qn n (((aInv (x : ℂ)).re : ℝ) : ℂ) = cJ (x : ℂ) := by dsimp [cJ]; rw [ha_real_eq x hax]
+    have hT_x : d.Tn n (((aInv (x : ℂ)).re : ℝ) : ℂ) = cKp (x : ℂ) := by dsimp [cKp]; rw [ha_real_eq x hax]
+    rw [hK_x, hJ_x, hKp_x, hC_x, hQ_x, hT_x] at hc2
     have he_eq : err x = (L x - fsOpCh (fsChain hRc1 hRcR hURc) (d.uReal n (aInv (x : ℂ)).re)
         (fun w => d.B n (aInv (x : ℂ)).re ((n ^ (-(1 / 3 : ℝ)) : ℝ) * w))) +
         (fsOpCh (fsChain hRc1 hRcR hURc) (d.uReal n (aInv (x : ℂ)).re)
           (fun w => d.B n (aInv (x : ℂ)).re ((n ^ (-(1 / 3 : ℝ)) : ℝ) * w)) -
           (fsK x + n⁻¹ * (cK x).re * fsK x + n ^ (-(2 / 3 : ℝ)) * (cJ x).re * fsJ x +
             n ^ (-(4 / 3 : ℝ)) * (cKp x).re * fsKp x)) := by
-      dsimp [err, cK, cJ, cKp]; ring
+      dsimp [err]; ring
     rw [he_eq]
     calc |_ + _| ≤ |_| + |_| := abs_add_le _ _
       _ ≤ C_ext * n ^ (-(3 / 2 : ℝ)) + C_rem * n ^ (-(5 / 3 : ℝ)) := add_le_add hc1 hc2
-      _ = _ := by ring
+      _ = C_rem * n ^ (-(5 / 3 : ℝ)) + C_ext * n ^ (-(3 / 2 : ℝ)) := add_comm _ _
   have herr_int : IntervalIntegrable (fun x : ℝ => (F (x : ℂ)).re * (b (x : ℂ)).re * err x) volume (-R) R := by
     obtain ⟨hfsJ_c, hfsK_c, hfsKp_c⟩ := continuous_fsJ_K_Kp
     have hpoly_int : IntervalIntegrable (fun x : ℝ => (F (x : ℂ)).re * (b (x : ℂ)).re *
@@ -372,7 +384,7 @@ theorem fs_pairing_aux (d : HalfCubicData) {cl cu : ℝ} (hcl : 0 < cl) :
             (fun w => d.B n ax ((lam : ℂ) * w))) →
         IntervalIntegrable (fun x : ℝ => (F (x : ℂ)).re * (b (x : ℂ)).re * (n⁻¹ * L x)) volume (-R) R →
         |∫ x in (-R)..R, (F (x : ℂ)).re * (b (x : ℂ)).re * (n⁻¹ * L x)| ≤
-          Bn * (C_eta * n⁻¹ * ∫ θ in (0 : ℝ)..π, R * ‖F (circleMap 0 R θ)‖ / airyEnv (circleMap 0 R θ) +
+          Bn * (C_eta * n⁻¹ * (∫ θ in (0 : ℝ)..π, R * ‖F (circleMap 0 R θ)‖ / airyEnv (circleMap 0 R θ)) +
             C_rem * n ^ (-(5 / 3 : ℝ)) * MF) := by
   obtain ⟨M_C, M_T, C_rem, hMC, hMT, hCrem, hax⟩ := fs_aux d
   set cu' := max cu 0
@@ -420,14 +432,21 @@ theorem fs_pairing_aux (d : HalfCubicData) {cl cu : ℝ} (hcl : 0 < cl) :
     obtain ⟨hRc1, hRcR, hURc, _⟩ := uReal_facts d hn hax_r
     have hL := hL_eq x hax hRc1 hRcR hURc
     have hE := hexp _ hax_r hRc1 hRcR hURc
-    rw [hu_eq x hax, ha_real_eq x hax, ← hL] at hE
+    have hK_x : fsK (d.uReal n (aInv (x : ℂ)).re) = fsK x := by rw [hu_eq x hax]
+    have hKp_x : fsKp (d.uReal n (aInv (x : ℂ)).re) = fsKp x := by rw [hu_eq x hax]
+    have hC_x : d.CnStar n (((aInv (x : ℂ)).re : ℝ) : ℂ) = cK (x : ℂ) := by dsimp [cK]; rw [ha_real_eq x hax]
+    have hT_x : d.TnStar n (((aInv (x : ℂ)).re : ℝ) : ℂ) = cKp (x : ℂ) := by dsimp [cKp]; rw [ha_real_eq x hax]
+    rw [hK_x, hKp_x, hC_x, hT_x] at hE
+    rw [← hL] at hE
     have hpow : n⁻¹ * n ^ (-(2 / 3 : ℝ)) = n ^ (-(5 / 3 : ℝ)) := by
       rw [← Real.rpow_neg_one, ← Real.rpow_add hn0]; congr 1; norm_num
     have h43 : n⁻¹ * n ^ (-(1 / 3 : ℝ)) = n ^ (-(4 / 3 : ℝ)) := by
       rw [← Real.rpow_neg_one, ← Real.rpow_add hn0]; congr 1; norm_num
     have he_eq : err x = n⁻¹ * (L x - ((cK x).re * fsK x + n ^ (-(1 / 3 : ℝ)) * (cKp x).re * fsKp x)) := by
-      dsimp [err, cJ, cK, cKp]; simp only [Complex.zero_re, mul_zero, zero_mul, add_zero]
-      rw [mul_sub, mul_add, ← mul_assoc, ← mul_assoc, h43]
+      dsimp [err, cJ, cK, cKp]
+      rw [← h43]
+      simp only [mul_zero, zero_mul, add_zero]
+      ring
     rw [he_eq, abs_mul, abs_of_pos (inv_pos.2 hn0)]
     calc n⁻¹ * |L x - ((cK x).re * fsK x + n ^ (-(1 / 3 : ℝ)) * (cKp x).re * fsKp x)|
         ≤ n⁻¹ * (C_rem * n ^ (-(2 / 3 : ℝ))) := mul_le_mul_of_nonneg_left hE (inv_nonneg.2 hn0.le)

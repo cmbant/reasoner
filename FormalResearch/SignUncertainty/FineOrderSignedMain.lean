@@ -114,6 +114,20 @@ private lemma b3_even_odd_quad {fE fO : ℂ → ℂ} {r_q lam R₀ Rs u M_E M_O 
                 Real.norm_eq_abs, norm_pow]
               have := (mem_ball_zero_iff.1 hw).le; gcongr)
 
+private lemma b3_csr_smul {R₀ : ℝ} {p : ℂ} {ch : Chain3 R₀ p} {f : ℂ → ℂ} {A B C : ℝ}
+    (c : ℂ) (hb : ch.B3 (fun w => csr w * f w) A B C) :
+    ch.B3 (fun w => csr w * (c * f w)) (‖c‖ * A) (‖c‖ * B) (‖c‖ * C) := by
+  have : (fun w => csr w * (c * f w)) = fun w => c * (csr w * f w) := funext fun w => by ring
+  rw [this]; exact hb.smul c
+
+private lemma b3_csr_add {R₀ : ℝ} {p : ℂ} {ch : Chain3 R₀ p} {f₁ f₂ : ℂ → ℂ}
+    {A₁ B₁ C₁ A₂ B₂ C₂ : ℝ} (hb₁ : ch.B3 (fun w => csr w * f₁ w) A₁ B₁ C₁)
+    (hb₂ : ch.B3 (fun w => csr w * f₂ w) A₂ B₂ C₂) :
+    ch.B3 (fun w => csr w * (f₁ w + f₂ w)) (A₁ + A₂) (B₁ + B₂) (C₁ + C₂) := by
+  have : (fun w => csr w * (f₁ w + f₂ w)) = fun w => csr w * f₁ w + csr w * f₂ w :=
+    funext fun w => mul_add _ _ _
+  rw [this]; exact hb₁.add hb₂
+
 private lemma fs_first_div_expand (d : HalfCubicData) {n a R R₀ u : ℝ} (hn : d.n₀ ≤ n)
     (ha : |a| < d.rAShrunk) (hu : u = d.uReal n a) (hlamR₀ : n ^ (-(1 / 3 : ℝ)) * R₀ = Rs d)
     (ch : Chain3 R₀ ((R : ℂ) * d6)) :
@@ -174,14 +188,14 @@ private lemma fs_first_div_expand (d : HalfCubicData) {n a R R₀ u : ℝ} (hn :
   have hb_1 : ch.B3 (fun w => csr w * (1 : ℂ)) 0 1 0 :=
     b3_csr_bounded ch zero_le_one continuousOn_const (fun _ _ => by simp)
   have hb_iw : ch.B3 (fun w => csr w * (Complex.I * w)) 0 0 1 := b3_csr_iw ch
-  have hG₁_B3 := b3_even_odd_quad ch hl0 hlamR₀ hMQe0 hMQo0 hRs0 (fun w hw => (hq_mem w hw).2)
+  have hG₁_B3 := b3_even_odd_quad (u := u) ch hl0 hlamR₀ hMQe0 hMQo0 hRs0 (fun w hw => (hq_mem w hw).2)
     hqE_d hqO_d (fun w hw => (hbdQ _ (ball_subset_closedBall (hq_mem w hw).1)).1)
     (fun w hw => (hbdQ _ (ball_subset_closedBall (hq_mem w hw).1)).2)
   have hB_congr : ch.intE u (fun w => csr w * d.B n a ((lam : ℂ) * w)) =
       ch.intE u (fun w => csr w * (A0 d n a * 1 + ((lam : ℂ) * A1 d n a) * (Complex.I * w) +
         (lam : ℂ) ^ 2 * (G₁ w * ((kap : ℂ) * u + w ^ 2)))) :=
     chain3_intE_congr_ne_zero ch u
-      ((hb_1.smul _).add (hb_iw.smul _) |>.add (hG₁_B3.smul _))
+      (b3_csr_add (b3_csr_add (b3_csr_smul _ hb_1) (b3_csr_smul _ hb_iw)) (b3_csr_smul _ hG₁_B3))
       (fun z hz hre _ => (continuousAt_csr (Or.inl hre)).mul (by
         have hq0 := (hq_mem z hz).2
         have hdE := ((d.hE_q n a hn1 (hsub ha_ball)).differentiableAt
@@ -190,28 +204,29 @@ private lemma fs_first_div_expand (d : HalfCubicData) {n a R R₀ u : ℝ} (hn :
           (isOpen_ball.mem_nhds (ball_subset_ball h7.le hq0))).continuousAt
         have hsq : ContinuousAt (fun w : ℂ => ((lam : ℂ) * w) ^ 2) z :=
           ((continuous_const.mul continuous_id).pow 2).continuousAt
-        exact (hdE.comp hsq).add
+        exact (hdE.comp_of_eq hsq rfl).add
           ((continuous_const.mul (continuous_const.mul continuous_id)).continuousAt.mul
-            (hdO.comp hsq))))
+            (hdO.comp_of_eq hsq rfl))))
       (fun z hz hre _ => (continuousAt_csr (Or.inl hre)).mul (by
         have hG₁c : ContinuousAt G₁ z := (hasDerivAt_even_odd_shift
           (fun w hw => (hq_mem w hw).2) hqE_d hqO_d z hz).differentiableAt.continuousAt
         exact ((continuousAt_const.add
           (continuousAt_const.mul (continuousAt_const.mul continuousAt_id))).add
-          (continuousAt_const.mul (hG₁c.mul (continuousAt_const.add (continuous_pow 2 z).continuousAt))))))
+          (continuousAt_const.mul (hG₁c.mul (continuousAt_const.add (continuous_pow 2).continuousAt))))))
       (fun z hz _ _ => by rw [hB_split z hz]; ring)
   have heqOp : fsOpCh ch u (fun w => d.B n a ((lam : ℂ) * w)) =
       fsOpCh ch u (fun w => A0 d n a * 1 + ((lam : ℂ) * A1 d n a) * (Complex.I * w) +
         (lam : ℂ) ^ 2 * (G₁ w * ((kap : ℂ) * u + w ^ 2))) := by
-    unfold fsOpCh; rw [hB_congr]; simp only [mul_add, ← mul_assoc]
-    congr 2; ext w; ring
-  rw [heqOp, fsOpCh_add ch u ((hb_1.smul _).add (hb_iw.smul _)) (hG₁_B3.smul _),
-    fsOpCh_add ch u (hb_1.smul _) (hb_iw.smul _),
+    unfold fsOpCh; rw [hB_congr]
+  dsimp only
+  rw [heqOp, fsOpCh_add ch u (b3_csr_add (b3_csr_smul _ hb_1) (b3_csr_smul _ hb_iw)) (b3_csr_smul _ hG₁_B3),
+    fsOpCh_add ch u (b3_csr_smul _ hb_1) (b3_csr_smul _ hb_iw),
     fsOpCh_real_mul ch u (hAreal a ha).1,
     fsOpCh_real_mul ch u (by simp [Complex.mul_im, (hAreal a ha).2] : ((lam : ℂ) * A1 d n a).im = 0),
-    fsOpCh_real_mul ch u (by norm_cast; simp : ((lam : ℂ) ^ 2).im = 0)]
-  simp only [Complex.re_ofReal_mul, ← Complex.ofReal_pow, Complex.ofReal_re]; ring
+    fsOpCh_real_mul ch u (by norm_cast : ((lam : ℂ) ^ 2).im = 0)]
+  simp only [Complex.re_ofReal_mul, ← Complex.ofReal_pow, Complex.ofReal_re]
 
+set_option maxHeartbeats 800000 in
 /-- **Lemma FS.1 Part (1) (`fs:principal`)**: uniform expansion with `O(n^{-5/3})` remainder and
 uniformly bounded, holomorphic, real-symmetric coefficients `C_n, Q_n, T_n`. -/
 theorem fs_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_E) (hKO : 0 ≤ K_O)
@@ -237,13 +252,13 @@ theorem fs_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_E) (hKO 
               n ^ (-(4 / 3 : ℝ)) * (d.Tn n a).re * fsKp u)| ≤
             C_rem * n ^ (-(5 / 3 : ℝ))) := by
   obtain ⟨Cm, hCm, hmom⟩ := fsChain_momOK
-  have ⟨_, _, h1, h2, h3, h4, h5, h6, h7, hss, hrs⟩ := radii_chain d
+  have ⟨_, hrc0, h1, h2, h3, h4, h5, h6, h7, hss, hrs⟩ := radii_chain d
   have hs1_0 : 0 ≤ d.s₁ := d.hs₁.le
-  have hr_sub_rc : 0 ≤ r0 d - rc d := by linarith
-  have hr0_nn : 0 ≤ r0 d := by linarith
-  have hr1_nn : 0 ≤ r1 d := by linarith
-  have hr2_nn : 0 ≤ r2 d := by linarith
-  have hr3_nn : 0 ≤ r3 d := by linarith
+  have hr_sub_rc : 0 ≤ r0 d - rc d := sub_nonneg.2 (by linarith only [h1, h2, h3, h4, h5, h6])
+  have hr0_nn : 0 ≤ r0 d := by linarith only [h1, h2, h3, h4, h5, h6, hrc0]
+  have hr1_nn : 0 ≤ r1 d := by linarith only [h1, h2, h3, h4, h5, hrc0]
+  have hr2_nn : 0 ≤ r2 d := by linarith only [h1, h2, h3, h4, hrc0]
+  have hr3_nn : 0 ≤ r3 d := by linarith only [h1, h2, h3, hrc0]
   have hRs0 : 0 ≤ Rs d := Real.sqrt_nonneg _
   have hME0 : 0 ≤ d.M_E := d.hM_E
   have hMO0 : 0 ≤ d.M_O := d.hM_O
@@ -417,6 +432,7 @@ theorem fs_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_E) (hKO 
       lam * (2 * Rs d * MQeD d + MQo d + 2 * Rs d ^ 2 * MQoD d) := fun w hw => by
     have hq1 := ball_subset_closedBall (hq_mem w hw).2.2.2.1
     have hq2 := ball_subset_closedBall (hq_mem w hw).2.2.1
+    have hlam0 : 0 < lam := hl0
     dsimp [G₁']
     calc ‖2 * (lam : ℂ) ^ 2 * w * deriv (fun ζ => Qe d n ζ a) (((lam : ℂ) * w) ^ 2) +
             Complex.I * (lam : ℂ) * Qo d n (((lam : ℂ) * w) ^ 2) a +
@@ -426,8 +442,8 @@ theorem fs_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_E) (hKO 
             2 * lam ^ 3 * ‖w‖ ^ 2 * ‖deriv (fun ζ => Qo d n ζ a) (((lam : ℂ) * w) ^ 2)‖ := by
           refine (norm_add₃_le).trans (add_le_add_three ?_ ?_ ?_) <;>
           simp only [norm_mul, norm_pow, Complex.norm_I, Complex.norm_real,
-            Real.norm_eq_abs, abs_of_pos hl0, show ‖(2 : ℂ)‖ = 2 by norm_num, one_mul, mul_assoc] <;>
-          exact le_rfl
+            Real.norm_eq_abs, show ‖(2 : ℂ)‖ = 2 by norm_num, one_mul, mul_assoc] <;>
+          simp only [abs_of_pos hlam0, le_rfl]
       _ ≤ lam * (2 * Rs d * MQeD d + MQo d + 2 * Rs d ^ 2 * MQoD d) :=
           norm_even_odd_deriv_le hl0 hlamR₀ (hbdQ _ hq1).2 (hbdQD _ hq2).1 (hbdQD _ hq2).2
             (norm_nonneg _) (norm_nonneg _) (norm_nonneg _) (mem_ball_zero_iff.1 hw) hRs0
@@ -483,15 +499,18 @@ theorem fs_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_E) (hKO 
     b3_csr_bounded ch zero_le_one continuousOn_const (fun _ _ => by simp)
   have hb_iw : ch.B3 (fun w => csr w * (Complex.I * w)) 0 0 1 := b3_csr_iw ch
   have hb_idiv : ch.B3 (fun w => csr w * (Complex.I / w)) 1 0 0 := b3_csr_idiv ch
-  have hG₂_B3 := b3_even_odd_quad ch hl0 hlamR₀ hMRe0 hMRo0 hRs0 (fun w hw => (hq_mem w hw).2.2.1)
-    hRe_d hRo_d (fun w hw => (hbdR2 _ (ball_subset_closedBall (hq_mem w hw).2.1)).1)
-    (fun w hw => (hbdR2 _ (ball_subset_closedBall (hq_mem w hw).2.1)).2)
+  have hG₂_B3 : ch.B3 (fun w => csr w * (G₂ w * ((kap : ℂ) * u + w ^ 2)))
+      0 ((MRe d + Rs d * MRo d) * (kap * |u| + R₀ ^ 2)) 0 :=
+    b3_even_odd_quad (u := u) ch hl0 hlamR₀ hMRe0 hMRo0 hRs0 (fun w hw => (hq_mem w hw).2.2.1)
+      hRe_d hRo_d (fun w hw => (hbdR2 _ (ball_subset_closedBall (hq_mem w hw).2.1)).1)
+      (fun w hw => (hbdR2 _ (ball_subset_closedBall (hq_mem w hw).2.1)).2)
   have hI_congr : ch.intE u (fun w => csr w * (Complex.I * (G₁ w / (2 * w) + G₁' w))) =
       ch.intE u (fun w => csr w * (((Qe d n 0 a / 2) * (Complex.I / w) +
         ((lam : ℂ) * D0 d n a) * 1 + ((lam : ℂ) ^ 2 * D1 d n a) * (Complex.I * w)) +
         (lam : ℂ) ^ 3 * (G₂ w * ((kap : ℂ) * u + w ^ 2)))) :=
     chain3_intE_congr_ne_zero ch u
-      (((hb_idiv.smul _).add (hb_1.smul _)).add (hb_iw.smul _) |>.add (hG₂_B3.smul _))
+      (b3_csr_add (b3_csr_add (b3_csr_add (b3_csr_smul _ hb_idiv) (b3_csr_smul _ hb_1))
+        (b3_csr_smul _ hb_iw)) (b3_csr_smul _ hG₂_B3))
       (fun z hz hre hz0 => (continuousAt_csr (Or.inl hre)).mul (by
         have hG₁c : ContinuousAt G₁ z := (hG₁_der z hz).differentiableAt.continuousAt
         have hG₁'c : ContinuousAt G₁' z := hG₁'_cont.continuousAt (isOpen_ball.mem_nhds hz)
@@ -501,17 +520,20 @@ theorem fs_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_E) (hKO 
         have hsq : ContinuousAt (fun w : ℂ => ((lam : ℂ) * w) ^ 2) z :=
           ((continuous_const.mul continuous_id).pow 2).continuousAt
         have hRe_c : ContinuousAt (fun w => Re2 d n (((lam : ℂ) * w) ^ 2) a) z :=
-          ((hRe_d.differentiableAt (isOpen_ball.mem_nhds hq2)).continuousAt).comp hsq
+          ((hRe_d.differentiableAt (isOpen_ball.mem_nhds hq2)).continuousAt).comp_of_eq hsq rfl
         have hRo_c : ContinuousAt (fun w => Ro2 d n (((lam : ℂ) * w) ^ 2) a) z :=
-          ((hRo_d.differentiableAt (isOpen_ball.mem_nhds hq2)).continuousAt).comp hsq
+          ((hRo_d.differentiableAt (isOpen_ball.mem_nhds hq2)).continuousAt).comp_of_eq hsq rfl
         have hG₂c : ContinuousAt G₂ z :=
           hRe_c.add ((continuous_const.mul (continuous_const.mul continuous_id)).continuousAt.mul hRo_c)
         exact ((((continuousAt_const.mul (continuousAt_const.div continuousAt_id hz0)).add
           continuousAt_const).add (continuousAt_const.mul (continuousAt_const.mul continuousAt_id))).add
-          (continuousAt_const.mul (hG₂c.mul (continuousAt_const.add (continuous_pow 2 z).continuousAt))))))
-      (fun z hz _ hz0 => by rw [hI_split z hz hz0]; ring)
+          (continuousAt_const.mul (hG₂c.mul (continuousAt_const.add (continuous_pow 2).continuousAt))))))
+      (fun z hz _ hz0 => by rw [hI_split z hz hz0])
   have hQe0_im : (Qe d n 0 a / 2).im = 0 := by
-    have h0 := (hQ3 0 a (by rw [abs_zero]; linarith) ha).1; simp [Complex.div_im, h0]
+    have h0 : (Qe d n 0 a).im = 0 := by simpa using (hQ3 0 a (by rw [abs_zero]; linarith) ha).1
+    simp [h0]
+  have hQre : (Qe d n 0 a / 2).re = (Qe d n 0 a).re / 2 := by
+    rw [div_eq_mul_inv, mul_comm, show (2 : ℂ)⁻¹ = ((2⁻¹ : ℝ) : ℂ) by norm_num, Complex.re_ofReal_mul]; ring
   have hL_I : fsOpCh ch u (fun w => Complex.I * (G₁ w / (2 * w) + G₁' w)) =
       (Qe d n 0 a).re / 2 * fsOpCh ch u (fun w => Complex.I / w) +
         lam * (D0 d n a).re * fsOpCh ch u (fun _ => 1) +
@@ -521,19 +543,21 @@ theorem fs_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_E) (hKO 
         fsOpCh ch u (fun w => ((Qe d n 0 a / 2) * (Complex.I / w) +
           ((lam : ℂ) * D0 d n a) * 1 + ((lam : ℂ) ^ 2 * D1 d n a) * (Complex.I * w)) +
           (lam : ℂ) ^ 3 * (G₂ w * ((kap : ℂ) * u + w ^ 2))) := by
-      unfold fsOpCh; rw [hI_congr]; simp only [mul_add, ← mul_assoc]; congr 2; ext w; ring
-    rw [heqOp, fsOpCh_add ch u (((hb_idiv.smul _).add (hb_1.smul _)).add (hb_iw.smul _)) (hG₂_B3.smul _),
-      fsOpCh_add ch u ((hb_idiv.smul _).add (hb_1.smul _)) (hb_iw.smul _),
-      fsOpCh_add ch u (hb_idiv.smul _) (hb_1.smul _),
+      unfold fsOpCh; rw [hI_congr]
+    rw [heqOp, fsOpCh_add ch u (b3_csr_add (b3_csr_add (b3_csr_smul _ hb_idiv) (b3_csr_smul _ hb_1))
+        (b3_csr_smul _ hb_iw)) (b3_csr_smul _ hG₂_B3),
+      fsOpCh_add ch u (b3_csr_add (b3_csr_smul _ hb_idiv) (b3_csr_smul _ hb_1)) (b3_csr_smul _ hb_iw),
+      fsOpCh_add ch u (b3_csr_smul _ hb_idiv) (b3_csr_smul _ hb_1),
       fsOpCh_real_mul ch u hQe0_im,
       fsOpCh_real_mul ch u (by simp [Complex.mul_im, (hDreal a ha).1] : ((lam : ℂ) * D0 d n a).im = 0),
-      fsOpCh_real_mul ch u (by norm_cast; simp [Complex.mul_im, (hDreal a ha).2] : ((lam : ℂ) ^ 2 * D1 d n a).im = 0),
-      fsOpCh_real_mul ch u (by norm_cast; simp : ((lam : ℂ) ^ 3).im = 0)]
-    simp only [Complex.re_ofReal_mul, ← Complex.ofReal_pow, Complex.ofReal_re]; ring
+      fsOpCh_real_mul ch u (show ((lam : ℂ) ^ 2 * D1 d n a).im = 0 by
+        rw [← Complex.ofReal_pow, Complex.mul_im, (hDreal a ha).2, Complex.ofReal_im]; ring),
+      fsOpCh_real_mul ch u (show ((lam : ℂ) ^ 3).im = 0 by norm_cast)]
+    simp only [hQre, ← Complex.ofReal_pow, Complex.re_ofReal_mul, Complex.ofReal_re]
   have hG₂_ibp := fs_ibp_shift_bound hR1 hUR hl0 hl1 d.hs₁ hRs0 rfl hlamR₀ ch (hmom hR1 hRR hUR) hCm
-    (h3.trans h4) hrs.le hRe_d hRo_d
-    (fun q hq => (hbdR2 q (ball_subset_closedBall (ball_subset_ball h3.le hq))).1)
-    (fun q hq => (hbdR2 q (ball_subset_closedBall (ball_subset_ball h3.le hq))).2)
+    h3 hrs.le (hRe_d.mono (ball_subset_ball h4.le)) (hRo_d.mono (ball_subset_ball h4.le))
+    (fun q hq => (hbdR2 q (ball_subset_closedBall hq)).1)
+    (fun q hq => (hbdR2 q (ball_subset_closedBall hq)).2)
     (fun q hq => (hbdRD2 q hq).1) (fun q hq => (hbdRD2 q hq).2) hMRe0 hMRo0 hMReD0 hMRoD0
   have hG₂_bd5 : lam ^ 5 * |fsOpCh ch u (fun w => G₂ w * ((kap : ℂ) * u + w ^ 2))| ≤
       C_ibp2 * lam ^ 5 := by
@@ -566,7 +590,7 @@ theorem fs_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_E) (hKO 
     unfold HalfCubicData.Cn
     have hn_r : ((n : ℂ) * (A0 d n a - 1) + D0 d n a).re = n * ((A0 d n a).re - 1) + (D0 d n a).re := by
       simp
-    rw [hn_r, hl3]; field_simp [hn0.ne']; ring
+    rw [hn_r, hl3]; field_simp [hn0.ne']
   have hQn_re : n ^ (-(2 / 3 : ℝ)) * (d.Qn n a).re =
       lam ^ 2 * ((Qe d n 0 a).re / 2) * ((2 : ℝ) ^ (2 / 3 : ℝ) * π) := by
     unfold HalfCubicData.Qn
@@ -574,38 +598,44 @@ theorem fs_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_E) (hKO 
     have h2p : (2 : ℝ) ^ (-(1 / 3 : ℝ)) = (2 : ℝ) ^ (2 / 3 : ℝ) / 2 := by
       calc (2 : ℝ) ^ (-(1 / 3 : ℝ)) = (2 : ℝ) ^ (2 / 3 + (-1 : ℝ)) := by norm_num
         _ = (2 : ℝ) ^ (2 / 3 : ℝ) * (2 : ℝ) ^ (-1 : ℝ) := Real.rpow_add two_pos _ _
-        _ = (2 : ℝ) ^ (2 / 3 : ℝ) / 2 := by rw [Real.rpow_neg_one, div_eq_mul_inv]
+        _ = (2 : ℝ) ^ (2 / 3 : ℝ) / 2 := by rw [Real.rpow_neg_one]; exact (div_eq_mul_inv _ _).symm
     rw [h2p]; ring
   have hTn_re : n ^ (-(4 / 3 : ℝ)) * (d.Tn n a).re =
       (lam * (A1 d n a).re + lam ^ 4 * (D1 d n a).re) * (2 : ℝ) ^ (-(2 / 3 : ℝ)) := by
     unfold HalfCubicData.Tn
     rw [Complex.re_ofReal_mul]; simp only [Complex.add_re, Complex.re_ofReal_mul]
     have hl4' : lam ^ 4 = lam * lam ^ 3 := by ring
-    rw [← hl4, hl4', hl3]; ring
+    rw [← hl4, hl4', hl3]; field_simp [hn0.ne']
   have hCn_le : |1 + n⁻¹ * (d.Cn n a).re| ≤ 1 + M_C := by
-    calc |1 + n⁻¹ * (d.Cn n a).re| ≤ 1 + |n⁻¹ * (d.Cn n a).re| := abs_add_le _ _
-      _ = 1 + n⁻¹ * |(d.Cn n a).re| := by rw [abs_mul, abs_of_pos (inv_pos.2 hn0)]
-      _ ≤ 1 + 1 * M_C := by
-          gcongr
-          · exact inv_le_one_of_one_le₀ hn1
-          · exact (Complex.abs_re_le_norm _).trans (hcoeff_bd a ha_ball).1
+    have h1 : n⁻¹ * |(d.Cn n a).re| ≤ 1 * M_C := mul_le_mul (inv_le_one_of_one_le₀ hn1)
+      ((Complex.abs_re_le_norm _).trans (hcoeff_bd a ha_ball).1) (abs_nonneg _) zero_le_one
+    calc |1 + n⁻¹ * (d.Cn n a).re| ≤ |(1 : ℝ)| + |n⁻¹ * (d.Cn n a).re| := abs_add_le _ _
+      _ = 1 + n⁻¹ * |(d.Cn n a).re| := by rw [abs_one, abs_mul, abs_of_pos (inv_pos.2 hn0)]
+      _ ≤ 1 + 1 * M_C := add_le_add le_rfl h1
       _ = 1 + M_C := by ring
   have hTn_le : |lam * (A1 d n a).re + lam ^ 4 * (D1 d n a).re| ≤ (2 : ℝ) ^ (2 / 3 : ℝ) * M_T := by
     have hTbd : |(d.Tn n a).re| ≤ M_T := (Complex.abs_re_le_norm _).trans (hcoeff_bd a ha_ball).2.2
     have heqT : lam * (A1 d n a).re + lam ^ 4 * (D1 d n a).re =
         (2 : ℝ) ^ (2 / 3 : ℝ) * (n ^ (-(4 / 3 : ℝ)) * (d.Tn n a).re) := by
-      rw [hTn_re, ← mul_assoc, mul_comm ((2 : ℝ) ^ (2 / 3 : ℝ)) _, mul_assoc,
-        ← Real.rpow_add two_pos]; norm_num
+      have h2c : (2 : ℝ) ^ (2 / 3 : ℝ) * (2 : ℝ) ^ (-(2 / 3 : ℝ)) = 1 := by
+        rw [← Real.rpow_add two_pos, add_neg_cancel, Real.rpow_zero]
+      rw [hTn_re]; calc
+        lam * (A1 d n a).re + lam ^ 4 * (D1 d n a).re =
+          1 * (lam * (A1 d n a).re + lam ^ 4 * (D1 d n a).re) := (one_mul _).symm
+        _ = ((2 : ℝ) ^ (2 / 3 : ℝ) * (2 : ℝ) ^ (-(2 / 3 : ℝ))) *
+              (lam * (A1 d n a).re + lam ^ 4 * (D1 d n a).re) := by rw [h2c]
+        _ = (2 : ℝ) ^ (2 / 3 : ℝ) * ((lam * (A1 d n a).re + lam ^ 4 * (D1 d n a).re) *
+              (2 : ℝ) ^ (-(2 / 3 : ℝ))) := by ring
     rw [heqT, abs_mul, abs_mul, abs_of_pos (Real.rpow_pos_of_pos two_pos _),
       abs_of_pos (Real.rpow_pos_of_pos hn0 _)]
     have hn4 : n ^ (-(4 / 3 : ℝ)) ≤ 1 := Real.rpow_le_one_of_one_le_of_nonpos hn1 (by norm_num)
-    calc (2 : ℝ) ^ (2 / 3 : ℝ) * (n ^ (-(4 / 3 : ℝ)) * |(d.Tn n a).re|)
-        ≤ (2 : ℝ) ^ (2 / 3 : ℝ) * (1 * M_T) := by gcongr
-      _ = (2 : ℝ) ^ (2 / 3 : ℝ) * M_T := by ring
+    exact mul_le_mul_of_nonneg_left
+      ((mul_le_mul hn4 hTbd (abs_nonneg _) zero_le_one).trans_eq (one_mul M_T))
+      (Real.rpow_pos_of_pos two_pos _).le
   have hQe_le : |(Qe d n 0 a).re / 2| ≤ MQe d / 2 := by
     rw [abs_div, abs_two]
     exact div_le_div_of_nonneg_right ((Complex.abs_re_le_norm _).trans
-      ((hbdQ 0 (mem_closedBall_self (by linarith))).1)) (by norm_num)
+      ((hbdQ 0 (mem_closedBall_self hr1_nn)).1)) (by norm_num)
   have hDecomp : fsOpCh ch u (fun w => d.B n a ((lam : ℂ) * w)) -
       (fsK u + n⁻¹ * (d.Cn n a).re * fsK u + n ^ (-(2 / 3 : ℝ)) * (d.Qn n a).re * fsJ u +
         n ^ (-(4 / 3 : ℝ)) * (d.Tn n a).re * fsKp u) =
@@ -630,7 +660,9 @@ theorem fs_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_E) (hKO 
           · nlinarith only [hl0, hl1]
           · exact hibp₁.trans_eq (by ring)
       _ ≤ (1 / √π) * (MQe d + Rs d * MQo d) * ((288 / d.s₁ ^ 5) * lam ^ 5) := by
-          rw [one_mul]; gcongr; exact hTail.1.trans_eq hR5
+          rw [one_mul]
+          exact mul_le_mul_of_nonneg_left (hTail.1.trans_eq hR5)
+            (mul_nonneg (div_nonneg zero_le_one (Real.sqrt_nonneg π)) (add_nonneg hMQe0 (mul_nonneg hRs0 hMQo0)))
       _ = (1 / √π) * (MQe d + Rs d * MQo d) * (288 / d.s₁ ^ 5) * lam ^ 5 := by ring
   have hp2 : |(1 + n⁻¹ * (d.Cn n a).re) * (fsOpCh ch u (fun _ => 1) - fsK u)| ≤
       (144 / √π) * (288 / d.s₁ ^ 6) * (1 + M_C) * lam ^ 5 := by
@@ -649,8 +681,9 @@ theorem fs_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_E) (hKO 
           |fsOpCh ch u (fun w => Complex.I / w) - (2 : ℝ) ^ (2 / 3 : ℝ) * π * fsJ u|
         ≤ 1 * (MQe d / 2) * (578 * Real.sqrt R / √π * Real.exp (-(R ^ 3 / 12))) := by gcongr
       _ = (578 / √π) * (MQe d / 2) * (Real.sqrt R * Real.exp (-(R ^ 3 / 12))) := by ring
-      _ ≤ (578 / √π) * (MQe d / 2) * ((288 / d.s₁ ^ 5) * lam ^ 5) := by
-          gcongr; exact hTail.1.trans_eq hR5
+      _ ≤ (578 / √π) * (MQe d / 2) * ((288 / d.s₁ ^ 5) * lam ^ 5) :=
+          mul_le_mul_of_nonneg_left (hTail.1.trans_eq hR5)
+            (mul_nonneg (div_nonneg (by norm_num) (Real.sqrt_nonneg π)) (div_nonneg hMQe0 zero_le_two))
       _ = (578 / √π) * (288 / d.s₁ ^ 5) * (MQe d / 2) * lam ^ 5 := by ring
   have hp4 : |(lam * (A1 d n a).re + lam ^ 4 * (D1 d n a).re) *
       (fsOpCh ch u (fun w => Complex.I * w) - (2 : ℝ) ^ (-(2 / 3 : ℝ)) * fsKp u)| ≤
@@ -666,9 +699,14 @@ theorem fs_principal (d : HalfCubicData) {K_E K_O : ℝ} (hKE : 0 ≤ K_E) (hKO 
       C_ibp2 * lam ^ 5 := by
     rw [abs_mul, abs_of_pos (pow_pos hl0 5)]; exact hG₂_bd5
   rw [← hl5]
-  have htri := (norm_add₄_le _ _ _ _).trans (add_le_add_four hp1 hp2 hp3 hp4)
-  calc |_ + _ + _ + _ + _| ≤ |_ + _ + _ + _| + |_| := abs_add_le _ _
-    _ ≤ C_rem * lam ^ 5 := by dsimp [C_rem]; linarith
+  have hr : (1 / √π) * (MQe d + Rs d * MQo d) * (288 / d.s₁ ^ 5) * lam ^ 5 +
+      (144 / √π) * (288 / d.s₁ ^ 6) * (1 + M_C) * lam ^ 5 +
+      (578 / √π) * (288 / d.s₁ ^ 5) * (MQe d / 2) * lam ^ 5 +
+      (144 / √π) * (288 / d.s₁ ^ 6) * ((2 : ℝ) ^ (2 / 3 : ℝ) * M_T) * lam ^ 5 +
+      C_ibp2 * lam ^ 5 = C_rem * lam ^ 5 := by dsimp [C_rem]; ring
+  refine (abs_add_le _ _).trans ((add_le_add ((abs_add_le _ _).trans (add_le_add
+    ((abs_add_le _ _).trans (add_le_add (abs_add_le _ _) le_rfl)) le_rfl)) le_rfl).trans ?_)
+  exact (add_le_add (add_le_add (add_le_add (add_le_add hp1 hp2) hp3) hp4) hp5).trans_eq hr
 
 /-- **Lemma FS.1 Part (2) (`fs:aux`)**: without saddle normalization,
 `L_u[B_n] = C_n^*(a) K(u) + n^{-1/3} T_n^*(a) K'(u) + O(n^{-2/3})`. -/
@@ -781,18 +819,24 @@ theorem fs_aux (d : HalfCubicData) :
           ((kap : ℂ) * u + w ^ 2))| ≤ C_ibp1 * lam ^ 2 := by
       rw [abs_mul, abs_of_pos (sq_pos_of_pos hl0)]
       have hl5_1 : lam ^ 5 ≤ 1 := pow_le_one₀ hl0.le hl1
-      refine mul_le_mul_of_nonneg_left (hG₁_ibp.trans ?_) (sq_nonneg lam)
-      dsimp [C_ibp1]
-      calc (1 / √π) * ((MQe d + Rs d * MQo d) * (288 / d.s₁ ^ 5) * lam ^ 5 + _)
-          ≤ (1 / √π) * ((MQe d + Rs d * MQo d) * (288 / d.s₁ ^ 5) * 1 + _) := by gcongr
-        _ = C_ibp1 := by ring
+      dsimp only [lam]
+      refine (mul_le_mul_of_nonneg_left (hG₁_ibp.trans ?_) (sq_nonneg (n ^ (-(1 / 3 : ℝ))))).trans_eq (mul_comm _ _)
+      dsimp only [C_ibp1]
+      calc (1 / √π) * ((MQe d + Rs d * MQo d) * (288 / d.s₁ ^ 5) * (n ^ (-(1 / 3 : ℝ))) ^ 5 + _)
+          ≤ (1 / √π) * ((MQe d + Rs d * MQo d) * (288 / d.s₁ ^ 5) * 1 + _) := by
+            gcongr; exact mul_nonneg (add_nonneg hMQe0 (mul_nonneg hRs0 hMQo0))
+              (div_nonneg (by norm_num) (pow_nonneg d.hs₁.le 5))
+        _ = C_ibp1 := by dsimp only [C_ibp1]; ring
     rw [← hl2]
-    refine (norm_add₃_le).trans ?_
-    calc |(A0 d n a).re * _| + |(lam * (A1 d n a).re) * _| + |lam ^ 2 * _|
-        ≤ (144 / √π) * (288 / d.s₁ ^ 6) * M_C * lam ^ 2 +
-            (144 / √π) * (288 / d.s₁ ^ 6) * d.M_O * lam ^ 2 + C_ibp1 * lam ^ 2 :=
+    dsimp only [lam] at hp1 hp2 hp3 ⊢
+    rw [← Real.norm_eq_abs]
+    refine norm_add₃_le.trans ?_
+    simp only [Real.norm_eq_abs]
+    calc |(A0 d n a).re * _| + |(n ^ (-(1 / 3 : ℝ)) * (A1 d n a).re) * _| + |(n ^ (-(1 / 3 : ℝ))) ^ 2 * _|
+        ≤ (144 / √π) * (288 / d.s₁ ^ 6) * M_C * (n ^ (-(1 / 3 : ℝ))) ^ 2 +
+            (144 / √π) * (288 / d.s₁ ^ 6) * d.M_O * (n ^ (-(1 / 3 : ℝ))) ^ 2 + C_ibp1 * (n ^ (-(1 / 3 : ℝ))) ^ 2 :=
           add_le_add_three hp1 hp2 hp3
-      _ = C_rem * lam ^ 2 := by dsimp [C_rem]; ring
+      _ = C_rem * (n ^ (-(1 / 3 : ℝ))) ^ 2 := by dsimp [C_rem]; ring
 
 end FineOrderSigned
 
