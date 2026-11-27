@@ -98,12 +98,12 @@ noncomputable def spinEtaProjMeasure (a : ℝ) (G : ℝ × ℝ → ℝ) : Measur
 (`(s4:eO1.1)`). -/
 noncomputable def spinTruncInv (a : ℝ) (N : ℕ) (Φ : ℝ × ℝ → ℝ) (xL xR : ℝ) : ℝ :=
   ∑ j ∈ Finset.range N, ∑ ℓ ∈ Finset.range N,
-    spinDa a Φ (spinLambda a ^ j * xL) (spinLambda a ^ ℓ * xR)
+    spinDeltaA a Φ (spinLambda a ^ j * xL) (spinLambda a ^ ℓ * xR)
 
 /-- Complex truncated outward inverse `G_n^{[N]}(b_L, b_R)` (`(s4:sec4.1)`). -/
 noncomputable def spinTruncInvC (a : ℝ) (N : ℕ) (Φ : ℝ × ℝ → ℝ) (bL bR : ℂ) : ℂ :=
   ∑ j ∈ Finset.range N, ∑ ℓ ∈ Finset.range N,
-    spinDaC a Φ ((spinLambda a ^ j : ℝ) * bL) ((spinLambda a ^ ℓ : ℝ) * bR)
+    spinDeltaAC a Φ ((spinLambda a ^ j : ℝ) * bL) ((spinLambda a ^ ℓ : ℝ) * bR)
 
 /-- Adaptive transverse-slice integral `Q_{n,χ}(b)` (`(s4:eO2.2)`). -/
 noncomputable def spinQSlice (c : ℝ) (N : ℕ) (Φ : ℝ × ℝ → ℝ) (χ : ℝ → ℝ) (b : ℂ) : ℂ :=

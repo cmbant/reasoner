@@ -918,8 +918,9 @@ lemma spinCal_adjoint_identity
       refine integral_congr_ae ?_
       filter_upwards [hS2_set] with p hp
       have hLHS : S₁.indicator H_bd (e p) = (e ⁻¹' S₁).indicator (fun q => H_bd (e q)) p := by
-        by_cases h : p ∈ e ⁻¹' S₁ <;> simp [Set.indicator, Set.mem_preimage, h]
-      dsimp only
+        by_cases h : p ∈ e ⁻¹' S₁
+        · simp [Set.indicator_of_mem h, Set.indicator_of_mem (show e p ∈ S₁ from h)]
+        · simp [Set.indicator_of_notMem h, Set.indicator_of_notMem (show e p ∉ S₁ from h)]
       rw [hLHS, hS2_ae]
       by_cases h1 : p ∈ e ⁻¹' S₁
       · have h2 : p ∈ S₂ := hp.mp h1
@@ -1026,7 +1027,9 @@ lemma spinCal_adjoint_identity
       rw [hmap]
       refine integral_congr_ae (Eventually.of_forall fun p => ?_)
       have hLHS : S₃.indicator H_bd (e p) = (e ⁻¹' S₃).indicator (fun q => H_bd (e q)) p := by
-        by_cases h : p ∈ e ⁻¹' S₃ <;> simp [Set.indicator, Set.mem_preimage, h]
+        by_cases h : p ∈ e ⁻¹' S₃
+        · simp [Set.indicator_of_mem h, Set.indicator_of_mem (show e p ∈ S₃ from h)]
+        · simp [Set.indicator_of_notMem h, Set.indicator_of_notMem (show e p ∉ S₃ from h)]
       dsimp only
       rw [hLHS, hS4_ae, hS4_set]
     rw [he1, integral_indicator hm4]
