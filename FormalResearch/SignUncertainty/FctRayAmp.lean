@@ -284,6 +284,8 @@ lemma fctRayW_closedBall_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolveStmt
       calc (‖1 - ζ‖ / ‖1 - w‖) ^ (1 / 2 : ℝ) ≤ (4 : ℝ) ^ (1 / 2 : ℝ) :=
             Real.rpow_le_rpow (by positivity) h1ζ_ratio (by norm_num)
         _ = 2 := by norm_num
+    have h1ζ_pos : 0 < ‖1 - ζ‖ := norm_pos_iff.mpr fun he => by
+      have := congr_arg Complex.re he; simp at this; linarith
     rw [Real.div_rpow (norm_nonneg _) (norm_nonneg _), div_le_iff₀ (by positivity)] at h4
     rw [inv_eq_one_div, div_le_iff₀ (by positivity)]
     calc (1 : ℝ) = ‖1 - ζ‖ ^ (1 / 2 : ℝ) * (‖1 - ζ‖ ^ (1 / 2 : ℝ))⁻¹ := (mul_inv_cancel₀ (by positivity)).symm
@@ -308,18 +310,18 @@ lemma fctRayW_closedBall_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolveStmt
   have hD_ratio : ‖fctDcompAt K4 c (fctWarpAlpha h ε c) w‖ ≤
       Real.exp (2 * |B_D 0|) * ‖fctDcompAt K4 c (fctWarpAlpha h ε c) ζ‖ := by
     obtain ⟨v, -, -, -, hvB, hvD⟩ := hD_data ε c hε (hc.trans' (by simp only [c₀, le_max_iff]; left; right; left; exact le_rfl))
-    have hDw : fctDcompAt K4 c (fctWarpAlpha h ε c) w = Complex.exp (stripCompGExt v w) := hvD w
-    have hDζ : fctDcompAt K4 c (fctWarpAlpha h ε c) ζ = Complex.exp (stripCompGExt v ζ) := hvD ζ
+    have hDw : fctDcompAt K4 c (fctWarpAlpha h ε c) w = Complex.exp (FctCompD.stripCompGExt v w) := hvD w
+    have hDζ : fctDcompAt K4 c (fctWarpAlpha h ε c) ζ = Complex.exp (FctCompD.stripCompGExt v ζ) := hvD ζ
     have hgw := hvB 0 (by omega) w hw_cl
     have hgζ := hvB 0 (by omega) ζ hζ_cl
     simp only [iteratedDeriv_zero] at hgw hgζ
     change ‖fctDcompAt K4 c (fctWarpAlpha h ε c) w‖ ≤ _
-    rw [show fctDcompAt K4 c (fctWarpAlpha h ε c) w = Complex.exp (stripCompGExt v w) from hDw,
-      show fctDcompAt K4 c (fctWarpAlpha h ε c) ζ = Complex.exp (stripCompGExt v ζ) from hDζ,
+    rw [show fctDcompAt K4 c (fctWarpAlpha h ε c) w = Complex.exp (FctCompD.stripCompGExt v w) from hDw,
+      show fctDcompAt K4 c (fctWarpAlpha h ε c) ζ = Complex.exp (FctCompD.stripCompGExt v ζ) from hDζ,
       Complex.norm_exp, Complex.norm_exp, ← Real.exp_add]
     exact Real.exp_le_exp.mpr (by
-      have h1' := (abs_le.mp ((Complex.abs_re_le_norm (stripCompGExt v w)).trans hgw)).2
-      have h2' := (abs_le.mp ((Complex.abs_re_le_norm (stripCompGExt v ζ)).trans hgζ)).1
+      have h1' := (abs_le.mp ((Complex.abs_re_le_norm (FctCompD.stripCompGExt v w)).trans hgw)).2
+      have h2' := (abs_le.mp ((Complex.abs_re_le_norm (FctCompD.stripCompGExt v ζ)).trans hgζ)).1
       linarith [le_abs_self (B_D 0)])
   have hHG_ratio : ‖ctHG ε w‖ ≤ (CHG / cHG) * (12 * Real.exp π) * Real.exp (-3 * s) * ‖ctHG ε ζ‖ := by
     have hwb := (hHG_band ε w hw_cl hw0 hw1).2
@@ -530,11 +532,12 @@ theorem fctRayW_interior_derivs_and_near_one {K4 : ℝ} (hK4 : 1 ≤ K4) (h : Fc
       _ ≤ B0 / (c * Real.log (2 + ζ.im)) := by
           gcongr; exact le_max_right _ _
 
-/-- Polynomial-times-exponential vertical ray bound on `{0 ≤ ζ.re ≤ 5/16, 1 ≤ ζ.im}`
-(used for fixed-`c` linear growth in Phragmén–Lindelöf on `[0, 5/16] × ℝ`). -/
+/-- Polynomial-times-exponential vertical ray bound on `{0 ≤ ζ.re ≤ 7/16, 1 ≤ ζ.im}`
+(used both for horizontal tail decay `0 ≤ r ≤ 7/16` in Cauchy closing and for fixed-`c` linear
+growth in Phragmén–Lindelöf on `[0, 5/16] × ℝ`). -/
 lemma fctWarpKA_left_ray_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolveStmt K4) :
     ∃ C_l c₀ : ℝ, 0 ≤ C_l ∧ 1 ≤ c₀ ∧ ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
-      ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 5 / 16 → 1 ≤ ζ.im →
+      ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 7 / 16 → 1 ≤ ζ.im →
         ∀ s : ℝ, 0 ≤ s →
           ‖fctWarpKA K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c) (ζ + (s : ℂ) * Complex.I)‖ ≤
             C_l * (1 + ζ.im + s) * Real.exp (-2 * s) *
@@ -616,6 +619,8 @@ lemma fctWarpKA_left_ray_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolveStmt
             Real.rpow_le_rpow (by positivity) h1ζ_ratio (by norm_num)
         _ ≤ (4 : ℝ) ^ (1 / 2 : ℝ) := Real.rpow_le_rpow (by norm_num) (by norm_num) (by norm_num)
         _ = 2 := by norm_num
+    have h1ζ_pos : 0 < ‖1 - ζ‖ := norm_pos_iff.mpr fun he => by
+      have := congr_arg Complex.re he; simp at this; linarith
     rw [Real.div_rpow (norm_nonneg _) (norm_nonneg _), div_le_iff₀ (by positivity)] at h4
     rw [inv_eq_one_div, div_le_iff₀ (by positivity)]
     calc (1 : ℝ) = ‖1 - ζ‖ ^ (1 / 2 : ℝ) * (‖1 - ζ‖ ^ (1 / 2 : ℝ))⁻¹ := (mul_inv_cancel₀ (by positivity)).symm
@@ -655,7 +660,7 @@ lemma fctWarpKA_left_ray_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolveStmt
   have htan_bd : ‖stripG t + (fctWarpL1 h ε c : ℂ) * FctPhiKill.phiKill (c ^ (-(1 / 12 : ℝ))) t‖ ≤
       C_tan * (1 + ζ.im + s) := by
     have hgt := hCg t (by rw [abs_le, ht_re]; constructor <;> linarith) (by linarith)
-    have hpk0 := hCpk (Real.rpow_pos_of_pos hcpos _) (by rw [ht_re]; exact h0)
+    have hpk0 := hCpk (a := c ^ (-(1 / 12 : ℝ))) (Real.rpow_pos_of_pos hcpos _) (by rw [ht_re]; exact h0)
     have hpk : ‖FctPhiKill.phiKill (c ^ (-(1 / 12 : ℝ))) t‖ ≤ Cpk := by
       simpa only [FctPhiKill.phiKill] using hpk0.trans (mul_le_of_le_one_right hCpk0 (min_le_right _ _))
     have hgt' : ‖stripG t‖ ≤ Cg * (1 + ζ.im + s) := by
@@ -666,8 +671,10 @@ lemma fctWarpKA_left_ray_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolveStmt
           simpa [norm_mul, Complex.norm_real, Real.norm_eq_abs] using
             norm_add_le (stripG t) ((fctWarpL1 h ε c : ℂ) * FctPhiKill.phiKill (c ^ (-(1 / 12 : ℝ))) t)
       _ ≤ Cg * (1 + ζ.im + s) + |CL1| * Cpk * (1 + ζ.im + s) := by
-          have := mul_le_mul hL1_le hpk (norm_nonneg _) (abs_nonneg _)
-          nlinarith
+          have h12 := mul_le_mul hL1_le hpk (norm_nonneg _) (abs_nonneg _)
+          have h3 : |CL1| * Cpk ≤ |CL1| * Cpk * (1 + ζ.im + s) :=
+            le_mul_of_one_le_right (by positivity) h1y
+          linarith
       _ = C_tan * (1 + ζ.im + s) := by simp only [C_tan]; ring
   have hHG_ratio : ‖ctHG ε t‖ ≤ (CHG / cHG) * 12 * Real.exp (-2 * s) * ‖ctHG ε ζ‖ := by
     have htb := (hHG_left ε t ht_cl (by rw [ht_re]; linarith) him_t).2
@@ -684,17 +691,24 @@ lemma fctWarpKA_left_ray_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolveStmt
         _ ≤ 12 := poly_exp_decay_bound hs
     have hexp_split : Real.exp (-(π * s)) = Real.exp (-(π - 2) * s) * Real.exp (-2 * s) := by
       rw [← Real.exp_add]; congr 1; ring
-    calc ‖ctHG ε t‖ ≤ CHG * (1 + |t.im|) * Real.exp (-(π * |t.im|)) := htb
-      _ ≤ CHG * ((1 + |ζ.im|) * (2 + s)) * (Real.exp (-(π * s)) * Real.exp (-(π * |ζ.im|))) := by
-          have := mul_le_mul hpoly hexp_im (by positivity) (by positivity)
-          nlinarith
-      _ = CHG * ((2 + s) * Real.exp (-(π - 2) * s)) * Real.exp (-2 * s) *
-            ((1 + |ζ.im|) * Real.exp (-(π * |ζ.im|))) := by
-          rw [hexp_split]; ring
-      _ ≤ CHG * 12 * Real.exp (-2 * s) * ((1 + |ζ.im|) * Real.exp (-(π * |ζ.im|))) := by gcongr
+    have hrat : (1 + |t.im|) * Real.exp (-(π * |t.im|)) ≤
+        12 * Real.exp (-2 * s) * ((1 + |ζ.im|) * Real.exp (-(π * |ζ.im|))) := by
+      have hm1 := mul_le_mul hpoly hexp_im (by positivity) (by positivity)
+      have hm2 : ((2 + s) * Real.exp (-(π - 2) * s)) * Real.exp (-2 * s) *
+          ((1 + |ζ.im|) * Real.exp (-(π * |ζ.im|))) ≤
+          12 * Real.exp (-2 * s) * ((1 + |ζ.im|) * Real.exp (-(π * |ζ.im|))) :=
+        mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hpe (Real.exp_pos _).le) (by positivity)
+      have heq1 : ((1 + |ζ.im|) * (2 + s)) * (Real.exp (-(π * s)) * Real.exp (-(π * |ζ.im|))) =
+          ((2 + s) * Real.exp (-(π - 2) * s)) * Real.exp (-2 * s) * ((1 + |ζ.im|) * Real.exp (-(π * |ζ.im|))) := by
+        rw [hexp_split]; ring
+      linarith [hm1, hm2, heq1]
+    calc ‖ctHG ε t‖ ≤ CHG * ((1 + |t.im|) * Real.exp (-(π * |t.im|))) := by linarith
+      _ ≤ CHG * (12 * Real.exp (-2 * s) * ((1 + |ζ.im|) * Real.exp (-(π * |ζ.im|)))) :=
+          mul_le_mul_of_nonneg_left hrat hCHG.le
       _ = (CHG / cHG) * 12 * Real.exp (-2 * s) * (cHG * (1 + |ζ.im|) * Real.exp (-(π * |ζ.im|))) := by
           field_simp [hcHG.ne']
-      _ ≤ (CHG / cHG) * 12 * Real.exp (-2 * s) * ‖ctHG ε ζ‖ := by gcongr
+      _ ≤ (CHG / cHG) * 12 * Real.exp (-2 * s) * ‖ctHG ε ζ‖ :=
+          mul_le_mul_of_nonneg_left hζb (by positivity)
   change ‖(1 - t) ^ (-(1 / 2 : ℂ)) * Complex.exp (binetDiff c t) * fctRayE c (fctWarpL1 h ε c) t *
       ((stripG t + (fctWarpL1 h ε c : ℂ) * FctPhiKill.phiKill (c ^ (-(1 / 12 : ℝ))) t) *
         fctDcompAt K4 c (fctWarpAlpha h ε c) t * ctHG ε t)‖ ≤
@@ -708,7 +722,13 @@ lemma fctWarpKA_left_ray_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolveStmt
       ≤ (2 * ‖(1 - ζ) ^ (-(1 / 2 : ℂ))‖) * (Real.exp (1 / 2) * ‖Complex.exp (binetDiff c ζ)‖) *
           ‖fctRayE c (fctWarpL1 h ε c) ζ‖ *
           ((C_tan * (1 + ζ.im + s)) * (Real.exp (2 * |B_D 0|) * ‖fctDcompAt K4 c (fctWarpAlpha h ε c) ζ‖) *
-            ((CHG / cHG) * 12 * Real.exp (-2 * s) * ‖ctHG ε ζ‖)) := by gcongr
+            ((CHG / cHG) * 12 * Real.exp (-2 * s) * ‖ctHG ε ζ‖)) :=
+          mul_le_mul
+            (mul_le_mul (mul_le_mul hcp_ratio hB_ratio (by positivity) (by positivity))
+              hE_le (by positivity) (by positivity))
+            (mul_le_mul (mul_le_mul htan_bd hD_ratio (by positivity) (by positivity))
+              hHG_ratio (by positivity) (by positivity))
+            (by positivity) (by positivity)
     _ = C_l * (1 + ζ.im + s) * Real.exp (-2 * s) *
           (‖(1 - ζ) ^ (-(1 / 2 : ℂ))‖ * ‖Complex.exp (binetDiff c ζ)‖ * ‖fctRayE c (fctWarpL1 h ε c) ζ‖ *
             ‖fctDcompAt K4 c (fctWarpAlpha h ε c) ζ‖ * ‖ctHG ε ζ‖) := by
