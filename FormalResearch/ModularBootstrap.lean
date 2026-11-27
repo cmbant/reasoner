@@ -92,6 +92,9 @@ public import FormalResearch.ModularBootstrap.Spin.SpinS22Outward
 public import FormalResearch.ModularBootstrap.Spin.ScalC3
 public import FormalResearch.ModularBootstrap.Spin.ScalC1
 public import FormalResearch.ModularBootstrap.Spin.SpinS1c
+public import FormalResearch.ModularBootstrap.Spin.SpinS1
+public import FormalResearch.ModularBootstrap.Spin.SpinS4Statements
+public import FormalResearch.ModularBootstrap.Spin.SpinS4Assembly
 public import FormalResearch.ModularBootstrap.Spin.SpinS2xS21
 public import FormalResearch.ModularBootstrap.Spin.SpinS2xS23
 public import FormalResearch.ModularBootstrap.Spin.SpinS2xS23b
@@ -682,6 +685,7 @@ public import FormalResearch.ModularBootstrap.Integrality.ShellInvCells
 public import FormalResearch.ModularBootstrap.Integrality.RepairIdentity
 public import FormalResearch.ModularBootstrap.Integrality.RepairTaylor
 public import FormalResearch.ModularBootstrap.Integrality.IntegerObstruction
+public import FormalResearch.ModularBootstrap.Integrality.Atom
 
 /-!
 # Modular Bootstrap at Large Central Charge

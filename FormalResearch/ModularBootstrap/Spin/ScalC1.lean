@@ -225,7 +225,7 @@ private lemma spinCalPhic_upper {c x : ℝ} (hc : 40 ≤ c) (hx : 0 ≤ x) :
   · simp [spinCalPhic, spinCalPhi]
     positivity
   · unfold spinCalPhic
-    rw [if_neg hx0.ne']
+    simp only [hx0.ne', ↓reduceIte]
     let α₁ : ℝ := π * (12 * a) * (1 + spinGamma a) / 3
     let α₂ : ℝ := π * (12 * a) * (1 - spinGamma a) / 3
     have hγ0 : 0 < spinGamma a := spinGamma_pos ha
@@ -323,7 +323,7 @@ private lemma spinCalPhic_lower {c x : ℝ} (hc : 40 ≤ c) (hx : 0 ≤ x) :
   rcases eq_or_lt_of_le hx with rfl | hx0
   · simp [spinCalPhic, spinCalPhi]
   · unfold spinCalPhic
-    rw [if_neg hx0.ne']
+    simp only [hx0.ne', ↓reduceIte]
     let α₂ : ℝ := π * (12 * a) * (1 - spinGamma a) / 3
     have hγ0 : 0 < spinGamma a := spinGamma_pos ha
     have hγ1 : spinGamma a < 1 := spinGamma_lt_one ha
@@ -441,9 +441,8 @@ private lemma sinh_two_pi_gt {x : ℝ} (hx : 0 < x) :
     intro t
     have hm : HasDerivAt (fun s : ℝ => 2 * π * s) (2 * π) t := by
       simpa using (hasDerivAt_id t).const_mul (2 * π)
-    have h1 : HasDerivAt (fun s : ℝ => Real.sinh (2 * π * s)) (2 * π * Real.cosh (2 * π * t)) t := by
-      convert (Real.hasDerivAt_sinh (2 * π * t)).comp t hm using 1
-      ring
+    have h1 : HasDerivAt (fun s : ℝ => Real.sinh (2 * π * s)) (2 * π * Real.cosh (2 * π * t)) t :=
+      ((Real.hasDerivAt_sinh (2 * π * t)).comp t hm).congr_deriv (by ring)
     have h2 : HasDerivAt (fun s : ℝ => 2 * π * Real.sinh s) (2 * π * Real.cosh t) t :=
       (Real.hasDerivAt_sinh t).const_mul (2 * π)
     convert h1.sub h2 using 1; ring
@@ -489,10 +488,10 @@ private lemma hasDerivAt_log_spinCalPhi {x : ℝ} (hx : 0 < x) :
   have hd_tanh : HasDerivAt (fun t : ℝ => Real.tanh (t / 2))
       (1 / (2 * Real.cosh (x / 2) ^ 2)) x := by
     have hc : (Real.cosh (x / 2)) ≠ 0 := (Real.cosh_pos _).ne'
-    have hd_s : HasDerivAt (fun t : ℝ => Real.sinh (t / 2)) (Real.cosh (x / 2) * (1 / 2)) x :=
-      (Real.hasDerivAt_sinh (x / 2)).comp x hd_half
-    have hd_c : HasDerivAt (fun t : ℝ => Real.cosh (t / 2)) (Real.sinh (x / 2) * (1 / 2)) x :=
-      (Real.hasDerivAt_cosh (x / 2)).comp x hd_half
+    have hd_s : HasDerivAt (fun t : ℝ => Real.sinh (t / 2)) (Real.cosh (x / 2) * (1 / 2)) x := by
+      simpa [Function.comp_def] using (Real.hasDerivAt_sinh (x / 2)).comp x hd_half
+    have hd_c : HasDerivAt (fun t : ℝ => Real.cosh (t / 2)) (Real.sinh (x / 2) * (1 / 2)) x := by
+      simpa [Function.comp_def] using (Real.hasDerivAt_cosh (x / 2)).comp x hd_half
     have hfun : (fun t : ℝ => Real.tanh (t / 2)) =
         fun t => Real.sinh (t / 2) / Real.cosh (t / 2) := by
       ext t; exact Real.tanh_eq_sinh_div_cosh _
@@ -514,7 +513,6 @@ private lemma hasDerivAt_log_spinCalPhi {x : ℝ} (hx : 0 < x) :
     have hc_pos : Real.cosh (x / 2) ≠ 0 := (Real.cosh_pos _).ne'
     rw [hsinh_dbl, hth]
     field_simp [hs_pos, hc_pos]
-    ring
   have hd_F : HasDerivAt spinCalF (4 * π * Real.exp (-4 * π * x)) x := by
     unfold spinCalF
     have he : HasDerivAt (fun t : ℝ => -4 * π * t) (-4 * π) x := by
@@ -535,7 +533,6 @@ private lemma hasDerivAt_log_spinCalPhi {x : ℝ} (hx : 0 < x) :
     unfold spinCalF
     rw [hexp_neg]
     field_simp [hne1, he_pos, hF_ne]
-    ring
   exact (hd_log_tanh.sub hd_log_F).congr_of_eventuallyEq heq
 
 private lemma hasDerivAt_logPhiDeriv {x : ℝ} (hx : 0 < x) :
@@ -643,18 +640,14 @@ private lemma log_spinCalPhi_concave_symm {ξ d : ℝ} (hd : |d| < ξ) :
     intro t ht0 htξ
     have hp : 0 < ξ + t := by linarith
     have hm : 0 < ξ - t := by linarith
-    have ha : HasDerivAt (fun u : ℝ => ξ + u) 1 t := by
-      simpa using (hasDerivAt_const t ξ).add (hasDerivAt_id t)
+    have ha : HasDerivAt (fun u : ℝ => ξ + u) 1 t := (hasDerivAt_id t).const_add ξ
     have hb : HasDerivAt (fun u : ℝ => ξ - u) (-1) t := by
-      simpa using (hasDerivAt_const t ξ).sub (hasDerivAt_id t)
-    have h1 : HasDerivAt (fun u => Real.log (spinCalPhi (ξ + u))) (logPhiDeriv (ξ + t)) t := by
-      convert (hasDerivAt_log_spinCalPhi hp).comp t ha using 1
-      ring
-    have h2 : HasDerivAt (fun u => Real.log (spinCalPhi (ξ - u))) (-logPhiDeriv (ξ - t)) t := by
-      convert (hasDerivAt_log_spinCalPhi hm).comp t hb using 1
-      ring
-    convert h1.add h2 using 1
-    ring
+      simpa [sub_eq_add_neg, add_comm] using ((hasDerivAt_id t).neg).const_add ξ
+    have h1 : HasDerivAt (fun u => Real.log (spinCalPhi (ξ + u))) (logPhiDeriv (ξ + t)) t :=
+      ((hasDerivAt_log_spinCalPhi hp).comp t ha).congr_deriv (by ring)
+    have h2 : HasDerivAt (fun u => Real.log (spinCalPhi (ξ - u))) (-logPhiDeriv (ξ - t)) t :=
+      ((hasDerivAt_log_spinCalPhi hm).comp t hb).congr_deriv (by ring)
+    exact h1.add h2
   have hg_anti : AntitoneOn g (Ico 0 ξ) := by
     refine antitoneOn_of_deriv_nonpos (convex_Ico 0 ξ) ?_ ?_ ?_
     · intro t ht
@@ -716,10 +709,8 @@ private lemma hasDerivAt_calB {s : ℝ} (hs : 0 < s) : HasDerivAt calB (calBDeri
   have hx : 0 < xiStar := xiStar_pos
   have hs1 : 1 + s ≠ 0 := by linarith
   have hsq_pos : 0 < Real.sqrt s := Real.sqrt_pos.mpr hs
-  have h1p : HasDerivAt (fun t : ℝ => 1 + t) 1 s := by
-    simpa using (hasDerivAt_const s 1).add (hasDerivAt_id s)
-  have hsub : HasDerivAt (fun t : ℝ => t - xiStar ^ 2) 1 s := by
-    simpa using (hasDerivAt_id s).sub_const (xiStar ^ 2)
+  have h1p : HasDerivAt (fun t : ℝ => 1 + t) 1 s := (hasDerivAt_id s).const_add 1
+  have hsub : HasDerivAt (fun t : ℝ => t - xiStar ^ 2) 1 s := (hasDerivAt_id s).sub_const (xiStar ^ 2)
   have h1 : HasDerivAt (fun t : ℝ => Real.log ((1 + xiStar ^ 2) / (1 + t))) (-1 / (1 + s)) s := by
     have hf : HasDerivAt (fun t : ℝ => (1 + xiStar ^ 2) / (1 + t))
         (-(1 + xiStar ^ 2) / (1 + s) ^ 2) s := by
@@ -753,8 +744,7 @@ private lemma hasDerivAt_calBDeriv {s : ℝ} (hs : 0 < s) :
     HasDerivAt calBDeriv (calBDeriv2 s) s := by
   have hs1 : 1 + s ≠ 0 := by linarith
   have hsq_pos : 0 < Real.sqrt s := Real.sqrt_pos.mpr hs
-  have h1p : HasDerivAt (fun t : ℝ => 1 + t) 1 s := by
-    simpa using (hasDerivAt_const s 1).add (hasDerivAt_id s)
+  have h1p : HasDerivAt (fun t : ℝ => 1 + t) 1 s := (hasDerivAt_id s).const_add 1
   have h1 : HasDerivAt (fun t : ℝ => -1 / (1 + t)) (1 / (1 + s) ^ 2) s := by
     have hi := h1p.inv hs1
     convert hi.neg using 1
@@ -942,9 +932,9 @@ private lemma continuousOn_calBDeriv2_Ioi : ContinuousOn calBDeriv2 (Ioi 0) := b
   have hsh1 : Real.sinh (Real.sqrt s) ≠ 0 := (Real.sinh_pos_iff.mpr hsq_pos).ne'
   have hene : Real.exp (4 * π * Real.sqrt s) - 1 ≠ 0 :=
     (sub_pos.mpr (Real.one_lt_exp_iff.mpr (by positivity))).ne'
-  have h1 : ContinuousAt (fun t : ℝ => 1 / (1 + t) ^ 2) s :=
-    continuousAt_const.div ((continuousAt_const.add continuousAt_id).pow 2)
-      (by positivity)
+  have h1 : ContinuousAt (fun t : ℝ => 1 / (1 + t) ^ 2) s := by
+    have h1p0 : 0 < 1 + s := by linarith
+    exact continuousAt_const.div ((continuousAt_const.add continuousAt_id).pow 2) (by positivity)
   have h2 : ContinuousAt (fun t : ℝ => logPhiDeriv2 (Real.sqrt t) / (2 * t)) s := by
     have hc_l2 := (continuousOn_logPhiDeriv2_Ioi.continuousAt (Ioi_mem_nhds hsq_pos)).comp hsq_cont
     exact hc_l2.div (continuousAt_const.mul continuousAt_id) (by linarith)
@@ -975,7 +965,7 @@ theorem scalC1 : ScalC1 := by
   have hr₀_pos : 0 < r₀ := by dsimp [r₀]; linarith [xiStar_pos]
   let I_s : Set ℝ := Icc (xiStar ^ 2 / 2) (2 * xiStar ^ 2)
   have hIs_sub : I_s ⊆ Ioi 0 := fun s hs => by
-    have h0 : 0 < xiStar ^ 2 / 2 := by positivity
+    have h0 : 0 < xiStar ^ 2 / 2 := by have := xiStar_pos; positivity
     exact h0.trans_le hs.1
   obtain ⟨K_B, _, hKB_max⟩ := isCompact_Icc.exists_isMaxOn
     ⟨xiStar ^ 2 / 2, le_rfl, by linarith [sq_pos_of_pos xiStar_pos]⟩
@@ -1162,14 +1152,19 @@ theorem scalC1 : ScalC1 := by
         _ = 2 * (Real.exp (-(12 * a) * (2 * π / 3) * q) * spinCalPhic a q) := by ring
         _ ≤ 2 * ((6 + 24) / n) := by linarith
         _ = 2 * (6 + 24) / n := by ring
+    have hprod_nn : 0 ≤ Real.exp (-(12 * a) * (2 * π / 3) * q) *
+        (spinCalPhic a (ξ + d) * spinCalPhic a (ξ - d)) :=
+      mul_nonneg (Real.exp_pos _).le
+        (mul_nonneg (spinCalPhic_nonneg ha2 hxd_p) (spinCalPhic_nonneg ha2 hxd_m))
     calc P2 * (Real.exp (-(12 * a) * (2 * π / 3) * q) *
             (spinCalPhic a (ξ + d) * spinCalPhic a (ξ - d)))
         ≤ K0 * (2 * (6 + 24) / n) :=
-          mul_le_mul hP2_bd hprod_le (by positivity) hK0_pos.le
+          mul_le_mul hP2_bd hprod_le hprod_nn hK0_pos.le
       _ = K0 * (2 * (6 + 24)) / n := by ring
   refine ⟨⟨hRc_nn, ?_⟩, ?_⟩
   · have hRi := spinRInf_le_exp hd
     have hR1 : spinRc1 a ξ d ≤ spinRInf ξ d + K0 * 72 / n := by linarith [abs_sub_le_iff.mp hdiff_R1]
+    have halg : K0 * 72 / n + K0 * (2 * (6 + 24)) / n = K0 * (72 + 2 * (6 + 24)) / n := by ring
     have hsum : spinRc a ξ d ≤
         Real.exp (-(1 / 2 : ℝ) * (ξ ^ 2 - xiStar ^ 2) ^ 2 - d ^ 2 / spinSigma0 ^ 2) +
           (K0 * (72 + 2 * (6 + 24))) / n := by
@@ -1208,7 +1203,8 @@ theorem scalC1 : ScalC1 := by
           (fun u hu => (hasDerivAt_calBDeriv (hIs_sub hu)).differentiableAt)
           (fun u hu => by
             rw [(hasDerivAt_calBDeriv (hIs_sub hu)).deriv, Real.norm_eq_abs]
-            exact (hKB_max hu).trans (le_max_left _ _))
+            have hle : |calBDeriv2 u| ≤ |calBDeriv2 K_B| := hKB_max hu
+            exact hle.trans (le_max_left (|calBDeriv2 K_B|) 1))
           (convex_Icc _ _) hxs2_mem htI
         have h1 : |calBDeriv t| ≤ M_B * |t - xiStar ^ 2| := by
           simpa [Real.norm_eq_abs, calBDeriv_xiStar_sq] using hmvt
@@ -1241,18 +1237,14 @@ theorem scalC1 : ScalC1 := by
         intro t ht
         have hp : 0 < ξ + t := by dsimp [r₀] at *; linarith [abs_le.mp ht, xiStar_pos]
         have hm : 0 < ξ - t := by dsimp [r₀] at *; linarith [abs_le.mp ht, xiStar_pos]
-        have ha : HasDerivAt (fun u : ℝ => ξ + u) 1 t := by
-          simpa using (hasDerivAt_const t ξ).add (hasDerivAt_id t)
+        have ha : HasDerivAt (fun u : ℝ => ξ + u) 1 t := (hasDerivAt_id t).const_add ξ
         have hb : HasDerivAt (fun u : ℝ => ξ - u) (-1) t := by
-          simpa using (hasDerivAt_const t ξ).sub (hasDerivAt_id t)
-        have h1 : HasDerivAt (fun u => Real.log (spinCalPhi (ξ + u))) (logPhiDeriv (ξ + t)) t := by
-          convert (hasDerivAt_log_spinCalPhi hp).comp t ha using 1
-          ring
-        have h2 : HasDerivAt (fun u => Real.log (spinCalPhi (ξ - u))) (-logPhiDeriv (ξ - t)) t := by
-          convert (hasDerivAt_log_spinCalPhi hm).comp t hb using 1
-          ring
-        convert h1.add h2 using 1
-        ring
+          simpa [sub_eq_add_neg, add_comm] using ((hasDerivAt_id t).neg).const_add ξ
+        have h1 : HasDerivAt (fun u => Real.log (spinCalPhi (ξ + u))) (logPhiDeriv (ξ + t)) t :=
+          ((hasDerivAt_log_spinCalPhi hp).comp t ha).congr_deriv (by ring)
+        have h2 : HasDerivAt (fun u => Real.log (spinCalPhi (ξ - u))) (-logPhiDeriv (ξ - t)) t :=
+          ((hasDerivAt_log_spinCalPhi hm).comp t hb).congr_deriv (by ring)
+        exact h1.add h2
       have hJ_r0 : ∀ t ∈ Icc (min 0 d) (max 0 d), |t| ≤ |d| := by
         intro t ht
         rcases le_total 0 d with hd0 | hd0
@@ -1273,7 +1265,8 @@ theorem scalC1 : ScalC1 := by
           (fun u hu => (hasDerivAt_logPhiDeriv (hIx_sub hu)).differentiableAt)
           (fun u hu => by
             rw [(hasDerivAt_logPhiDeriv (hIx_sub hu)).deriv, Real.norm_eq_abs]
-            exact (hKL_max hu).trans (le_max_left _ _))
+            have hle : |logPhiDeriv2 u| ≤ |logPhiDeriv2 K_L| := hKL_max hu
+            exact hle.trans (le_max_left (|logPhiDeriv2 K_L|) 1))
           (convex_Icc _ _) hxm hxp
         have hdiff_eq : (ξ + t) - (ξ - t) = 2 * t := by ring
         have h1 : |g' t| ≤ M_L * (2 * |t|) := by
@@ -1337,8 +1330,9 @@ theorem scalC1 : ScalC1 := by
       have hstep2 : (M_B + 1 / 2) * (ξ ^ 2 - xiStar ^ 2) ^ 2 +
             (2 * M_L + 1 / spinSigma0 ^ 2) * d ^ 2 ≤
           (M_B + 1 / 2) * (((9 / 4 : ℝ) * xiStar) ^ 2 * (ξ - xiStar) ^ 2) +
-            (2 * M_L + 1 / spinSigma0 ^ 2) * d ^ 2 :=
-        add_le_add_right (mul_le_mul_of_nonneg_left hsq_diff (by positivity)) _
+            (2 * M_L + 1 / spinSigma0 ^ 2) * d ^ 2 := by
+        have hMBnn : 0 ≤ M_B + 1 / 2 := by positivity
+        linarith [mul_le_mul_of_nonneg_left hsq_diff hMBnn]
       have h1 : (M_B + 1 / 2) * ((9 / 4 : ℝ) * xiStar) ^ 2 ≤ K_quad := by
         dsimp [K_quad]; linarith [show 0 ≤ 2 * M_L + 1 / spinSigma0 ^ 2 by positivity]
       have h2 : 2 * M_L + 1 / spinSigma0 ^ 2 ≤ K_quad := by
@@ -1360,7 +1354,7 @@ theorem scalC1 : ScalC1 := by
       have hsum_r0 : (ξ - xiStar) ^ 2 + d ^ 2 ≤ r₀ ^ 2 := by
         have hsq : |ξ - xiStar| ^ 2 + |d| ^ 2 ≤ (|ξ - xiStar| + |d|) ^ 2 := by
           have : 0 ≤ 2 * |ξ - xiStar| * |d| := by positivity
-          linarith [sq_add (|ξ - xiStar|) (|d|)]
+          linarith [add_sq (|ξ - xiStar|) (|d|)]
         rw [sq_abs, sq_abs] at hsq
         exact hsq.trans (pow_le_pow_left₀ (by positivity) hloc 2)
       calc |Real.log (spinRInf ξ d)| ≤ K_quad * ((ξ - xiStar) ^ 2 + d ^ 2) := hlog_bd
@@ -1383,7 +1377,10 @@ theorem scalC1 : ScalC1 := by
         (convex_Icc (-M_log) M_log) ⟨by linarith, hMlog_pos.le⟩ (abs_le.mp hlog_M)
       rw [Real.exp_zero, Real.norm_eq_abs, Real.norm_eq_abs, sub_zero,
         Real.exp_log hRinf_pos] at hmvt_exp
-      exact hmvt_exp.trans (mul_le_mul_of_nonneg_left hlog_bd (Real.exp_pos _).le)
+      calc |spinRInf ξ d - 1| ≤ Real.exp M_log * |Real.log (spinRInf ξ d)| := hmvt_exp
+        _ ≤ Real.exp M_log * (K_quad * ((ξ - xiStar) ^ 2 + d ^ 2)) :=
+            mul_le_mul_of_nonneg_left hlog_bd (Real.exp_pos M_log).le
+        _ = Real.exp M_log * K_quad * ((ξ - xiStar) ^ 2 + d ^ 2) := by ring
     have hRc2_nn : 0 ≤ spinRc2 a ξ d := by
       have hφ1 : 0 ≤ spinCalPhic a (ξ + d) := spinCalPhic_nonneg ha2 hxd_p
       have hφ2 : 0 ≤ spinCalPhic a (ξ - d) := spinCalPhic_nonneg ha2 hxd_m
@@ -1400,14 +1397,18 @@ theorem scalC1 : ScalC1 := by
           (spinRc1 a ξ d - spinRInf ξ d + (spinRInf ξ d - 1)) + spinRc2 a ξ d := by ring
       rw [heq]
       linarith
-    have hinv_eq : K0 * (72 + 2 * (6 + 24)) / n = K0 * (72 + 2 * (6 + 24)) * n⁻¹ := by
-      rw [div_eq_mul_inv]
+    have hinv_eq : K0 * 72 / n + K0 * (2 * (6 + 24)) / n = K0 * (72 + 2 * (6 + 24)) * n⁻¹ := by
+      ring
     calc |spinRc a ξ d - 1|
         ≤ Real.exp M_log * K_quad * ((ξ - xiStar) ^ 2 + d ^ 2) +
-            K0 * (72 + 2 * (6 + 24)) * n⁻¹ := by linarith [hRinf_loc, hdiff_R1, hRc2_bd, hinv_eq]
+            K0 * (72 + 2 * (6 + 24)) * n⁻¹ := by
+          linarith [htri_all, hRinf_loc, hdiff_R1, hRc2_bd, hinv_eq]
       _ ≤ C₁ * ((ξ - xiStar) ^ 2 + d ^ 2) + C₁ * n⁻¹ := by
           have h1 : Real.exp M_log * K_quad ≤ C₁ := by dsimp [C₁]; linarith
-          have h2 : K0 * (72 + 2 * (6 + 24)) ≤ C₁ := by dsimp [C₁]; positivity
+          have h2 : K0 * (72 + 2 * (6 + 24)) ≤ C₁ := by
+            dsimp [C₁]
+            have : 0 ≤ Real.exp M_log * K_quad := by positivity
+            linarith
           have hn_nn : 0 ≤ n⁻¹ := inv_nonneg.mpr (by linarith)
           exact add_le_add (mul_le_mul_of_nonneg_right h1 (by positivity))
             (mul_le_mul_of_nonneg_right h2 hn_nn)
