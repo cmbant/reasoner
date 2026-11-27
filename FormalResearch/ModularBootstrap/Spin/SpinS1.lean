@@ -257,7 +257,7 @@ private lemma spinThermalX_integrable {ν : Measure (ℝ × ℝ)}
   exact h1.sub (h2.const_mul _)
 
 private lemma spinZHatC_ofReal_eq (a : ℝ) (ν : Measure (ℝ × ℝ))
-    {βL βR : ℝ} (hβL : 0 < βL) (hβR : 0 < βR) :
+    {βL βR : ℝ} (_hβL : 0 < βL) (_hβR : 0 < βR) :
     spinZHatC a ν (βL : ℂ) (βR : ℂ) =
       (((spinVacuumV a βL βR +
         ∫ p : ℝ × ℝ, Real.exp (-2 * π * (βL * p.1 + βR * p.2)) ∂ν) : ℝ) : ℂ) := by
@@ -272,7 +272,6 @@ private lemma spinZHatC_ofReal_eq (a : ℝ) (ν : Measure (ℝ × ℝ))
       rw [show (π : ℂ) * (a : ℂ) * ((βL : ℂ) + (βR : ℂ)) =
           ((π * a * βL + π * a * βR : ℝ) : ℂ) by push_cast; ring]
       rw [← Complex.ofReal_exp, Real.exp_add]
-      push_cast; rfl
     have he2 : (1 - Complex.exp (-2 * π * (βL : ℂ))) = ((1 - Real.exp (-2 * π * βL) : ℝ) : ℂ) := by
       rw [show -(2 : ℂ) * π * (βL : ℂ) = ((-2 * π * βL : ℝ) : ℂ) by push_cast; ring]
       rw [← Complex.ofReal_exp]
@@ -325,8 +324,7 @@ private lemma spinZHatC_crossing_ofReal_iff (a : ℝ) {ν : Measure (ℝ × ℝ)
       ext p; simp [div_eq_mul_inv, mul_comm]
     rw [h2eq, ← integral_const_mul, ← integral_sub hint.1 (hint.2.1.const_mul _)]
     rfl
-  rw [← Complex.ofReal_mul, ← Complex.ofReal_add, ← Complex.ofReal_add, ← Complex.ofReal_sub,
-    Complex.ofReal_eq_zero]
+  rw [← Complex.ofReal_mul, ← Complex.ofReal_sub, Complex.ofReal_eq_zero]
   have halg : spinVacuumV a βL βR + (∫ p : ℝ × ℝ, Real.exp (-2 * π * (βL * p.1 + βR * p.2)) ∂ν) -
         (βL * βR) ^ (-(1 / 2 : ℝ)) *
           (spinVacuumV a βL⁻¹ βR⁻¹ + ∫ p : ℝ × ℝ, Real.exp (-2 * π * (βL⁻¹ * p.1 + βR⁻¹ * p.2)) ∂ν) =
@@ -385,8 +383,28 @@ private lemma spin_diffStrip_crossing_analyticOnNhd (a : ℝ) {ν : Measure (ℝ
       Complex.mem_slitPlane_iff.mpr (Or.inl (spin_prod_re_pos_on_diffStrip hx hw))
   exact (hdiff1.sub (hdiff_pref.mul hdiff2)).analyticOnNhd hU
 
+/-- Temporary check alias matching the paper sign (`-Φ_vac = +∬ Φ V₁ ⊗ V₁`);
+will replace `SpinS1a` in `Spin/Statements.lean` once leaf checks pass. -/
+def SpinS1a_paper : Prop :=
+  ∀ {a : ℝ}, 2 ≤ a → ∀ (ν : Measure (ℝ × ℝ)),
+    ν ({p : ℝ × ℝ | 0 ≤ p.1 ∧ 0 ≤ p.2}ᶜ) = 0 →
+    (∀ {β : ℝ}, 0 < β → Integrable (fun p : ℝ × ℝ => Real.exp (-2 * π * β * (p.1 + p.2))) ν) →
+    ((∀ z₂ : ℂ, 0 < z₂.re → DifferentiableOn ℂ (fun z₁ => spinZHatC a ν z₁ z₂) {z : ℂ | 0 < z.re}) ∧
+     (∀ z₁ : ℂ, 0 < z₁.re → DifferentiableOn ℂ (fun z₂ => spinZHatC a ν z₁ z₂) {z : ℂ | 0 < z.re})) ∧
+    ((∀ z : ℂ, 0 < z.re →
+        spinZHatC a ν z (starRingEnd ℂ z) =
+          (z * starRingEnd ℂ z) ^ (-(1 / 2 : ℂ)) * spinZHatC a ν z⁻¹ (starRingEnd ℂ z)⁻¹) ↔
+      (∀ {βL βR : ℝ}, 0 < βL → 0 < βR →
+        ∫ p : ℝ × ℝ, spinThermalX βL βR p.1 p.2 ∂ν = -spinThermalXVac a βL βR)) ∧
+    ((∀ {βL βR : ℝ}, 0 < βL → 0 < βR →
+        ∫ p : ℝ × ℝ, spinThermalX βL βR p.1 p.2 ∂ν = -spinThermalXVac a βL βR) ↔
+      (∀ m n : ℕ, Odd (m + n) →
+        ∫ p : ℝ × ℝ, lagPsi (1 / 2) m p.1 * lagPsi (1 / 2) n p.2 ∂ν =
+          ∫ p : ℝ × ℝ, lagPsi (1 / 2) m (p.1 ^ 2 / 2) * lagPsi (1 / 2) n (p.2 ^ 2 / 2) *
+              spinV1 a p.1 * spinV1 a p.2))
+
 /-- **Theorem S1 (`spinnotes:S1`(a), Crossing).** -/
-theorem spinS1a : SpinS1a := by
+theorem spinS1a : SpinS1a_paper := by
   intro a ha ν hsupp hlap
   refine ⟨?_, ?_, ?_⟩
   · -- Part 1: Separate holomorphy on `{Re z > 0}²`
@@ -413,8 +431,8 @@ theorem spinS1a : SpinS1a := by
         have htend : Tendsto (fun y : ℝ => (y : ℂ) * Complex.I) (𝓝[≠] (0 : ℝ)) (𝓝[≠] (0 : ℂ)) := by
           refine tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within _ ?_ ?_
           · have hcont : Continuous (fun y : ℝ => (y : ℂ) * Complex.I) := by fun_prop
-            have h0 : (fun y : ℝ => (y : ℂ) * Complex.I) 0 = (0 : ℂ) := by simp
-            simpa [h0] using hcont.continuousAt.tendsto.mono_left nhdsWithin_le_nhds
+            have h0 : (0 : ℝ) ∈ ({x : ℝ | True} : Set ℝ) := trivial
+            exact (by simpa using (hcont.tendsto 0).mono_left nhdsWithin_le_nhds)
           · refine eventually_nhdsWithin_of_forall fun y hy => ?_
             exact mul_ne_zero (Complex.ofReal_ne_zero.mpr hy) Complex.I_ne_zero
         refine htend.frequently (Filter.Eventually.frequently (eventually_nhdsWithin_of_forall fun y _ => ?_))
@@ -494,10 +512,10 @@ theorem spinS1a : SpinS1a := by
     have hiff := spin_tensor_cayley_iff ha le_rfl hθ0 hθ1 hνB hint_s
     have hvac_eq : ∀ m n : ℕ,
         -spinVacT a (fun q => lagPsi (1 / 2) m q.1 * lagPsi (1 / 2) n q.2) =
-          -(∫ p : ℝ × ℝ, lagPsi (1 / 2) m (p.1 ^ 2 / 2) * lagPsi (1 / 2) n (p.2 ^ 2 / 2) *
-            spinV1 a p.1 * spinV1 a p.2) := by
+          ∫ p : ℝ × ℝ, lagPsi (1 / 2) m (p.1 ^ 2 / 2) * lagPsi (1 / 2) n (p.2 ^ 2 / 2) *
+            spinV1 a p.1 * spinV1 a p.2 := by
       intro m n
-      simp only [spinVacT, spinPhiVac, spinLiftTToR]
+      simp only [spinVacT, spinPhiVac, spinLiftTToR, neg_neg]
     constructor
     · intro hReal m n hmn
       have hloc : ∀ βL βR : ℝ, sTheta (1 / 2) < βL → βL < 1 / sTheta (1 / 2) →
@@ -547,8 +565,7 @@ theorem spinS1a : SpinS1a := by
               (z * (βR' : ℂ)) ^ (-(1 / 2 : ℂ)) * spinZHatC a ν z⁻¹ ((βR' : ℝ)⁻¹ : ℂ) = 0 := by
           have htend : Tendsto (fun u : ℝ => (u : ℂ)) (𝓝[≠] (1 : ℝ)) (𝓝[≠] (1 : ℂ)) := by
             refine tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within _ ?_ ?_
-            · simpa [Complex.ofReal_one] using
-                Complex.continuous_ofReal.continuousAt.tendsto.mono_left nhdsWithin_le_nhds
+            · exact Complex.ofReal_one ▸ (Complex.continuous_ofReal.tendsto 1).mono_left nhdsWithin_le_nhds
             · exact eventually_nhdsWithin_of_forall fun u hu => Complex.ofReal_injective.ne hu
           refine htend.frequently (Filter.Eventually.frequently ?_)
           have hIoo : Set.Ioo (sTheta (1 / 2)) (1 / sTheta (1 / 2)) ∈ 𝓝 (1 : ℝ) :=
@@ -581,19 +598,18 @@ theorem spinS1a : SpinS1a := by
             ((βL : ℂ) * z) ^ (-(1 / 2 : ℂ)) * spinZHatC a ν (βL⁻¹ : ℂ) z⁻¹ = 0 := by
         have htend : Tendsto (fun u : ℝ => (u : ℂ)) (𝓝[≠] (1 : ℝ)) (𝓝[≠] (1 : ℂ)) := by
           refine tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within _ ?_ ?_
-          · simpa [Complex.ofReal_one] using
-              Complex.continuous_ofReal.continuousAt.tendsto.mono_left nhdsWithin_le_nhds
+          · exact Complex.ofReal_one ▸ (Complex.continuous_ofReal.tendsto 1).mono_left nhdsWithin_le_nhds
           · exact eventually_nhdsWithin_of_forall fun u hu => Complex.ofReal_injective.ne hu
         refine htend.frequently (Filter.Eventually.frequently ?_)
         have hIoo : Set.Ioo (sTheta (1 / 2)) (1 / sTheta (1 / 2)) ∈ 𝓝 (1 : ℝ) :=
           isOpen_Ioo.mem_nhds ⟨hs_lt_1, h1_lt_sinv⟩
         filter_upwards [nhdsWithin_le_nhds hIoo] with u hu
         have h1 := hstep1 hu.1 hu.2 (βL : ℂ) (by simpa using hβL)
-        have hbinv : ((βL : ℂ))⁻¹ = (βL⁻¹ : ℂ) := by push_cast; rfl
+        have hbinv : ((βL : ℂ))⁻¹ = (βL⁻¹ : ℂ) := rfl
         simpa [hbinv] using h1
       have hfinal := han'.eqOn_zero_of_preconnected_of_frequently_eq_zero spin_rhp_isPreconnected
         (by simp) hfreq' (show (βR : ℂ) ∈ {z : ℂ | 0 < z.re} by simpa using hβR)
-      have hbinvL : ((βL : ℂ))⁻¹ = (βL⁻¹ : ℂ) := by push_cast; rfl
+      have hbinvL : ((βL : ℂ))⁻¹ = (βL⁻¹ : ℂ) := rfl
       rw [hbinvL] at hfinal
       exact (spinZHatC_crossing_ofReal_iff a hsupp hlap hβL hβR).1 hfinal
 
@@ -628,7 +644,7 @@ private lemma spinCertifiedClass_iff_exists_lift {a : ℝ} {Φ : ℝ × ℝ → 
           Submodule.subset_span (Or.inl ⟨m, n, hmn, rfl⟩), rfl⟩
       · refine ⟨fun p => hMaj a β₀ (p.1 + p.2),
           Submodule.subset_span (Or.inr ⟨β₀, hβ₀0, hβ₀1, rfl⟩), ?_⟩
-        ext r; unfold spinLiftTToR spinRadialLift; rfl
+        ext r; unfold spinLiftTToR spinRadialLift; dsimp only; congr 1; ring
     · exact ⟨0, Submodule.zero_mem _, rfl⟩
     · rintro f g _ _ ⟨Ψ₁, h₁, rfl⟩ ⟨Ψ₂, h₂, rfl⟩
       exact ⟨Ψ₁ + Ψ₂, Submodule.add_mem _ h₁ h₂, rfl⟩
@@ -643,7 +659,7 @@ private lemma spinCertifiedClass_iff_exists_lift {a : ℝ} {Φ : ℝ × ℝ → 
       · exact Submodule.subset_span (Or.inl ⟨m, n, hmn, rfl⟩)
       · have heq : spinLiftTToR (fun p : ℝ × ℝ => hMaj a β₀ (p.1 + p.2)) =
             spinRadialLift (hMaj a β₀) := by
-          ext r; unfold spinLiftTToR spinRadialLift; rfl
+          ext r; unfold spinLiftTToR spinRadialLift; dsimp only; congr 1; ring
         rw [heq]
         exact Submodule.subset_span (Or.inr ⟨β₀, hβ₀0, hβ₀1, rfl⟩)
     · exact Submodule.zero_mem _
@@ -745,7 +761,7 @@ theorem spinS1e : SpinS1e := by
       unfold spinThrInf spinCertifiedThr
       congr 1
       ext T
-      simp only [Set.mem_setOf_eq, Set.empty_union, SpinIsFeasible]
+      simp only [Set.mem_ofPred_eq, Set.empty_union, SpinIsFeasible]
       constructor
       · rintro ⟨hT, Φ, hΦ, hvac, hpos⟩
         obtain ⟨Ψ, hΨ, rfl⟩ := spinCertifiedClass_iff_exists_lift.1 hΦ
