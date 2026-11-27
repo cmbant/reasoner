@@ -128,26 +128,38 @@ private lemma spinHbCalReal_eq_spinRc1 {a b d : ℝ} (ha : 2 < a) (hb : |d| ≤ 
               a * (Real.exp (4 * π * a * (b + d)) * Real.exp (4 * π * a * (b - d))) *
               (Real.tanh ((b + d) / 2) ^ 2 * Real.tanh ((b - d) / 2) ^ 2)) := by ring
       rw [hL_rew, hcal_ratio]
-      symm
-      calc ((1 + xiStar ^ 2) / (1 + b ^ 2) * (spinCalPhic a (b + d) * spinCalPhic a (b - d) / spinCalPhi xiStar ^ 2) *
+      have hR :
+          ((1 + xiStar ^ 2) / (1 + b ^ 2) * (spinCalPhic a (b + d) * spinCalPhic a (b - d) / spinCalPhi xiStar ^ 2) *
               Real.exp (-d ^ 2 / spinSigma0 ^ 2 - spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) -
                 (b ^ 2 - xiStar ^ 2) ^ 2)) *
               (Real.sqrt a * Real.exp (4 * π * a * (b + d)) * spinCalFc a (b + d)) *
-              (Real.sqrt a * Real.exp (4 * π * a * (b - d)) * spinCalFc a (b - d))
-          = ((1 + xiStar ^ 2) / (1 + b ^ 2) / spinCalPhi xiStar ^ 2) *
-              (Real.exp (-(d ^ 2 / spinSigma0 ^ 2) +
-                (-spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) - (b ^ 2 - xiStar ^ 2) ^ 2))) *
-              (Real.sqrt a * Real.sqrt a) *
-              (Real.exp (4 * π * a * (b + d)) * Real.exp (4 * π * a * (b - d))) *
-              ((spinCalPhic a (b + d) * spinCalFc a (b + d)) *
-               (spinCalPhic a (b - d) * spinCalFc a (b - d))) := by ring
-        _ = ((1 + xiStar ^ 2) / (1 + b ^ 2) / spinCalPhi xiStar ^ 2) *
+              (Real.sqrt a * Real.exp (4 * π * a * (b - d)) * spinCalFc a (b - d)) =
+          ((1 + xiStar ^ 2) / (1 + b ^ 2) / spinCalPhi xiStar ^ 2) *
               (Real.exp (-(d ^ 2 / spinSigma0 ^ 2)) *
                 Real.exp (-spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) - (b ^ 2 - xiStar ^ 2) ^ 2)) *
               a *
               (Real.exp (4 * π * a * (b + d)) * Real.exp (4 * π * a * (b - d))) *
               (Real.tanh ((b + d) / 2) ^ 2 * Real.tanh ((b - d) / 2) ^ 2) := by
-              rw [Real.exp_add, hsqa, hphip, hphim]
+        calc ((1 + xiStar ^ 2) / (1 + b ^ 2) * (spinCalPhic a (b + d) * spinCalPhic a (b - d) / spinCalPhi xiStar ^ 2) *
+                Real.exp (-d ^ 2 / spinSigma0 ^ 2 - spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) -
+                  (b ^ 2 - xiStar ^ 2) ^ 2)) *
+                (Real.sqrt a * Real.exp (4 * π * a * (b + d)) * spinCalFc a (b + d)) *
+                (Real.sqrt a * Real.exp (4 * π * a * (b - d)) * spinCalFc a (b - d))
+            = ((1 + xiStar ^ 2) / (1 + b ^ 2) / spinCalPhi xiStar ^ 2) *
+                (Real.exp (-(d ^ 2 / spinSigma0 ^ 2) +
+                  (-spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) - (b ^ 2 - xiStar ^ 2) ^ 2))) *
+                (Real.sqrt a * Real.sqrt a) *
+                (Real.exp (4 * π * a * (b + d)) * Real.exp (4 * π * a * (b - d))) *
+                ((spinCalPhic a (b + d) * spinCalFc a (b + d)) *
+                 (spinCalPhic a (b - d) * spinCalFc a (b - d))) := by ring
+          _ = ((1 + xiStar ^ 2) / (1 + b ^ 2) / spinCalPhi xiStar ^ 2) *
+                (Real.exp (-(d ^ 2 / spinSigma0 ^ 2)) *
+                  Real.exp (-spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) - (b ^ 2 - xiStar ^ 2) ^ 2)) *
+                a *
+                (Real.exp (4 * π * a * (b + d)) * Real.exp (4 * π * a * (b - d))) *
+                (Real.tanh ((b + d) / 2) ^ 2 * Real.tanh ((b - d) / 2) ^ 2) := by
+                rw [Real.exp_add, hsqa, hphip, hphim]
+      symm
       calc 4 * ((1 + xiStar ^ 2) / (1 + b ^ 2) *
               (spinCalPhic a (b + d) * spinCalPhic a (b - d) / spinCalPhi xiStar ^ 2) *
               Real.exp (-d ^ 2 / spinSigma0 ^ 2 - spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) -
@@ -217,27 +229,39 @@ private lemma spinHbCalReal_eq_spinRc2 {a b d : ℝ} (ha : 2 < a) (hd : |b| ≤ 
               a * Real.exp (12 * a * spinL b) *
               (Real.tanh ((b + d) / 2) ^ 2 * Real.tanh ((b - d) / 2) ^ 2)) := by ring
       rw [hL_rew, hcal_ratio]
-      symm
-      calc Real.exp (-(12 * a) * (2 * π / 3) * (d - |b|)) * ((1 + xiStar ^ 2) / (1 + b ^ 2)) *
+      have hR :
+          Real.exp (-(12 * a) * (2 * π / 3) * (d - |b|)) * ((1 + xiStar ^ 2) / (1 + b ^ 2)) *
               (spinCalPhic a (d + b) * spinCalPhic a (d - b) / spinCalPhi xiStar ^ 2) *
               Real.exp (-d ^ 2 / spinSigma0 ^ 2 - spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) -
                 (b ^ 2 - xiStar ^ 2) ^ 2) *
               (Real.sqrt a * Real.exp (4 * π * a * (d + b)) * spinCalFc a (d + b)) *
-              (Real.sqrt a * Real.exp (4 * π * a * (d - b)) * spinCalFc a (d - b))
-          = ((1 + xiStar ^ 2) / (1 + b ^ 2) / spinCalPhi xiStar ^ 2) *
-              (Real.exp (-(d ^ 2 / spinSigma0 ^ 2) +
-                (-spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) - (b ^ 2 - xiStar ^ 2) ^ 2))) *
-              (Real.sqrt a * Real.sqrt a) *
-              (Real.exp (-(12 * a) * (2 * π / 3) * (d - |b|)) *
-                (Real.exp (4 * π * a * (d + b)) * Real.exp (4 * π * a * (d - b)))) *
-              ((spinCalPhic a (d + b) * spinCalFc a (d + b)) *
-               (spinCalPhic a (d - b) * spinCalFc a (d - b))) := by ring
-        _ = ((1 + xiStar ^ 2) / (1 + b ^ 2) / spinCalPhi xiStar ^ 2) *
+              (Real.sqrt a * Real.exp (4 * π * a * (d - b)) * spinCalFc a (d - b)) =
+          ((1 + xiStar ^ 2) / (1 + b ^ 2) / spinCalPhi xiStar ^ 2) *
               (Real.exp (-(d ^ 2 / spinSigma0 ^ 2)) *
                 Real.exp (-spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) - (b ^ 2 - xiStar ^ 2) ^ 2)) *
               a * Real.exp (12 * a * spinL b) *
               (Real.tanh ((b + d) / 2) ^ 2 * Real.tanh ((b - d) / 2) ^ 2) := by
-              rw [Real.exp_add, hsqa, hexp, hphip, hphim]
+        calc Real.exp (-(12 * a) * (2 * π / 3) * (d - |b|)) * ((1 + xiStar ^ 2) / (1 + b ^ 2)) *
+                (spinCalPhic a (d + b) * spinCalPhic a (d - b) / spinCalPhi xiStar ^ 2) *
+                Real.exp (-d ^ 2 / spinSigma0 ^ 2 - spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) -
+                  (b ^ 2 - xiStar ^ 2) ^ 2) *
+                (Real.sqrt a * Real.exp (4 * π * a * (d + b)) * spinCalFc a (d + b)) *
+                (Real.sqrt a * Real.exp (4 * π * a * (d - b)) * spinCalFc a (d - b))
+            = ((1 + xiStar ^ 2) / (1 + b ^ 2) / spinCalPhi xiStar ^ 2) *
+                (Real.exp (-(d ^ 2 / spinSigma0 ^ 2) +
+                  (-spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) - (b ^ 2 - xiStar ^ 2) ^ 2))) *
+                (Real.sqrt a * Real.sqrt a) *
+                (Real.exp (-(12 * a) * (2 * π / 3) * (d - |b|)) *
+                  (Real.exp (4 * π * a * (d + b)) * Real.exp (4 * π * a * (d - b)))) *
+                ((spinCalPhic a (d + b) * spinCalFc a (d + b)) *
+                 (spinCalPhic a (d - b) * spinCalFc a (d - b))) := by ring
+          _ = ((1 + xiStar ^ 2) / (1 + b ^ 2) / spinCalPhi xiStar ^ 2) *
+                (Real.exp (-(d ^ 2 / spinSigma0 ^ 2)) *
+                  Real.exp (-spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) - (b ^ 2 - xiStar ^ 2) ^ 2)) *
+                a * Real.exp (12 * a * spinL b) *
+                (Real.tanh ((b + d) / 2) ^ 2 * Real.tanh ((b - d) / 2) ^ 2) := by
+                rw [Real.exp_add, hsqa, hexp, hphip, hphim]
+      symm
       calc 4 * (Real.exp (-(12 * a) * (2 * π / 3) * (d - |b|)) * ((1 + xiStar ^ 2) / (1 + b ^ 2)) *
               (spinCalPhic a (d + b) * spinCalPhic a (d - b) / spinCalPhi xiStar ^ 2) *
               Real.exp (-d ^ 2 / spinSigma0 ^ 2 - spinAlpha1 * (b ^ 2 - xiStar ^ 2) / (2 * xiStar) -
@@ -380,6 +404,18 @@ private lemma map_volume_swap_s4 :
   change Measure.map Prod.swap (volume : Measure (ℝ × ℝ)) = volume
   rw [Measure.volume_eq_prod, Measure.prod_swap]
 
+private lemma setIntegral_union_s4 {f : ℝ × ℝ → ℝ} (hf : Integrable f volume)
+    {S T : Set (ℝ × ℝ)} (hd : Disjoint S T) (hS : MeasurableSet S) (hT : MeasurableSet T) :
+    ∫ p in S ∪ T, f p = (∫ p in S, f p) + ∫ p in T, f p := by
+  rw [← integral_indicator (hS.union hT), ← integral_indicator hS, ← integral_indicator hT,
+    ← integral_add (hf.indicator hS) (hf.indicator hT)]
+  congr 1; ext p
+  by_cases h1 : p ∈ S <;> by_cases h2 : p ∈ T
+  · exact absurd h2 (Set.disjoint_left.mp hd h1)
+  · simp [h1, h2]
+  · simp [h1, h2]
+  · simp [h1, h2]
+
 private lemma integral_quad1_d4 {F : ℝ × ℝ → ℝ}
     (hF_int : Integrable F volume)
     (hF_nl : ∀ x y : ℝ, F (-x, y) = F (x, y))
@@ -471,16 +507,19 @@ private lemma integral_quad1_d4 {F : ℝ × ℝ → ℝ}
       · exact absurd ha.1 h2.1.not_gt
       · exact absurd hb.2 h2.2.not_gt
       · exact absurd hc.1 h2.1.not_gt
+  have hu1 := setIntegral_union hd1 hm_np hF_int.integrableOn hF_int.integrableOn
+  have hu2 := setIntegral_union hd2 hm_pn hF_int.integrableOn hF_int.integrableOn
+  have hu3 := setIntegral_union hd3 hm_nn hF_int.integrableOn hF_int.integrableOn
+  have hcongr : ∫ q in Qpp ∪ Qnp ∪ Qpn ∪ Qnn, F q = ∫ q in (Set.univ : Set (ℝ × ℝ)), F q :=
+    setIntegral_congr_set hunion
+  have huniv_eq : ∫ q in (Set.univ : Set (ℝ × ℝ)), F q = ∫ q : ℝ × ℝ, F q := setIntegral_univ
   calc 4 * ∫ q in Q1, F q
-      = ∫ q in Qpp, F q + ∫ q in Qnp, F q + ∫ q in Qpn, F q + ∫ q in Qnn, F q := by
-        rw [hQ1_eq_pp, h_np, h_pn, h_nn]; ring
-    _ = ∫ q in (Qpp ∪ Qnp ∪ Qpn ∪ Qnn), F q := by
-        rw [setIntegral_union hd3 hm_nn hF_int.integrableOn hF_int.integrableOn,
-          setIntegral_union hd2 hm_pn hF_int.integrableOn hF_int.integrableOn,
-          setIntegral_union hd1 hm_np hF_int.integrableOn hF_int.integrableOn]
-        rfl
-    _ = ∫ q in (Set.univ : Set (ℝ × ℝ)), F q := setIntegral_congr_set hunion
-    _ = ∫ q : ℝ × ℝ, F q := setIntegral_univ
+      = 4 * ∫ q in Qpp, F q := by rw [hQ1_eq_pp]
+    _ = (∫ q in Qpp, F q) + (∫ q in Qnp, F q) + (∫ q in Qpn, F q) + (∫ q in Qnn, F q) := by
+        rw [h_np, h_pn, h_nn]; ring
+    _ = ∫ q in Qpp ∪ Qnp ∪ Qpn ∪ Qnn, F q := by rw [← hu1, ← hu2, ← hu3]
+    _ = ∫ q in (Set.univ : Set (ℝ × ℝ)), F q := hcongr
+    _ = ∫ q : ℝ × ℝ, F q := huniv_eq
 
 /-! ### Unified calibrated adjoint formula `(s4:eP.0)` and `(s4:eR.6)` -/
 
@@ -510,6 +549,7 @@ lemma spinCal_adjoint_identity
   intro n a
   have ha2 : 2 < a := by dsimp [a, n]; linarith
   have ha0 : 0 < a := by linarith
+  have hn_pos : 0 < n := by dsimp [n]; linarith
   have hn_eq : 12 * a = n := by dsimp [a]; ring
   obtain ⟨_c_σ, C_rc, _hcσ_pos, hCrc_pos, hRc_bd⟩ := spinS4_2_2_abs_bound
   have hRc_ub : ∀ ξ d : ℝ, |d| ≤ ξ → spinRc a ξ d ≤ 1 + C_rc / n := fun ξ d hd => by
@@ -566,13 +606,16 @@ lemma spinCal_adjoint_identity
         _ ≤ Mφ * (1 + C_rc / n) := mul_le_mul_of_nonneg_left hrc_sum hMφ
     have hw1 := spinWc_nonneg ha2.le p.1
     have hw2 := spinWc_nonneg ha2.le p.2
-    simp only [Real.norm_eq_abs, abs_mul, abs_of_nonneg hw1, abs_of_nonneg hw2]
     have hF_abs : |F p| ≤ |spinG a Φ p.1 p.2| := hF_bd p
-    calc |(spinRc1 a (spinLongDist p) ((|p.1| - |p.2|) / 2) * φ (spinLongDist p) +
-            spinRc2 a (spinLongDist p) ((|p.1| - |p.2|) / 2) * φ (spinTransDist p))| *
-          |F p| * spinWc a p.1 * spinWc a p.2
-        ≤ (Mφ * (1 + C_rc / n)) * |spinG a Φ p.1 p.2| * spinWc a p.1 * spinWc a p.2 := by gcongr
-      _ = _ := by ring
+    rw [Real.norm_eq_abs]
+    calc |K_rhs p|
+        = |spinRc1 a (spinLongDist p) ((|p.1| - |p.2|) / 2) * φ (spinLongDist p) +
+            spinRc2 a (spinLongDist p) ((|p.1| - |p.2|) / 2) * φ (spinTransDist p)| *
+          |F p| * spinWc a p.1 * spinWc a p.2 := by
+          dsimp [K_rhs]; simp only [abs_mul, abs_of_nonneg hw1, abs_of_nonneg hw2]
+      _ ≤ (Mφ * (1 + C_rc / n)) * |spinG a Φ p.1 p.2| * spinWc a p.1 * spinWc a p.2 := by
+          gcongr
+      _ = Mφ * (1 + C_rc / n) * (|spinG a Φ p.1 p.2| * spinWc a p.1 * spinWc a p.2) := by ring
   let H_bd : ℝ × ℝ → ℝ := fun p =>
     a * Real.exp (n * spinL p.1) * φ |p.1| *
       (4 * spinCalF xiStar ^ 2 * spinHbCalReal p.1 p.2 * F (p.1 + p.2, p.1 - p.2))
@@ -696,27 +739,36 @@ lemma spinCal_adjoint_identity
       (isOpen_lt continuous_fst continuous_const).measurableSet
   have hm3 : MeasurableSet S₃ := (isOpen_lt continuous_fst.abs continuous_snd).measurableSet
   have hm4 : MeasurableSet S₄ := (isOpen_lt continuous_snd continuous_fst.abs.neg).measurableSet
-  have hd12 : Disjoint S₁ S₂ := Set.disjoint_left.mpr fun p h1 h2 => by linarith [abs_nonneg p.2, h1, h2.2]
+  have hd12 : Disjoint S₁ S₂ := Set.disjoint_left.mpr fun p h1 h2 => by
+    dsimp [S₁, S₂] at h1 h2
+    linarith [abs_nonneg p.2, h1, h2.2]
   have hd123 : Disjoint (S₁ ∪ S₂) S₃ := Set.disjoint_left.mpr fun p h12 h3 => by
+    have h3' : |p.1| < p.2 := h3
     rcases h12 with h1 | h2
-    · exact absurd h1 (not_le_of_gt (lt_of_abs_lt h3))
-    · have : |p.2| ≤ |p.1| := by rw [abs_of_neg h2.2]; linarith [h2.1]
-      exact absurd h3 (not_lt_of_ge (this.trans (le_abs_self p.2)))
+    · have h1' : |p.2| ≤ p.1 := h1
+      linarith [le_abs_self p.2, lt_of_abs_lt h3', h1']
+    · have h2' : p.1 ≤ -|p.2| ∧ p.1 < 0 := h2
+      have : |p.2| ≤ |p.1| := by rw [abs_of_neg h2'.2]; linarith [h2'.1]
+      linarith [this, le_abs_self p.2, h3']
   have hd1234 : Disjoint (S₁ ∪ S₂ ∪ S₃) S₄ := Set.disjoint_left.mpr fun p h123 h4 => by
+    have h4' : p.2 < -|p.1| := h4
     rcases h123 with (h1 | h2) | h3
-    · have : p.2 ≤ |p.2| := le_abs_self _; exact absurd h4 (by linarith [abs_nonneg p.1, h1])
-    · have : -p.1 = |p.1| := (abs_of_neg h2.2).symm
-      have : -|p.2| ≤ -|p.1| := by linarith [h2.1]
-      linarith [neg_abs_le p.2]
-    · linarith [abs_nonneg p.1, h3]
+    · have h1' : |p.2| ≤ p.1 := h1
+      linarith [neg_abs_le p.2, le_abs_self p.1, h1', h4']
+    · have h2' : p.1 ≤ -|p.2| ∧ p.1 < 0 := h2
+      have habs : -p.1 = |p.1| := (abs_of_neg h2'.2).symm
+      have : -|p.1| ≤ -|p.2| := by linarith [h2'.1, habs]
+      linarith [neg_abs_le p.2, h4']
+    · have h3' : |p.1| < p.2 := h3
+      linarith [abs_nonneg p.1, h3', h4']
   have huniv : S₁ ∪ S₂ ∪ S₃ ∪ S₄ = Set.univ := by
     ext p
     simp only [Set.mem_union, Set.mem_ofPred_eq, Set.mem_univ, iff_true, S₁, S₂, S₃, S₄]
-    rcases le_total |p.2| |p.1| with h | h
+    rcases le_or_gt |p.2| |p.1| with h | h
     · rcases le_or_gt 0 p.1 with hp1 | hp1
       · left; left; left; rwa [abs_of_nonneg hp1] at h
       · left; left; right; exact ⟨by rw [abs_of_neg hp1] at h; linarith, hp1⟩
-    · rcases le_total 0 p.2 with hp2 | hp2
+    · rcases le_or_gt 0 p.2 with hp2 | hp2
       · left; right; rwa [abs_of_nonneg hp2] at h
       · right; rw [abs_of_neg hp2] at h; linarith
   let K1 : ℝ × ℝ → ℝ := fun q =>
@@ -736,17 +788,21 @@ lemma spinCal_adjoint_identity
         rcases le_total |p.1| |p.2| with h | h
         · rw [abs_of_nonpos (sub_nonpos.mpr h)]; linarith [abs_nonneg p.1]
         · rw [abs_of_nonneg (sub_nonneg.mpr h)]; linarith [abs_nonneg p.2]
-      rw [Real.norm_eq_abs, abs_mul, abs_mul, abs_mul, abs_mul,
-        abs_of_nonneg (spinRc1_nonneg ha2.le _ _), abs_of_nonneg (spinWc_nonneg ha2.le _),
-        abs_of_nonneg (spinWc_nonneg ha2.le _)]
-      calc _ ≤ (1 + C_rc / n) * Mφ * |spinG a Φ p.1 p.2| * spinWc a p.1 * spinWc a p.2 := by
+      have h1 := hRc1_ub (spinLongDist p) ((|p.1| - |p.2|) / 2) hξd
+      have h2 := hφ_bd (spinLongDist p)
+      have h3 := hF_bd p
+      have h4 := spinWc_nonneg ha2.le p.1
+      have h5 := spinWc_nonneg ha2.le p.2
+      rw [Real.norm_eq_abs]
+      calc |K1 p|
+          = spinRc1 a (spinLongDist p) ((|p.1| - |p.2|) / 2) * |φ (spinLongDist p)| *
+              |F p| * spinWc a p.1 * spinWc a p.2 := by
+            dsimp [K1]
+            simp only [abs_mul, abs_of_nonneg (spinRc1_nonneg ha2.le _ _),
+              abs_of_nonneg h4, abs_of_nonneg h5]
+        _ ≤ (1 + C_rc / n) * Mφ * |spinG a Φ p.1 p.2| * spinWc a p.1 * spinWc a p.2 := by
             gcongr
-            · exact hRc1_ub _ _ hξd
-            · exact hφ_bd _
-            · exact hF_bd p
-            · exact spinWc_nonneg ha2.le _
-            · exact spinWc_nonneg ha2.le _
-        _ = _ := by ring
+        _ = Mφ * (1 + C_rc / n) * (|spinG a Φ p.1 p.2| * spinWc a p.1 * spinWc a p.2) := by ring
   have hK2_int : Integrable K2 := by
     refine (hG_int.const_mul (Mφ * (1 + C_rc / n))).mono' ?_ (Eventually.of_forall fun p => ?_)
     · exact ((((measurable_spinRc2 a).mul (hφ_meas.comp
@@ -758,37 +814,41 @@ lemma spinCal_adjoint_identity
         rcases le_total |p.1| |p.2| with h | h
         · rw [abs_of_nonpos (sub_nonpos.mpr h)]; linarith [abs_nonneg p.1]
         · rw [abs_of_nonneg (sub_nonneg.mpr h)]; linarith [abs_nonneg p.2]
-      rw [Real.norm_eq_abs, abs_mul, abs_mul, abs_mul, abs_mul,
-        abs_of_nonneg (spinRc2_nonneg ha2.le _ _), abs_of_nonneg (spinWc_nonneg ha2.le _),
-        abs_of_nonneg (spinWc_nonneg ha2.le _)]
-      calc _ ≤ (1 + C_rc / n) * Mφ * |spinG a Φ p.1 p.2| * spinWc a p.1 * spinWc a p.2 := by
+      have h1 := hRc2_ub (spinLongDist p) ((|p.1| - |p.2|) / 2) hξd
+      have h2 := hφ_bd (spinTransDist p)
+      have h3 := hF_bd p
+      have h4 := spinWc_nonneg ha2.le p.1
+      have h5 := spinWc_nonneg ha2.le p.2
+      rw [Real.norm_eq_abs]
+      calc |K2 p|
+          = spinRc2 a (spinLongDist p) ((|p.1| - |p.2|) / 2) * |φ (spinTransDist p)| *
+              |F p| * spinWc a p.1 * spinWc a p.2 := by
+            dsimp [K2]
+            simp only [abs_mul, abs_of_nonneg (spinRc2_nonneg ha2.le _ _),
+              abs_of_nonneg h4, abs_of_nonneg h5]
+        _ ≤ (1 + C_rc / n) * Mφ * |spinG a Φ p.1 p.2| * spinWc a p.1 * spinWc a p.2 := by
             gcongr
-            · exact hRc2_ub _ _ hξd
-            · exact hφ_bd _
-            · exact hF_bd p
-            · exact spinWc_nonneg ha2.le _
-            · exact spinWc_nonneg ha2.le _
-        _ = _ := by ring
-  have hK_split : ∫ p, K_rhs p = ∫ p, K1 p + ∫ p, K2 p := by
+        _ = Mφ * (1 + C_rc / n) * (|spinG a Φ p.1 p.2| * spinWc a p.1 * spinWc a p.2) := by ring
+  have hK_split : ∫ p, K_rhs p = (∫ p, K1 p) + ∫ p, K2 p := by
     rw [← integral_add hK1_int hK2_int]
     refine integral_congr_ae (Eventually.of_forall fun p => ?_)
     dsimp [K_rhs, K1, K2]; ring
   have hS1_eq : 2 * ∫ p in S₁, H_bd p = ∫ p, K1 p := by
     let Q₁ : Set (ℝ × ℝ) := {q | 0 ≤ q.1 ∧ 0 ≤ q.2}
     have hS1_pre : ∫ p in S₁, H_bd p =
-        ∫ p : ℝ × ℝ, Q₁.indicator (fun q => (4 : ℝ) * K1 q) (xdToUV_s4 p) := by
+        ∫ p : ℝ × ℝ, Q₁.indicator (fun q => (4 : ℝ) * K1 q) (p.1 + p.2, p.1 - p.2) := by
       rw [← integral_indicator hm1]
       refine integral_congr_ae (Eventually.of_forall fun p => ?_)
       by_cases hp : p ∈ S₁
-      · have hq : xdToUV_s4 p ∈ Q₁ := by
-          simp only [xdToUV_s4, MeasurableEquiv.coe_mk, Equiv.coe_fn_mk, Q₁, Set.mem_ofPred_eq]
-          have := abs_le.mp hp; constructor <;> linarith
+      · have hp' : |p.2| ≤ p.1 := hp
+        have hq : (p.1 + p.2, p.1 - p.2) ∈ Q₁ := by
+          dsimp [Q₁]; have := abs_le.mp hp'; constructor <;> linarith
         simp only [Set.indicator_of_mem hp, Set.indicator_of_mem hq]
-        dsimp [H_bd, K1, xdToUV_s4, spinLongDist]
-        have hb0 : 0 ≤ p.1 := (abs_nonneg p.2).trans hp
-        have hxL0 : 0 ≤ p.1 + p.2 := by linarith [abs_le.mp hp]
-        have hxR0 : 0 ≤ p.1 - p.2 := by linarith [abs_le.mp hp]
-        have heq := spinHbCalReal_eq_spinRc1 ha2 hp
+        dsimp [H_bd, K1, spinLongDist]
+        have hb0 : 0 ≤ p.1 := (abs_nonneg p.2).trans hp'
+        have hxL0 : 0 ≤ p.1 + p.2 := by linarith [abs_le.mp hp']
+        have hxR0 : 0 ≤ p.1 - p.2 := by linarith [abs_le.mp hp']
+        have heq := spinHbCalReal_eq_spinRc1 ha2 hp'
         rw [hn_eq] at heq
         have hs1 : (1 / 2 : ℝ) * (|p.1 + p.2| + |p.1 - p.2|) = p.1 := by
           rw [abs_of_nonneg hxL0, abs_of_nonneg hxR0]; ring
@@ -801,16 +861,20 @@ lemma spinCal_adjoint_identity
           _ = (4 * spinRc1 a p.1 p.2 * spinWc a (p.1 + p.2) * spinWc a (p.1 - p.2)) *
                 φ p.1 * F (p.1 + p.2, p.1 - p.2) := by rw [heq]
           _ = _ := by ring
-      · have hq : xdToUV_s4 p ∉ Q₁ := by
-          simp only [xdToUV_s4, MeasurableEquiv.coe_mk, Equiv.coe_fn_mk, Q₁, Set.mem_ofPred_eq, not_and, not_le]
-          intro h1 h2; apply hp; exact abs_le.mpr ⟨by linarith, by linarith⟩
+      · have hq : (p.1 + p.2, p.1 - p.2) ∉ Q₁ := by
+          intro hq
+          have hq' : 0 ≤ p.1 + p.2 ∧ 0 ≤ p.1 - p.2 := hq
+          have hmem : |p.2| ≤ p.1 := abs_le.mpr ⟨by linarith [hq'.1], by linarith [hq'.2]⟩
+          exact hp hmem
         simp [Set.indicator_of_notMem hp, Set.indicator_of_notMem hq]
+    have hmQ₁ : MeasurableSet Q₁ :=
+      (isClosed_le continuous_const continuous_fst).measurableSet.inter
+        (isClosed_le continuous_const continuous_snd).measurableSet
     rw [hS1_pre, integral_xi_d_s4 (Q₁.indicator (fun q => (4 : ℝ) * K1 q)),
-      integral_indicator ((isClosed_le continuous_const continuous_fst).measurableSet.inter
-        (isClosed_le continuous_const continuous_snd).measurableSet)]
+      integral_indicator hmQ₁]
     have hpull : ∫ q in Q₁, (4 : ℝ) * K1 q = (4 : ℝ) * ∫ q in Q₁, K1 q := by
       simp_rw [integral_const_mul]
-    rw [hpull, ← mul_assoc, show (2 : ℝ) * ((1 / 2 : ℝ) * (4 : ℝ)) = 4 by ring]
+    rw [hpull, show (2 : ℝ) * ((1 / 2 : ℝ) * (4 * ∫ q in Q₁, K1 q)) = 4 * ∫ q in Q₁, K1 q by ring]
     have hK1_nl : ∀ x y : ℝ, K1 (-x, y) = K1 (x, y) := fun x y => by
       dsimp [K1, spinLongDist]; rw [abs_neg, hF_nl, spinWc_even]
     have hK1_nr : ∀ x y : ℝ, K1 (x, -y) = K1 (x, y) := fun x y => by
@@ -818,17 +882,24 @@ lemma spinCal_adjoint_identity
     exact integral_quad1_d4 hK1_int hK1_nl hK1_nr
   have hS2_eq : ∫ p in S₂, H_bd p = ∫ p in S₁, H_bd p := by
     let e : ℝ × ℝ ≃ᵐ ℝ × ℝ := (MeasurableEquiv.neg ℝ).prodCongr (MeasurableEquiv.neg ℝ)
+    have he_val : ∀ b d : ℝ, e (b, d) = (-b, -d) := fun _ _ => rfl
     have hS2_ae : (fun p => H_bd (e p)) = H_bd := by
       ext ⟨b, d⟩
-      dsimp [H_bd, e]
+      rw [he_val]
+      dsimp [H_bd]
       rw [show spinL (-b) = spinL b by unfold spinL; rw [abs_neg],
         abs_neg, spinHbCalReal_neg, show -b + -d = -(b + d) by ring,
         show -b - -d = -(b - d) by ring, hF_nl, hF_nr]
     have hS2_set : e ⁻¹' S₁ =ᵐ[volume] S₂ := by
-      have h0 : volume ({(0, 0)} : Set (ℝ × ℝ)) = 0 := Real.volume_singleton
+      have h0 : volume ({(0, 0)} : Set (ℝ × ℝ)) = 0 := by
+        rw [← Set.singleton_prod_singleton, Measure.volume_eq_prod, Measure.prod_prod,
+          Real.volume_singleton, zero_mul]
       filter_upwards [compl_mem_ae_iff.mpr h0] with p hp
-      simp only [e, MeasurableEquiv.prodCongr_apply, MeasurableEquiv.coe_neg, Prod.map_apply,
-        Set.mem_preimage, Set.mem_ofPred_eq, S₁, S₂, abs_neg]
+      have he_p : e p = (-p.1, -p.2) := rfl
+      change e p ∈ S₁ ↔ p ∈ S₂
+      rw [he_p]
+      dsimp [S₁, S₂]
+      rw [abs_neg]
       constructor
       · intro h
         refine ⟨by linarith, ?_⟩
@@ -840,13 +911,15 @@ lemma spinCal_adjoint_identity
         exact hp (Prod.ext hp1 hp2)
       · rintro ⟨h1, _⟩; linarith
     have he1 : ∫ p in S₁, H_bd p = ∫ p, S₂.indicator H_bd p := by
-      rw [← integral_indicator hm1,
-        ← (integral_map_equiv (μ := (volume : Measure (ℝ × ℝ))) e (S₁.indicator H_bd)).symm,
-        map_volume_neg_both]
+      rw [← integral_indicator hm1]
+      have hmap := integral_map_equiv (μ := (volume : Measure (ℝ × ℝ))) e (S₁.indicator H_bd)
+      rw [map_volume_neg_both] at hmap
+      rw [hmap]
       refine integral_congr_ae ?_
       filter_upwards [hS2_set] with p hp
       have hLHS : S₁.indicator H_bd (e p) = (e ⁻¹' S₁).indicator (fun q => H_bd (e q)) p := by
-        by_cases h : p ∈ e ⁻¹' S₁ <;> simp [Set.indicator, h]
+        by_cases h : p ∈ e ⁻¹' S₁ <;> simp [Set.indicator, Set.mem_preimage, h]
+      dsimp only
       rw [hLHS, hS2_ae]
       by_cases h1 : p ∈ e ⁻¹' S₁
       · have h2 : p ∈ S₂ := hp.mp h1
@@ -857,20 +930,20 @@ lemma spinCal_adjoint_identity
   have hS3_eq : 2 * ∫ p in S₃, H_bd p = ∫ p, K2 p := by
     let Q₁ : Set (ℝ × ℝ) := {q | 0 ≤ q.1 ∧ 0 ≤ q.2}
     let e_sw : ℝ × ℝ ≃ᵐ ℝ × ℝ := MeasurableEquiv.prodComm
+    have he_sw_val : ∀ p : ℝ × ℝ, e_sw p = (p.2, p.1) := fun _ => rfl
     have hS3_pre : ∫ p in S₃, H_bd p =
-        ∫ p : ℝ × ℝ, Q₁.indicator (fun q => (4 : ℝ) * K2 q) (xdToUV_s4 (e_sw p)) := by
+        ∫ p : ℝ × ℝ, Q₁.indicator (fun q => (4 : ℝ) * K2 q) (p.2 + p.1, p.2 - p.1) := by
       rw [← integral_indicator hm3]
       refine integral_congr_ae (Eventually.of_forall fun p => ?_)
       by_cases hp : p ∈ S₃
-      · have hq : xdToUV_s4 (e_sw p) ∈ Q₁ := by
-          simp only [xdToUV_s4, e_sw, MeasurableEquiv.coe_mk, Equiv.coe_fn_mk,
-            MeasurableEquiv.coe_prodComm, Q₁, Set.mem_ofPred_eq]
-          have := abs_lt.mp hp; constructor <;> linarith
+      · have hp' : |p.1| < p.2 := hp
+        have hq : (p.2 + p.1, p.2 - p.1) ∈ Q₁ := by
+          dsimp [Q₁]; have := abs_lt.mp hp'; constructor <;> linarith
         simp only [Set.indicator_of_mem hp, Set.indicator_of_mem hq]
-        dsimp [H_bd, K2, xdToUV_s4, e_sw, spinLongDist, spinTransDist]
-        have hdp0 : 0 ≤ p.2 + p.1 := by linarith [abs_lt.mp hp]
-        have hdm0 : 0 ≤ p.2 - p.1 := by linarith [abs_lt.mp hp]
-        have heq := spinHbCalReal_eq_spinRc2 ha2 hp.le
+        dsimp [H_bd, K2, spinLongDist, spinTransDist]
+        have hdp0 : 0 ≤ p.2 + p.1 := by linarith [abs_lt.mp hp']
+        have hdm0 : 0 ≤ p.2 - p.1 := by linarith [abs_lt.mp hp']
+        have heq := spinHbCalReal_eq_spinRc2 ha2 hp'.le
         rw [hn_eq] at heq
         have hs1 : (1 / 2 : ℝ) * (|p.2 + p.1| + |p.2 - p.1|) = p.2 := by
           rw [abs_of_nonneg hdp0, abs_of_nonneg hdm0]; ring
@@ -886,7 +959,7 @@ lemma spinCal_adjoint_identity
         have hw_eq : spinWc a (p.2 + p.1) * spinWc a (p.2 - p.1) =
             spinWc a (p.1 + p.2) * spinWc a (p.1 - p.2) := by
           rw [show p.2 + p.1 = p.1 + p.2 by ring, show p.2 - p.1 = -(p.1 - p.2) by ring, spinWc_even]
-        rw [hF_eq, hw_eq]
+        rw [hF_eq, mul_assoc _ (spinWc a (p.2 + p.1)) (spinWc a (p.2 - p.1)), hw_eq]
         calc a * Real.exp (n * spinL p.1) * φ |p.1| *
                 (4 * spinCalF xiStar ^ 2 * spinHbCalReal p.1 p.2 * F (p.1 + p.2, p.1 - p.2))
             = (4 * spinCalF xiStar ^ 2 * (a * Real.exp (n * spinL p.1) * spinHbCalReal p.1 p.2)) *
@@ -894,32 +967,35 @@ lemma spinCal_adjoint_identity
           _ = (4 * spinRc2 a p.2 p.1 * spinWc a (p.1 + p.2) * spinWc a (p.1 - p.2)) *
                 φ |p.1| * F (p.1 + p.2, p.1 - p.2) := by rw [heq]
           _ = _ := by ring
-      · by_cases hq : xdToUV_s4 (e_sw p) ∈ Q₁
+      · have hp' : ¬ |p.1| < p.2 := hp
+        by_cases hq : (p.2 + p.1, p.2 - p.1) ∈ Q₁
         · simp only [Set.indicator_of_notMem hp, Set.indicator_of_mem hq]
-          simp only [xdToUV_s4, e_sw, MeasurableEquiv.coe_mk, Equiv.coe_fn_mk,
-            MeasurableEquiv.coe_prodComm, Q₁, Set.mem_ofPred_eq] at hq
-          have hle : |p.1| ≤ p.2 := abs_le.mpr ⟨by linarith, by linarith⟩
-          have heq_abs : |p.1| = p.2 := le_antisymm hle (not_lt.mp hp)
+          have hq' : 0 ≤ p.2 + p.1 ∧ 0 ≤ p.2 - p.1 := hq
+          have hle : |p.1| ≤ p.2 := abs_le.mpr ⟨by linarith [hq'.1], by linarith [hq'.2]⟩
+          have heq_abs : |p.1| = p.2 := le_antisymm hle (not_lt.mp hp')
           have hwc0 : spinWc a (p.2 + p.1) * spinWc a (p.2 - p.1) = 0 := by
             rcases le_or_gt 0 p.1 with hp1 | hp1
             · rw [abs_of_nonneg hp1] at heq_abs
               rw [show p.2 - p.1 = 0 by linarith, spinWc_zero, mul_zero]
             · rw [abs_of_neg hp1] at heq_abs
               rw [show p.2 + p.1 = 0 by linarith, spinWc_zero, zero_mul]
-          dsimp [K2, xdToUV_s4, e_sw]
+          dsimp [K2]
           rw [mul_assoc, hwc0, mul_zero, mul_zero]
         · simp [Set.indicator_of_notMem hp, Set.indicator_of_notMem hq]
-    have hsw_eq : ∫ p : ℝ × ℝ, Q₁.indicator (fun q => (4 : ℝ) * K2 q) (xdToUV_s4 (e_sw p)) =
-        ∫ p : ℝ × ℝ, Q₁.indicator (fun q => (4 : ℝ) * K2 q) (xdToUV_s4 p) := by
-      rw [← (integral_map_equiv (μ := (volume : Measure (ℝ × ℝ))) e_sw
-          (fun q => Q₁.indicator (fun q => (4 : ℝ) * K2 q) (xdToUV_s4 q))).symm,
-        map_volume_swap_s4]
+    have hsw_eq : ∫ p : ℝ × ℝ, Q₁.indicator (fun q => (4 : ℝ) * K2 q) (p.2 + p.1, p.2 - p.1) =
+        ∫ p : ℝ × ℝ, Q₁.indicator (fun q => (4 : ℝ) * K2 q) (p.1 + p.2, p.1 - p.2) := by
+      have hmap := integral_map_equiv (μ := (volume : Measure (ℝ × ℝ))) e_sw
+        (fun q => Q₁.indicator (fun q => (4 : ℝ) * K2 q) (q.1 + q.2, q.1 - q.2))
+      rw [map_volume_swap_s4] at hmap
+      simpa only [he_sw_val] using hmap.symm
+    have hmQ₁ : MeasurableSet Q₁ :=
+      (isClosed_le continuous_const continuous_fst).measurableSet.inter
+        (isClosed_le continuous_const continuous_snd).measurableSet
     rw [hS3_pre, hsw_eq, integral_xi_d_s4 (Q₁.indicator (fun q => (4 : ℝ) * K2 q)),
-      integral_indicator ((isClosed_le continuous_const continuous_fst).measurableSet.inter
-        (isClosed_le continuous_const continuous_snd).measurableSet)]
+      integral_indicator hmQ₁]
     have hpull : ∫ q in Q₁, (4 : ℝ) * K2 q = (4 : ℝ) * ∫ q in Q₁, K2 q := by
       simp_rw [integral_const_mul]
-    rw [hpull, ← mul_assoc, show (2 : ℝ) * ((1 / 2 : ℝ) * (4 : ℝ)) = 4 by ring]
+    rw [hpull, show (2 : ℝ) * ((1 / 2 : ℝ) * (4 * ∫ q in Q₁, K2 q)) = 4 * ∫ q in Q₁, K2 q by ring]
     have hK2_nl : ∀ x y : ℝ, K2 (-x, y) = K2 (x, y) := fun x y => by
       dsimp [K2, spinLongDist, spinTransDist]; rw [abs_neg, hF_nl, spinWc_even]
     have hK2_nr : ∀ x y : ℝ, K2 (x, -y) = K2 (x, y) := fun x y => by
@@ -927,34 +1003,41 @@ lemma spinCal_adjoint_identity
     exact integral_quad1_d4 hK2_int hK2_nl hK2_nr
   have hS4_eq : ∫ p in S₄, H_bd p = ∫ p in S₃, H_bd p := by
     let e : ℝ × ℝ ≃ᵐ ℝ × ℝ := (MeasurableEquiv.neg ℝ).prodCongr (MeasurableEquiv.neg ℝ)
+    have he_val : ∀ b d : ℝ, e (b, d) = (-b, -d) := fun _ _ => rfl
     have hS4_ae : (fun p => H_bd (e p)) = H_bd := by
       ext ⟨b, d⟩
-      dsimp [H_bd, e]
+      rw [he_val]
+      dsimp [H_bd]
       rw [show spinL (-b) = spinL b by unfold spinL; rw [abs_neg],
         abs_neg, spinHbCalReal_neg, show -b + -d = -(b + d) by ring,
         show -b - -d = -(b - d) by ring, hF_nl, hF_nr]
     have hS4_set : e ⁻¹' S₃ = S₄ := by
       ext p
-      simp only [e, MeasurableEquiv.prodCongr_apply, MeasurableEquiv.coe_neg,
-        Set.mem_preimage, Set.mem_ofPred_eq, S₃, S₄, abs_neg]
+      have he_p : e p = (-p.1, -p.2) := rfl
+      change e p ∈ S₃ ↔ p ∈ S₄
+      rw [he_p]
+      dsimp [S₃, S₄]
+      rw [abs_neg]
       constructor <;> intro h <;> linarith
     have he1 : ∫ p in S₃, H_bd p = ∫ p, S₄.indicator H_bd p := by
-      rw [← integral_indicator hm3,
-        ← (integral_map_equiv (μ := (volume : Measure (ℝ × ℝ))) e (S₃.indicator H_bd)).symm,
-        map_volume_neg_both]
+      rw [← integral_indicator hm3]
+      have hmap := integral_map_equiv (μ := (volume : Measure (ℝ × ℝ))) e (S₃.indicator H_bd)
+      rw [map_volume_neg_both] at hmap
+      rw [hmap]
       refine integral_congr_ae (Eventually.of_forall fun p => ?_)
       have hLHS : S₃.indicator H_bd (e p) = (e ⁻¹' S₃).indicator (fun q => H_bd (e q)) p := by
-        by_cases h : p ∈ e ⁻¹' S₃ <;> simp [Set.indicator, h]
+        by_cases h : p ∈ e ⁻¹' S₃ <;> simp [Set.indicator, Set.mem_preimage, h]
+      dsimp only
       rw [hLHS, hS4_ae, hS4_set]
     rw [he1, integral_indicator hm4]
-  have hu1 : ∫ p in S₁ ∪ S₂, H_bd p = ∫ p in S₁, H_bd p + ∫ p in S₂, H_bd p :=
-    setIntegral_union hd12 hm2 hH_int.integrableOn hH_int.integrableOn
-  have hu2 : ∫ p in S₁ ∪ S₂ ∪ S₃, H_bd p = ∫ p in S₁ ∪ S₂, H_bd p + ∫ p in S₃, H_bd p :=
-    setIntegral_union hd123 hm3 hH_int.integrableOn hH_int.integrableOn
-  have hu3 : ∫ p in S₁ ∪ S₂ ∪ S₃ ∪ S₄, H_bd p = ∫ p in S₁ ∪ S₂ ∪ S₃, H_bd p + ∫ p in S₄, H_bd p :=
-    setIntegral_union hd1234 hm4 hH_int.integrableOn hH_int.integrableOn
+  have hu1 := setIntegral_union_s4 hH_int hd12 hm1 hm2
+  have hu2 := setIntegral_union_s4 hH_int hd123 (hm1.union hm2) hm3
+  have hu3 := setIntegral_union_s4 hH_int hd1234 ((hm1.union hm2).union hm3) hm4
   have hu_all : ∫ p : ℝ × ℝ, H_bd p = ∫ p in S₁ ∪ S₂ ∪ S₃ ∪ S₄, H_bd p := by
     rw [← setIntegral_univ, huniv]
-  linarith only [hu1, hu2, hu3, hu_all, hS1_eq, hS2_eq, hS3_eq, hS4_eq, hK_split]
+  change ∫ (p : ℝ × ℝ), H_bd p = ∫ (p : ℝ × ℝ), K_rhs p
+  rw [hu_all, hu3, hu2, hu1]
+  rw [hS2_eq, hS4_eq, hK_split, ← hS1_eq, ← hS3_eq]
+  ring
 
 end FormalResearch.ModularBootstrap.Spin
