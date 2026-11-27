@@ -19,7 +19,7 @@ Source: `CFT/sign_uncertainty/paper/general_theorems.tex`, `thm:ct-upper` (= `th
 * `CtUpperCEInputs`: the three TeX results used and not in Lean, as named fields: `main_ce` (`fct:main-ce`, the CE upper
   bound with nonemptiness), `ce_nonzero_neg` (the nonvanishing of `f = (g - h)/2` in the proof of `T_c^- ≤ T_c^CE`),
   `ce_radius` (`T_c^CE = r_CE(d)²/2`: `gt:7.9b`, radial averaging, `lem:ce-schwartz`).
-* `ct_upper`: parts (i), (ii) of the theorem, proved from `CtLowerInputs` (`ct_lower`), `FctMainHankelInputs`
+* `ct_upper`: parts (i), (ii) of the theorem, proved from the unconditional `ct_lower`, `FctMainHankelInputs`
   (`fct_main_hankel`) and `CtUpperCEInputs`; the integer-`d` statements for `A_sign^±` use the proved
   `hankel_euclid_dictionary`, `hankelT0_eq_hankelT`, and the Schwartz/`L¹` radius equality is
   `ce_schwartz_radius_eq_L1_radius`.
@@ -211,7 +211,7 @@ structure CtUpperCEInputs : Prop where
   ce_radius : ∀ d : ℕ, 2 ≤ d → optimalL1CERadius d ^ 2 / 2 = hankelTCE ((d : ℝ) / 2)
 
 /-- The real-`c` estimates of `thm:ct-upper` (i), with one constant `S`, and the lower bound `T_c^- > c/(4π)`. -/
-theorem ct_upper_real (L : CtLowerInputs) (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
+theorem ct_upper_real (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
     ∃ c₀ S : ℝ, 1 ≤ c₀ ∧ 0 ≤ S ∧ ∀ c : ℝ, c₀ ≤ c →
       (∀ ε : ℝ, (ε = 1 ∨ ε = -1) → (∃ T f, IsHankelFeasible c ε T f) ∧
         ctDelta5 ε c - S * (c⁻¹ * Real.log c) ≤ hankelT ε c ∧
@@ -220,7 +220,7 @@ theorem ct_upper_real (L : CtLowerInputs) (U : FctMainHankelInputs) (E : CtUpper
         hankelTCE c ≤ ctDelta5 (-1) c + S * c ^ (-(3 / 4 : ℝ)) ∧
       hankelT (-1) c ≤ hankelTCE c ∧ hankelTCE c - hankelT (-1) c ≤ S * c ^ (-(3 / 4 : ℝ)) ∧
       c / (4 * π) < hankelT (-1) c := by
-  obtain ⟨cL, CL, hL⟩ := ct_lower L
+  obtain ⟨cL, CL, hL⟩ := ct_lower
   obtain ⟨Cp, cU, -, hU⟩ := fct_main_hankel U
   obtain ⟨CE, cE, hE⟩ := E.main_ce
   obtain ⟨Cu, cH, hH⟩ := hbThresholdsUpper
@@ -313,7 +313,7 @@ lemma mul_le_mul_right' {a C x : ℝ} (hx : 0 ≤ x) (h : a ≤ C) : a * x ≤ C
 
 set_option maxHeartbeats 1000000 in
 /-- **`thm:ct-upper`** (i)-(ii) (`general_theorems.tex`; = `thm:intro-radii`, `thm:ct-lower`, `gt:7.9`, `cor:fourier-radii`,
-`gt:7.12`, `thm:ce-radius`, parts (i), (ii)), proved under the explicit hypotheses `CtLowerInputs` (`ct_lower`),
+`gt:7.12`, `thm:ce-radius`, parts (i), (ii)), proved from unconditional `ct_lower`, under the explicit hypotheses
 `FctMainHankelInputs` (`fct_main_hankel`) and `CtUpperCEInputs` (`fct:main-ce` and the two reductions).
 
 (i) For `ε = ±1` and real `c ≥ c₀`: `Δ₅^ε(c) - C c⁻¹ log c ≤ T_c^ε ≤ Δ₅^ε(c) + C c^{-3/4}`, the same for `T_c^CE` with `ε = -1`,
@@ -321,7 +321,7 @@ set_option maxHeartbeats 1000000 in
 (ii) For integer `d ≥ 2c₀`, `c = d/2`: `½ A_sign^ε(d)² = Δ₅^ε(c) + O(d^{-3/4})`, `½ r_CE(d)² = Δ₅^-(c) + O(d^{-3/4})`,
 `0 ≤ r_CE(d)² - A_sign^-(d)² = O(d^{-3/4})`, `0 ≤ r_CE(d) - A_sign^-(d) = O(d^{-5/4})`; the Schwartz radius is
 `r_CE(d)` (`ce_schwartz_radius_eq_L1_radius`). -/
-theorem ct_upper (L : CtLowerInputs) (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
+theorem ct_upper (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
     ∃ c₀ C : ℝ, 1 ≤ c₀ ∧ 0 < C ∧
     (∀ c : ℝ, c₀ ≤ c →
       (∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
@@ -341,7 +341,7 @@ theorem ct_upper (L : CtLowerInputs) (U : FctMainHankelInputs) (E : CtUpperCEInp
       (0 ≤ optimalL1CERadius d - aSignNeg d ∧
         optimalL1CERadius d - aSignNeg d ≤ C * (d : ℝ) ^ (-(5 / 4 : ℝ))) ∧
       optimalSchwartzCERadius d = optimalL1CERadius d) := by
-  obtain ⟨c₀, S, hc₀, hS, hcore⟩ := ct_upper_real L U E
+  obtain ⟨c₀, S, hc₀, hS, hcore⟩ := ct_upper_real U E
   refine ⟨c₀, 13 * S + 1, hc₀, by linarith, fun c hc => ?_, fun d hd => ?_⟩
   · obtain ⟨hT, hCl, hCu, hle, hdiff, -⟩ := hcore c hc
     have hc1 : 1 ≤ c := le_trans hc₀ hc

@@ -49,11 +49,10 @@ def CtDyadicRadiusStatement (c₁ : ℝ) : Prop :=
       ∃ R : ℝ, R ∈ Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧ ctGoodRadius R ∧
         ctEta c₁ ε c f R ≤ C * c ^ (-(1 / 3) : ℝ)
 
-/-- **Input of `ct:dyadic` (4)** (`(ct:combined)` at every good radius in the window, about `ctBudget`, `ctTaper`, `hankelHL`,
-`boasKernel`, `ctEta`; `ct:dyadic` (2) is proved, `ct_dyadic_radius_proved`, so it is no longer a field). -/
-structure CtDyadicInputs (c₁ : ℝ) : Prop where
-  /-- `ct:dyadic` (4), `(ct:combined)`: at every good radius in the window. -/
-  combined : ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
+/-- **`ct:dyadic` (4), `(ct:combined)`** (at every good radius in the window, about `ctBudget`, `ctTaper`, `hankelHL`,
+`boasKernel`, `ctEta`, for `T < c ξ(a₁)`). -/
+def CtDyadicCombinedStatement (c₁ : ℝ) : Prop :=
+  ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
     ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
       T < c * hankelXi c (FormalResearch.Special.airyZero 1) → 0 < ctGap ε c T →
       ∀ R : ℝ, R ∈ Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) → ctGoodRadius R →

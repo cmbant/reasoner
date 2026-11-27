@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import FormalResearch.SignUncertainty.CtLowerFinal
+public import FormalResearch.SignUncertainty.CtLower
 public import FormalResearch.SignUncertainty.CtDyadicRegime
 public import FormalResearch.SignUncertainty.CtBoasMeasurable
 public import FormalResearch.SignUncertainty.CtBoasHhatHol
@@ -18,7 +18,7 @@ a concrete integral up to `O(c⁻¹η_R + c^{-4/3} log c)` at a good radius `R �
 `M_all = ∫ w̃ h` (`ctMall`), `M_tr = ∫_{L ≥ L(ξ(-v₀))} w̃ h`, `S_tr = ∫_{L ≥ L(ξ(-v₀))} w̃ h sin X`, `K_in = ∫_{L ≤ Λ} K h`, `K_out = ∫_{L > Λ} K h`,
 `S_out = ∫_{L > Λ} h sin X`.
 
-* `rosc` (`CtCombinedPieces.rosc`): `P_R(H) + g_vac/2π + M_all + 2(s₁ - s₂) = O(c⁻¹η_R)`: `(ct:rosc)` (Part (3), the half-disc form of
+* `rosc`: `P_R(H) + g_vac/2π + M_all + 2(s₁ - s₂) = O(c⁻¹η_R)`: `(ct:rosc)` (Part (3), the half-disc form of
   `ap:thmD` with `h₊² = (Ai + iBi)²`), the mass identity `∫_{-R}^R f_c = -g_vac/2π - ∫_{ξ>ξ(-R')} dm` (`gt:7.7p` (c), `gt:7.7c` (c)), the lobe piece
   and the transport `|f_c(-v) dv - dm| ≤ C r_∞ dv'` (`gt:7.7p` (b)): the displayed identity before "Now add twice `ct:dual-id`".
 * `trunc`: `|M_all - M_tr| = O(c^{-29/21})` (`∫_{ξ(0)}^{ξ(-v₀)} w̃ |dm|`, from the first moment; the proved `boas_trunc_lo` with `𝔰_far = 0`).
@@ -32,9 +32,8 @@ strip `0 < v < -û(0⁻) = O(c^{-1/3})`, `ũ ∈ (0, ũ₀)`, which carries mass
 `x ∈ (-R', 0)` only and omitted it, which made `rosc` false).  `s₂` is kept in the Langer variable `x ∈ (-R', 0)` (`ctOscS2`, `v = -û(x)`,
 `f_c(-v)dv = Ψ̃(x)dx`): there the weight `w_R(v) ≤ 2(v/R)^{12}` makes the edge strip `O(R^{-12})`.
 
-Together with the proved exact duality `K_in + K_out = 0` (`ct:dual-id` (2), `ct_dual_id_part2`) they give `(ct:combined)`
-(`ct_combined_of_pieces`): the left side is `e₁ - e_T - 2e_w - 2e_o - 2e_tr`, an exact linear combination.  The assembly is **proved**; the five
-fields are the named inputs (`CtCombinedPieces`), the exact remaining gap of `thm:ct-lower`.
+Together with the proved exact duality `K_in + K_out = 0` (`ct:dual-id` (2), `ct_dual_id_part2`) they assemble `(ct:combined)`
+(`ct_dyadicCombined_of_bounds`, used unconditionally in `CtLowerFinal.ct_combined`).
 -/
 
 @[expose] public section
@@ -160,20 +159,6 @@ def CtDyadicBound (c₁ : ℝ) (Q : ℝ → ℝ → ℝ → (ℝ → ℝ) → �
       ∀ R : ℝ, R ∈ Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) → ctGoodRadius R →
         |Q R ε c f| ≤ C * (c⁻¹ * ctEta c₁ ε c f R + c ^ (-(4 / 3) : ℝ) * Real.log c)
 
-/-- **The named inputs of `ct:dyadic` (4)**: the five estimates of the proof of `(ct:combined)` (see the module docstring), each about the
-concrete objects of `thm:ct-lower`, each a step proved in the paper. -/
-structure CtCombinedPieces (c₁ : ℝ) : Prop where
-  /-- `(ct:rosc)` + mass identity + lobe + transport: `P_R(H) + g_vac/2π + ∫ w̃ dm = -2(s₁ - s₂) + O(c⁻¹η_R)`. -/
-  rosc : CtDyadicBound c₁ fun R ε c f => ctBudget R ε c f + ctMall R ε c f + 2 * (ctOscS1 R ε c f - ctOscS2 R ε c f)
-  /-- the taper estimate `∫_{ξ(0)}^{ξ(-v₀)} w̃ |dm| = O(c^{-29/21})`. -/
-  trunc : CtDyadicBound c₁ fun R ε c f => ctMall R ε c f - ctMtr R ε c f
-  /-- sub-chart and Airy window: `∫_{ξ ≤ ξ(-R')} K dm = -s₁ + O(c⁻¹η_R + c^{-4/3} log c)` (`ct:cfu` (1), `(ct:H2-orth)`, `(ct:half)`). -/
-  window : CtDyadicBound c₁ fun R ε c f => ctKin R ε c f + ctOscS1 R ε c f
-  /-- outer band: `∫_{ξ > ξ(-R')} K dm = -∫_{ξ > ξ(-R')} sin X dm + O(c^{-4/3})` (`ct:cfu` (2)). -/
-  outer : CtDyadicBound c₁ fun R ε c f => ctKout R ε c f + ctSout R ε c f
-  /-- transition band: `∫_{ξ ≥ ξ(-v₀)} w̃ sin X dm = s₂ + ∫_{ξ > ξ(-R')} sin X dm + O(c^{-4/3})`. -/
-  trans : CtDyadicBound c₁ fun R ε c f => ctStr R ε c f - ctOscS2 R ε c f - ctSout R ε c f
-
 /-- `K_ε(ξ(L)) h(L) ∈ L¹(dL)` (`ct:dual-id` (2): `|K_ε| ≤ K_b` and `h ∈ L¹`; measurability of `K_ε` comes from `ct_dual_id_part2`). -/
 lemma integrable_dualK_hankelHL {c ε : ℝ} (hc : 2 ≤ c) (hε : ε = 1 ∨ ε = -1) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f) :
     Integrable (fun L => CtDual.dualK ε c (Real.exp L / π ^ 2) * hankelHL c f L) := by
@@ -240,18 +225,24 @@ lemma ctKernel_split {ε c R : ℝ} {f : ℝ → ℝ} (hc : 0 < c) (hB : TaperBa
   refine setIntegral_congr_fun measurableSet_Ici fun L _ => ?_
   simp only [boasKernel]; ring
 
-/-- **`ct:dyadic` (4), `(ct:combined)`, from its five steps** (`CtCombinedPieces`) and the proved duality `ct_dual_id_part2`:
-for `c₁` small, the named inputs give `CtDyadicInputs c₁`. -/
-theorem ct_dyadicInputs_of_pieces :
-    ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ → CtCombinedPieces c₁ → CtDyadicInputs c₁ := by
+/-- **`ct:dyadic` (4), `(ct:combined)`, from its five bounds** (`rosc`, `trunc`, `window`, `outer`, `trans`) and `ct_dual_id_part2`:
+for `c₁` small, the five bounds give `CtDyadicCombinedStatement c₁`. -/
+theorem ct_dyadicCombined_of_bounds :
+    ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ →
+      CtDyadicBound c₁ (fun R ε c f => ctBudget R ε c f + ctMall R ε c f + 2 * (ctOscS1 R ε c f - ctOscS2 R ε c f)) →
+      CtDyadicBound c₁ (fun R ε c f => ctMall R ε c f - ctMtr R ε c f) →
+      CtDyadicBound c₁ (fun R ε c f => ctKin R ε c f + ctOscS1 R ε c f) →
+      CtDyadicBound c₁ (fun R ε c f => ctKout R ε c f + ctSout R ε c f) →
+      CtDyadicBound c₁ (fun R ε c f => ctStr R ε c f - ctOscS2 R ε c f - ctSout R ε c f) →
+      CtDyadicCombinedStatement c₁ := by
   obtain ⟨γ, hγ, hB⟩ := taperBand_pm
-  refine ⟨γ, hγ, fun c₁ hc₁ hc₁γ P => ⟨?_⟩⟩
+  refine ⟨γ, hγ, fun c₁ hc₁ hc₁γ hrosc htrunc hwin houter htrans => ?_⟩
   obtain ⟨cB, hcB3, hBand⟩ := hB c₁ hc₁ hc₁γ
-  obtain ⟨C1, d1, H1⟩ := P.rosc
-  obtain ⟨C2, d2, H2⟩ := P.trunc
-  obtain ⟨C3, d3, H3⟩ := P.window
-  obtain ⟨C4, d4, H4⟩ := P.outer
-  obtain ⟨C5, d5, H5⟩ := P.trans
+  obtain ⟨C1, d1, H1⟩ := hrosc
+  obtain ⟨C2, d2, H2⟩ := htrunc
+  obtain ⟨C3, d3, H3⟩ := hwin
+  obtain ⟨C4, d4, H4⟩ := houter
+  obtain ⟨C5, d5, H5⟩ := htrans
   refine ⟨|C1| + |C2| + 2 * |C3| + 2 * |C4| + 2 * |C5|,
     max cB (max d1 (max d2 (max d3 (max d4 d5)))), ?_⟩
   intro c hc ε hε T f hf hm hT hg R hR hgood
@@ -283,25 +274,12 @@ theorem ct_dyadicInputs_of_pieces :
   rw [abs_le]
   constructor <;> linarith only [a1.1, a1.2, a2.1, a2.2, a3.1, a3.2, a4.1, a4.2, a5.1, a5.2, hdual]
 
-/-- **`thm:ct-lower` from the five steps of `ct:dyadic` (4)**: `ct_lower` with `CtLowerInputs.dyadic` replaced by `CtCombinedPieces` (the named
-inputs `rosc`, `trunc`, `window`, `outer`, `trans`; see the module docstring for what each needs). -/
-theorem ct_lower_of_pieces
-    (P : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtCombinedPieces c₁) : CtLowerStatement := by
-  obtain ⟨c₁₀, hc₁₀, hP⟩ := P
-  obtain ⟨γ, hγ, H⟩ := ct_dyadicInputs_of_pieces
-  exact ct_lower ⟨⟨min c₁₀ γ, lt_min hc₁₀ hγ, fun c₁ h1 h2 =>
-    H c₁ h1 (h2.trans (min_le_right _ _)) (hP c₁ h1 (h2.trans (min_le_left _ _)))⟩⟩
-
 /-- info: 'FormalResearch.SignUncertainty.ctKin_add_ctKout' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ctKin_add_ctKout
 
-/-- info: 'FormalResearch.SignUncertainty.ct_dyadicInputs_of_pieces' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.SignUncertainty.ct_dyadicCombined_of_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms ct_dyadicInputs_of_pieces
-
-/-- info: 'FormalResearch.SignUncertainty.ct_lower_of_pieces' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms ct_lower_of_pieces
+#print axioms ct_dyadicCombined_of_bounds
 
 end FormalResearch.SignUncertainty
