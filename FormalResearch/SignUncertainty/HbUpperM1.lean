@@ -6,7 +6,7 @@ public import FormalResearch.SignUncertainty.Gt1Interface
 public import FormalResearch.SignUncertainty.Gt1NegTail
 public import FormalResearch.CohnElkies.HighBandUniform
 public import FormalResearch.SignUncertainty.MellinLiftTail
-public import FormalResearch.SignUncertainty.Headlines
+public import FormalResearch.SignUncertainty.HeadlineDefs
 public import FormalResearch.SignUncertainty.LiftSymbolOriginEdge
 public import FormalResearch.SignUncertainty.SeedUniformE3E5
 public import FormalResearch.CohnElkies.WindowSmoothConv

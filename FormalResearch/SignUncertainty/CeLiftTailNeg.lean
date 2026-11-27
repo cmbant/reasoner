@@ -189,8 +189,9 @@ private lemma lift_seed_tail_lower_case2 {X_base : ℂ → ℂ} {β₀₀ β₁�
     have hu_abs : |u| = -u := abs_of_nonpos hu_le0
     have hu_le_x : |u| ≤ x := by rw [hu_abs]; dsimp [u]; linarith [ht.1]
     have hrp_mono : (1 + x) ^ (-(3 / 2 : ℝ)) ≤ (1 + (-u)) ^ (-(3 / 2 : ℝ)) :=
-      Real.rpow_le_rpow_of_nonpos (by positivity) (by linarith [hu_abs]) (by norm_num)
+      Real.rpow_le_rpow_of_nonpos (by linarith [hu_abs, abs_nonneg u]) (by linarith [hu_abs]) (by norm_num)
     have hg_u := hg_le u hu_le0
+    have hrp0 : 0 ≤ (1 + (-u)) ^ (-(3 / 2 : ℝ)) := Real.rpow_nonneg (by linarith [hu_le0]) _
     have hpert : liftEps c * α_val * (airySeedG 0 (u : ℂ)).re ≤ (c₀ / 4) * (1 + (-u)) ^ (-(3 / 2 : ℝ)) := by
       have hδ_mid : δ₁ ≤ c₀ / (4 * M_α * C_g + 1) := le_trans (min_le_right _ _) (min_le_left _ _)
       have hδ_c0 : δ₁ * M_α * C_g ≤ c₀ / 4 := by
@@ -205,17 +206,22 @@ private lemma lift_seed_tail_lower_case2 {X_base : ℂ → ℂ} {β₀₀ β₁�
         mul_le_mul (mul_le_mul hε_le_δ hαM hα0 hδ₁.le) hg_u.2 hg_u.1 (by positivity)
       calc liftEps c * α_val * (airySeedG 0 (u : ℂ)).re
           ≤ (δ₁ * M_α * C_g) * (1 + (-u)) ^ (-(3 / 2 : ℝ)) := by rw [hu_abs] at h1; exact h1.trans_eq (by ring)
-        _ ≤ (c₀ / 4) * (1 + (-u)) ^ (-(3 / 2 : ℝ)) := by gcongr
+        _ ≤ (c₀ / 4) * (1 + (-u)) ^ (-(3 / 2 : ℝ)) := mul_le_mul_of_nonneg_right hδ_c0 hrp0
     have hc12_sum : c₁ * (K * liftEps c) + c₂ * min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x) ≤ c₀ / 2 := by
       have hc1' : c₁ ≤ c₀ / 4 := min_le_left _ _
       have hc2' : c₂ ≤ c₀ / 4 := min_le_left _ _
       have hmin1 : min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x) ≤ 1 := min_le_left _ _
-      nlinarith only [hc1', hc2', hKε1, hmin1, hc₀, mul_nonneg (by positivity : 0 ≤ K) hε0.le]
+      have hmin0 : 0 ≤ min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x) :=
+        le_min zero_le_one (mul_nonneg (sq_nonneg _) hx_nn)
+      have hKε0 : 0 ≤ K * liftEps c := mul_nonneg (by linarith) hε0.le
+      nlinarith only [hc1', hc2', hKε1, hKε0, hmin1, hmin0, hc₀]
     calc (1 + x) ^ (-(3 / 2 : ℝ)) * (c₁ * (K * liftEps c) + c₂ * min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x))
-        ≤ (1 + x) ^ (-(3 / 2 : ℝ)) * (c₀ / 2) := by gcongr
-      _ ≤ (1 + (-u)) ^ (-(3 / 2 : ℝ)) * (c₀ / 2) := by gcongr
+        ≤ (1 + x) ^ (-(3 / 2 : ℝ)) * (c₀ / 2) := mul_le_mul_of_nonneg_left hc12_sum (Real.rpow_nonneg (by linarith) _)
+      _ ≤ (1 + (-u)) ^ (-(3 / 2 : ℝ)) * (c₀ / 2) := mul_le_mul_of_nonneg_right hrp_mono (by positivity)
       _ = (c₀ / 2) * (1 + (-u)) ^ (-(3 / 2 : ℝ)) := by ring
-      _ ≤ -(X_base (u : ℂ)).re - liftEps c * α_val * (airySeedG 0 (u : ℂ)).re := by linarith
+      _ ≤ (c₀ - c₀ / 4) * (1 + (-u)) ^ (-(3 / 2 : ℝ)) := mul_le_mul_of_nonneg_right (by linarith only [hc₀]) hrp0
+      _ = c₀ * (1 + (-u)) ^ (-(3 / 2 : ℝ)) - (c₀ / 4) * (1 + (-u)) ^ (-(3 / 2 : ℝ)) := by ring
+      _ ≤ -(X_base (u : ℂ)).re - liftEps c * α_val * (airySeedG 0 (u : ℂ)).re := sub_le_sub hX_lo hpert
   · have hu_gt_Rb : -R_b < u := lt_of_not_ge htail_case
     have hu_box : u ∈ Icc (-R_b) 0 := ⟨hu_gt_Rb.le, hu_le0⟩
     have hg_bd_u : (airySeedG 0 (u : ℂ)).re ≤ M_g := (hu_gm hu_box).trans (le_max_left _ _)
@@ -241,7 +247,10 @@ private lemma lift_seed_tail_lower_case2 {X_base : ℂ → ℂ} {β₀₀ β₁�
         have hc1' : c₁ ≤ η_m / 4 := le_trans (min_le_right _ _) (min_le_left _ _)
         have hc2' : c₂ ≤ η_m / 4 := le_trans (min_le_right _ _) (min_le_left _ _)
         have hmin1 : min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x) ≤ 1 := min_le_left _ _
-        nlinarith only [hc1', hc2', hKε1, hmin1, hη_m, mul_nonneg (by positivity : 0 ≤ K) hε0.le]
+        have hmin0 : 0 ≤ min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x) :=
+          le_min zero_le_one (mul_nonneg (sq_nonneg _) hx_nn)
+        have hKε0 : 0 ≤ K * liftEps c := mul_nonneg (by linarith) hε0.le
+        nlinarith only [hc1', hc2', hKε1, hKε0, hmin1, hmin0, hη_m]
       calc (1 + x) ^ (-(3 / 2 : ℝ)) * (c₁ * (K * liftEps c) + c₂ * min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x))
           ≤ 1 * (η_m / 2) := mul_le_mul h1x_le1 hc12_sum (by positivity) zero_le_one
         _ = η_m / 2 := one_mul _
@@ -263,7 +272,9 @@ private lemma lift_seed_tail_lower_case2 {X_base : ℂ → ℂ} {β₀₀ β₁�
         have h2 : liftEps c * α_val * (airySeedG 0 (u : ℂ)).re ≤ (M_α * M_g) * (K * liftEps c) :=
           (mul_le_mul (mul_le_mul hε_le_K hαM hα0 (by positivity)) hg_bd_u hg_nn_u (by positivity)).trans_eq (by ring)
         have h3 : (d_pos / 2) * U1 = 2 * M_α * M_g + d_pos / 2 := by
-          dsimp [U1]; field_simp [hderiv_pos.ne']; ring
+          dsimp [U1]
+          rw [mul_add, mul_one, show (d_pos / 2) * (4 * M_α * M_g / d_pos) =
+            (2 * M_α * M_g) * (d_pos / d_pos) by ring, div_self hderiv_pos.ne', mul_one]
         have h4 : (d_pos / 2) * (U1 * (K * liftEps c)) = (2 * M_α * M_g + d_pos / 2) * (K * liftEps c) := by
           calc (d_pos / 2) * (U1 * (K * liftEps c)) = ((d_pos / 2) * U1) * (K * liftEps c) := by ring
             _ = _ := by rw [h3]
@@ -273,6 +284,7 @@ private lemma lift_seed_tail_lower_case2 {X_base : ℂ → ℂ} {β₀₀ β₁�
         have hc1' : c₁ ≤ c_lin_avail / 2 := le_trans (min_le_right _ _) (min_le_right _ _)
         have hc2' : c₂ ≤ (c_lin_avail / 2) / (ceBeta1 ^ 2 * X_top / 4 + 1) :=
           le_trans (min_le_right _ _) (min_le_right _ _)
+        have hc_lin_nn : 0 ≤ c_lin_avail := by dsimp [c_lin_avail]; positivity
         have hmin_bd : min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x) ≤
             (ceBeta1 ^ 2 * X_top / 4 + 1) * (K * liftEps c) := by
           have hsq_le : (K * liftEps c) ^ 2 ≤ K * liftEps c := by
@@ -285,14 +297,21 @@ private lemma lift_seed_tail_lower_case2 {X_base : ℂ → ℂ} {β₀₀ β₁�
                 have := ceBeta1_pos; gcongr
             _ ≤ (ceBeta1 ^ 2 * X_top / 4 + 1) * (K * liftEps c) := by
                 nlinarith only [mul_nonneg (by linarith : 0 ≤ K) hε0.le]
+        have hden : ceBeta1 ^ 2 * X_top / 4 + 1 ≠ 0 := by
+          have := ceBeta1_pos; dsimp [X_top, R_b]; positivity [abs_nonneg u_star]
+        have hmul_c2 : c₂ * min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x) ≤
+            (c_lin_avail / 2) * (K * liftEps c) := by
+          calc c₂ * min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x)
+              ≤ ((c_lin_avail / 2) / (ceBeta1 ^ 2 * X_top / 4 + 1)) *
+                  ((ceBeta1 ^ 2 * X_top / 4 + 1) * (K * liftEps c)) :=
+                mul_le_mul hc2' hmin_bd (le_min zero_le_one (mul_nonneg (sq_nonneg _) hx_nn))
+                  (div_nonneg (by positivity) (by have := ceBeta1_pos; dsimp [X_top, R_b]; positivity [abs_nonneg u_star]))
+            _ = (((c_lin_avail / 2) / (ceBeta1 ^ 2 * X_top / 4 + 1)) * (ceBeta1 ^ 2 * X_top / 4 + 1)) * (K * liftEps c) := by ring
+            _ = (c_lin_avail / 2) * (K * liftEps c) := by rw [div_mul_cancel₀ _ hden]
         calc c₁ * (K * liftEps c) + c₂ * min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x)
-            ≤ (c_lin_avail / 2) * (K * liftEps c) +
-                ((c_lin_avail / 2) / (ceBeta1 ^ 2 * X_top / 4 + 1)) * ((ceBeta1 ^ 2 * X_top / 4 + 1) * (K * liftEps c)) := by
-              gcongr
-          _ = c_lin_avail * (K * liftEps c) := by
-              have hden : ceBeta1 ^ 2 * X_top / 4 + 1 ≠ 0 := by
-                have := ceBeta1_pos; dsimp [X_top, R_b]; positivity [abs_nonneg u_star]
-              field_simp; ring
+            ≤ (c_lin_avail / 2) * (K * liftEps c) + (c_lin_avail / 2) * (K * liftEps c) :=
+              add_le_add (mul_le_mul_of_nonneg_right hc1' (mul_nonneg (by linarith : 0 ≤ K) hε0.le)) hmul_c2
+          _ = c_lin_avail * (K * liftEps c) := by ring
       calc (1 + x) ^ (-(3 / 2 : ℝ)) * (c₁ * (K * liftEps c) + c₂ * min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x))
           ≤ 1 * (c_lin_avail * (K * liftEps c)) := mul_le_mul h1x_le1 hc12_sum (by positivity) zero_le_one
         _ = c_lin_avail * (K * liftEps c) := one_mul _
@@ -443,17 +462,16 @@ private lemma shifted_tail_o6_witness {X_base : ℂ → ℂ} {β₀₀ β₁₁ 
   have hc_min : W.c_min ≤ c := (le_max_left _ _).trans hc
   have hc_o6 : c₀_o6 ≤ c := (le_max_right _ _).trans hc
   have hpos := ho6 hK₀_K hc_o6 hc8K hcδ hξ hhigh
-  have hF_fun : (fun u => ∑ i ∈ s₂, α_fam i K c * (B₂ i (u : ℂ)).re) =
+  have hF_fun : (fun u : ℝ => ∑ i ∈ s₂, α_fam i K c * (B₂ i (u : ℂ)).re) =
       fun u : ℝ => (-lam_β) * ((X_base (u : ℂ)).re + liftEps c * W.α₁ c * (airySeedG 0 (u : ℂ)).re) := by
     ext u
     dsimp [s₂, B₂, α_fam, α_K]
     rw [Fin.sum_univ_two]
     have h10 : (1 : Fin 2) ≠ 0 := by decide
-    simp [h10, hKp_K, show W.c_min ≤ c from hc_min]
-    ring
+    simp only [h10, ↓reduceIte]
+    split_ifs <;> first | exact absurd hKp_K ‹_› | exact absurd hc_min ‹_› | (dsimp [W]; ring)
   have hD_fun : D_src K c = fun u : ℝ => (-lam_β) * convSourceFamily p γ θ lam c u := by
     ext u; dsimp [D_src]; ring
-  dsimp only at hpos
   rw [hF_fun, hD_fun] at hpos
   exact scaled_witness_neg_iff hlamβ W hc_min hξ hpos
 
@@ -474,19 +492,22 @@ private lemma shifted_tail_transition_prep {X_base : ℂ → ℂ} {β₀₀ β�
           (-(β₀₀ + β₁₁))⁻¹ * (-(X_base (v : ℂ)).re - liftEps c * W.α₁ c * (airySeedG 0 (v : ℂ)).re) := by
   let lam_β : ℝ := (-(β₀₀ + β₁₁))⁻¹
   have hlamβ : 0 < lam_β := inv_pos.mpr hneg_bi
-  have hX_diff : Differentiable ℂ X_base := hF_base.inAiryClass.1
+  have hX_diff : Differentiable ℂ X_base := hF_base.1.1
   have hX_cont : Continuous (fun u : ℝ => -(X_base (u : ℂ)).re) :=
     (Complex.continuous_re.comp (hX_diff.continuous.comp Complex.continuous_ofReal)).neg
   have hne_tr : (Icc (-R_tr) R_tr).Nonempty := ⟨0, by linarith [hR_tr.2], hR_tr.2⟩
   obtain ⟨u_gm, -, hu_gm⟩ := isCompact_Icc.exists_isMaxOn hne_tr airySeedG0_re_continuous.continuousOn
   let M_g_tr : ℝ := max ((airySeedG 0 (u_gm : ℂ)).re) 1
   have hMg_tr : 1 ≤ M_g_tr := le_max_right _ _
+  have hMα_nn : 0 ≤ M_α := hM_α.le
+  have hMgr_nn : 0 ≤ M_g_tr := by linarith
+  have hβ_pos : 0 < ceBeta1 := ceBeta1_pos
   rcases htail with ⟨c₀, hc₀, htail1⟩ | ⟨hneg_lt, hz_re, hderiv_pos, _c₀, _hc₀, _htail2⟩
   · let c_ray : ℝ := c₀ * (1 + max R_tr |u_star|) ^ (-(3 / 2 : ℝ))
     have hc_ray : 0 < c_ray := by positivity
     let η_tail : ℝ := K / 2 + 1
     let c_tr_cut : ℝ := max W.c_min ((2 * M_α * M_g_tr / c_ray + 1) ^ 3 + 2)
-    refine ⟨η_tail, lam_β * (c_ray / 2), c_tr_cut, by positivity, by positivity, le_max_left _ _,
+    refine ⟨η_tail, lam_β * (c_ray / 2), c_tr_cut, by dsimp [η_tail]; linarith [hK1], by positivity, le_max_left _ _,
       fun {c} hc {v} hv => ?_⟩
     have hc_min : W.c_min ≤ c := (le_max_left _ _).trans hc
     have hc0 : 0 < c := by linarith [W.hc2k.trans hc_min]
@@ -543,8 +564,7 @@ private lemma shifted_tail_transition_prep {X_base : ℂ → ℂ} {β₀₀ β�
       have := ceBeta1_pos
       have : 0 ≤ K / 2 := by linarith
       positivity
-    refine ⟨η_tail, η_w_tr, c_tr_cut, ?_, by positivity, le_max_left _ _, fun {c} hc {v} hv => ?_⟩
-    · exact hη_tail
+    refine ⟨η_tail, η_w_tr, c_tr_cut, hη_tail, by dsimp [η_w_tr]; positivity, le_max_left _ _, fun {c} hc {v} hv => ?_⟩
     · have hc_min : W.c_min ≤ c := (le_max_left _ _).trans hc
       have hc0 : 0 < c := by linarith [W.hc2k.trans hc_min]
       have hε0 : 0 < liftEps c := liftEps_pos hc0
@@ -584,18 +604,22 @@ private lemma shifted_tail_transition_prep {X_base : ℂ → ℂ} {β₀₀ β�
         have hu_diff : (4 * M_α * M_g_tr / d_pos + ceBeta1) * liftEps c ≤ u_star - v := by
           rw [hgap] at hv; linarith [hv.2]
         have hX_d : (2 * M_α * M_g_tr + d_pos * ceBeta1 / 2) * liftEps c ≤ -(X_base (v : ℂ)).re := by
+          have h3 : (d_pos / 2) * (4 * M_α * M_g_tr / d_pos + ceBeta1) = 2 * M_α * M_g_tr + d_pos * ceBeta1 / 2 := by
+            rw [mul_add, show (d_pos / 2) * (4 * M_α * M_g_tr / d_pos) =
+              (2 * M_α * M_g_tr) * (d_pos / d_pos) by ring, div_self hderiv_pos.ne', mul_one]; ring
           calc (2 * M_α * M_g_tr + d_pos * ceBeta1 / 2) * liftEps c
-              = (d_pos / 2) * ((4 * M_α * M_g_tr / d_pos + ceBeta1) * liftEps c) := by
-                field_simp [hderiv_pos.ne']; ring
+              = (d_pos / 2) * ((4 * M_α * M_g_tr / d_pos + ceBeta1) * liftEps c) := by rw [← h3]; ring
             _ ≤ (d_pos / 2) * (u_star - v) := mul_le_mul_of_nonneg_left hu_diff (by positivity)
             _ ≤ -(X_base (v : ℂ)).re := hX_lo
         have hpert : liftEps c * W.α₁ c * (airySeedG 0 (v : ℂ)).re ≤ M_α * M_g_tr * liftEps c :=
           (mul_le_mul (mul_le_mul_of_nonneg_left (hα_bd.2.trans hW_M) hε0.le) hMg_v hgnn (mul_nonneg hε0.le hM_α.le)).trans_eq (by ring)
+        have hpert_nn : 0 ≤ M_α * M_g_tr * liftEps c := mul_nonneg (mul_nonneg hMα_nn hMgr_nn) hε0.le
         calc η_w_tr * liftEps c ≤ (lam_β * (d_pos * ceBeta1 / 2)) * liftEps c :=
               mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left (min_le_left _ _) hlamβ.le) hε0.le
           _ = lam_β * ((d_pos * ceBeta1 / 2) * liftEps c) := by ring
           _ ≤ lam_β * (-(X_base (v : ℂ)).re - liftEps c * W.α₁ c * (airySeedG 0 (v : ℂ)).re) := by
-              gcongr; nlinarith only [hX_d, hpert, hM_α, hMg_tr, hε0]
+              refine mul_le_mul_of_nonneg_left ?_ hlamβ.le
+              linarith only [hX_d, hpert, hpert_nn]
 
 /-- **Shifted tail negativity (`O.6` + transition window):** given `ce_twoEdge_lift_unif_of_K` data
 and the `IsAiryLiftSeed` left-tail / simple-first-zero hypothesis on `X_base`, there are `K ≥ K_post`,
@@ -632,12 +656,13 @@ theorem shifted_tail_neg_of_lift_seed
   have hK1 : 1 ≤ K := hKp.trans hKp_K
   let U0 : ℝ := max 0 (-u_star)
   let Sw_tr : ℝ := max (|u_star| / ceBeta1 + 1) ((U0 + U1 + ceBeta1) / ceBeta1)
-  let R_tr : ℝ := ceBeta1 * Sw_tr + 1
+  let R_tr : ℝ := ceBeta1 * Sw_tr + 1 / (2 * ceCs) + 1
   have hR_tr : |u_star| ≤ R_tr ∧ 0 ≤ R_tr := by
     have hSw_ge : |u_star| / ceBeta1 ≤ Sw_tr := le_trans (by linarith) (le_max_left _ _)
     have h1 : |u_star| ≤ ceBeta1 * Sw_tr := by
       have : ceBeta1 * (|u_star| / ceBeta1) = |u_star| := by field_simp [ceBeta1_pos.ne']
       linarith [mul_le_mul_of_nonneg_left hSw_ge ceBeta1_pos.le]
+    have hcs0 : 0 < 1 / (2 * ceCs) := by have := ceCs_pos; positivity
     exact ⟨by dsimp [R_tr]; linarith, by dsimp [R_tr]; linarith [abs_nonneg u_star]⟩
   obtain ⟨η_tail, η_w_tr, c_tr_cut, hη_tail, hη_w_tr, hc_tr_W, htr_floor⟩ :=
     shifted_tail_transition_prep hF_base hneg_bi hK1 W hW_M hM_α hR_tr htail
@@ -709,10 +734,18 @@ theorem shifted_tail_neg_of_lift_seed
       · have h1 : -Sw_tr ≤ -(|u_star| / ceBeta1 + 1) := neg_le_neg (le_max_left _ _)
         have h3 : -|u_star| / ceBeta1 ≤ -u_star / ceBeta1 :=
           div_le_div_of_nonneg_right (neg_le_neg (le_abs_self u_star)) ceBeta1_pos.le
-        linarith [htail_hb.2, mul_nonneg hη_tail.le hε0.le]
+        have h1' : -(|u_star| / ceBeta1 + 1) = -(|u_star| / ceBeta1) - 1 := by ring
+        have h3' : -(|u_star| / ceBeta1) = -|u_star| / ceBeta1 := by ring
+        linarith only [htail_hb.2, mul_nonneg hη_tail.le hε0.le, h1, h3, h1', h3']
       · have htop : (U0 + U1 * (K * liftEps c) + ceBeta1 * (K * liftEps c) / 2) / ceBeta1 ≤
             (U0 + U1 + ceBeta1) / ceBeta1 := by
-          have := ceBeta1_pos; gcongr; linarith
+          have hU1_bd : U1 * (K * liftEps c) ≤ U1 := mul_le_of_le_one_right hU1_nn hKε_1
+          have hβ_bd : ceBeta1 * (K * liftEps c) / 2 ≤ ceBeta1 := by
+            have := ceBeta1_pos.le
+            calc ceBeta1 * (K * liftEps c) / 2 ≤ ceBeta1 * 1 / 2 :=
+                  div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left hKε_1 this) (by norm_num)
+              _ ≤ ceBeta1 := by linarith only [this]
+          exact div_le_div_of_nonneg_right (by linarith only [hU1_bd, hβ_bd]) ceBeta1_pos.le
         exact hlt_hb.le.trans (htop.trans (le_max_right _ _))
     rw [← hcξ]
     refine he5_neg hc_e5' hξ_pos hhb_abs fun t ht => ?_
@@ -720,9 +753,9 @@ theorem shifted_tail_neg_of_lift_seed
     have hv_lo : -R_tr ≤ v := by
       have h1 : -(ceBeta1 * hbS c (Δ / c)) ≥ -ceBeta1 * Sw_tr := by
         nlinarith only [(abs_le.mp hhb_abs).2, ceBeta1_pos]
-      have h2 : liftEps c / (2 * ceCs) ≤ 1 := by
-        have := ceCs_pos; rw [div_le_one (by positivity)]; linarith
-      dsimp [v, R_tr]; linarith [ht.1]
+      have h2 : liftEps c / (2 * ceCs) ≤ 1 / (2 * ceCs) :=
+        div_le_div_of_nonneg_right hε1 (by have := ceCs_pos; positivity)
+      dsimp [v, R_tr]; linarith only [h1, h2, ht.1]
     have hv_hi : v ≤ u_star - (ceBeta1 * η_tail - ceBeta1 * K / 2) * liftEps c := by
       have hcs : 0 ≤ liftEps c / (2 * ceCs) := by have := ceCs_pos; positivity
       have hhb_v : ceBeta1 * hbS c (Δ / c) ≥ -u_star + ceBeta1 * η_tail * liftEps c := by
@@ -731,7 +764,10 @@ theorem shifted_tail_neg_of_lift_seed
           field_simp [ceBeta1_pos.ne']
         linarith
       dsimp [v]; linarith [ht.2]
-    exact htr_floor hc_tr ⟨hv_lo, hv_hi⟩
+    have htr := htr_floor hc_tr ⟨hv_lo, hv_hi⟩
+    dsimp [lam_β]
+    calc η_w_tr * liftEps c ≤ (-(β₀₀ + β₁₁))⁻¹ * (-(X_base (v : ℂ)).re - liftEps c * W.α₁ c * (airySeedG 0 (v : ℂ)).re) := htr
+      _ = -(-(β₀₀ + β₁₁))⁻¹ * ((X_base (v : ℂ)).re + liftEps c * W.α₁ c * (airySeedG 0 (v : ℂ)).re) := by ring
 
 /-- info: 'FormalResearch.SignUncertainty.shifted_tail_neg_of_lift_seed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -4,9 +4,10 @@ public import FormalResearch.SignUncertainty.AirySmoothApprox
 public import FormalResearch.SignUncertainty.AiryHermiteApprox
 public import FormalResearch.SignUncertainty.CeCanonicalDefs
 public import FormalResearch.SignUncertainty.EuclidCELift
+public import FormalResearch.SignUncertainty.CeShiftedLift
 
 /-!
-# Rational–Airy Density and Conditional Shifted Transfer (`thm:al-rational-density`, `thm:ce-airy-transfer`(1))
+# Rational–Airy Density and Unconditional Shifted Transfer (`thm:al-rational-density`, `thm:ce-airy-transfer`(1))
 
 Source:
 * `CFT/sign_uncertainty/paper/ce_airy_lp_proofs.tex`:
@@ -17,13 +18,12 @@ Source:
     with strict Laplace positivity `ℒ_y(H_0) > 0` for all `y > 0`, yielding
     `u_{\mathrm{strict}}(S) = u_{\mathrm{sh}}(S)`;
   - Proof of `thm:ce-airy-transfer`(1) upper bound (lines 973–981):
-    `ce_airy_transfer_upper_of_shifted_lift` derives the `CeCanonicalInputs.ce_airy_transfer_upper`
-    field from the Hankel-level statement `CeShiftedLift` of `thm:ce-shifted-lift`.
+    `ce_airy_transfer_upper` derives the unconditional upper bound via
+    `ce_airy_transfer_upper_of_shifted_lift` and `ce_shifted_lift_proved`.
 * `CFT/sign_uncertainty/paper/ce_shifted_witnesses.tex`:
-  - Theorem `thm:ce-shifted-lift`: its Hankel-level statement `CeShiftedLift : Prop` and the seed class
-    `IsAiryLiftSeed` are in `CeShiftedLiftDefs.lean` (**not proved**; open M6 Mellin–Hankel lift work,
-    parallel to `CeHbLiftAssembly.CeHankelPair`); `CeShiftedLift` is the field `shifted_lift` of
-    `CeCanonicalInputs`, and `CeCanonicalInputs.ce_airy_transfer_upper` (the former field) is derived here.
+  - Theorem `thm:ce-shifted-lift`: its Hankel-level statement `CeShiftedLift : Prop` and seed class
+    `IsAiryLiftSeed` are in `CeShiftedLiftDefs.lean`, and `ce_shifted_lift_proved : CeShiftedLift` is
+    proved in `CeShiftedLift.lean`; `shifted_lift` is no longer a field of `CeCanonicalInputs`.
 -/
 
 @[expose] public section
@@ -1530,17 +1530,17 @@ theorem ce_airy_transfer_upper_of_shifted_lift (hLift : CeShiftedLift) (D : Shel
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.SignUncertainty.ce_airy_transfer_upper_of_shifted_lift
 
-/-- The former field `ce_airy_transfer_upper` of `CeCanonicalInputs` (`thm:ce-airy-transfer`(1), upper bound),
-derived from the field `shifted_lift : CeShiftedLift` by `ce_airy_transfer_upper_of_shifted_lift`. -/
-theorem CeCanonicalInputs.ce_airy_transfer_upper {D : ShellHBData} {t : ℕ → ℝ}
-    (I : CeCanonicalInputs D t) :
+/-- Unconditional upper bound of `thm:ce-airy-transfer`(1) (`ce_airy_transfer_upper`, formerly a field of
+`CeCanonicalInputs`), proved from `ce_shifted_lift_proved : CeShiftedLift` and
+`ce_airy_transfer_upper_of_shifted_lift`. -/
+theorem ce_airy_transfer_upper (D : ShellHBData) :
     ∀ v : ℝ, (v : EReal) < uSh D → ∀ r : ℝ → ℕ → ℝ, ShellOffsetsSmall r →
       ∀ᶠ d : ℕ in atTop, ∃ R ∈ ceShellRadiusSet D r d,
         R ^ 2 / 2 ≤ (d : ℝ) / (2 * π ^ 2) - (v / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) :=
-  ce_airy_transfer_upper_of_shifted_lift I.shifted_lift D
+  ce_airy_transfer_upper_of_shifted_lift ce_shifted_lift_proved D
 
-/-- info: 'FormalResearch.SignUncertainty.CeCanonicalInputs.ce_airy_transfer_upper' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.SignUncertainty.ce_airy_transfer_upper' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.SignUncertainty.CeCanonicalInputs.ce_airy_transfer_upper
+#print axioms FormalResearch.SignUncertainty.ce_airy_transfer_upper
 
 end FormalResearch.SignUncertainty

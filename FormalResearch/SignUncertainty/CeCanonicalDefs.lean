@@ -276,12 +276,5 @@ structure CeCanonicalInputs (D : ShellHBData) (_t : ℕ → ℝ) : Prop where
   shell_reduction : ShellReduction D
   /-- `thm:ce-hb-lift` (with `thm:ce-hb-lift-tangency`), weak Laplace positivity (M6, M8). -/
   ce_hb_lift : CeHbLift D
-  /-- `thm:ce-shifted-lift` (`ce_shifted_witnesses.tex`; open, M6 Mellin-Hankel lift): every rational-Airy lift
-  seed `IsAiryLiftSeed S u_* H₀` on a compact `S` lifts to Cohn-Elkies Hankel pairs strictly negative beyond
-  `c/π² - (u_*/β₁) c^{1/3} + K₀` and near the sites (`CeShiftedLiftDefs.lean`). Together with the proved
-  `thm:al-rational-density` it gives `thm:ce-airy-transfer` (1), upper bound, as
-  `CeCanonicalInputs.ce_airy_transfer_upper` (`ce_airy_transfer_upper_of_shifted_lift`, `AiryRationalDensity.lean`).
-  It does not depend on `D`. -/
-  shifted_lift : CeShiftedLift
 
 end FormalResearch.SignUncertainty

@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.SignUncertainty.Headlines
+public import FormalResearch.SignUncertainty.HeadlineDefs
 public import FormalResearch.SignUncertainty.EuclidCELift
 
 /-!
@@ -52,14 +52,15 @@ Conditional on the open `CeHankelPair`; the weak Laplace premise is discharged b
 `airy_laplace_negG_pos` (`m = 1`), the shell conditions are vacuous and the offsets unused. -/
 theorem ce_hb_lift_airy_of_hankelPair (H : CeHankelPair) : CeHbLift ShellHBData.airy := by
   intro _ R_off _
-  obtain ⟨K₀, d₀, hd₀⟩ := H fun y hy => airy_laplace_negG_pos hy
+  have hcard : ShellHBData.airy.S.card = 1 :=
+    ShellHBData.airy.m_eq.elim (fun h => h.2) (fun h => False.elim (h.1 rfl))
+  obtain ⟨K₀, d₀, hd₀⟩ := H fun y hy =>
+    mul_pos (Real.exp_pos _) (shellLaplaceF_m1_pos ShellHBData.airy hcard hy)
   have hA : -(ShellHBData.airy.tm / hankelBeta1) = airyOrderCoeff := by
     unfold airyOrderCoeff
     rw [abs_of_neg (airyZero_neg 1)]
     show -(airyZero 1 / hankelBeta1) = -airyZero 1 / hankelBeta1
     ring
-  have hcard : ShellHBData.airy.S.card = 1 :=
-    ShellHBData.airy.m_eq.elim (fun h => h.2) (fun h => False.elim (h.1 rfl))
   refine ⟨K₀, max d₀ 2, fun d hd r _ => ?_⟩
   obtain ⟨T, G, hcont, hint, hnn, hhint, h0, horigin, htail, hT⟩ := hd₀ d (le_trans (le_max_left _ _) hd)
   have hd2 : 2 ≤ d := le_trans (le_max_right _ _) hd
