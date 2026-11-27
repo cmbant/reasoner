@@ -145,25 +145,15 @@ private lemma airyBetaPlus_smul {F : ℂ → ℂ} (hF : InGenRationalAiry F) (c 
   rw [hsm.beta_eq.2.2.2, hF.hasCoeffs.beta_eq.2.2.2]
   ring
 
-/-- Compact positive minimum via `exists_bound_of_continuousOn` on the reciprocal (works for
-possibly empty `K`). -/
+/-- Compact positive minimum (works for possibly empty `K`). -/
 private lemma exists_pos_lower_bound_on_compact {α : Type*} [TopologicalSpace α]
     {K : Set α} (hK : IsCompact K) {g : α → ℝ}
     (hg_cont : ContinuousOn g K) (hg_pos : ∀ x ∈ K, 0 < g x) :
     ∃ m : ℝ, 0 < m ∧ ∀ x ∈ K, m ≤ g x := by
-  have hinv_cont : ContinuousOn (fun x => (g x)⁻¹) K :=
-    hg_cont.inv₀ fun x hx => (hg_pos x hx).ne'
-  obtain ⟨M, hM⟩ := hK.exists_bound_of_continuousOn hinv_cont
-  set B : ℝ := max M 1
-  have hB_pos : 0 < B := lt_of_lt_of_le zero_lt_one (le_max_right _ _)
-  refine ⟨1 / B, by positivity, fun x hx => ?_⟩
-  have hgx : 0 < g x := hg_pos x hx
-  have h1 := (hM x hx).trans (le_max_left M 1)
-  rw [Real.norm_eq_abs, abs_of_pos (inv_pos.mpr hgx)] at h1
-  have hmul : 1 ≤ B * g x := by
-    have hm := mul_le_mul_of_nonneg_right h1 hgx.le
-    rwa [inv_mul_cancel₀ hgx.ne'] at hm
-  exact (div_le_iff₀' hB_pos).mpr hmul
+  rcases K.eq_empty_or_nonempty with rfl | hne
+  · exact ⟨1, one_pos, by simp⟩
+  · obtain ⟨x₀, hx₀, hmin⟩ := hK.exists_isMinOn hne hg_cont
+    exact ⟨g x₀, hg_pos x₀ hx₀, fun x hx => hmin hx⟩
 
 private lemma exists_sub_Ioo_avoid {a b : ℝ} (hab : a < b) (c : ℝ) :
     ∃ a' b' : ℝ, a ≤ a' ∧ b' ≤ b ∧ a' < b' ∧ c ∉ Ioo a' b' := by
@@ -959,7 +949,7 @@ private lemma exists_shifted_smooth_stage {S : Set ℝ} (hS : IsCompact S)
   have hε_gap : d₀ + s_shift + 2 * ε ≤ v₀ := by
     have h := hε_mem.2.trans (min_le_right _ _)
     linarith
-  obtain ⟨_, hMSq_real, _, _, hReg_cl, _, ⟨S_ε, hS_ε⟩⟩ := hReg_props ε ⟨hε_pos, hε_le1⟩
+  obtain ⟨_, hMSq_real, _, _, hReg_cl, ⟨S_ε, hS_ε⟩⟩ := hReg_props ε ⟨hε_pos, hε_le1⟩
   let F : ℂ → ℂ := fun z => airySmoothReg H ε (z + (s_shift : ℂ))
   have hF_cl : InAiryClass F := inAiryClass_shift_nonneg hReg_cl hs_pos.le
   obtain ⟨S_F, hS_F⟩ := schwartz_shift S_ε s_shift

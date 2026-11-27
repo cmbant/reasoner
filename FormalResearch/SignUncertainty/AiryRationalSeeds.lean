@@ -72,8 +72,7 @@ lemma InGenRationalAiry.inAiryClass {F : ℂ → ℂ} (h : InGenRationalAiry F) 
 
 private lemma aeval_ofReal_eq_eval (P : ℝ[X]) (x : ℝ) :
     Polynomial.aeval (x : ℂ) P = ((Polynomial.eval x P : ℝ) : ℂ) := by
-  rw [Polynomial.aeval_def, Polynomial.eval_eq_sum_range, Polynomial.eval₂_eq_sum_range]
-  simp [Algebra.algebraMap_eq_smul_one]
+  exact Polynomial.aeval_algebraMap_apply_eq_algebraMap_eval x P
 
 private lemma aeval_ne_zero_of_gt {Q : ℝ[X]} {R_star : ℝ}
     (hQ : ∀ z : ℂ, Polynomial.aeval z Q = 0 → z.im = 0 ∧ ‖z‖ ≤ R_star) {z : ℂ} (hz : R_star < ‖z‖) :

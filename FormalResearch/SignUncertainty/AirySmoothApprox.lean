@@ -662,11 +662,7 @@ lemma norm_airySmoothMSq_le_on_neg_sphere {ε : ℝ} (hε : 0 < ε) (_hε1 : ε 
 
 private lemma pow_mul_exp_neg_le (N : ℕ) {x : ℝ} (hx : 0 ≤ x) :
     x ^ N * Real.exp (-x) ≤ N.factorial := by
-  have hterm : x ^ N / (N.factorial : ℝ) ≤ Real.exp x := by
-    rw [Real.exp_eq_exp_ℝ]
-    have hsum := NormedSpace.expSeries_div_hasSum_exp x
-    have h := Summable.le_tsum hsum.summable N (fun k _ => by positivity)
-    simpa [← hsum.tsum_eq] using h
+  have hterm : x ^ N / (N.factorial : ℝ) ≤ Real.exp x := Real.pow_div_factorial_le_exp x hx N
   have hfac_pos : (0 : ℝ) < N.factorial := Nat.cast_pos.mpr (Nat.factorial_pos N)
   rw [div_le_iff₀ hfac_pos] at hterm
   calc x ^ N * Real.exp (-x)
@@ -1539,7 +1535,6 @@ theorem lem_al_smooth {H : ℂ → ℂ} (hH : InAiryClass H) :
       (∀ x : ℝ, 0 ≤ x → ‖airySmoothMSq ε ((-x : ℝ) : ℂ)‖ ≤ 1) ∧
       (∀ z : ℂ, ‖airySmoothMSq ε z‖ ≤ Real.exp (2 * ε * airySqrtRe z)) ∧
       InAiryClass (airySmoothReg H ε) ∧
-      ((∀ u : ℝ, (H (u : ℂ)).im = 0) → ∀ u : ℝ, (airySmoothReg H ε (u : ℂ)).im = 0) ∧
       ∃ S_ε : SchwartzMap ℝ ℝ, ∀ u : ℝ, S_ε u = (airySmoothReg H ε (u : ℂ)).re) ∧
     TendstoLocallyUniformly (fun ε z => airySmoothReg H ε z) H (𝓝[>] 0) ∧
     (∀ Y : ℝ, 0 ≤ Y →
@@ -1570,7 +1565,7 @@ theorem lem_al_smooth {H : ℂ → ℂ} (hH : InAiryClass H) :
         hReg_im_zero ε⟩
     exact ⟨differentiable_airySmoothMSq ε, airySmoothMSq_ofReal_im_and_nonneg ε,
       fun x hx => norm_airySmoothMSq_neg_le_one hε0.le hx,
-      norm_airySmoothMSq_le hε0.le, hcl, fun _ => hReg_im_zero ε,
+      norm_airySmoothMSq_le hε0.le, hcl,
       airySmoothReg_schwartz hH hC₀_nn hb₀ hε0 hε1⟩
   · -- Part 4b: `(eq:al-shift-bound)`
     intro s hs ε hε y hy
