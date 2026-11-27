@@ -78,7 +78,17 @@ namespace FormalResearch.SignUncertainty
 
 /-! ### The physical bump -/
 
-/-- **The physical bump `B_c^ε`** (`(fct:B-physical)` with `H₀ = H_*` and `n_c = 1/N_c`, `(fct:B-five-def)`): `physBump` with the cutoff `χ`, `K₄`, the
+/-- Canonical smooth cutoff `χ(s) = Real.smoothTransition (2s - 1)` (`0` on `s ≤ 1/2`, `1` on `s ≥ 1`). -/
+noncomputable def fctChi (s : ℝ) : ℝ := Real.smoothTransition (2 * s - 1)
+
+/-- `fctChi` satisfies `IsCutoff`. -/
+theorem fctChi_isCutoff : IsCutoff fctChi where
+  smooth := Real.smoothTransition.contDiff.comp ((contDiff_const.mul contDiff_id).sub contDiff_const)
+  zero _ hs := Real.smoothTransition.zero_of_nonpos (by linarith)
+  one _ hs := Real.smoothTransition.one_of_one_le (by linarith)
+  mem _ := ⟨Real.smoothTransition.nonneg _, Real.smoothTransition.le_one _⟩
+
+/-- **The physical bump `B_c^ε`** (`(fct:B-physical)` with `H₀ = H_*` and `n_c = 1/N_c`, `(fct:B-five-def)`): `physBump` with `fctChi`, `K₄`, the
 warp datum `O = I_osc^{warp}` built from `(T₁, α)` (`physOscDatum`, `fct:warp-asymp` (3)), `F = (L̃/(L-L₁)) I_fl(L̃)` (`physF`), `T₄ = τ₀⁴ I_fl`.  The
 argument order is `(ε, c, K₁)`. -/
 noncomputable def fctBphys (χ : ℝ → ℝ) (K4 : ℝ) (T1 alpha Nc : ℝ → ℝ → ℝ) : ℝ → ℝ → ℝ → ℝ → ℝ :=
@@ -107,16 +117,11 @@ theorem fctBphys_physicalBudget {χ : ℝ → ℝ} (hχ : IsCutoff χ) {K4 : ℝ
   class (`I_ε(L₁, α) = 0`, `FctWarpZero.lean`), and `T₁ = (c/π²)e^{L₁}`, `α` are the chosen pair (`FctMainHankelInputs.T1`, `.alpha`); the IBP identity
   `(fct:exact-ibp)` is not stated;
 * `Nc = fctNc warp_solve`, the normalisation `N_c = Φ^warp_c(1) = 1 - F₊(1)` of `fct:splitting` (`(fct:Phihat-def)`), likewise a definition; the physical bump uses `n_c = 1/N_c`;
-* the deliberate parameters `chi` (the cutoff of `(fct:B-physical)`, `IsCutoff chi`: smooth, `1` near `0`, supported in a bounded interval; the
-  paper fixes no particular one) and `K4 ≥ 1` (the absolute constant of `fct:comp-D`).
+* the deliberate parameter `K4 ≥ 1` (the absolute constant of `fct:comp-D`; `chi := fctChi` is now fixed concretely via `fctChi_isCutoff`).
 
 The fields are the TeX statements about these (the order of constants `K_* → K₄ → K₀ → K₁ → K_d → c₀` is built into the
 quantifiers). -/
 structure FctMainHankelInputs where
-  /-- The cutoff `χ` of `(fct:B-physical)` (a deliberate parameter). -/
-  chi : ℝ → ℝ
-  /-- `χ` is a cutoff (`IsCutoff`). -/
-  chi_cutoff : IsCutoff chi
   /-- The absolute constant `K₄ ≥ 1` (`fct:comp-D`; a deliberate parameter). -/
   K4 : ℝ
   /-- `K₄ ≥ 1`. -/
@@ -144,7 +149,7 @@ structure FctMainHankelInputs where
     ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       ∀ Δ : ℝ, fctWarpT1 warp_solve ε c + 2 * Kd / hankelBeta1 * c ^ (-(3 / 4 : ℝ)) ≤ Δ →
         0 ≤ admissF c (ctWtot (fctPhiHat warp_solve) (fctDcomp K4 (fctWarpAlpha warp_solve))
-          (fctBphys chi K4 (fctWarpT1 warp_solve) (fctWarpAlpha warp_solve) (fctNc warp_solve)) ε c Kfl K0 K1 Kd) Δ
+          (fctBphys fctChi K4 (fctWarpT1 warp_solve) (fctWarpAlpha warp_solve) (fctNc warp_solve)) ε c Kfl K0 K1 Kd) Δ
 
 /-- `Φ̂_c` of the inputs (`fct:splitting`, `(fct:Phihat-def)`): the definition `fctPhiHat`. -/
 noncomputable abbrev FctMainHankelInputs.PhiHat (I : FctMainHankelInputs) : ℝ → ℝ → ℂ → ℂ := fctPhiHat I.warp_solve
@@ -187,15 +192,15 @@ noncomputable abbrev FctMainHankelInputs.Dcomp (I : FctMainHankelInputs) : ℝ �
 
 /-- The physical bump `B_c^ε` of the inputs (`(fct:B-five-def)`). -/
 noncomputable abbrev FctMainHankelInputs.Bphys (I : FctMainHankelInputs) : ℝ → ℝ → ℝ → ℝ → ℝ :=
-  fctBphys I.chi I.K4 I.T1 I.alpha I.Nc
+  fctBphys fctChi I.K4 I.T1 I.alpha I.Nc
 
 /-- `bump_profile` (former field), proved. -/
 theorem FctMainHankelInputs.bump_profile (I : FctMainHankelInputs) : FctBumpProfileStmt I.Bphys :=
-  fctBphys_bumpProfile I.chi_cutoff I.K4_ge_one I.warp_zero I.splitting_norm
+  fctBphys_bumpProfile fctChi_isCutoff I.K4_ge_one I.warp_zero I.splitting_norm
 
 /-- `physical_budget` (former field), proved. -/
 theorem FctMainHankelInputs.physical_budget (I : FctMainHankelInputs) : FctPhysicalBudgetStmt I.Bphys :=
-  fctBphys_physicalBudget I.chi_cutoff I.K4_ge_one I.warp_zero I.splitting_norm
+  fctBphys_physicalBudget fctChi_isCutoff I.K4_ge_one I.warp_zero I.splitting_norm
 
 /-! ### The assembly -/
 

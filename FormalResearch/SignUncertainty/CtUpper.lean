@@ -3,7 +3,8 @@ module
 public import FormalResearch.SignUncertainty.FctMainHankel
 public import FormalResearch.SignUncertainty.CtLowerFinal
 public import FormalResearch.SignUncertainty.CeHankelPairFromEigen
-public import FormalResearch.SignUncertainty.EuclidRadialProjection
+public import FormalResearch.SignUncertainty.CeNonzeroNeg
+public import FormalResearch.SignUncertainty.CeRadiusEq
 public import FormalResearch.SignUncertainty.HbUpperM1
 public import FormalResearch.SignUncertainty.Headlines
 
@@ -13,16 +14,14 @@ public import FormalResearch.SignUncertainty.Headlines
 Source: `CFT/sign_uncertainty/paper/general_theorems.tex`, `thm:ct-upper` (= `thm:ct-lower`, `thm:intro-radii`,
 `gt:7.9`, `cor:fourier-radii`, `gt:7.12`, `thm:ce-radius`), parts (i) and (ii).
 
-* `IsHankelCEFeasible c T h g`, `hankelTCE c`: the Cohn--Elkies Hankel problem of `fourier_mellin.tex` (`T_c^CE`, the
-  infimum of `T` over real continuous mutual Hankel transforms `h, g` of finite `M`, with `h(0) = g(0) > 0`, `g ≥ 0`,
-  `h ≤ 0` on `[T, ∞)`; `T ≥ 0` is recorded in the structure, it is forced by `h(0) > 0` and continuity).
-* `CtUpperCEInputs`: the three TeX results used and not in Lean, as named fields: `main_ce` (`fct:main-ce`, the CE upper
-  bound with nonemptiness), `ce_nonzero_neg` (the nonvanishing of `f = (g - h)/2` in the proof of `T_c^- ≤ T_c^CE`),
-  `ce_radius` (`T_c^CE = r_CE(d)²/2`: `gt:7.9b`, radial averaging, `lem:ce-schwartz`).
-* `ct_upper`: parts (i), (ii) of the theorem, proved from the unconditional `ct_lower`, `FctMainHankelInputs`
-  (`fct_main_hankel`) and `CtUpperCEInputs`; the integer-`d` statements for `A_sign^±` use the proved
-  `hankel_euclid_dictionary`, `hankelT0_eq_hankelT`, and the Schwartz/`L¹` radius equality is
-  `ce_schwartz_radius_eq_L1_radius`.
+* `IsHankelCEFeasible c T h g`, `hankelTCE c` (`CeHankelDefs.lean`): the Cohn--Elkies Hankel problem of
+  `fourier_mellin.tex`.
+* `ce_nonzero_neg` (`CeNonzeroNeg.lean`) and `ce_radius` (`CeRadiusEq.lean`) are **proved** unconditionally.
+* `CtUpperCEInputs`: the single remaining TeX input `main_ce` (`fct:main-ce`, the CE upper bound with nonemptiness).
+* `ct_upper`: parts (i), (ii) of the theorem, proved from the unconditional `ct_lower`, `ce_nonzero_neg`,
+  `ce_radius`, `FctMainHankelInputs` (`fct_main_hankel`), and `CtUpperCEInputs` (`main_ce`); the integer-`d`
+  statements for `A_sign^±` use the proved `hankel_euclid_dictionary`, `hankelT0_eq_hankelT`, and the Schwartz/`L¹`
+  radius equality is `ce_schwartz_radius_eq_L1_radius`.
 -/
 
 @[expose] public section
@@ -35,24 +34,6 @@ namespace FormalResearch.SignUncertainty
 open FormalResearch.CohnElkies FormalResearch.Special
 
 /-! ### The Cohn--Elkies Hankel threshold `T_c^CE` -/
-
-/-- `(h, g)` is a feasible Cohn--Elkies Hankel pair at threshold `T` (`fourier_mellin.tex`): real continuous mutual
-Hankel transforms of finite `M`, `h(0) = g(0) > 0`, `g ≥ 0` on `[0, ∞)` and `h ≤ 0` on `[T, ∞)`, `T ≥ 0`. -/
-structure IsHankelCEFeasible (c T : ℝ) (h g : ℝ → ℝ) : Prop where
-  h_cont : ContinuousOn h (Ici 0)
-  g_cont : ContinuousOn g (Ici 0)
-  h_int : IntegrableOn (fun Δ => h Δ * hankelRho0 c Δ) (Ioi 0)
-  g_int : IntegrableOn (fun Δ => g Δ * hankelRho0 c Δ) (Ioi 0)
-  g_eq : ∀ Δ ∈ Ici (0 : ℝ), besselHankelTransform c h Δ = g Δ
-  h_eq : ∀ Δ ∈ Ici (0 : ℝ), besselHankelTransform c g Δ = h Δ
-  origin : h 0 = g 0
-  pos : 0 < g 0
-  g_nonneg : ∀ Δ : ℝ, 0 ≤ Δ → 0 ≤ g Δ
-  h_tail : ∀ Δ : ℝ, T ≤ Δ → h Δ ≤ 0
-  T_nonneg : 0 ≤ T
-
-/-- `T_c^CE`: the infimum of feasible thresholds of Cohn--Elkies Hankel pairs. -/
-noncomputable def hankelTCE (c : ℝ) : ℝ := sInf {T : ℝ | ∃ h g, IsHankelCEFeasible c T h g}
 
 /-- The negative projection `f = (g - h)/2` of a Cohn--Elkies Hankel pair is a `(-1)`-eigenfunction. -/
 theorem ceFeasible_negProj_eigen {c T : ℝ} {h g : ℝ → ℝ} (hc : 1 / 2 < c) (H : IsHankelCEFeasible c T h g) :
@@ -196,19 +177,13 @@ lemma ctDelta5_pos_sub_neg (c : ℝ) :
 
 /-! ### The theorem -/
 
-/-- **The TeX results used by `thm:ct-upper` and not in Lean** (`general_theorems.tex`, proof of `thm:ct-upper`).
+/-- **The TeX result used by `thm:ct-upper` and not yet in Lean** (`general_theorems.tex`, proof of `thm:ct-upper`):
 * `main_ce` (`fct:main-ce`, `constant_terms_five.tex`): the Cohn--Elkies upper bound
   `T_c^CE ≤ Δ₅^-(c) + C c^{-3/4}` for real `c ≥ c₀`, together with nonemptiness of the feasible set.
-* `ce_nonzero_neg`: for `c > 1/2` the negative projection `(g - h)/2` of a feasible Cohn--Elkies Hankel pair is not
-  identically zero (else `h = g ≥ 0` has compact support by the terminal sign, its Hankel transform is entire,
-  `ĥ = h` vanishes on a ray, hence identically, contradicting `h(0) > 0`).
-* `ce_radius` (`gt:7.9b`, radial averaging, `lem:ce-schwartz`): `T_{d/2}^CE = r_CE(d)²/2` for integer `d ≥ 2`. -/
+(`ce_nonzero_neg` and `ce_radius` are now proved unconditionally in `CeNonzeroNeg` and `CeRadiusEq`.) -/
 structure CtUpperCEInputs : Prop where
   main_ce : ∃ Cp c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c →
     (∃ T h g, IsHankelCEFeasible c T h g) ∧ hankelTCE c ≤ ctDelta5 (-1) c + Cp * c ^ (-(3 / 4 : ℝ))
-  ce_nonzero_neg : ∀ {c T : ℝ} {h g : ℝ → ℝ}, 1 / 2 < c → IsHankelCEFeasible c T h g →
-    ∃ Δ : ℝ, 0 ≤ Δ ∧ g Δ - h Δ ≠ 0
-  ce_radius : ∀ d : ℕ, 2 ≤ d → optimalL1CERadius d ^ 2 / 2 = hankelTCE ((d : ℝ) / 2)
 
 /-- The real-`c` estimates of `thm:ct-upper` (i), with one constant `S`, and the lower bound `T_c^- > c/(4π)`. -/
 theorem ct_upper_real (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
@@ -263,7 +238,7 @@ theorem ct_upper_real (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
     obtain ⟨T, h, g, H⟩ := hCEne; exact ⟨T, h, g, H⟩
   have hhalf : 1 / 2 < c := by linarith
   have hCEfeas : ∀ T h g, IsHankelCEFeasible c T h g → IsHankelFeasible c (-1) T (fun s => (g s + -h s) / 2) :=
-    fun T h g H => ceFeasible_negProj_feasible hhalf H (E.ce_nonzero_neg hhalf H)
+    fun T h g H => ceFeasible_negProj_feasible hhalf H (ce_nonzero_neg hhalf H)
   have hCElow : ctDelta5 (-1) c - S * (c⁻¹ * Real.log c) ≤ hankelTCE c :=
     le_csInf hCEne' fun T ⟨h, g, H⟩ => hlow (-1) (Or.inr rfl) T _ (hCEfeas T h g H)
   have hTle : hankelT (-1) c ≤ hankelTCE c :=
@@ -313,8 +288,8 @@ lemma mul_le_mul_right' {a C x : ℝ} (hx : 0 ≤ x) (h : a ≤ C) : a * x ≤ C
 
 set_option maxHeartbeats 1000000 in
 /-- **`thm:ct-upper`** (i)-(ii) (`general_theorems.tex`; = `thm:intro-radii`, `thm:ct-lower`, `gt:7.9`, `cor:fourier-radii`,
-`gt:7.12`, `thm:ce-radius`, parts (i), (ii)), proved from unconditional `ct_lower`, under the explicit hypotheses
-`FctMainHankelInputs` (`fct_main_hankel`) and `CtUpperCEInputs` (`fct:main-ce` and the two reductions).
+`gt:7.12`, `thm:ce-radius`, parts (i), (ii)), proved from unconditional `ct_lower`, `ce_nonzero_neg`, `ce_radius`,
+under the explicit hypotheses `FctMainHankelInputs` (`fct_main_hankel`) and `CtUpperCEInputs` (`fct:main-ce`).
 
 (i) For `ε = ±1` and real `c ≥ c₀`: `Δ₅^ε(c) - C c⁻¹ log c ≤ T_c^ε ≤ Δ₅^ε(c) + C c^{-3/4}`, the same for `T_c^CE` with `ε = -1`,
 `0 ≤ T_c^CE - T_c^- ≤ C c^{-3/4}`, and `T_c^{+1} - T_c^{-1} = -1/π + π A c^{-2/3} + O(c^{-3/4})`.
@@ -398,7 +373,7 @@ theorem ct_upper (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
     have hT0 : hankelT0 c = hankelT (-1) c := by
       refine hankelT0_eq_hankelT hc0 (bessel_kernel_data c hc1) (laguerre_odd_mode (by linarith))
         (hT (-1) (Or.inr rfl)).1 hgt
-    have hrad := E.ce_radius d hd2
+    have hrad := ce_radius d hd2
     rw [← hcdef] at hp hn hrad
     rw [hT0] at hn
     -- abs bounds
