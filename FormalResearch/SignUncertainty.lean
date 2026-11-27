@@ -548,6 +548,12 @@ public import FormalResearch.SignUncertainty.FctSplittingHorizFTC
 public import FormalResearch.SignUncertainty.FctSplittingPsiFar
 public import FormalResearch.SignUncertainty.FctSplittingCauchyLogLog
 public import FormalResearch.SignUncertainty.FctSplittingRest
+public import FormalResearch.SignUncertainty.FctRayTanLower
+public import FormalResearch.SignUncertainty.FctRayHG
+public import FormalResearch.SignUncertainty.FctRayAmp
+public import FormalResearch.SignUncertainty.FctRayShift
+public import FormalResearch.SignUncertainty.FctLeftEdgeBound
+public import FormalResearch.SignUncertainty.FctSplittingLogLog
 public import FormalResearch.SignUncertainty.FctMainHankel
 public import FormalResearch.SignUncertainty.FctSymCal
 public import FormalResearch.SignUncertainty.FctSymChain

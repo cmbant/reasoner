@@ -1541,11 +1541,12 @@ theorem fctPhiC_left_edge_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolveStm
       have hW_deriv_cont : ContinuousOn (deriv W_edge) U := by
         have hc1_U : ContDiffOn ℝ 1 W_edge U := by
           have hf1_c : ContDiffOn ℝ 1 f1 U := by
-            have h0 := @cpow_line_contDiffOn univ (1 : ℂ) (-Complex.I) (-(1 / 2 : ℂ)) (fun s _ => slit_one_sub s)
-            exact ((h0.mono (subset_univ _)).congr fun s _ => by simp only [f1]; ring_nf).of_le (by norm_num)
+            have h0 := cpow_line_contDiffOn (1 : ℂ) (-Complex.I) (-(1 / 2 : ℂ)) (S := U) (fun s _ => slit_one_sub s)
+            exact (h0.congr fun s _ => by simp only [f1]; ring_nf).of_le (by norm_num)
           have hf2_c : ContDiffOn ℝ 1 f2 U := by
             have hopen : IsOpen {z : ℂ | z.re < 1} := isOpen_lt Complex.continuous_re continuous_const
-            have hBc := (binetDiff_differentiableOn hcpos).contDiffOn hopen
+            have hBc : ContDiffOn ℂ 2 (binetDiff c) {z : ℂ | z.re < 1} :=
+              (binetDiff_differentiableOn hcpos).contDiffOn hopen
             have hline : ContDiff ℝ 2 (fun s : ℝ => (s : ℂ) * Complex.I) :=
               Complex.ofRealCLM.contDiff.mul contDiff_const
             exact ((hBc.restrict_scalars ℝ).comp hline.contDiffOn (fun s _ => by simp)).cexp.of_le (by norm_num)
@@ -1575,9 +1576,12 @@ theorem fctPhiC_left_edge_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolveStm
             have h1_cd : ContDiffOn ℝ 1 (fun _ : ℝ => (1 : ℂ)) U := contDiffOn_const
             have hsub_pk : ContDiffOn ℝ 1 (fun s : ℝ => 1 - FctPhiKill.phiKill a ((s : ℂ) * Complex.I)) U :=
               h1_cd.sub hpk_c
+            have hP_inv_c : ContDiffOn ℝ 1 (fun s : ℝ => (fctRayP L1 ((s : ℂ) * Complex.I))⁻¹) U :=
+              (((differentiableOn_id.inv fun _ hz => hz).contDiffOn isOpen_ne).restrict_scalars ℝ).comp
+                hP_c fun s (hs : s ∈ U) => (hP_lb s (le_of_lt hs)).2.2
             have h1s : ContDiffOn ℝ 1 (fun s : ℝ =>
                 (L1 : ℂ) * (1 - FctPhiKill.phiKill a ((s : ℂ) * Complex.I)) / fctRayP L1 ((s : ℂ) * Complex.I)) U :=
-              (hL1c_cd.mul hsub_pk).div hP_c fun s (hs : s ∈ U) => (hP_lb s (le_of_lt hs)).2.2
+              ((hL1c_cd.mul hsub_pk).mul hP_inv_c).congr fun _ _ => (div_eq_mul_inv _ _).symm
             exact h1_cd.sub h1s
           have hc_prod : ContDiffOn ℝ 1 (fun s : ℝ => (f1 s * f2 s * f3 s) * (f4 s * f5 s)) U :=
             ((hf1_c.mul hf2_c).mul hf3_c).mul (hf4_c.mul hf5_c)
@@ -1699,7 +1703,7 @@ theorem fctPhiC_left_edge_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolveStm
               (E_mel T * W_edge T - E_mel τ * W_edge τ - ∫ t in τ..T, E_mel t * deriv W_edge t) := by
           have hsub := congr_arg (((c : ℂ) * Complex.I) * ·) hsplit
           rw [mul_sub, ← hE'W_eq, hibp'] at hsub
-          simpa only [fctWarpIntegrand] using hsub
+          exact hsub
         have hL_norm : ‖((c : ℂ) * Complex.I) * (∫ u in (0 : ℝ)..τ, fctWarpKA K4 ε c L1 α ((u : ℂ) * Complex.I))‖ =
             c * ‖Complex.I * ∫ u in (0 : ℝ)..τ, fctWarpKA K4 ε c L1 α ((u : ℂ) * Complex.I)‖ := by
           rw [mul_assoc, norm_mul, Complex.norm_real, Real.norm_of_nonneg hcpos.le]
@@ -1725,7 +1729,7 @@ theorem fctPhiC_left_edge_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolveStm
           (((c : ℂ) * Complex.I) * (∫ u in (0 : ℝ)..T, fctWarpIntegrand K4 ε c L1 α u))
           (E_mel T * W_edge T - E_mel τ * W_edge τ - ∫ t in τ..T, E_mel t * deriv W_edge t)
         rw [hT_norm] at htr0
-        exact htr0.trans (add_le_add_right htr1 _)
+        exact (htr0.trans (add_le_add_right htr1 _)).trans_eq (by ring)
       -- Bound `‖W_edge T‖` for `2 ≤ T` and deduce `(1 + T) * exp(-π T) → 0`
       have hWT_bd : ∀ T : ℝ, 2 ≤ T → ‖W_edge T‖ ≤ C_W_f0 * (1 + T) * Real.exp (-(π * T)) := fun T hT2 => by
         have hTU : T ∈ U := hK0c_le_1.trans_lt (by linarith)
@@ -1764,7 +1768,6 @@ theorem fctPhiC_left_edge_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolveStm
             have h2' := h1.const_mul (π⁻¹)
             rw [mul_zero] at h2'
             exact h2'.congr fun T => by
-              dsimp only
               rw [← mul_assoc, ← mul_assoc, inv_mul_cancel₀ Real.pi_ne_zero, one_mul]
           have h3 : Filter.Tendsto (fun T : ℝ => C_W_f0 * (Real.exp (-(π * T)) + T * Real.exp (-(π * T))))
               Filter.atTop (𝓝 0) := by
