@@ -554,6 +554,8 @@ public import FormalResearch.ModularBootstrap.FoldTip.Instances
 public import FormalResearch.ModularBootstrap.FoldTip.InstancesAllWeights
 public import FormalResearch.ModularBootstrap.FoldTip.InstancesAllWeightsUnconditional
 public import FormalResearch.ModularBootstrap.FoldTip.ChartCompactness
+public import FormalResearch.ModularBootstrap.FoldTip.HankelChartCompactness
+public import FormalResearch.ModularBootstrap.FoldTip.FixedWeightChartCompactness
 public import FormalResearch.ModularBootstrap.TwoLevel.ConstrainedDuality
 public import FormalResearch.ModularBootstrap.TwoLevel.CorollaryTwoFour
 public import FormalResearch.ModularBootstrap.TwoLevel.CorollaryTwoFourAllWeights
