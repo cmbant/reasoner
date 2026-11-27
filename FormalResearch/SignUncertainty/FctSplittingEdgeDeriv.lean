@@ -106,6 +106,13 @@ private lemma fct_Nc_beta_bounds {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolveSt
   have hc1_inv : c⁻¹ ≤ 1 := inv_le_one_of_one_le₀ hc1
   refine ⟨hNc_inv, hβ_bd, hβ_bd.trans (mul_le_of_le_one_right (by positivity) hc1_inv)⟩
 
+/-- Uniform bound `‖N_c⁻¹‖ ≤ 2` for large `c` and `ε = ±1` (from `FctDescentStmt`). -/
+lemma fctNcC_inv_bound {K4 : ℝ} (hK4 : 1 ≤ K4) {h : FctWarpSolveStmt K4} (hD : FctDescentStmt h) :
+    ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
+      ‖(fctNcC K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c))⁻¹‖ ≤ 2 := by
+  obtain ⟨_, c₀, _, hNb⟩ := fct_Nc_beta_bounds hK4 hD
+  exact ⟨c₀, fun ε c hε hc => (hNb ε c hε hc).1⟩
+
 private lemma trace_deriv_line {f : ℂ → ℂ} {U : Set ℂ} (hU : IsOpen U) (hf : DifferentiableOn ℂ f U)
     (a b : ℂ) (hb : ‖b‖ = 1) (hmem : ∀ t : ℝ, a + (t : ℂ) * b ∈ U) (τ : ℝ) :
     ContDiff ℝ 2 (fun t : ℝ => f (a + (t : ℂ) * b)) ∧

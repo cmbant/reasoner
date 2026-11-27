@@ -454,4 +454,242 @@ theorem EJ.cast {f : ℝ → ℂ} {a a' b b' M : ℝ} {N : ℕ} (h : EJ f a N b 
     EJ f a' N b' M := by
   subst ha; subst hb; exact h
 
+/-! ### Graded `C²` envelopes restricted to a subset `S ⊆ {τ ≠ 0}` (`near` `0 < |τ| ≤ 1` vs `far` `1/2 ≤ |τ|`) -/
+
+/-- Graded `C²` envelope of `f` (`C²` on `{τ ≠ 0}`) with bounds holding on a subset `S ⊆ {τ ≠ 0}`. -/
+structure EJOn (S : Set ℝ) (f : ℝ → ℂ) (a : ℝ) (N : ℕ) (b M : ℝ) : Prop where
+  hM : 0 ≤ M
+  c2 : ContDiffOn ℝ 2 f {τ : ℝ | τ ≠ 0}
+  b0 : ∀ τ ∈ S, τ ≠ 0 → ‖f τ‖ ≤ M * ejW a N b 0 τ
+  b1 : ∀ τ ∈ S, τ ≠ 0 → ‖deriv f τ‖ ≤ M * ejW a N b 1 τ
+  b2 : ∀ τ ∈ S, τ ≠ 0 → ‖deriv (deriv f) τ‖ ≤ M * ejW a N b 2 τ
+
+lemma EJ.to_on {S : Set ℝ} {f : ℝ → ℂ} {a b M : ℝ} {N : ℕ} (hf : EJ f a N b M) : EJOn S f a N b M where
+  hM := hf.hM
+  c2 := hf.c2
+  b0 τ _ hτ := hf.b0 τ hτ
+  b1 τ _ hτ := hf.b1 τ hτ
+  b2 τ _ hτ := hf.b2 τ hτ
+
+theorem EJOn.mul {S : Set ℝ} {f g : ℝ → ℂ} {a a' b b' M M' : ℝ} {N N' : ℕ}
+    (hf : EJOn S f a N b M) (hg : EJOn S g a' N' b' M') :
+    EJOn S (fun t => f t * g t) (a + a') (N + N') (b + b') (4 * M * M') where
+  hM := by have := hf.hM; have := hg.hM; positivity
+  c2 := hf.c2.mul hg.c2
+  b0 τ hS hτ := by
+    have hp := ejW_pos (a := a + a') (b := b + b') (N := N + N') (j := 0) hτ
+    have e0 := ejW_pos (a := a) (b := b) (N := N) (j := 0) hτ
+    have e0' := ejW_pos (a := a') (b := b') (N := N') (j := 0) hτ
+    have w := ejW_mul (a := a) (a' := a') (b := b) (b' := b') (N := N) (N' := N') (j := 0) (k := 0) hτ
+    have hM := hf.hM; have hM' := hg.hM
+    simp only [norm_mul]
+    calc ‖f τ‖ * ‖g τ‖ ≤ (M * ejW a N b 0 τ) * (M' * ejW a' N' b' 0 τ) :=
+          mul_le_mul (hf.b0 τ hS hτ) (hg.b0 τ hS hτ) (norm_nonneg _) (by positivity)
+      _ = M * M' * ejW (a + a') (N + N') (b + b') 0 τ := by rw [← w]; ring
+      _ ≤ 4 * M * M' * ejW (a + a') (N + N') (b + b') 0 τ := by
+          have : 0 ≤ M * M' * ejW (a + a') (N + N') (b + b') 0 τ := by positivity
+          nlinarith
+  b1 τ hS hτ := by
+    have hO : IsOpen {τ : ℝ | τ ≠ 0} := isOpen_ne
+    obtain ⟨h1, -⟩ := prod_deriv_on hO hf.c2 hg.c2 (show τ ∈ {τ : ℝ | τ ≠ 0} from hτ)
+    rw [h1]
+    have w01 := ejW_mul (a := a) (a' := a') (b := b) (b' := b') (N := N) (N' := N') (j := 0) (k := 1) hτ
+    have w10 := ejW_mul (a := a) (a' := a') (b := b) (b' := b') (N := N) (N' := N') (j := 1) (k := 0) hτ
+    have hp := ejW_pos (a := a + a') (b := b + b') (N := N + N') (j := 1) hτ
+    have e0 := ejW_pos (a := a) (b := b) (N := N) (j := 0) hτ
+    have e0' := ejW_pos (a := a') (b := b') (N := N') (j := 0) hτ
+    have e1 := ejW_pos (a := a) (b := b) (N := N) (j := 1) hτ
+    have e1' := ejW_pos (a := a') (b := b') (N := N') (j := 1) hτ
+    have hM := hf.hM; have hM' := hg.hM
+    have t1 : ‖deriv f τ * g τ‖ ≤ M * M' * ejW (a + a') (N + N') (b + b') 1 τ := by
+      rw [norm_mul]
+      calc _ ≤ (M * ejW a N b 1 τ) * (M' * ejW a' N' b' 0 τ) :=
+            mul_le_mul (hf.b1 τ hS hτ) (hg.b0 τ hS hτ) (norm_nonneg _) (by positivity)
+        _ = _ := by rw [← w10]; ring
+    have t2 : ‖f τ * deriv g τ‖ ≤ M * M' * ejW (a + a') (N + N') (b + b') 1 τ := by
+      rw [norm_mul]
+      calc _ ≤ (M * ejW a N b 0 τ) * (M' * ejW a' N' b' 1 τ) :=
+            mul_le_mul (hf.b0 τ hS hτ) (hg.b1 τ hS hτ) (norm_nonneg _) (by positivity)
+        _ = _ := by rw [← w01]; ring
+    calc _ ≤ ‖deriv f τ * g τ‖ + ‖f τ * deriv g τ‖ := norm_add_le _ _
+      _ ≤ 4 * M * M' * ejW (a + a') (N + N') (b + b') 1 τ := by
+          have : 0 ≤ M * M' * ejW (a + a') (N + N') (b + b') 1 τ := by positivity
+          nlinarith
+  b2 τ hS hτ := by
+    have hO : IsOpen {τ : ℝ | τ ≠ 0} := isOpen_ne
+    obtain ⟨-, h2⟩ := prod_deriv_on hO hf.c2 hg.c2 (show τ ∈ {τ : ℝ | τ ≠ 0} from hτ)
+    rw [h2]
+    have w20 := ejW_mul (a := a) (a' := a') (b := b) (b' := b') (N := N) (N' := N') (j := 2) (k := 0) hτ
+    have w11 := ejW_mul (a := a) (a' := a') (b := b) (b' := b') (N := N) (N' := N') (j := 1) (k := 1) hτ
+    have w02 := ejW_mul (a := a) (a' := a') (b := b) (b' := b') (N := N) (N' := N') (j := 0) (k := 2) hτ
+    have hp := ejW_pos (a := a + a') (b := b + b') (N := N + N') (j := 2) hτ
+    have e0 := ejW_pos (a := a) (b := b) (N := N) (j := 0) hτ
+    have e0' := ejW_pos (a := a') (b := b') (N := N') (j := 0) hτ
+    have e1 := ejW_pos (a := a) (b := b) (N := N) (j := 1) hτ
+    have e1' := ejW_pos (a := a') (b := b') (N := N') (j := 1) hτ
+    have e2 := ejW_pos (a := a) (b := b) (N := N) (j := 2) hτ
+    have e2' := ejW_pos (a := a') (b := b') (N := N') (j := 2) hτ
+    have hM := hf.hM; have hM' := hg.hM
+    have t1 : ‖deriv (deriv f) τ * g τ‖ ≤ M * M' * ejW (a + a') (N + N') (b + b') 2 τ := by
+      rw [norm_mul]
+      calc _ ≤ (M * ejW a N b 2 τ) * (M' * ejW a' N' b' 0 τ) :=
+            mul_le_mul (hf.b2 τ hS hτ) (hg.b0 τ hS hτ) (norm_nonneg _) (by positivity)
+        _ = _ := by rw [← w20]; ring
+    have t2 : ‖deriv f τ * deriv g τ‖ ≤ M * M' * ejW (a + a') (N + N') (b + b') 2 τ := by
+      rw [norm_mul]
+      calc _ ≤ (M * ejW a N b 1 τ) * (M' * ejW a' N' b' 1 τ) :=
+            mul_le_mul (hf.b1 τ hS hτ) (hg.b1 τ hS hτ) (norm_nonneg _) (by positivity)
+        _ = _ := by rw [← w11]; ring
+    have t3 : ‖f τ * deriv (deriv g) τ‖ ≤ M * M' * ejW (a + a') (N + N') (b + b') 2 τ := by
+      rw [norm_mul]
+      calc _ ≤ (M * ejW a N b 0 τ) * (M' * ejW a' N' b' 2 τ) :=
+            mul_le_mul (hf.b0 τ hS hτ) (hg.b2 τ hS hτ) (norm_nonneg _) (by positivity)
+        _ = _ := by rw [← w02]; ring
+    calc ‖deriv (deriv f) τ * g τ + 2 * (deriv f τ * deriv g τ) + f τ * deriv (deriv g) τ‖
+        ≤ ‖deriv (deriv f) τ * g τ‖ + ‖(2 : ℂ) * (deriv f τ * deriv g τ)‖ + ‖f τ * deriv (deriv g) τ‖ :=
+          (norm_add_le _ _).trans (add_le_add (norm_add_le _ _) le_rfl)
+      _ ≤ 4 * M * M' * ejW (a + a') (N + N') (b + b') 2 τ := by
+          have : ‖(2 : ℂ) * (deriv f τ * deriv g τ)‖ = 2 * ‖deriv f τ * deriv g τ‖ := by
+            rw [norm_mul]; simp
+          linarith
+
+theorem EJOn.const_mul {S : Set ℝ} {f : ℝ → ℂ} {a b M : ℝ} {N : ℕ} (hf : EJOn S f a N b M) (k : ℂ) :
+    EJOn S (fun t => k * f t) a N b (‖k‖ * M) where
+  hM := mul_nonneg (norm_nonneg _) hf.hM
+  c2 := contDiffOn_const.mul hf.c2
+  b0 τ hS hτ := by
+    rw [norm_mul, mul_assoc]; exact mul_le_mul_of_nonneg_left (hf.b0 τ hS hτ) (norm_nonneg _)
+  b1 τ hS hτ := by
+    have : deriv (fun t => k * f t) τ = k * deriv f τ := deriv_const_mul_field k
+    rw [this, norm_mul, mul_assoc]; exact mul_le_mul_of_nonneg_left (hf.b1 τ hS hτ) (norm_nonneg _)
+  b2 τ hS hτ := by
+    have h1 : deriv (fun t => k * f t) = fun t => k * deriv f t := funext fun t => deriv_const_mul_field k
+    rw [h1]
+    have : deriv (fun t => k * deriv f t) τ = k * deriv (deriv f) τ := deriv_const_mul_field k
+    rw [this, norm_mul, mul_assoc]; exact mul_le_mul_of_nonneg_left (hf.b2 τ hS hτ) (norm_nonneg _)
+
+theorem EJOn.cast {S : Set ℝ} {f : ℝ → ℂ} {a a' b b' M : ℝ} {N : ℕ}
+    (h : EJOn S f a N b M) (ha : a = a') (hb : b = b') : EJOn S f a' N b' M := by
+  subst ha; subst hb; exact h
+
+theorem EJOn.of_far_poly_exp {f : ℝ → ℂ} {N : ℕ} {M : ℝ} (hM : 0 ≤ M)
+    (hc2 : ContDiffOn ℝ 2 f {τ : ℝ | τ ≠ 0})
+    (hb : ∀ τ : ℝ, 1 / 2 ≤ |τ| →
+      ‖f τ‖ ≤ M * (1 + |τ|) ^ N * Real.exp (-(π * |τ|)) ∧
+      ‖deriv f τ‖ ≤ M * (1 + |τ|) ^ N * Real.exp (-(π * |τ|)) ∧
+      ‖deriv (deriv f) τ‖ ≤ M * (1 + |τ|) ^ N * Real.exp (-(π * |τ|))) :
+    EJOn {τ : ℝ | 1 / 2 ≤ |τ|} f 0 N 1 M where
+  hM := hM
+  c2 := hc2
+  b0 τ hS hτ := by
+    have h := (hb τ hS).1
+    have hg := ejW_ge (b := 1) (N := N) 0 hτ
+    rw [show π * (1 : ℝ) * |τ| = π * |τ| from by ring] at hg
+    calc ‖f τ‖ ≤ M * ((1 + |τ|) ^ N * Real.exp (-(π * |τ|))) := by linarith
+      _ ≤ M * ejW 0 N 1 0 τ := mul_le_mul_of_nonneg_left hg hM
+  b1 τ hS hτ := by
+    have h := (hb τ hS).2.1
+    have hg := ejW_ge (b := 1) (N := N) 1 hτ
+    rw [show π * (1 : ℝ) * |τ| = π * |τ| from by ring] at hg
+    calc ‖deriv f τ‖ ≤ M * ((1 + |τ|) ^ N * Real.exp (-(π * |τ|))) := by linarith
+      _ ≤ M * ejW 0 N 1 1 τ := mul_le_mul_of_nonneg_left hg hM
+  b2 τ hS hτ := by
+    have h := (hb τ hS).2.2
+    have hg := ejW_ge (b := 1) (N := N) 2 hτ
+    rw [show π * (1 : ℝ) * |τ| = π * |τ| from by ring] at hg
+    calc ‖deriv (deriv f) τ‖ ≤ M * ((1 + |τ|) ^ N * Real.exp (-(π * |τ|))) := by linarith
+      _ ≤ M * ejW 0 N 1 2 τ := mul_le_mul_of_nonneg_left hg hM
+
+lemma ejW_zero_far_le (N : ℕ) : ∃ K : ℝ, 0 ≤ K ∧ ∀ τ : ℝ, 1 / 2 ≤ |τ| → ∀ j : ℕ, j ≤ 2 →
+    ejW 0 N 1 j τ ≤ 4 * K * (1 + |τ|) ^ (-(2 : ℝ)) := by
+  obtain ⟨K, hK0, hK⟩ := poly_exp_le_n (N + 4)
+  refine ⟨K, hK0, fun τ hτ j hj => ?_⟩
+  set x : ℝ := |τ|
+  have hx0 : 0 < x := by positivity
+  have hp : 0 < 1 + x := by linarith
+  have h1 : x ^ ((0 : ℝ) - (j : ℝ)) ≤ 4 := by
+    rw [zero_sub, Real.rpow_neg hx0.le, Real.rpow_natCast]
+    have hpow : (1 / 4 : ℝ) ≤ x ^ j := by
+      rcases le_or_gt x 1 with h | h
+      · calc (1 / 4 : ℝ) = (1 / 2 : ℝ) ^ 2 := by norm_num
+          _ ≤ (1 / 2 : ℝ) ^ j := pow_le_pow_of_le_one (by norm_num) (by norm_num) hj
+          _ ≤ x ^ j := pow_le_pow_left₀ (by norm_num) hτ j
+      · have : 1 ≤ x ^ j := one_le_pow₀ h.le
+        linarith
+    exact inv_le_of_inv_le₀ (by norm_num : (0 : ℝ) < 4) (by norm_num; exact hpow)
+  have h2 : (1 + x) ^ (N + j) ≤ (1 + x) ^ (N + 2) := pow_le_pow_right₀ (by linarith) (by omega)
+  have h3 := hK x hx0.le
+  unfold ejW
+  rw [rpow_neg_two_eq hp.le, mul_one_div, le_div_iff₀ (by positivity)]
+  have he : 0 ≤ Real.exp (-(π * 1 * x)) := (Real.exp_pos _).le
+  have hxx : Real.exp (-(π * 1 * x)) = Real.exp (-(π * x)) := by ring_nf
+  rw [hxx]
+  calc x ^ ((0 : ℝ) - (j : ℝ)) * (1 + x) ^ (N + j) * Real.exp (-(π * x)) * (1 + x) ^ 2
+      ≤ 4 * (1 + x) ^ (N + 2) * Real.exp (-(π * x)) * (1 + x) ^ 2 := by gcongr
+    _ = 4 * ((1 + x) ^ (N + 4) * Real.exp (-(π * x))) := by ring
+    _ ≤ 4 * K := by gcongr
+
+/-- Combined near (`0 < |τ| ≤ 1`, `a = 1/2`) and far (`1/2 ≤ |τ|`, `a = 0`) `EJOn` envelopes yield `StripEdge0 (1/2)`. -/
+theorem edge0_of_EJOn_near_far {W : ℂ → ℂ} {fnear ffar : ℝ → ℂ} {Nn Nf : ℕ} {Mn Mf : ℝ}
+    (hf_near : EJOn {τ : ℝ | τ ≠ 0 ∧ |τ| ≤ 1} fnear (1 / 2) Nn 1 Mn)
+    (hf_far : EJOn {τ : ℝ | 1 / 2 ≤ |τ|} ffar 0 Nf 1 Mf)
+    (hc2 : ContDiffOn ℝ 2 (stripEdge0 W) {τ : ℝ | τ ≠ 0})
+    (heq_near : ∀ τ : ℝ, τ ≠ 0 → stripEdge0 W τ = fnear τ)
+    (heq_far : ∀ τ : ℝ, τ ≠ 0 → stripEdge0 W τ = ffar τ)
+    (h0 : W 0 = 0) : StripEdge0 (1 / 2 : ℝ) W := by
+  have hS : IsOpen {τ : ℝ | τ ≠ 0} := isOpen_ne
+  have hd_eq : ∀ {g : ℝ → ℂ}, (∀ τ : ℝ, τ ≠ 0 → stripEdge0 W τ = g τ) →
+      (∀ τ : ℝ, τ ≠ 0 → deriv (stripEdge0 W) τ = deriv g τ) ∧
+      (∀ τ : ℝ, τ ≠ 0 → deriv (deriv (stripEdge0 W)) τ = deriv (deriv g) τ) := by
+    intro g hg
+    have hd1 : ∀ τ : ℝ, τ ≠ 0 → deriv (stripEdge0 W) τ = deriv g τ := fun τ hτ =>
+      Filter.EventuallyEq.deriv_eq (by filter_upwards [hS.mem_nhds hτ] with t ht using hg t ht)
+    refine ⟨hd1, fun τ hτ => Filter.EventuallyEq.deriv_eq (by filter_upwards [hS.mem_nhds hτ] with t ht using hd1 t ht)⟩
+  obtain ⟨hd1_n, hd2_n⟩ := hd_eq heq_near
+  obtain ⟨hd1_f, hd2_f⟩ := hd_eq heq_far
+  have hW0 : stripEdge0 W 0 = 0 := by simp [stripEdge0, h0]
+  obtain ⟨K, hK0, hK⟩ := ejW_zero_far_le Nf
+  have hMn := hf_near.hM
+  have hMf := hf_far.hM
+  refine ⟨hc2, ⟨Mn * 2 ^ (Nn + 2), fun τ hτ hτ1 => ?_⟩, ⟨4 * Mf * K, fun τ hτ => ?_⟩⟩
+  · have h0' : 0 < |τ| := abs_pos.mpr hτ
+    have hone : (1 + |τ|) ≤ 2 := by linarith
+    have hexp : Real.exp (-(π * 1 * |τ|)) ≤ 1 := Real.exp_le_one_iff.mpr (by nlinarith [Real.pi_pos])
+    have key : ∀ j : ℕ, j ≤ 2 → Mn * ejW (1 / 2) Nn 1 j τ ≤ Mn * 2 ^ (Nn + 2) * |τ| ^ ((1 / 2 : ℝ) - (j : ℝ)) := by
+      intro j hj
+      unfold ejW
+      have hp : 0 < |τ| ^ ((1 / 2 : ℝ) - (j : ℝ)) := Real.rpow_pos_of_pos h0' _
+      have h1 : (1 + |τ|) ^ (Nn + j) ≤ 2 ^ (Nn + 2) := by
+        calc (1 + |τ|) ^ (Nn + j) ≤ 2 ^ (Nn + j) := pow_le_pow_left₀ (by linarith) hone _
+          _ ≤ 2 ^ (Nn + 2) := pow_le_pow_right₀ (by norm_num) (by omega)
+      calc Mn * (|τ| ^ ((1 / 2 : ℝ) - (j : ℝ)) * (1 + |τ|) ^ (Nn + j) * Real.exp (-(π * 1 * |τ|)))
+          ≤ Mn * (|τ| ^ ((1 / 2 : ℝ) - (j : ℝ)) * 2 ^ (Nn + 2) * 1) := by gcongr
+        _ = _ := by ring
+    have hmem : τ ∈ {τ : ℝ | τ ≠ 0 ∧ |τ| ≤ 1} := ⟨hτ, hτ1⟩
+    refine ⟨?_, ?_, ?_⟩
+    · rw [hW0, sub_zero, heq_near τ hτ]
+      have := (hf_near.b0 τ hmem hτ).trans (key 0 (by norm_num))
+      simpa using this
+    · rw [hd1_n τ hτ]
+      have := (hf_near.b1 τ hmem hτ).trans (key 1 (by norm_num))
+      simpa using this
+    · rw [hd2_n τ hτ]
+      have := (hf_near.b2 τ hmem hτ).trans (key 2 (by norm_num))
+      simpa using this
+  · have hτ' : τ ≠ 0 := by intro h; rw [h] at hτ; simp at hτ; linarith
+    have hw := fun j (hj : j ≤ 2) => hK τ hτ j hj
+    refine ⟨?_, ?_, ?_⟩
+    · rw [heq_far τ hτ']
+      calc _ ≤ Mf * ejW 0 Nf 1 0 τ := hf_far.b0 τ hτ hτ'
+        _ ≤ Mf * (4 * K * (1 + |τ|) ^ (-(2 : ℝ))) := by gcongr; exact hw 0 (by norm_num)
+        _ = _ := by ring
+    · rw [hd1_f τ hτ']
+      calc _ ≤ Mf * ejW 0 Nf 1 1 τ := hf_far.b1 τ hτ hτ'
+        _ ≤ Mf * (4 * K * (1 + |τ|) ^ (-(2 : ℝ))) := by gcongr; exact hw 1 (by norm_num)
+        _ = _ := by ring
+    · rw [hd2_f τ hτ']
+      calc _ ≤ Mf * ejW 0 Nf 1 2 τ := hf_far.b2 τ hτ hτ'
+        _ ≤ Mf * (4 * K * (1 + |τ|) ^ (-(2 : ℝ))) := by gcongr; exact hw 2 (by norm_num)
+        _ = _ := by ring
+
 end FormalResearch.SignUncertainty

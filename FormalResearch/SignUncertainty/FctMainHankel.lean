@@ -129,12 +129,13 @@ structure FctMainHankelInputs where
   /-- `fct:warp-asymp` (1) (`FctWarpSolveStmt`): exact complex zero solve, a unique `(L₁, α)` with `I_ε(L₁, α) = 0`, `|T₁ - Δ₅^ε(c)| ≤ C c⁻¹`,
   `|α| ≤ C c^{-2/3}`. -/
   warp_solve : FctWarpSolveStmt K4
-  /-- `fct:splitting` (1)-(2) for `Φ̂_c`, the clauses not yet proved (`FctSplittingRestStmt`): `C²` left edge trace, the `log log` growth
-  on `S̄` and the edge-trace derivative bounds.  Holomorphy on `Re ζ > 0`, real symmetry, continuity on `S̄` and `Φ̂_c = O(ζ³)` at `0` are proved from `descent` (`fctPhiHat_differentiableOn`, `fctPhiHat_conj`, `fctPhiHat_cont_cubic`), so
-  `FctSplittingStmt (fctPhiHat ·)` is the theorem `FctMainHankelInputs.splitting` (`fctSplitting_of_rest`).  With the proved `fct:comp-D` (`fctDcomp_compData`) and `H_*/G_ε`
-  (`uct:outer-growth`) it gives Step 1 of `fct:s4-proof` for the warp summand (`fctWarp_admissible`) and the corner behaviour that makes `ctWwarp → 0` at `ζ = 0`
-  (`ctWwarp_tendsto_zero`; the singularity `ζ^{-5/2}` of `H_*/G_ε` is cancelled). -/
-  splitting_rest : FctSplittingRestStmt (fctPhiHat warp_solve)
+  /-- `fct:splitting` (2)-(3) for `Φ̂_c`, the remaining open clauses (`FctSplittingRestStmt`): `C²` left edge trace, `log log` growth
+  on `S̄`, small-`|τ|` left-edge derivatives `(fct:Psi-edge)`, and large-`|τ|` `Ψ_c` trace decay (`fct:splitting` (3)).
+  Holomorphy, real symmetry, continuity on `S̄`, `Φ̂_c = O(ζ³)`, `(fct:Eminus-edge)` right-edge derivatives (`fctPhiHat_right_deriv`),
+  and the `F_-`/`q₁` left-edge tail (`fctPhiHat_left_tail_EJ`) are proved from `descent`.  With `fct:comp-D` (`fctDcomp_compData`)
+  and `H_*/G_ε` (`uct:outer-growth`) it gives Step 1 of `fct:s4-proof` for the warp summand (`fctWarp_admissible`) and `ctWwarp → 0`
+  at `ζ = 0` (`ctWwarp_tendsto_zero`). -/
+  splitting_rest : FctSplittingRestStmt warp_solve
   /-- `fct:splitting` (1), proof steps (a)-(e): the interior-strip estimates along the vertical ray `ζ + i[0,∞)` (`FctRayStmt`: ray representation of `Ψ_c`,
   `Im g_tan ≥ 0`, `|Φ'| ≳ log(2+y)`, `|Φ''| ≤ C`, `|W^{(j)}| ≲ |A₀(ζ)| e^{-3s}`, `W(ζ)/A₀(ζ) = 1 + O(c⁻¹/log)`).  From it `(fct:F-38-bnd)`, `|F(σ+iy)| ≤ C c⁻¹/log(2+|y|)` on
   `5/16 ≤ σ ≤ 7/16` (`FctDescentStmt`), is the theorem `FctMainHankelInputs.descent` (`fctDescent_of_ray`: the two integrations by parts).  `N_c = 1 + O(c⁻¹)`
@@ -225,7 +226,9 @@ theorem fct_main_hankel (I : FctMainHankelInputs) :
   obtain ⟨cb, hcb⟩ := hbud K1 hK1
   obtain ⟨cp, hcp⟩ := hpos Kd hKdpos
   obtain ⟨cbp, hcbp⟩ := I.bump_profile K1 hK1
-  obtain ⟨cwa, hcwa⟩ := fctWarp_admissible I.K4_ge_one (alpha := I.alpha) ⟨C1, cw, fun ε c hε hc => (hwarp ε c hε hc).2⟩ I.splitting
+  obtain ⟨cwa, hcwa⟩ := fctWarp_admissible I.K4_ge_one (alpha := I.alpha)
+    ⟨C1, cw, fun ε c hε hc => (hwarp ε c hε hc).2⟩ I.splitting
+    (fctWarp_far_of_rest I.K4_ge_one I.descent I.splitting_rest)
   obtain ⟨cs, hcs⟩ := I.splitting
   obtain ⟨CD, cD, hD⟩ := fctDcomp_bound I.K4_ge_one (alpha := I.alpha) ⟨C1, cw, fun ε c hε hc => (hwarp ε c hε hc).2⟩
   have hβ := hankelBeta1_pos

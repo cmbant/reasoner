@@ -20,7 +20,7 @@ Class: proved.
 
 open Set Filter Topology MeasureTheory Metric
 open scoped Real
-open FormalResearch.CohnElkies
+open FormalResearch.CohnElkies FormalResearch.SignUncertainty.CtOuter
 
 namespace FormalResearch.SignUncertainty
 
@@ -55,9 +55,9 @@ private lemma hasDerivAt_cauchyP1 {w : ℂ} (hw1 : w + 1 ≠ 0) :
   unfold cauchyP1 cauchyP2
   have h1 : HasDerivAt (fun z : ℂ => 2 * z) 2 w := by
     simpa using (hasDerivAt_id w).const_mul (2 : ℂ)
-  have h2 : HasDerivAt (fun z : ℂ => (z + 1) ^ 3) (3 * (w + 1) ^ 2) w := by
-    convert ((hasDerivAt_id w).add_const (1 : ℂ)).pow 3 using 1
-    simp
+  have h2 : HasDerivAt (fun z : ℂ => (z + 1) ^ 3) (3 * (w + 1) ^ 2) w :=
+    ((((hasDerivAt_id w).add_const (1 : ℂ)).pow 3).congr_of_eventuallyEq
+      (Eventually.of_forall fun _ => rfl)).congr_deriv (by simp)
   refine (h1.div h2 (pow_ne_zero 3 hw1)).congr_deriv ?_
   field_simp
   ring
@@ -77,9 +77,9 @@ private lemma hasDerivAt_cauchyQ (t : ℂ) {w : ℂ} (htw : t - w ≠ 0) :
 private lemma hasDerivAt_cauchyQ1 (t : ℂ) {w : ℂ} (htw : t - w ≠ 0) :
     HasDerivAt (cauchyQ1 t) (cauchyQ2 t w) w := by
   unfold cauchyQ1 cauchyQ2
-  have hsub : HasDerivAt (fun z : ℂ => (t - z) ^ 2) (2 * (t - w) * (-1)) w := by
-    convert ((hasDerivAt_id w).const_sub t).pow 2 using 1
-    simp
+  have hsub : HasDerivAt (fun z : ℂ => (t - z) ^ 2) (2 * (t - w) * (-1)) w :=
+    ((((hasDerivAt_id w).const_sub t).pow 2).congr_of_eventuallyEq
+      (Eventually.of_forall fun _ => rfl)).congr_deriv (by simp)
   refine ((hasDerivAt_const w t).div hsub (pow_ne_zero 2 htw)).congr_deriv ?_
   field_simp
   ring
@@ -145,10 +145,10 @@ private lemma line_ball_bounds {σ σζ η : ℝ} (hσ : 3 / 8 ≤ σ) (_ : σ �
     linarith [abs_nonneg η]
   have htw_re : 1 / 4 ≤ |t.re - w.re| := by
     have htre : t.re = σ := by simp [t]
-    rw [htre]
+    rw [htre, abs_sub_comm σ w.re]
     have h1 := abs_sub_abs_le_abs_sub (σζ - σ) (w.re - σ)
     have hsub : |(σζ - σ) - (w.re - σ)| = |w.re - σζ| := by rw [abs_sub_comm]; ring_nf
-    rw [hsub, abs_sub_comm σ w.re] at h1
+    rw [hsub] at h1
     linarith [hsep, hre_abs]
   have htw_14 : 1 / 4 ≤ ‖t - w‖ := htw_re.trans (by
     simpa [Complex.sub_re] using Complex.abs_re_le_norm (t - w))
@@ -209,7 +209,7 @@ private lemma norm_cauchyK1_le {σ σζ η : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : �
     (hσζ0 : -1 / 4 ≤ σζ) (hσζ2 : |σζ| ≤ 2) (hsep : 3 / 8 ≤ |σζ - σ|)
     {w : ℂ} (hw : w ∈ ball ((σζ : ℂ) + (η : ℂ) * Complex.I) (1 / 8)) (y : ℝ) :
     ‖cauchyK1 ((σ : ℂ) + (y : ℂ) * Complex.I) w‖ ≤
-      (10 ^ 7 : ℝ) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by
+      (2 * 10 ^ 7 : ℝ) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by
   obtain ⟨_, hw1_eta, hw_ub, _, htw_diff, ht_lb, ht_ub, ht1_ub⟩ :=
     line_ball_bounds hσ hσ' hσζ0 hσζ2 hsep hw y
   set t : ℂ := (σ : ℂ) + (y : ℂ) * Complex.I
@@ -219,14 +219,14 @@ private lemma norm_cauchyK1_le {σ σζ η : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : �
   have htw_pos : (0 : ℝ) < ‖t - w‖ := by
     have : 0 < (1 + |y - η|) / 8 := by positivity
     linarith
-  have ht_pref : ‖(t + 1) ^ 2 / t ^ 3‖ ≤ 600 * (1 / (1 + |y|)) := by
+  have ht_pref : ‖(t + 1) ^ 2 / t ^ 3‖ ≤ 610 * (1 / (1 + |y|)) := by
     rw [norm_div, norm_pow, norm_pow]
     have hnum : ‖t + 1‖ ^ 2 ≤ (2 * (1 + |y|)) ^ 2 := pow_le_pow_left₀ (norm_nonneg _) ht1_ub 2
     have hden : ((3 / 16 : ℝ) * (1 + |y|)) ^ 3 ≤ ‖t‖ ^ 3 := pow_le_pow_left₀ (by positivity) ht_lb 3
     calc ‖t + 1‖ ^ 2 / ‖t‖ ^ 3 ≤ (2 * (1 + |y|)) ^ 2 / ((3 / 16 : ℝ) * (1 + |y|)) ^ 3 :=
           div_le_div₀ (by positivity) hnum (by positivity) hden
       _ = (2 ^ 2 / (3 / 16 : ℝ) ^ 3) * (1 / (1 + |y|)) := by field_simp
-      _ ≤ 600 * (1 / (1 + |y|)) := mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
+      _ ≤ 610 * (1 / (1 + |y|)) := mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
   have hP : ‖cauchyP w‖ ≤ 144 := by
     unfold cauchyP
     rw [norm_pow, norm_div]
@@ -266,33 +266,37 @@ private lemma norm_cauchyK1_le {σ σζ η : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : �
       _ = (384 * 24) * (1 / ((1 + |η|) * (1 + |y - η|))) := by field_simp
       _ ≤ (384 * 24) * (1 / (1 + |y - η|)) := by
           gcongr
-          calc 1 * (1 + |y - η|) ≤ (1 + |η|) * (1 + |y - η|) :=
-                mul_le_mul_of_nonneg_right (by linarith [abs_nonneg η]) hyη0.le
+          simpa using mul_le_mul_of_nonneg_right (by linarith [abs_nonneg η] : (1 : ℝ) ≤ 1 + |η|) hyη0.le
   have ham : 1 / ((1 + |y|) * (1 + |y - η|)) ≤ 1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2 :=
     am_gm_inv_mul hy0 hyη0
   have h1y2 : 1 / (1 + |y - η|) ^ 2 ≤ 1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2 :=
     le_add_of_nonneg_left (by positivity)
   have ht1 : ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP1 w * cauchyQ t w‖ ≤
-      (600 * (384 * 24)) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by
+      (610 * (384 * 24)) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by
     calc ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP1 w * cauchyQ t w‖
-        ≤ (600 * (1 / (1 + |y|))) * ((384 * 24) * (1 / (1 + |y - η|))) :=
+        ≤ (610 * (1 / (1 + |y|))) * ((384 * 24) * (1 / (1 + |y - η|))) :=
           mul_le_mul ht_pref hP1Q (norm_nonneg _) (by positivity)
-      _ = (600 * (384 * 24)) * (1 / ((1 + |y|) * (1 + |y - η|))) := by ring
+      _ = (610 * (384 * 24)) * (1 / ((1 + |y|) * (1 + |y - η|))) := by field_simp
       _ ≤ _ := mul_le_mul_of_nonneg_left ham (by positivity)
   have ht2 : ‖(t + 1) ^ 2 / t ^ 3‖ * (‖cauchyP w‖ * ‖cauchyQ1 t w‖) ≤
-      (600 * (144 * 64)) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by
-    calc ‖(t + 1) ^ 2 / t ^ 3‖ * (‖cauchyP w‖ * ‖cauchyQ1 t w‖)
-        ≤ (600 * (1 / (1 + |y|))) * (144 * (64 * ((1 + |y|) / (1 + |y - η|) ^ 2))) :=
-          mul_le_mul ht_pref (mul_le_mul hP hQ1 (norm_nonneg _) (by positivity)) (by positivity) (by positivity)
-      _ = (600 * (144 * 64)) * (1 / (1 + |y - η|) ^ 2) := by field_simp
-      _ ≤ _ := by exact mul_le_mul_of_nonneg_left h1y2 (by positivity)
-  rw [cauchyK1, norm_mul]
-  have htri := mul_le_mul_of_nonneg_left ((norm_add_le _ _).trans (by rw [norm_mul, norm_mul])) (norm_nonneg ((t + 1) ^ 2 / t ^ 3))
-  calc ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP1 w * cauchyQ t w + cauchyP w * cauchyQ1 t w‖
-      ≤ ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP1 w * cauchyQ t w‖ +
+      (610 * (144 * 64)) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by
+    have hmul : ‖(t + 1) ^ 2 / t ^ 3‖ * (‖cauchyP w‖ * ‖cauchyQ1 t w‖) ≤
+        (610 * (144 * 64)) * (1 / (1 + |y - η|) ^ 2) := by
+      calc ‖(t + 1) ^ 2 / t ^ 3‖ * (‖cauchyP w‖ * ‖cauchyQ1 t w‖)
+          ≤ (610 * (1 / (1 + |y|))) * (144 * (64 * ((1 + |y|) / (1 + |y - η|) ^ 2))) :=
+            mul_le_mul ht_pref (mul_le_mul hP hQ1 (norm_nonneg _) (by positivity)) (by positivity) (by positivity)
+        _ = (610 * (144 * 64)) * (1 / (1 + |y - η|) ^ 2) := by field_simp
+    exact hmul.trans (mul_le_mul_of_nonneg_left h1y2 (by positivity))
+  have htri : ‖cauchyP1 w * cauchyQ t w + cauchyP w * cauchyQ1 t w‖ ≤
+      ‖cauchyP1 w * cauchyQ t w‖ + ‖cauchyP w‖ * ‖cauchyQ1 t w‖ :=
+    (norm_add_le _ _).trans_eq (by rw [norm_mul (cauchyP w)])
+  have htri' := mul_le_mul_of_nonneg_left htri (norm_nonneg ((t + 1) ^ 2 / t ^ 3))
+  calc ‖cauchyK1 t w‖
+      = ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP1 w * cauchyQ t w + cauchyP w * cauchyQ1 t w‖ := by rw [cauchyK1, norm_mul]
+    _ ≤ ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP1 w * cauchyQ t w‖ +
         ‖(t + 1) ^ 2 / t ^ 3‖ * (‖cauchyP w‖ * ‖cauchyQ1 t w‖) := by linarith
-    _ ≤ (600 * (384 * 24) + 600 * (144 * 64)) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by linarith
-    _ ≤ (10 ^ 7 : ℝ) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) :=
+    _ ≤ (610 * (384 * 24) + 610 * (144 * 64)) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by linarith
+    _ ≤ (2 * 10 ^ 7 : ℝ) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) :=
           mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
 
 private lemma norm_cauchyK2_le {σ σζ η : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16)
@@ -309,14 +313,14 @@ private lemma norm_cauchyK2_le {σ σζ η : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : �
   have htw_pos : (0 : ℝ) < ‖t - w‖ := by
     have : 0 < (1 + |y - η|) / 8 := by positivity
     linarith
-  have ht_pref : ‖(t + 1) ^ 2 / t ^ 3‖ ≤ 600 * (1 / (1 + |y|)) := by
+  have ht_pref : ‖(t + 1) ^ 2 / t ^ 3‖ ≤ 610 * (1 / (1 + |y|)) := by
     rw [norm_div, norm_pow, norm_pow]
     have hnum : ‖t + 1‖ ^ 2 ≤ (2 * (1 + |y|)) ^ 2 := pow_le_pow_left₀ (norm_nonneg _) ht1_ub 2
     have hden : ((3 / 16 : ℝ) * (1 + |y|)) ^ 3 ≤ ‖t‖ ^ 3 := pow_le_pow_left₀ (by positivity) ht_lb 3
     calc ‖t + 1‖ ^ 2 / ‖t‖ ^ 3 ≤ (2 * (1 + |y|)) ^ 2 / ((3 / 16 : ℝ) * (1 + |y|)) ^ 3 :=
           div_le_div₀ (by positivity) hnum (by positivity) hden
       _ = (2 ^ 2 / (3 / 16 : ℝ) ^ 3) * (1 / (1 + |y|)) := by field_simp
-      _ ≤ 600 * (1 / (1 + |y|)) := mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
+      _ ≤ 610 * (1 / (1 + |y|)) := mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
   have hP : ‖cauchyP w‖ ≤ 144 := by
     unfold cauchyP
     rw [norm_pow, norm_div]
@@ -337,7 +341,7 @@ private lemma norm_cauchyK2_le {σ σζ η : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : �
     rw [norm_div, norm_pow]
     have hnum : ‖(2 : ℂ) - 4 * w‖ ≤ 14 * (1 + |η|) := by
       calc ‖(2 : ℂ) - 4 * w‖ ≤ ‖(2 : ℂ)‖ + ‖4 * w‖ := norm_sub_le _ _
-        _ = 2 + 4 * ‖w‖ := by simp [Complex.norm_ofNat]
+        _ = 2 + 4 * ‖w‖ := by simp
         _ ≤ 2 + 4 * (3 * (1 + |η|)) := by linarith
         _ ≤ 14 * (1 + |η|) := by linarith [abs_nonneg η]
     have hden : ((1 + |η|) / 4) ^ 4 ≤ ‖w + 1‖ ^ 4 := pow_le_pow_left₀ (by positivity) hw1_eta 4
@@ -381,9 +385,8 @@ private lemma norm_cauchyK2_le {σ σζ η : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : �
       _ = (3584 * 24) * (1 / ((1 + |η|) ^ 2 * (1 + |y - η|))) := by field_simp
       _ ≤ (3584 * 24) * (1 / (1 + |y - η|)) := by
           gcongr
-          have : (1 : ℝ) ≤ (1 + |η|) ^ 2 := one_le_pow₀ (by linarith [abs_nonneg η])
-          calc 1 * (1 + |y - η|) ≤ (1 + |η|) ^ 2 * (1 + |y - η|) :=
-                mul_le_mul_of_nonneg_right this hyη0.le
+          simpa using mul_le_mul_of_nonneg_right
+            (one_le_pow₀ (by linarith [abs_nonneg η]) : (1 : ℝ) ≤ (1 + |η|) ^ 2) hyη0.le
   have hp1q1 : ‖2 * (cauchyP1 w * cauchyQ1 t w)‖ ≤ (2 * 384 * 64) * ((1 + |y|) / (1 + |y - η|) ^ 2) := by
     rw [norm_mul, Complex.norm_ofNat, norm_mul]
     have hη1 : 1 / (1 + |η|) ^ 2 ≤ 1 := div_le_one_of_le₀ (one_le_pow₀ (by linarith [abs_nonneg η])) (by positivity)
@@ -395,37 +398,42 @@ private lemma norm_cauchyK2_le {σ σζ η : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : �
     rw [norm_mul]
     exact (mul_le_mul hP hQ2 (norm_nonneg _) (by positivity)).trans (le_of_eq (by ring))
   have ht1 : ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP2 w * cauchyQ t w‖ ≤
-      (600 * (3584 * 24)) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by
+      (610 * (3584 * 24)) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by
     calc ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP2 w * cauchyQ t w‖
-        ≤ (600 * (1 / (1 + |y|))) * ((3584 * 24) * (1 / (1 + |y - η|))) :=
+        ≤ (610 * (1 / (1 + |y|))) * ((3584 * 24) * (1 / (1 + |y - η|))) :=
           mul_le_mul ht_pref hp2q (norm_nonneg _) (by positivity)
-      _ = (600 * (3584 * 24)) * (1 / ((1 + |y|) * (1 + |y - η|))) := by ring
+      _ = (610 * (3584 * 24)) * (1 / ((1 + |y|) * (1 + |y - η|))) := by field_simp
       _ ≤ _ := mul_le_mul_of_nonneg_left ham (by positivity)
   have ht2 : ‖(t + 1) ^ 2 / t ^ 3‖ * ‖2 * (cauchyP1 w * cauchyQ1 t w)‖ ≤
-      (600 * (2 * 384 * 64)) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by
-    calc ‖(t + 1) ^ 2 / t ^ 3‖ * ‖2 * (cauchyP1 w * cauchyQ1 t w)‖
-        ≤ (600 * (1 / (1 + |y|))) * ((2 * 384 * 64) * ((1 + |y|) / (1 + |y - η|) ^ 2)) :=
-          mul_le_mul ht_pref hp1q1 (norm_nonneg _) (by positivity)
-      _ = (600 * (2 * 384 * 64)) * (1 / (1 + |y - η|) ^ 2) := by field_simp
-      _ ≤ _ := mul_le_mul_of_nonneg_left h1y2 (by positivity)
+      (610 * (2 * 384 * 64)) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by
+    have hmul : ‖(t + 1) ^ 2 / t ^ 3‖ * ‖2 * (cauchyP1 w * cauchyQ1 t w)‖ ≤
+        (610 * (2 * 384 * 64)) * (1 / (1 + |y - η|) ^ 2) := by
+      calc ‖(t + 1) ^ 2 / t ^ 3‖ * ‖2 * (cauchyP1 w * cauchyQ1 t w)‖
+          ≤ (610 * (1 / (1 + |y|))) * ((2 * 384 * 64) * ((1 + |y|) / (1 + |y - η|) ^ 2)) :=
+            mul_le_mul ht_pref hp1q1 (norm_nonneg _) (by positivity)
+        _ = (610 * (2 * 384 * 64)) * (1 / (1 + |y - η|) ^ 2) := by field_simp
+    exact hmul.trans (mul_le_mul_of_nonneg_left h1y2 (by positivity))
   have ht3 : ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP w * cauchyQ2 t w‖ ≤
-      (600 * (144 * 1024)) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by
-    calc ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP w * cauchyQ2 t w‖
-        ≤ (600 * (1 / (1 + |y|))) * ((144 * 1024) * ((1 + |y|) / (1 + |y - η|) ^ 2)) :=
-          mul_le_mul ht_pref hpq2 (norm_nonneg _) (by positivity)
-      _ = (600 * (144 * 1024)) * (1 / (1 + |y - η|) ^ 2) := by field_simp
-      _ ≤ _ := by exact mul_le_mul_of_nonneg_left h1y2 (by positivity)
-  rw [cauchyK2, norm_mul]
+      (610 * (144 * 1024)) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by
+    have hmul : ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP w * cauchyQ2 t w‖ ≤
+        (610 * (144 * 1024)) * (1 / (1 + |y - η|) ^ 2) := by
+      calc ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP w * cauchyQ2 t w‖
+          ≤ (610 * (1 / (1 + |y|))) * ((144 * 1024) * ((1 + |y|) / (1 + |y - η|) ^ 2)) :=
+            mul_le_mul ht_pref hpq2 (norm_nonneg _) (by positivity)
+        _ = (610 * (144 * 1024)) * (1 / (1 + |y - η|) ^ 2) := by field_simp
+    exact hmul.trans (mul_le_mul_of_nonneg_left h1y2 (by positivity))
   have htri : ‖cauchyP2 w * cauchyQ t w + 2 * (cauchyP1 w * cauchyQ1 t w) + cauchyP w * cauchyQ2 t w‖ ≤
       ‖cauchyP2 w * cauchyQ t w‖ + ‖2 * (cauchyP1 w * cauchyQ1 t w)‖ + ‖cauchyP w * cauchyQ2 t w‖ :=
     (norm_add_le _ _).trans (add_le_add (norm_add_le _ _) le_rfl)
-  calc ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP2 w * cauchyQ t w + 2 * (cauchyP1 w * cauchyQ1 t w) + cauchyP w * cauchyQ2 t w‖
-      ≤ ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP2 w * cauchyQ t w‖ +
+  calc ‖cauchyK2 t w‖
+      = ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP2 w * cauchyQ t w + 2 * (cauchyP1 w * cauchyQ1 t w) + cauchyP w * cauchyQ2 t w‖ := by
+          rw [cauchyK2, norm_mul]
+    _ ≤ ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP2 w * cauchyQ t w‖ +
         ‖(t + 1) ^ 2 / t ^ 3‖ * ‖2 * (cauchyP1 w * cauchyQ1 t w)‖ +
         ‖(t + 1) ^ 2 / t ^ 3‖ * ‖cauchyP w * cauchyQ2 t w‖ := by
-          have := mul_le_mul_of_nonneg_left htri (norm_nonneg _)
+          have := mul_le_mul_of_nonneg_left htri (norm_nonneg ((t + 1) ^ 2 / t ^ 3))
           linarith
-    _ ≤ (600 * (3584 * 24) + 600 * (2 * 384 * 64) + 600 * (144 * 1024)) *
+    _ ≤ (610 * (3584 * 24) + 610 * (2 * 384 * 64) + 610 * (144 * 1024)) *
           (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by linarith
     _ ≤ (10 ^ 9 : ℝ) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) :=
           mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
@@ -450,13 +458,13 @@ private lemma norm_cauchyK0_le {σ σζ η : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : �
     exact norm_pos_iff.mp (by linarith)
   have htw : t - w ≠ 0 := norm_pos_iff.mp htw_pos
   rw [fctKsp_div_eq ht0 hw1 htw, norm_mul, norm_mul]
-  have ht_pref : ‖(t + 1) ^ 2 / t ^ 3‖ ≤ 600 * (1 / (1 + |y|)) := by
+  have ht_pref : ‖(t + 1) ^ 2 / t ^ 3‖ ≤ 610 * (1 / (1 + |y|)) := by
     rw [norm_div, norm_pow, norm_pow]
     calc ‖t + 1‖ ^ 2 / ‖t‖ ^ 3 ≤ (2 * (1 + |y|)) ^ 2 / ((3 / 16 : ℝ) * (1 + |y|)) ^ 3 :=
           div_le_div₀ (by positivity) (pow_le_pow_left₀ (norm_nonneg _) ht1_ub 2) (by positivity)
             (pow_le_pow_left₀ (by positivity) ht_lb 3)
       _ = (2 ^ 2 / (3 / 16 : ℝ) ^ 3) * (1 / (1 + |y|)) := by field_simp
-      _ ≤ 600 * (1 / (1 + |y|)) := mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
+      _ ≤ 610 * (1 / (1 + |y|)) := mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
   have hP : ‖cauchyP w‖ ≤ 144 := by
     unfold cauchyP; rw [norm_pow, norm_div]
     have h1 : ‖w‖ / ‖w + 1‖ ≤ (3 * (1 + |η|)) / ((1 + |η|) / 4) :=
@@ -470,11 +478,11 @@ private lemma norm_cauchyK0_le {σ σζ η : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : �
           div_le_div₀ (by positivity) hw_ub (by positivity) htw_diff
       _ = 24 * ((1 + |η|) / (1 + |y - η|)) := by field_simp; ring
   have ham := am_gm_inv_mul hy0 hyη0
-  have hcst : (600 * (144 * 24) : ℝ) ≤ 10 ^ 7 := by norm_num
+  have hcst : (610 * (144 * 24) : ℝ) ≤ 10 ^ 7 := by norm_num
   calc ‖(t + 1) ^ 2 / t ^ 3‖ * (‖cauchyP w‖ * ‖cauchyQ t w‖)
-      ≤ (600 * (1 / (1 + |y|))) * (144 * (24 * ((1 + |η|) / (1 + |y - η|)))) :=
+      ≤ (610 * (1 / (1 + |y|))) * (144 * (24 * ((1 + |η|) / (1 + |y - η|)))) :=
         mul_le_mul ht_pref (mul_le_mul hP hQ (norm_nonneg _) (by positivity)) (by positivity) (by positivity)
-    _ = (600 * (144 * 24)) * (1 + |η|) * (1 / ((1 + |y|) * (1 + |y - η|))) := by field_simp; ring
+    _ = (610 * (144 * 24)) * (1 + |η|) * (1 / ((1 + |y|) * (1 + |y - η|))) := by field_simp
     _ ≤ (10 ^ 7 : ℝ) * (1 + |η|) * (1 / ((1 + |y|) * (1 + |y - η|))) := by gcongr
     _ ≤ (10 ^ 7 : ℝ) * (1 + |η|) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) :=
         mul_le_mul_of_nonneg_left ham (by positivity)
@@ -495,7 +503,7 @@ theorem fctCauchy_line_deriv_bounds {σ σζ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' :
   set I2 : ℝ := ∫ y : ℝ, 1 / (1 + |y|) ^ 2
   have hI2 : 0 ≤ I2 := integral_nonneg fun _ => by positivity
   set C0 : ℝ := (10 ^ 7 : ℝ)
-  set C1 : ℝ := (10 ^ 7 : ℝ)
+  set C1 : ℝ := (2 * 10 ^ 7 : ℝ)
   set C2 : ℝ := (10 ^ 9 : ℝ)
   refine ⟨1 / (2 * π) * C0 * (2 * I2), 1 / (2 * π) * C1 * (2 * I2), 1 / (2 * π) * C2 * (2 * I2),
     by positivity, by positivity, by positivity, ?_⟩
@@ -525,9 +533,7 @@ theorem fctCauchy_line_deriv_bounds {σ σζ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' :
     have hre_diff : |z.re - σζ| < 1 / 8 := by
       have : |z.re - σζ| = |(z - w0).re| := by simp [w0]
       rw [this]; exact (Complex.abs_re_le_norm _).trans_lt hdist
-    have h1 := abs_sub_abs_le_abs_sub (σζ - σ) (z.re - σ)
-    have hsub : |(σζ - σ) - (z.re - σ)| = |z.re - σζ| := by rw [abs_sub_comm]; ring_nf
-    rw [hsub, heq, sub_self, abs_zero] at h1
+    rw [heq, abs_sub_comm σ σζ] at hre_diff
     linarith [hsep, hre_diff]
   have hloc1 : ∀ w ∈ ball w0 (1 / 8), ∀ y : ℝ,
       ‖Φ1 w y‖ ≤ (C1 * B) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) := by
@@ -570,7 +576,7 @@ theorem fctCauchy_line_deriv_bounds {σ σζ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' :
             fctFint K4 ε c L1 α t) (Φ1 z y) z := by
           have hpq := (hasDerivAt_cauchyP hw1).mul (hasDerivAt_cauchyQ t htw)
           exact ((hpq.const_mul _).mul_const _).congr_deriv (by
-            dsimp only [Φ1, cauchyK1]; rfl)
+            dsimp only [Φ1, cauchyK1])
         have hevf : (fun u : ℂ => Φ0 u y) =ᶠ[𝓝 z] fun u => ((t + 1) ^ 2 / t ^ 3) * (cauchyP u * cauchyQ t u) *
             fctFint K4 ε c L1 α t := by
           filter_upwards [Metric.isOpen_ball.mem_nhds hz] with u hu
@@ -602,7 +608,7 @@ theorem fctCauchy_line_deriv_bounds {σ σζ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' :
           refine (ha.add hb).congr_deriv ?_
           ring
         exact ((hpq1.const_mul _).mul_const _).congr_deriv (by
-          dsimp only [Φ1, Φ2, cauchyK1, cauchyK2]; rfl))
+          dsimp only [Φ1, Φ2, cauchyK1, cauchyK2]))
     exact h.2
   have hpref_pos : (0 : ℝ) ≤ 1 / (2 * π) := by positivity
   have hC0_norm : ‖fctCauchy K4 ε c L1 α σ w0‖ ≤ 1 / (2 * π) * C0 * (2 * I2) * B * (1 + |η|) := by
@@ -640,7 +646,8 @@ theorem fctCauchy_line_deriv_bounds {σ σζ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' :
   have hC2_norm : ‖deriv (deriv (fctCauchy K4 ε c L1 α σ)) w0‖ ≤ 1 / (2 * π) * C2 * (2 * I2) * B := by
     have hev : deriv (fctCauchy K4 ε c L1 α σ) =ᶠ[𝓝 w0]
         fun w => ((1 / (2 * π) : ℝ) : ℂ) * ∫ y : ℝ, Φ1 w y := by
-      filter_upwards [Metric.isOpen_ball.mem_nhds (mem_ball_self (x := w0) (by norm_num))] with w hw using hd_eq w hw
+      filter_upwards [Metric.isOpen_ball.mem_nhds
+        (show w0 ∈ ball w0 (1 / 8) from mem_ball_self (by norm_num))] with w hw using hd_eq w hw
     rw [hev.deriv_eq, (hd12.const_mul _).deriv, norm_mul, Complex.norm_real, Real.norm_of_nonneg hpref_pos]
     have hint : ‖∫ y : ℝ, Φ2 w0 y‖ ≤ ∫ y : ℝ, (C2 * B) * (1 / (1 + |y|) ^ 2 + 1 / (1 + |y - η|) ^ 2) :=
       norm_integral_le_of_norm_le ((integrable_inv_sq_shift η).const_mul (C2 * B))
