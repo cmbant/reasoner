@@ -97,6 +97,37 @@ Steps 1 to 3 are independent. F2a needs from F1 `ct:outer` (the outer function `
 - (iii): M6 (D1), then `thm:ce-hb-lift` at every level with weak Laplace positivity and tangencies (M8), `thm:ce-canonical-iff` (E2) and the Laplace-positive odd families of `thm:ce-odd-family` (E1).
 - (iv): E2 (M9: `thm:airy-square-attained`, `thm:ce-airy-transfer`, `thm:ce-canonical-iff`, `rem:airy-even-deep-gap`), `cor:ce-schwartz-shells` (D2) and `thm:ce-shifted-lift` (route-II machinery at shifted nodes). E2's Airy-LP core (`thm:airy-square-attained`, `thm:ce-canonical-iff`, `thm:ce-airy-transfer`) needs only M3 and can start now; `thm:ce-shifted-lift` needs D1 (`thm:ce-post-edge`, `cepe:general`, `ceo:conv`, `lem:ce-dual-line`, `lem:ce-lift-assembly`), C1 (`ceo:O11ak`) and C2 (`u1c:U1`, `U2`, `u1co:O5`, `O6`), so it comes after M6.
 
+### 2.3a Numbered outlines for `CeCanonicalInputs` (`thm:ce-canonical-iff`)
+
+1. **`shifted_lift : CeShiftedLift` (`CeShiftedLiftDefs.lean`, `thm:ce-shifted-lift`, `ce_shifted_witnesses.tex`)** — verified implied by `thm:ce-shifted-lift` (only `c = d/2`, integrability vs `hankelRho0`, compact neighbourhood of `S`).
+   - **S1 [proved]:** Convolution source `S_c` (`convSourceFamily (3/4) 1 1 1`), `CeSourceFamily` (`ConvSourceFamily.ceSourceFamily_convSource_paper`), `ConvTailData` (`ConvSourceEdgeTail.convTailData_convSource`), `ceo:gauss.2` (`CeGauss2.ceG1_twisted_bounds`), `exists_hankelEigenfn_lift_general` (`MellinLiftGeneral`), `ceLift_pair` / `ceHankelPair_of_eigenfns` / `ceTune_exists` (`CeLiftEdge`, `CeHankelPairFromEigen`, `CeLiftSign`), `gt1Bounds_liftW_of_seed` (`Gt1LiftSeed`), `iDual_bound_e3_hasU2` (`DualBoundE3`), `window_translation_seed` (`WindowTranslation`), `o5_e6` (`MiddleBandE6`), `hb_estimate_of_sqData` (`HighBandEstimate`), `o2_reflected_line_deriv_bound` (`DualPhaseAndO3`), `ce_admissible_of_hankelPair` (`EuclidCELift`).
+   - **S2 [open]:** Generalize `HasGenRationalAiryCoeffs` (`AiryRationalSeeds`) from `{f₁, g₁, g₁'}`:
+     - **S2a [open, small]:** Negative-axis `AiryTailSymbolSeed` (`gt1Bounds_liftW_of_seed`), `HasU2`, `ImagAxisBounds`, and `ConvTailData` (`convTailData_of_gt1`) for any `HasGenRationalAiryCoeffs F β₀₀ β₁₁` (using `HasGenRationalAiryCoeffs.neg_axis_wkb` / `lem_al_seeds`).
+     - **S2b [open, small-medium]:** `u1c:U1` branch-point expansion (`X̃(i c_s w) = X̃(0) - γ_* (c_s w)^{1/2} + O(|w|)` and `(e4)` high-band `hb_estimate`) for `HasGenRationalAiryCoeffs`: decompose `X = -β₀₀ f₁ + β₁₁ g₁' + X_rem` where `β₀₀(X_rem) = β₁₁(X_rem) = 0`, using `SeedSqrtForm` for `f₁, g₁'` and `(1+|u|) X_rem ∈ L¹`.
+     - **S2c [open, small]:** Generalize `o6_positivity_dual_Kc` (`MiddleBandPositivityDual`) from `airySeedU2` to an abstract seed family satisfying `(e3)/(e4)/(e5)/(e6)` and the `(e2)` floor.
+     - **S2d [open, small]:** `lem:airy-laplace-general` (2) (positive-axis Laplace asymptotic `ℒ_y(X) ~ β_+(X)(2/√π) y^{-5/2}`) for `HasGenRationalAiryCoeffs`, yielding `lem:ce-dual-line` (`ce_lift_proofs.tex`) together with S2a–S2b.
+   - **S3 [open, small-medium]:** `thm:ce-post-edge` (`ce_o1_global_transfer.tex`):
+     - **S3a [open]:** `ceo:conv` (7) uniform far Fourier transfer `c ξ I_main[S_c] ≥ (b_F - E_c)(1+L)^{-3/2}` (from `cepf:FG3` `mainTransferOp`, `pf3_kernel_bound_uniform`, `norm_mainEdgeAmp_le`, `mat:T4`/`T5`) and uniform `convSource` floors `(b)` (`convSource_compact_floor`, `convSource_neg_tail_lower`).
+     - **S3b [open]:** Assemble `thm:ce-post-edge` from `middle_transfer_gt1` (`cegt:GT2a`), `iDual_bound_e3`, `o2_reflected_line_deriv_bound`, `window_translation_seed`, S3a.
+   - **S4 [open, small-medium]:** Tangency-inclusive pre-edge criterion:
+     - **S4a [open, small]:** `cel:total-saddle-2` (`ce_rate.tex`) extending `LobeSaddleBounds.lobe_total_saddle`, and `cepe:abs-saddle` (`ce_o1_pre_edge.tex`).
+     - **S4b [open]:** Extend `PreEdgeGeneralData` / `preEdge_general_pos` (`PreEdgeCriterion`) to allow a compact tangency interval `J = [x₀/3, 2B]`, using `cepe:abs-saddle` and `integral_cos_sq_ge` (`cel:L7`) + `dual_total_deriv_bound` (`CeDualLine` / `u1c:U2`).
+   - **S5 [open, small]:** `lem:ce-lift-assembly` (`ce_lift_proofs.tex`) combining `exists_hankelEigenfn_lift_general`, `ceTune_exists`, `ceHankelPair_of_eigenfns`, S2c, S2d, S3, S4.
+   - **S6 [open, small]:** `ce_shifted_lift : CeShiftedLift` via S5 + fixed-window negativity on `S_{ρ₁}`; remove `shifted_lift` from `CeCanonicalInputs` and make `ce_airy_transfer_upper` unconditional.
+
+2. **`ce_hb_lift : CeHbLift D` (`HeadlineDefs.lean`, `thm:ce-hb-lift`, `ce_hb_lift.tex`)**:
+   - **H1 [shared with shifted_lift]:** S1–S5 (`lem:ce-lift-assembly`, `thm:ce-post-edge`, `lem:ce-dual-line`, `cepe:general` with `J`, `o6_positivity_dual_Kc`, `HasGenRationalAiryCoeffs` O-chain).
+   - **H2 [proved]:** `lem:ce-terminal-deflation` (`CeTerminalDeflation.terminal_cardinal_integral`, `ce_terminal_deflation_full`).
+   - **H3 [open, small-medium]:** Show `D.G, H_N ∈ InGenRationalAiry` (`HasGenRationalAiryCoeffs`), generalize `AirySeedFloors.hb_seed_mass_exists` (`lem:hb-seed-mass`) to general `D : ShellHBData`, and apply `lem:ce-lift-assembly` (d) + fixed-window shell negativity to prove `CeHbLift D`; remove `ce_hb_lift` from `CeCanonicalInputs`.
+
+3. **`shell_reduction : ShellReduction D` (`HeadlineDefs.lean`, `thm:ce-shell-reduction`, `ce_shells.tex`)**:
+   - **R1 [proved]:** `shell_reduction_airy` (`m = 1`, `CEShellReduction.lean`); radial/eigen-projection (`ce_admissible_signWitness`, `EuclidRadialProjection.radialProjection`); `ft_twoEdge_lower_hb` (`TwoEdgeLower.lean`).
+   - **R2 [open, blocked on cross-lane M8]:** General-`D` (`m ≥ 2`) Hankel multilevel lower half `HbMultilevelLower D` (`u1cl:multilevel`):
+     - **R2a [open]:** `fto1:mellin` bridge (`BootstrapHBInstance` → `TwoEdgeViolatorsHB`).
+     - **R2b [open, cross-lane]:** General `(P, Q)` Langer-chart `TE.0'` into `ChartCompactness` (which is **not on `master` yet**, owned by FoldTip lane per section 5 item 2) + `gt:7.7p` (d) cut-crossing constant.
+     - **R2c [open]:** General `(P, Q)` `HankelBootNodes` / `HankelBootAssembly` (`u_* = t_m`, zeros of `N`) and `HankelYVAt`.
+     - **R2d [open]:** Assemble `ShellReduction D` from `HbMultilevelLower D` via `radialProjection`; remove `shell_reduction` from `CeCanonicalInputs`.
+
 ### 2.4 Next concrete packages (headline paths only)
 
 All three headlines are targets. Each gets an exact Lean statement first, proved from one input structure whose fields are its open TeX results (section 4), so that every later merge is measured against the real target.
