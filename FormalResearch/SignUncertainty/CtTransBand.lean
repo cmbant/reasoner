@@ -739,14 +739,6 @@ theorem ct_combined_trans : ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ �
           (c⁻¹ * ctEta c₁ ε c f R + c ^ (-(4 / 3) : ℝ) * Real.log c) :=
         mul_le_mul_of_nonneg_left (by linarith) hCnn
 
-/-! ### What remains of `ct:dyadic` (4): `CtCombinedOpen` -/
-
-/-- **The step of `(ct:combined)` not yet in Lean**: `window`: `∫_{ξ ≤ ξ(-R')} K dm + s₁ = O(c⁻¹η_R + c^{-4/3} log c)` (`ct:cfu` (1) substituted,
-`(ct:H2-orth)` (P3b), `(ct:half)`, the sub-chart radial compactness), with `s₁ = ctOscS1` the literal integral over `v ∈ (0, R)` through the complex
-chart.  The steps `trunc`, `outer`, `trans` are `ct_combined_trunc`, `ct_combined_outer`, `ct_combined_trans`, and `rosc` is `ct_combined_rosc`. -/
-structure CtCombinedOpen (c₁ : ℝ) : Prop where
-  window : CtDyadicBound c₁ fun R ε c f => ctKin R ε c f + ctOscS1 R ε c f
-
 /-- info: 'FormalResearch.SignUncertainty.ct_trans_phase_pt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ct_trans_phase_pt
