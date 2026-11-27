@@ -106,9 +106,9 @@ Steps 1 to 3 are independent. F2a needs from F1 `ct:outer` (the outer function `
      - **S2b [proved]:** `u1c:U1` branch-point expansion (`u1c_lip_of_genRational_zero`, `smoothSymbol_of_genRational_zero`, `u1c_expansion_of_genRational`) and `(e4)` high-band (`hb_estimate_genRational_zero`, `hb_estimate_genRational`, `hb_estimate_genRational_family`) in `GenRationalAiryU1.lean`, using `SeedSqrtForm` for `f₁, g₁'` and `(1+|u|) X_rem ∈ L¹` via stationary + oscillatory IBP.
      - **S2c [proved]:** Generalized `o6_positivity_dual_Kc` (`MiddleBandPositivityDual.lean`) to `O6FamilyEst` and `o6_positivity_dual_family` (`o6_positivity_dual_Kc` delegates to it), and instantiated `o6FamilyEst_of_genRational_family` in `GenRationalO6Family.lean`.
      - **S2d [proved]:** `lem:airy-laplace-general` (2) (`AiryLaplaceGeneral.airyLaplace_genRational_tendsto`), `(eq:ce-dual-floors)` (`CeDualFloors.ce_dual_floors`), and `lem:ce-dual-line` (`CeDualLine.ce_dual_line`).
-   - **S3 [open, small-medium]:** `thm:ce-post-edge` (`ce_o1_global_transfer.tex`):
-     - **S3a [open]:** `ceo:conv` (7) uniform far Fourier transfer `c ξ I_main[S_c] ≥ (b_F - E_c)(1+L)^{-3/2}` (from `cepf:FG3` `mainTransferOp`, `pf3_kernel_bound_uniform`, `norm_mainEdgeAmp_le`, `mat:T4`/`T5`) and uniform `convSource` floors `(b)` (`convSource_compact_floor`, `convSource_neg_tail_lower`).
-     - **S3b [open]:** Assemble `thm:ce-post-edge` from `middle_transfer_gt1` (`cegt:GT2a`), `iDual_bound_e3`, `o2_reflected_line_deriv_bound`, `window_translation_seed`, S3a.
+   - **S3 [proved]:** `thm:ce-post-edge` (`ce_o1_global_transfer.tex`):
+     - **S3a [proved]:** `ceo:conv` (7) uniform far Fourier transfer (`ConvSourceFarTransfer.convSourceFamily_far_transfer`, `convGL_integrable_and_L2`, `ConvSourceFarHelpers`).
+     - **S3b [proved]:** `CePostEdge.ce_post_edge` (`cegt:GT3`), `CePostEdge.ce_post_edge_convSource`, `CePostEdge.gt1Bounds_convSource_unif`.
    - **S4 [proved]:** Tangency-inclusive pre-edge criterion:
      - **S4a [proved]:** `cel:total-saddle-2` (`LobeSaddleSecondOrder.lobe_total_saddle_second_order`) and `cepe:abs-saddle` (`PreEdgeTangency.cepe_abs_saddle`).
      - **S4b [proved]:** `PreEdgeTangencyData` / `preEdge_tangency_pos` (`PreEdgeTangency.lean`) extending `PreEdgeGeneralData` to allow a compact tangency interval `J = [a_tan, b_tan]`.

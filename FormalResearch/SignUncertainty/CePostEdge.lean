@@ -422,7 +422,7 @@ private lemma ce_post_edge_small_L
     have hlt : ‖(ξ : ℂ) * (iMain (S c) (κ * liftEps c) m c ξ + iDual (D c) (κ * liftEps c) m c ξ) - (M_ref : ℂ)‖ < M_ref := by
       have hb_pos : 0 < b_mid * L ^ p * hbS c ξ ^ (-(3 / 2 : ℝ)) := by
         exact mul_pos (mul_pos hbmid (Real.rpow_pos_of_pos hL_pos _)) (Real.rpow_pos_of_pos (by linarith only [hS100]) _)
-      rw [hMref_def]
+      rw [← hMref_def] at hfloor_val
       exact lt_of_le_of_lt hdiff_ξ (lt_of_lt_of_le (by linarith only [hb_pos]) hfloor_val)
     exact re_pos_of_norm_lt hlt
   rw [Complex.re_ofReal_mul] at hre_ξ
