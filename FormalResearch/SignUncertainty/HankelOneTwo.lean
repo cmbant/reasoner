@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.SignUncertainty.HankelThresholds
 public import FormalResearch.SignUncertainty.HbUpperM1
+public import FormalResearch.SignUncertainty.Headlines
 
 /-!
 # `thm:hankel-one-two` (`u1cl:main`, Corollary L.1, one level): `T_c^ε = c/π² + A c^{1/3} + O(1)`

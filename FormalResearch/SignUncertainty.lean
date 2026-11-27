@@ -640,6 +640,29 @@ public import FormalResearch.SignUncertainty.AiryCauchyBounds
 public import FormalResearch.SignUncertainty.AirySmoothApprox
 public import FormalResearch.SignUncertainty.AiryHermiteApprox
 public import FormalResearch.SignUncertainty.AiryRationalDensity
+public import FormalResearch.SignUncertainty.CeDualLine
+public import FormalResearch.SignUncertainty.CeDualFloors
+public import FormalResearch.SignUncertainty.CePostEdge
+public import FormalResearch.SignUncertainty.GenRationalAiryTail
+public import FormalResearch.SignUncertainty.GenRationalAiryU1
+public import FormalResearch.SignUncertainty.GenRationalO6Family
+public import FormalResearch.SignUncertainty.ConvSourcePreEdge
+public import FormalResearch.SignUncertainty.ConvSourceFarHelpers
+public import FormalResearch.SignUncertainty.ConvSourceFarTransfer
+public import FormalResearch.SignUncertainty.TwoEdgeOriginHelpers
+public import FormalResearch.SignUncertainty.TwoEdgeOriginRem
+public import FormalResearch.SignUncertainty.TwoEdgeOriginBridge
+public import FormalResearch.SignUncertainty.CeLiftBase
+public import FormalResearch.SignUncertainty.CeLiftAssembly
+public import FormalResearch.SignUncertainty.CeLiftWindowNeg
+public import FormalResearch.SignUncertainty.CeLiftTailNeg
+public import FormalResearch.SignUncertainty.CeShiftedLift
+public import FormalResearch.SignUncertainty.CeHbSeedGen
+public import FormalResearch.SignUncertainty.CeHbSeedMass
+public import FormalResearch.SignUncertainty.CeHbDualPrep
+public import FormalResearch.SignUncertainty.CeHbPreEdge
+public import FormalResearch.SignUncertainty.CeHbDualPair
+public import FormalResearch.SignUncertainty.CeHbLift
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -808,9 +831,9 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.HankelBootData`, `HankelBootTop`, `HankelBootCount`, `HankelBootCircle`, `HankelBootLine`, `HankelBootLineAsm`, `HankelBootNodes`, `HankelBootArc`, `HankelBootNumerics`, `HankelBootAssembly` (M5-S6a, the ingredients of the Hankel `BootstrapHBInstance`, `two_edge_bootstrap.tex` `teb:bootstrap`): `hankelBandInstance`/`hankel_band_reduction` at a free radius `R ∈ [b²c^{2/3}, b²c^{2/3}+1]`; the dm-side moments `hankelBootB1`, `hankelBootB2` against the Ψ-side `hankelBootMoment` with the explicit `r_∞` slack (`hankelBootB1_le_B1k`: `B₁ ≤ moment + 2R r_∞`; `hankelBootMoment_ge`; `hankelBoot_psi_ge`: `Re Ψ̃ ≥ -r_∞` where `f ≥ 0`); the line estimate `hankelBoot_line_bound` (`∫_{-R}^R Re f_{k,ℓ} ≤ -(63/100)B₁^{(k)} - B₂ + (4e^{6/5}+180)(k+1)/R + lobe + 70 R r_∞`, from `hankelBoot_line_band/mid/right/tail`, `hankel_psi_total_upper_tail`, `hankelBoot_B2_eq`); the node sums `hankelBootNodes` (`hankelBoot_nodes_lb`, `hankelBoot_nodes_theta`: lower bounds with slack `(6π)²(N+1) r_∞`, `hankelBoot_zero_count_le`: `N ≤ R^{3/2}`); the quadrature and arc estimate `hankelBoot_quad_arc` (`hankelBootNodes ≤ I_line + Arc_cov + hankelArcUncConst c^{-3/8}`, `k ≥ 9`, type-(I) envelope); good circles in a real window `hankelBoot_good_circle_window`; and the assembly `hankelBootHB` (a `BootstrapHBInstance (hankelBootParams C_fb) 0` with `k₀ = 9`, `C_α = (6π)²`, core `r_inf = 70 r_∞`, `κ = 1/600000`, from the window hypothesis `HankelYVAt C_fb c_YV` of S6b). All numerical constants are Lean constants (`r_∞ = 2I₀c^{1/3}e^{-c/40000}`, lobe `e^{-1.7·10⁻⁶ c}`), weaker than the paper's but exponentially small.
 * `FormalResearch.SignUncertainty.HankelWindowLocal`, `HankelWindowGeom`, `HankelWindowBand`, `HankelWindowArith`, `HankelWindowAux`, `HankelWindowSaddle`, `HankelWindow` (M5-S6b, the window lemma `teb:mellin` (2)-(3), `two_edge_bootstrap.tex` TE.3; proved): `hankel_local_density_window` (the local density bound with a window bound on `W̃_c`: `(10/9)² W P √(π/(2cσ/5)) + (4/3) P e^{-(2/5)cσh²}` + connectors), `norm_mMap_sub_le` and `hankel_saddle_geom` (`√ũ = c^{1/3} μ 𝗆(ζ₊)` with `‖𝗆(ζ) - ζ‖ ≤ 9·10⁻⁴ ‖ζ‖`), `rhoR_hankel_eq` (`ρ_R = √R/(c^{1/3} μ)`), `hankel_window_Wt_bound` (from `hankel_band_reduction` with `cos ψ = σ/‖σ + iy‖`), `hankel_window_saddle` (the window `h² = 5 log c/(cσ)` lies in the annulus, `σ ≥ 1.1 c^{-1/12} ‖ζ₊‖`), `hankel_window_arith` (final combination), and `hankel_yv_window`, `hankel_yv_at : HankelYVAt hankelWindowC 10¹⁴` (`‖Ψ̃(ũ)‖ ≤ C_fb (c^{1/3}(B₁+B₂)+1) e(ũ) (Re ũ^{1/2})^{-3/2} ‖ũ‖^{-3/4}` on the annulus `R-1 ≤ ‖ũ‖ ≤ R+1`, `C_fb = (6/5) C_Y + 17`; the threshold `10¹⁴` and `C_fb` are Lean constants). `norm_hankelJ_le_wt` (the two elementary factors of `‖J‖`) is split out of `norm_hankelJ_le`.
 * `FormalResearch.SignUncertainty.HankelChartSecond`, `HankelThresholds` (M5-S7, `thm:hb-thresholds` lower half at `(P, Q) = (1, 0)`; proved): `norm_chartY_add_sq`, `norm_chartYinv_add_sq` (second-order chart expansion `‖y⁻¹(y) + y‖ ≤ 3.1‖y‖²`), `hankelXi_lower` (`cξ(x) ≥ c/π² - x c^{1/3}/β₁ - 13` for `|x| ≤ 3`), `hankel_feasible_normalize`, `hankel_small_eventually`, and **`hb_thresholds_lower : HbThresholdsLower`** (`T ≥ c/π² + A c^{1/3} - C` for every feasible `T`, `ε = ±1`, `c` large; `C = 13 + |K₀|/β₁`, `K₀ = tebK0HB P 0`; via `hankel_quantC1_of_feasible`, `hankelBootHB` with `hankel_yv_at`, `teb_bootstrap_hb`, a direct expansion in place of `teb_mellin_o1_lower`).
-* `FormalResearch.SignUncertainty.HeadlineDefs`, `CEShellReduction` (M7, first half; proved): the statements `HbThresholdsLower`, `ShellReduction` split out of `Headlines`; `ce_admissible_signWitness` (a normalised continuous `L¹` Cohn–Elkies pair `(h, r)` gives the anti-self-dual competitor `g = ĥ - h∘(-·)`, `g(0) = 0`, nonzero by `fourier_compact_support_eq_zero`), `ce_admissible_hankelFeasible` (with `radialProjection`: Hankel-feasible at `T = r²/2`, `c = d/2`, `ε = -1`), `ce_admissible_radius_lower`, **`shell_reduction_m1_proved`** (`airyOrderModel d - C ≤ optimalL1CERadius d ^ 2 / 2`) and **`shell_reduction_airy : ShellReduction ShellHBData.airy`**, both from `hb_thresholds_lower`. `Headlines.lean` imports these proofs: the fields `hb_thresholds_lower` and `shell_reduction_m1` are dropped from `RadiiInputs`; open fields are now `hb_thresholds_upper`, `ce_hb_lift_m1`.
+* `FormalResearch.SignUncertainty.HeadlineDefs`, `CEShellReduction` (M7, first half; proved): the statements `HbThresholdsLower`, `ShellReduction` split out of `Headlines`; `ce_admissible_signWitness` (a normalised continuous `L¹` Cohn–Elkies pair `(h, r)` gives the anti-self-dual competitor `g = ĥ - h∘(-·)`, `g(0) = 0`, nonzero by `fourier_compact_support_eq_zero`), `ce_admissible_hankelFeasible` (with `radialProjection`: Hankel-feasible at `T = r²/2`, `c = d/2`, `ε = -1`), `ce_admissible_radius_lower`, **`shell_reduction_m1_proved`** (`airyOrderModel d - C ≤ optimalL1CERadius d ^ 2 / 2`) and **`shell_reduction_airy : ShellReduction ShellHBData.airy`**, both from `hb_thresholds_lower`. `Headlines.lean` imports these proofs: `hb_thresholds_lower`, `shell_reduction_m1`, and `ce_hb_lift_m1` are dropped from `RadiiInputs` (only `hb_thresholds_upper` stays for import order).
 * `FormalResearch.SignUncertainty.EuclidCELift` (M6, Euclidean lift; proved): `ceAdmissible_of_hankelPair` (a radial profile `G` with `G(0) = ĝ(0) > 0`, `ĝ = 𝓗_{d/2} G ≥ 0` integrable against `ρ₀`, `G ≤ 0` on `[T, ∞)` gives `x ↦ G(‖x‖²/2)` `IsContinuousL1CEAdmissible` on `ℝ^{n+1}` at radius `√(2T)`, `n ≥ 1`).
-* `FormalResearch.SignUncertainty.CeHbLiftAssembly` (M6, Euclidean assembly; proved): `CeHankelPair` (the Hankel-level statement of `thm:ce-hb-lift` at `m₀ = 1`, `N = Ai`) and `ce_hb_lift_airy_of_hankelPair : CeHankelPair → CeHbLift ShellHBData.airy` (shells vacuous at `m = 1`, offsets irrelevant). `CeHankelPair` itself is not proved (open input; `Headlines.ce_hb_lift_m1` remains a field).
+* `FormalResearch.SignUncertainty.CeHbLiftAssembly` (M6, Euclidean assembly; proved): `CeHankelPair` (the Hankel-level statement of `thm:ce-hb-lift` at `m₀ = 1`, `N = Ai`) and `ce_hb_lift_airy_of_hankelPair : CeHankelPair → CeHbLift ShellHBData.airy` (superseded at all levels `m₀ ≥ 1` by `CeHbLift.ce_hb_lift_proved`).
 * `FormalResearch.SignUncertainty.MellinLiftGeneral` (M6; proved): `exists_hankelEigenfn_lift_general` (the Hankel eigenfunction lift of any `HasU2` seed, given the tail bound `|I_main + σ I_dual| ≤ C ξ⁻¹ (log π²ξ)^{-3/2}` as a hypothesis; the one-level `exists_hankelEigenfn_lift` is the instance with `iMain_add_iDual_tail`).
 * `FormalResearch.SignUncertainty.ConvSourceDefs`, `ConvSourceLaplace` (M6, convolution source of `ceo:conv`; proved): the cutoff `convEta`, profile `convRho`, weights `convWh`, `convWc` and source `convSource` with their signs and pointwise bounds; the Laplace transform `lapW` of a weight (holomorphic on `Re z > 0`, `|lapW w z| ≤ ‖w‖₁`), the right convolution `convR`, the product formula `airyTwistedLaplaceC_convR` (`O.12(3)`, Fubini `convR_twisted`) and `hasU2_convR` (`HasU2` is preserved by convolution with an integrable weight).
 * `FormalResearch.SignUncertainty.ConvSourceG1` (M6, Haiku; proved): `convG1_nonneg`, `convG1_pos_of_ge` (`g₁ > 0` on `[a₁, ∞)`), `convG1_le_poly` (`g₁(u) ≤ C (1 + |u|)^{-5/2}` on `ℝ`), `convG1_moment_integrable` (`∫ |u| g₁ < ∞`).
@@ -938,19 +961,22 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.AiryRationalSeeds`, `AiryFarCardinalLaplace`, `AiryCauchyBounds`,
   `AirySmoothApprox`, `AiryHermiteApprox`, `AiryRationalDensity` (`lem:al-seeds`, `lem:al-far-cardinal-laplace`,
   `lem:al-smooth`, `lem:al-hermite-approx`, `thm:al-rational-density`, M9, proved, unconditional; and
-  `thm:ce-airy-transfer` (1) upper bound reduced to `CeShiftedLift`, conditional on `thm:ce-shifted-lift` M6):
+  unconditional `ce_airy_transfer_upper` for `thm:ce-airy-transfer`(1) upper bound, from `ce_shifted_lift_proved`):
   `HasGenRationalAiryCoeffs`, `InGenRationalAiry`, `airyBeta00`/`airyBeta11`/`airyBetaInf`/`airyBetaPlus`,
   `airySeedF`, `airySeedG`, `airySeedG1Deriv`, `lem_al_seeds`; `airySeed_neg_weighted_bounds`,
   `airySeed_l1_and_laplace_bounds`, `lem_al_far_cardinal_laplace`; `re_cpow_three_halves_ball_abs_sub_le`,
   `airyEnv_ball_le`, `deriv_inAiryClass_bound`, `inAiryClass_shift_nonneg`, `schwartz_shift`;
   `airySmoothM`, `airySmoothMSq`, `airySmoothReg`, `lem_al_smooth`; `airyHermiteTerm`, `airyHermitePartialSum`,
   `lem_al_hermite_approx`; `IsAiryStrictLiftSeed`, `airyUStrict`, `thm_al_rational_density`,
-  `thm_al_rational_density_hb`, `airyUStrict_eq_airyUSh`, `ce_airy_transfer_upper_of_shifted_lift` and
-  `CeCanonicalInputs.ce_airy_transfer_upper` (derived from the field `shifted_lift : CeShiftedLift`).
-* `FormalResearch.SignUncertainty.CeShiftedLiftDefs`: `IsAiryLiftSeed` (hypotheses (a)-(c) of
-  `thm:ce-shifted-lift`) and `CeShiftedLift` (the statement of `thm:ce-shifted-lift`, **not proved**, open M6;
-  the field `shifted_lift` of `CeCanonicalInputs`).
-* `FormalResearch.SignUncertainty.HbMultilevelDefs`, `CeCanonicalDefs` (M0 skeleton, statement objects and input structures of `thm_intro_hb` and `thm_ce_canonical_iff`; the structures `HbMultilevelInputs`, `CeCanonicalInputs` have the open TeX results as fields).
+  `thm_al_rational_density_hb`, `airyUStrict_eq_airyUSh`, `ce_airy_transfer_upper_of_shifted_lift`, and
+  `ce_airy_transfer_upper`.
+* `FormalResearch.SignUncertainty.CeShiftedLiftDefs`, `CeShiftedLift`: `IsAiryLiftSeed` (hypotheses (a)-(c) of
+  `thm:ce-shifted-lift`), `CeShiftedLift`, and the unconditional proof `ce_shifted_lift_proved` (M6/M9; via
+  `TwoEdgeOriginHelpers`/`Rem`/`Bridge`, `CeLiftBase`, `CeLiftAssembly`, `CeLiftWindowNeg`, `CeLiftTailNeg`).
+* `FormalResearch.SignUncertainty.CeHbSeedGen`, `CeHbSeedMass`, `CeHbDualPrep`, `CeHbPreEdge`, `CeHbDualPair`,
+  `CeHbLift`: all-level `CeHbLift D` proof `ce_hb_lift_proved` (`thm:ce-hb-lift`, M6), discharging the former
+  `ce_hb_lift` field of `CeCanonicalInputs` and `ce_hb_lift_m1` field of `RadiiInputs`.
+* `FormalResearch.SignUncertainty.HbMultilevelDefs`, `CeCanonicalDefs` (M0 skeleton, statement objects and input structures of `thm_intro_hb` and `thm_ce_canonical_iff`; `CeCanonicalInputs` now carries only `shell_reduction : ShellReduction D`).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`, `thm_intro_hb`
   (`u1cl:multilevel`) and `thm_ce_canonical_iff` (`thm:intro-gap`, `thm:ce-canonical-iff`) of Paper I, each proved
   from one input structure whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5), and the
