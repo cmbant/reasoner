@@ -84,16 +84,27 @@ lemma norm_line_sub_ge {σ : ℝ} {ζ : ℂ} (hd : ζ.re ≠ σ) (y : ℝ) :
   · have : d * (1 + |y|) ≤ (|y| - M) * (1 + M + d) := by nlinarith [abs_nonneg y]
     nlinarith [abs_nonneg y]
 
-/-- **Kernel bound.**  On `Re t = σ`, `3/8 ≤ σ ≤ 7/16`, with `Re ζ ≠ σ`: `|K_sp(t, ζ)/(t - ζ)| ≤ K (1+|y|)⁻²`, `K` depending only on `ζ` and `σ`. -/
-lemma fctKsp_div_le {σ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16) {ζ : ℂ} (hd : ζ.re ≠ σ) :
-    ∃ K : ℝ, 0 ≤ K ∧ ∀ y : ℝ,
+/-- **Uniform kernel bound** on `Re t = σ`, `3/8 ≤ σ ≤ 7/16`: `|K_sp(t,ζ)/(t-ζ)| ≤ K/(1+|y|)²`, with `K` depending only on `σ` and on bounds `|ζ| ≤ R`,
+`|ζ+1| ≥ m > 0`, `|Re ζ - σ| ≥ δ > 0`. -/
+lemma fctKsp_div_le_unif {σ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16) {R m δ : ℝ} (hR : 0 ≤ R) (hm : 0 < m) (hδ : 0 < δ) :
+    ∃ K : ℝ, 0 ≤ K ∧ ∀ ζ : ℂ, ‖ζ‖ ≤ R → m ≤ ‖ζ + 1‖ → δ ≤ |ζ.re - σ| → ∀ y : ℝ,
       ‖fctKsp ((σ : ℂ) + y * Complex.I) ζ / ((σ : ℂ) + y * Complex.I - ζ)‖ ≤ K / (1 + |y|) ^ 2 := by
-  set κ : ℝ := |ζ.re - σ| / (1 + |ζ.im| + |ζ.re - σ|) with hκ
-  have hdpos : 0 < |ζ.re - σ| := abs_pos.mpr (sub_ne_zero.mpr hd)
-  have hκpos : 0 < κ := by positivity
-  refine ⟨‖ζ‖ ^ 3 * (‖ζ + 1‖⁻¹) ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ, by positivity, fun y => ?_⟩
+  set κ0 : ℝ := δ / (2 + 2 * R) with hκ0
+  have hκ0pos : 0 < κ0 := by positivity
+  refine ⟨R ^ 3 * (m⁻¹) ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ0, by positivity, fun ζ hζR hζm hζδ y => ?_⟩
   set t : ℂ := (σ : ℂ) + y * Complex.I with ht
   have hy : 0 < 1 + |y| := by positivity
+  have hd : ζ.re ≠ σ := fun h => by rw [h, sub_self, abs_zero] at hζδ; linarith
+  set κ : ℝ := |ζ.re - σ| / (1 + |ζ.im| + |ζ.re - σ|) with hκ
+  have hκκ0 : κ0 ≤ κ := by
+    have himR : |ζ.im| ≤ R := (Complex.abs_im_le_norm ζ).trans hζR
+    have hreR : |ζ.re - σ| ≤ R + 1 := by
+      have : |ζ.re| ≤ R := (Complex.abs_re_le_norm ζ).trans hζR
+      calc |ζ.re - σ| ≤ |ζ.re| + |σ| := abs_sub _ _
+        _ ≤ R + 1 := by rw [abs_of_nonneg (by linarith : 0 ≤ σ)]; linarith
+    rw [hκ0, hκ, div_le_div_iff₀ (by positivity) (by positivity)]
+    nlinarith [abs_nonneg ζ.im, abs_nonneg (ζ.re - σ)]
+  have hκpos : 0 < κ := hκ0pos.trans_le hκκ0
   have h1 : 3 / 16 * (1 + |y|) ≤ ‖t‖ := norm_line_ge hσ y
   have h2 : ‖t + 1‖ ≤ 2 * (1 + |y|) := norm_line_add_one_le (σ := σ) (by linarith) (by linarith) y
   have h3 : κ * (1 + |y|) ≤ ‖t - ζ‖ := norm_line_sub_ge (σ := σ) hd y
@@ -101,6 +112,7 @@ lemma fctKsp_div_le {σ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16) {ζ :
   have hts : 0 < ‖t - ζ‖ := lt_of_lt_of_le (by positivity) h3
   set a := ‖ζ + 1‖⁻¹ with ha
   have ha0 : 0 ≤ a := by positivity
+  have haR : a ≤ m⁻¹ := by rw [ha]; exact inv_anti₀ hm hζm
   have key : ‖fctKsp t ζ / (t - ζ)‖ = ‖ζ‖ ^ 3 / ‖t‖ ^ 3 * (‖t + 1‖ * a) ^ 2 / ‖t - ζ‖ := by
     simp only [fctKsp, norm_div, norm_pow, norm_mul, ha]; ring
   rw [key]
@@ -123,6 +135,22 @@ lemma fctKsp_div_le {σ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16) {ζ :
         apply div_le_div₀ (by positivity) hnum (by positivity) h3
     _ = ‖ζ‖ ^ 3 * a ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ / (1 + |y|) ^ 2 := by
         field_simp
+    _ ≤ R ^ 3 * (m⁻¹) ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ0 / (1 + |y|) ^ 2 := by
+        have hn3 : ‖ζ‖ ^ 3 ≤ R ^ 3 := pow_le_pow_left₀ (norm_nonneg _) hζR 3
+        have ha2 : a ^ 2 ≤ (m⁻¹) ^ 2 := pow_le_pow_left₀ ha0 haR 2
+        gcongr
+
+/-- **Kernel bound.**  On `Re t = σ`, `3/8 ≤ σ ≤ 7/16`, with `Re ζ ≠ σ`: `|K_sp(t, ζ)/(t - ζ)| ≤ K (1+|y|)⁻²`, `K` depending only on `ζ` and `σ`
+(the case `R = ‖ζ‖` of `fctKsp_div_le_unif`; at `ζ = -1`, `K_sp = 0`). -/
+lemma fctKsp_div_le {σ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16) {ζ : ℂ} (hd : ζ.re ≠ σ) :
+    ∃ K : ℝ, 0 ≤ K ∧ ∀ y : ℝ,
+      ‖fctKsp ((σ : ℂ) + y * Complex.I) ζ / ((σ : ℂ) + y * Complex.I - ζ)‖ ≤ K / (1 + |y|) ^ 2 := by
+  by_cases hz : ζ + 1 = 0
+  · refine ⟨0, le_rfl, fun y => ?_⟩
+    simp [fctKsp, hz]
+  · obtain ⟨K, hK0, hK⟩ := fctKsp_div_le_unif hσ hσ' (R := ‖ζ‖) (m := ‖ζ + 1‖) (δ := |ζ.re - σ|) (norm_nonneg _)
+      (norm_pos_iff.mpr hz) (abs_pos.mpr (sub_ne_zero.mpr hd))
+    exact ⟨K, hK0, hK ζ le_rfl le_rfl le_rfl⟩
 
 /-- `y ↦ (1+|y|)⁻²` is integrable on `ℝ`. -/
 lemma integrable_inv_one_add_abs_sq : Integrable (fun y : ℝ => 1 / (1 + |y|) ^ 2) := by

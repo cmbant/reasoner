@@ -264,6 +264,16 @@ lemma fctFint_line_measurable {K4 ε c L1 α σ : ℝ} (hc : 0 < c) (hDc : Conti
   rw [heq]
   exact (((measurable_const.mul (hK0.measurable.inv.mul ((hlc.measurable).mul hΦl))).div (hD.measurable.mul hH.measurable))).sub measurable_const
 
+/-- **Measurability of the Cauchy integrand in `y`** (`0 < σ < 1`, any `ζ`). -/
+lemma fctCauchyIntegrand_measurable {K4 ε c L1 α σ : ℝ} (hc : 0 < c)
+    (hDc : ContinuousOn (fctDcompAt K4 c α) closedStrip) (hσ0 : 0 < σ) (hσ1 : σ < 1) (ζ : ℂ) :
+    Measurable (fctCauchyIntegrand K4 ε c L1 α σ ζ) := by
+  have hFm := fctFint_line_measurable (ε := ε) (L1 := L1) (α := α) hc hDc hσ0 hσ1
+  unfold fctCauchyIntegrand fctKsp
+  exact ((((by fun_prop : Measurable fun y : ℝ => (ζ / ((σ : ℂ) + y * Complex.I)) ^ 3).mul
+    (by fun_prop : Measurable fun y : ℝ => (((σ : ℂ) + y * Complex.I + 1) / (ζ + 1)) ^ 2)).mul hFm).div
+    (by fun_prop : Measurable fun y : ℝ => (σ : ℂ) + y * Complex.I - ζ))
+
 /-- **The Cauchy integrand of `(fct:Fpm-def)` is integrable on `Re t = σ`** (`3/8 ≤ σ ≤ 7/16`, `Re ζ ≠ σ`) when `F` is bounded there. -/
 lemma fctCauchyIntegrand_integrable {K4 ε c L1 α σ : ℝ} (hc : 0 < c) (hDc : ContinuousOn (fctDcompAt K4 c α) closedStrip)
     (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16) {ζ : ℂ} (hd : ζ.re ≠ σ) {B : ℝ}
@@ -271,12 +281,7 @@ lemma fctCauchyIntegrand_integrable {K4 ε c L1 α σ : ℝ} (hc : 0 < c) (hDc :
     Integrable (fctCauchyIntegrand K4 ε c L1 α σ ζ) := by
   obtain ⟨K, hK0, hK⟩ := fctKsp_div_le hσ hσ' hd
   have hB : 0 ≤ B := (norm_nonneg _).trans (hF 0)
-  have hFm := fctFint_line_measurable (ε := ε) (L1 := L1) (α := α) hc hDc (by linarith : 0 < σ) (by linarith : σ < 1)
-  have hm : Measurable (fctCauchyIntegrand K4 ε c L1 α σ ζ) := by
-    unfold fctCauchyIntegrand fctKsp
-    exact ((((by fun_prop : Measurable fun y : ℝ => (ζ / ((σ : ℂ) + y * Complex.I)) ^ 3).mul
-      (by fun_prop : Measurable fun y : ℝ => (((σ : ℂ) + y * Complex.I + 1) / (ζ + 1)) ^ 2)).mul hFm).div
-      (by fun_prop : Measurable fun y : ℝ => (σ : ℂ) + y * Complex.I - ζ))
+  have hm := fctCauchyIntegrand_measurable (K4 := K4) (ε := ε) (L1 := L1) (α := α) hc hDc (by linarith : 0 < σ) (by linarith : σ < 1) ζ
   refine Integrable.mono' (integrable_inv_one_add_abs_sq.const_mul (K * B)) hm.aestronglyMeasurable
     (Filter.Eventually.of_forall fun y => ?_)
   unfold fctCauchyIntegrand
