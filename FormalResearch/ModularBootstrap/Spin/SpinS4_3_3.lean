@@ -187,7 +187,7 @@ private lemma spin_N_eps_le {n' R : ℝ} (hn_pos : 0 < n') {N : ℕ}
 private lemma spinS4_3_3_cap_sum {n' a R ε C_22b κ δ₀ K_1 δ_n c_exp C_cap : ℝ} {N : ℕ}
     {Φ : ℝ × ℝ → ℝ} {E_cap : Set (ℝ × ℝ)}
     (ha_eq : a = n' / 12) (ha2 : 2 < a) (hn_pos : 0 < n') (hR : 2 ≤ R)
-    (hN_ge : R ^ (3 / 2 : ℝ) ≤ (N : ℝ)) (hN_le : (N : ℝ) ≤ 2 * R ^ (3 / 2 : ℝ))
+    (_hN_ge : R ^ (3 / 2 : ℝ) ≤ (N : ℝ)) (hN_le : (N : ℝ) ≤ 2 * R ^ (3 / 2 : ℝ))
     (hN_pos : 1 ≤ N) (hN_n : 768 * (N : ℝ) ≤ n')
     (hε_pos : 0 < ε) (hε_def : ε = n' ^ (-(2 / 3 : ℝ))) (hε_eq : n' * ε ^ (3 / 2 : ℝ) = 1)
     (hC22_pos : 0 < C_22b) (hκ_pos : 0 < κ) (hδ₀_pos : 0 < δ₀) (hc_exp_pos : 0 < c_exp)
@@ -477,7 +477,8 @@ private lemma spinS4_3_3_cap_sum {n' a R ε C_22b κ δ₀ K_1 δ_n c_exp C_cap 
   have htail_enn : ∫⁻ q in E_cap, tailFn q ≤
       ENNReal.ofReal (3 * Real.exp (-c_exp * R ^ (3 / 2 : ℝ))) := by
     rw [← ofReal_integral_eq_lintegral_ofReal hdiff_i.integrableOn
-      (Eventually.of_forall fun q => by positivity)]
+      (Eventually.of_forall fun q =>
+        mul_nonneg (mul_nonneg (abs_nonneg _) (spinWc_nonneg ha2.le q.1)) (spinWc_nonneg ha2.le q.2))]
     refine ENNReal.ofReal_le_ofReal (htail_cap.trans ?_)
     refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr ?_) (by norm_num)
     exact mul_le_mul_of_nonneg_right (by linarith only [hcexp_pi])
@@ -539,83 +540,65 @@ private lemma spinS4_3_3_cap_sum {n' a R ε C_22b κ δ₀ K_1 δ_n c_exp C_cap 
           rw [← ENNReal.ofReal_add (by positivity) (by positivity [hCcap_nn])]
           congr 1; ring
 
-/-- **`s4:3.3` (`spinning_s4.tex`, Theorem 3.3): fixed Airy-window tightness of the
-negative weighted mass.** -/
-theorem spinS4_3_3 : SpinS4_3_3 := by
-  intro C_x hCx
-  obtain ⟨_k, C_22b, κ, δ₀, n₀, _hk0, hC22_pos, hκ_pos, hδ₀_pos, hn₀, hS22b_main⟩ := spinS22b
-  obtain ⟨K_1, C_1, c₀₁, hK1_pos, hC1_pos, hc01, h21_all⟩ :=
-    spinS4_2_1_all_quads (C_x := C_x) (p := 1) (by norm_num)
-  let c_22 : ℝ := κ * (2 : ℝ) ^ (-(5 / 2 : ℝ))
-  let c_exp : ℝ := min (π * xiStar) (c_22 / 2)
-  have hcexp_pos : 0 < c_exp := by
-    have := xiStar_pos; have := Real.pi_pos; positivity
-  let C_cap : ℝ := 4 * (2 * C_22b * (2 * xiStar + C_22b) * (2 / κ)) * (4 / c_exp ^ 2)
-  have hCcap0 : 0 ≤ C_cap := by
-    have := xiStar_pos
-    positivity
-  let C : ℝ := 4 * (1 + 3 + C_cap) + 1
-  have hCpos : 0 < C := by positivity
-  refine ⟨C, c_exp, 2, hCpos, hcexp_pos, by norm_num, ?_⟩
-  intro R hR
-  let N : ℕ := Nat.ceil (R ^ (3 / 2 : ℝ))
-  have hR_pos : 0 < R := by linarith
-  have hR32_ge1 : 1 ≤ R ^ (3 / 2 : ℝ) := Real.one_le_rpow (by linarith) (by norm_num)
-  have hN_ge : R ^ (3 / 2 : ℝ) ≤ (N : ℝ) := Nat.le_ceil _
-  have hN_le : (N : ℝ) ≤ 2 * R ^ (3 / 2 : ℝ) := by
-    have hlt := Nat.ceil_lt_add_one (le_trans zero_le_one hR32_ge1)
-    linarith
-  have hN_pos : 1 ≤ N := Nat.ceil_pos.mpr (by positivity)
-  have ht_delta : Tendsto (fun n' : ℝ => K_1 * n' ^ (-(2 / 3 : ℝ)) * Real.log n') atTop (𝓝 0) := by
-    have ht0 : Tendsto (fun n' : ℝ => Real.log n' / n' ^ (2 / 3 : ℝ)) atTop (𝓝 0) :=
-      (isLittleO_log_rpow_atTop (by norm_num : (0 : ℝ) < 2 / 3)).tendsto_div_nhds_zero
-    have hrew : (fun n' : ℝ => K_1 * n' ^ (-(2 / 3 : ℝ)) * Real.log n') =ᶠ[atTop]
-        fun n' => K_1 * (Real.log n' / n' ^ (2 / 3 : ℝ)) := by
-      filter_upwards [eventually_gt_atTop 0] with n' hn'
-      rw [Real.rpow_neg hn'.le, div_eq_mul_inv]; ring
-    exact (ht0.const_mul K_1).congr' (by simpa using hrew.symm) |>.trans (by simp)
-  have ht_Cx : Tendsto (fun n' : ℝ => C_x * n' ^ (-(2 / 3 : ℝ))) atTop (𝓝 0) := by
-    simpa using (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 2 / 3)).const_mul C_x
-  have ht_inv_eps : Tendsto (fun n' : ℝ => (96 * (N : ℝ) * xiStar + 24 * xiStar) * n' ^ (-(1 / 3 : ℝ)))
-      atTop (𝓝 0) := by
-    simpa using (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 3)).const_mul
-      (96 * (N : ℝ) * xiStar + 24 * xiStar)
-  have ht_inv : Tendsto (fun n' : ℝ => 16 * C_1 * n' ^ (-1 : ℝ)) atTop (𝓝 0) := by
-    simpa using (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1)).const_mul (16 * C_1)
-  have hev_base : ∀ᶠ n' : ℝ in atTop,
-      49 ≤ n' + 1 ∧ n₀ + 1 ≤ n' + 1 ∧ c₀₁ ≤ n' + 1 ∧ 768 * (N : ℝ) ≤ n' :=
-    (eventually_ge_atTop (max (max 48 n₀) (max (c₀₁ - 1) (768 * (N : ℝ))))).mono fun n' hn' => by
-      refine ⟨by linarith [le_max_left (48 : ℝ) n₀, le_max_left (max (48 : ℝ) n₀) (max (c₀₁ - 1) (768 * (N : ℝ)))],
-        by linarith [le_max_right (48 : ℝ) n₀, le_max_left (max (48 : ℝ) n₀) (max (c₀₁ - 1) (768 * (N : ℝ)))],
-        by linarith [le_max_left (c₀₁ - 1) (768 * (N : ℝ)), le_max_right (max (48 : ℝ) n₀) (max (c₀₁ - 1) (768 * (N : ℝ)))],
-        by linarith [le_max_right (c₀₁ - 1) (768 * (N : ℝ)), le_max_right (max (48 : ℝ) n₀) (max (c₀₁ - 1) (768 * (N : ℝ)))]⟩
-  have hev_δ : ∀ᶠ n' : ℝ in atTop,
-      K_1 * n' ^ (-(2 / 3 : ℝ)) * Real.log n' < min (xiStar / 32) (δ₀ / 2) :=
-    ht_delta.eventually (gt_mem_nhds (by have := xiStar_pos; positivity))
-  have hev_Cx : ∀ᶠ n' : ℝ in atTop, C_x * n' ^ (-(2 / 3 : ℝ)) < xiStar / 32 :=
-    ht_Cx.eventually (gt_mem_nhds (by have := xiStar_pos; positivity))
-  have hev_ie : ∀ᶠ n' : ℝ in atTop,
-      (96 * (N : ℝ) * xiStar + 24 * xiStar) * n' ^ (-(1 / 3 : ℝ)) < R / 4 :=
-    ht_inv_eps.eventually (gt_mem_nhds (by positivity))
-  have hev_exp : ∀ᶠ n' : ℝ in atTop,
-      16 * C_1 * n' ^ (-1 : ℝ) < Real.exp (-c_exp * R ^ (3 / 2 : ℝ)) :=
-    ht_inv.eventually (gt_mem_nhds (Real.exp_pos _))
-  filter_upwards [hev_base, hev_δ, hev_Cx, hev_ie, hev_exp] with n'
-    ⟨hc49, hcn0, hcc01, hN_n⟩ hδ_lt hCx_lt hie_lt hexp_lt
-  intro c ε a x₁ Φ hx₁_gap hslack
+private lemma spinS4_3_3_at_n
+    {C_x C_22b κ δ₀ K_1 C_1 c_exp C_cap C R n' x₁ : ℝ} {k_s22b : ℝ} {N : ℕ} {Φ : ℝ × ℝ → ℝ}
+    (hC22_pos : 0 < C_22b) (hκ_pos : 0 < κ) (hδ₀_pos : 0 < δ₀) (_hK1_pos : 0 < K_1)
+    (hC1_pos : 0 < C_1) (hcexp_pos : 0 < c_exp) (hR : 2 ≤ R)
+    (hN_ge : R ^ (3 / 2 : ℝ) ≤ (N : ℝ)) (hN_le : (N : ℝ) ≤ 2 * R ^ (3 / 2 : ℝ)) (hN_pos : 1 ≤ N)
+    (hcexp_2pi : c_exp ≤ 2 * π * xiStar) (hcexp_c22 : 2 * c_exp ≤ κ * (2 : ℝ) ^ (-(5 / 2 : ℝ)))
+    (hCcap_eq : C_cap = 4 * (2 * C_22b * (2 * xiStar + C_22b) * (2 / κ)) * (4 / c_exp ^ 2))
+    (hC_eq : C = 4 * (1 + 3 + C_cap) + 1)
+    (hc49 : 49 ≤ n' + 1) (_hcc01 : 0 ≤ n') (hN_n : 768 * (N : ℝ) ≤ n')
+    (hδ_lt : K_1 * n' ^ (-(2 / 3 : ℝ)) * Real.log n' < min (xiStar / 32) (δ₀ / 2))
+    (hCx_lt : C_x * n' ^ (-(2 / 3 : ℝ)) < xiStar / 32)
+    (hie_lt : (96 * (N : ℝ) * xiStar + 24 * xiStar) * n' ^ (-(1 / 3 : ℝ)) < R / 4)
+    (hexp_lt : 16 * C_1 * n' ^ (-1 : ℝ) < Real.exp (-c_exp * R ^ (3 / 2 : ℝ)))
+    (hx₁_gap : |x₁ - xiStar| ≤ C_x * n' ^ (-(2 / 3 : ℝ)))
+    (hslack : SpinSlackHyp (n' + 1) x₁ Φ)
+    (h21_step : ∀ hx0 : 0 ≤ x₁, x₁ ≤ xiStar + C_x * n' ^ (-(2 / 3 : ℝ)) →
+      SpinTestClass (n' / 12) Φ → spinM2 (n' / 12) Φ = 1 →
+      ∫ q in {q : ℝ × ℝ | (q.1 ^ 2 + q.2 ^ 2) / 2 < x₁ ^ 2 ∧
+          spinLongDist q < xiStar - K_1 * n' ^ (-(2 / 3 : ℝ)) * Real.log n'},
+        |spinG (n' / 12) Φ q.1 q.2| * spinWc (n' / 12) q.1 * spinWc (n' / 12) q.2 ≤
+          4 * C_1 * n' ^ (-1 : ℝ))
+    (hS22b_step : SpinTestClass (n' / 12) Φ → spinM2 (n' / 12) Φ = 1 →
+      (IntegrableOn (spinSlitIntegral (n' / 12) Φ)
+          (Icc (-(3 * spinBStar (n' / 12) / 4)) (3 * spinBStar (n' / 12) / 4)) volume ∧
+        ∫ d in Icc (-(3 * spinBStar (n' / 12) / 4)) (3 * spinBStar (n' / 12) / 4),
+          spinSlitIntegral (n' / 12) Φ d ≤ C_22b ∧
+        ∀ᵐ d ∂(volume.restrict (Icc (-(3 * spinBStar (n' / 12) / 4)) (3 * spinBStar (n' / 12) / 4))),
+          IntegrableOn (fun s => (n' / 12) * Real.exp (12 * (n' / 12) * spinL s) *
+              |spinDeltaA (n' / 12) Φ (s + d) (s - d)|) {s | spinBStar (n' / 12) ≤ |s|}) ∧
+      (∀ R' : ℝ, 1 ≤ R' → ∀ ξ d : ℝ, |ξ| < spinBStar (n' / 12) →
+        |d| ≤ 3 * spinBStar (n' / 12) / 4 →
+        IntegrableOn (fun s => (n' / 12) * Real.exp (12 * (n' / 12) * spinL s) *
+            |spinDeltaA (n' / 12) Φ (s + d) (s - d)|) {s | spinBStar (n' / 12) ≤ |s|} →
+        let δ := spinBStar (n' / 12) - |ξ|
+        R' * n' ^ (-(2 / 3 : ℝ)) ≤ δ → δ ≤ δ₀ →
+        (n' / 12) * Real.exp (n' * spinL ξ) * |spinDeltaA (n' / 12) Φ (ξ + d) (ξ - d)| ≤
+          C_22b * (1 + spinSlitIntegral (n' / 12) Φ d) * δ⁻¹ * Real.exp (-κ * n' * δ ^ (3 / 2 : ℝ)))) :
+    let ε := n' ^ (-(2 / 3 : ℝ))
+    let a := n' / 12
+    ∫ p in {q : ℝ × ℝ | (q.1 + q.2) ^ 2 / 4 + (q.1 - q.2) ^ 2 / 4 < x₁ ^ 2 ∧
+        spinLongDist q ≤ xiStar - ε * R},
+      max (-spinG a Φ p.1 p.2) 0 * spinWc a p.1 * spinWc a p.2 ≤
+        C * Real.exp (-c_exp * R ^ (3 / 2 : ℝ)) := by
+  let _ := k_s22b
+  let ε := n' ^ (-(2 / 3 : ℝ))
+  let a := n' / 12
+  have hR_pos : 0 < R := by linarith only [hR]
   obtain ⟨hx₁0, hΦ, hM2, _hvac, _hgap⟩ := hslack
-  have hn_pos : 0 < n' := by linarith
-  have ha2 : 2 < a := by dsimp [a]; linarith
-  have ha0 : 0 < a := by linarith
+  have hn_pos : 0 < n' := by linarith only [hc49]
+  have ha2 : 2 < a := by dsimp [a]; linarith only [hc49]
+  have ha0 : 0 < a := by linarith only [ha2]
   have hε_pos : 0 < ε := Real.rpow_pos_of_pos hn_pos _
   have hε_eq : n' * ε ^ (3 / 2 : ℝ) = 1 := by
     dsimp [ε]
     rw [← Real.rpow_mul hn_pos.le, show -(2 / 3 : ℝ) * (3 / 2 : ℝ) = -1 by norm_num,
       Real.rpow_neg_one, mul_inv_cancel₀ hn_pos.ne']
-  have hc_sub : c - 1 = n' := by dsimp [c]; ring
-  have ha_eq : (c - 1) / 12 = a := by rw [hc_sub]
+  have ha_eq : (n' + 1 - 1) / 12 = a := by dsimp [a]; ring
   rw [ha_eq] at hΦ hM2
-  have hx₁_ub : x₁ ≤ xiStar + C_x * n' ^ (-(2 / 3 : ℝ)) := by linarith [(abs_le.mp hx₁_gap).2]
+  have hx₁_ub : x₁ ≤ xiStar + C_x * n' ^ (-(2 / 3 : ℝ)) := by linarith only [(abs_le.mp hx₁_gap).2]
   have hG_int : Integrable (fun q : ℝ × ℝ => |spinG a Φ q.1 q.2| * spinWc a q.1 * spinWc a q.2) :=
     integrable_spinG_wc ha0 hΦ
   let E_all : Set (ℝ × ℝ) := {q : ℝ × ℝ | (q.1 + q.2) ^ 2 / 4 + (q.1 - q.2) ^ 2 / 4 < x₁ ^ 2 ∧
@@ -688,36 +671,33 @@ theorem spinS4_3_3 : SpinS4_3_3 := by
       have hp := hq.1
       refine ⟨hp.2.2.1, ?_⟩
       unfold spinLongDist; rw [abs_of_pos hp.1, abs_of_pos hp.2.1]
-      linarith [hq.2, show K_1 * δ_n = K_1 * n' ^ (-(2 / 3 : ℝ)) * Real.log n' by dsimp [δ_n, ε]; ring]
+      have hKeq : K_1 * δ_n = K_1 * n' ^ (-(2 / 3 : ℝ)) * Real.log n' := by dsimp [δ_n, ε]; ring
+      linarith only [hq.2, hKeq]
     have hmono := setIntegral_mono_set hG_int.integrableOn
       (Eventually.of_forall fun q => mul_nonneg (mul_nonneg (abs_nonneg _)
         (spinWc_nonneg ha2.le _)) (spinWc_nonneg ha2.le _)) (Eventually.of_forall hsub)
-    have h21 := h21_all hcc01 hx₁0 (by simpa [hc_sub] using hx₁_ub)
-      (by simpa [hc_sub, ha_eq] using hΦ)
-      (by simpa [hc_sub, ha_eq] using hM2)
-    refine hmono.trans ?_
-    simpa [g, hc_sub, ha_eq] using h21
+    exact hmono.trans (h21_step hx₁0 hx₁_ub hΦ hM2)
   have hKδ_lt : K_1 * δ_n < min (xiStar / 32) (δ₀ / 2) := by
     simpa [δ_n, ε, mul_assoc] using hδ_lt
   have hcap_geom : ∀ q ∈ E_cap, xiStar / 2 ≤ q.1 ∧ xiStar / 2 ≤ q.2 ∧
       q.1 ≤ 2 * xiStar ∧ q.2 ≤ 2 * xiStar ∧ |(q.1 - q.2) / 2| ≤ 3 * xiStar / 8 := by
     intro q ⟨⟨hq1, hq2, hq_rad, hq_sum⟩, hq_lb⟩
     have hxi_nn := xiStar_pos.le
-    have h1 : x₁ < (33 / 32 : ℝ) * xiStar := by linarith
+    have h1 : x₁ < (33 / 32 : ℝ) * xiStar := by linarith only [hx₁_ub, hCx_lt, xiStar_pos]
     have h2 : (31 / 32 : ℝ) * xiStar < (q.1 + q.2) / 2 := by
-      linarith [hKδ_lt.trans_le (min_le_left _ _)]
+      linarith only [hq_lb, hKδ_lt.trans_le (min_le_left _ _)]
     have hsq_diff : ((q.1 - q.2) / 2) ^ 2 < (3 * xiStar / 8) ^ 2 := by
       have h0 : ((q.1 + q.2) / 2) ^ 2 + ((q.1 - q.2) / 2) ^ 2 = (q.1 ^ 2 + q.2 ^ 2) / 2 := by ring
-      have hrad : ((q.1 + q.2) / 2) ^ 2 + ((q.1 - q.2) / 2) ^ 2 < x₁ ^ 2 := by linarith
+      have hrad : ((q.1 + q.2) / 2) ^ 2 + ((q.1 - q.2) / 2) ^ 2 < x₁ ^ 2 := by linarith only [hq_rad, h0]
       have hx1_sq : x₁ ^ 2 < ((33 / 32 : ℝ) * xiStar) ^ 2 :=
         pow_lt_pow_left₀ h1 hx₁0 (by norm_num)
       have hsum_sq : ((31 / 32 : ℝ) * xiStar) ^ 2 < ((q.1 + q.2) / 2) ^ 2 :=
         pow_lt_pow_left₀ h2 (by positivity) (by norm_num)
-      nlinarith [sq_nonneg xiStar]
+      nlinarith only [hrad, hx1_sq, hsum_sq, sq_nonneg xiStar]
     have hd_abs : |(q.1 - q.2) / 2| < 3 * xiStar / 8 :=
       abs_lt.mpr (abs_lt_of_sq_lt_sq' (by simpa [sq_abs] using hsq_diff) (by positivity))
     have hd_le := abs_lt.mp hd_abs
-    have hεR_pos : 0 < ε * R := mul_pos (Real.rpow_pos_of_pos hn_pos _) hR_pos
+    have hεR_pos : 0 < ε * R := mul_pos hε_pos hR_pos
     have hq_sum_le : (q.1 + q.2) / 2 ≤ xiStar := hq_sum.trans (sub_le_self _ hεR_pos.le)
     refine ⟨by linarith only [h2, hd_le.1, hxi_nn], by linarith only [h2, hd_le.2, hxi_nn],
       by linarith only [hq_sum_le, hd_le.2, hxi_nn], by linarith only [hq_sum_le, hd_le.1, hxi_nn], hd_abs.le⟩
@@ -786,25 +766,17 @@ theorem spinS4_3_3 : SpinS4_3_3 := by
   have htail_cap : ∫ q in E_cap, |spinG a Φ q.1 q.2 - spinTruncInv a N Φ q.1 q.2| *
       spinWc a q.1 * spinWc a q.2 ≤ 3 * Real.exp (-2 * π * xiStar * R ^ (3 / 2 : ℝ)) :=
     spinS4_3_3_tail_cap ha2 hΦ hM2 hR_pos.le hN_ge hdiff_i hcap_sub_r
-  have hc_sub_n0 : n₀ + 1 ≤ c := by dsimp [c]; exact hcn0
-  have hPhi_c : SpinTestClass ((c - 1) / 12) Φ := by rw [ha_eq]; exact hΦ
-  have hM2_c : spinM2 ((c - 1) / 12) Φ = 1 := by rw [ha_eq]; exact hM2
-  obtain ⟨⟨hS_int, hS_le, hS_ae⟩, _hfold_b, hfold_c⟩ := hS22b_main hc_sub_n0 hPhi_c hM2_c
-  rw [ha_eq] at hS_int hS_le hS_ae hfold_c
-  rw [hc_sub] at hfold_c
-  have hcexp_2pi : c_exp ≤ 2 * π * xiStar :=
-    (min_le_left _ _).trans (by have := Real.pi_pos; have := xiStar_pos; nlinarith only [Real.pi_pos, xiStar_pos])
-  have hcexp_c22 : 2 * c_exp ≤ κ * (2 : ℝ) ^ (-(5 / 2 : ℝ)) :=
-    by linarith only [min_le_right (π * xiStar) (c_22 / 2)]
+  obtain ⟨⟨hS_int, hS_le, hS_ae⟩, hfold_c⟩ := hS22b_step hΦ hM2
   have hcap_bd : ∫ q in E_cap, g q ≤ (3 + C_cap) * Real.exp (-c_exp * R ^ (3 / 2 : ℝ)) :=
     spinS4_3_3_cap_sum (a := a) (n' := n') rfl ha2 hn_pos hR hN_ge hN_le hN_pos hN_n hε_pos rfl hε_eq
-      hC22_pos hκ_pos hδ₀_pos hcexp_pos hcexp_2pi hcexp_c22 rfl hKδ_lt hc49 hΦ
+      hC22_pos hκ_pos hδ₀_pos hcexp_pos hcexp_2pi hcexp_c22 hCcap_eq hKδ_lt hc49 hΦ
       hS_int hS_le hS_ae hfold_c hG_int hdiff_i htail_cap hcap_geom
       (fun q hq => ⟨hq.1.1, hq.1.2.1, hq.1.2.2.2, hq.2⟩) hm_cap hie_lt.le
   have hpp_bd : ∫ q in E_pp, g q ≤ (1 + 3 + C_cap) * Real.exp (-c_exp * R ^ (3 / 2 : ℝ)) := by
     have hfar' : ∫ q in E_far, g q ≤ 1 * Real.exp (-c_exp * R ^ (3 / 2 : ℝ)) := by
-      have hC1n : 0 < C_1 * n' ^ (-1 : ℝ) := mul_pos hC1_pos (Real.rpow_pos_of_pos hn_pos _)
-      linarith only [hfar_bd, hexp_lt, hC1n]
+      have hC1n : 0 ≤ C_1 * n' ^ (-1 : ℝ) := mul_nonneg hC1_pos.le (Real.rpow_nonneg hn_pos.le _)
+      have h4_16 : 4 * C_1 * n' ^ (-1 : ℝ) ≤ 16 * C_1 * n' ^ (-1 : ℝ) := by nlinarith only [hC1n]
+      exact hfar_bd.trans (h4_16.trans (hexp_lt.le.trans_eq (one_mul _).symm))
     calc ∫ q in E_pp, g q = (∫ q in E_far, g q) + ∫ q in E_cap, g q := hpp_split
       _ ≤ 1 * Real.exp (-c_exp * R ^ (3 / 2 : ℝ)) + (3 + C_cap) * Real.exp (-c_exp * R ^ (3 / 2 : ℝ)) :=
           add_le_add hfar' hcap_bd
@@ -812,10 +784,93 @@ theorem spinS4_3_3 : SpinS4_3_3 := by
   calc ∫ p in E_all, max (-spinG a Φ p.1 p.2) 0 * spinWc a p.1 * spinWc a p.2
       ≤ ∫ p in E_all, g p := hmax_le_abs
     _ = 4 * ∫ q in E_pp, g q := hE_all_eq
-    _ ≤ 4 * ((1 + 3 + C_cap) * Real.exp (-c_exp * R ^ (3 / 2 : ℝ))) := by linarith only [hpp_bd]
+    _ ≤ 4 * ((1 + 3 + C_cap) * Real.exp (-c_exp * R ^ (3 / 2 : ℝ))) :=
+        mul_le_mul_of_nonneg_left hpp_bd (by norm_num)
+    _ = (4 * (1 + 3 + C_cap)) * Real.exp (-c_exp * R ^ (3 / 2 : ℝ)) := by ring
     _ ≤ C * Real.exp (-c_exp * R ^ (3 / 2 : ℝ)) := by
         refine mul_le_mul_of_nonneg_right ?_ (Real.exp_pos _).le
-        dsimp [C]; linarith
+        rw [hC_eq]; exact le_add_of_nonneg_right zero_le_one
+
+/-- **`s4:3.3` (`spinning_s4.tex`, Theorem 3.3): fixed Airy-window tightness of the
+negative weighted mass.** -/
+theorem spinS4_3_3 : SpinS4_3_3 := by
+  intro C_x hCx
+  obtain ⟨k_s22b, C_22b, κ, δ₀, n₀, _hk0, hC22_pos, hκ_pos, hδ₀_pos, hn₀, hS22b_main⟩ := spinS22b
+  obtain ⟨K_1, C_1, c₀₁, hK1_pos, hC1_pos, hc01, h21_all⟩ :=
+    spinS4_2_1_all_quads (C_x := C_x) (p := 1) (by norm_num)
+  let c_22 : ℝ := κ * (2 : ℝ) ^ (-(5 / 2 : ℝ))
+  let c_exp : ℝ := min (π * xiStar) (c_22 / 2)
+  have hcexp_pos : 0 < c_exp := by have := xiStar_pos; have := Real.pi_pos; positivity
+  let C_cap : ℝ := 4 * (2 * C_22b * (2 * xiStar + C_22b) * (2 / κ)) * (4 / c_exp ^ 2)
+  let C : ℝ := 4 * (1 + 3 + C_cap) + 1
+  have hCcap0 : 0 ≤ C_cap := by have := xiStar_pos; positivity
+  have hCpos : 0 < C := by positivity
+  refine ⟨C, c_exp, 2, hCpos, hcexp_pos, by norm_num, ?_⟩
+  intro R hR
+  let N : ℕ := Nat.ceil (R ^ (3 / 2 : ℝ))
+  have hR_pos : 0 < R := by linarith
+  have hR32_ge1 : 1 ≤ R ^ (3 / 2 : ℝ) := Real.one_le_rpow (by linarith) (by norm_num)
+  have hN_ge : R ^ (3 / 2 : ℝ) ≤ (N : ℝ) := Nat.le_ceil _
+  have hN_le : (N : ℝ) ≤ 2 * R ^ (3 / 2 : ℝ) := by
+    have hlt := Nat.ceil_lt_add_one (le_trans zero_le_one hR32_ge1); linarith
+  have hN_pos : 1 ≤ N := Nat.ceil_pos.mpr (by positivity)
+  have ht_delta : Tendsto (fun n' : ℝ => K_1 * n' ^ (-(2 / 3 : ℝ)) * Real.log n') atTop (𝓝 0) := by
+    have ht0 : Tendsto (fun n' : ℝ => Real.log n' / n' ^ (2 / 3 : ℝ)) atTop (𝓝 0) :=
+      (isLittleO_log_rpow_atTop (by norm_num : (0 : ℝ) < 2 / 3)).tendsto_div_nhds_zero
+    have hrew : (fun n' : ℝ => K_1 * n' ^ (-(2 / 3 : ℝ)) * Real.log n') =ᶠ[atTop]
+        fun n' => K_1 * (Real.log n' / n' ^ (2 / 3 : ℝ)) := by
+      filter_upwards [eventually_gt_atTop 0] with n' hn'
+      rw [Real.rpow_neg hn'.le, div_eq_mul_inv]; ring
+    exact (ht0.const_mul K_1).congr' (by simpa using hrew.symm) |>.trans (by simp)
+  have ht_Cx : Tendsto (fun n' : ℝ => C_x * n' ^ (-(2 / 3 : ℝ))) atTop (𝓝 0) := by
+    simpa using (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 2 / 3)).const_mul C_x
+  have ht_inv_eps : Tendsto (fun n' : ℝ => (96 * (N : ℝ) * xiStar + 24 * xiStar) * n' ^ (-(1 / 3 : ℝ)))
+      atTop (𝓝 0) := by
+    simpa using (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 3)).const_mul
+      (96 * (N : ℝ) * xiStar + 24 * xiStar)
+  have ht_inv : Tendsto (fun n' : ℝ => 16 * C_1 * n' ^ (-1 : ℝ)) atTop (𝓝 0) := by
+    simpa using (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1)).const_mul (16 * C_1)
+  have hev_base : ∀ᶠ n' : ℝ in atTop,
+      49 ≤ n' + 1 ∧ n₀ + 1 ≤ n' + 1 ∧ c₀₁ ≤ n' + 1 ∧ 768 * (N : ℝ) ≤ n' :=
+    (eventually_ge_atTop (max (max 48 n₀) (max (c₀₁ - 1) (768 * (N : ℝ))))).mono fun n' hn' => by
+      refine ⟨by linarith [le_max_left (48 : ℝ) n₀, le_max_left (max (48 : ℝ) n₀) (max (c₀₁ - 1) (768 * (N : ℝ)))],
+        by linarith [le_max_right (48 : ℝ) n₀, le_max_left (max (48 : ℝ) n₀) (max (c₀₁ - 1) (768 * (N : ℝ)))],
+        by linarith [le_max_left (c₀₁ - 1) (768 * (N : ℝ)), le_max_right (max (48 : ℝ) n₀) (max (c₀₁ - 1) (768 * (N : ℝ)))],
+        by linarith [le_max_right (c₀₁ - 1) (768 * (N : ℝ)), le_max_right (max (48 : ℝ) n₀) (max (c₀₁ - 1) (768 * (N : ℝ)))]⟩
+  have hev_δ : ∀ᶠ n' : ℝ in atTop,
+      K_1 * n' ^ (-(2 / 3 : ℝ)) * Real.log n' < min (xiStar / 32) (δ₀ / 2) :=
+    ht_delta.eventually (gt_mem_nhds (by have := xiStar_pos; positivity))
+  have hev_Cx : ∀ᶠ n' : ℝ in atTop, C_x * n' ^ (-(2 / 3 : ℝ)) < xiStar / 32 :=
+    ht_Cx.eventually (gt_mem_nhds (by have := xiStar_pos; positivity))
+  have hev_ie : ∀ᶠ n' : ℝ in atTop,
+      (96 * (N : ℝ) * xiStar + 24 * xiStar) * n' ^ (-(1 / 3 : ℝ)) < R / 4 :=
+    ht_inv_eps.eventually (gt_mem_nhds (by positivity))
+  have hev_exp : ∀ᶠ n' : ℝ in atTop,
+      16 * C_1 * n' ^ (-1 : ℝ) < Real.exp (-c_exp * R ^ (3 / 2 : ℝ)) :=
+    ht_inv.eventually (gt_mem_nhds (Real.exp_pos _))
+  filter_upwards [hev_base, hev_δ, hev_Cx, hev_ie, hev_exp] with n'
+    ⟨hc49, hcn0, hcc01, hN_n⟩ hδ_lt hCx_lt hie_lt hexp_lt
+  intro c ε a x₁ Φ hx₁_gap hslack
+  have hcexp_2pi : c_exp ≤ 2 * π * xiStar :=
+    (min_le_left _ _).trans (by have := Real.pi_pos; have := xiStar_pos; nlinarith only [Real.pi_pos, xiStar_pos])
+  have hcexp_c22 : 2 * c_exp ≤ κ * (2 : ℝ) ^ (-(5 / 2 : ℝ)) :=
+    by linarith only [min_le_right (π * xiStar) (c_22 / 2)]
+  have hc_sub : (n' + 1) - 1 = n' := by ring
+  have ha_eq : ((n' + 1) - 1) / 12 = n' / 12 := by rw [hc_sub]
+  refine spinS4_3_3_at_n (C_x := C_x) (C_22b := C_22b) (κ := κ) (δ₀ := δ₀) (K_1 := K_1) (C_1 := C_1)
+    (c_exp := c_exp) (C_cap := C_cap) (C := C) (R := R) (n' := n') (x₁ := x₁) (k_s22b := k_s22b) (N := N) (Φ := Φ)
+    hC22_pos hκ_pos hδ₀_pos hK1_pos hC1_pos hcexp_pos hR hN_ge hN_le hN_pos hcexp_2pi hcexp_c22 rfl rfl
+    hc49 (by linarith only [hc49]) hN_n hδ_lt hCx_lt hie_lt hexp_lt hx₁_gap hslack
+    (fun hx0 hx_ub hΦ hM2 => by
+      simpa [hc_sub, ha_eq] using h21_all hcc01 hx0 (by simpa [hc_sub] using hx_ub)
+        (by simpa [ha_eq] using hΦ) (by simpa [ha_eq] using hM2))
+    (fun hΦ hM2 => by
+      obtain ⟨hA, _, hC⟩ := hS22b_main hcn0 (by simpa [ha_eq] using hΦ) (by simpa [ha_eq] using hM2)
+      refine ⟨by simpa [ha_eq] using hA, ?_⟩
+      intro R' hR' ξ d hξ hd hint δ hRδ hδ₀
+      simpa [δ, hc_sub, ha_eq] using hC R' hR' ξ d (by simpa [ha_eq] using hξ) (by simpa [ha_eq] using hd)
+        (by simpa [ha_eq] using hint) (by simpa [δ, hc_sub, ha_eq] using hRδ)
+        (by simpa [δ, hc_sub, ha_eq] using hδ₀))
 
 /-- info: 'FormalResearch.ModularBootstrap.Spin.spinS4_3_3' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

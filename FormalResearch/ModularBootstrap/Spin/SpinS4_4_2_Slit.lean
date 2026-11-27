@@ -447,18 +447,11 @@ lemma spinQSlice_rescaled_slit_bound {c V C_r : ℝ} (hc : 49 ≤ c) (hV : 0 < V
   have hD_m : MeasurableSet D_set := measurableSet_Icc
   have hq_diff := spinQSlice_differentiableOn hc hV hΦ hχ_meas hχ_bd hχ_supp
   have hq_cont : Continuous (fun b' : ℝ => spinQSlice c N Φ χ ((γN : ℂ) * (b' : ℂ))) := by
-    rw [continuous_iff_continuousAt]
-    intro b'
-    have him : |((γN : ℂ) * (b' : ℂ)).im| < γN / 2 := by
-      rw [show ((γN : ℂ) * (b' : ℂ)).im = 0 by simp [Complex.mul_im]]
-      rw [abs_zero]; exact half_pos hγN_pos
     have hopen : IsOpen {b : ℂ | |b.im| < γN / 2} := isOpen_lt Complex.continuous_im.abs continuous_const
-    have hc_at : ContinuousAt (spinQSlice c N Φ χ) ((γN : ℂ) * (b' : ℂ)) :=
-      ((hq_diff _ him).differentiableAt (hopen.mem_nhds him)).continuousAt
-    have hlin : Continuous (fun t : ℝ => (γN : ℂ) * (t : ℂ)) :=
-      continuous_const.mul Complex.continuous_ofReal
-    exact (hc_at.comp (hlin.continuousAt (x := b')) :
-      ContinuousAt (spinQSlice c N Φ χ ∘ fun t : ℝ => (γN : ℂ) * (t : ℂ)) b')
+    have hc_on : ContinuousOn (spinQSlice c N Φ χ) {b : ℂ | |b.im| < γN / 2} := fun b hb =>
+      ((hq_diff b hb).differentiableAt (hopen.mem_nhds hb)).continuousAt.continuousWithinAt
+    refine hc_on.comp_continuous (Continuous.mul continuous_const Complex.continuous_ofReal) fun b' => ?_
+    simp [Complex.mul_im, half_pos hγN_pos]
   let h_slit : ℝ → ℝ := fun b' =>
     a * Real.exp ((n * γN) * slitL b') * ‖spinQSlice c N Φ χ ((γN : ℂ) * (b' : ℂ))‖
   have hh_cont : Continuous h_slit := by
@@ -635,7 +628,8 @@ lemma spinQSlice_rescaled_slit_bound {c V C_r : ℝ} (hc : 49 ≤ c) (hV : 0 < V
         ENNReal.ofReal γN⁻¹ * ∫⁻ q : ℝ × ℝ, ϕ (q.1 + q.2, q.1 - q.2) := by
       have hm_comp : Measurable (fun q : ℝ × ℝ => ϕ (q.1 + q.2, q.1 - q.2)) :=
         hϕ_m.comp ((measurable_fst.add measurable_snd).prodMk (measurable_fst.sub measurable_snd))
-      have h1 := lintegral_map (f := fun q : ℝ × ℝ => ϕ (q.1 + q.2, q.1 - q.2)) hm_comp sc.measurable
+      have h1 := lintegral_map (μ := (volume : Measure (ℝ × ℝ)))
+        (f := fun q : ℝ × ℝ => ϕ (q.1 + q.2, q.1 - q.2)) hm_comp sc.measurable
       rw [hsc_map, lintegral_smul_measure] at h1
       simpa [sc] using h1.symm
     have hsh_int : ∫⁻ y : ℝ × ℝ, ϕ y = ENNReal.ofReal 2 * ∫⁻ q : ℝ × ℝ, ϕ (q.1 + q.2, q.1 - q.2) :=

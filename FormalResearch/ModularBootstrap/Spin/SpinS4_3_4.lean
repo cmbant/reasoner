@@ -32,10 +32,10 @@ private lemma spinGcal_re_even {a : ℝ} (ha : 0 ≤ a) {Φ : ℝ × ℝ → ℝ
   have heq := integral_map_equiv (μ := (volume : Measure ℝ)) e
     (fun d => spinHbCalReal (-b) d * spinG a Φ (-b + d) (-b - d))
   rw [hmp] at heq
-  rw [← heq]
+  rw [heq]
   refine integral_congr_ae (Eventually.of_forall fun d => ?_)
-  have hed : e d = -d := rfl
-  rw [hed, spinHbCalReal_neg]
+  change spinHbCalReal (-b) (-d) * spinG a Φ (-b + -d) (-b - -d) = spinHbCalReal b d * spinG a Φ (b + d) (b - d)
+  rw [spinHbCalReal_neg]
   have h1 : -b + -d = -(b + d) := by ring
   have h2 : -b - -d = -(b - d) := by ring
   rw [h1, h2, spinG_d4_neg_left hΦ, spinG_d4_neg_right hΦ]
@@ -85,7 +85,7 @@ private lemma spinRhoProjMeasure_toReal_s4_3_4
   have hmax : (fun b : ℝ => ENNReal.ofReal
       (((c - 1) / 12) * Real.exp ((c - 1) * spinL b) * max (spinCalProjFn F b) 0)) =
       fun b : ℝ => ENNReal.ofReal (a * Real.exp (n * spinL b) * spinCalProjFn F b) := by
-    ext b; rw [max_eq_left (hFproj_nn b)]; rfl
+    ext b; rw [max_eq_left (hFproj_nn b)]
   rw [hmax]
   have hlin := integral_eq_lintegral_of_nonneg_ae (μ := volume.restrict (abs ⁻¹' E))
     (Eventually.of_forall (fun b => hw_nn b))
@@ -103,7 +103,7 @@ private lemma spinEtaProjMeasure_toReal_s4_3_4
       (spinEtaProjMeasure a F E).toReal =
         ∫ p in spinLongDist ⁻¹' E, F p * spinWc a p.1 * spinWc a p.2 := by
   intro a
-  have ha0 : 0 ≤ a := by dsimp [a]; linarith
+  have ha0 : 0 < a := by dsimp [a]; linarith
   have ha2 : 2 ≤ a := by dsimp [a]; linarith
   have hG_int := integrable_spinG_wc ha0 hΦ
   have hWc_cont : Continuous (spinWc a) := by unfold spinWc spinV1; fun_prop
@@ -113,7 +113,7 @@ private lemma spinEtaProjMeasure_toReal_s4_3_4
         (hWc_cont.comp continuous_snd).measurable).aestronglyMeasurable
     · rw [Real.norm_eq_abs, abs_mul, abs_mul, abs_of_nonneg (hF_nn p),
         abs_of_nonneg (spinWc_nonneg ha2 p.1), abs_of_nonneg (spinWc_nonneg ha2 p.2)]
-      have h1 := hF_bd p
+      have h1 : F p ≤ |spinG a Φ p.1 p.2| := (le_abs_self (F p)).trans (hF_bd p)
       have hw1 := spinWc_nonneg ha2 p.1
       have hw2 := spinWc_nonneg ha2 p.2
       gcongr
@@ -180,14 +180,16 @@ private lemma spinGcal_re_sub_ae {c : ℝ} (hc : 40 ≤ c) {Φ : ℝ × ℝ → 
     have h := hbp.const_mul (a * Real.exp (n * spinL b) * 1 * (4 * spinCalF xiStar ^ 2))⁻¹
     refine h.congr (Eventually.of_forall fun d => ?_)
     have hCne := hC_pos.ne'
+    have hFne := (spinCalF_pos' xiStar_pos).ne'
     dsimp only
-    field_simp [hCne]
+    field_simp [hCne, hFne]
   have hbm' : Integrable (fun d : ℝ => spinHbCalReal b d * Gminus (b + d, b - d)) volume := by
     have h := hbm.const_mul (a * Real.exp (n * spinL b) * 1 * (4 * spinCalF xiStar ^ 2))⁻¹
     refine h.congr (Eventually.of_forall fun d => ?_)
     have hCne := hC_pos.ne'
+    have hFne := (spinCalF_pos' xiStar_pos).ne'
     dsimp only
-    field_simp [hCne]
+    field_simp [hCne, hFne]
   rw [spinGcal_re_ofReal ha0 hΦ b]
   have hsplit : (fun d : ℝ => spinHbCalReal b d * spinG a Φ (b + d) (b - d)) =
       fun d : ℝ =>
@@ -269,9 +271,9 @@ private lemma spinCalNorm_le_of_window
   let wm : ℝ → ℝ := fun b => a * Real.exp (n * spinL b) * spinCalProjFn Gminus b
   let z : ℝ → ℝ := fun b => a * Real.exp (n * spinL b) * |(spinGcal a Φ (b : ℂ)).re|
   have hwp_pair := spinRhoProjMeasure_toReal_s4_3_4 hc hΦ hGp_meas hGp_nn hGp_bd hGp_nl hGp_nr
-    measurableSet_Ici
+    (measurableSet_Ici : MeasurableSet (Ici (0 : ℝ)))
   have hwm_pair := spinRhoProjMeasure_toReal_s4_3_4 hc hΦ hGm_meas hGm_nn hGm_bd hGm_nl hGm_nr
-    measurableSet_Ici
+    (measurableSet_Ici : MeasurableSet (Ici (0 : ℝ)))
   have hwp_int : Integrable wp volume := hwp_pair.1
   have hwm_int : Integrable wm volume := hwm_pair.1
   have hwp_nn : ∀ b, 0 ≤ wp b := fun b => by
@@ -336,16 +338,18 @@ private lemma spinCalNorm_le_of_window
           integral_mono_ae hz_int hrhs_int hpoint_ae
       _ = (∫ b : ℝ, wp b - wm b) + (∫ b : ℝ, (abs ⁻¹' E_ext).indicator (fun b => 2 * wm b) b) +
             (∫ b : ℝ, (abs ⁻¹' K_R).indicator (fun b => 2 * z b) b) := by
-          rw [integral_add ((hwp_int.sub hwm_int).add hwm_ext_int) hz_KR_int,
-            integral_add (hwp_int.sub hwm_int) hwm_ext_int]
+          exact (integral_add ((hwp_int.sub hwm_int).add hwm_ext_int) hz_KR_int).trans
+            (congrArg (· + _) (integral_add (hwp_int.sub hwm_int) hwm_ext_int))
   -- Bound Term 1: `∫ (wp - wm) = (ρplus (Ici 0)).toReal - (ρminus (Ici 0)).toReal ≤ n⁻¹ + C_24 / n + C_24 * δ_n`
   have hpre_Ici : abs ⁻¹' Ici (0 : ℝ) = Set.univ := by ext b; simp [abs_nonneg b]
   have hρp_eq : (spinRhoProjMeasure c Gplus (Ici 0)).toReal = ∫ b : ℝ, wp b := by
     rw [hwp_pair.2, hpre_Ici, setIntegral_univ]
   have hρm_eq : (spinRhoProjMeasure c Gminus (Ici 0)).toReal = ∫ b : ℝ, wm b := by
     rw [hwm_pair.2, hpre_Ici, setIntegral_univ]
-  have hηp_pair := spinEtaProjMeasure_toReal_s4_3_4 hc hΦ hGp_meas hGp_nn hGp_bd measurableSet_Ici
-  have hηm_pair := spinEtaProjMeasure_toReal_s4_3_4 hc hΦ hGm_meas hGm_nn hGm_bd measurableSet_Ici
+  have hηp_pair := spinEtaProjMeasure_toReal_s4_3_4 hc hΦ hGp_meas hGp_nn hGp_bd
+    (measurableSet_Ici : MeasurableSet (Ici (0 : ℝ)))
+  have hηm_pair := spinEtaProjMeasure_toReal_s4_3_4 hc hΦ hGm_meas hGm_nn hGm_bd
+    (measurableSet_Ici : MeasurableSet (Ici (0 : ℝ)))
   have hL_Ici : spinLongDist ⁻¹' Ici (0 : ℝ) = Set.univ := by
     ext p
     simp only [Set.mem_preimage, Set.mem_Ici, Set.mem_univ, iff_true]
@@ -385,7 +389,7 @@ private lemma spinCalNorm_le_of_window
     intro p hp
     have hLgt : xiStar + ε * R < spinLongDist p := hp
     have hx1_lt : x₁ < spinLongDist p := by
-      have hx1_ub : x₁ ≤ xiStar + C_x * ε := (abs_le.mp hx1_abs).2
+      have hx1_ub : x₁ ≤ xiStar + C_x * ε := by linarith [(abs_le.mp hx1_abs).2]
       have hCR : C_x * ε < ε * R := by
         have : C_x < R := by linarith
         nlinarith
@@ -394,8 +398,7 @@ private lemma spinCalNorm_le_of_window
       have hsq : spinLongDist p ^ 2 ≤ ((p.1 + p.2) / 2) ^ 2 + ((p.1 - p.2) / 2) ^ 2 := by
         unfold spinLongDist
         have h1 : (|p.1| + |p.2|) ^ 2 ≤ 2 * (p.1 ^ 2 + p.2 ^ 2) := by
-          have : (|p.1| - |p.2|) ^ 2 ≥ 0 := sq_nonneg _
-          rw [sq_abs, sq_abs] at *; nlinarith
+          nlinarith [sq_nonneg (|p.1| - |p.2|), sq_abs p.1, sq_abs p.2]
         nlinarith
       exact (pow_le_pow_left₀ hx1_nn hx1_lt.le 2).trans hsq
     have hG_nn := hgap ((p.1 + p.2) / 2) ((p.1 - p.2) / 2) hxi_d
@@ -426,13 +429,12 @@ private lemma spinCalNorm_le_of_window
     have h2 : (spinEtaProjMeasure a Gminus E_ext).toReal ≤
         C_33 * Real.exp (-c_exp * R ^ (3 / 2 : ℝ)) := by
       rw [hηm_ext_pair.2]
+      have hmL : Measurable spinLongDist :=
+        measurable_const.mul ((measurable_fst.abs).add (measurable_snd.abs))
       have hsub_ae : ∫ p in spinLongDist ⁻¹' E_ext, Gminus p * spinWc a p.1 * spinWc a p.2 ≤
           ∫ p in S_33, Gminus p * spinWc a p.1 * spinWc a p.2 := by
-        rw [← integral_indicator (hEext_meas.preimage
-          (measurable_const.mul ((measurable_fst.abs).add (measurable_snd.abs)))),
-          ← integral_indicator hS33_meas]
-        refine integral_mono (hηm_ext_pair.1.indicator (hEext_meas.preimage
-          (measurable_const.mul ((measurable_fst.abs).add (measurable_snd.abs)))))
+        rw [← integral_indicator (hEext_meas.preimage hmL), ← integral_indicator hS33_meas]
+        refine integral_mono (hηm_ext_pair.1.indicator (hEext_meas.preimage hmL))
           (hηm_ext_pair.1.indicator hS33_meas) fun p => ?_
         by_cases hp : p ∈ spinLongDist ⁻¹' E_ext
         · rcases hEext_split hp with hp_lo | hp_hi
@@ -463,8 +465,9 @@ private lemma spinCalNorm_le_of_window
   have hz_even : ∀ b : ℝ, z (-b) = z b := fun b => by
     dsimp [z]
     have hL : spinL (-b) = spinL b := by unfold spinL; rw [abs_neg]
-    have hce : ((-b : ℝ) : ℂ) = (-b : ℂ) := by push_cast; rfl
-    rw [hL, ← hce, spinGcal_re_even ha0 hΦ b]
+    change a * Real.exp (n * spinL (-b)) * |(spinGcal a Φ ((-b : ℝ) : ℂ)).re| =
+      a * Real.exp (n * spinL b) * |(spinGcal a Φ (b : ℂ)).re|
+    rw [hL, spinGcal_re_even ha0 hΦ b]
   have hpre_KR : abs ⁻¹' K_R = K_R ∪ (Neg.neg ⁻¹' K_R) := by
     ext b
     simp only [Set.mem_preimage, Set.mem_union, Set.mem_Icc, K_R]
@@ -506,37 +509,35 @@ private lemma spinCalNorm_le_of_window
       have heq := integral_map_equiv (μ := (volume : Measure ℝ)) e
         (fun b => K_R.indicator z b)
       rw [hmp] at heq
-      rw [← heq]
+      rw [heq]
       refine integral_congr_ae (Eventually.of_forall fun b => ?_)
-      have hed : e b = -b := rfl
-      rw [hed]
+      change (Neg.neg ⁻¹' K_R).indicator z b = K_R.indicator z (-b)
       by_cases hb : b ∈ Neg.neg ⁻¹' K_R
       · rw [Set.indicator_of_mem hb, Set.indicator_of_mem (show -b ∈ K_R from hb), hz_even b]
       · rw [Set.indicator_of_notMem hb, Set.indicator_of_notMem (show -b ∉ K_R from hb)]
     have hcov : ∫ b in K_R, z b = ∫ u in Icc (-R) R, |spinFProfile c Φ u| := by
       rw [← integral_indicator hKR_meas, ← integral_indicator measurableSet_Icc]
-      let e : ℝ ≃ᵐ ℝ := MeasurableEquiv.addLeft xiStar |>.comp (MeasurableEquiv.mulLeft₀ ε hε_pos.ne')
-      -- Actually use `integral_comp_mul_add` or `MeasurableEquiv` directly:
       let e' : ℝ ≃ᵐ ℝ := (MeasurableEquiv.mulLeft₀ ε hε_pos.ne').trans (MeasurableEquiv.addLeft xiStar)
       have hmp : Measure.map e' (volume : Measure ℝ) = ENNReal.ofReal ε⁻¹ • (volume : Measure ℝ) := by
         have he_fn : (e' : ℝ → ℝ) = fun u => xiStar + ε * u := funext fun u => by
           simp [e', add_comm]
-        rw [he_fn, Measure.map_add_left_eq_self volume xiStar |> fun _ => rfl]
+        rw [he_fn]
         have hcomp : (fun u => xiStar + ε * u) = (fun y => xiStar + y) ∘ (fun u => ε * u) := rfl
+        have hadd_mp : Measure.map (fun y : ℝ => xiStar + y) (volume : Measure ℝ) = volume := by
+          simpa using (measurePreserving_add_left (volume : Measure ℝ) xiStar).map_eq
         rw [hcomp, ← Measure.map_map (measurable_const_add xiStar) (measurable_const_mul ε),
-          Real.map_volume_mul_left hε_pos.ne', Measure.map_smul, Measure.map_const_add_eq_self,
+          Real.map_volume_mul_left hε_pos.ne', Measure.map_smul, hadd_mp,
           abs_of_pos (inv_pos.mpr hε_pos)]
       have heq := integral_map_equiv (μ := (volume : Measure ℝ)) e'
         (fun b => K_R.indicator z b)
       rw [hmp, integral_smul_measure, ENNReal.toReal_ofReal (inv_pos.mpr hε_pos).le,
         smul_eq_mul] at heq
       have hmul := congrArg (ε * ·) heq
-      dsimp only at hmul
+      change ε * (ε⁻¹ * _) = ε * _ at hmul
       rw [← mul_assoc, mul_inv_cancel₀ hε_pos.ne', one_mul] at hmul
       rw [hmul, ← integral_const_mul]
       refine integral_congr_ae (Eventually.of_forall fun u => ?_)
-      have heu : e' u = xiStar + ε * u := by simp [e', add_comm]
-      rw [heu]
+      change ε * K_R.indicator z (xiStar + ε * u) = (Icc (-R) R).indicator (fun u => |spinFProfile c Φ u|) u
       have hmem : xiStar + ε * u ∈ K_R ↔ u ∈ Icc (-R) R := by
         dsimp [K_R]
         simp only [Set.mem_Icc]
@@ -600,7 +601,7 @@ theorem spinS4_3_4 : SpinS4_3_4 := by
     tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 2 / 3)
   have hδ_tend : Tendsto (fun n : ℝ => n ^ (-(2 / 3 : ℝ)) * Real.log n) atTop (𝓝 0) := by
     have ho : (Real.log) =o[atTop] (fun x : ℝ => x ^ (2 / 3 : ℝ)) :=
-      Real.isLittleO_log_rpow_atTop (by norm_num : (0 : ℝ) < 2 / 3)
+      isLittleO_log_rpow_atTop (by norm_num : (0 : ℝ) < 2 / 3)
     have ht := ho.tendsto_div_nhds_zero
     refine ht.congr' ?_
     filter_upwards [eventually_gt_atTop (0 : ℝ)] with x hx
@@ -620,21 +621,26 @@ theorem spinS4_3_4 : SpinS4_3_4 := by
           max (-spinG a Φ p.1 p.2) 0 * spinWc a p.1 * spinWc a p.2 ≤
           C_33 * Real.exp (-c_exp * R ^ (3 / 2 : ℝ)) :=
     hn_top.eventually hs33_ev
-  have hk_εR : ∀ᶠ k in atTop, (cSeq k - 1) ^ (-(2 / 3 : ℝ)) * R ≤ xiStar / 2 :=
-    (hrpow_tend.const_mul R |>.comp hn_top).eventually
-      (by simpa [mul_comm] using le_mem_nhds (by linarith : (0 : ℝ) < xiStar / 2))
+  have hk_εR : ∀ᶠ k in atTop, (cSeq k - 1) ^ (-(2 / 3 : ℝ)) * R ≤ xiStar / 2 := by
+    have h0 : Tendsto (fun k => (cSeq k - 1) ^ (-(2 / 3 : ℝ)) * R) atTop (𝓝 0) := by
+      simpa [Function.comp_def] using (hrpow_tend.mul_const R).comp hn_top
+    exact (h0.eventually (gt_mem_nhds (by positivity : (0 : ℝ) < xiStar / 2))).mono
+      fun _ h => h.le
   have hk_comb : ∀ᶠ k in atTop,
       (cSeq k - 1)⁻¹ + C_24 / (cSeq k - 1) +
         3 * C_24 * ((cSeq k - 1) ^ (-(2 / 3 : ℝ)) * Real.log (cSeq k - 1)) < η / 3 :=
     (hcomb_tend.comp hn_top).eventually (gt_mem_nhds (by linarith))
-  have hk_loc : ∀ᶠ k in atTop, 4 * ∫ u in Icc (-R) R, |spinFProfile (cSeq k) (ΦSeq k) u| < η / 3 :=
-    (hlocR.const_mul 4).eventually (by simpa using gt_mem_nhds (by linarith : (0 : ℝ) < η / 3))
+  have hk_loc : ∀ᶠ k in atTop, 4 * ∫ u in Icc (-R) R, |spinFProfile (cSeq k) (ΦSeq k) u| < η / 3 := by
+    have h0 : Tendsto (fun k => 4 * ∫ u in Icc (-R) R, |spinFProfile (cSeq k) (ΦSeq k) u|)
+        atTop (𝓝 0) := by
+      simpa using hlocR.const_mul 4
+    exact h0.eventually (gt_mem_nhds (by linarith))
   have h_all : ∀ᶠ k in atTop, c₀ ≤ cSeq k ∧ spinCalNorm (cSeq k) (ΦSeq k) < η := by
     filter_upwards [hk_c0, hk_n1, hk_s33, hk_εR, hk_comb, hk_loc] with k hc0 hn1 hs33_k hεR_k hcomb_k hloc_k
     have hc40 : 40 ≤ cSeq k := le_trans hc₀40 hc0
     obtain ⟨hx1_abs, hslack_k⟩ := hseq k
-    have hx1_ub : xSeq k ≤ xiStar + C_x * (cSeq k - 1) ^ (-(2 / 3 : ℝ)) :=
-      (abs_le.mp hx1_abs).2
+    have hx1_ub : xSeq k ≤ xiStar + C_x * (cSeq k - 1) ^ (-(2 / 3 : ℝ)) := by
+      linarith [(abs_le.mp hx1_abs).2]
     have hs24_k := hs24_all hc0 hx1_ub hslack_k
     have hs33_k' := hs33_k hx1_abs (by simpa [sub_add_cancel] using hslack_k)
     have hbd := spinCalNorm_le_of_window hc40 hC24_pos hCp_pos hC33_pos hc_exp hR₀ hRCx hCx
