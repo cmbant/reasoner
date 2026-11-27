@@ -528,6 +528,7 @@ public import FormalResearch.SignUncertainty.FctSplittingResidue
 public import FormalResearch.SignUncertainty.FctSplittingCauchy
 public import FormalResearch.SignUncertainty.FctSplittingWarp
 public import FormalResearch.SignUncertainty.FctSplittingConj
+public import FormalResearch.SignUncertainty.FctSplittingCont
 public import FormalResearch.SignUncertainty.FctSplittingRest
 public import FormalResearch.SignUncertainty.FctMainHankel
 public import FormalResearch.SignUncertainty.FctSymCal

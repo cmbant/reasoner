@@ -15,9 +15,9 @@ Paper I (`constant_terms_five.tex`), proof of `fct:splitting` (2) (`(fct:Fpm-def
 Everything here takes as hypotheses only the data of `D_{τ₁}` (`CompData`-type: holomorphic on `S`, continuous and bounded on `S̄`), `c > 0`, and a uniform bound
 `‖F(σ+iy)‖ ≤ B` on the contour lines (the consequence of the descent bound `(fct:F-38-bnd)` = `FctDescentStmt`, see `FctSplittingWarp`).
 
-* `fctKsp_div_le_unif`: the kernel bound `|K_sp(t,ζ)/(t-ζ)| ≤ K (1+|y|)⁻²` on `Re t = σ`, uniform for `ζ` in a set with `|ζ| ≤ R`, `|ζ+1| ≥ m`, `|Re ζ - σ| ≥ δ`.
+* (`fctKsp_div_le_unif`, in `FctSplittingDescent`): the kernel bound `|K_sp(t,ζ)/(t-ζ)| ≤ K (1+|y|)⁻²` on `Re t = σ`, uniform for `ζ` in a set with `|ζ| ≤ R`, `|ζ+1| ≥ m`, `|Re ζ - σ| ≥ δ`.
 * `fctKsp_div_le_horiz`: on horizontal segments `Re t ∈ [3/8, 7/16]`, `|Im t| ≥ Y₀`: `|K_sp/(t-ζ)| ≤ K/|y|²`.
-* `fctCauchy_differentiableOn`: `ζ ↦ fctCauchy σ ζ` is holomorphic on any open set of `ζ` with `Re ζ > 0`, `Re ζ ≠ σ`.
+* `fctCauchy_differentiableOn`: `ζ ↦ fctCauchy σ ζ` is holomorphic on any open set of `ζ` with `Re ζ > -1`, `Re ζ ≠ σ`.
 * `fctCauchy_shift`: **`F_-^{7/16}(ζ) - F_+^{3/8}(ζ) = F(ζ)` for `3/8 < Re ζ < 7/16`** (rectangle residue `rectInt_residue`, horizontal sides `→ 0`), and
   `fctCauchy_shift_left`: the two contours agree for `0 < Re ζ < 3/8` (Cauchy's theorem).
 
@@ -30,62 +30,6 @@ open scoped Real
 open FormalResearch.CohnElkies FormalResearch.SignUncertainty.CtOuter
 
 namespace FormalResearch.SignUncertainty
-
-/-- **Uniform kernel bound** on `Re t = σ`, `3/8 ≤ σ ≤ 7/16`: `|K_sp(t,ζ)/(t-ζ)| ≤ K/(1+|y|)²`, with `K` depending only on `σ` and on bounds `|ζ| ≤ R`,
-`|ζ+1| ≥ m > 0`, `|Re ζ - σ| ≥ δ > 0`. -/
-lemma fctKsp_div_le_unif {σ : ℝ} (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16) {R m δ : ℝ} (hR : 0 ≤ R) (hm : 0 < m) (hδ : 0 < δ) :
-    ∃ K : ℝ, 0 ≤ K ∧ ∀ ζ : ℂ, ‖ζ‖ ≤ R → m ≤ ‖ζ + 1‖ → δ ≤ |ζ.re - σ| → ∀ y : ℝ,
-      ‖fctKsp ((σ : ℂ) + y * Complex.I) ζ / ((σ : ℂ) + y * Complex.I - ζ)‖ ≤ K / (1 + |y|) ^ 2 := by
-  set κ0 : ℝ := δ / (2 + 2 * R) with hκ0
-  have hκ0pos : 0 < κ0 := by positivity
-  refine ⟨R ^ 3 * (m⁻¹) ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ0, by positivity, fun ζ hζR hζm hζδ y => ?_⟩
-  set t : ℂ := (σ : ℂ) + y * Complex.I with ht
-  have hy : 0 < 1 + |y| := by positivity
-  have hd : ζ.re ≠ σ := fun h => by rw [h, sub_self, abs_zero] at hζδ; linarith
-  set κ : ℝ := |ζ.re - σ| / (1 + |ζ.im| + |ζ.re - σ|) with hκ
-  have hκκ0 : κ0 ≤ κ := by
-    have himR : |ζ.im| ≤ R := (Complex.abs_im_le_norm ζ).trans hζR
-    have hreR : |ζ.re - σ| ≤ R + 1 := by
-      have : |ζ.re| ≤ R := (Complex.abs_re_le_norm ζ).trans hζR
-      calc |ζ.re - σ| ≤ |ζ.re| + |σ| := abs_sub _ _
-        _ ≤ R + 1 := by rw [abs_of_nonneg (by linarith : 0 ≤ σ)]; linarith
-    rw [hκ0, hκ, div_le_div_iff₀ (by positivity) (by positivity)]
-    nlinarith [abs_nonneg ζ.im, abs_nonneg (ζ.re - σ)]
-  have hκpos : 0 < κ := hκ0pos.trans_le hκκ0
-  have h1 : 3 / 16 * (1 + |y|) ≤ ‖t‖ := norm_line_ge hσ y
-  have h2 : ‖t + 1‖ ≤ 2 * (1 + |y|) := norm_line_add_one_le (σ := σ) (by linarith) (by linarith) y
-  have h3 : κ * (1 + |y|) ≤ ‖t - ζ‖ := norm_line_sub_ge (σ := σ) hd y
-  have htpos : 0 < ‖t‖ := lt_of_lt_of_le (by positivity) h1
-  have hts : 0 < ‖t - ζ‖ := lt_of_lt_of_le (by positivity) h3
-  set a := ‖ζ + 1‖⁻¹ with ha
-  have ha0 : 0 ≤ a := by positivity
-  have haR : a ≤ m⁻¹ := by rw [ha]; exact inv_anti₀ hm hζm
-  have key : ‖fctKsp t ζ / (t - ζ)‖ = ‖ζ‖ ^ 3 / ‖t‖ ^ 3 * (‖t + 1‖ * a) ^ 2 / ‖t - ζ‖ := by
-    simp only [fctKsp, norm_div, norm_pow, norm_mul, ha]; ring
-  rw [key]
-  have hnum : ‖ζ‖ ^ 3 / ‖t‖ ^ 3 * (‖t + 1‖ * a) ^ 2 ≤
-      ‖ζ‖ ^ 3 * a ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / (1 + |y|) := by
-    have e1 : ‖t‖ ^ 3 ≥ (3 / 16) ^ 3 * (1 + |y|) ^ 3 := by
-      rw [← mul_pow]; exact pow_le_pow_left₀ (by positivity) h1 3
-    have e2 : ‖t + 1‖ ^ 2 ≤ 2 ^ 2 * (1 + |y|) ^ 2 := by
-      rw [← mul_pow]; exact pow_le_pow_left₀ (norm_nonneg _) h2 2
-    rw [mul_pow, div_mul_eq_mul_div, div_le_div_iff₀ (by positivity) hy]
-    have : ‖ζ‖ ^ 3 * (‖t + 1‖ ^ 2 * a ^ 2) * (1 + |y|) ≤
-        ‖ζ‖ ^ 3 * (2 ^ 2 * (1 + |y|) ^ 2 * a ^ 2) * (1 + |y|) := by gcongr
-    refine this.trans ?_
-    have : ‖ζ‖ ^ 3 * a ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) * ‖t‖ ^ 3 ≥
-        ‖ζ‖ ^ 3 * a ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) * ((3 / 16) ^ 3 * (1 + |y|) ^ 3) := by gcongr
-    refine le_trans (le_of_eq ?_) this
-    field_simp
-  calc ‖ζ‖ ^ 3 / ‖t‖ ^ 3 * (‖t + 1‖ * a) ^ 2 / ‖t - ζ‖
-      ≤ (‖ζ‖ ^ 3 * a ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / (1 + |y|)) / (κ * (1 + |y|)) := by
-        apply div_le_div₀ (by positivity) hnum (by positivity) h3
-    _ = ‖ζ‖ ^ 3 * a ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ / (1 + |y|) ^ 2 := by
-        field_simp
-    _ ≤ R ^ 3 * (m⁻¹) ^ 2 * (2 ^ 2 / (3 / 16) ^ 3) / κ0 / (1 + |y|) ^ 2 := by
-        have hn3 : ‖ζ‖ ^ 3 ≤ R ^ 3 := pow_le_pow_left₀ (norm_nonneg _) hζR 3
-        have ha2 : a ^ 2 ≤ (m⁻¹) ^ 2 := pow_le_pow_left₀ ha0 haR 2
-        gcongr
 
 /-- **Horizontal kernel bound**: for `Re t = x ∈ [3/8, 7/16]` and `|Im t| = |y| ≥ Y₀`, `|K_sp(t,ζ)/(t-ζ)| ≤ K/y²`. -/
 lemma fctKsp_div_le_horiz (ζ : ℂ) :
@@ -127,22 +71,12 @@ lemma fctKsp_div_le_horiz (ζ : ℂ) :
         apply div_le_div₀ (by positivity) hnum (by positivity) h3
     _ = 18 * ‖ζ‖ ^ 3 * a ^ 2 / y ^ 2 := by rw [hy2]; field_simp; ring
 
-/-- **Measurability of the Cauchy integrand in `y`** (`0 < σ < 1`, any `ζ`). -/
-lemma fctCauchyIntegrand_measurable {K4 ε c L1 α σ : ℝ} (hc : 0 < c)
-    (hDc : ContinuousOn (fctDcompAt K4 c α) closedStrip) (hσ0 : 0 < σ) (hσ1 : σ < 1) (ζ : ℂ) :
-    Measurable (fctCauchyIntegrand K4 ε c L1 α σ ζ) := by
-  have hFm := fctFint_line_measurable (ε := ε) (L1 := L1) (α := α) hc hDc hσ0 hσ1
-  unfold fctCauchyIntegrand fctKsp
-  exact ((((by fun_prop : Measurable fun y : ℝ => (ζ / ((σ : ℂ) + y * Complex.I)) ^ 3).mul
-    (by fun_prop : Measurable fun y : ℝ => (((σ : ℂ) + y * Complex.I + 1) / (ζ + 1)) ^ 2)).mul hFm).div
-    (by fun_prop : Measurable fun y : ℝ => (σ : ℂ) + y * Complex.I - ζ))
-
-/-- **Holomorphy of the Cauchy integral `ζ ↦ fctCauchy σ ζ`** in `ζ`, on any open set with `Re ζ > 0` and `Re ζ ≠ σ` (`3/8 ≤ σ ≤ 7/16`),
+/-- **Holomorphy of the Cauchy integral `ζ ↦ fctCauchy σ ζ`** in `ζ`, on any open set with `Re ζ > -1` and `Re ζ ≠ σ` (`3/8 ≤ σ ≤ 7/16`),
 when `‖F(σ+iy)‖ ≤ B` on the contour (`(fct:Fpm-def)`: `F_±` holomorphic).  Parameter integral with the dominating function `K B (1+|y|)⁻²`. -/
 theorem fctCauchy_differentiableOn {K4 ε c L1 α σ B : ℝ} (hc : 0 < c)
     (hDc : ContinuousOn (fctDcompAt K4 c α) closedStrip) (hσ : 3 / 8 ≤ σ) (hσ' : σ ≤ 7 / 16)
     (hF : ∀ y : ℝ, ‖fctFint K4 ε c L1 α ((σ : ℂ) + y * Complex.I)‖ ≤ B)
-    {U : Set ℂ} (hU : IsOpen U) (hUσ : ∀ w ∈ U, 0 < w.re ∧ w.re ≠ σ) :
+    {U : Set ℂ} (hU : IsOpen U) (hUσ : ∀ w ∈ U, -1 < w.re ∧ w.re ≠ σ) :
     DifferentiableOn ℂ (fctCauchy K4 ε c L1 α σ) U := by
   have hB : 0 ≤ B := (norm_nonneg _).trans (hF 0)
   unfold fctCauchy
@@ -172,22 +106,22 @@ theorem fctCauchy_differentiableOn {K4 ε c L1 α σ B : ℝ} (hc : 0 < c)
     obtain ⟨hre0, hne0⟩ := hUσ w0 hw0
     set δ0 : ℝ := |w0.re - σ| with hδ0
     have hδ0pos : 0 < δ0 := abs_pos.mpr (sub_ne_zero.mpr hne0)
-    set r : ℝ := min (min 1 (δ0 / 2)) (w0.re / 2) with hr
-    have hrpos : 0 < r := lt_min (lt_min one_pos (by positivity)) (by positivity)
-    obtain ⟨K, hK0, hK⟩ := fctKsp_div_le_unif hσ hσ' (R := ‖w0‖ + 1) (m := 1) (δ := δ0 / 2) (by positivity) one_pos (by positivity)
+    set r : ℝ := min (min 1 (δ0 / 2)) ((1 + w0.re) / 2) with hr
+    have hrpos : 0 < r := lt_min (lt_min one_pos (by positivity)) (by linarith)
+    obtain ⟨K, hK0, hK⟩ := fctKsp_div_le_unif hσ hσ' (R := ‖w0‖ + 1) (m := (1 + w0.re) / 2) (δ := δ0 / 2) (by positivity) (by linarith) (by positivity)
     refine ⟨r, hrpos, fun y => K / (1 + |y|) ^ 2 * B, (integrable_inv_one_add_abs_sq.const_mul (K * B)).congr
       (Filter.Eventually.of_forall fun y => by ring), Filter.Eventually.of_forall fun y w hw => ?_⟩
     have hwd : ‖w - w0‖ < r := by simpa [Metric.mem_ball, dist_eq_norm] using hw
     have hr1 : r ≤ 1 := (min_le_left _ _).trans (min_le_left _ _)
     have hr2 : r ≤ δ0 / 2 := (min_le_left _ _).trans (min_le_right _ _)
-    have hr3 : r ≤ w0.re / 2 := min_le_right _ _
+    have hr3 : r ≤ (1 + w0.re) / 2 := min_le_right _ _
     have hwre : |w.re - w0.re| ≤ ‖w - w0‖ := by simpa using Complex.abs_re_le_norm (w - w0)
     have h1 : ‖w‖ ≤ ‖w0‖ + 1 := by
       calc ‖w‖ = ‖w0 + (w - w0)‖ := by ring_nf
         _ ≤ ‖w0‖ + ‖w - w0‖ := norm_add_le _ _
         _ ≤ _ := by linarith
-    have h2 : 1 ≤ ‖w + 1‖ := by
-      have hwre' : w0.re / 2 ≤ w.re := by
+    have h2 : (1 + w0.re) / 2 ≤ ‖w + 1‖ := by
+      have hwre' : (w0.re - 1) / 2 ≤ w.re := by
         have := (abs_le.mp (hwre.trans hwd.le)).1; linarith
       have := Complex.re_le_norm (w + 1)
       simp only [Complex.add_re, Complex.one_re] at this
