@@ -118,7 +118,7 @@ private lemma one_sub_imag_rpow_neg_half_taylor (t : ℝ) :
       have := ((Complex.ofRealCLM.hasDerivAt (x := u)).mul_const Complex.I).const_sub (1 : ℂ)
       exact this.congr_deriv (by simp)
     have hcp : HasDerivAt (fun w : ℂ => w ^ (-(1 / 2 : ℂ)))
-        ((-(1 / 2 : ℂ)) * (1 - (u : ℂ) * Complex.I) ^ (-(1 / 2 : ℂ) - 1)) (1 - (u : ℂ) * Complex.I) :=
+        ((-(1 / 2 : ℂ)) * (1 - (u : ℂ) * Complex.I) ^ (-(1 / 2 : ℂ) - 1)) (1 - (u : ℂ) * Complex.I) := by
       simpa using ((hasDerivAt_id (1 - (u : ℂ) * Complex.I)).cpow_const (c := -(1 / 2 : ℂ)) (hslit u))
     refine (hcp.comp u hlin).congr_deriv ?_
     dsimp [φ₁]; rw [show (-(1 / 2 : ℂ) - 1 : ℂ) = -(3 / 2 : ℂ) by norm_num]; ring
@@ -127,7 +127,7 @@ private lemma one_sub_imag_rpow_neg_half_taylor (t : ℝ) :
       have := ((Complex.ofRealCLM.hasDerivAt (x := u)).mul_const Complex.I).const_sub (1 : ℂ)
       exact this.congr_deriv (by simp)
     have hcp : HasDerivAt (fun w : ℂ => w ^ (-(3 / 2 : ℂ)))
-        ((-(3 / 2 : ℂ)) * (1 - (u : ℂ) * Complex.I) ^ (-(3 / 2 : ℂ) - 1)) (1 - (u : ℂ) * Complex.I) :=
+        ((-(3 / 2 : ℂ)) * (1 - (u : ℂ) * Complex.I) ^ (-(3 / 2 : ℂ) - 1)) (1 - (u : ℂ) * Complex.I) := by
       simpa using ((hasDerivAt_id (1 - (u : ℂ) * Complex.I)).cpow_const (c := -(3 / 2 : ℂ)) (hslit u))
     refine ((hcp.comp u hlin).const_mul (Complex.I / 2)).congr_deriv ?_
     dsimp [φ₂]; rw [show (-(3 / 2 : ℂ) - 1 : ℂ) = -(5 / 2 : ℂ) by norm_num]
@@ -155,8 +155,8 @@ private lemma one_sub_imag_rpow_neg_half_taylor (t : ℝ) :
       (hφ₂_cont.intervalIntegrable 0 u)
     rw [hφ10] at hftc
     rw [← hftc]
-    exact (norm_intervalIntegral_le_abs_pow_loc (n := 0) (by norm_num) hφ₂_cont u
-      fun v _ => (hφ2_bd v).trans_eq (by simp)).trans_eq (by norm_num)
+    exact (norm_intervalIntegral_le_abs_pow_loc (C := (3 / 4 : ℝ)) (n := 0) (by norm_num) hφ₂_cont u
+      fun v _ => (hφ2_bd v).trans_eq (by simp)).trans_eq (by simp)
   have hcont1 : Continuous (fun v : ℝ => φ₁ v - Complex.I / 2) := hφ₁_cont.sub continuous_const
   have hd_sub : ∀ v : ℝ, HasDerivAt (fun u : ℝ => φ u - (1 + (Complex.I / 2) * (u : ℂ)))
       (φ₁ v - Complex.I / 2) v := fun v =>
@@ -167,9 +167,9 @@ private lemma one_sub_imag_rpow_neg_half_taylor (t : ℝ) :
   have h0 : φ 0 - (1 + (Complex.I / 2) * ((0 : ℝ) : ℂ)) = 0 := by simp [φ]
   rw [h0, sub_zero] at hftc
   rw [← hftc]
-  refine (norm_intervalIntegral_le_abs_pow_loc (n := 1) (by norm_num) hcont1 t
+  refine (norm_intervalIntegral_le_abs_pow_loc (C := (3 / 4 : ℝ)) (n := 1) (by norm_num) hcont1 t
     fun v _ => (hbd1 v).trans_eq (by simp)).trans ?_
-  rw [sq_abs]; norm_num; nlinarith only [sq_nonneg t]
+  simp only [Nat.cast_one, one_add_one_eq_two, sq_abs]; norm_num; nlinarith only [sq_nonneg t]
 
 /-! ### Third derivative of `stripG` and third-order phase remainder -/
 
@@ -254,15 +254,15 @@ private lemma deriv3_stripG_vert_norm_le {σ t : ℝ} (hσ0 : 0 < σ) (hσ1 : σ
         _ ≤ (1 - w.re) ^ 2 := pow_le_pow_left₀ h34_pos hs.2.2.1 2
     calc 16 / (1 - w.re) ^ 2 ≤ 16 / ((9 / 16 : ℝ) * (1 - σ) ^ 2) :=
           div_le_div_of_nonneg_left (by norm_num) (by positivity) hsq
-      _ = (256 / 9 : ℝ) / (1 - σ) ^ 2 := by field_simp [(by positivity : (1 - σ) ^ 2 ≠ 0)]; norm_num; ring
+      _ = (256 / 9 : ℝ) / (1 - σ) ^ 2 := by field_simp [(by positivity : (1 - σ) ^ 2 ≠ 0)]; norm_num
   have hcauchy := Complex.norm_iteratedDeriv_le_of_forall_mem_sphere_norm_le (n := 1) hr_pos
     ⟨hdiff_on, by simpa only [closure_ball z hr_pos.ne'] using hcont_on⟩ hsphere
   have h3_eq : deriv^[3] stripG z = iteratedDeriv 1 (deriv^[2] stripG) z := by
-    rw [iteratedDeriv_one, Function.iterate_succ_apply']
+    rw [iteratedDeriv_one, congrFun (Function.iterate_succ_apply' deriv 2 stripG) z]
   rw [h3_eq]
   refine hcauchy.trans_eq ?_
   rw [Nat.factorial_one, Nat.cast_one, one_mul, pow_one]
-  dsimp [r]; ring
+  dsimp [r, d]; field_simp [h1s_pos.ne', (lt_min hσ0 h1s_pos).ne']; norm_num
 
 private lemma hasDerivAt_mellinPhi_vert_loc {σ ξ : ℝ} (hσ0 : 0 < σ) (hσ1 : σ < 1) (τ : ℝ) :
     HasDerivAt (fun u : ℝ => mellinPhi ((σ : ℂ) + (u : ℂ) * Complex.I) ξ - mellinPhi (σ : ℂ) ξ)
@@ -359,10 +359,10 @@ private lemma c_r_ph_second_order {c ξ σ_star τ : ℝ}
     have hcomp := (hd_s3.comp u hlin).const_mul (-Complex.I)
     refine hcomp.congr_deriv ?_
     dsimp [φ₄]
-    rw [congrFun (Function.iterate_succ_apply' deriv 2 stripG) z]
-    calc -Complex.I * (deriv (deriv^[2] stripG) z * Complex.I)
-        = -(Complex.I * Complex.I) * deriv (deriv^[2] stripG) z := by ring
-      _ = deriv (deriv^[2] stripG) z := by rw [Complex.I_mul_I]; ring
+    change -Complex.I * (deriv (deriv (deriv stripG)) z * Complex.I) = deriv (deriv (deriv stripG)) z
+    calc -Complex.I * (deriv (deriv (deriv stripG)) z * Complex.I)
+        = -(Complex.I * Complex.I) * deriv (deriv (deriv stripG)) z := by ring
+      _ = deriv (deriv (deriv stripG)) z := by rw [Complex.I_mul_I]; ring
   have hφ₄_cont : Continuous φ₄ := continuous_iff_continuousAt.mpr fun u => by
     have hd_on : DifferentiableOn ℂ (deriv^[2] stripG) {w : ℂ | 0 < w.re ∧ w.re < 1} := fun w hw =>
       (deriv2_stripG_differentiableAt hw.1 hw.2).differentiableWithinAt
@@ -402,7 +402,7 @@ private lemma c_r_ph_second_order {c ξ σ_star τ : ℝ}
   have hcont2 : Continuous (fun v : ℝ => φ₂ v - φ₂ 0 - φ₃ 0 * (v : ℂ)) :=
     (hφ₂_cont.sub continuous_const).sub (continuous_const.mul Complex.continuous_ofReal)
   have hφ1_0 : φ₁ 0 = 0 := by
-    dsimp [φ₁]; simp only [Complex.ofReal_zero, zero_mul, add_zero]
+    dsimp [φ₁]; simp only [zero_mul, add_zero]
     rw [stripG_ofReal hσ0 hσ1, hσ_eq, show (Real.pi : ℂ) ^ 2 * (ξ : ℂ) = ((Real.pi ^ 2 * ξ : ℝ) : ℂ) by push_cast; ring,
       ← Complex.ofReal_log (by positivity : 0 ≤ π ^ 2 * ξ)]; push_cast; ring
   have hbd1 : ∀ u : ℝ, |u| ≤ d / 8 →
@@ -437,7 +437,7 @@ private lemma c_r_ph_second_order {c ξ σ_star τ : ℝ}
   have hφ₂_0 : φ₂ 0 = -((g' : ℝ) : ℂ) := by
     dsimp [φ₂]
     have hdg := hasDerivAt_stripG (by simpa using hσ0 : 0 < (σ_star : ℂ).re) (by simpa using hσ1)
-    simp only [Complex.ofReal_zero, zero_mul, add_zero, hdg.deriv]
+    simp only [zero_mul, add_zero, hdg.deriv]
     dsimp [g', stripGDerivReal]; push_cast; ring
   have hcτ_eq : (c : ℂ) * (φ₂ 0 / 2 * (τ : ℂ) ^ 2) = -((s ^ 2 / 2 : ℝ) : ℂ) := by
     rw [hφ₂_0]
@@ -450,13 +450,14 @@ private lemma c_r_ph_second_order {c ξ σ_star τ : ℝ}
       -(Complex.I * (c : ℂ) * deriv^[2] stripG (σ_star : ℂ) * ((τ_sd ^ 3 : ℝ) : ℂ) / 6) *
         ((s ^ 3 : ℝ) : ℂ) := by
     dsimp [φ₃, s]
-    simp only [Complex.ofReal_zero, zero_mul, add_zero]
+    simp only [zero_mul, add_zero]
     push_cast
     field_simp [hτsd_pos.ne']
+  have hεL_eq : ε_L = τ_sd / d := rfl
   have hbound_coeff : c * (B₃ / 24) * τ_sd ^ 4 ≤ 13 * ε_L ^ 2 := by
     have hcτ4 : c * B₃ * τ_sd ^ 4 = ((1024 / 9 : ℝ) * (d / (g' * (1 - σ_star) ^ 2))) * ε_L ^ 2 := by
       have hid1 : c * τ_sd ^ 2 = g'⁻¹ := by rw [hτsd_sq]; field_simp [hc_pos.ne', hg'_pos.ne']
-      have hid2 : τ_sd ^ 2 = d ^ 2 * ε_L ^ 2 := by dsimp [ε_L, saddleEpsL]; rw [div_pow]; field_simp [hd_pos.ne']
+      have hid2 : τ_sd ^ 2 = d ^ 2 * ε_L ^ 2 := by rw [hεL_eq, div_pow]; field_simp [hd_pos.ne']
       dsimp [B₃]
       calc c * ((1024 / 9 : ℝ) / ((1 - σ_star) ^ 2 * d)) * τ_sd ^ 4
           = (1024 / 9 : ℝ) * (c * τ_sd ^ 2) * τ_sd ^ 2 / ((1 - σ_star) ^ 2 * d) := by ring
@@ -471,7 +472,7 @@ private lemma c_r_ph_second_order {c ξ σ_star τ : ℝ}
         field_simp [h1s_pos.ne']
       have h1 : d / (g' * (1 - σ_star) ^ 2) < (4 / 3 : ℝ) * (d / (σ_star * (1 - σ_star))) := by
         refine (div_lt_div_of_pos_left hd_pos (by positivity) hden).trans_eq ?_
-        field_simp [hσ0.ne', h1s_pos.ne']; ring
+        field_simp [hσ0.ne', h1s_pos.ne']
       have h2 : d / (σ_star * (1 - σ_star)) ≤ 2 := by
         rcases le_or_gt σ_star (1 / 2) with hh | hh
         · rw [show d = σ_star from min_eq_left (by linarith only [hh]),
@@ -516,9 +517,9 @@ private lemma c_r_ph_second_order {c ξ σ_star τ : ℝ}
     have hg'_lo : (3 / 4 : ℝ) * σ_star / (1 - σ_star) < g' := (stripG_deriv_bounds hσ0 hσ1).1
     have hrat_sq : (((8 / 3 : ℝ) * c * τ_sd ^ 3 / (1 - σ_star) ^ 2) / ε_L) ^ 2 =
         (64 / 9 : ℝ) * d ^ 2 / (g' ^ 2 * (1 - σ_star) ^ 4) := by
-      dsimp [ε_L, saddleEpsL]
-      rw [div_pow, div_pow, mul_pow, mul_pow, div_pow, show (τ_sd ^ 3) ^ 2 = (τ_sd ^ 2) ^ 3 by ring, hτsd_sq]
-      field_simp [hc_pos.ne', hg'_pos.ne', hd_pos.ne', h1s_pos.ne']
+      rw [hεL_eq]; simp_rw [div_pow, mul_pow]
+      rw [show (τ_sd ^ 3) ^ 2 = (τ_sd ^ 2) ^ 3 by ring]; simp_rw [hτsd_sq]
+      field_simp [hc_pos.ne', hg'_pos.ne', hd_pos.ne', h1s_pos.ne']; norm_num
     have hm_sq : d ^ 2 / (σ_star ^ 2 * (1 - σ_star) ^ 2) ≤ 4 := by
       rcases le_or_gt σ_star (1 / 2) with hh | hh
       · rw [show d = σ_star from min_eq_left (by linarith only [hh])]
@@ -537,7 +538,7 @@ private lemma c_r_ph_second_order {c ξ σ_star τ : ℝ}
       have h1 : (3 / 4 : ℝ) * σ_star * (1 - σ_star) < g' * (1 - σ_star) ^ 2 := by
         have := mul_lt_mul_of_pos_right hg'_lo (pow_pos h1s_pos 2)
         refine this.trans_eq' ?_; field_simp [h1s_pos.ne']
-      nlinarith only [h1, hσ0, h1s_pos, hg'_pos]
+      exact (pow_lt_pow_left₀ h1 (by positivity) (by decide : 2 ≠ 0)).trans_eq' (by ring) |>.trans_eq (by ring)
     have hsq17 : (((8 / 3 : ℝ) * c * τ_sd ^ 3 / (1 - σ_star) ^ 2) / ε_L) ^ 2 < 17 ^ 2 := by
       rw [hrat_sq]
       calc (64 / 9 : ℝ) * d ^ 2 / (g' ^ 2 * (1 - σ_star) ^ 4)
@@ -552,7 +553,7 @@ private lemma c_r_ph_second_order {c ξ σ_star τ : ℝ}
   refine ⟨h1st, ?_⟩
   have hes_le : ε_L * |s| ≤ 1 / 8 := by
     have : |τ| / d = ε_L * |s| := by
-      dsimp [ε_L, saddleEpsL, s]; rw [abs_div, abs_of_pos hτsd_pos]; field_simp [hd_pos.ne', hτsd_pos.ne']
+      rw [hεL_eq]; dsimp [s]; rw [abs_div, abs_of_pos hτsd_pos]; field_simp [hd_pos.ne', hτsd_pos.ne']
     have hd8 : (d / 8) / d = 1 / 8 := by field_simp [hd_pos.ne']
     linarith only [this, div_le_div_of_nonneg_right hτ hd_pos.le, hd8]
   let α₃ := -(Complex.I * (c : ℂ) * deriv^[2] stripG (σ_star : ℂ) * ((τ_sd ^ 3 : ℝ) : ℂ) / 6)
@@ -570,9 +571,9 @@ private lemma c_r_ph_second_order {c ξ σ_star τ : ℝ}
       have hg'_lo : (3 / 4 : ℝ) * σ_star / (1 - σ_star) < g' := (stripG_deriv_bounds hσ0 hσ1).1
       have hrat_sq : (((8 / 3 : ℝ) * c * τ_sd ^ 3 / (1 - σ_star) ^ 2) / ε_L) ^ 2 =
           (64 / 9 : ℝ) * d ^ 2 / (g' ^ 2 * (1 - σ_star) ^ 4) := by
-        dsimp [ε_L, saddleEpsL]
-        rw [div_pow, div_pow, mul_pow, mul_pow, div_pow, show (τ_sd ^ 3) ^ 2 = (τ_sd ^ 2) ^ 3 by ring, hτsd_sq]
-        field_simp [hc_pos.ne', hg'_pos.ne', hd_pos.ne', h1s_pos.ne']
+        rw [hεL_eq]; simp_rw [div_pow, mul_pow]
+        rw [show (τ_sd ^ 3) ^ 2 = (τ_sd ^ 2) ^ 3 by ring]; simp_rw [hτsd_sq]
+        field_simp [hc_pos.ne', hg'_pos.ne', hd_pos.ne', h1s_pos.ne']; norm_num
       have hm_sq : d ^ 2 / (σ_star ^ 2 * (1 - σ_star) ^ 2) ≤ 4 := by
         rcases le_or_gt σ_star (1 / 2) with hh | hh
         · rw [show d = σ_star from min_eq_left (by linarith only [hh])]
@@ -589,7 +590,7 @@ private lemma c_r_ph_second_order {c ξ σ_star τ : ℝ}
         have h1 : (3 / 4 : ℝ) * σ_star * (1 - σ_star) < g' * (1 - σ_star) ^ 2 := by
           have := mul_lt_mul_of_pos_right hg'_lo (pow_pos h1s_pos 2)
           refine this.trans_eq' ?_; field_simp [h1s_pos.ne']
-        nlinarith only [h1, hσ0, h1s_pos, hg'_pos]
+        exact (pow_lt_pow_left₀ h1 (by positivity) (by decide : 2 ≠ 0)).trans_eq' (by ring) |>.trans_eq (by ring)
       rw [hrat_sq]
       calc (64 / 9 : ℝ) * d ^ 2 / (g' ^ 2 * (1 - σ_star) ^ 4)
           < (64 / 9 : ℝ) * d ^ 2 / ((9 / 16 : ℝ) * (σ_star ^ 2 * (1 - σ_star) ^ 2)) :=
@@ -654,8 +655,9 @@ private lemma V_second_order_taylor {c σ_star τ : ℝ} (hσ0 : 0 < σ_star) (h
         rw [Complex.dist_eq]
         simpa only [z, add_sub_cancel_left, norm_mul, Complex.norm_real, Real.norm_eq_abs,
           Complex.norm_I, mul_one] using hu
-      dsimp [r] at hω
-      linarith only [dist_triangle ω z (σ_star : ℂ), Metric.mem_closedBall.mp hω, hdist_z]
+      calc dist ω (σ_star : ℂ) ≤ dist ω z + dist z (σ_star : ℂ) := dist_triangle _ _ _
+        _ ≤ d / 4 + d / 8 := add_le_add hω hdist_z
+        _ ≤ d / 2 := by linarith only [hd_pos]
     have hc := Complex.norm_iteratedDeriv_le_of_forall_mem_sphere_norm_le (n := 2) hr4_pos
       ⟨amp.hV_holo.mono (Metric.ball_subset_closedBall.trans (hsub_u.trans hsub2)),
         by simpa only [closure_ball _ hr4_pos.ne'] using (amp.hV_holo.continuousOn.mono (hsub_u.trans hsub2))⟩
@@ -721,8 +723,8 @@ private lemma V_second_order_taylor {c σ_star τ : ℝ} (hσ0 : 0 < σ_star) (h
     rcases le_or_gt 0 u with hu | hu
     · have h1 := intervalIntegral.norm_integral_le_integral_norm hu (f := f) (μ := volume)
       have h2 := intervalIntegral.integral_mono_on hu
-        ((hf.mono (by rw [uIcc_of_le hu])).intervalIntegrable_of_Icc hu |>.norm)
-        (hg.intervalIntegrable 0 u) fun v hv => hbd v (uIcc_of_le hu ▸ hv)
+        (((hf.mono (by rw [uIcc_of_le hu])).intervalIntegrable_of_Icc (μ := volume) hu).norm)
+        (hg.intervalIntegrable (μ := volume) 0 u) fun v hv => hbd v (uIcc_of_le hu ▸ hv)
       have h3 : ∫ v in (0 : ℝ)..u, C * |v| ^ n = C * u ^ (n + 1) / ((n : ℝ) + 1) := by
         have h_eq : ∫ v in (0 : ℝ)..u, C * |v| ^ n = ∫ v in (0 : ℝ)..u, C * v ^ n :=
           intervalIntegral.integral_congr fun v hv => by rw [uIcc_of_le hu] at hv; rw [abs_of_nonneg hv.1]
@@ -731,8 +733,8 @@ private lemma V_second_order_taylor {c σ_star τ : ℝ} (hσ0 : 0 < σ_star) (h
     · rw [intervalIntegral.integral_symm, norm_neg]
       have h1 := intervalIntegral.norm_integral_le_integral_norm hu.le (f := f) (μ := volume)
       have h2 := intervalIntegral.integral_mono_on hu.le
-        ((hf.mono (by rw [uIcc_of_ge hu.le])).intervalIntegrable_of_Icc hu.le |>.norm)
-        (hg.intervalIntegrable u 0) fun v hv => hbd v ((uIcc_comm u 0 ▸ uIcc_of_le hu.le) ▸ hv)
+        (((hf.mono (by rw [uIcc_of_ge hu.le])).intervalIntegrable_of_Icc (μ := volume) hu.le).norm)
+        (hg.intervalIntegrable (μ := volume) u 0) fun v hv => hbd v ((uIcc_comm u 0 ▸ uIcc_of_le hu.le) ▸ hv)
       have h3 : ∫ v in u..0, C * |v| ^ n = C * (-u) ^ (n + 1) / ((n : ℝ) + 1) := by
         have h_eq : ∫ v in u..0, C * |v| ^ n = ∫ v in u..0, C * (-v) ^ n :=
           intervalIntegral.integral_congr fun v hv => by rw [uIcc_of_le hu.le] at hv; rw [abs_of_nonpos hv.2]
@@ -746,7 +748,7 @@ private lemma V_second_order_taylor {c σ_star τ : ℝ} (hσ0 : 0 < σ_star) (h
       ((hψ₂_contOn u hu).intervalIntegrable)
     rw [← hftc]
     refine (hnorm_on ψ₂ (32 * amp.D / d ^ 2) 0 u (by positivity) (hψ₂_contOn u hu)
-      fun v hv => ?_).trans_eq (by norm_num; ring)
+      fun v hv => ?_).trans_eq (by norm_num)
     have hv' : |v| ≤ d / 8 := (h_uIcc_abs_gen u v hv).trans hu
     dsimp [ψ₂]
     rw [norm_div, norm_neg, Complex.norm_real, Real.norm_of_nonneg hA_pos.le, div_le_iff₀ hA_pos, pow_zero, mul_one]
@@ -775,11 +777,11 @@ private lemma V_second_order_taylor {c σ_star τ : ℝ} (hσ0 : 0 < σ_star) (h
 private lemma binet_order_three_bound {c σ_star τ : ℝ} (hc_pos : 0 < c) (hσ0 : 0 < σ_star)
     (hσ1 : σ_star < 1) (hτ : |τ| ≤ min σ_star (1 - σ_star) / 8)
     (hεL : saddleEpsL c σ_star ≤ 3 / 1000) :
-    let d := min σ_star (1 - σ_star)
+    let _d := min σ_star (1 - σ_star)
     let g' := stripGDerivReal σ_star
     let τ_sd := (c * g') ^ (-(1 / 2 : ℝ))
     let ε_L := saddleEpsL c σ_star
-    let s := τ / τ_sd
+    let _s := τ / τ_sd
     ‖Complex.exp (FormalResearch.Asymptotics.binetDiff c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) -
         FormalResearch.Asymptotics.binetDiff c (σ_star : ℂ)) - 1‖ ≤ (1 / 5 : ℝ) * ε_L ^ 2 := by
   dsimp only
@@ -806,7 +808,7 @@ private lemma binet_order_three_bound {c σ_star τ : ℝ} (hc_pos : 0 < c) (hσ
           linarith only [hg'_lt, this]
         have hsq : σ_star ^ 2 ≤ 1 / 4 := by nlinarith only [hσ0, hh]
         rw [hd_eq]
-        calc stripGDerivReal σ_star * σ_star ^ 2 / 2 ≤ 2 * (1 / 4) / 2 := by gcongr; exact hg'_pos.le
+        calc stripGDerivReal σ_star * σ_star ^ 2 / 2 ≤ 2 * (1 / 4) / 2 := by gcongr
           _ = 1 / 4 := by ring
           _ ≤ 1 - σ_star := by linarith only [hh]
       · have hd_eq : d = 1 - σ_star := min_eq_right (by linarith only [hh])
@@ -1058,7 +1060,7 @@ private lemma exp_c_r_ph_second_order {c ξ σ_star τ : ℝ}
           mul_le_mul_of_nonneg_right (Real.exp_le_exp.mpr hz_re) (Real.exp_pos _).le
       _ = Real.exp (-s ^ 2 / 4) := hexp_split
 
-private lemma A1_second_order_taylor {u : ℝ} (hu : |u| ≤ 1 / 8) :
+private lemma A1_second_order_taylor {u : ℝ} (_hu : |u| ≤ 1 / 8) :
     let A₁ := (1 - (u : ℂ) * Complex.I) ^ (-(1 / 2 : ℂ))
     ‖A₁ - (1 + (Complex.I / 2 : ℂ) * (u : ℂ))‖ ≤ (3 / 8 : ℝ) * u ^ 2 ∧ ‖A₁‖ ≤ 1 := by
   dsimp only
@@ -1111,7 +1113,7 @@ private lemma A1_second_order_taylor {u : ℝ} (hu : |u| ≤ 1 / 8) :
   have hg1_bd : ∀ v : ℝ, ‖g₁ v - g₁ 0‖ ≤ (3 / 4 : ℝ) * |v| := fun v => by
     have hftc := intervalIntegral.integral_eq_sub_of_hasDerivAt (fun x _ => hg1 x) (hg2_cont.intervalIntegrable 0 v)
     rw [← hftc]
-    exact (norm_intervalIntegral_le_abs_pow_loc (by norm_num) hg2_cont v fun x _ => (hg2_bd x).trans_eq (by simp)).trans_eq (by norm_num)
+    exact (norm_intervalIntegral_le_abs_pow_loc (C := (3 / 4 : ℝ)) (n := 0) (by norm_num) hg2_cont v fun x _ => (hg2_bd x).trans_eq (by simp)).trans_eq (by simp)
   have hg0_bd : ‖g u - (g 0 + g₁ 0 * (u : ℂ))‖ ≤ (3 / 8 : ℝ) * u ^ 2 := by
     have hsub : ∀ v : ℝ, HasDerivAt (fun x : ℝ => g x - (g 0 + g₁ 0 * (x : ℂ))) (g₁ v - g₁ 0) v := fun v =>
       ((hg0 v).fun_sub (((Complex.ofRealCLM.hasDerivAt (x := v)).const_mul (g₁ 0)).const_add (g 0))).congr_deriv (by simp)
@@ -1119,8 +1121,8 @@ private lemma A1_second_order_taylor {u : ℝ} (hu : |u| ≤ 1 / 8) :
       ((hg1_cont.sub continuous_const).intervalIntegrable 0 u)
     simp only [Complex.ofReal_zero, mul_zero, add_zero, sub_self, sub_zero] at hftc
     rw [← hftc]
-    exact (norm_intervalIntegral_le_abs_pow_loc (by norm_num) (hg1_cont.sub continuous_const) u fun x _ =>
-      (hg1_bd x).trans_eq (by simp)).trans_eq (by rw [sq_abs]; norm_num; ring)
+    exact (norm_intervalIntegral_le_abs_pow_loc (C := (3 / 4 : ℝ)) (n := 1) (by norm_num) (hg1_cont.sub continuous_const) u fun x _ =>
+      (hg1_bd x).trans_eq (by simp)).trans_eq (by simp only [Nat.cast_one, one_add_one_eq_two, sq_abs]; norm_num; ring)
   refine ⟨?_, ?_⟩
   · have hg00 : g 0 = 1 := by simp [g]
     have hg10 : g₁ 0 = Complex.I / 2 := by simp [g₁]
@@ -1129,17 +1131,22 @@ private lemma A1_second_order_taylor {u : ℝ} (hu : |u| ≤ 1 / 8) :
     rw [show ((-(1 / 2 : ℝ) : ℝ) : ℂ) = -(1 / 2 : ℂ) by push_cast; ring] at hb
     exact hb
 
-private lemma integral_Icc_odd_eq_zero {a : ℝ} (ha : 0 ≤ a) {f : ℝ → ℂ} (hf : Continuous f)
+private lemma integral_Icc_odd_eq_zero {a : ℝ} (ha : 0 ≤ a) {f : ℝ → ℂ} (_hf : Continuous f)
     (hodd : ∀ s : ℝ, f (-s) = -f s) :
     ∫ s in Icc (-a) a, f s = 0 := by
   rw [MeasureTheory.integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le (by linarith only [ha])]
   have hneg : ∫ s in (-a)..a, f s = ∫ s in (-a)..a, -f s := by
     calc ∫ s in (-a)..a, f s = ∫ s in (-a)..a, f (-s) := by
           have hc := intervalIntegral.integral_comp_neg f (a := -a) (b := a)
-          simpa using hc.symm
+          simp only [neg_neg] at hc; exact hc.symm
       _ = ∫ s in (-a)..a, -f s := intervalIntegral.integral_congr fun s _ => hodd s
   rw [intervalIntegral.integral_neg] at hneg
-  exact eq_zero_of_neg_eq hneg.symm
+  have hsum : (∫ s in (-a)..a, f s) + (∫ s in (-a)..a, f s) = 0 := by
+    calc (∫ s in (-a)..a, f s) + (∫ s in (-a)..a, f s)
+        = (∫ s in (-a)..a, f s) + -(∫ s in (-a)..a, f s) := by rw [← hneg]
+      _ = 0 := add_neg_cancel _
+  have h2 : (2 : ℂ) * ∫ s in (-a)..a, f s = 0 := by linear_combination hsum
+  exact (mul_eq_zero.mp h2).resolve_left (by norm_num)
 
 private lemma total_core_second_order_bound {Δ₁ U c Δ ξ σ_star : ℝ}
     (hΔ₁ : 1 ≤ Δ₁) (hU : 1 ≤ U) (hc : max (20 * Δ₁) (60 * U ^ (3 / 2 : ℝ)) ≤ c)
@@ -1197,7 +1204,7 @@ private lemma total_core_second_order_bound {Δ₁ U c Δ ξ σ_star : ℝ}
       nlinarith only [hεL_le_3e3]
     exact le_of_pow_le_pow_left₀ (by norm_num) (by norm_num) h4
   have hτsd_le_epsd : τ_sd = ε_L * d := by
-    dsimp [ε_L, saddleEpsL, τ_sd, d]; field_simp [(lt_min hσ0 h1s_pos).ne']
+    dsimp [ε_L, saddleEpsL, τ_sd, g', d]; field_simp [(lt_min hσ0 h1s_pos).ne']
   have hτsd_le_1s : τ_sd / (1 - σ_star) ≤ ε_L := by
     rw [hτsd_le_epsd]
     have hm1 : d ≤ 1 - σ_star := min_le_right _ _
@@ -1319,12 +1326,13 @@ private lemma total_core_second_order_bound {Δ₁ U c Δ ξ σ_star : ℝ}
       rw [norm_div, Complex.norm_real, Real.norm_of_nonneg amp.hA.le, div_le_iff₀ amp.hA]
       exact amp.hV_disk _ hmem
     have ha1_norm : ‖a₁‖ ≤ (1 / 2 : ℝ) * ε_L := by
-      dsimp [a₁]
-      simp only [norm_mul, norm_div, Complex.norm_I,
-        show (2 : ℂ) * ((1 - σ_star : ℝ) : ℂ) = ((2 * (1 - σ_star) : ℝ) : ℂ) by push_cast; ring,
-        Complex.norm_real, Real.norm_eq_abs, abs_of_pos (by positivity : 0 < 2 * (1 - σ_star)),
-        abs_of_pos hτsd_pos]
-      rw [show 1 / (2 * (1 - σ_star)) * τ_sd = (1 / 2 : ℝ) * (τ_sd / (1 - σ_star)) by ring]
+      have ha1_eq : ‖a₁‖ = (1 / 2 : ℝ) * (τ_sd / (1 - σ_star)) := by
+        dsimp [a₁]
+        rw [norm_mul, norm_div, Complex.norm_I, norm_mul, Complex.norm_two,
+          Complex.norm_real, Real.norm_of_nonneg h1s_pos.le,
+          Complex.norm_real, Real.norm_of_nonneg hτsd_pos.le]
+        field_simp [h1s_pos.ne']
+      rw [ha1_eq]
       exact mul_le_mul_of_nonneg_left hτsd_le_1s (by norm_num)
     have hb1_norm : ‖b₁‖ ≤ 2 * amp.D * ε_L := by
       dsimp [b₁]; rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg hτsd_pos.le, hτsd_le_epsd]
@@ -1418,15 +1426,18 @@ private lemma total_core_second_order_bound {Δ₁ U c Δ ξ σ_star : ℝ}
         _ ≤ 1 + 9 / 2 := by linarith only [h18_le]
         _ = 11 / 2 := by norm_num
     have h_p1 : ‖A₁ * (A₂ - 1) * A₃ * E‖ ≤ (1 / 5 : ℝ) * amp.D * ε_L ^ 2 * Real.exp (-s ^ 2 / 4) := by
+      have hτ_div : τ / τ_sd = s := mul_div_cancel_left₀ s hτsd_pos.ne'
       calc ‖A₁ * (A₂ - 1) * A₃ * E‖ = ‖A₁‖ * ‖A₂ - 1‖ * ‖A₃‖ * ‖E‖ := by simp only [norm_mul]
         _ ≤ 1 * ((1 / 5 : ℝ) * ε_L ^ 2) * amp.D * Real.exp (-s ^ 2 / 4) := by
             refine mul_le_mul (mul_le_mul (mul_le_mul hA1_le1 hA2_rem (norm_nonneg _) zero_le_one)
-              hA3_bd (norm_nonneg _) (by positivity)) (by exact hE_norm) (norm_nonneg _) (by positivity)
+              hA3_bd (norm_nonneg _) (by positivity)) (by simpa only [τ_sd, g', hτ_div] using hE_norm) (norm_nonneg _) (by positivity)
         _ = _ := by ring
     have h_p2 : ‖A₁ * A₃ * (E - E_app)‖ ≤ (13 * s ^ 4 + 289 * s ^ 6) * amp.D * ε_L ^ 2 * Real.exp (-s ^ 2 / 4) := by
+      have hτ_div : τ / τ_sd = s := mul_div_cancel_left₀ s hτsd_pos.ne'
       calc ‖A₁ * A₃ * (E - E_app)‖ = ‖A₁‖ * ‖A₃‖ * ‖E - E_app‖ := by simp only [norm_mul]
         _ ≤ (1 * amp.D) * ((13 * s ^ 4 + 289 * s ^ 6) * ε_L ^ 2 * Real.exp (-s ^ 2 / 4)) :=
-            mul_le_mul (mul_le_mul hA1_le1 hA3_bd (norm_nonneg _) zero_le_one) (by exact hE_rem) (norm_nonneg _) (by positivity)
+            mul_le_mul (mul_le_mul hA1_le1 hA3_bd (norm_nonneg _) zero_le_one)
+              (by simpa only [τ_sd, g', α₃, hτ_div] using hE_rem) (norm_nonneg _) (by positivity)
         _ = _ := by ring
     have h_p3 : ‖E_app * (A₁ * A₃ - (v₀ + c₁ * (s : ℂ)))‖ ≤ (209 / 2 : ℝ) * amp.D * s ^ 2 * ε_L ^ 2 * Real.exp (-s ^ 2 / 4) := by
       have hEapp_n : ‖E_app‖ ≤ (11 / 2 : ℝ) * Real.exp (-s ^ 2 / 4) := by
@@ -1439,7 +1450,7 @@ private lemma total_core_second_order_bound {Δ₁ U c Δ ξ σ_star : ℝ}
         _ = _ := by ring
     have h_p4 : ‖(α₃ * ((s ^ 3 : ℝ) : ℂ) * E₀) * (c₁ * (s : ℂ))‖ ≤ 45 * amp.D * s ^ 4 * ε_L ^ 2 * Real.exp (-s ^ 2 / 4) := by
       have hs4 : |s ^ 3| * |s| = s ^ 4 := by
-        rw [abs_pow, ← pow_succ, show (3 : ℕ) + 1 = 2 * 2 by norm_num, pow_mul, sq_abs]
+        rw [abs_pow, ← pow_succ, show (3 : ℕ) + 1 = 2 * 2 by norm_num, pow_mul, sq_abs]; ring
       calc ‖(α₃ * ((s ^ 3 : ℝ) : ℂ) * E₀) * (c₁ * (s : ℂ))‖
           = (‖α₃‖ * ‖c₁‖) * (|s ^ 3| * |s|) * Real.exp (-s ^ 2 / 2) := by
             dsimp [E₀]; simp only [norm_mul, Complex.norm_real, Real.norm_eq_abs,
@@ -1447,12 +1458,13 @@ private lemma total_core_second_order_bound {Δ₁ U c Δ ξ σ_star : ℝ}
         _ ≤ ((18 * ε_L) * ((5 / 2 : ℝ) * amp.D * ε_L)) * s ^ 4 * Real.exp (-s ^ 2 / 4) := by
             rw [hs4]
             exact mul_le_mul (mul_le_mul_of_nonneg_right (mul_le_mul hα3_bd hc1_norm (norm_nonneg _) (by positivity)) (by positivity))
-              hE0_le (Real.exp_pos _).le (by positivity)
+              hE0_le (Real.exp_pos _).le (mul_nonneg (mul_nonneg (by positivity) (by nlinarith only [hD0, hεL_pos])) (by positivity))
         _ = _ := by ring
     rw [hid_tot]
-    have htri := (norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans (add_le_add (norm_add_le _ _) le_rfl)) le_rfl)
-    refine htri.trans ?_
-    calc _ ≤ ((1 / 5 : ℝ) * amp.D * ε_L ^ 2 * Real.exp (-s ^ 2 / 4) +
+    refine ((norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans (add_le_add (norm_add_le _ _) le_rfl)) le_rfl)).trans ?_
+    calc ‖A₁ * (A₂ - 1) * A₃ * E‖ + ‖A₁ * A₃ * (E - E_app)‖ +
+          ‖E_app * (A₁ * A₃ - (v₀ + c₁ * (s : ℂ)))‖ + ‖(α₃ * ((s ^ 3 : ℝ) : ℂ) * E₀) * (c₁ * (s : ℂ))‖
+        ≤ ((1 / 5 : ℝ) * amp.D * ε_L ^ 2 * Real.exp (-s ^ 2 / 4) +
               (13 * s ^ 4 + 289 * s ^ 6) * amp.D * ε_L ^ 2 * Real.exp (-s ^ 2 / 4)) +
               (209 / 2 : ℝ) * amp.D * s ^ 2 * ε_L ^ 2 * Real.exp (-s ^ 2 / 4) +
               45 * amp.D * s ^ 4 * ε_L ^ 2 * Real.exp (-s ^ 2 / 4) :=
@@ -1491,7 +1503,7 @@ private lemma total_core_second_order_bound {Δ₁ U c Δ ξ σ_star : ℝ}
     refine setIntegral_congr_fun measurableSet_Icc fun s _ => ?_
     dsimp [G_int]
     rw [mul_div_cancel_left₀ s hτsd_pos.ne']
-    simp only [Complex.sub_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, hv₀_im, mul_zero, sub_zero]
+    simp only [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, hv₀_im, mul_zero, sub_zero]
   have h_re_bd : |∫ τ in Icc (-τ_core) τ_core, G_int τ| ≤
       τ_sd * (289 * 1375 * amp.D * ε_L ^ 2 * Real.sqrt (12 * π)) := by
     have hD_pos : 0 < amp.D := by linarith only [amp.hD]
@@ -1503,7 +1515,7 @@ private lemma total_core_second_order_bound {Δ₁ U c Δ ξ σ_star : ℝ}
         (F_rel (τ_sd * s) - v₀ * (Real.exp (-s ^ 2 / 2) : ℂ) - OddProf s).re) (Icc (-a) a) :=
       (hG_re_int.sub hOdd_re_int).congr_fun (fun s _ => by
         dsimp [G_int]; rw [mul_div_cancel_left₀ s hτsd_pos.ne']
-        simp only [Complex.sub_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, hv₀_im, mul_zero, sub_zero])
+        simp only [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, hv₀_im, mul_zero, sub_zero])
         measurableSet_Icc
     have h_abs : |∫ s in Icc (-a) a, G_int (τ_sd * s)| ≤
         289 * 1375 * amp.D * ε_L ^ 2 * Real.sqrt (12 * π) := by
@@ -1596,7 +1608,7 @@ private lemma total_core_second_order_bound {Δ₁ U c Δ ξ σ_star : ℝ}
           mul_le_mul_of_nonneg_left h_re_bd (by positivity)
       _ = 289 * 1375 * amp.D * ε_L ^ 2 * (Real.sqrt (12 * π) / Real.sqrt (2 * π)) := by
           field_simp [hτsd_pos.ne', (Real.sqrt_pos.mpr (by positivity : 0 < 2 * π)).ne']
-      _ ≤ 289 * 1375 * amp.D * ε_L ^ 2 * 2.45 := by rw [hsqrt_div]; gcongr; positivity
+      _ ≤ 289 * 1375 * amp.D * ε_L ^ 2 * 2.45 := by rw [hsqrt_div]; gcongr
       _ ≤ 974000 * amp.D * ε_L ^ 2 := by
           have hnn : 0 ≤ amp.D * ε_L ^ 2 := mul_nonneg (by linarith only [amp.hD]) (sq_nonneg ε_L)
           nlinarith only [hnn]
@@ -1740,7 +1752,7 @@ private lemma second_order_outer_bound {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
     Real.rpow_le_one_of_one_le_of_nonpos (by linarith only [div_nonneg (sq_nonneg τ) (sq_nonneg (1 - σ_star))]) (by norm_num)
   have h_inv_eps2 : ∀ X : ℝ, 0 < X → ε_L ^ (-2 : ℝ) < X → X⁻¹ ≤ ε_L ^ 2 := fun X hX hlt => by
     rw [show (-2 : ℝ) = -(2 : ℕ) by norm_num, Real.rpow_neg hεL_pos.le, Real.rpow_natCast] at hlt
-    exact (inv_lt_inv₀ hlt.trans' (inv_pos.mpr (pow_pos hεL_pos 2))).mp hlt |>.le.trans_eq (inv_inv _)
+    exact ((inv_lt_inv₀ hX (inv_pos.mpr (pow_pos hεL_pos 2))).mpr hlt).le.trans_eq (by rw [inv_inv])
   have hexp_neg_sq : ∀ (k X : ℝ), 0 < k → 0 < X → Real.exp (-k * X) ≤ 2 / (k ^ 2 * X ^ 2) := fun k X hk hX => by
     have hfac := Real.pow_div_factorial_le_exp (k * X) (by positivity) 2
     have hden : (k * X) ^ 2 / (Nat.factorial 2 : ℝ) = (k ^ 2 * X ^ 2) / 2 := by
@@ -1756,7 +1768,7 @@ private lemma second_order_outer_bound {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
       have h_Ioc_int : IntegrableOn F_out (Ioc τ_core (1 / 2)) :=
         hf_cont.continuousOn.integrableOn_Icc.mono_set Ioc_subset_Icc_self
       have hm_eps2 : ε_L ^ (-2 : ℝ) < c * σ_star := by
-        have hsq := pow_lt_pow_left₀ hx_eps (by positivity) (by decide : 2 ≠ 0)
+        have hsq := pow_lt_pow_left₀ (hx_eps hhalf) (by positivity) (by decide : 2 ≠ 0)
         rw [mul_pow, ← Real.rpow_natCast ((c ^ (1 / 3 : ℝ) * σ_star) ^ (-(3 / 2 : ℝ))) 2, ← Real.rpow_mul (by positivity),
           show -(3 / 2 : ℝ) * (2 : ℕ) = -(3 : ℕ) by norm_num, Real.rpow_neg (by positivity), Real.rpow_natCast] at hsq
         have h3 : (4 * (c ^ (1 / 3 : ℝ) * σ_star) ^ 3)⁻¹ < ε_L ^ 2 := by
@@ -1786,13 +1798,13 @@ private lemma second_order_outer_bound {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
           rw [Real.rpow_def_of_pos hτ0, ← Real.exp_add]; congr 1; ring
         have h_exp : Real.exp (-c * vertUpsilon σ_star τ) ≤ Real.exp (-(3 / 160 : ℝ) * (c * σ_star)) * τ ^ (-2 : ℝ) := by
           rw [hid]
-          exact Real.exp_le_exp.mpr (by linarith only [hA_dec.2 τ hτ, hlog])
+          exact Real.exp_le_exp.mpr (by linarith only [(hA_dec hhalf).2 τ hτ, hlog])
         exact (mul_le_mul (h_alg_le1 τ) h_exp (Real.exp_pos _).le zero_le_one).trans_eq (one_mul _)
       have h_part1 : (1 / τ_sd) * ∫ τ in Ioc τ_core (1 / 2), F_out τ ≤ 600000 * ε_L ^ 2 := by
         have hm := setIntegral_mono_on h_Ioc_int ((by fun_prop : Continuous fun τ : ℝ =>
             Real.exp (-(1 / 10 : ℝ) * (c * g') * τ ^ 2)).continuousOn.integrableOn_Icc.mono_set Ioc_subset_Icc_self) measurableSet_Ioc
           fun τ hτ => (mul_le_mul (h_alg_le1 τ) (Real.exp_le_exp.mpr (by
-            linarith only [(hA_dec.1 τ ⟨hτcore_pos.trans hτ.1, hτ.2⟩)]))
+            linarith only [(hA_dec hhalf).1 τ ⟨hτcore_pos.trans hτ.1, hτ.2⟩]))
             (Real.exp_pos _).le zero_le_one).trans_eq (one_mul _)
         exact (mul_le_mul_of_nonneg_left hm (by positivity)).trans (h_gauss10 (1 / 2) hτcore_lt.le)
       have h_part2 : (1 / τ_sd) * ∫ τ in Ioi (1 / 2 : ℝ), F_out τ ≤ 100 * ε_L ^ 2 := by
@@ -1809,17 +1821,17 @@ private lemma second_order_outer_bound {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
           have hid : Real.exp (-(3 / 160 : ℝ) * (c * σ_star)) * τ ^ (-2 : ℝ) = Real.exp (-((3 / 160 : ℝ) * (c * σ_star) + 2 * Real.log τ)) := by
             rw [Real.rpow_def_of_pos hτ0, ← Real.exp_add]; congr 1; ring
           have h_exp : Real.exp (-c * vertUpsilon σ_star τ) ≤ Real.exp (-(3 / 160 : ℝ) * (c * σ_star)) * τ ^ (-2 : ℝ) := by
-            rw [hid]; exact Real.exp_le_exp.mpr (by linarith only [hA_dec.2 τ hτ, hlog])
+            rw [hid]; exact Real.exp_le_exp.mpr (by linarith only [(hA_dec hhalf).2 τ hτ, hlog])
           exact (mul_le_mul (h_alg_le1 τ) h_exp (Real.exp_pos _).le zero_le_one).trans_eq (one_mul _)
         rw [integral_const_mul, hval2_eq] at hm
         have h1sd : 1 / τ_sd ≤ 2 * Real.sqrt (c * σ_star) := by
           have hg'_lt : g' < 4 * σ_star := by
             have h1 : 1 - σ_star ≥ 1 / 2 := by linarith only [hhalf]
             have h2 := (stripG_deriv_bounds hσ0 hσ1).2
-            rw [← div_mul_eq_mul_div]; calc g' < 2 * σ_star / (1 - σ_star) := h2
+            calc g' < 2 * σ_star / (1 - σ_star) := h2
               _ ≤ 2 * σ_star / (1 / 2) := div_le_div_of_nonneg_left (by positivity) (by norm_num) h1
               _ = 4 * σ_star := by ring
-          rw [hτsd_sq |> fun _ => rfl, show τ_sd = (c * g') ^ (-(1 / 2 : ℝ)) from rfl,
+          rw [show τ_sd = (c * g') ^ (-(1 / 2 : ℝ)) from rfl,
             rpow_neg_half_eq_inv_sqrt (mul_pos hc_pos hg'_pos).le, one_div, inv_inv]
           calc Real.sqrt (c * g') ≤ Real.sqrt (4 * (c * σ_star)) := Real.sqrt_le_sqrt (by nlinarith only [hg'_lt, hc_pos])
             _ = 2 * Real.sqrt (c * σ_star) := by rw [Real.sqrt_mul (by norm_num), show Real.sqrt 4 = 2 by norm_num]
@@ -1903,7 +1915,7 @@ private lemma second_order_outer_bound {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
           (Real.sqrt (2 * c) * Real.exp (-(3 / 320 : ℝ) * c)) *
             (τ ^ (-(1 / 2 : ℝ)) * Real.exp (-((3 / 40 : ℝ) * c) * max 0 (Real.log τ))) := fun τ hτ => by
         have h_exp : Real.exp (-c * vertUpsilon σ_star τ) ≤ Real.exp (-(3 / 320 : ℝ) * c) * Real.exp (-((3 / 40 : ℝ) * c) * max 0 (Real.log τ)) := by
-          rw [← Real.exp_add]; exact Real.exp_le_exp.mpr (by linarith only [hB_dec.2.2 τ hτ, show 0 ≤ (3 / 320 : ℝ) * z_pos by dsimp [z_pos]; positivity])
+          rw [← Real.exp_add]; exact Real.exp_le_exp.mpr (by linarith only [(hB_dec hhalf).2.2 τ hτ, show 0 ≤ (3 / 320 : ℝ) * z_pos by dsimp [z_pos]; positivity])
         calc (1 / τ_sd) * F_out τ = ((1 / τ_sd) * (1 + τ ^ 2 / (1 - σ_star) ^ 2) ^ (-(1 / 4 : ℝ))) * Real.exp (-c * vertUpsilon σ_star τ) := by
               dsimp [F_out]; ring
           _ ≤ (Real.sqrt (2 * c) * τ ^ (-(1 / 2 : ℝ))) * _ :=
@@ -1922,15 +1934,15 @@ private lemma second_order_outer_bound {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
         have hm := setIntegral_mono_on h_Ioc1 ((by fun_prop : Continuous fun τ : ℝ =>
             Real.exp (-(1 / 10 : ℝ) * (c * g') * τ ^ 2)).continuousOn.integrableOn_Icc.mono_set Ioc_subset_Icc_self) measurableSet_Ioc
           fun τ hτ => (mul_le_mul (h_alg_le1 τ) (Real.exp_le_exp.mpr (by
-            linarith only [hB_dec.1 τ ⟨hτcore_pos.trans hτ.1, hτ.2⟩]))
+            linarith only [(hB_dec hhalf).1 τ ⟨hτcore_pos.trans hτ.1, hτ.2⟩]))
             (Real.exp_pos _).le zero_le_one).trans_eq (one_mul _)
         exact (mul_le_mul_of_nonneg_left hm (by positivity)).trans (h_gauss10 τ₁ hτcore_lt_τ₁.le)
-      have h_part2 : (1 / τ_sd) * ∫ τ in Ioc τ₁ (1 / 2), F_out τ ≤ 20 * ε_L ^ 2 := by
+      have h_part2 : (1 / τ_sd) * ∫ τ in Ioc τ₁ (1 / 2), F_out τ ≤ 40 * ε_L ^ 2 := by
         have hdom_int : IntegrableOn (fun τ : ℝ => Real.exp (-(3 / 320 : ℝ) * z_pos) * Real.exp (-(3 / 80 : ℝ) * c * (τ - τ₁))) (Ioc τ₁ (1 / 2)) :=
           (by fun_prop : Continuous fun τ : ℝ => Real.exp (-(3 / 320 : ℝ) * z_pos) * Real.exp (-(3 / 80 : ℝ) * c * (τ - τ₁))).continuousOn.integrableOn_Icc.mono_set Ioc_subset_Icc_self
         have hm := setIntegral_mono_on h_Ioc2 hdom_int measurableSet_Ioc fun τ hτ => by
           have h_exp : Real.exp (-c * vertUpsilon σ_star τ) ≤ Real.exp (-(3 / 320 : ℝ) * z_pos) * Real.exp (-(3 / 80 : ℝ) * c * (τ - τ₁)) := by
-            rw [← Real.exp_add]; exact Real.exp_le_exp.mpr (by dsimp [z_pos, τ₁]; linarith only [hB_dec.2.1 τ hτ])
+            rw [← Real.exp_add]; exact Real.exp_le_exp.mpr (by dsimp [z_pos, τ₁]; linarith only [(hB_dec hhalf).2.1 τ hτ])
           exact (mul_le_mul (h_alg_le1 τ) h_exp (Real.exp_pos _).le zero_le_one).trans_eq (one_mul _)
         rw [integral_const_mul] at hm
         have hm2 : ∫ τ in Ioc τ₁ (1 / 2), Real.exp (-(3 / 80 : ℝ) * c * (τ - τ₁)) ≤ 80 / (3 * c) := by
@@ -1939,9 +1951,11 @@ private lemma second_order_outer_bound {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
             intervalIntegral.integral_of_le (by linarith only [hτ₁_lt])]
           obtain ⟨hl, hvl⟩ := integral_exp_neg_lin_Ioi (a := (0 : ℝ)) (k := (3 / 80 : ℝ) * c) (by positivity)
           have hvl' : ∫ u in Ioi (0 : ℝ), Real.exp (-(3 / 80 : ℝ) * c * u) = 80 / (3 * c) := by
-            simpa only [mul_zero, Real.exp_zero, neg_mul] using hvl.trans (by ring)
+            have hvl0 : ∫ u in Ioi (0 : ℝ), Real.exp (-((3 / 80 : ℝ) * c) * u) = 80 / (3 * c) := by
+              rw [hvl]; simp only [mul_zero, Real.exp_zero]; ring
+            simpa only [neg_mul, mul_assoc] using hvl0
           have hs' : IntegrableOn (fun u : ℝ => Real.exp (-(3 / 80 : ℝ) * c * u)) (Ioi 0) := by
-            simpa only [neg_mul] using hl
+            simpa only [neg_mul, mul_assoc] using hl
           exact (setIntegral_mono_set hs' (Filter.Eventually.of_forall fun _ => (Real.exp_pos _).le)
             Ioc_subset_Ioi_self.eventuallySubset).trans_eq hvl'
         have hz_pos_pos : 0 < z_pos := by dsimp [z_pos]; positivity
@@ -1952,7 +1966,7 @@ private lemma second_order_outer_bound {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
           exact inv_anti₀ (by positivity) h1
         have hz_inv : z_pos⁻¹ ≤ 2 * ε_L ^ 2 := by
           have h := h_inv_eps2 (2 * z_pos) (by positivity) hz_eps2
-          rw [mul_inv, inv_eq_one_div, div_le_iff₀ (by positivity)] at h
+          rw [mul_inv, inv_eq_one_div] at h
           linarith only [h]
         have h_pref : 1 / (c * τ_sd) ≤ 2 * ε_L := le_of_sq_le_sq (by
           have hg'_lt : g' < 2 / (1 - σ_star) := ((stripG_deriv_bounds hσ0 hσ1).2).trans (div_lt_div_of_pos_right (by linarith only [hσ1]) h1s_pos)
@@ -1973,9 +1987,9 @@ private lemma second_order_outer_bound {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
           _ ≤ (2 * ε_L) * (80 / 3 : ℝ) * (320 / 3 * z_pos⁻¹) := by
               gcongr; refine hexp_z.trans_eq ?_; ring
           _ ≤ (2 * (3 / 1000 : ℝ)) * (80 / 3 : ℝ) * (320 / 3 * (2 * ε_L ^ 2)) := by gcongr
-          _ ≤ 20 * ε_L ^ 2 := by
-              have hnn : 0 ≤ ε_L ^ 2 := sq_nonneg _; nlinarith only [hnn]
-      have h_part3 : (1 / τ_sd) * ∫ τ in Ioi (1 / 2 : ℝ), F_out τ ≤ 100 * ε_L ^ 2 := by
+          _ = ((2 * (3 / 1000 : ℝ)) * (80 / 3 : ℝ) * (320 / 3 : ℝ) * 2) * ε_L ^ 2 := by ring
+          _ ≤ 40 * ε_L ^ 2 := mul_le_mul_of_nonneg_right (by norm_num) (sq_nonneg _)
+      have h_part3 : (1 / τ_sd) * ∫ τ in Ioi (1 / 2 : ℝ), F_out τ ≤ 220 * ε_L ^ 2 := by
         have hm1 := setIntegral_mono_on (h_Ioi.const_mul _) (h_tail_int.const_mul _) measurableSet_Ioi h_half_mono
         rw [integral_const_mul, integral_const_mul] at hm1
         have hm2 : (1 / τ_sd) * ∫ τ in Ioi (1 / 2 : ℝ), F_out τ ≤ (Real.sqrt (2 * c) * Real.exp (-(3 / 320 : ℝ) * c)) * 2 :=
@@ -1994,7 +2008,7 @@ private lemma second_order_outer_bound {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
             _ ≤ ε_L ^ 2 * (1 / 300) := mul_le_mul h1 (h2.trans h3) (by positivity) (sq_nonneg _)
         have hsqrt_c : Real.sqrt (2 * c) / c ^ 2 = Real.sqrt 2 * c ^ (-(3 / 2 : ℝ)) := by
           rw [Real.sqrt_mul (by norm_num), Real.sqrt_eq_rpow c, ← Real.rpow_natCast c 2,
-            ← Real.rpow_sub hc_pos]; norm_num; ring
+            mul_div_assoc, ← Real.rpow_sub hc_pos]; norm_num
         have hsq2 : Real.sqrt 2 ≤ 1.42 := by rw [Real.sqrt_le_left (by norm_num)]; norm_num
         calc (1 / τ_sd) * ∫ τ in Ioi (1 / 2 : ℝ), F_out τ
             ≤ 2 * Real.sqrt (2 * c) * Real.exp (-(3 / 320 : ℝ) * c) := hm2.trans_eq (by ring)
@@ -2003,10 +2017,10 @@ private lemma second_order_outer_bound {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
           _ = (4 / (3 / 320 : ℝ) ^ 2) * (Real.sqrt (2 * c) / c ^ 2) := by ring
           _ = (4 / (3 / 320 : ℝ) ^ 2) * Real.sqrt 2 * c ^ (-(3 / 2 : ℝ)) := by rw [hsqrt_c]; ring
           _ ≤ (4 / (3 / 320 : ℝ) ^ 2) * 1.42 * (ε_L ^ 2 * (1 / 300)) := by gcongr
-          _ ≤ 100 * ε_L ^ 2 := by
-              have : (4 / (3 / 320 : ℝ) ^ 2) * 1.42 * (1 / 300) ≤ 100 := by norm_num
+          _ ≤ 220 * ε_L ^ 2 := by
+              have : (4 / (3 / 320 : ℝ) ^ 2) * 1.42 * (1 / 300) ≤ 220 := by norm_num
               calc _ = ((4 / (3 / 320 : ℝ) ^ 2) * 1.42 * (1 / 300)) * ε_L ^ 2 := by ring
-                _ ≤ 100 * ε_L ^ 2 := mul_le_mul_of_nonneg_right this (sq_nonneg _)
+                _ ≤ 220 * ε_L ^ 2 := mul_le_mul_of_nonneg_right this (sq_nonneg _)
       have h_Ioi_τ1 : IntegrableOn F_out (Ioi τ₁) := by
         rw [← Ioc_union_Ioi_eq_Ioi (by linarith only [hτ₁_lt] : τ₁ ≤ 1 / 2)]; exact h_Ioc2.union h_Ioi
       have hsplit : ∫ τ in Ioi τ_core, F_out τ = (∫ τ in Ioc τ_core τ₁, F_out τ) + (∫ τ in Ioc τ₁ (1 / 2), F_out τ) + ∫ τ in Ioi (1 / 2), F_out τ := by
@@ -2014,7 +2028,7 @@ private lemma second_order_outer_bound {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
           ← Ioc_union_Ioi_eq_Ioi (by linarith only [hτ₁_lt] : τ₁ ≤ 1 / 2), setIntegral_union Ioc_disjoint_Ioi_same measurableSet_Ioi h_Ioc2 h_Ioi]; ring
       calc (2 / (Real.sqrt (2 * π) * τ_sd)) * ∫ τ in Ioi τ_core, F_out τ
           = (2 / Real.sqrt (2 * π)) * ((1 / τ_sd) * ∫ τ in Ioi τ_core, F_out τ) := by ring
-        _ ≤ (2 / 2.506) * ((600120 : ℝ) * ε_L ^ 2) := mul_le_mul
+        _ ≤ (2 / 2.506) * ((600260 : ℝ) * ε_L ^ 2) := mul_le_mul
             (div_le_div_of_nonneg_left (by norm_num) (by positivity) hsqrt2pi)
             (by rw [hsplit, mul_add, mul_add]; linarith only [h_part1, h_part2, h_part3])
             (mul_nonneg (by positivity) (setIntegral_nonneg measurableSet_Ioi fun _ _ => by dsimp [F_out]; positivity))
