@@ -25,7 +25,7 @@ open Filter Topology
 
 namespace FormalResearch.SignUncertainty
 
-/-- `κ_ε = θ₁^ε / π²`. -/
+/-- `c₀^ε = θ₁^ε / π²`, the constant term of the five-term expansion (TeX `c_0^{\varepsilon}`, formerly `\kappa_\varepsilon`; the declaration name is kept). -/
 noncomputable def ctKappa (ε : ℝ) : ℝ := CtOuter.ctTheta1 ε / π ^ 2
 
 /-- `c₁^{Langer} = 9π²A²/25` (`constant_terms_five.tex`). -/
@@ -34,7 +34,7 @@ noncomputable def ctC1Langer : ℝ := 9 * π ^ 2 / 25 * airyOrderCoeff ^ 2
 /-- `d₂^{*,ε} = A(θ₁^ε + 12θ₃^ε/π²)`. -/
 noncomputable def ctD2star (ε : ℝ) : ℝ := airyOrderCoeff * (CtOuter.ctTheta1 ε + 12 / π ^ 2 * CtOuter.ctTheta3 ε)
 
-/-- The five-term expression `Δ₅^ε(c) = c/π² + A c^{1/3} + κ_ε + c₁^{Langer} c^{-1/3} + d₂^{*,ε} c^{-2/3}`. -/
+/-- The five-term expression `Δ₅^ε(c) = c/π² + A c^{1/3} + c₀^ε + c₁^{Langer} c^{-1/3} + d₂^{*,ε} c^{-2/3}`. -/
 noncomputable def ctDelta5 (ε c : ℝ) : ℝ :=
   c / π ^ 2 + airyOrderCoeff * c ^ (1 / 3 : ℝ) + ctKappa ε + ctC1Langer * c ^ (-(1 / 3) : ℝ) +
     ctD2star ε * c ^ (-(2 / 3) : ℝ)

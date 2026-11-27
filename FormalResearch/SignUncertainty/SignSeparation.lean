@@ -1319,7 +1319,7 @@ theorem sign_separation_radii (P : SignSeparationPackage) :
           field_simp [hd_pos.ne', hAn_pos.ne']
     _ ≤ -(2 / π) + ε₀ := hbound.le
 
-/-- Theorem 7.9c(3): if `T_c^ε = c / π² + a₁ c^{1/3} + κ_ε + o(1)` for both `ε = ±1`, then
+/-- Theorem 7.9c(3): if `T_c^ε = c / π² + a₁ c^{1/3} + c₀^ε + o(1)` for both `ε = ±1`, then
 `κ_{+1} - κ_{-1} ≤ -2 / π²`. -/
 theorem sign_separation_kappa (P : SignSeparationPackage) {a1 κpos κneg : ℝ}
     (hpos : Tendsto (fun c : ℝ => P.Tpos c - c / π ^ 2 - a1 * c ^ (1 / 3 : ℝ) - κpos) atTop (𝓝 0))

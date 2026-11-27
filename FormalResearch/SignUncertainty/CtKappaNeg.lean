@@ -5,16 +5,16 @@ public import FormalResearch.SignUncertainty.CtOuterSinhIneq
 public import FormalResearch.SignUncertainty.CtLowerDefs
 
 /-!
-# `κ_± < 0`: `I₀ < 3 log 2` (F1, `ct:theta1`)
+# `c₀^± < 0`: `I₀ < 3 log 2` (F1, `ct:theta1`)
 
-`constant_terms_lower.tex`, `ct:theta1`: `θ₁^- = -3 log 2 + I₀`, `θ₁^+ = θ₁^- - π`, `κ_ε = θ₁^ε/π²`.  **Proved.**  The TeX
+`constant_terms_lower.tex`, `ct:theta1`: `θ₁^- = -3 log 2 + I₀`, `θ₁^+ = θ₁^- - π`, `c₀^ε = θ₁^ε/π²`.  **Proved.**  The TeX
 gives `I₀ ≈ 0.243`, far below `3 log 2 ≈ 2.079`; here `I₀ ≤ π/2` suffices:
 
 * `sinh_sub_le_cube_cosh`: `sinh y - y ≤ (y³/6) cosh y` (twice-integrated `x cosh x - sinh x ≥ 0`), so that
   `6(sinh y - y)/y³ ≤ cosh y` and `log(6(sinh y - y)/y³) ≤ log cosh y`;
 * `integral_logCosh_mul`: `∫_0^∞ log cosh y · cosh y/sinh² y dy = π/2`, with the antiderivative
   `-log cosh y/sinh y + arctan (sinh y)` (`logCoshPrim`);
-* `ctI0_le : I₀ ≤ π/2`, and **`ctKappa_neg`**: `κ_ε < 0` for `ε = ±1`.
+* `ctI0_le : I₀ ≤ π/2`, and **`ctKappa_neg`**: `c₀^ε < 0` for `ε = ±1`.
 -/
 
 @[expose] public section
@@ -216,7 +216,7 @@ end FormalResearch.SignUncertainty.CtOuter
 
 namespace FormalResearch.SignUncertainty
 
-/-- **`κ_ε < 0` for `ε = ±1`** (`ct:theta1`; the TeX uses it for `ψ₀^ε < 0`): `θ₁^ε ≤ -3 log 2 + π/2 < 0`. -/
+/-- **`c₀^ε < 0` for `ε = ±1`** (`ct:theta1`; the TeX uses it for `ψ₀^ε < 0`): `θ₁^ε ≤ -3 log 2 + π/2 < 0`. -/
 theorem ctKappa_neg {ε : ℝ} (_hε : ε = 1 ∨ ε = -1) : ctKappa ε < 0 := by
   have h := CtOuter.ctI0_le
   have hl := Real.log_two_gt_d9

@@ -21,7 +21,7 @@ Paper I, Theorem FCT.1 (`constant_terms_five.tex`, label `fct:main-hankel`; part
 there are `c₀, C₊ > 0` with `T_c^ε ≤ Δ₅^ε(c) + C₊ c^{-3/4}` for `ε = ±1` and all real `c ≥ c₀`.
 
 **Statement.** `fct_main_hankel`, with `hankelT ε c = T_c^ε` (`Radii.lean`) and the five-term expansion `ctDelta5`
-(`CtLower.lean`, `(eq:ct-delta5)` of `general_theorems.tex`; the constants `κ_ε`, `c₁^Langer`, `d₂^{*,ε}` are `CtLower`'s).
+(`CtLower.lean`, `(eq:ct-delta5)` of `general_theorems.tex`; the constants `c₀^ε`, `c₁^Langer`, `d₂^{*,ε}` are `CtLower`'s).
 
 **Proof (the deliverable).** The paper's proof of `fct:main-hankel` (`fct:s4-proof`) in four steps, all proved here from the fields of
 `FctMainHankelInputs`:

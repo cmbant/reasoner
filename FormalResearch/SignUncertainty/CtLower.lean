@@ -19,11 +19,11 @@ public import FormalResearch.SignUncertainty.CtNodeLower
 `constant_terms_lower.tex`, "Proof of the lower bound in `thm:ct-lower`(i)" (`eq:ct-lower`, left half).  For real `c ≥ c₀`
 and `ε = ±1`, every feasible threshold `T` of the Hankel problem satisfies
 `Δ₅^ε(c) - C c⁻¹ log c ≤ T`, where
-`Δ₅^ε(c) = c/π² + A c^{1/3} + κ_ε + c₁^{Langer} c^{-1/3} + d₂^{*,ε} c^{-2/3}`,
-`κ_ε = θ₁^ε/π²`, `c₁^{Langer} = 9π²A²/25`, `d₂^{*,ε} = A(θ₁^ε + 12θ₃^ε/π²)`.
+`Δ₅^ε(c) = c/π² + A c^{1/3} + c₀^ε + c₁^{Langer} c^{-1/3} + d₂^{*,ε} c^{-2/3}`,
+`c₀^ε = θ₁^ε/π²`, `c₁^{Langer} = 9π²A²/25`, `d₂^{*,ε} = A(θ₁^ε + 12θ₃^ε/π²)`.
 
 **Status: conditional on `CtLowerInputs`** (`dyadic` = `ct:dyadic` (4); `ct:boas` is proved, `ct_boas_concrete` in `CtBoasEventual`; `ct:dyadic` (2) and the node lower bound are proved; the inversion step `chart_gap` is proved:
-`ctChartGap` in `CtLowerChartGap`, with `κ_ε < 0` from `CtKappaNeg`).  The proof in the paper is by contradiction at the first Airy node: a
+`ctChartGap` in `CtLowerChartGap`, with `c₀^ε < 0` from `CtKappaNeg`).  The proof in the paper is by contradiction at the first Airy node: a
 feasible `f` at `T ≤ Δ₅ - K c⁻¹ log c` has `ũ₁ - φ_c(a₁) ≥ (Kβ₁/2) c^{-4/3} log c` (Langer chart inversion), and the
 dual identity at one good radius (`ct:dyadic` (2), (4) with `ct:boas`) bounds the budget `P_R(H) + g_vac/2π` above by
 `C₀ c^{-4/3} log c` with `C₀` independent of `K`, while the effective `C¹` stability at the first node

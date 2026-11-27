@@ -10,19 +10,19 @@ public import FormalResearch.SignUncertainty.CtCfuData
 # `chart_gap`: the Langer chart inversion at the first Airy node (F1, `thm:ct-lower`)
 
 `constant_terms_lower.tex`: `ct:langer-inv`, `ct:phic-exp`, `ct:five-term-node` and the first step of "Proof of the lower
-bound in `thm:ct-lower`(i)".  **Proved** (given `κ_ε < 0`, see `ctChartGap`):
+bound in `thm:ct-lower`(i)".  **Proved** (given `c₀^ε < 0`, see `ctChartGap`):
 
 * `ctPsi_taylor`: near `0⁻`, `ctPsi ε` is the smooth `ψ_ε` of `cfu_psi_langer` (unique positive root `τ₀`), with
   `ψ_ε(a) = ψ₀ + γ₀ a + O(a²)`;
 * `phi_expansion_core`: the root `φ = φ_c(a₁)` of `û(φ) = a₁` exists in `[-3, -2]` (intermediate value theorem) and
   `φ = a₁ - 2^{-2/3}ψ₀ c^{-1/3} - γ₀ a₁ c⁻¹ + O(c^{-4/3})`;
-* `lam_psi0`: `2^{-2/3}ψ₀ = β₁κ_ε`; `five_term_poly`, `five_term_bound`: the exact algebra behind
+* `lam_psi0`: `2^{-2/3}ψ₀ = β₁c₀^ε`; `five_term_poly`, `five_term_bound`: the exact algebra behind
   `c ξ(φ_c(a₁)) = Δ₅^ε(c) + O(c⁻¹)` (`ctNode_expansion`, with the model `ctChartX` of `cξ` of `hankelXi_expansion`);
 * `ctChartGap_eps`, **`ctChartGap`**: for feasible `f` with `M[f] = 1` and `T ≤ Δ₅^ε(c) - K c⁻¹ log c`,
   `ũ(T/c) - φ_c(a₁) ≥ (Kβ₁/2) c^{-4/3} log c` (large `c`).  The point `ũ₁` is produced by
-  `hankel_quantC1_of_feasible` (which needs `T < cξ(a₁)`, i.e. `κ_ε < 0` here) and `hankelBoot_uT_range`.
+  `hankel_quantC1_of_feasible` (which needs `T < cξ(a₁)`, i.e. `c₀^ε < 0` here) and `hankelBoot_uT_range`.
 
-The hypothesis `κ_ε < 0` (`ctKappa ε < 0`, TeX `ct:theta1` numerics: `I₀ ≈ 0.243 < 3 log 2`) is the only input not
+The hypothesis `c₀^ε < 0` (`ctKappa ε < 0`, TeX `ct:theta1` numerics: `I₀ ≈ 0.243 < 3 log 2`) is the only input not
 proved here.
 -/
 
@@ -301,7 +301,7 @@ lemma ctPsi_taylor {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
     exact mul_le_mul_of_nonneg_right (le_abs_self C) (sq_nonneg a)
 
 
-/-- `2^{-2/3} · ψ₀ = β₁ κ_ε`, i.e. `2^{-2/3}(12/π²)^{1/3} θ₁ = β₁ θ₁/π²` (`ct:psi-coeffs`, `ct:five-term-node`). -/
+/-- `2^{-2/3} · ψ₀ = β₁ c₀^ε`, i.e. `2^{-2/3}(12/π²)^{1/3} θ₁ = β₁ θ₁/π²` (`ct:psi-coeffs`, `ct:five-term-node`). -/
 lemma lam_psi0 (θ1 : ℝ) :
     (2 : ℝ) ^ (-(2 / 3) : ℝ) * ((12 / π ^ 2) ^ ((1 : ℝ) / 3) * θ1) = hankelBeta1 * (θ1 / π ^ 2) := by
   have h := CtCfu.d0_mul_beta
@@ -474,7 +474,7 @@ lemma ctChartX_sub {c u φ : ℝ} (hc : 0 < c) :
   field_simp
   ring
 
-/-- **`chart_gap` for one sign, given `κ_ε < 0`** (`ct:langer-inv` with `ct:five-term-node` and `thm:hankel-one-two`; the
+/-- **`chart_gap` for one sign, given `c₀^ε < 0`** (`ct:langer-inv` with `ct:five-term-node` and `thm:hankel-one-two`; the
 inversion step of the proof of `thm:ct-lower`): if `T ≤ Δ₅^ε(c) - K c⁻¹ log c` for a feasible `f` with `M[f] = 1` then
 `ũ(T/c) - φ_c(a₁) ≥ (Kβ₁/2) c^{-4/3} log c`. -/
 theorem ctChartGap_eps {ε : ℝ} (hε : ε = 1 ∨ ε = -1) (hκ : ctKappa ε < 0) {K : ℝ} (hK : 0 < K) :
@@ -611,7 +611,7 @@ theorem ctChartGap_eps {ε : ℝ} (hε : ε = 1 ∨ ε = -1) (hκ : ctKappa ε <
   rw [e5]
   exact hgap
 
-/-- **`chart_gap`** (`ct:langer-inv`, `ct:five-term-node`, `thm:hankel-one-two`): given `κ_ε < 0` for `ε = ±1`, for every
+/-- **`chart_gap`** (`ct:langer-inv`, `ct:five-term-node`, `thm:hankel-one-two`): given `c₀^ε < 0` for `ε = ±1`, for every
 `K > 0` and all large `c`, every feasible `f` with `M[f] = 1` and `T ≤ Δ₅^ε(c) - K c⁻¹ log c` has
 `ũ(T/c) - φ_c(a₁) ≥ (Kβ₁/2) c^{-4/3} log c`. -/
 theorem ctChartGap (hκ : ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ctKappa ε < 0) :

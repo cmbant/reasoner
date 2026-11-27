@@ -9,7 +9,7 @@ public import FormalResearch.SignUncertainty.UctSeedAdmiss
 
 For `ε = ±1`, `0 ≤ δ ≤ 1`, `ξ > 0` with `|S_eff| ≤ S_w` (`S_eff = hbS c ξ = c^{2/3}L/π²`) and `c ≥ c₀(S_w)`, the normalised density
 `h_norm^{seed} = (c^{1/3}/2π) ∫ K₀(iτ,ξ) W^{seed}(iτ) dτ` (`seedHnorm`) satisfies
-`h_norm^{seed} = (k/c_s) F_{*,δ}(-β₁ S_eff + β₁ κ_ε ς) + O_{S_w}(ς²)`, `ς = c^{-1/3}`, `κ_ε = θ_ε'(0)/π²` (`seed_window`).
+`h_norm^{seed} = (k/c_s) F_{*,δ}(-β₁ S_eff + β₁ c₀^ε ς) + O_{S_w}(ς²)`, `ς = c^{-1/3}`, `c₀^ε = θ_ε'(0)/π²` (`seed_window`).
 
 Proof: substitute `τ = ς v`, shift the line to `Re w = 1` (`strip_shift_weight`), compare `K₀` with `refKernel S ς`
 (`main_line_diff_sym`), replace `W^{seed}(ς w) = Q(ς w) T(c_s w)` by `e^{-λ ς w} T(c_s w)` on `|v| ≤ V` and bound the tail by the Gaussian
