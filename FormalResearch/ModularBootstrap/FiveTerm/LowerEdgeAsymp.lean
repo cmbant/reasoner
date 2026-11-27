@@ -80,7 +80,7 @@ private lemma sin_inv_sq_integral_le {δ : ℝ} (hδ0 : 0 < δ) (hδ1 : δ ≤ �
       (uIcc (π / 2) (π - δ)) :=
     continuousOn_const.mul hcont_inv
   have hmono := intervalIntegral.integral_mono_on (by linarith)
-    hcont_l.intervalIntegrable hcont_r.intervalIntegrable h1
+    (hcont_l.intervalIntegrable (μ := volume)) (hcont_r.intervalIntegrable (μ := volume)) h1
   have hftc : ∫ θ in (π / 2)..(π - δ), (π - θ)⁻¹ ^ 2 = δ⁻¹ - (π / 2)⁻¹ := by
     have hd : ∀ θ ∈ uIcc (π / 2) (π - δ),
         HasDerivAt (fun t : ℝ => (π - t)⁻¹) ((π - θ)⁻¹ ^ 2) θ := by
@@ -89,9 +89,10 @@ private lemma sin_inv_sq_integral_le {δ : ℝ} (hδ0 : 0 < δ) (hδ1 : δ ≤ �
       have hne : π - θ ≠ 0 := by linarith [hθ.2]
       have hlin : HasDerivAt (fun t : ℝ => π - t) (-1) θ := (hasDerivAt_id θ).const_sub π
       convert hlin.inv hne using 1
-      ring
+      rw [inv_pow, neg_neg, one_div]
     have hres := intervalIntegral.integral_eq_sub_of_hasDerivAt hd hcont_inv.intervalIntegrable
     simp only [sub_sub_cancel] at hres
+    rw [show π - π / 2 = π / 2 by ring] at hres
     exact hres
   rw [intervalIntegral.integral_const_mul, hftc] at hmono
   refine hmono.trans ?_
@@ -128,7 +129,7 @@ theorem besselI0C_strip_decay {w : ℂ} (hw : 0 ≤ w.re) (hwn : 16 ≤ ‖w‖)
       (μ := volume) (hc_int.intervalIntegrable 0 δ) (hc_int.intervalIntegrable δ (π - δ))).symm
     have h123 := (intervalIntegral.integral_add_adjacent_intervals
       (μ := volume) (hc_int.intervalIntegrable 0 (π - δ)) (hc_int.intervalIntegrable (π - δ) π)).symm
-    rw [← h123, ← h12]
+    rw [← h12, ← h123]
   have hpt : ∀ θ : ℝ, ‖Complex.exp (w * (Real.cos θ : ℝ))‖ ≤ Real.exp w.re := fun θ => by
     rw [Complex.norm_exp, mul_comm, Complex.re_ofReal_mul]
     exact Real.exp_le_exp.mpr (mul_le_of_le_one_left hw (Real.cos_le_one θ))
@@ -242,7 +243,7 @@ theorem besselI0C_strip_decay {w : ℂ} (hw : 0 ≤ w.re) (hwn : 16 ≤ ‖w‖)
           rw [norm_mul, norm_div, norm_mul, norm_pow, Complex.norm_real, Complex.norm_real,
             Real.norm_of_nonneg hsin_pos.le, Real.norm_eq_abs]
           have h1 : ‖Complex.exp (w * (Real.cos θ : ℝ))‖ ≤ Real.exp w.re := hpt θ
-          have h2 : |Real.cos θ| ≤ 1 := abs_cos_le_one θ
+          have h2 : |Real.cos θ| ≤ 1 := Real.abs_cos_le_one θ
           calc ‖Complex.exp (w * (Real.cos θ : ℝ))‖ * (|Real.cos θ| / (‖w‖ * Real.sin θ ^ 2))
               ≤ Real.exp w.re * (1 / (‖w‖ * Real.sin θ ^ 2)) := by gcongr
             _ = Real.exp w.re / ‖w‖ * (Real.sin θ)⁻¹ ^ 2 := by ring
@@ -416,7 +417,7 @@ private lemma chord_tail_decay {w : ℂ} (hw : 0 < w.re) (hwn : 16 ≤ ‖w‖) 
         rw [norm_mul, norm_div, norm_mul, norm_pow, Complex.norm_real, Complex.norm_real,
           Real.norm_of_nonneg hsin_pos.le, Real.norm_eq_abs]
         calc _ ≤ Real.exp (-w.re) * (1 / (‖w‖ * Real.sin θ ^ 2)) := by
-              gcongr; exact hpt θ hmem; exact abs_cos_le_one θ
+              gcongr; exact hpt θ hmem; exact Real.abs_cos_le_one θ
           _ = Real.exp (-w.re) / ‖w‖ * (Real.sin θ)⁻¹ ^ 2 := by ring
       rw [intervalIntegral.integral_const_mul] at hmono_norm
       exact hmono_norm
@@ -492,7 +493,9 @@ private lemma laplaceA_rotate_decay {w : ℂ} (hw : 1 ≤ w.re) :
     have hlog : HasDerivAt (fun z : ℂ => Complex.log (1 - z ^ 2 / 2)) (-u / (1 - u ^ 2 / 2)) u := by
       have hg : HasDerivAt (fun z : ℂ => 1 - z ^ 2 / 2) (-u) u := by
         simpa using (((hasDerivAt_pow 2 u).div_const 2).const_sub (1 : ℂ)).congr_deriv (by ring)
-      exact (Complex.hasDerivAt_clog (Or.inl hre)).comp u hg |>.congr_deriv (by ring)
+      have hcomp : HasDerivAt (Complex.log ∘ fun z : ℂ => 1 - z ^ 2 / 2)
+          ((1 - u ^ 2 / 2)⁻¹ * (-u)) u := (Complex.hasDerivAt_log (Or.inl hre)).comp u hg
+      exact hcomp.congr_deriv (by rw [div_eq_mul_inv (-u) (1 - u ^ 2 / 2), mul_comm])
     have hcexp := ((hlog.const_mul (-(1 / 2 : ℂ))).cexp)
     refine hcexp.congr_deriv ?_
     change Complex.exp (-(1 / 2 : ℂ) * Complex.log (1 - u ^ 2 / 2)) *
@@ -513,11 +516,10 @@ private lemma laplaceA_rotate_decay {w : ℂ} (hw : 1 ≤ w.re) :
     have hE_d : HasDerivAt E (E γ * (2 * I * w * Complex.exp (-((2 * γ : ℝ) : ℂ) * I))) γ := by
       have harg_d : HasDerivAt (fun t : ℝ => -w * Complex.exp (-((2 : ℂ) * (t : ℂ) * I)))
           (-w * ((-((2 : ℂ) * I)) * Complex.exp (-((2 : ℂ) * (γ : ℂ) * I)))) γ := by
-        have hlin : HasDerivAt (fun t : ℝ => -(2 : ℂ) * (t : ℂ) * I) (-(2 * I)) γ := by
-          have := (((hasDerivAt_id γ).ofReal_comp).const_mul (-(2 : ℂ))).mul_const I
-          exact this.congr_deriv (by ring)
-        convert (hlin.cexp.const_mul (-w)) using 1
-        ring
+        have hlin : HasDerivAt (fun t : ℝ => -((2 : ℂ) * (t : ℂ) * I)) (-(2 * I)) γ := by
+          have := ((((hasDerivAt_id γ).ofReal_comp).const_mul (2 : ℂ)).mul_const I).neg
+          exact this.congr_deriv (by push_cast; ring)
+        exact (hlin.cexp.const_mul (-w)).congr_deriv (by ring)
       have hE_eq : E = fun t : ℝ => Complex.exp (-w * Complex.exp (-((2 : ℂ) * (t : ℂ) * I))) := by
         ext t; dsimp [E]; push_cast; ring_nf
       rw [hE_eq]
@@ -526,10 +528,12 @@ private lemma laplaceA_rotate_decay {w : ℂ} (hw : 1 ≤ w.re) :
       have hlin : HasDerivAt (fun t : ℝ => -((t : ℂ) * I)) (-I) γ := by
         have := (((hasDerivAt_id γ).ofReal_comp).mul_const I).neg
         exact this.congr_deriv (by simp)
-      convert hlin.cexp using 1
-      ring
+      exact hlin.cexp.congr_deriv (by ring)
     have hpsi_d : HasDerivAt (fun t : ℝ => psiC (Complex.exp (-((t : ℂ) * I))))
-        (ψd uγ * (-I * uγ)) γ := (hpsi_deriv huγ_lt).comp γ (by convert hu_d using 1)
+        (ψd uγ * (-I * uγ)) γ := by
+      have hcomp : HasDerivAt (psiC ∘ fun t : ℝ => Complex.exp (-((t : ℂ) * I)))
+          (ψd uγ * (-I * uγ)) γ := (hpsi_deriv huγ_lt).comp γ hu_d
+      exact hcomp
     have he_d : HasDerivAt (fun t : ℝ => Complex.exp ((t : ℂ) * I)) (I * Complex.exp ((γ : ℂ) * I)) γ := by
       have hlin : HasDerivAt (fun t : ℝ => (t : ℂ) * I) I γ := by
         have := (hasDerivAt_id γ).ofReal_comp.mul_const I
@@ -587,7 +591,7 @@ private lemma laplaceA_rotate_decay {w : ℂ} (hw : 1 ≤ w.re) :
       Complex.exp (-w * Complex.exp (-((2 * γ : ℝ) : ℂ) * I))).mul hpsi_c).mul
       (by fun_prop : Continuous fun γ : ℝ => -I * Complex.exp (-((γ : ℂ) * I))))
   have hftc := intervalIntegral.integral_eq_sub_of_hasDerivAt (fun γ _ => hP_deriv γ)
-    ((harc_cont.add hQ_cont).intervalIntegrable _ _)
+    ((harc_cont.add hQ_cont).intervalIntegrable β 0)
   have hint_rew : ∫ γ in β..0,
       Complex.exp (-w * (((1 : ℝ) : ℂ) * Complex.exp (-((γ : ℂ) * I))) ^ 2) *
         psiC (((1 : ℝ) : ℂ) * Complex.exp (-((γ : ℂ) * I))) *
@@ -598,7 +602,7 @@ private lemma laplaceA_rotate_decay {w : ℂ} (hw : 1 ≤ w.re) :
           psiC (((1 : ℝ) : ℂ) * Complex.exp (-((γ : ℂ) * I))) *
             (-I * ((1 : ℝ) : ℂ) * Complex.exp (-((γ : ℂ) * I)))) =
         fun γ => E γ * psiC (Complex.exp (-((γ : ℂ) * I))) * (-I * Complex.exp (-((γ : ℂ) * I))) := by
-      ext γ; dsimp [E]; simp only [Complex.ofReal_one, one_mul, mul_pow, ← Complex.exp_nat_mul]
+      ext γ; dsimp [E]; simp only [one_mul, mul_one, ← Complex.exp_nat_mul]
       congr 2; congr 2; push_cast; ring
     rw [heq]
     rw [intervalIntegral.integral_add (harc_cont.intervalIntegrable _ _)
@@ -634,7 +638,7 @@ private lemma laplaceA_rotate_decay {w : ℂ} (hw : 1 ≤ w.re) :
   have hP_bd : ∀ γ ∈ uIcc β 0, ‖P γ‖ ≤ √2 * Real.exp (-w.re) / (2 * ‖w‖) := by
     intro γ hγ
     have hu : ‖Complex.exp (-((γ : ℂ) * I))‖ = 1 := norm_exp_neg_I γ
-    have he : ‖Complex.exp ((γ : ℂ) * I)‖ = 1 := by simpa using norm_exp_neg_I (-γ)
+    have he : ‖Complex.exp ((γ : ℂ) * I)‖ = 1 := by simp
     have hpsi : ‖psiC (Complex.exp (-((γ : ℂ) * I)))‖ ≤ √2 := psiC_norm_le hu.le
     dsimp [P]
     rw [norm_mul, norm_neg, norm_div, norm_one, norm_mul, Complex.norm_ofNat,
@@ -646,7 +650,7 @@ private lemma laplaceA_rotate_decay {w : ℂ} (hw : 1 ≤ w.re) :
   have hQ_bd : ∀ γ ∈ uIcc β 0, ‖Q γ‖ ≤ (2 * √2) * Real.exp (-w.re) / (2 * ‖w‖) := by
     intro γ hγ
     have hu : ‖Complex.exp (-((γ : ℂ) * I))‖ = 1 := norm_exp_neg_I γ
-    have he : ‖Complex.exp ((γ : ℂ) * I)‖ = 1 := by simpa using norm_exp_neg_I (-γ)
+    have he : ‖Complex.exp ((γ : ℂ) * I)‖ = 1 := by simp
     have hpsi : ‖psiC (Complex.exp (-((γ : ℂ) * I)))‖ ≤ √2 := psiC_norm_le hu.le
     have hψd : ‖ψd (Complex.exp (-((γ : ℂ) * I)))‖ ≤ √2 := by
       dsimp [ψd]
@@ -663,7 +667,7 @@ private lemma laplaceA_rotate_decay {w : ℂ} (hw : 1 ≤ w.re) :
       calc _ ≤ ‖I * psiC (Complex.exp (-((γ : ℂ) * I))) * Complex.exp ((γ : ℂ) * I)‖ +
             ‖I * ψd (Complex.exp (-((γ : ℂ) * I)))‖ := norm_sub_le _ _
         _ = ‖psiC (Complex.exp (-((γ : ℂ) * I)))‖ + ‖ψd (Complex.exp (-((γ : ℂ) * I)))‖ := by
-            rw [norm_mul, norm_mul, norm_mul, Complex.norm_I, he, one_mul, mul_one]
+            simp only [norm_mul, Complex.norm_I, he, one_mul, mul_one]
         _ ≤ √2 + √2 := add_le_add hpsi hψd
         _ = 2 * √2 := by ring
     calc 1 / (2 * ‖w‖) * (‖E γ‖ * ‖_‖)
@@ -685,10 +689,11 @@ private lemma laplaceA_rotate_decay {w : ℂ} (hw : 1 ≤ w.re) :
         gcongr
         · exact hP_bd 0 right_mem_uIcc
         · exact hP_bd β left_mem_uIcc
-    _ = 2 * √2 * Real.exp (-w.re) / ‖w‖ := by ring
+    _ = (2 * √2) * Real.exp (-w.re) / ‖w‖ := by ring
     _ ≤ 4 * Real.exp (-w.re) / ‖w‖ := by
         have hs2 : √2 ≤ 2 := by apply Real.sqrt_le_iff.mpr; constructor <;> norm_num
-        gcongr
+        exact div_le_div_of_nonneg_right
+          (mul_le_mul_of_nonneg_right (by linarith only [hs2]) (Real.exp_pos _).le) (norm_nonneg w)
 
 private lemma cos_half_change_eq (z : ℂ) :
     ∫ θ in (0 : ℝ)..(π / 2), Complex.exp (-z * ((1 - Real.cos θ : ℝ) : ℂ)) =
@@ -1001,6 +1006,191 @@ private lemma exp_nonpos_sub_one_add_abs_le {t : ℝ} (ht : t ≤ 0) :
     dsimp [f] at hle hf0; linarith
   rw [abs_le]; constructor <;> linarith [sq_nonneg t]
 
+private lemma term_j_C_err {z₀ u s ε₀ α₃ c' j : ℝ} (hc0 : 0 < c') (hj2 : (j : ℝ) ≤ 2)
+    (hz₀_lb : c' / 5 ≤ z₀) (hz₀_ge : 200 ≤ z₀) (hs_lo : 1 / 2 ≤ s) (hs_hi : s ≤ 1)
+    (hu0 : 0 ≤ u) (hsl : 1 - u / 2 - u ^ 2 / 8 - u ^ 3 / 4 ≤ s)
+    (h1ms_bound : u ≤ 1 / 10) (hudef : u = 12 * (j : ℝ) / c')
+    (hε₀ : |ε₀| ≤ 220 / (z₀ * s) ^ 2) (h1 : 1 / (8 * z₀) = α₃ / c') :
+    |(1 + 1 / (8 * (z₀ * s)) + ε₀) - (1 + α₃ / c')| ≤ 22100 / c' ^ 2 := by
+  have hdiff : (1 + 1 / (8 * (z₀ * s)) + ε₀) - (1 + α₃ / c') = (1 - s) / (8 * z₀ * s) + ε₀ := by
+    rw [← h1]; field_simp [show z₀ ≠ 0 by linarith, show s ≠ 0 by linarith]; ring
+  have hu2 : u ^ 2 ≤ u := by nlinarith only [hu0, h1ms_bound]
+  have hu3 : u ^ 3 ≤ u := by nlinarith only [hu0, h1ms_bound, hu2]
+  have h1ms : 1 - s ≤ u := by linarith only [hsl, hu0, hu2, hu3]
+  have h1ms_nn : 0 ≤ 1 - s := by linarith only [hs_hi]
+  have hs_pos : 0 < s := by linarith only [hs_lo]
+  have hz₀_pos : 0 < z₀ := by linarith only [hz₀_ge]
+  have hzs_pos : 0 < 8 * z₀ * s := mul_pos (mul_pos (by norm_num) hz₀_pos) hs_pos
+  have hterm1 : |(1 - s) / (8 * z₀ * s)| ≤ 30 / c' ^ 2 := by
+    rw [abs_of_nonneg (div_nonneg h1ms_nn hzs_pos.le)]
+    have hden_lb : 4 / 5 * c' ≤ 8 * z₀ * s := by
+      have hzc : 0 ≤ 8 * z₀ := mul_nonneg (by norm_num) hz₀_pos.le
+      calc 4 / 5 * c' = (8 * (c' / 5)) * (1 / 2) := by ring
+        _ ≤ (8 * z₀) * s :=
+            mul_le_mul (mul_le_mul_of_nonneg_left hz₀_lb (by norm_num)) hs_lo (by norm_num) hzc
+    calc (1 - s) / (8 * z₀ * s) ≤ u / (4 / 5 * c') :=
+          div_le_div₀ hu0 h1ms (by positivity) hden_lb
+      _ = (12 * (j : ℝ)) / (4 / 5 * c' ^ 2) := by rw [hudef]; field_simp [hc0.ne']
+      _ ≤ 24 / (4 / 5 * c' ^ 2) := by gcongr; linarith only [hj2]
+      _ = 30 / c' ^ 2 := by ring
+  have hterm2 : |ε₀| ≤ 22000 / c' ^ 2 := by
+    refine hε₀.trans ?_
+    have hzs : (c' / 10) ^ 2 ≤ (z₀ * s) ^ 2 := by
+      apply pow_le_pow_left₀ (by positivity)
+      calc c' / 10 = (c' / 5) * (1 / 2) := by ring
+        _ ≤ z₀ * s := mul_le_mul hz₀_lb hs_lo (by norm_num) hz₀_pos.le
+    calc 220 / (z₀ * s) ^ 2 ≤ 220 / (c' / 10) ^ 2 :=
+          div_le_div_of_nonneg_left (by norm_num) (by positivity) hzs
+      _ = 22000 / c' ^ 2 := by ring
+  rw [hdiff]
+  calc |(1 - s) / (8 * z₀ * s) + ε₀|
+      ≤ |(1 - s) / (8 * z₀ * s)| + |ε₀| := abs_add_le _ _
+    _ ≤ 30 / c' ^ 2 + 22000 / c' ^ 2 := add_le_add hterm1 hterm2
+    _ = 22030 * (1 / c' ^ 2) := by ring
+    _ ≤ 22100 * (1 / c' ^ 2) := by gcongr; norm_num
+    _ = 22100 / c' ^ 2 := by ring
+
+private lemma term_j_poly_comb {q A A₀ B B₀ C C₀ α₁ α₂ α₃ c' : ℝ} {j : ℕ}
+    (hc0 : 0 < c') (hc : 1000 ≤ c') (hq0 : 0 < q) (hq1 : q ≤ 1)
+    (hα₁_nn : 0 ≤ α₁) (hα₂_nn : 0 ≤ α₂) (hα₂_hi : α₂ ≤ 6)
+    (hα₃_nn : 0 ≤ α₃) (hα₃_hi : α₃ ≤ 1)
+    (hxq2 : α₁ * q ≤ 6)
+    (hA₀ : A₀ = 1 - α₁ / c') (hB₀ : B₀ = 1 + α₂ / c') (hC₀ : C₀ = 1 + α₃ / c')
+    (hA_err : q * |A - A₀| ≤ 600 / c' ^ 2)
+    (hB_err : |B - B₀| ≤ 1200 / c' ^ 2)
+    (hC_err : |C - C₀| ≤ 22100 / c' ^ 2)
+    (hB₀_bd : |B₀| ≤ 3 / 2) (hB_bd : |B| ≤ 2) (hC_bd : |C| ≤ 2) (hqA₀ : q * |A₀| ≤ 2)
+    (hj_eq : α₂ = 3 * (j : ℝ)) :
+    q * |A * B * C - (1 + (3 * (j : ℝ) - α₁ + α₃) / c')| ≤ 96000 / c' ^ 2 := by
+  have hpoly : q * |A₀ * B₀ * C₀ - (1 + (3 * (j : ℝ) - α₁ + α₃) / c')| ≤ 100 / c' ^ 2 := by
+    have hid : A₀ * B₀ * C₀ - (1 + (3 * (j : ℝ) - α₁ + α₃) / c') =
+        (-α₁ * α₂ - α₁ * α₃ + α₂ * α₃) / c' ^ 2 - (α₁ * α₂ * α₃) / c' ^ 3 := by
+      rw [hA₀, hB₀, hC₀, ← hj_eq]; ring
+    rw [hid]
+    have htri : |(-α₁ * α₂ - α₁ * α₃ + α₂ * α₃) / c' ^ 2 - (α₁ * α₂ * α₃) / c' ^ 3| ≤
+        (α₁ * α₂ + α₁ * α₃ + α₂ * α₃) / c' ^ 2 + (α₁ * α₂ * α₃) / c' ^ 3 := by
+      refine (abs_sub _ _).trans (add_le_add ?_ ?_)
+      · rw [abs_div, abs_of_pos (pow_pos hc0 2)]
+        gcongr
+        calc |-α₁ * α₂ - α₁ * α₃ + α₂ * α₃|
+            ≤ |-α₁ * α₂ - α₁ * α₃| + |α₂ * α₃| := abs_add_le _ _
+          _ ≤ (|-(α₁ * α₂)| + |α₁ * α₃|) + |α₂ * α₃| := by
+              gcongr; simpa [neg_mul] using abs_sub (-(α₁ * α₂)) (α₁ * α₃)
+          _ = α₁ * α₂ + α₁ * α₃ + α₂ * α₃ := by
+              rw [abs_neg, abs_of_nonneg (mul_nonneg hα₁_nn hα₂_nn),
+                abs_of_nonneg (mul_nonneg hα₁_nn hα₃_nn),
+                abs_of_nonneg (mul_nonneg hα₂_nn hα₃_nn)]
+      · rw [abs_div, abs_of_pos (pow_pos hc0 3),
+          abs_of_nonneg (mul_nonneg (mul_nonneg hα₁_nn hα₂_nn) hα₃_nn)]
+    have h36c : 6 * 6 * 1 / c' ≤ 1 := (div_le_one hc0).mpr (by linarith only [hc])
+    calc q * |(-α₁ * α₂ - α₁ * α₃ + α₂ * α₃) / c' ^ 2 - (α₁ * α₂ * α₃) / c' ^ 3|
+        ≤ q * ((α₁ * α₂ + α₁ * α₃ + α₂ * α₃) / c' ^ 2 + (α₁ * α₂ * α₃) / c' ^ 3) :=
+          mul_le_mul_of_nonneg_left htri hq0.le
+      _ = ((α₁ * q) * α₂ + (α₁ * q) * α₃ + q * (α₂ * α₃) +
+            ((α₁ * q) * α₂ * α₃) / c') / c' ^ 2 := by ring
+      _ ≤ (6 * 6 + 6 * 1 + 1 * (6 * 1) + (6 * 6 * 1) / c') / c' ^ 2 := by gcongr
+      _ ≤ (48 + 1) / c' ^ 2 := by gcongr; linarith only [h36c]
+      _ ≤ 100 / c' ^ 2 := by gcongr; norm_num
+  have htel : A * B * C - (1 + (3 * (j : ℝ) - α₁ + α₃) / c') =
+      (A - A₀) * (B * C) + A₀ * (B - B₀) * C + A₀ * B₀ * (C - C₀) +
+        (A₀ * B₀ * C₀ - (1 + (3 * (j : ℝ) - α₁ + α₃) / c')) := by ring
+  rw [htel]
+  calc q * |((A - A₀) * (B * C) + A₀ * (B - B₀) * C + A₀ * B₀ * (C - C₀)) +
+        (A₀ * B₀ * C₀ - (1 + (3 * (j : ℝ) - α₁ + α₃) / c'))|
+      ≤ q * ((|A - A₀| * (|B| * |C|) + |A₀| * |B - B₀| * |C| + |A₀| * |B₀| * |C - C₀|) +
+          |A₀ * B₀ * C₀ - (1 + (3 * (j : ℝ) - α₁ + α₃) / c')|) := by
+        gcongr
+        refine (abs_add_le _ _).trans (add_le_add ?_ le_rfl)
+        refine (abs_add_le _ _).trans (add_le_add ?_ ?_)
+        · refine (abs_add_le _ _).trans (add_le_add ?_ ?_)
+          · rw [abs_mul, abs_mul]
+          · rw [abs_mul, abs_mul]
+        · rw [abs_mul, abs_mul]
+    _ = (q * |A - A₀|) * (|B| * |C|) + (q * |A₀|) * |B - B₀| * |C| +
+          (q * |A₀|) * |B₀| * |C - C₀| +
+          q * |A₀ * B₀ * C₀ - (1 + (3 * (j : ℝ) - α₁ + α₃) / c')| := by ring
+    _ ≤ (600 / c' ^ 2) * (2 * 2) + 2 * (1200 / c' ^ 2) * 2 +
+          2 * (3 / 2) * (22100 / c' ^ 2) + 100 / c' ^ 2 := by gcongr
+    _ = 73600 * (1 / c' ^ 2) := by ring
+    _ ≤ 96000 * (1 / c' ^ 2) := by gcongr; norm_num
+    _ = 96000 / c' ^ 2 := by ring
+
+private lemma hqA₀_alg {q A₀ α₁ c' : ℝ} (hc0 : 0 < c') (hc : 1000 ≤ c')
+    (hq0 : 0 < q) (hq1 : q ≤ 1) (hα₁_nn : 0 ≤ α₁) (hxq2 : α₁ * q ≤ 6)
+    (hA₀ : A₀ = 1 - α₁ / c') : q * |A₀| ≤ 2 := by
+  have hαc_nn : 0 ≤ α₁ / c' := div_nonneg hα₁_nn hc0.le
+  have hA₀_le : |A₀| ≤ 1 + α₁ / c' := by
+    rw [hA₀]; exact (abs_sub (1 : ℝ) (α₁ / c')).trans_eq (by rw [abs_one, abs_of_nonneg hαc_nn])
+  have h6c : 6 / c' ≤ 1 := (div_le_one hc0).mpr (by linarith only [hc])
+  calc q * |A₀| ≤ q * (1 + α₁ / c') := mul_le_mul_of_nonneg_left hA₀_le hq0.le
+    _ = q + (α₁ * q) / c' := by ring
+    _ ≤ 1 + 6 / c' := add_le_add hq1 (div_le_div_of_nonneg_right hxq2 hc0.le)
+    _ ≤ 1 + 1 := add_le_add le_rfl h6c
+    _ = 2 := by norm_num
+
+private lemma abs_le_two_of_approx {X X₀ E : ℝ} (hdiff : |X - X₀| ≤ E) (hX₀ : |X₀| ≤ 3 / 2)
+    (hE : E ≤ 1 / 10) : |X| ≤ 2 := by
+  have hd := abs_le.mp hdiff
+  have h0 := abs_le.mp hX₀
+  rw [abs_le]; constructor <;> linarith only [hd.1, hd.2, h0.1, h0.2, hE]
+
+private lemma term_j_A_err {c' x z₀ u s q α₁ : ℝ} {j : ℕ}
+    (hc0 : 0 < c') (hc : 1000 ≤ c') (hxpos : 0 < x) (hj2 : (j : ℝ) ≤ 2)
+    (hz₀pos : 0 ≤ z₀) (hsr : s ≤ 1 - u / 2 - u ^ 2 / 8) (hsl : 1 - u / 2 - u ^ 2 / 8 - u ^ 3 / 4 ≤ s)
+    (hq0 : 0 ≤ q) (hxq1 : (j : ℝ) * x * q ≤ 1 / (4 * π)) (hxq2_sq : α₁ ^ 2 * q ≤ 144)
+    (hz₀def : z₀ = c' * Bessel.besselL x) (hudef : u = 12 * (j : ℝ) / c')
+    (hα₁def : α₁ = 12 * π * (j : ℝ) ^ 2 * x) :
+    q * |Real.exp (z₀ * (s - 1 + u / 2)) - (1 - α₁ / c')| ≤ 600 / c' ^ 2 := by
+  have hzu2 : z₀ * (u ^ 2 / 8) = α₁ / c' := by
+    rw [hz₀def, hudef, hα₁def, Bessel.besselL]; field_simp [hc0.ne']; ring
+  have hE_nonpos : z₀ * (s - 1 + u / 2) ≤ 0 :=
+    mul_nonpos_of_nonneg_of_nonpos hz₀pos (by linarith [hsr, sq_nonneg u])
+  have hE_diff : |z₀ * (s - 1 + u / 2) - (-α₁ / c')| ≤ 288 * π * (j : ℝ) ^ 3 * x / c' ^ 2 := by
+    have hdiff_s : z₀ * (s - 1 + u / 2) - (-α₁ / c') = -z₀ * (1 - u / 2 - u ^ 2 / 8 - s) := by
+      rw [neg_div, ← hzu2]; ring
+    rw [hdiff_s, neg_mul, abs_neg, abs_mul, abs_of_nonneg hz₀pos, abs_of_nonneg (by linarith [hsr])]
+    have hrem : 1 - u / 2 - u ^ 2 / 8 - s ≤ u ^ 3 / 4 := by linarith [hsl]
+    have hzu3 : z₀ * (u ^ 3 / 4) = 288 * π * (j : ℝ) ^ 3 * x / c' ^ 2 := by
+      rw [hz₀def, hudef, Bessel.besselL]; field_simp [hc0.ne']; ring
+    calc z₀ * (1 - u / 2 - u ^ 2 / 8 - s) ≤ z₀ * (u ^ 3 / 4) := by gcongr
+      _ = 288 * π * (j : ℝ) ^ 3 * x / c' ^ 2 := hzu3
+  have h1 := exp_nonpos_sub_one_add_abs_le hE_nonpos
+  have hE_abs : |z₀ * (s - 1 + u / 2)| ≤ 2 * (α₁ / c') := by
+    have h3 : 288 * π * (j : ℝ) ^ 3 * x / c' ^ 2 ≤ α₁ / c' := by
+      rcases eq_or_lt_of_le (Nat.zero_le j) with rfl | hjpos
+      · simp [hα₁def]
+      · rw [hα₁def, div_le_div_iff₀ (by positivity) hc0]
+        have hpx : 0 < π * x := mul_pos Real.pi_pos hxpos
+        have hj_le : 288 * (j : ℝ) ≤ 12 * c' := by linarith only [hj2, hc]
+        calc (288 * π * (j : ℝ) ^ 3 * x) * c' = (π * x * (j : ℝ) ^ 2 * c') * (288 * (j : ℝ)) := by ring
+          _ ≤ (π * x * (j : ℝ) ^ 2 * c') * (12 * c') := by gcongr
+          _ = (12 * π * (j : ℝ) ^ 2 * x) * c' ^ 2 := by ring
+    have h4 := abs_le.mp hE_diff
+    have hnd : -α₁ / c' = -(α₁ / c') := by rw [neg_div]
+    have hαc : 0 ≤ α₁ / c' := by rw [hα₁def]; positivity
+    rw [abs_le]; constructor <;> linarith only [h3, h4.1, h4.2, hnd, hαc]
+  have hE_sq : (z₀ * (s - 1 + u / 2)) ^ 2 ≤ 4 * (α₁ / c') ^ 2 := by
+    calc (z₀ * (s - 1 + u / 2)) ^ 2 = |z₀ * (s - 1 + u / 2)| ^ 2 := (sq_abs _).symm
+      _ ≤ (2 * (α₁ / c')) ^ 2 := pow_le_pow_left₀ (abs_nonneg _) hE_abs 2
+      _ = 4 * (α₁ / c') ^ 2 := by ring
+  have htri : |Real.exp (z₀ * (s - 1 + u / 2)) - (1 - α₁ / c')| ≤
+      (z₀ * (s - 1 + u / 2)) ^ 2 / 2 + 288 * π * (j : ℝ) ^ 3 * x / c' ^ 2 := by
+    have hsub : Real.exp (z₀ * (s - 1 + u / 2)) - (1 - α₁ / c') =
+        (Real.exp (z₀ * (s - 1 + u / 2)) - (1 + z₀ * (s - 1 + u / 2))) +
+        (z₀ * (s - 1 + u / 2) - (-α₁ / c')) := by ring
+    rw [hsub]
+    exact (abs_add_le _ _).trans (add_le_add h1 hE_diff)
+  have hj_sq4 : (j : ℝ) ^ 2 ≤ 4 := by
+    calc (j : ℝ) ^ 2 ≤ 2 ^ 2 := pow_le_pow_left₀ (by positivity) hj2 2
+      _ = 4 := by norm_num
+  calc q * |Real.exp (z₀ * (s - 1 + u / 2)) - (1 - α₁ / c')|
+      ≤ q * (2 * (α₁ / c') ^ 2 + 288 * π * (j : ℝ) ^ 3 * x / c' ^ 2) := by
+        gcongr; linarith only [htri, hE_sq]
+    _ = 2 * (α₁ ^ 2 * q) / c' ^ 2 + 288 * π * (j : ℝ) ^ 2 * ((j : ℝ) * x * q) / c' ^ 2 := by ring
+    _ ≤ 2 * 144 / c' ^ 2 + 288 * π * 4 * (1 / (4 * π)) / c' ^ 2 := by gcongr
+    _ = 576 / c' ^ 2 := by field_simp [Real.pi_pos.ne']; ring
+    _ ≤ 600 / c' ^ 2 := by gcongr; norm_num
+
 private lemma term_j_virasoro {c' x : ℝ} (j : ℕ) (hj : j ≤ 2) (hc : 1000 ≤ c')
     (hx : xiStar / 2 ≤ x) :
     |Bessel.besselI0 (c' * Bessel.besselL x * √(1 - 12 * (j : ℝ) / c')) /
@@ -1039,10 +1229,10 @@ private lemma term_j_virasoro {c' x : ℝ} (j : ℕ) (hj : j ≤ 2) (hc : 1000 �
         Real.exp (-4 * π * (j : ℝ) * x) * Real.exp (z₀ * (s - 1 + u / 2)) := by
       rw [← Real.exp_sub, ← Real.exp_add]; congr 1; linarith
     have hsqrt : √(2 * π * z₀) / √(2 * π * (z₀ * s)) = s⁻¹ ^ (1 / 2 : ℝ) := by
-      rw [show 2 * π * (z₀ * s) = (2 * π * z₀) * s by ring,
-        Real.sqrt_mul (by positivity), ← div_div,
-        div_self (Real.sqrt_pos.mpr (by positivity)).ne', one_div, Real.sqrt_eq_rpow,
-        Real.inv_rpow (by linarith)]
+      have hsq_zs : √(2 * π * (z₀ * s)) = √(2 * π * z₀) * √s := by
+        rw [show 2 * π * (z₀ * s) = (2 * π * z₀) * s by ring, Real.sqrt_mul (by positivity)]
+      rw [hsq_zs, ← div_div, div_self (Real.sqrt_pos.mpr (by positivity)).ne', one_div,
+        Real.sqrt_eq_rpow, Real.inv_rpow (by linarith)]
     have hden1 : √(2 * π * z₀) ≠ 0 := (Real.sqrt_pos.mpr (by positivity)).ne'
     have hden2 : √(2 * π * (z₀ * s)) ≠ 0 := (Real.sqrt_pos.mpr (by positivity)).ne'
     have h1 : Real.exp (z₀ * s) / √(2 * π * (z₀ * s)) / (Real.exp z₀ / √(2 * π * z₀)) =
@@ -1051,7 +1241,9 @@ private lemma term_j_virasoro {c' x : ℝ} (j : ℕ) (hj : j ≤ 2) (hc : 1000 �
     rw [h1, hexp, hsqrt, mul_assoc]
   set q : ℝ := Real.exp (-4 * π * (j : ℝ) * x)
   have hq0 : 0 < q := Real.exp_pos _
-  have hq1 : q ≤ 1 := Real.exp_le_one_iff.mpr (by have : 0 ≤ 4 * π * (j : ℝ) * x := by positivity; linarith)
+  have hq1 : q ≤ 1 := by
+    have hneg : -4 * π * (j : ℝ) * x = -(4 * π * (j : ℝ) * x) := by ring
+    exact Real.exp_le_one_iff.mpr (by rw [hneg, neg_nonpos]; positivity)
   have hB_eq : Bessel.besselI0 (z₀ * s) / Bessel.besselAs z₀ =
       q * (Real.exp (z₀ * (s - 1 + u / 2)) * (s⁻¹ ^ (1 / 2 : ℝ)) *
         (1 + 1 / (8 * (z₀ * s)) + ε₀)) := by
@@ -1117,55 +1309,8 @@ private lemma term_j_virasoro {c' x : ℝ} (j : ℕ) (hj : j ≤ 2) (hc : 1000 �
   have hE_nonpos : E_arg ≤ 0 := by
     have : s - 1 + u / 2 ≤ 0 := by linarith [hsr, sq_nonneg u]
     exact mul_nonpos_of_nonneg_of_nonpos (by linarith) this
-  have hzu2 : z₀ * (u ^ 2 / 8) = α₁ / c' := by
-    rw [hz₀def, hudef, Bessel.besselL]; dsimp [α₁]; field_simp [hc0.ne']; ring
-  have hE_diff : |E_arg - (-α₁ / c')| ≤ 288 * π * (j : ℝ) ^ 3 * x / c' ^ 2 := by
-    have hdiff_s : E_arg - (-α₁ / c') = -z₀ * (1 - u / 2 - u ^ 2 / 8 - s) := by
-      rw [neg_div, ← hzu2]; dsimp [E_arg]; ring
-    rw [hdiff_s, neg_mul, abs_neg, abs_mul, abs_of_pos (by linarith),
-      abs_of_nonneg (by linarith [hsr])]
-    have hrem : 1 - u / 2 - u ^ 2 / 8 - s ≤ u ^ 3 / 4 := by linarith [hsl]
-    have hzu3 : z₀ * (u ^ 3 / 4) = 288 * π * (j : ℝ) ^ 3 * x / c' ^ 2 := by
-      rw [hz₀def, hudef, Bessel.besselL]; field_simp [hc0.ne']; ring
-    calc z₀ * (1 - u / 2 - u ^ 2 / 8 - s) ≤ z₀ * (u ^ 3 / 4) := by gcongr
-      _ = 288 * π * (j : ℝ) ^ 3 * x / c' ^ 2 := hzu3
-  have hA_err : q * |A - A₀| ≤ 600 / c' ^ 2 := by
-    have h1 : |A - (1 + E_arg)| ≤ E_arg ^ 2 / 2 := exp_nonpos_sub_one_add_abs_le hE_nonpos
-    have hE_abs : |E_arg| ≤ 2 * (α₁ / c') := by
-      have h3 : 288 * π * (j : ℝ) ^ 3 * x / c' ^ 2 ≤ α₁ / c' := by
-        rcases eq_or_lt_of_le (Nat.zero_le j) with rfl | hjpos
-        · simp [α₁]
-        · have hj1 : (1 : ℝ) ≤ (j : ℝ) := by exact_mod_cast hjpos
-          dsimp [α₁]
-          rw [div_le_div_iff₀ (by positivity) hc0]
-          have hpx : 0 < π * x := mul_pos Real.pi_pos hxpos
-          have hj_le : 288 * (j : ℝ) ≤ 12 * c' := by linarith only [hj2, hc]
-          calc (288 * π * (j : ℝ) ^ 3 * x) * c' = (π * x * (j : ℝ) ^ 2 * c') * (288 * (j : ℝ)) := by ring
-            _ ≤ (π * x * (j : ℝ) ^ 2 * c') * (12 * c') := by gcongr
-            _ = (12 * π * (j : ℝ) ^ 2 * x) * c' ^ 2 := by ring
-      have h4 := abs_le.mp hE_diff
-      have hnd : -α₁ / c' = -(α₁ / c') := neg_div α₁ c'
-      have hαc : 0 ≤ α₁ / c' := by positivity
-      rw [abs_le]; constructor <;> linarith only [h3, h4.1, h4.2, hnd, hαc]
-    have hE_sq : E_arg ^ 2 ≤ 4 * (α₁ / c') ^ 2 := by
-      have : E_arg ^ 2 = |E_arg| ^ 2 := (sq_abs _).symm
-      rw [this]
-      calc |E_arg| ^ 2 ≤ (2 * (α₁ / c')) ^ 2 := pow_le_pow_left₀ (abs_nonneg _) hE_abs 2
-        _ = 4 * (α₁ / c') ^ 2 := by ring
-    have htri : |A - A₀| ≤ E_arg ^ 2 / 2 + 288 * π * (j : ℝ) ^ 3 * x / c' ^ 2 := by
-      have hsub : A - A₀ = (A - (1 + E_arg)) + (E_arg - (-α₁ / c')) := by dsimp [A₀]; ring
-      rw [hsub]
-      exact (abs_add_le _ _).trans (add_le_add h1 hE_diff)
-    have hj_sq4 : (j : ℝ) ^ 2 ≤ 4 := by
-      calc (j : ℝ) ^ 2 ≤ 2 ^ 2 := pow_le_pow_left₀ (by positivity) hj2 2
-        _ = 4 := by norm_num
-    calc q * |A - A₀| ≤ q * (2 * (α₁ / c') ^ 2 + 288 * π * (j : ℝ) ^ 3 * x / c' ^ 2) := by
-          gcongr; linarith only [htri, hE_sq]
-      _ = 2 * (α₁ ^ 2 * q) / c' ^ 2 + 288 * π * (j : ℝ) ^ 2 * ((j : ℝ) * x * q) / c' ^ 2 := by ring
-      _ ≤ 2 * 144 / c' ^ 2 + 288 * π * 4 * (1 / (4 * π)) / c' ^ 2 := by
-          gcongr
-      _ = 576 / c' ^ 2 := by field_simp [Real.pi_pos.ne']; ring
-      _ ≤ 600 / c' ^ 2 := by gcongr; norm_num
+  have hA_err : q * |A - A₀| ≤ 600 / c' ^ 2 :=
+    term_j_A_err hc0 hc hxpos hj2 (by linarith) hsr hsl hq0.le hxq1 hxq2_sq hz₀def hudef rfl
   have hB_err : |B - B₀| ≤ 1200 / c' ^ 2 := by
     have h1 := inv_sqrt_sqrt_one_sub_bounds hu0 hu1
     have hB0_eq : 1 + u / 4 = B₀ := by dsimp [B₀, α₂, u]; ring
@@ -1178,105 +1323,36 @@ private lemma term_j_virasoro {c' x : ℝ} (j : ℕ) (hj : j ≤ 2) (hc : 1000 �
         _ ≤ 288 * 4 / c' ^ 2 := by gcongr
         _ ≤ 1200 / c' ^ 2 := by gcongr; norm_num
     exact h1.trans hu2
-  have hB₀_bd : |B₀| ≤ 2 := by
-    dsimp [B₀]; rw [abs_le]; constructor <;> [nlinarith; linarith]
+  have hB₀_bd : |B₀| ≤ 3 / 2 := by
+    have hαc : 0 ≤ α₂ / c' := div_nonneg hα₂_bd.1 hc0.le
+    have hαle : α₂ / c' ≤ 1 / 2 := (div_le_iff₀ hc0).mpr (by linarith only [hα₂_bd.2, hc])
+    dsimp [B₀]; rw [abs_le]; constructor <;> linarith only [hαc, hαle]
   have hB_bd : |B| ≤ 2 := by
     have hdiff := abs_le.mp hB_err
     have hb0 := abs_le.mp hB₀_bd
-    have h1 : 1200 / c' ^ 2 ≤ 1 / 100 := by
-      rw [div_le_iff₀ (by positivity)]; nlinarith
-    rw [abs_le]; constructor <;> linarith [show 0 ≤ B from Real.rpow_nonneg (inv_nonneg.mpr (by linarith)) _]
+    have h1 : 1200 / c' ^ 2 ≤ 1 / 100 :=
+      (div_le_iff₀ (by positivity)).mpr (by nlinarith only [hc])
+    have hs_nn : 0 ≤ s := by linarith only [hs_lo]
+    have hB_nn : 0 ≤ B := Real.rpow_nonneg (inv_nonneg.mpr hs_nn) _
+    rw [abs_le]; constructor <;> linarith only [hb0.1, hb0.2, hdiff.1, hdiff.2, h1, hB_nn]
   have hC_err : |C - C₀| ≤ 22100 / c' ^ 2 := by
     have h1 : 1 / (8 * z₀) = α₃ / c' := by
       rw [hz₀def, Bessel.besselL]; dsimp [α₃]; field_simp [hc0.ne', hxpos.ne', Real.pi_pos.ne']; ring
-    have hdiff : C - C₀ = (1 - s) / (8 * z₀ * s) + ε₀ := by
-      dsimp [C, C₀]; rw [← h1]; field_simp [hz₀_ge, hs_lo]; ring
-    have h1ms : 1 - s ≤ u := by linarith
-    have hterm1 : |(1 - s) / (8 * z₀ * s)| ≤ 30 / c' ^ 2 := by
-      rw [abs_of_nonneg (div_nonneg (by linarith) (by positivity))]
-      calc (1 - s) / (8 * z₀ * s) ≤ u / (8 * (c' / 5) * (1 / 2)) := by gcongr
-        _ = (12 * (j : ℝ)) / (4 / 5 * c' ^ 2) := by rw [hudef]; field_simp [hc0.ne']; ring
-        _ ≤ 24 / (4 / 5 * c' ^ 2) := by gcongr; linarith
-        _ = 30 / c' ^ 2 := by ring
-    have hterm2 : |ε₀| ≤ 22000 / c' ^ 2 := by
-      refine hε₀.trans ?_
-      have hzs : (c' / 10) ^ 2 ≤ (z₀ * s) ^ 2 := by
-        apply pow_le_pow_left₀ (by positivity)
-        calc c' / 10 = (c' / 5) * (1 / 2) := by ring
-          _ ≤ z₀ * s := by gcongr
-      calc 220 / (z₀ * s) ^ 2 ≤ 220 / (c' / 10) ^ 2 := by gcongr
-        _ = 22000 / c' ^ 2 := by ring
-    rw [hdiff]
-    exact (abs_add_le _ _).trans (by linarith)
-  have hC₀_bd : |C₀| ≤ 2 := by
-    dsimp [C₀]; rw [abs_le]; constructor <;> [nlinarith; linarith]
-  have hC_bd : |C| ≤ 2 := by
-    have hdiff := abs_le.mp hC_err
-    have hc0b := abs_le.mp hC₀_bd
-    have h1 : 22100 / c' ^ 2 ≤ 1 / 10 := by
-      rw [div_le_iff₀ (by positivity)]; nlinarith
-    rw [abs_le]; constructor <;> linarith
-  have hqA₀ : q * |A₀| ≤ 2 := by
-    have : |A₀| ≤ 1 + α₁ / c' := by
-      dsimp [A₀]; exact (abs_sub _ _).trans_eq (by simp [abs_of_nonneg hα₁_nn])
-    calc q * |A₀| ≤ q * (1 + α₁ / c') := by gcongr
-      _ = q + (α₁ * q) / c' := by ring
-      _ ≤ 1 + 6 / c' := by gcongr
-      _ ≤ 2 := by linarith [show 6 / c' ≤ 1 by rw [div_le_one hc0]; linarith]
-  have hpoly : q * |A₀ * B₀ * C₀ - (1 + (3 * (j : ℝ) - α₁ + α₃) / c')| ≤ 100 / c' ^ 2 := by
-    have hid : A₀ * B₀ * C₀ - (1 + (3 * (j : ℝ) - α₁ + α₃) / c') =
-        (-α₁ * α₂ - α₁ * α₃ + α₂ * α₃) / c' ^ 2 - (α₁ * α₂ * α₃) / c' ^ 3 := by
-      dsimp [A₀, B₀, C₀, α₂]; ring
-    rw [hid]
-    have htri : |(-α₁ * α₂ - α₁ * α₃ + α₂ * α₃) / c' ^ 2 - (α₁ * α₂ * α₃) / c' ^ 3| ≤
-        (α₁ * α₂ + α₁ * α₃ + α₂ * α₃) / c' ^ 2 + (α₁ * α₂ * α₃) / c' ^ 3 := by
-      refine (abs_sub_le _ _).trans (add_le_add ?_ ?_)
-      · rw [abs_div, abs_of_pos (by positivity : 0 < c' ^ 2)]
-        gcongr
-        calc |-α₁ * α₂ - α₁ * α₃ + α₂ * α₃|
-            ≤ |-α₁ * α₂ - α₁ * α₃| + |α₂ * α₃| := abs_add_le _ _
-          _ ≤ (|-(α₁ * α₂)| + |α₁ * α₃|) + |α₂ * α₃| := by
-              gcongr; simpa [neg_mul] using abs_sub_le (-(α₁ * α₂)) (α₁ * α₃)
-          _ = α₁ * α₂ + α₁ * α₃ + α₂ * α₃ := by
-              simp [abs_neg, abs_of_nonneg (mul_nonneg hα₁_nn hα₂_bd.1),
-                abs_of_nonneg (mul_nonneg hα₁_nn hα₃_bd.1),
-                abs_of_nonneg (mul_nonneg hα₂_bd.1 hα₃_bd.1)]
-      · rw [abs_div, abs_of_pos (by positivity : 0 < c' ^ 3),
-          abs_of_nonneg (by positivity)]
-    calc q * |(-α₁ * α₂ - α₁ * α₃ + α₂ * α₃) / c' ^ 2 - (α₁ * α₂ * α₃) / c' ^ 3|
-        ≤ q * ((α₁ * α₂ + α₁ * α₃ + α₂ * α₃) / c' ^ 2 + (α₁ * α₂ * α₃) / c' ^ 3) := by
-          gcongr
-      _ = ((α₁ * q) * α₂ + (α₁ * q) * α₃ + q * (α₂ * α₃) +
-            ((α₁ * q) * α₂ * α₃) / c') / c' ^ 2 := by ring
-      _ ≤ (6 * 6 + 6 * 1 + 1 * (6 * 1) + (6 * 6 * 1) / c') / c' ^ 2 := by gcongr
-      _ ≤ (48 + 1) / c' ^ 2 := by
-          gcongr; rw [div_le_one hc0]; linarith
-      _ ≤ 100 / c' ^ 2 := by gcongr; norm_num
-  have htel : A * B * C - (1 + (3 * (j : ℝ) - α₁ + α₃) / c') =
-      (A - A₀) * (B * C) + A₀ * (B - B₀) * C + A₀ * B₀ * (C - C₀) +
-        (A₀ * B₀ * C₀ - (1 + (3 * (j : ℝ) - α₁ + α₃) / c')) := by ring
+    exact term_j_C_err hc0 hj2 hz₀_lb hz₀_ge hs_lo hs_hi hu0 hsl hu1 hudef hε₀ h1
+  have hC₀_bd : |C₀| ≤ 3 / 2 := by
+    have hαc : 0 ≤ α₃ / c' := div_nonneg hα₃_bd.1 hc0.le
+    have hαle : α₃ / c' ≤ 1 / 2 := (div_le_iff₀ hc0).mpr (by linarith only [hα₃_bd.2, hc])
+    dsimp [C₀]; rw [abs_le]; constructor <;> linarith only [hαc, hαle]
+  have hC_bd : |C| ≤ 2 :=
+    abs_le_two_of_approx hC_err hC₀_bd
+      ((div_le_iff₀ (by positivity)).mpr (by nlinarith only [hc]))
+  have hqA₀ : q * |A₀| ≤ 2 := hqA₀_alg hc0 hc hq0 hq1 hα₁_nn hxq2 rfl
   have hlin : (3 * (j : ℝ) - α₁ + α₃) / c' =
       (3 * (j : ℝ) - 12 * π * (j : ℝ) ^ 2 * x + 3 / (16 * π * x)) / c' := by
-    dsimp [α₁, α₃]; ring
-  rw [← hlin, htel]
-  calc q * |((A - A₀) * (B * C) + A₀ * (B - B₀) * C + A₀ * B₀ * (C - C₀)) +
-        (A₀ * B₀ * C₀ - (1 + (3 * (j : ℝ) - α₁ + α₃) / c'))|
-      ≤ q * ((|A - A₀| * (|B| * |C|) + |A₀| * |B - B₀| * |C| + |A₀| * |B₀| * |C - C₀|) +
-          |A₀ * B₀ * C₀ - (1 + (3 * (j : ℝ) - α₁ + α₃) / c')|) := by
-        gcongr
-        refine (abs_add_le _ _).trans (add_le_add ?_ le_rfl)
-        refine (abs_add_le _ _).trans (add_le_add ?_ ?_)
-        · refine (abs_add_le _ _).trans (add_le_add ?_ ?_)
-          · rw [abs_mul, abs_mul]
-          · rw [abs_mul, abs_mul]
-        · rw [abs_mul, abs_mul]
-    _ = (q * |A - A₀|) * (|B| * |C|) + (q * |A₀|) * |B - B₀| * |C| +
-          (q * |A₀|) * |B₀| * |C - C₀| +
-          q * |A₀ * B₀ * C₀ - (1 + (3 * (j : ℝ) - α₁ + α₃) / c')| := by ring
-    _ ≤ (600 / c' ^ 2) * (2 * 2) + 2 * (1200 / c' ^ 2) * 2 +
-          2 * 2 * (22100 / c' ^ 2) + 100 / c' ^ 2 := by gcongr
-    _ = 95700 / c' ^ 2 := by ring
-    _ ≤ 96000 / c' ^ 2 := by gcongr; norm_num
+    dsimp [α₁, α₃]
+  rw [← hlin]
+  exact term_j_poly_comb hc0 hc hq0 hq1 hα₁_nn hα₂_bd.1 hα₂_bd.2 hα₃_bd.1 hα₃_bd.2
+    hxq2 rfl rfl rfl hA_err hB_err hC_err hB₀_bd hB_bd hC_bd hqA₀ rfl
 
 /-- **Uniform three-term asymptotic of `V(c'x²/3)`** on `x ≥ ξ_*/2` for `c' ≥ 10000`. -/
 theorem besselV_three_term {c' x : ℝ} (hc : 10000 ≤ c') (hx : xiStar / 2 ≤ x) :
@@ -1289,9 +1365,7 @@ theorem besselV_three_term {c' x : ℝ} (hc : 10000 ≤ c') (hx : xiStar / 2 ≤
       2 * Bessel.besselK (c' / 12 - 1) (c' * x ^ 2 / 3) +
       Bessel.besselK (c' / 12 - 2) (c' * x ^ 2 / 3) := by
     unfold Bessel.besselV
-    simp only [Finset.sum_range_succ, Finset.range_zero, Finset.sum_empty, zero_add,
-      Nat.cast_zero, sub_zero, Nat.cast_one, Nat.cast_ofNat, pow_zero, one_mul, pow_one,
-      neg_one_pow_succ, neg_one_sq, Nat.choose_self, Nat.choose_zero_right, Nat.choose_one_right]
+    simp only [sub_zero]
   rw [hV_eq, Bessel.besselK_shift hc0 hx0, Bessel.besselK_shift hc0 hx0,
     Bessel.besselK_shift hc0 hx0]
   have h0 := term_j_virasoro (c' := c') (x := x) 0 (by decide) (by linarith) hx
@@ -1406,6 +1480,7 @@ private lemma besselTwoTerm_neg_sqrt_identity {r v : ℝ} (hr : 0 < r) (hv : 0 �
     rw [mul_pow, div_pow, inv_pow, hexp_sq, hsqrt_sq, hu_cpow]
     calc I / (r : ℂ) * u⁻¹ = ((r : ℂ) * (-I * u))⁻¹ := by
           field_simp [Complex.ofReal_ne_zero.mpr hr.ne', hu_ne]
+          ring_nf; rw [Complex.I_sq]
       _ = w⁻¹ := rfl
   have hsq_eq : (lhs - rhs) * (lhs + rhs) = 0 := by
     calc (lhs - rhs) * (lhs + rhs) = lhs ^ 2 - rhs ^ 2 := by ring
@@ -1512,7 +1587,7 @@ lemma besselTwoTerm_edge {c' x v : ℝ} (hc : 0 < c') (hx : 0 < x) (hv : 0 ≤ v
             (1 / (((√2 : ℝ) : ℂ) * ((√(2 * π * (c' * Bessel.besselL x)) : ℝ) : ℂ))) *
             (1 + 1 / (8 * w)) * Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ))) := by
         rw [hrw]
-    _ = -(↑√2 * ↑π * Complex.exp (I * ↑π / 4)) / u ^ (1 / 2 : ℂ) *
+    _ = -(↑√2 * ↑π * Complex.exp (I * ((π : ℂ) / 4))) / u ^ (1 / 2 : ℂ) *
           (↑(Real.exp (c' * Bessel.besselL x) / √(2 * π * (c' * Bessel.besselL x))) *
             (1 + 1 / (8 * w)) * Complex.exp (-I * ↑(4 * π / 3 * c' * v * x))) := by
         have huc_ne : u ^ (1 / 2 : ℂ) ≠ 0 :=
@@ -1520,7 +1595,6 @@ lemma besselTwoTerm_edge {c' x v : ℝ} (hc : 0 < c') (hx : 0 < x) (hv : 0 ≤ v
             intro h; have := congrArg Complex.im h; simp [u] at this))
         push_cast
         field_simp [hsq2_ne, hden_ne, huc_ne]
-        ring
 
 /-- The main integrand kernel of `cts:edge-asymp`. -/
 def edgeMainKernel (c' v x : ℝ) : ℂ :=
@@ -1647,27 +1721,146 @@ private lemma exp_le_V_of_ge {c' x : ℝ} (hc : 10000 ≤ c') (hx : xiStar / 2 �
         gcongr
     _ = 24 * √(c' * x) * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) := by ring
 
-private lemma edge_kernel_pointwise_error :
-    ∃ c₀ C : ℝ, 10000 ≤ c₀ ∧ 0 < C ∧ ∀ {c' v x : ℝ}, c₀ ≤ c' → 0 ≤ v → xiStar / 2 ≤ x →
-      ‖(-2 * (π : ℂ)) *
-          Integration.besselI0C (4 * (π : ℂ) * I * ((v : ℂ) + I / 2) *
-            (Real.sqrt (c' * (c' * x ^ 2 / 3) / 3) : ℝ)) -
-        edgeMainKernel c' v x‖ ≤
-          C * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
-  refine ⟨10000000, 10 ^ 9, by norm_num, by positivity, fun {c'} {v} {x} hc' hv hx => ?_⟩
+private lemma hVA_main_alg {A₀ V d v₁ a₂ c' : ℝ}
+    (hc' : 10000000 ≤ c') (hc0 : 0 < c') (hd_lb : 1 / 4 ≤ d)
+    (hA₀_pos : 0 < A₀) (hV_pos : 0 < V) (hV_div_A₀ : 1 / 8 ≤ V / A₀)
+    (hV3 : |V / A₀ - (d + v₁ / c')| ≤ 400000 / c' ^ 2)
+    (hv1_le : |v₁| ≤ 30) (ha₂_eq : a₂ = -v₁ / d ^ 2) (ha₂_bd : |a₂| ≤ 480) :
+    |A₀ / V - (d⁻¹ + a₂ / c')| ≤ 20000000 / c' ^ 2 := by
+  have hd_pos : 0 < d := by linarith only [hd_lb]
+  have hid : 1 - (V / A₀) * (d⁻¹ + a₂ / c') =
+      v₁ ^ 2 / (d ^ 2 * c' ^ 2) - (V / A₀ - (d + v₁ / c')) * (d⁻¹ + a₂ / c') := by
+    rw [ha₂_eq]; field_simp [hd_pos.ne', hc0.ne']; ring
+  have hnum_bd : |1 - (V / A₀) * (d⁻¹ + a₂ / c')| ≤ 2500000 / c' ^ 2 := by
+    rw [hid]
+    have hsq : v₁ ^ 2 / (d ^ 2 * c' ^ 2) ≤ 14400 / c' ^ 2 := by
+      have hv1 := sq_le_sq' (abs_le.mp hv1_le).1 (abs_le.mp hv1_le).2
+      have hd_sq_lb : (1 / 4 : ℝ) ^ 2 ≤ d ^ 2 := pow_le_pow_left₀ (by norm_num) hd_lb 2
+      calc v₁ ^ 2 / (d ^ 2 * c' ^ 2) ≤ 30 ^ 2 / ((1 / 4) ^ 2 * c' ^ 2) := by gcongr
+        _ = 14400 / c' ^ 2 := by ring
+    have hda : |d⁻¹ + a₂ / c'| ≤ 5 := by
+      have hdinv : |d⁻¹| ≤ 4 := by
+        have hd4 : (4 : ℝ)⁻¹ ≤ d := by simpa only [one_div] using hd_lb
+        rw [abs_of_pos (inv_pos.mpr hd_pos), inv_le_comm₀ hd_pos (by norm_num)]; exact hd4
+      have ha2c : |a₂ / c'| ≤ 1 := by
+        rw [abs_div, abs_of_pos hc0, div_le_one hc0]
+        exact ha₂_bd.trans (by linarith only [hc'])
+      exact (abs_add_le _ _).trans (by linarith only [hdinv, ha2c])
+    calc |v₁ ^ 2 / (d ^ 2 * c' ^ 2) - (V / A₀ - (d + v₁ / c')) * (d⁻¹ + a₂ / c')|
+        ≤ |v₁ ^ 2 / (d ^ 2 * c' ^ 2)| + |V / A₀ - (d + v₁ / c')| * |d⁻¹ + a₂ / c'| :=
+          (abs_sub (v₁ ^ 2 / (d ^ 2 * c' ^ 2))
+            ((V / A₀ - (d + v₁ / c')) * (d⁻¹ + a₂ / c'))).trans_eq (by rw [abs_mul])
+      _ ≤ 14400 / c' ^ 2 + (400000 / c' ^ 2) * 5 := by
+          gcongr; rw [abs_of_nonneg (by positivity)]; exact hsq
+      _ = 2014400 * (1 / c' ^ 2) := by ring
+      _ ≤ 2500000 * (1 / c' ^ 2) := by gcongr; norm_num
+      _ = 2500000 / c' ^ 2 := by ring
+  have hdiv_eq : A₀ / V - (d⁻¹ + a₂ / c') =
+      (1 - (V / A₀) * (d⁻¹ + a₂ / c')) / (V / A₀) := by
+    field_simp [hA₀_pos.ne', hV_pos.ne']
+  have hVA_pos : 0 < V / A₀ := by linarith only [hV_div_A₀]
+  rw [hdiv_eq, abs_div, abs_of_pos hVA_pos]
+  calc |1 - (V / A₀) * (d⁻¹ + a₂ / c')| / (V / A₀)
+      ≤ (2500000 / c' ^ 2) / (1 / 8) := by gcongr
+    _ = 20000000 / c' ^ 2 := by ring
+
+private lemma hw_inv_alg {c' x : ℝ} {u w : ℂ} (hc0 : c' ≠ 0) (hx0 : x ≠ 0) (hu0 : u ≠ 0)
+    (hw : w = (4 * (π : ℂ) / 3 * (c' : ℂ) * (x : ℂ)) * (-I * u)) :
+    1 / (8 * w) = (3 * I / (32 * (π : ℂ) * (x : ℂ))) / ((c' : ℂ) * u) := by
+  have h1 : (π : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_pos.ne'
+  have h2 : (c' : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hc0
+  have h3 : (x : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hx0
+  have hne : (4 * (π : ℂ) / 3 * (c' : ℂ) * (x : ℂ)) ≠ 0 :=
+    mul_ne_zero (mul_ne_zero (div_ne_zero (mul_ne_zero (by norm_num) h1) (by norm_num)) h2) h3
+  rw [hw]
+  field_simp [hne, hu0, Complex.I_ne_zero]
+  ring_nf
+  rw [Complex.I_sq]
+  ring
+
+private lemma edge_part2_comb {pref w u : ℂ} {c' v x A₀ V d a₂ : ℝ}
+    (hc' : 10000000 ≤ c') (hc0 : 0 < c') (hv : 0 ≤ v) (hV_pos : 0 < V)
+    (hd_lb : 1 / 4 ≤ d) (hd_eq : d = (1 - Real.exp (-4 * π * x)) ^ 2)
+    (ha₂_eq : a₂ = virasoroA2 x) (ha₂_bd : |a₂| ≤ 480)
+    (hVA_main : |A₀ / V - (d⁻¹ + a₂ / c')| ≤ 20000000 / c' ^ 2)
+    (hpref_norm : ‖pref‖ ≤ 10 / √(1 + v))
+    (hexp_norm : ‖Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ))‖ = 1)
+    (hw_inv : 1 / (8 * w) = (3 * I / (32 * (π : ℂ) * (x : ℂ))) / ((c' : ℂ) * u))
+    (hw_inv_bd : ‖1 / (8 * w)‖ ≤ 1 / c')
+    (hpref_eq : pref = -(√2 * (π : ℂ) * Complex.exp (I * ((π : ℂ) / 4))) /
+      (((v : ℂ) + I / 2) ^ (1 / 2 : ℂ)))
+    (hu_eq : u = (v : ℂ) + I / 2)
+    (hV_eq : V = Bessel.besselV (c' / 12) (c' * x ^ 2 / 3)) :
+    ‖pref * ((A₀ : ℂ) * (1 + 1 / (8 * w)) * Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ))) -
+        edgeMainKernel c' v x‖ ≤ 5 * 10 ^ 8 * V / (c' ^ 2 * √(1 + v)) := by
+  have hd_nz : d ≠ 0 := by linarith only [hd_lb]
+  have ha₁_rel : virasoroA1 x / ((c' : ℂ) * u) = ((d : ℝ) : ℂ)⁻¹ * (1 / (8 * w)) := by
+    rw [hw_inv, virasoroA1, ← hd_eq]
+    have hd_c : ((d : ℝ) : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hd_nz
+    ring
+  have hdiff_kern : edgeMainKernel c' v x =
+      pref * ((V : ℂ) * (((d : ℝ) : ℂ)⁻¹ + ((d : ℝ) : ℂ)⁻¹ * (1 / (8 * w)) +
+        ((a₂ / c' : ℝ) : ℂ)) *
+        Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ))) := by
+    dsimp [edgeMainKernel]
+    rw [show I * (π : ℂ) / 4 = I * ((π : ℂ) / 4) by ring]
+    rw [← hpref_eq, ← hV_eq, ← hd_eq, ← ha₂_eq, ← hu_eq, ha₁_rel]
+  rw [hdiff_kern]
+  have hsub_fact : pref * ((A₀ : ℂ) * (1 + 1 / (8 * w)) *
+        Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ))) -
+      pref * ((V : ℂ) * (((d : ℝ) : ℂ)⁻¹ + ((d : ℝ) : ℂ)⁻¹ * (1 / (8 * w)) +
+        ((a₂ / c' : ℝ) : ℂ)) *
+        Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ))) =
+      pref * Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ)) *
+        (((A₀ - V * (d⁻¹ + a₂ / c') : ℝ) : ℂ) +
+          (1 / (8 * w)) * ((A₀ - V * d⁻¹ : ℝ) : ℂ)) := by
+    push_cast; ring
+  rw [hsub_fact, norm_mul, norm_mul, hexp_norm, mul_one]
+  have hAV_bd1 : |A₀ - V * (d⁻¹ + a₂ / c')| ≤ 20000000 * V / c' ^ 2 := by
+    have : A₀ - V * (d⁻¹ + a₂ / c') = V * (A₀ / V - (d⁻¹ + a₂ / c')) := by
+      field_simp [hV_pos.ne']
+    rw [this, abs_mul, abs_of_pos hV_pos]
+    calc V * |A₀ / V - (d⁻¹ + a₂ / c')| ≤ V * (20000000 / c' ^ 2) := by gcongr
+      _ = 20000000 * V / c' ^ 2 := by ring
+  have hAV_bd2 : |A₀ - V * d⁻¹| ≤ 500 * V / c' := by
+    have hid2 : A₀ - V * d⁻¹ = (A₀ - V * (d⁻¹ + a₂ / c')) + V * (a₂ / c') := by ring
+    rw [hid2]
+    refine (abs_add_le _ _).trans ?_
+    rw [abs_mul, abs_of_pos hV_pos, abs_div, abs_of_pos hc0]
+    have h200 : 20000000 / c' ≤ 2 := (div_le_iff₀ hc0).mpr (by linarith only [hc'])
+    calc |A₀ - V * (d⁻¹ + a₂ / c')| + V * (|a₂| / c')
+        ≤ 20000000 * V / c' ^ 2 + V * (480 / c') := by gcongr
+      _ = (20000000 / c' + 480) * V / c' := by ring
+      _ ≤ (2 + 480) * V / c' := by gcongr
+      _ ≤ 500 * V / c' := by gcongr; norm_num
+  have hinner : ‖((A₀ - V * (d⁻¹ + a₂ / c') : ℝ) : ℂ) +
+      (1 / (8 * w)) * ((A₀ - V * d⁻¹ : ℝ) : ℂ)‖ ≤ 20001000 * V / c' ^ 2 := by
+    refine (norm_add_le _ _).trans ?_
+    rw [norm_mul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs, Real.norm_eq_abs]
+    calc |A₀ - V * (d⁻¹ + a₂ / c')| + ‖1 / (8 * w)‖ * |A₀ - V * d⁻¹|
+        ≤ 20000000 * V / c' ^ 2 + (1 / c') * (500 * V / c') := by gcongr
+      _ = 20000500 * (V / c' ^ 2) := by ring
+      _ ≤ 20001000 * (V / c' ^ 2) := by gcongr; norm_num
+      _ = 20001000 * V / c' ^ 2 := by ring
+  have hsqv : 0 ≤ √(1 + v) := Real.sqrt_nonneg _
+  have hV_div_nn : 0 ≤ V / (c' ^ 2 * √(1 + v)) := div_nonneg hV_pos.le (mul_nonneg (sq_nonneg _) hsqv)
+  calc ‖pref‖ * ‖((A₀ - V * (d⁻¹ + a₂ / c') : ℝ) : ℂ) +
+          (1 / (8 * w)) * ((A₀ - V * d⁻¹ : ℝ) : ℂ)‖
+      ≤ (10 / √(1 + v)) * (20001000 * V / c' ^ 2) := by gcongr
+    _ = 200010000 * (V / (c' ^ 2 * √(1 + v))) := by ring
+    _ ≤ 5 * 10 ^ 8 * (V / (c' ^ 2 * √(1 + v))) := by gcongr; norm_num
+    _ = 5 * 10 ^ 8 * V / (c' ^ 2 * √(1 + v)) := by ring
+
+private lemma edge_part1_bound {c' v x : ℝ} (hc10k : 10000 ≤ c') (hv : 0 ≤ v) (hx : xiStar / 2 ≤ x) :
+    let u : ℂ := (v : ℂ) + I / 2
+    let w : ℂ := (4 * (π : ℂ) / 3 * (c' : ℂ) * (x : ℂ)) * (-I * u)
+    ‖(-2 * (π : ℂ)) * Integration.besselI0C w - (-2 * (π : ℂ)) * besselTwoTerm w‖ ≤
+      10 ^ 7 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
+  intro u w
   have hc0 : 0 < c' := by linarith
-  have hc10k : 10000 ≤ c' := by linarith
   have hx5 : (1 / 10 : ℝ) ≤ x := by linarith [Bessel.one_fifth_le_xiStar]
   have hxpos : 0 < x := by linarith
   have hpi := Real.pi_gt_three
-  have hsqrt_arg : Real.sqrt (c' * (c' * x ^ 2 / 3) / 3) = c' * x / 3 := by
-    rw [show c' * (c' * x ^ 2 / 3) / 3 = (c' * x / 3) ^ 2 by ring, Real.sqrt_sq (by positivity)]
-  rw [hsqrt_arg]
-  set u : ℂ := (v : ℂ) + I / 2
-  set w : ℂ := (4 * (π : ℂ) / 3 * (c' : ℂ) * (x : ℂ)) * (-I * u)
-  have hneg_arg : 4 * (π : ℂ) * I * u * ((c' * x / 3 : ℝ) : ℂ) = -w := by
-    dsimp [w]; push_cast; ring
-  rw [hneg_arg, besselI0C_neg]
   have hw_re : w.re = c' * Bessel.besselL x := by
     have h1 : w = ((c' * Bessel.besselL x : ℝ) : ℂ) + (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ)) := by
       dsimp [w, u]; rw [Bessel.besselL]; push_cast; ring_nf; rw [Complex.I_sq]; ring
@@ -1675,7 +1868,7 @@ private lemma edge_kernel_pointwise_error :
   have hw_re_ge : 1 ≤ w.re := by
     rw [hw_re, Bessel.besselL]
     nlinarith [show 4 / 10 ≤ 4 * π / 3 * x by nlinarith]
-  obtain ⟨hu_lo, hu_hi, hu_half⟩ := norm_u_cpow_half hv
+  obtain ⟨hu_lo, _, _⟩ := norm_u_cpow_half hv
   have hwn : ‖w‖ = (4 * π / 3 * c' * x) * ‖u‖ := by
     have hI : ‖-I * u‖ = ‖u‖ := by rw [norm_mul, norm_neg, Complex.norm_I, one_mul]
     dsimp [w]
@@ -1683,8 +1876,11 @@ private lemma edge_kernel_pointwise_error :
       norm_mul, Complex.norm_real, Real.norm_of_nonneg (by positivity), hI]
   have hwn_lb : c' * x * (1 + v) ≤ ‖w‖ := by
     rw [hwn]
-    calc c' * x * (1 + v) ≤ (4 * π / 3 * c' * x) * (1 / 3 * (1 + v)) := by
-          nlinarith [mul_pos hc0 hxpos, show (0 : ℝ) ≤ 1 + v by linarith]
+    have hcxhv : 0 ≤ c' * x * (1 + v) := by positivity
+    calc c' * x * (1 + v) = 1 * (c' * x * (1 + v)) := (one_mul _).symm
+      _ ≤ (4 * π / 9) * (c' * x * (1 + v)) :=
+          mul_le_mul_of_nonneg_right (by linarith [Real.pi_gt_three]) hcxhv
+      _ = (4 * π / 3 * c' * x) * (1 / 3 * (1 + v)) := by ring
       _ ≤ (4 * π / 3 * c' * x) * ‖u‖ := by gcongr
   have hwn_ge16 : 16 ≤ ‖w‖ := by
     have hv1 : 1 ≤ 1 + v := by linarith
@@ -1701,271 +1897,242 @@ private lemma edge_kernel_pointwise_error :
   have hv1 : 1 ≤ 1 + v := by linarith
   have hcx_ge : c' / 10 ≤ c' * x := by nlinarith
   have hcx_pos : 0 < c' * x := by positivity
-  have hPart1 : ‖(-2 * (π : ℂ)) * Integration.besselI0C w - (-2 * (π : ℂ)) * besselTwoTerm w‖ ≤
-      10 ^ 7 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
-    rw [← mul_sub, norm_mul]
-    have h2pi : ‖(-2 * (π : ℂ))‖ = 2 * π := by
-      rw [norm_mul, norm_neg, Complex.norm_ofNat, Complex.norm_real,
-        Real.norm_of_nonneg Real.pi_pos.le]
-    rw [hw_re] at hI0_bd
-    rw [h2pi]
-    have hvs : (1 + v) ^ (-(1 : ℝ) / 2) = (√(1 + v))⁻¹ := by
-      rw [Real.sqrt_eq_rpow, ← Real.rpow_neg (by positivity)]; congr 1; ring
-    have hterm1 : 70 * Real.exp (c' * Bessel.besselL x) * ‖w‖ ^ (-(5 : ℝ) / 2) ≤
-        10 ^ 6 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
-      have hw_rpow : ‖w‖ ^ (-(5 : ℝ) / 2) ≤ (c' * x * (1 + v)) ^ (-(5 : ℝ) / 2) :=
-        Real.rpow_le_rpow_of_nonpos (by positivity) hwn_lb (by norm_num)
-      have hrp_split : (c' * x * (1 + v)) ^ (-(5 : ℝ) / 2) ≤
-          (c' * x) ^ (-(5 : ℝ) / 2) * (1 + v) ^ (-(1 : ℝ) / 2) := by
-        rw [Real.mul_rpow (by positivity) (by positivity)]
-        have hvp : (1 + v) ^ (-(5 : ℝ) / 2) ≤ (1 + v) ^ (-(1 : ℝ) / 2) :=
-          Real.rpow_le_rpow_of_exponent_le hv1 (by norm_num)
+  rw [← mul_sub, norm_mul]
+  have h2pi : ‖(-2 * (π : ℂ))‖ = 2 * π := by
+    rw [norm_mul, norm_neg, Complex.norm_ofNat, Complex.norm_real,
+      Real.norm_of_nonneg Real.pi_pos.le]
+  rw [hw_re] at hI0_bd
+  rw [h2pi]
+  have hvs : (1 + v) ^ (-(1 : ℝ) / 2) = (√(1 + v))⁻¹ := by
+    rw [Real.sqrt_eq_rpow, ← Real.rpow_neg (by positivity)]; congr 1; ring
+  have hterm1 : 70 * Real.exp (c' * Bessel.besselL x) * ‖w‖ ^ (-(5 : ℝ) / 2) ≤
+      10 ^ 6 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
+    have hw_rpow : ‖w‖ ^ (-(5 : ℝ) / 2) ≤ (c' * x * (1 + v)) ^ (-(5 : ℝ) / 2) :=
+      Real.rpow_le_rpow_of_nonpos (by positivity) hwn_lb (by norm_num)
+    have hrp_split : (c' * x * (1 + v)) ^ (-(5 : ℝ) / 2) ≤
+        (c' * x) ^ (-(5 : ℝ) / 2) * (1 + v) ^ (-(1 : ℝ) / 2) := by
+      rw [Real.mul_rpow (by positivity) (by positivity)]
+      have hvp : (1 + v) ^ (-(5 : ℝ) / 2) ≤ (1 + v) ^ (-(1 : ℝ) / 2) :=
+        Real.rpow_le_rpow_of_exponent_le hv1 (by norm_num)
+      gcongr
+    have hcx_comb : √(c' * x) * (c' * x) ^ (-(5 : ℝ) / 2) = ((c' * x) ^ 2)⁻¹ := by
+      rw [Real.sqrt_eq_rpow, ← Real.rpow_add hcx_pos]
+      norm_num [Real.rpow_neg (by positivity : 0 ≤ c' * x)]
+    have hcx2 : ((c' * x) ^ 2)⁻¹ ≤ 100 / c' ^ 2 := by
+      rw [inv_eq_one_div, div_le_div_iff₀ (by positivity) (by positivity)]
+      nlinarith [sq_nonneg x]
+    calc 70 * Real.exp (c' * Bessel.besselL x) * ‖w‖ ^ (-(5 : ℝ) / 2)
+        ≤ 70 * (24 * √(c' * x) * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3)) *
+            ((c' * x) ^ (-(5 : ℝ) / 2) * (1 + v) ^ (-(1 : ℝ) / 2)) := by
+          gcongr; exact hw_rpow.trans hrp_split
+      _ = 1680 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) *
+            (√(c' * x) * (c' * x) ^ (-(5 : ℝ) / 2)) * (1 + v) ^ (-(1 : ℝ) / 2) := by ring
+      _ ≤ 1680 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) * (100 / c' ^ 2) * (√(1 + v))⁻¹ := by
+          rw [hcx_comb, hvs]; gcongr
+      _ = 168000 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by ring
+      _ ≤ 10 ^ 6 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
+          gcongr; norm_num
+  have hterm2 : 10 * ‖w‖ ^ (-(1 : ℝ) / 2) ≤
+      2 * 10 ^ 4 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
+    have hw_rpow : ‖w‖ ^ (-(1 : ℝ) / 2) ≤ (c' * x * (1 + v)) ^ (-(1 : ℝ) / 2) :=
+      Real.rpow_le_rpow_of_nonpos (by positivity) hwn_lb (by norm_num)
+    have hrp_split : (c' * x * (1 + v)) ^ (-(1 : ℝ) / 2) =
+        (c' * x) ^ (-(1 : ℝ) / 2) * (1 + v) ^ (-(1 : ℝ) / 2) :=
+      Real.mul_rpow (by positivity) (by positivity)
+    have hcx_cancel : √(c' * x) * (c' * x) ^ (-(1 : ℝ) / 2) = 1 := by
+      rw [Real.sqrt_eq_rpow, ← Real.rpow_add hcx_pos]
+      norm_num
+    have hL_nn : 0 ≤ Bessel.besselL x := by unfold Bessel.besselL; positivity
+    have hexp_neg : Real.exp (-(c' * Bessel.besselL x)) ≤ 50 / c' ^ 2 := by
+      have hL_lb : c' / 5 ≤ c' * Bessel.besselL x := by
+        rw [Bessel.besselL]; nlinarith
+      have h1 : (c' / 5) ^ 2 / 2 ≤ Real.exp (c' * Bessel.besselL x) := by
+        have hsum := Real.sum_le_exp_of_nonneg (mul_nonneg hc0.le hL_nn) 3
+        simp only [Finset.sum_range_succ, Finset.range_zero, Finset.sum_empty, zero_add,
+          pow_zero, Nat.factorial_zero, Nat.cast_one, div_one, pow_one, Nat.factorial_one,
+          Nat.factorial_two, Nat.cast_ofNat] at hsum
+        have : 0 ≤ 1 + c' * Bessel.besselL x := add_nonneg zero_le_one (mul_nonneg hc0.le hL_nn)
+        have : (c' / 5) ^ 2 / 2 ≤ (c' * Bessel.besselL x) ^ 2 / 2 := by nlinarith
+        linarith
+      rw [Real.exp_neg, inv_eq_one_div]
+      calc 1 / Real.exp (c' * Bessel.besselL x) ≤ 1 / ((c' / 5) ^ 2 / 2) :=
+            div_le_div_of_nonneg_left zero_le_one (by positivity) h1
+        _ = 50 / c' ^ 2 := by ring
+    have hone_eq : 1 = Real.exp (c' * Bessel.besselL x) * Real.exp (-(c' * Bessel.besselL x)) := by
+      rw [← Real.exp_add]; simp
+    calc 10 * ‖w‖ ^ (-(1 : ℝ) / 2)
+        ≤ 10 * ((c' * x) ^ (-(1 : ℝ) / 2) * (1 + v) ^ (-(1 : ℝ) / 2)) := by
+          gcongr; exact hw_rpow.trans hrp_split.le
+      _ = 10 * (Real.exp (c' * Bessel.besselL x) * Real.exp (-(c' * Bessel.besselL x))) *
+            ((c' * x) ^ (-(1 : ℝ) / 2) * (1 + v) ^ (-(1 : ℝ) / 2)) := by
+          rw [← hone_eq, mul_one]
+      _ ≤ 10 * ((24 * √(c' * x) * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3)) * (50 / c' ^ 2)) *
+            ((c' * x) ^ (-(1 : ℝ) / 2) * (1 + v) ^ (-(1 : ℝ) / 2)) := by gcongr
+      _ = 12000 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) * (√(c' * x) * (c' * x) ^ (-(1 : ℝ) / 2)) *
+            (1 + v) ^ (-(1 : ℝ) / 2) / c' ^ 2 := by ring
+      _ = 12000 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
+          rw [hcx_cancel, hvs]; ring
+      _ ≤ 2 * 10 ^ 4 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
+          gcongr; norm_num
+  have hpi4 : π < 4 := Real.pi_lt_four
+  calc 2 * π * ‖Integration.besselI0C w - besselTwoTerm w‖
+      ≤ 8 * (70 * Real.exp (c' * Bessel.besselL x) * ‖w‖ ^ (-(5 : ℝ) / 2) +
+          10 * ‖w‖ ^ (-(1 : ℝ) / 2)) := by
+        gcongr; linarith
+    _ ≤ 8 * (10 ^ 6 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) +
+          2 * 10 ^ 4 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v))) := by
         gcongr
-      have hcx_comb : √(c' * x) * (c' * x) ^ (-(5 : ℝ) / 2) = ((c' * x) ^ 2)⁻¹ := by
-        rw [Real.sqrt_eq_rpow, ← Real.rpow_add hcx_pos]
-        norm_num [Real.rpow_neg (by positivity : 0 ≤ c' * x)]
-      have hcx2 : ((c' * x) ^ 2)⁻¹ ≤ 100 / c' ^ 2 := by
-        rw [inv_le_div_iff₀ (by positivity) (by positivity)]
-        nlinarith [sq_nonneg x]
-      calc 70 * Real.exp (c' * Bessel.besselL x) * ‖w‖ ^ (-(5 : ℝ) / 2)
-          ≤ 70 * (24 * √(c' * x) * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3)) *
-              ((c' * x) ^ (-(5 : ℝ) / 2) * (1 + v) ^ (-(1 : ℝ) / 2)) := by
-            gcongr; exact hw_rpow.trans hrp_split
-        _ = 1680 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) *
-              (√(c' * x) * (c' * x) ^ (-(5 : ℝ) / 2)) * (1 + v) ^ (-(1 : ℝ) / 2) := by ring
-        _ ≤ 1680 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) * (100 / c' ^ 2) * (√(1 + v))⁻¹ := by
-            rw [hcx_comb, hvs]; gcongr
-        _ = 168000 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by ring
-        _ ≤ 10 ^ 6 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
-            gcongr; norm_num
-    have hterm2 : 10 * ‖w‖ ^ (-(1 : ℝ) / 2) ≤
-        2 * 10 ^ 4 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
-      have hw_rpow : ‖w‖ ^ (-(1 : ℝ) / 2) ≤ (c' * x * (1 + v)) ^ (-(1 : ℝ) / 2) :=
-        Real.rpow_le_rpow_of_nonpos (by positivity) hwn_lb (by norm_num)
-      have hrp_split : (c' * x * (1 + v)) ^ (-(1 : ℝ) / 2) =
-          (c' * x) ^ (-(1 : ℝ) / 2) * (1 + v) ^ (-(1 : ℝ) / 2) :=
-        Real.mul_rpow (by positivity) (by positivity)
-      have hcx_cancel : √(c' * x) * (c' * x) ^ (-(1 : ℝ) / 2) = 1 := by
-        rw [Real.sqrt_eq_rpow, ← Real.rpow_add hcx_pos]
-        simp
-      have hexp_neg : Real.exp (-(c' * Bessel.besselL x)) ≤ 50 / c' ^ 2 := by
-        have hL_lb : c' / 5 ≤ c' * Bessel.besselL x := by
-          rw [Bessel.besselL]; nlinarith
-        have h1 : (c' / 5) ^ 2 / 2 ≤ Real.exp (c' * Bessel.besselL x) := by
-          have hsum := Real.sum_le_exp_of_nonneg (by positivity : 0 ≤ c' * Bessel.besselL x) 3
-          simp only [Finset.sum_range_succ, Finset.range_zero, Finset.sum_empty, zero_add,
-            pow_zero, Nat.factorial_zero, Nat.cast_one, div_one, pow_one, Nat.factorial_one,
-            Nat.factorial_two, Nat.cast_ofNat] at hsum
-          have : 0 ≤ 1 + c' * Bessel.besselL x := by positivity
-          have : (c' / 5) ^ 2 / 2 ≤ (c' * Bessel.besselL x) ^ 2 / 2 := by nlinarith
-          linarith
-        rw [Real.exp_neg, inv_le_div_iff₀ (Real.exp_pos _) (by positivity)]
-        nlinarith [sq_nonneg c']
-      have hone_eq : 1 = Real.exp (c' * Bessel.besselL x) * Real.exp (-(c' * Bessel.besselL x)) := by
-        rw [← Real.exp_add]; simp
-      calc 10 * ‖w‖ ^ (-(1 : ℝ) / 2)
-          ≤ 10 * (1 * ((c' * x) ^ (-(1 : ℝ) / 2) * (1 + v) ^ (-(1 : ℝ) / 2))) := by
-            rw [one_mul]; gcongr; exact hw_rpow.trans hrp_split.le
-        _ = 10 * (Real.exp (c' * Bessel.besselL x) * Real.exp (-(c' * Bessel.besselL x))) *
-              ((c' * x) ^ (-(1 : ℝ) / 2) * (1 + v) ^ (-(1 : ℝ) / 2)) := by rw [← hone_eq]
-        _ ≤ 10 * ((24 * √(c' * x) * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3)) * (50 / c' ^ 2)) *
-              ((c' * x) ^ (-(1 : ℝ) / 2) * (1 + v) ^ (-(1 : ℝ) / 2)) := by gcongr
-        _ = 12000 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) * (√(c' * x) * (c' * x) ^ (-(1 : ℝ) / 2)) *
-              (1 + v) ^ (-(1 : ℝ) / 2) / c' ^ 2 := by ring
-        _ = 12000 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
-            rw [hcx_cancel, hvs]; ring
-        _ ≤ 2 * 10 ^ 4 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
-            gcongr; norm_num
-    have hpi4 : π < 4 := Real.pi_lt_four
-    calc 2 * π * ‖Integration.besselI0C w - besselTwoTerm w‖
-        ≤ 8 * (70 * Real.exp (c' * Bessel.besselL x) * ‖w‖ ^ (-(5 : ℝ) / 2) +
-            10 * ‖w‖ ^ (-(1 : ℝ) / 2)) := by
-          gcongr
-          · linarith
-          · exact hI0_bd
-      _ ≤ 8 * (10 ^ 6 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) +
-            2 * 10 ^ 4 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v))) := by
-          gcongr
-      _ ≤ 10 ^ 7 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
-          have : 0 ≤ Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by positivity
-          linarith
-  -- Step B: Compare `(-2π) * besselTwoTerm w` with `edgeMainKernel c' v x`
-  have hPart2 : ‖(-2 * (π : ℂ)) * besselTwoTerm w - edgeMainKernel c' v x‖ ≤
+    _ = 8160000 * (Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v))) := by ring
+    _ ≤ 10 ^ 7 * (Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v))) := by
+        gcongr; norm_num
+    _ = 10 ^ 7 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by ring
+
+private lemma edge_part2_bound {c' v x : ℝ} (hc' : 10000000 ≤ c') (hv : 0 ≤ v) (hx : xiStar / 2 ≤ x) :
+    let u : ℂ := (v : ℂ) + I / 2
+    let w : ℂ := (4 * (π : ℂ) / 3 * (c' : ℂ) * (x : ℂ)) * (-I * u)
+    ‖(-2 * (π : ℂ)) * besselTwoTerm w - edgeMainKernel c' v x‖ ≤
       5 * 10 ^ 8 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
-    have hbt := besselTwoTerm_edge hc0 hxpos hv
-    change (-2 * (π : ℂ)) * besselTwoTerm w = _ at hbt
-    rw [hbt]
-    set pref : ℂ := -(√2 * (π : ℂ) * Complex.exp (I * ((π : ℂ) / 4))) / (u ^ (1 / 2 : ℂ))
-    have hpref_norm : ‖pref‖ ≤ 10 / √(1 + v) := by
-      dsimp [pref]
-      have hnum : ‖-(√2 * (π : ℂ) * Complex.exp (I * ((π : ℂ) / 4)))‖ = √2 * π := by
-        rw [norm_neg, norm_mul, norm_mul]
-        have hI : ‖Complex.exp (I * ((π : ℂ) / 4))‖ = 1 := by
-          rw [show I * ((π : ℂ) / 4) = ((π / 4 : ℝ) : ℂ) * I by push_cast; ring,
-            Complex.norm_exp_ofReal_mul_I]
-        have hsq2 : ‖(√2 : ℂ)‖ = √2 := by
-          rw [show (√2 : ℂ) = ((√2 : ℝ) : ℂ) by simp, Complex.norm_real,
-            Real.norm_of_nonneg (Real.sqrt_nonneg _)]
-        rw [hsq2, Complex.norm_real, Real.norm_of_nonneg Real.pi_pos.le, hI, mul_one]
-      have hden_lb : √(1 / 3 * (1 + v)) ≤ ‖u ^ (1 / 2 : ℂ)‖ := by
-        rw [hu_half]; exact Real.sqrt_le_sqrt hu_lo
-      have hden_eq : √(1 / 3 * (1 + v)) = √(1 + v) / √3 := by
-        rw [show 1 / 3 * (1 + v) = (1 + v) / 3 by ring, Real.sqrt_div (by positivity)]
-      rw [norm_div, hnum]
-      calc √2 * π / ‖u ^ (1 / 2 : ℂ)‖ ≤ √2 * π / (√(1 + v) / √3) := by
-            exact div_le_div_of_nonneg_left (by positivity) (by positivity) (hden_eq ▸ hden_lb)
-        _ = √6 * π / √(1 + v) := by
-            rw [div_div_eq_mul_div, show √2 * π * √3 = (√2 * √3) * π by ring,
-              ← Real.sqrt_mul zero_le_two, show (2 : ℝ) * 3 = 6 by norm_num]
-        _ ≤ 10 / √(1 + v) := by
-            have hsq6 : √6 ≤ 2.5 := Real.sqrt_le_iff.mpr ⟨by norm_num, by norm_num⟩
-            gcongr; nlinarith [Real.pi_lt_four]
-    have hexp_norm : ‖Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ))‖ = 1 := by
-      rw [show -I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ) =
-        ((- (4 * π / 3 * c' * v * x) : ℝ) : ℂ) * I by push_cast; ring,
-        Complex.norm_exp_ofReal_mul_I]
-    set A₀ : ℝ := Bessel.besselAs (c' * Bessel.besselL x)
-    set V : ℝ := Bessel.besselV (c' / 12) (c' * x ^ 2 / 3)
-    set d : ℝ := (1 - Real.exp (-4 * π * x)) ^ 2
-    have hd_lb : 1 / 4 ≤ d := by
-      have h1 := one_sub_exp_ge_half hx
-      dsimp [d]; nlinarith
-    have hd_le : d ≤ 1 := by
-      have he0 : 0 ≤ Real.exp (-4 * π * x) := (Real.exp_pos _).le
-      have he1 : Real.exp (-4 * π * x) ≤ 1 :=
-        Real.exp_le_one_iff.mpr (by have : 0 ≤ 4 * π * x := by positivity; linarith)
-      dsimp [d]; nlinarith
-    have hV3 := besselV_three_term hc10k hx
-    change |V / A₀ - (d + virasoroV1 x / c')| ≤ 400000 / c' ^ 2 at hV3
-    have hA₀_pos : 0 < A₀ := Bessel.besselAs_pos (by unfold Bessel.besselL; positivity)
-    have hV_div_A₀ : 1 / 8 ≤ V / A₀ := by
-      have h3 := (abs_le.mp hV3).1
-      have hv1 := (abs_le.mp (virasoroV1_abs_le hx)).1
-      have h1 : 30 / c' ≤ 1 / 32 := by rw [div_le_iff₀ hc0]; linarith
-      have h2 : 400000 / c' ^ 2 ≤ 1 / 32 := by rw [div_le_iff₀ (by positivity)]; nlinarith
-      have hv1' : -30 / c' ≤ virasoroV1 x / c' := div_le_div_of_nonneg_right hv1 hc0.le
-      linarith only [h3, hv1', h1, h2, hd_lb]
-    have ha₂_eq : virasoroA2 x = -virasoroV1 x / d ^ 2 := by dsimp [virasoroA2, d]; ring
-    have ha₂_bd : |virasoroA2 x| ≤ 480 := by
-      rw [ha₂_eq, abs_div, abs_neg, abs_of_pos (by positivity : 0 < d ^ 2)]
-      calc |virasoroV1 x| / d ^ 2 ≤ 30 / (1 / 4) ^ 2 := by gcongr; exact virasoroV1_abs_le hx; nlinarith
-        _ = 480 := by norm_num
-    have hVA_main : |A₀ / V - (d⁻¹ + virasoroA2 x / c')| ≤ 20000000 / c' ^ 2 := by
-      have hid : 1 - (V / A₀) * (d⁻¹ + virasoroA2 x / c') =
-          (virasoroV1 x) ^ 2 / (d ^ 2 * c' ^ 2) -
-            (V / A₀ - (d + virasoroV1 x / c')) * (d⁻¹ + virasoroA2 x / c') := by
-        rw [ha₂_eq]; field_simp [show d ≠ 0 by linarith, hc0.ne']; ring
-      have hnum_bd : |1 - (V / A₀) * (d⁻¹ + virasoroA2 x / c')| ≤ 2500000 / c' ^ 2 := by
-        rw [hid]
-        have hsq : (virasoroV1 x) ^ 2 / (d ^ 2 * c' ^ 2) ≤ 14400 / c' ^ 2 := by
-          have hv1 := sq_le_sq' (abs_le.mp (virasoroV1_abs_le hx)).1 (abs_le.mp (virasoroV1_abs_le hx)).2
-          calc (virasoroV1 x) ^ 2 / (d ^ 2 * c' ^ 2) ≤ 30 ^ 2 / ((1 / 4) ^ 2 * c' ^ 2) := by
-                gcongr; nlinarith
-            _ = 14400 / c' ^ 2 := by ring
-        have hda : |d⁻¹ + virasoroA2 x / c'| ≤ 5 := by
-          have hdinv : |d⁻¹| ≤ 4 := by
-            rw [abs_of_pos (inv_pos.mpr (by linarith))]; rw [inv_le_comm₀ (by linarith) (by norm_num)]; linarith
-          have ha2c : |virasoroA2 x / c'| ≤ 1 := by
-            rw [abs_div, abs_of_pos hc0]; rw [div_le_one hc0]; linarith [(abs_le.mp ha₂_bd).2]
-          exact (abs_add_le _ _).trans (by linarith)
-        calc |(virasoroV1 x) ^ 2 / (d ^ 2 * c' ^ 2) -
-              (V / A₀ - (d + virasoroV1 x / c')) * (d⁻¹ + virasoroA2 x / c')|
-            ≤ |(virasoroV1 x) ^ 2 / (d ^ 2 * c' ^ 2)| +
-                |V / A₀ - (d + virasoroV1 x / c')| * |d⁻¹ + virasoroA2 x / c'| := by
-              simpa [abs_mul] using abs_sub_le _ _
-          _ ≤ 14400 / c' ^ 2 + (400000 / c' ^ 2) * 5 := by
-              gcongr
-              rw [abs_of_nonneg (by positivity)]; exact hsq
-          _ ≤ 2500000 / c' ^ 2 := by
-              have : (0 : ℝ) ≤ 1 / c' ^ 2 := by positivity
-              nlinarith
-      have hdiv_eq : A₀ / V - (d⁻¹ + virasoroA2 x / c') =
-          (1 - (V / A₀) * (d⁻¹ + virasoroA2 x / c')) / (V / A₀) := by
-        field_simp [hA₀_pos.ne', hV_pos.ne']
-      rw [hdiv_eq, abs_div, abs_of_pos (by linarith)]
-      calc |1 - (V / A₀) * (d⁻¹ + virasoroA2 x / c')| / (V / A₀)
-          ≤ (2500000 / c' ^ 2) / (1 / 8) := by gcongr
-        _ = 20000000 / c' ^ 2 := by ring
-    have hw_inv : 1 / (8 * w) = (3 * I / (32 * (π : ℂ) * (x : ℂ))) / ((c' : ℂ) * u) := by
-      dsimp [w]
-      have hne : (4 * (π : ℂ) / 3 * (c' : ℂ) * (x : ℂ)) ≠ 0 := by
-        have h1 : (π : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_pos.ne'
-        have h2 : (c' : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hc0.ne'
-        have h3 : (x : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hxpos.ne'
-        positivity
-      have hu_ne : u ≠ 0 := by intro h; rw [h] at hu_lo; simp at hu_lo; linarith
-      field_simp [hne, hu_ne, Complex.I_ne_zero]
-      ring
-    have ha₁_rel : virasoroA1 x / ((c' : ℂ) * u) = ((d : ℝ) : ℂ)⁻¹ * (1 / (8 * w)) := by
-      rw [hw_inv, virasoroA1]
-      dsimp [d]
-      have hd_ne : ((1 - Real.exp (-4 * π * x)) ^ 2 : ℂ) ≠ 0 := by
-        exact_mod_cast (show (1 - Real.exp (-4 * π * x)) ^ 2 ≠ 0 by linarith)
-      push_cast; ring
-    have hdiff_kern : edgeMainKernel c' v x =
-        pref * ((V : ℂ) * (((d : ℝ) : ℂ)⁻¹ + ((d : ℝ) : ℂ)⁻¹ * (1 / (8 * w)) +
-          ((virasoroA2 x / c' : ℝ) : ℂ)) *
-          Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ))) := by
-      dsimp [edgeMainKernel, pref, V, d]
-      rw [← ha₁_rel]; push_cast; ring
-    rw [hdiff_kern]
-    have hsub_fact : pref * ((A₀ : ℂ) * (1 + 1 / (8 * w)) *
-          Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ))) -
-        pref * ((V : ℂ) * (((d : ℝ) : ℂ)⁻¹ + ((d : ℝ) : ℂ)⁻¹ * (1 / (8 * w)) +
-          ((virasoroA2 x / c' : ℝ) : ℂ)) *
-          Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ))) =
-        pref * Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ)) *
-          (((A₀ - V * (d⁻¹ + virasoroA2 x / c') : ℝ) : ℂ) +
-            (1 / (8 * w)) * ((A₀ - V * d⁻¹ : ℝ) : ℂ)) := by
-      push_cast; ring
-    rw [hsub_fact, norm_mul, norm_mul, hexp_norm, mul_one]
-    have hw_inv_bd : ‖1 / (8 * w)‖ ≤ 1 / c' := by
-      rw [norm_div, norm_one, norm_mul, Complex.norm_ofNat]
-      calc 1 / (8 * ‖w‖) ≤ 1 / (8 * (2 * c' * x * (1 + v))) := by gcongr
-        _ ≤ 1 / (8 * (2 * c' * (1 / 10) * 1)) := by gcongr
-        _ ≤ 1 / c' := by gcongr; nlinarith
-    have hAV_bd1 : |A₀ - V * (d⁻¹ + virasoroA2 x / c')| ≤ 20000000 * V / c' ^ 2 := by
-      have : A₀ - V * (d⁻¹ + virasoroA2 x / c') = V * (A₀ / V - (d⁻¹ + virasoroA2 x / c')) := by
-        field_simp [hV_pos.ne']
-      rw [this, abs_mul, abs_of_pos hV_pos]
-      calc V * |A₀ / V - (d⁻¹ + virasoroA2 x / c')| ≤ V * (20000000 / c' ^ 2) := by gcongr
-        _ = 20000000 * V / c' ^ 2 := by ring
-    have hAV_bd2 : |A₀ - V * d⁻¹| ≤ 500 * V / c' := by
-      have hid2 : A₀ - V * d⁻¹ = (A₀ - V * (d⁻¹ + virasoroA2 x / c')) + V * (virasoroA2 x / c') := by
-        ring
-      rw [hid2]
-      refine (abs_add_le _ _).trans ?_
-      rw [abs_mul, abs_of_pos hV_pos, abs_div, abs_of_pos hc0]
-      calc |A₀ - V * (d⁻¹ + virasoroA2 x / c')| + V * (|virasoroA2 x| / c')
-          ≤ 20000000 * V / c' ^ 2 + V * (480 / c') := by gcongr
-        _ = (20000000 / c' + 480) * V / c' := by ring
-        _ ≤ (2 + 480) * V / c' := by gcongr; rw [div_le_iff₀ hc0]; linarith
-        _ ≤ 500 * V / c' := by gcongr; norm_num
-    have hinner : ‖((A₀ - V * (d⁻¹ + virasoroA2 x / c') : ℝ) : ℂ) +
-        (1 / (8 * w)) * ((A₀ - V * d⁻¹ : ℝ) : ℂ)‖ ≤ 20001000 * V / c' ^ 2 := by
-      refine (norm_add_le _ _).trans ?_
-      rw [norm_mul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs, Real.norm_eq_abs]
-      calc |A₀ - V * (d⁻¹ + virasoroA2 x / c')| + ‖1 / (8 * w)‖ * |A₀ - V * d⁻¹|
-          ≤ 20000000 * V / c' ^ 2 + (1 / c') * (500 * V / c') := by gcongr
-        _ ≤ 20001000 * V / c' ^ 2 := by
-            have : (0 : ℝ) ≤ V / c' ^ 2 := by positivity
-            linarith [show (1 / c') * (500 * V / c') = 500 * (V / c' ^ 2) by ring]
-    calc ‖pref‖ * ‖_‖ ≤ (10 / √(1 + v)) * (20001000 * V / c' ^ 2) := by gcongr
-      _ ≤ 5 * 10 ^ 8 * V / (c' ^ 2 * √(1 + v)) := by
-          have : (0 : ℝ) ≤ V / (c' ^ 2 * √(1 + v)) := by positivity
-          calc (10 / √(1 + v)) * (20001000 * V / c' ^ 2)
-              = 200010000 * (V / (c' ^ 2 * √(1 + v))) := by ring
-            _ ≤ 5 * 10 ^ 8 * (V / (c' ^ 2 * √(1 + v))) := by gcongr; norm_num
-            _ = _ := by ring
+  intro u w
+  have hc0 : 0 < c' := by linarith
+  have hc10k : 10000 ≤ c' := by linarith
+  have hx5 : (1 / 10 : ℝ) ≤ x := by linarith [Bessel.one_fifth_le_xiStar]
+  have hxpos : 0 < x := by linarith
+  have hv1 : 1 ≤ 1 + v := by linarith
+  obtain ⟨hu_lo, _, hu_half⟩ := norm_u_cpow_half hv
+  have hwn : ‖w‖ = (4 * π / 3 * c' * x) * ‖u‖ := by
+    have hI : ‖-I * u‖ = ‖u‖ := by rw [norm_mul, norm_neg, Complex.norm_I, one_mul]
+    dsimp [w]
+    rw [show 4 * (π : ℂ) / 3 * (c' : ℂ) * (x : ℂ) = ((4 * π / 3 * c' * x : ℝ) : ℂ) by push_cast; ring,
+      norm_mul, Complex.norm_real, Real.norm_of_nonneg (by positivity), hI]
+  have hV_pos : 0 < Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) := by
+    have ha : 2 ≤ c' / 12 := by linarith
+    have ht0 : 0 ≤ c' * x ^ 2 / 3 := by positivity
+    rw [← Integration.virasoro_cardyV_eq_besselV ha ht0]
+    have := Integration.virasoro_cardyV_ge ha ht0
+    have : 0 < 8 * π ^ 4 * (c' * x ^ 2 / 3) ^ 2 := by positivity
+    linarith
+  have hbt := besselTwoTerm_edge hc0 hxpos hv
+  change (-2 * (π : ℂ)) * besselTwoTerm w = _ at hbt
+  rw [hbt]
+  let pref : ℂ := -(√2 * (π : ℂ) * Complex.exp (I * ((π : ℂ) / 4))) / (u ^ (1 / 2 : ℂ))
+  have hpref_norm : ‖pref‖ ≤ 10 / √(1 + v) := by
+    dsimp [pref]
+    have hnum : ‖-(√2 * (π : ℂ) * Complex.exp (I * ((π : ℂ) / 4)))‖ = √2 * π := by
+      rw [norm_neg, norm_mul, norm_mul]
+      have hI : ‖Complex.exp (I * ((π : ℂ) / 4))‖ = 1 := by
+        rw [show I * ((π : ℂ) / 4) = ((π / 4 : ℝ) : ℂ) * I by push_cast; ring,
+          Complex.norm_exp_ofReal_mul_I]
+      have hsq2 : ‖(√2 : ℂ)‖ = √2 := by
+        rw [show (√2 : ℂ) = ((√2 : ℝ) : ℂ) by simp, Complex.norm_real,
+          Real.norm_of_nonneg (Real.sqrt_nonneg _)]
+      rw [hsq2, Complex.norm_real, Real.norm_of_nonneg Real.pi_pos.le, hI, mul_one]
+    have hden_lb : √(1 / 3 * (1 + v)) ≤ ‖u ^ (1 / 2 : ℂ)‖ := by
+      rw [hu_half]; exact Real.sqrt_le_sqrt hu_lo
+    have hden_eq : √(1 / 3 * (1 + v)) = √(1 + v) / √3 := by
+      rw [show 1 / 3 * (1 + v) = (1 + v) / 3 by ring, Real.sqrt_div (by positivity)]
+    rw [norm_div, hnum]
+    calc √2 * π / ‖u ^ (1 / 2 : ℂ)‖ ≤ √2 * π / (√(1 + v) / √3) := by
+          exact div_le_div_of_nonneg_left (by positivity) (by positivity) (hden_eq ▸ hden_lb)
+      _ = √6 * π / √(1 + v) := by
+          rw [div_div_eq_mul_div, show √2 * π * √3 = (√2 * √3) * π by ring,
+            ← Real.sqrt_mul zero_le_two, show (2 : ℝ) * 3 = 6 by norm_num]
+      _ ≤ 10 / √(1 + v) := by
+          have hsq6 : √6 ≤ 2.5 := Real.sqrt_le_iff.mpr ⟨by norm_num, by norm_num⟩
+          have hpi4 : π ≤ 4 := Real.pi_lt_four.le
+          have hnum6 : √6 * π ≤ 10 := by
+            nlinarith only [hsq6, hpi4, Real.sqrt_nonneg 6, Real.pi_pos]
+          exact div_le_div_of_nonneg_right hnum6 (Real.sqrt_nonneg _)
+  have hexp_norm : ‖Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ))‖ = 1 := by
+    rw [show -I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ) =
+      ((- (4 * π / 3 * c' * v * x) : ℝ) : ℂ) * I by push_cast; ring,
+      Complex.norm_exp_ofReal_mul_I]
+  let d : ℝ := (1 - Real.exp (-4 * π * x)) ^ 2
+  have hd_lb : 1 / 4 ≤ d := by
+    have h1 := one_sub_exp_ge_half hx
+    have h1m : 0 ≤ 1 - Real.exp (-4 * π * x) := by linarith only [h1]
+    dsimp [d]; nlinarith only [h1, h1m]
+  let A₀ : ℝ := Bessel.besselAs (c' * Bessel.besselL x)
+  let V : ℝ := Bessel.besselV (c' / 12) (c' * x ^ 2 / 3)
+  have hV3 := besselV_three_term hc10k hx
+  change |V / A₀ - (d + virasoroV1 x / c')| ≤ 400000 / c' ^ 2 at hV3
+  have hA₀_pos : 0 < A₀ := Bessel.besselAs_pos (by unfold Bessel.besselL; positivity)
+  have hV_div_A₀ : 1 / 8 ≤ V / A₀ := by
+    have h3 := (abs_le.mp hV3).1
+    have hv1' := (abs_le.mp (virasoroV1_abs_le hx)).1
+    have h1 : 30 / c' ≤ 1 / 32 := (div_le_iff₀ hc0).mpr (by linarith only [hc'])
+    have h2 : 400000 / c' ^ 2 ≤ 1 / 32 :=
+      (div_le_iff₀ (by positivity)).mpr (by nlinarith only [hc'])
+    have hv1'' : -(30 / c') ≤ virasoroV1 x / c' := by
+      rw [← neg_div]; exact div_le_div_of_nonneg_right hv1' hc0.le
+    calc (1 / 8 : ℝ) ≤ d - 1 / 32 - 1 / 32 - 1 / 16 := by linarith only [hd_lb]
+      _ ≤ d - 30 / c' - 400000 / c' ^ 2 := by linarith only [h1, h2]
+      _ ≤ d + virasoroV1 x / c' - 400000 / c' ^ 2 := by linarith only [hv1'']
+      _ ≤ V / A₀ := by linarith only [h3]
+  have ha₂_eq : virasoroA2 x = -virasoroV1 x / d ^ 2 := by dsimp [virasoroA2, d]; ring
+  have ha₂_bd : |virasoroA2 x| ≤ 480 := by
+    have hd_sq_pos : 0 < d ^ 2 := pow_pos (by linarith only [hd_lb]) 2
+    have hd_sq_lb : (1 / 4 : ℝ) ^ 2 ≤ d ^ 2 := pow_le_pow_left₀ (by norm_num) hd_lb 2
+    rw [ha₂_eq, abs_div, abs_neg, abs_of_pos hd_sq_pos]
+    calc |virasoroV1 x| / d ^ 2 ≤ 30 / (1 / 4) ^ 2 := by gcongr; exact virasoroV1_abs_le hx
+      _ = 480 := by norm_num
+  have hVA_main : |A₀ / V - (d⁻¹ + virasoroA2 x / c')| ≤ 20000000 / c' ^ 2 :=
+    hVA_main_alg hc' hc0 hd_lb hA₀_pos hV_pos hV_div_A₀ hV3 (virasoroV1_abs_le hx)
+      ha₂_eq ha₂_bd
+  have hu_ne : u ≠ 0 := by intro h; have := congrArg Complex.im h; simp [u] at this
+  have hw_inv : 1 / (8 * w) = (3 * I / (32 * (π : ℂ) * (x : ℂ))) / ((c' : ℂ) * u) :=
+    hw_inv_alg hc0.ne' hxpos.ne' hu_ne rfl
+  have hw_inv_bd : ‖1 / (8 * w)‖ ≤ 1 / c' := by
+    have hu_n_lb : 1 / 3 ≤ ‖u‖ := by linarith only [hu_lo, hv1]
+    have hcxu : c' / 30 ≤ c' * x * ‖u‖ := by
+      have h1 : c' / 10 ≤ c' * x := by nlinarith only [hc0, hx5]
+      calc c' / 30 = (c' / 10) * (1 / 3) := by ring
+        _ ≤ (c' * x) * ‖u‖ := mul_le_mul h1 hu_n_lb (by norm_num) (by linarith only [hc0, h1])
+    have h8w : c' ≤ 8 * ‖w‖ := by
+      rw [hwn]
+      calc c' ≤ 32 * (c' / 30) := by linarith only [hc0]
+        _ = 8 * (4 * 3 / 3) * (c' / 30) := by ring
+        _ ≤ 8 * (4 * π / 3) * (c' * x * ‖u‖) := by gcongr; exact Real.pi_gt_three.le
+        _ = 8 * (4 * π / 3 * c' * x * ‖u‖) := by ring
+    rw [norm_div, norm_one, norm_mul, Complex.norm_ofNat]
+    exact div_le_div_of_nonneg_left zero_le_one hc0 h8w
+  exact edge_part2_comb hc' hc0 hv hV_pos hd_lb rfl rfl ha₂_bd hVA_main
+    hpref_norm hexp_norm hw_inv hw_inv_bd rfl rfl rfl
+
+private lemma edge_kernel_pointwise_error :
+    ∃ c₀ C : ℝ, 10000 ≤ c₀ ∧ 0 < C ∧ ∀ {c' v x : ℝ}, c₀ ≤ c' → 0 ≤ v → xiStar / 2 ≤ x →
+      ‖(-2 * (π : ℂ)) *
+          Integration.besselI0C (4 * (π : ℂ) * I * ((v : ℂ) + I / 2) *
+            (Real.sqrt (c' * (c' * x ^ 2 / 3) / 3) : ℝ)) -
+        edgeMainKernel c' v x‖ ≤
+          C * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
+  refine ⟨10000000, 10 ^ 9, by norm_num, by positivity, fun {c'} {v} {x} hc' hv hx => ?_⟩
+  have hsqrt_arg : Real.sqrt (c' * (c' * x ^ 2 / 3) / 3) = c' * x / 3 := by
+    have hx0 : 0 ≤ x := by linarith [Bessel.one_fifth_le_xiStar]
+    have hc0 : 0 ≤ c' := by linarith
+    rw [show c' * (c' * x ^ 2 / 3) / 3 = (c' * x / 3) ^ 2 by ring, Real.sqrt_sq (by positivity)]
+  rw [hsqrt_arg]
+  set u : ℂ := (v : ℂ) + I / 2
+  set w : ℂ := (4 * (π : ℂ) / 3 * (c' : ℂ) * (x : ℂ)) * (-I * u)
+  have hneg_arg : 4 * (π : ℂ) * I * u * ((c' * x / 3 : ℝ) : ℂ) = -w := by
+    dsimp [w]; push_cast; ring
+  rw [hneg_arg, besselI0C_neg]
+  have hPart1 := edge_part1_bound (by linarith : (10000 : ℝ) ≤ c') hv hx
+  have hPart2 := edge_part2_bound hc' hv hx
+  change ‖(-2 * (π : ℂ)) * Integration.besselI0C w - (-2 * (π : ℂ)) * besselTwoTerm w‖ ≤ _ at hPart1
+  change ‖(-2 * (π : ℂ)) * besselTwoTerm w - edgeMainKernel c' v x‖ ≤ _ at hPart2
+  have hV_div_nn : 0 ≤ Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
+    have hnn := (norm_nonneg _).trans hPart1
+    rw [mul_div_assoc] at hnn
+    exact nonneg_of_mul_nonneg_right hnn (by positivity)
   calc ‖(-2 * (π : ℂ)) * Integration.besselI0C w - edgeMainKernel c' v x‖
       ≤ ‖(-2 * (π : ℂ)) * Integration.besselI0C w - (-2 * (π : ℂ)) * besselTwoTerm w‖ +
         ‖(-2 * (π : ℂ)) * besselTwoTerm w - edgeMainKernel c' v x‖ := norm_sub_le_norm_sub_add_norm_sub _ _ _
     _ ≤ 10 ^ 7 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) +
           5 * 10 ^ 8 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) :=
         add_le_add hPart1 hPart2
-    _ ≤ 10 ^ 9 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by
-        have : (0 : ℝ) ≤ Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by positivity
-        linarith
+    _ = 510000000 * (Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v))) := by ring
+    _ ≤ 10 ^ 9 * (Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v))) := by gcongr; norm_num
+    _ = 10 ^ 9 * Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) / (c' ^ 2 * √(1 + v)) := by ring
 
 /-! ## Section 4: Head decay and full integral asymptotic (`cts:edge-hankel` (2)) -/
 
@@ -2074,11 +2241,37 @@ private lemma head_pointwise_exp_bound :
               Real.exp (c' * (2 * π / 3) * x))) := by ring
     _ ≤ Real.exp C_M2 * M * δ⁻¹ * (C₄ * Real.exp (-(κ₀ / 2) * c')) := by
         have hexp_all := hpow_comb.trans' (mul_le_mul_of_nonneg_left hexp_comb (by positivity))
-        have hM_nn : 0 ≤ M := virasoroProblem.cardyNorm_nonneg (by linarith : virasoroProblem.totalShift ≤ c' / 12) _
+        have hM_nn : 0 ≤ M := hMpos.le
         exact mul_le_mul (mul_le_mul_of_nonneg_left hinv_le (by positivity)) hexp_all
           (by positivity) (by positivity)
     _ = ((1 / δ) * Real.exp C_M2 * C₄) * Real.exp (-(κ₀ / 2) * c') * M := by
         rw [one_div]; ring
+
+private lemma edge_head_combine_alg {c' C₁ C₂ κ v M : ℝ} (hc0 : 0 < c') (hv : 0 ≤ v)
+    (h1 : c' * Real.exp (-κ * c') ≤ C₂)
+    (h2 : c' ^ 2 * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c') ≤ C₂)
+    (hC₁ : 0 ≤ C₁) (hC₂ : 0 ≤ C₂) (hM : 0 ≤ M) :
+    96 * π * C₁ * Real.exp (-κ * c') * M / (c' * √(1 + v)) +
+      20 * π * C₁ * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c') * M / √(1 + v) ≤
+      (200 * π * C₁ * C₂) * M / (c' ^ 2 * √(1 + v)) := by
+  have hsqv : 0 < √(1 + v) := Real.sqrt_pos.mpr (by linarith only [hv])
+  have hc_abs : c' ^ 2 * (96 * π * C₁ * Real.exp (-κ * c') / c' +
+      20 * π * C₁ * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c')) ≤ 200 * π * C₁ * C₂ := by
+    calc c' ^ 2 * (96 * π * C₁ * Real.exp (-κ * c') / c' +
+            20 * π * C₁ * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c'))
+        = 96 * π * C₁ * (c' * Real.exp (-κ * c')) +
+            20 * π * C₁ * (c' ^ 2 * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c')) := by
+          field_simp [hc0.ne']
+      _ ≤ 96 * π * C₁ * C₂ + 20 * π * C₁ * C₂ := by gcongr
+      _ = 116 * (π * C₁ * C₂) := by ring
+      _ ≤ 200 * (π * C₁ * C₂) := by gcongr; norm_num
+      _ = 200 * π * C₁ * C₂ := by ring
+  calc 96 * π * C₁ * Real.exp (-κ * c') * M / (c' * √(1 + v)) +
+        20 * π * C₁ * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c') * M / √(1 + v)
+      = (c' ^ 2 * (96 * π * C₁ * Real.exp (-κ * c') / c' +
+          20 * π * C₁ * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c'))) * M / (c' ^ 2 * √(1 + v)) := by
+        field_simp [hc0.ne', hsqv.ne']
+    _ ≤ (200 * π * C₁ * C₂) * M / (c' ^ 2 * √(1 + v)) := by gcongr
 
 private lemma edge_hankel_head_decay :
     ∃ c₀ C : ℝ, 10000 ≤ c₀ ∧ 0 < C ∧ ∀ {c' : ℝ}, c₀ ≤ c' → ∀ {g : ℝ → ℝ},
@@ -2138,7 +2331,7 @@ private lemma edge_hankel_head_decay :
     have hφ'_cont : ContinuousOn φ' (uIcc (0 : ℝ) (xiStar / 2)) := by dsimp [φ']; fun_prop
     have hF_cont : ContinuousOn F (φ '' uIcc 0 (xiStar / 2)) := by
       have himg : φ '' uIcc 0 (xiStar / 2) ⊆ Ici 0 := by
-        rintro t ⟨x, _, rfl⟩; dsimp [φ]; positivity
+        rintro t ⟨x, _, rfl⟩; dsimp [φ]; exact div_nonneg (mul_nonneg hc0.le (sq_nonneg x)) (by norm_num)
       have hI0_cont : Continuous Integration.besselI0C := by
         unfold Integration.besselI0C
         refine continuous_const.mul (intervalIntegral.continuous_parametric_intervalIntegral_of_continuous'
@@ -2163,7 +2356,8 @@ private lemma edge_hankel_head_decay :
       refine continuous_const.mul (intervalIntegral.continuous_parametric_intervalIntegral_of_continuous'
         (by fun_prop) 0 π)
     have hcont_g : Continuous fun x : ℝ => g (φ x) :=
-      hg.cont.comp_continuous (by dsimp [φ]; fun_prop) (fun x => by dsimp [φ]; positivity)
+      hg.cont.comp_continuous (by dsimp [φ]; fun_prop)
+        (fun x => by dsimp [φ]; exact div_nonneg (mul_nonneg hc0.le (sq_nonneg x)) (by norm_num))
     dsimp [F, φ']
     exact (by fun_prop : Continuous fun x : ℝ => (2 * c' * x / 3 : ℝ)).smul
       (((Complex.continuous_ofReal.comp hcont_g).mul continuous_const).mul
@@ -2194,21 +2388,20 @@ private lemma edge_hankel_head_decay :
       have hPJ := hhead hc₁' hg hMpos hx_mem
       calc φ' x * (|g (φ x)| * (2 * π) * ‖Integration.besselI0C _‖)
           ≤ φ' x * (|g (φ x)| * (2 * π) * kernelK 1 (c' / 12) (φ x)) := by gcongr
-        _ ≤ φ' x * (|g (φ x)| * (2 * π) * Real.exp (c' * (2 * π / 3) * x)) := by
-            gcongr; exact hK
+        _ ≤ φ' x * (|g (φ x)| * (2 * π) * Real.exp (c' * (2 * π / 3) * x)) := by gcongr
         _ = 2 * π * (|g (φ x)| * Real.exp (c' * (2 * π / 3) * x)) * φ' x := by ring
         _ ≤ 2 * π * (C₁ * Real.exp (-κ * c') * M) * φ' x := by gcongr
-    have hmono := intervalIntegral.norm_integral_le_of_norm_le
-      ((by fun_prop : Continuous fun x => 2 * π * (C₁ * Real.exp (-κ * c') * M) * φ' x).intervalIntegrable _ _)
-      (by
-        filter_upwards [ae_restrict_mem measurableSet_uIoc] with x hx
-        rw [uIoc_of_le hxc_0] at hx
-        exact hpt_A x ⟨hx.1.le, hx.2⟩)
+    have hmono : ‖∫ x in (0 : ℝ)..x_cut, (φ' x : ℂ) • F (φ x)‖ ≤
+        ∫ x in (0 : ℝ)..x_cut, 2 * π * (C₁ * Real.exp (-κ * c') * M) * φ' x := by
+      refine (intervalIntegral.norm_integral_le_integral_norm hxc_0).trans ?_
+      exact intervalIntegral.integral_mono_on hxc_0 (hcont_sub.norm.intervalIntegrable (0 : ℝ) x_cut)
+        ((by fun_prop : Continuous fun x => 2 * π * (C₁ * Real.exp (-κ * c') * M) * φ' x).intervalIntegrable (0 : ℝ) x_cut)
+        hpt_A
     have hint_φ' : ∫ x in (0 : ℝ)..x_cut, φ' x = c' * x_cut ^ 2 / 3 := by
       have hd : ∀ x ∈ uIcc (0 : ℝ) x_cut, HasDerivAt φ (φ' x) x := fun x _ => by
         dsimp [φ, φ']; exact ((hasDerivAt_pow 2 x).const_mul c' |>.div_const 3).congr_deriv (by ring)
       have hres := intervalIntegral.integral_eq_sub_of_hasDerivAt hd
-        (by dsimp [φ']; fun_prop : Continuous φ').intervalIntegrable
+        ((by dsimp [φ']; fun_prop : Continuous φ').intervalIntegrable (0 : ℝ) x_cut)
       simpa [φ] using hres
     rw [intervalIntegral.integral_const_mul, hint_φ'] at hmono
     have hx_le2 : x_cut ≤ 12 / (c' * (1 + v)) := min_le_right _ _
@@ -2227,15 +2420,12 @@ private lemma edge_hankel_head_decay :
   -- Piece B: `x_cut..(xiStar/2)`
   have hB : ‖∫ x in x_cut..(xiStar / 2), (φ' x : ℂ) • F (φ x)‖ ≤
       20 * π * C₁ * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c') * M / √(1 + v) := by
-    rcases le_total (xiStar / 2) x_cut with htriv | hx_lt
-    · have heq : x_cut = xiStar / 2 := le_antisymm hxc_hi htriv
-      rw [heq, intervalIntegral.integral_same, norm_zero]
-      positivity
+    rcases lt_or_ge x_cut (xiStar / 2) with hx_lt | htriv
     · have hxc_eq : x_cut = 12 / (c' * (1 + v)) := by
         rw [hxcut, min_eq_right]
         by_contra hcon
-        push_neg at hcon
-        rw [min_eq_left hcon.le] at hx_lt
+        push Not at hcon
+        rw [hxcut, min_eq_left hcon.le] at hx_lt
         exact lt_irrefl _ hx_lt
       have hxc_pos : 0 < x_cut := by rw [hxc_eq]; positivity
       have hpt_B : ∀ x ∈ Icc x_cut (xiStar / 2),
@@ -2257,7 +2447,7 @@ private lemma edge_hankel_head_decay :
         rw [hneg_w, besselI0C_neg]
         have hw_re : w.re = c' * (2 * π / 3) * x := by
           have h1 : w = ((c' * (2 * π / 3) * x : ℝ) : ℂ) + (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ)) := by
-            dsimp [w]; push_cast; ring
+            dsimp [w]; push_cast; ring_nf; rw [Complex.I_sq]; ring
           rw [h1]; simp
         obtain ⟨hu_lo, _, _⟩ := norm_u_cpow_half hv
         have hwn : ‖w‖ = (4 * π / 3 * c' * x) * ‖(v : ℂ) + I / 2‖ := by
@@ -2266,15 +2456,19 @@ private lemma edge_hankel_head_decay :
           dsimp [w]
           rw [show 4 * (π : ℂ) / 3 * (c' : ℂ) * (x : ℂ) = ((4 * π / 3 * c' * x : ℝ) : ℂ) by push_cast; ring,
             norm_mul, Complex.norm_real, Real.norm_of_nonneg (by positivity), hI]
-        have hwn_lb : 2 * c' * x * (1 + v) ≤ ‖w‖ := by
+        have hwn_lb : 4 / 3 * (c' * x * (1 + v)) ≤ ‖w‖ := by
           rw [hwn]
-          calc 2 * c' * x * (1 + v) = (4 * c' * x) * (1 / 2 * (1 + v)) := by ring
-            _ ≤ (4 * π / 3 * c' * x) * ‖(v : ℂ) + I / 2‖ := by gcongr; linarith [Real.pi_gt_three]
+          have hcxhv : 0 ≤ c' * x * (1 + v) := by positivity
+          calc 4 / 3 * (c' * x * (1 + v)) ≤ (4 * π / 9) * (c' * x * (1 + v)) :=
+                mul_le_mul_of_nonneg_right (by linarith [Real.pi_gt_three]) hcxhv
+            _ = (4 * π / 3 * c' * x) * (1 / 3 * (1 + v)) := by ring
+            _ ≤ (4 * π / 3 * c' * x) * ‖(v : ℂ) + I / 2‖ := by gcongr
         have hwn_ge16 : 16 ≤ ‖w‖ := by
-          have h1 : 12 ≤ c' * (1 + v) * x := by
-            rw [← div_le_iff₀ (by positivity : 0 < c' * (1 + v))]
+          have h1 : 12 ≤ c' * x * (1 + v) := by
+            rw [show c' * x * (1 + v) = x * (c' * (1 + v)) by ring,
+              ← div_le_iff₀ (by positivity : 0 < c' * (1 + v))]
             linarith [hxc_eq ▸ hx.1]
-          nlinarith
+          linarith [hwn_lb]
         have hdec := besselI0C_strip_decay (by rw [hw_re]; positivity) hwn_ge16
         rw [hw_re] at hdec
         have hw_rpow : ‖w‖ ^ (-(1 : ℝ) / 2) ≤ (c' * x * (1 + v)) ^ (-(1 : ℝ) / 2) := by
@@ -2318,70 +2512,50 @@ private lemma edge_hankel_head_decay :
       have hlen : |xiStar / 2 - x_cut| ≤ 1 := by
         rw [abs_of_nonneg (by linarith [hx_lt])]
         linarith [xiStar_lt_one, hxc_pos]
-      refine (intervalIntegral.norm_integral_le_of_norm_le_const (fun x hx => ?_)).trans ?_
+      refine (intervalIntegral.norm_integral_le_of_norm_le_const
+        (C := 20 * π * C₁ * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c') * M / √(1 + v))
+        (fun x hx => ?_)).trans ?_
       · rw [uIoc_of_le hx_lt.le] at hx
         exact hpt_B x ⟨hx.1.le, hx.2⟩
       · exact mul_le_of_le_one_right (by positivity) hlen
+    · have heq : x_cut = xiStar / 2 := le_antisymm hxc_hi htriv
+      rw [heq, intervalIntegral.integral_same, norm_zero]
+      positivity
   -- Combine Piece A + Piece B and absorb `c'^{1/2}` & `c'^2` into `C₂`
-  have hc_abs : c' ^ 2 * (96 * π * C₁ * Real.exp (-κ * c') / c' +
-      20 * π * C₁ * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c')) ≤ 200 * π * C₁ * C₂ := by
-    have hpow2 : c' ^ 2 * Real.exp (-κ * c') ≤ C₂ * Real.exp (-(κ / 2) * c') := by
-      have h1 : c' ^ (2 : ℝ) ≤ c' ^ (3 : ℝ) := Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
-      rw [Real.rpow_two] at h1
-      have h2 := hC₂le c' hc1
-      have hexp_split : Real.exp (-κ * c') = Real.exp ((κ / 2) * c') * Real.exp (-(3 * κ / 2) * c') := by
-        rw [← Real.exp_add]; congr 1; ring
-      have hle_c2 : c' ^ 2 * Real.exp (-κ * c') ≤ (C₂ * Real.exp ((κ / 2) * c')) * Real.exp (-κ * c') := by
-        gcongr; exact h1.trans h2
-      refine hle_c2.trans ?_
-      have heq : C₂ * Real.exp ((κ / 2) * c') * Real.exp (-κ * c') = C₂ * Real.exp (-(κ / 2) * c') := by
-        rw [mul_assoc, ← Real.exp_add]; congr 2; ring
-      rw [heq]; exact le_rfl
-    have hpow25 : c' ^ 2 * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c') ≤ C₂ := by
-      have h1 : c' ^ 2 * c' ^ (1 / 2 : ℝ) ≤ c' ^ (3 : ℝ) := by
-        have : c' ^ 2 = c' ^ (2 : ℝ) := (Real.rpow_two c').symm
-        rw [this, ← Real.rpow_add hc0]
-        exact Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
-      have h2 := hC₂le c' hc1
-      have hexp_le : Real.exp ((κ / 2) * c') * Real.exp (-κ * c') ≤ 1 := by
-        rw [← Real.exp_add, Real.exp_le_one_iff]; nlinarith
-      calc c' ^ 2 * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c')
-          ≤ (C₂ * Real.exp ((κ / 2) * c')) * Real.exp (-κ * c') := by gcongr; exact h1.trans h2
-        _ = C₂ * (Real.exp ((κ / 2) * c') * Real.exp (-κ * c')) := by ring
-        _ ≤ C₂ * 1 := by gcongr
-        _ = C₂ := mul_one C₂
-    have hpow1 : c' * Real.exp (-κ * c') ≤ C₂ := by
-      have h1 : c' ≤ c' ^ (3 : ℝ) := by
-        conv_lhs => rw [← Real.rpow_one c']
-        exact Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
-      have h2 := hC₂le c' hc1
-      have hexp_le : Real.exp ((κ / 2) * c') * Real.exp (-κ * c') ≤ 1 := by
-        rw [← Real.exp_add, Real.exp_le_one_iff]; nlinarith
-      calc c' * Real.exp (-κ * c') ≤ (C₂ * Real.exp ((κ / 2) * c')) * Real.exp (-κ * c') := by
-            gcongr; exact h1.trans h2
-        _ = C₂ * (Real.exp ((κ / 2) * c') * Real.exp (-κ * c')) := by ring
-        _ ≤ C₂ * 1 := by gcongr
-        _ = C₂ := mul_one C₂
-    have he1 : Real.exp (-(κ / 2) * c') ≤ 1 := Real.exp_le_one_iff.mpr (by nlinarith)
-    calc c' ^ 2 * (96 * π * C₁ * Real.exp (-κ * c') / c' +
-            20 * π * C₁ * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c'))
-        = 96 * π * C₁ * (c' * (c' * Real.exp (-κ * c') / c')) +
-            20 * π * C₁ * (c' ^ 2 * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c')) := by ring
-      _ = 96 * π * C₁ * (c' * Real.exp (-κ * c')) +
-            20 * π * C₁ * (c' ^ 2 * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c')) := by
-          field_simp [hc0.ne']
-      _ ≤ 96 * π * C₁ * C₂ + 20 * π * C₁ * C₂ := by gcongr
-      _ ≤ 200 * π * C₁ * C₂ := by have : 0 ≤ π * C₁ * C₂ := by positivity; linarith
+  have hpow25 : c' ^ 2 * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c') ≤ C₂ := by
+    have h1 : c' ^ 2 * c' ^ (1 / 2 : ℝ) ≤ c' ^ (3 : ℝ) := by
+      have : c' ^ 2 = c' ^ (2 : ℝ) := (Real.rpow_two c').symm
+      rw [this, ← Real.rpow_add hc0]
+      exact Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
+    have h2 := hC₂le c' hc1
+    have hexp_le : Real.exp ((κ / 2) * c') * Real.exp (-κ * c') ≤ 1 := by
+      rw [← Real.exp_add, Real.exp_le_one_iff]; nlinarith
+    calc c' ^ 2 * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c')
+        ≤ (C₂ * Real.exp ((κ / 2) * c')) * Real.exp (-κ * c') :=
+          mul_le_mul (h1.trans h2) le_rfl (Real.exp_pos _).le (by positivity)
+      _ = C₂ * (Real.exp ((κ / 2) * c') * Real.exp (-κ * c')) := by ring
+      _ ≤ C₂ * 1 := by gcongr
+      _ = C₂ := mul_one C₂
+  have hpow1 : c' * Real.exp (-κ * c') ≤ C₂ := by
+    have h1 : c' ≤ c' ^ (3 : ℝ) := by
+      conv_lhs => rw [← Real.rpow_one c']
+      exact Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
+    have h2 := hC₂le c' hc1
+    have hexp_le : Real.exp ((κ / 2) * c') * Real.exp (-κ * c') ≤ 1 := by
+      rw [← Real.exp_add, Real.exp_le_one_iff]; nlinarith
+    calc c' * Real.exp (-κ * c') ≤ (C₂ * Real.exp ((κ / 2) * c')) * Real.exp (-κ * c') := by
+          gcongr; exact h1.trans h2
+      _ = C₂ * (Real.exp ((κ / 2) * c') * Real.exp (-κ * c')) := by ring
+      _ ≤ C₂ * 1 := by gcongr
+      _ = C₂ := mul_one C₂
   calc ‖(∫ x in (0 : ℝ)..x_cut, (φ' x : ℂ) • F (φ x)) +
           ∫ x in x_cut..(xiStar / 2), (φ' x : ℂ) • F (φ x)‖
       ≤ ‖∫ x in (0 : ℝ)..x_cut, (φ' x : ℂ) • F (φ x)‖ +
           ‖∫ x in x_cut..(xiStar / 2), (φ' x : ℂ) • F (φ x)‖ := norm_add_le _ _
     _ ≤ 96 * π * C₁ * Real.exp (-κ * c') * M / (c' * √(1 + v)) +
           20 * π * C₁ * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c') * M / √(1 + v) := add_le_add hA hB
-    _ = (c' ^ 2 * (96 * π * C₁ * Real.exp (-κ * c') / c' +
-            20 * π * C₁ * c' ^ (1 / 2 : ℝ) * Real.exp (-κ * c'))) * M / (c' ^ 2 * √(1 + v)) := by
-        field_simp [hc0.ne', (Real.sqrt_pos.mpr (by linarith : 0 < 1 + v)).ne']; ring
-    _ ≤ (200 * π * C₁ * C₂) * M / (c' ^ 2 * √(1 + v)) := by gcongr
+    _ ≤ (200 * π * C₁ * C₂) * M / (c' ^ 2 * √(1 + v)) :=
+        edge_head_combine_alg hc0 hv hpow1 hpow25 hC₁.le hC₂_pos.le hMpos.le
 
 /-- **`cts:edge-hankel` (2) at spinless Virasoro (Lemma C5(2))**, unrestricted in `v ≥ 0`.
 There exist `c₀, C > 0` such that for every `c' ≥ c₀`, every test `g` in
@@ -2472,9 +2646,8 @@ theorem edge_hankel_two_virasoro :
       have hfalse : ∀ᵐ s ∂(volume.restrict (Ioo t (t + ε))), False := by
         filter_upwards [hbad_ae, hne_ae] with s hs1 hs2
         exact hs2 hs1
-      have hnull : (volume.restrict (Ioo t (t + ε))) univ = 0 := by
-        simpa [ae_iff] using hfalse
-      rw [Measure.restrict_apply_univ] at hnull
+      have hnull : (volume.restrict (Ioo t (t + ε))) {s : ℝ | ¬ False} = 0 := ae_iff.mp hfalse
+      simp only [not_false_eq_true, ofPred_true, Measure.restrict_apply_univ] at hnull
       exact hm hnull
     have hR : ∫ x in Ioi (xiStar / 2), mainIntegrand x = 0 := by
       refine setIntegral_eq_zero_of_forall_eq_zero fun x hx => ?_
@@ -2538,35 +2711,39 @@ theorem edge_hankel_two_virasoro :
     refine integrableOn_Ioi_of_intervalIntegral_norm_bounded
       (∫ t in Ioi t₀, |g t| * Bessel.besselV (c' / 12) t) (xiStar / 2)
       (fun R => (hcont_V_all.intervalIntegrable (xiStar / 2) R).1)
-      (hcont_V_all.aestronglyMeasurable.mono_measure Measure.restrict_le_self) ?_
+      tendsto_id ?_
     refine eventually_atTop.mpr ⟨xiStar / 2, fun R hR => ?_⟩
     have hd : ∀ x ∈ uIcc (xiStar / 2) R, HasDerivAt φ (φ' x) x := fun x _ => by
       dsimp [φ, φ']; exact ((hasDerivAt_pow 2 x).const_mul c' |>.div_const 3).congr_deriv (by ring)
     have hφ'_c : ContinuousOn φ' (uIcc (xiStar / 2) R) := by dsimp [φ']; fun_prop
     have hcont_t : ContinuousOn (fun t => |g t| * Bessel.besselV (c' / 12) t)
         (φ '' uIcc (xiStar / 2) R) := by
-      have himg : φ '' uIcc (xiStar / 2) R ⊆ Ici 0 := by rintro t ⟨x, _, rfl⟩; dsimp [φ]; positivity
+      have himg : φ '' uIcc (xiStar / 2) R ⊆ Ici 0 := by
+        rintro t ⟨x, _, rfl⟩; dsimp [φ]; exact div_nonneg (mul_nonneg hc0.le (sq_nonneg x)) (by norm_num)
       exact (hg.cont.abs.mul hV_cont).mono himg
     have hcov := intervalIntegral.integral_comp_mul_deriv' hd hφ'_c hcont_t
     have hcov' : ∫ x in (xiStar / 2)..R, |g (φ x)| * Bessel.besselV (c' / 12) (φ x) * φ' x =
         ∫ t in t₀..(φ R), |g t| * Bessel.besselV (c' / 12) t := by
       simpa [ht₀def] using hcov
-    have hnn : 0 ≤ ∫ x in (xiStar / 2)..R, |g (φ x)| * Bessel.besselV (c' / 12) (φ x) * φ' x := by
-      refine intervalIntegral.integral_nonneg hR fun x hx => ?_
+    have hnorm_eq : ∫ x in (xiStar / 2)..R, ‖|g (φ x)| * Bessel.besselV (c' / 12) (φ x) * φ' x‖ =
+        ∫ x in (xiStar / 2)..R, |g (φ x)| * Bessel.besselV (c' / 12) (φ x) * φ' x := by
+      refine intervalIntegral.integral_congr fun x hx => Real.norm_of_nonneg ?_
+      rw [uIcc_of_le hR] at hx
+      have hφx : 0 ≤ φ x := by dsimp [φ]; exact div_nonneg (mul_nonneg hc0.le (sq_nonneg x)) (by norm_num)
       have hV0 : 0 ≤ Bessel.besselV (c' / 12) (φ x) := by
-        rw [← Integration.virasoro_cardyV_eq_besselV ha (by dsimp [φ]; positivity)]
-        exact virasoroProblem.cardyV_nonneg hshift (by dsimp [φ]; positivity)
+        rw [← Integration.virasoro_cardyV_eq_besselV ha hφx]
+        exact virasoroProblem.cardyV_nonneg hshift hφx
       have hx0 : 0 ≤ x := by linarith [xiStar_pos, hx.1]
       have hφ'0 : 0 ≤ φ' x := by dsimp [φ']; positivity
       exact mul_nonneg (mul_nonneg (abs_nonneg _) hV0) hφ'0
     have ht₀_le : t₀ ≤ φ R := by
       dsimp [t₀, φ]; gcongr; linarith [xiStar_pos]
-    rw [Real.norm_of_nonneg hnn, hcov', intervalIntegral.integral_of_le ht₀_le]
+    rw [hnorm_eq, hcov', intervalIntegral.integral_of_le ht₀_le]
     refine setIntegral_mono_set hV_Ioi ?_ Ioc_subset_Ioi_self.eventuallySubset
     exact ae_restrict_of_forall_mem measurableSet_Ioi fun t ht =>
       mul_nonneg (abs_nonneg _) (by
-        rw [← Integration.virasoro_cardyV_eq_besselV ha (mem_Ioi.mp ht).le]
-        exact virasoroProblem.cardyV_nonneg hshift (mem_Ioi.mp ht).le)
+        rw [← Integration.virasoro_cardyV_eq_besselV ha (ht₀_pos.le.trans (mem_Ioi.mp ht).le)]
+        exact virasoroProblem.cardyV_nonneg hshift (ht₀_pos.le.trans (mem_Ioi.mp ht).le))
   have hV_phi_le : ∫ x in Ioi (xiStar / 2), |g (φ x)| * Bessel.besselV (c' / 12) (φ x) * φ' x ≤ M := by
     have h1 := intervalIntegral_tendsto_integral_Ioi (xiStar / 2) hV_phi_int tendsto_id
     have heq : ∫ x in Ioi (xiStar / 2), |g (φ x)| * Bessel.besselV (c' / 12) (φ x) * φ' x =
@@ -2654,20 +2831,25 @@ theorem edge_hankel_two_virasoro :
       simp only [norm_div, norm_mul, Complex.norm_ofNat, Complex.norm_I,
         Complex.norm_real, Real.norm_eq_abs,
         abs_of_pos Real.pi_pos, abs_of_pos hxpos,
-        abs_of_pos (sq_pos_of_pos (by linarith : 0 < 1 - Real.exp (-4 * π * x))),
+        abs_of_nonneg (sq_nonneg (1 - Real.exp (-4 * π * x))),
         abs_of_pos hc0, mul_one]
-      have hden : 32 * π * x * (1 - Real.exp (-4 * π * x)) ^ 2 * (c' * ‖(v : ℂ) + I / 2‖) ≥ 3 := by
+      have hden : 3 ≤ 32 * π * x * (1 - Real.exp (-4 * π * x)) ^ 2 * (c' * ‖(v : ℂ) + I / 2‖) := by
         have hpi := Real.pi_gt_three
-        have : 1 / 3 ≤ ‖(v : ℂ) + I / 2‖ := by linarith
-        nlinarith [show (1 / 4 : ℝ) ≤ (1 - Real.exp (-4 * π * x)) ^ 2 by nlinarith]
-      exact div_le_one_of_le₀ (by linarith) (by positivity)
+        have hd_sq : (1 / 4 : ℝ) ≤ (1 - Real.exp (-4 * π * x)) ^ 2 := by
+          have h1m : 0 ≤ 1 - Real.exp (-4 * π * x) := by linarith only [hd_lb]
+          nlinarith only [hd_lb, h1m]
+        have hu13 : (1 / 3 : ℝ) ≤ ‖(v : ℂ) + I / 2‖ := by nlinarith only [hu_lo, hv]
+        calc (3 : ℝ) ≤ 32 * 3 * (1 / 10) * (1 / 4) * (10000 * (1 / 3)) := by norm_num
+          _ ≤ 32 * π * x * (1 - Real.exp (-4 * π * x)) ^ 2 * (c' * ‖(v : ℂ) + I / 2‖) := by gcongr
+      rw [div_div]
+      exact div_le_one_of_le₀ hden (by positivity)
     have ha2_bd : ‖((virasoroA2 x / c' : ℝ) : ℂ)‖ ≤ 1 := by
       rw [Complex.norm_real, Real.norm_eq_abs, abs_div, abs_of_pos hc0]
       have ha2 : |virasoroA2 x| ≤ 480 := by
         dsimp [virasoroA2]
-        rw [abs_div, abs_neg, abs_of_pos (pow_pos (by linarith [hd_lb]) 4)]
+        rw [abs_div, abs_neg, abs_of_pos (pow_pos (by linarith [hd_lb] : 0 < 1 - Real.exp (-4 * π * x)) 4)]
         calc |virasoroV1 x| / (1 - Real.exp (-4 * π * x)) ^ 4 ≤ 30 / (1 / 2) ^ 4 := by
-              gcongr; exact virasoroV1_abs_le hx'; exact pow_le_pow_left₀ (by positivity) hd_lb 4
+              gcongr; exact virasoroV1_abs_le hx'
           _ = 480 := by norm_num
       rw [div_le_one hc0]; linarith
     have hexp_n : ‖Complex.exp (-I * ((4 * π / 3 * c' * v * x : ℝ) : ℂ))‖ = 1 := by
@@ -2748,7 +2930,7 @@ theorem edge_hankel_two_virasoro :
   rw [hF_cov]
   have hpref_main_eq : (∫ x in Ioi (xiStar / 2), (pref * mainIntegrand x)) =
       pref * ∫ x in Ioi (xiStar / 2), mainIntegrand x := MeasureTheory.integral_const_mul _ _
-  have htail_diff : ‖∫ x in Ioi (xiStar / 2), (φ' x : ℂ) • F (φ x) -
+  have htail_diff : ‖(∫ x in Ioi (xiStar / 2), (φ' x : ℂ) • F (φ x)) -
         pref * ∫ x in Ioi (xiStar / 2), mainIntegrand x‖ ≤ C₁ * M / (c' ^ 2 * √(1 + v)) := by
     have hsub_int : (∫ x in Ioi (xiStar / 2), (φ' x : ℂ) • F (φ x)) -
           pref * ∫ x in Ioi (xiStar / 2), mainIntegrand x =
@@ -2758,8 +2940,10 @@ theorem edge_hankel_two_virasoro :
     have hint_bd : IntegrableOn
         (fun x => C₁ / (c' ^ 2 * √(1 + v)) * (|g (φ x)| * Bessel.besselV (c' / 12) (φ x) * φ' x))
         (Ioi (xiStar / 2)) := hV_phi_int.const_mul _
-    have hnorm := norm_integral_le_of_norm_le hint_bd ?_
-    · rw [integral_const_mul] at hnorm
+    have hnorm : ‖∫ x in Ioi (xiStar / 2), ((φ' x : ℂ) • F (φ x) - pref * mainIntegrand x)‖ ≤
+        ∫ x in Ioi (xiStar / 2), C₁ / (c' ^ 2 * √(1 + v)) * (|g (φ x)| * Bessel.besselV (c' / 12) (φ x) * φ' x) :=
+      MeasureTheory.norm_integral_le_of_norm_le hint_bd ?_
+    · rw [MeasureTheory.integral_const_mul] at hnorm
       calc _ ≤ C₁ / (c' ^ 2 * √(1 + v)) *
               ∫ x in Ioi (xiStar / 2), |g (φ x)| * Bessel.besselV (c' / 12) (φ x) * φ' x := hnorm
         _ ≤ C₁ / (c' ^ 2 * √(1 + v)) * M := by gcongr
@@ -2786,10 +2970,10 @@ theorem edge_hankel_two_virasoro :
   calc ‖((∫ t in Ioc 0 t₀, F t) + ∫ x in Ioi (xiStar / 2), (φ' x : ℂ) • F (φ x)) -
           pref * ∫ x in Ioi (xiStar / 2), mainIntegrand x‖
       = ‖(∫ t in Ioc 0 t₀, F t) +
-          (∫ x in Ioi (xiStar / 2), (φ' x : ℂ) • F (φ x) - pref * ∫ x in Ioi (xiStar / 2), mainIntegrand x)‖ := by
+          ((∫ x in Ioi (xiStar / 2), (φ' x : ℂ) • F (φ x)) - pref * ∫ x in Ioi (xiStar / 2), mainIntegrand x)‖ := by
         congr 1; ring
     _ ≤ ‖∫ t in Ioc 0 t₀, F t‖ +
-          ‖∫ x in Ioi (xiStar / 2), (φ' x : ℂ) • F (φ x) - pref * ∫ x in Ioi (xiStar / 2), mainIntegrand x‖ :=
+          ‖(∫ x in Ioi (xiStar / 2), (φ' x : ℂ) • F (φ x)) - pref * ∫ x in Ioi (xiStar / 2), mainIntegrand x‖ :=
         norm_add_le _ _
     _ ≤ C₂ * M / (c' ^ 2 * √(1 + v)) + C₁ * M / (c' ^ 2 * √(1 + v)) :=
         add_le_add hhead_bd htail_diff

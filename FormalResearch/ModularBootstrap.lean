@@ -71,6 +71,7 @@ public import FormalResearch.ModularBootstrap.FiveTerm.LowerBoasResidue
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerDyadic
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerEdgeHankel
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerBesselTwoTerm
+public import FormalResearch.ModularBootstrap.FiveTerm.LowerEdgeAsymp
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperPairPhi
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperPairTaylor
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperPairDrift

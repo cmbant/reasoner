@@ -47,7 +47,7 @@ planned; a proved proof step that is not part of the statement moves nothing (`c
 - *Partial, special case or weaker form:* `spinnotes:S1` ((b), (c) proved; (a), (d), (e) stated as `Prop`s); `ds:LP` (`(H_w)`
   only; the paper states the dominated class `(H_{w,lambda})`, mixtures are PM-4); `dsl:reserve` (the `d = 2` swap-invariant form
   `dslReserve` only); `cts:smooth-env` (all three parts at Virasoro; stated for general `(w,Q)` outer functions);
-  `cts:edge-hankel` ((1) at Virasoro, the Bessel input of (2)); `ctu:common-functional` (Virasoro data); `cts:involution` (weaker
+  `cts:edge-hankel` ((1) and (2) both proved at Virasoro via `LowerEdgeHankel` and `LowerEdgeAsymp`; `G` is the defined Hankel integral); `ctu:common-functional` (Virasoro data); `cts:involution` (weaker
   endpoint bound near `+-i`); `bl:norm` (Langer `u`-variable); `pmix:smooth` (coefficient `1/2` for the paper's `3/8`);
   `pmix:vac` (`(1,0)`, `(2,1)`, one-sided limit); `pmix:punif`, `pmix:ramped`, `pmix:o1`, `pmix:weight`, `pmix:crossing`,
   `pmix:jets`, `int:repair`, `se:3.1`, `se:3.3`, `se:terminal-stability`, `sr:cor`, `ds:farkas`, `ds:E1`, `dsl:strip-fixed`,
@@ -96,15 +96,17 @@ the paper's number). Package details are in section 2.
 Each step names its inputs. "Check" marks a question to settle before writing Lean.
 
 **Headline 3 (five-term).** The remaining work is the analytic estimates behind the two input structures, about 40-55k lines.
-1. *FIVE-L reuse audit (S, design note only).* Paper I's F1 has since proved most of the same mechanism for the Hankel phase
+1. *FIVE-L/FIVE-U reuse audit (S, **done** in `FiveTerm/FIVEL_DESIGN.md` §7 and `FiveTerm/FIVEU_DESIGN.md` §7).* Paper I's F1 has since proved most of the same mechanism for the Hankel phase
    (`SignUncertainty/CtBoas*`: `ct_boas_concrete`; `CtDyadic*`, `CtBandTop.ct_dyadic_radius_proved`,
    `CtDyadicCombined.ct_dyadicInputs_of_pieces`; `CtRosc*`: `ct_rosc_book`; `CtDualId*`, `CtChart*`, `CtCfu*`, `CtSd*`;
-   `CtLowerFinal.ct_lower` is modulo `CtLowerInputs.dyadic` only). Map each `LowerMainInputs` field to its Paper I analogue
-   (`boas` <-> `ct:boas`; `pass2`, `ctl:dyadic` <-> `ct:dyadic`; `combined` <-> `ct:rosc`/`ct:combined`; `chart` <->
-   `ct:dual-id`, `ct:cfu`), mark which Paper I declarations are phase-free (reuse as they are) and which need a Virasoro-phase
-   instance, and record it in `FiveTerm/FIVEL_DESIGN.md`. This lane already imports `SignUncertainty.AiryEtaUnfold`
+   `CtLowerFinal.ct_lower` is modulo `CtLowerInputs.dyadic` only). Audited 2026-11-27: no remaining field of `LowerMainInputs`
+   (`chart`, `combined`, `pass2`, `boas`) or `UpperMainInputs` (`c11`–`c14`) follows directly from Paper I without new
+   Virasoro-phase proofs (and Paper I's `CtDyadicInputs.combined` is itself open modulo `CtCombinedPieces`); phase-free Paper I
+   machinery (`CtDualId`, `CtRoscUpper`, `CtRoscEta`, `CtRoscDefect`, `CtBoasAverage`, `CtBoasTent`, `CtBoasFreeze`,
+   `CtBoasAssembly`, `CtChartIft`, `CtChartInverse`, `CtSdEval`, `FctCfuTheta.cfu_chart`) is directly reusable. This lane already imports `SignUncertainty.AiryEtaUnfold`
    (`airy_eta_le_arcs` re-derives `lowerFirstGood_eta_le`).
-2. *`cts:edge-hankel` (2) (S-M):* assemble the statement from `besselI0C_two_term` and the three-term `V(t(x))` expansion.
+2. *`cts:edge-hankel` (2) (**done** in `FiveTerm/LowerEdgeAsymp.lean`):* `besselI0C_strip_decay`, `besselI0C_two_term_sharp`,
+   `besselV_three_term`, and `edge_hankel_two_virasoro` (unrestricted `∀ v ≥ 0`).
 3. *FIVE-U C14 `cts:upper-vac` (2-4k):* vacuum sum over the Airy window and band, `x_split` cancelling, `tip_match` as input; the
    field `c14_vacuum` (`cts:Vc-exp`).
 4. *FIVE-L field `boas` (`cts:boas` Steps 1-2, C8):* Step 3 is `LowerBoasResidue`; port the Paper I `ct:boas` route (finite
@@ -198,9 +200,8 @@ Listed by headline. "Needs" names packages or labels whose Lean is not yet suffi
   envelope, (b) via `quantC1B2_secant_lower`, (c) `QuantC1B2Holds`, (d) `u_T - a1 <= K c'^{-1/3}`, stronger than the paper's
   `c'^{-1/3} log c'`; the `C^1`-convergence clause of (c) is not exported; constants are Lean's `quantC1*`); `c0Star_neg`;
   `dimension_ge_of_phase_ge`, `delta_best_ge_of_phase`, `spinless_lower_of_phase` (modulo `LowerPhaseStatement`, gp:L);
-  `edge_hankel_one_virasoro` and companions (`cts:edge-hankel` (1); `G` is the defined Hankel integral, Hankel inversion is not
-  formalised); `besselI0C_two_term` (`||I_0(w) - e^w/sqrt(2 pi w)(1 + 1/(8w))|| <= 70 e^{Re w}|w|^{-5/2} + 2` for `Re w >= 1`; the
-  additive `2` is why the downstream form needs `v <= e^{kappa c'}`); `boas_residue_identity`, `boas_local_lower`,
+  `edge_hankel_one_virasoro` (`cts:edge-hankel` (1)) and `edge_hankel_two_virasoro`, `besselV_three_term`, `besselI0C_two_term_sharp` (`cts:edge-hankel` (2), `LowerEdgeAsymp.lean`, unrestricted `v ≥ 0`; `G` is the defined Hankel integral, Hankel inversion is not
+  formalised); `besselI0C_two_term` (`||I_0(w) - e^w/sqrt(2 pi w)(1 + 1/(8w))|| <= 70 e^{Re w}|w|^{-5/2} + 2` for `Re w >= 1`); `boas_residue_identity`, `boas_local_lower`,
   `boas_residue_zero`, `rect_boundary_zero` (`cts:boas` Step 3); `markov_select`, `dyadic_term_le`, `pass2_exponents`,
   `top_edge_exponent`, `gauss_window_exponents` (bookkeeping only).
 - *Skeleton:* `LowerMainInputs prob c0 gamma0` (data `Gout`, `phi`, `uhat`, `c1` with `0 < c1`, `10 c1 <= virasoroBVChoice`)
@@ -211,7 +212,7 @@ Listed by headline. "Needs" names packages or labels whose Lean is not yet suffi
   `c0 < 0`), `lowerPhase_virasoro`, **`spinless_lower_of_inputs`**. Discharged fields: `firstGood` (`cts:rosc-uncond` (1),
   `lowerFirstGood_of_chart_on_band`, `FiveTerm/LowerGood*`) and `langer` (`lowerLangerPhase_holds`, `FiveTerm/LowerLangerBridge`:
   `tauPhase(sqrt(3 Delta_c(u)/c)) = -u/(betaTip c^{2/3})` on the real band). Satisfiability of `LowerMainInputs` is not checked.
-- *Open:* the four fields (section 1.1 steps 1, 4, 6, 7), `cts:edge-hankel` (2), `cts:lower-main`'s second display (in `c`).
+- *Open:* the four fields (section 1.1 steps 1, 4, 6, 7), `cts:lower-main`'s second display (in `c`).
   `teb:quant_c1_near` is not needed at Virasoro (`c0Star < 0` gives `phi_c(a1) > a1`, so the violator form suffices); FIVE-W may
   need it (a copy-adapt of `QuantC1Airy` in a new file, about 1.3k; `QuantC1Airy` is imported by Paper I and is not edited).
   `rem:thmOloc` is not needed here (it is an input of SPIN-S4).

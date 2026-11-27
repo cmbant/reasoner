@@ -95,11 +95,13 @@ Delivered (all built under the lock, axioms `[propext, Classical.choice, Quot.so
 
 7. `LowerBesselTwoTerm`: the two-term complex Laplace asymptotic of `I_0`, `besselI0C_two_term`
    (`‖I_0(w) - e^w/√(2πw)(1 + 1/(8w))‖ ≤ 70 e^{Re w}|w|^{-5/2} + 2` for `Re w ≥ 1`): the Bessel input of `cts:edge-hankel`(2).
-8. `LowerMain` (**skeleton, first deliverable after the 2026-11-26 plan change**): the structure `LowerMainInputs prob c0 γ0` whose
+8. `LowerEdgeAsymp`: `cts:edge-hankel`(2) at Virasoro (`besselI0C_two_term_sharp`, `besselTwoTerm_edge`, `besselV_three_term`,
+   `edge_hankel_two_virasoro`: `‖G(v+i/2) + √2 π e^{iπ/4} (v+i/2)^{-1/2} ∫_{ξ_*/2}^∞ g(t(x)) V(t(x)) ((1-e^{-4πx})^{-2} + a₁(x)/(c'(v+i/2)) + a₂(x)/c') e^{-i(4π/3)c'vx} (2c'x/3) dx‖ ≤ C M[g] / (c'^2 √(1+v))`, unrestricted in `v ≥ 0` on `c' ≥ c_0`).
+9. `LowerMain` (**skeleton, first deliverable after the 2026-11-26 plan change**): the structure `LowerMainInputs prob c0 γ0` whose
    fields are the open TeX lemmas as used in the proof of C9 (see the table of section 6), and `lowerPhase_of_inputs`:
    `LowerMainInputs prob c0 γ0` and `c0 < 0` give `LowerPhaseStatement prob c0 γ0 C` (Passes 1-2 `lower_pass_upper`, first node,
    Langer identification at `u_*`).  Every later module discharges or shrinks a field.
-9. `LowerMainVirasoro`: `lowerPrelim_virasoro`, `lowerPhase_virasoro` and `spinless_lower_of_inputs` (lower half of
+10. `LowerMainVirasoro`: `lowerPrelim_virasoro`, `lowerPhase_virasoro` and `spinless_lower_of_inputs` (lower half of
    `thm:spinless-expansion` modulo `LowerMainInputs`).
 
 ## 6. Status
@@ -134,7 +136,7 @@ No remaining `LowerMainInputs` field follows directly from Paper I without new V
 | `teb:quant_c1_near` | bypassed at Virasoro (`c0Star < 0`) | `LowerSign.c0Star_neg` |
 | `rem:thmOloc` | not on the critical path | none |
 | `cts:edge-hankel` (1) | proved at Virasoro | `LowerEdgeHankel.edge_hankel_one_virasoro` |
-| `cts:edge-hankel` (2) | Bessel step proved (`besselI0C_two_term`); real three-term `V` expansion and assembly not done | `LowerBesselTwoTerm` |
+| `cts:edge-hankel` (2) | proved at Virasoro (unrestricted `∀ v ≥ 0`, `besselV_three_term` and `besselI0C_two_term_sharp`) | `LowerBesselTwoTerm`, `LowerEdgeAsymp.edge_hankel_two_virasoro` |
 | `cts:boas` | residue core proved, rest a field | `LowerBoasResidue`, field `boas` |
 | `ctl:dyadic`, `ctl:pass2`, `ctl:freeze` | exponent bookkeeping and Markov selection proved; estimates are fields | `LowerDyadic` |
 | `cts:cauchy-dual`, `cts:rosc-uncond` | fields | none |
