@@ -619,7 +619,9 @@ lemma genRational_zero_lapC_split {F : ℂ → ℂ} (hF : HasGenRationalAiryCoef
         _ = C_r * CAi ^ 2 * x ^ (-(5 / 2 : ℝ)) := by rw [← Real.rpow_add hxpos]; norm_num
         _ ≤ C_r * CAi ^ 2 * x ^ (-2 : ℝ) :=
             mul_le_mul_of_nonneg_left (Real.rpow_le_rpow_of_exponent_le hx1 (by norm_num)) (by positivity)
-    have hnorm := mul_le_of_le_one_right (norm_nonneg _) (hexp_le x (by linarith [mem_Ici.mp hx]))
+    have hnorm := mul_le_of_le_one_right
+      (norm_nonneg (r00 x * (airyAi (-x) : ℂ) ^ 2 + r01 x * ((airyAi (-x) : ℂ) * (airyAi' (-x) : ℂ)) + r11 x * (airyAi' (-x) : ℂ) ^ 2))
+      (hexp_le x (by linarith [mem_Ici.mp hx]))
     have hsum := (norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans (add_le_add s1 s2)) s3)
     exact hnorm.trans (hsum.trans (by dsimp [C_x]; have := Real.rpow_nonneg hxpos.le (-2 : ℝ); nlinarith))
   have hh0_oi := (integrableOn_Ici_iff_integrableOn_Ioi).mp hint_h0
@@ -1248,7 +1250,8 @@ lemma fourier_sym_stationary {x₀ M : ℝ} (hx₀ : 1 ≤ x₀) (hM : 0 ≤ M) 
       calc R * ‖b R‖ / |q| ≤ R * (M * R ^ (-(5 / 2 : ℝ))) / |q| := by gcongr
         _ = (M / |q|) * (R ^ (1 : ℝ) * R ^ (-(5 / 2 : ℝ))) := by simp; ring
         _ = (M / |q|) * R ^ (-(3 / 2 : ℝ)) := by rw [← Real.rpow_add hRp]; norm_num
-    have htr := ((tendsto_const_nhds.add htb).sub (ht2.const_mul (1 / (q : ℂ))))
+    have htr := ((tendsto_const_nhds (x := -(((T : ℂ) * b T) / (q : ℂ)) * cexp (-(Complex.I * (q : ℂ) * (T : ℂ))))).add htb).sub
+      (ht2.const_mul (1 / (q : ℂ)))
     simpa [add_zero] using tendsto_nhds_unique ht1 (htr.congr' (by
       filter_upwards [eventually_ge_atTop T] with R hR using (hinterval R hR).symm))
   -- Differentiate the RHS of `hfar_ibp` at `q₀`
@@ -2138,10 +2141,10 @@ theorem smoothSymbol_of_genRational_zero {F : ℂ → ℂ} (hF : HasGenRationalA
           ≤ MΦ0 * ((MB2 + C_F + MY2 * MF1_0 + 2 * MY1 * MF1_1 + MY0 * C_F) * |v| ^ (-(1 / 2 : ℝ))) :=
             mul_le_mul (bΦ0 v hv1) hH''_bd (norm_nonneg _) hMΦ0
         _ = _ := by ring
-    have ha := (norm_add_le _ _).trans (add_le_add (norm_add_le _ _) (norm_add_le _ _))
     calc ‖deriv (deriv Φ) v * H v + deriv Φ v * deriv H v + (deriv Φ v * deriv H v + Φ v * deriv (deriv H) v)‖
         ≤ (‖deriv (deriv Φ) v * H v‖ + ‖deriv Φ v * deriv H v‖) +
-            (‖deriv Φ v * deriv H v‖ + ‖Φ v * deriv (deriv H) v‖) := ha
+            (‖deriv Φ v * deriv H v‖ + ‖Φ v * deriv (deriv H) v‖) :=
+            (norm_add_le _ _).trans (add_le_add (norm_add_le _ _) (norm_add_le _ _))
       _ ≤ (MΦ2 * MH0 * |v| ^ (-(1 / 2 : ℝ)) + MΦ1 * MH1 * |v| ^ (-(1 / 2 : ℝ))) +
             (MΦ1 * MH1 * |v| ^ (-(1 / 2 : ℝ)) +
               MΦ0 * (MB2 + C_F + MY2 * MF1_0 + 2 * MY1 * MF1_1 + MY0 * C_F) * |v| ^ (-(1 / 2 : ℝ))) :=
@@ -2232,9 +2235,9 @@ theorem smoothSymbol_of_genRational_zero {F : ℂ → ℂ} (hF : HasGenRationalA
         _ = CT * (|v| ^ (-(1 / 2 : ℝ)) * |v| ^ (-(4 : ℝ))) := by rw [h_92]
         _ ≤ CT * (|v| ^ (-(1 / 2 : ℝ)) * (4 * (1 + |v|) ^ (-(2 : ℝ)))) :=
             mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left (h4_2.trans h_2_bd) hv0) hCT.le
-        _ ≤ CT * (32 * (|v| ^ (-(1 / 2 : ℝ)) * (1 + |v|) ^ (-(2 : ℝ)))) :=
-            mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right (by norm_num : (4 : ℝ) ≤ 32) hQ) hCT.le
-        _ = (32 * CT) * (|v| ^ (-(1 / 2 : ℝ)) * (1 + |v|) ^ (-(2 : ℝ))) := by ring
+        _ = (4 * CT) * (|v| ^ (-(1 / 2 : ℝ)) * (1 + |v|) ^ (-(2 : ℝ))) := by ring
+        _ ≤ (32 * CT) * (|v| ^ (-(1 / 2 : ℝ)) * (1 + |v|) ^ (-(2 : ℝ))) :=
+            mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (by norm_num : (4 : ℝ) ≤ 32) hCT.le) hQ
         _ ≤ CG * (|v| ^ (-(1 / 2 : ℝ)) * (1 + |v|) ^ (-(2 : ℝ))) := mul_le_mul_of_nonneg_right hCT_CG hQ
     · have hle1 : |v| ≤ 1 := not_lt.mp hv1
       have hP := h2 v hle1

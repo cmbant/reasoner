@@ -43,32 +43,51 @@ lemma norm_add_sub_split (I D A : ℂ) : ‖I + D - A‖ ≤ ‖I - A‖ + ‖D�
   calc ‖I + D - A‖ = ‖(I - A) + D‖ := by ring_nf
     _ ≤ _ := norm_add_le _ _
 
+/-- Family-level analytic estimates for `O.6` with a general `(K, c)`-indexed main seed family `F K c`
+(such as linear combinations in `ℛ_Ai^gen`), leading Airy-tail coefficient `β_inf K c` (`β_∞(F K c)`),
+and reference scale constant `g0 > 0`. -/
+structure O6FamilyEst (m : ℕ) (δ₁ : ℝ) (F : ℝ → ℝ → ℝ → ℝ) (β_inf : ℝ → ℝ → ℝ) (g0 : ℝ) : Prop where
+  g0_pos : 0 < g0
+  F_cont : ∀ {K c : ℝ}, 1 ≤ K → 2000 ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c → Continuous (F K c)
+  conv : ∀ {X : ℝ → ℝ}, Continuous X → ∀ {δ₀ : ℝ}, 0 < δ₀ → ∀ x : ℝ,
+    windowSmooth δ₀ m X x = ∫ t in Icc (0 : ℝ) δ₀, X (x + t) * bspline m δ₀ t
+  e4 : ∃ C > 0, ∀ {K M₁ c ξ : ℝ}, 1 ≤ K → 1 ≤ M₁ → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c →
+    2000 ≤ c → 0 < ξ → 100 ≤ hbS c ξ → M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ) ≤ hbS c ξ →
+    ‖iMain (F K c) (ceBeta1 * K * liftEps c / 2) m c ξ -
+        (((β_inf K c * g0) * Real.sqrt Real.pi * hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) : ℝ) : ℂ)‖ ≤
+      C * (M₁ ^ (-((m : ℝ) / 2)) + K ^ (-(m : ℝ)) + hbS c ξ ^ (-(1 / 2 : ℝ))) *
+        (hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ))
+  e5 : ∀ Sw : ℝ, ∃ C : ℝ, 0 < C ∧ ∀ {K c ξ : ℝ}, 1 ≤ K → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c →
+    32768 ≤ c → 0 < ξ → |hbS c ξ| ≤ Sw →
+    ‖iMain (F K c) (ceBeta1 * K * liftEps c / 2) m c ξ -
+        ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+          windowSmooth (ceBeta1 * K * liftEps c / 2) m (F K c) (-(ceBeta1 * hbS c ξ) - liftEps c / (2 * ceCs)) : ℝ) : ℂ)‖ ≤
+      C * ξ⁻¹ * (liftEps c ^ 2 + ((1 + (ceBeta1 * K * liftEps c / 2) * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)))
+  e6 : ∃ C : ℝ, 0 ≤ C ∧ ∀ {K c ξ L : ℝ}, 1 ≤ K → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c → 2000 ≤ c →
+    0 < ξ → L = Real.log (Real.pi ^ 2 * ξ) → 0 < L → L ≤ 0.002 → 100 ≤ hbS c ξ →
+    ‖iMain (F K c) (ceBeta1 * K * liftEps c / 2) m c ξ - ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) : ℝ) : ℂ) *
+        ((windowSmooth (ceBeta1 * K * liftEps c / 2) m (F K c)
+          (-(edgeKappa0 L * ceBeta1 * hbS c ξ + liftEps c / (2 * ceCs))) : ℝ) : ℂ)‖ ≤
+      C * ξ⁻¹ * (hbS c ξ ^ (-(3 / 2 : ℝ)) * (liftEps c ^ 2 * hbS c ξ) + c ^ (-(5 / 2 : ℝ)))
+
 set_option maxHeartbeats 4000000 in
-/-- **`O.6` with a general dual seed and seed families indexed by `(K, c)`**: the main seed coefficients
-`fa K c`, `fb K c`, `fc K c` may depend on both `K` and `c` (not only on `δ = K c^{-1/3}`), as the paper's families `p ∈ 𝒫` do (for
-`thm:ce-hb-lift` the mass `v = ∫S_c / δ` depends on both).  The hypotheses `hbd`, `hlead`, `hfloor` are required at every admissible `(K, c)`.
-Statement (`u1co:O6`, "also holds if only `F_p` is a bounded rational-Airy family and `D_p` is
-admissible with the reflected estimates `(e3)` and `|I_dual[D_p]| ≲ ξ⁻¹ c^{-1/2}` on each fixed Airy window, uniformly in `K ≥ 1`"):
-for a main one-level seed family and an arbitrary dual seed family `D K c` obeying `O6DualEst`, `Re (I_main[X] + I_dual[D]) > 0`
-for `S_eff ≥ s_min`.  The proof is that of `o6_positivity` with the dual term `σ I_dual[X]` replaced by `I_dual[D K c]`; the window
-estimate for `I_main[X]` alone is the average of the `σ = ±1` instances of `O6Est.e5`. -/
-theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m R g0)
+/-- **`O.6` for a general `(K, c)`-indexed seed family `F K c` and general dual seed family `D K c`**
+(`u1co:O6`): replaces the fixed-rank `airySeedU2` family of `o6_positivity_dual_Kc` by any family
+satisfying `O6FamilyEst` and `1 ≤ β_inf K c`. -/
+theorem o6_positivity_dual_family {m : ℕ} (hm : 3 ≤ m) {δ₁ g0 : ℝ}
+    {F : ℝ → ℝ → ℝ → ℝ} {β_inf : ℝ → ℝ → ℝ} (E : O6FamilyEst m δ₁ F β_inf g0)
     (D : ℝ → ℝ → ℝ → ℝ) (DE : O6DualEst m D)
-    {δ₁ c₁ c₂ U0 U1 : ℝ} (hδ₁ : 0 < δ₁) (hc₁ : 0 < c₁) (hc₂ : 0 < c₂) (hU0 : 0 ≤ U0) (hU1 : 0 ≤ U1)
-    {fa fb fc : ℝ → ℝ → ℝ}
-    (hbd : ∀ {K c : ℝ}, 1 ≤ K → 2000 ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c →
-      |fa K c| ≤ R ∧ |fb K c| ≤ R ∧ |fc K c| ≤ R)
-    (hlead : ∀ {K c : ℝ}, 1 ≤ K → 2000 ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c → 1 ≤ fc K c - fa K c)
+    {c₁ c₂ U0 U1 : ℝ} (hδ₁ : 0 < δ₁) (hc₁ : 0 < c₁) (hc₂ : 0 < c₂) (hU0 : 0 ≤ U0) (hU1 : 0 ≤ U1)
+    (hlead : ∀ {K c : ℝ}, 1 ≤ K → 2000 ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c → 1 ≤ β_inf K c)
     (hfloor : ∀ {K c : ℝ}, 1 ≤ K → 2000 ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c →
       ∀ x : ℝ, U0 + U1 * (K * liftEps c) + ceBeta1 * (K * liftEps c) / 2 ≤ x →
       (1 + x) ^ (-(3 / 2 : ℝ)) * (c₁ * (K * liftEps c) + c₂ * min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x)) ≤
         ∫ t in Icc (0 : ℝ) (ceBeta1 * (K * liftEps c) / 2),
-          airySeedU2 (fa K c) (fb K c) (fc K c) (-x + t) * bspline m (ceBeta1 * (K * liftEps c) / 2) t) :
+          F K c (-x + t) * bspline m (ceBeta1 * (K * liftEps c) / 2) t) :
   ∃ K₀ c₀ : ℝ, 1 ≤ K₀ ∧ 2000 ≤ c₀ ∧ ∀ {K c ξ : ℝ}, K₀ ≤ K → c₀ ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c →
       0 < ξ →
       (U0 + U1 * (K * liftEps c) + ceBeta1 * (K * liftEps c) / 2) / ceBeta1 ≤ hbS c ξ →
-      0 < (iMain (airySeedU2 (fa K c) (fb K c) (fc K c))
-              (ceBeta1 * K * liftEps c / 2) m c ξ +
+      0 < (iMain (F K c) (ceBeta1 * K * liftEps c / 2) m c ξ +
             iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ).re := by
   obtain ⟨CH, hCH, h4⟩ := E.e4
   obtain ⟨CD, hCD, h3⟩ := DE.e3
@@ -154,19 +173,8 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
   have hδ2 : δ ≤ 1 / 2 := by rw [hδdef]; exact hKε
   have hδδ₁ : δ ≤ δ₁ := by rw [hδdef]; exact hKεδ
   rw [← hδdef] at hSmin
-  obtain ⟨hba, hbb, hbc⟩ := hbd hK1 hc2000 hc8 hcδ
   have hld := hlead hK1 hc2000 hc8 hcδ
-  obtain ⟨a, hadef⟩ : ∃ a : ℝ, a = fa K c := ⟨_, rfl⟩
-  obtain ⟨bb, hbbdef⟩ : ∃ bb : ℝ, bb = fb K c := ⟨_, rfl⟩
-  obtain ⟨cc, hccdef⟩ : ∃ cc : ℝ, cc = fc K c := ⟨_, rfl⟩
-  rw [← hadef, ← hccdef] at hld
-  rw [← hadef, ← hbbdef, ← hccdef]
-  rw [← hadef] at hba
-  rw [← hbbdef] at hbb
-  rw [← hccdef] at hbc
-  have hXc : Continuous (airySeedU2 a bb cc) :=
-    ((continuous_const.mul continuous_ceF1).add (continuous_const.mul (continuous_ceG1 _))).add
-      (continuous_const.mul (continuous_ceG1Deriv _))
+  have hXc : Continuous (F K c) := E.F_cont hK1 hc2000 hc8 hcδ
   have hδ₀def : ceBeta1 * K * liftEps c / 2 = ceBeta1 * δ / 2 := by rw [hδdef]; ring
   have hδ₀pos : 0 < ceBeta1 * K * liftEps c / 2 := by positivity
   have hδ₀le : ceBeta1 * K * liftEps c / 2 ≤ 2 := by
@@ -186,42 +194,26 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
   by_cases hwin : S ≤ Sw
   · -- window
     have hS5 : |hbS c ξ| ≤ Sw := by rw [← hSdef, abs_of_pos hSpos]; exact hwin
-    have e5p := h5 (a := a) (b := bb) (c₀ := cc) (σ := 1) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
-      hba hbb hbc (Or.inl rfl) hδ₀pos.le hc32768 hξ hS5
-    have e5m := h5 (a := a) (b := bb) (c₀ := cc) (σ := -1) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
-      hba hbb hbc (Or.inr rfl) hδ₀pos.le hc32768 hξ hS5
+    have e5m0 := h5 hK1 hc8 hcδ hc32768 hξ hS5
     have e5d := hD5 (K := K) (c := c) (ξ := ξ) hK1 hc32768 hξ hS5
-    rw [← hSdef] at e5p e5m
+    rw [← hSdef] at e5m0
     obtain ⟨x₀, hx₀def⟩ : ∃ x₀ : ℝ, x₀ = ceBeta1 * S + liftEps c / (2 * ceCs) := ⟨_, rfl⟩
     have harg : -(ceBeta1 * S) - liftEps c / (2 * ceCs) = -x₀ := by rw [hx₀def]; ring
-    rw [harg] at e5p e5m
-    have e5 : ‖iMain (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ + iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ -
+    rw [harg] at e5m0
+    have e5 : ‖iMain (F K c) (ceBeta1 * K * liftEps c / 2) m c ξ + iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ -
         ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
-          windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀) : ℝ) : ℂ)‖ ≤
+          windowSmooth (ceBeta1 * K * liftEps c / 2) m (F K c) (-x₀) : ℝ) : ℂ)‖ ≤
         CW * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)) +
           c ^ (-(1 / 2 : ℝ))) := by
-      set Mn := iMain (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ
-      set Dx := iDual (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ
+      set Mn := iMain (F K c) (ceBeta1 * K * liftEps c / 2) m c ξ
       set Dd := iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ
       set T : ℂ := (((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
-          windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀) : ℝ)) : ℂ)
-      have hsplit : Mn + Dd - T = (1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) + (Mn + ((-1 : ℝ) : ℂ) * Dx - T)) + Dd := by
-        push_cast; ring
-      rw [hsplit]
+          windowSmooth (ceBeta1 * K * liftEps c / 2) m (F K c) (-x₀) : ℝ)) : ℂ)
       have hξi : 0 < ξ⁻¹ := inv_pos.mpr hξ
       have hB : 0 ≤ ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)) := by positivity
-      have hD5' : ‖Dd‖ ≤ CD5 * ξ⁻¹ * c ^ (-(1 / 2 : ℝ)) := e5d
-      calc ‖(1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) + (Mn + ((-1 : ℝ) : ℂ) * Dx - T)) + Dd‖
-          ≤ ‖(1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) + (Mn + ((-1 : ℝ) : ℂ) * Dx - T))‖ + ‖Dd‖ := norm_add_le _ _
-        _ ≤ (1 / 2) * (‖Mn + ((1 : ℝ) : ℂ) * Dx - T‖ + ‖Mn + ((-1 : ℝ) : ℂ) * Dx - T‖) + ‖Dd‖ := by
-            rw [norm_mul]
-            have : ‖(1 / 2 : ℂ)‖ = 1 / 2 := by simp
-            rw [this]
-            gcongr
-            exact norm_add_le _ _
-        _ ≤ (1 / 2) * (CW0 * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ))) +
-              CW0 * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)))) +
-              CD5 * ξ⁻¹ * c ^ (-(1 / 2 : ℝ)) := by gcongr
+      calc ‖Mn + Dd - T‖ ≤ ‖Mn - T‖ + ‖Dd‖ := norm_add_sub_split Mn Dd T
+        _ ≤ CW0 * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ))) +
+              CD5 * ξ⁻¹ * c ^ (-(1 / 2 : ℝ)) := add_le_add e5m0 e5d
         _ ≤ _ := by
             rw [hCWdef]
             have hε2' : 0 ≤ liftEps c ^ 2 := by positivity
@@ -238,8 +230,7 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
     have hf := hfloor hK1 hc2000 hc8 hcδ x₀ (by rw [← hδdef]; exact hx₀ge)
     rw [← hδdef] at hf
     rw [← hδ₀def] at hf
-    rw [← hadef, ← hbbdef, ← hccdef] at hf
-    have hFge : qw * (c₁ * δ) ≤ windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀) := by
+    have hFge : qw * (c₁ * δ) ≤ windowSmooth (ceBeta1 * K * liftEps c / 2) m (F K c) (-x₀) := by
       rw [hconv]
       refine le_trans ?_ hf
       have h1 : qw ≤ (1 + x₀) ^ (-(3 / 2 : ℝ)) := by
@@ -253,7 +244,7 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
       calc qw * (c₁ * δ) ≤ (1 + x₀) ^ (-(3 / 2 : ℝ)) * (c₁ * δ) := by gcongr
         _ ≤ _ := mul_le_mul_of_nonneg_left (le_add_of_nonneg_right h2) h4
     refine re_pos_of_norm_lt (A := ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
-      windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀)) (lt_of_le_of_lt e5 ?_)
+      windowSmooth (ceBeta1 * K * liftEps c / 2) m (F K c) (-x₀)) (lt_of_le_of_lt e5 ?_)
     -- error
     have ht0 : 0 < c ^ (-(1 / 6 : ℝ)) := by positivity
     have ht : c ^ (-(1 / 6 : ℝ)) ≤ θ := hMw c hcMw
@@ -284,7 +275,7 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
     have hupper : CW * ξ⁻¹ * (3 * (liftEps c * θ)) = ξ⁻¹ * (κw * c₁ * liftEps c / 2) := by
       rw [hθdef]; field_simp; ring
     have hA : ceK * ceBeta1 / (Real.pi ^ 2 * ξ) * (qw * (c₁ * δ)) ≤ ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
-        windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀) := by
+        windowSmooth (ceBeta1 * K * liftEps c / 2) m (F K c) (-x₀) := by
       gcongr
       exact (by have := ceK_pos; positivity)
     have hεδ : liftEps c ≤ δ := by rw [hδdef]; exact le_mul_of_one_le_left hε.le hK1
@@ -325,8 +316,7 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
         rw [← mul_div_assoc, div_le_iff₀ hK2]
         linarith only [hK500, hKK, hK1]
       linarith
-    have e6 := h6 (a := a) (b := bb) (c₀ := cc) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
-      (L := Real.log (Real.pi ^ 2 * ξ)) hba hbb hbc ⟨hδ₀pos.le, hδ₀le⟩ (by linarith) hξ rfl hLpos hL2
+    have e6 := h6 hK1 hc8 hcδ (by linarith) hξ rfl hLpos hL2
       (by rw [← hSdef]; exact hS100)
     rw [← hSdef] at e6
     obtain ⟨hκ1, hκ2⟩ := edgeKappa0_bounds hLpos hL2
@@ -359,11 +349,10 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
     have hf := hfloor hK1 hc2000 hc8 hcδ x (by rw [← hδdef]; exact hxfl)
     rw [← hδdef] at hf
     rw [← hδ₀def] at hf
-    rw [← hadef, ← hbbdef, ← hccdef] at hf
     obtain ⟨y, hydef⟩ : ∃ y : ℝ, y = liftEps c ^ 2 * S := ⟨_, rfl⟩
     rw [← hydef] at hy hy0 hy1
     have hFge : q * S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y)) ≤
-        windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) := by
+        windowSmooth (ceBeta1 * K * liftEps c / 2) m (F K c) (-x) := by
       rw [hconv]
       refine le_trans ?_ hf
       have h1 : q * S ^ (-(3 / 2 : ℝ)) ≤ (1 + x) ^ (-(3 / 2 : ℝ)) := by
@@ -390,12 +379,12 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
         _ ≤ (1 + x) ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 ((ceBeta1 * K * liftEps c / 2) ^ 2 * x)) := by gcongr
         _ ≤ _ := mul_le_mul_of_nonneg_left (le_add_of_nonneg_left h9) h8
     have hcast : ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) : ℝ) : ℂ) *
-        ((windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) : ℝ) : ℂ) =
+        ((windowSmooth (ceBeta1 * K * liftEps c / 2) m (F K c) (-x) : ℝ) : ℂ) =
         ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
-          windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) : ℝ) : ℂ) := by push_cast; ring
+          windowSmooth (ceBeta1 * K * liftEps c / 2) m (F K c) (-x) : ℝ) : ℂ) := by push_cast; ring
     rw [hcast] at e6
     refine re_pos_of_norm_lt (A := ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
-      windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x)) ?_
+      windowSmooth (ceBeta1 * K * liftEps c / 2) m (F K c) (-x)) ?_
     refine lt_of_le_of_lt (norm_add_sub_split _ _ _) ?_
     -- the dual term
     have e3 := h3 (K := K) (c := c) (ξ := ξ)
@@ -453,12 +442,12 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
       rw [← hCmdef]; linarith only [hscal, mul_nonneg hCm hy0.le]
     have hA : ceK * ceBeta1 / (Real.pi ^ 2 * ξ) * (q * S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y))) ≤
         ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
-          windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) := by
+          windowSmooth (ceBeta1 * K * liftEps c / 2) m (F K c) (-x) := by
       gcongr
       exact (by have := ceK_pos; positivity)
     have hSξ : 0 < ξ⁻¹ * S ^ (-(3 / 2 : ℝ)) := by positivity
-    calc ‖iMain (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ - ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
-            windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) : ℝ) : ℂ)‖ +
+    calc ‖iMain (F K c) (ceBeta1 * K * liftEps c / 2) m c ξ - ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+            windowSmooth (ceBeta1 * K * liftEps c / 2) m (F K c) (-x) : ℝ) : ℂ)‖ +
           ‖iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ‖
         ≤ C6 * ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * (liftEps c ^ 2 * S) + c ^ (-(5 / 2 : ℝ))) +
           CD * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y)) := add_le_add e6 hdual
@@ -473,16 +462,15 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
     have hmid' := not_le.mp hmid
     have hwin' := not_le.mp hwin
     have hS100 : 100 ≤ S := by linarith
-    have e4 := h4 (a := a) (b := bb) (c₀ := cc) (K := K) (M₁ := M₁) (c := c) (ξ := ξ) hba hbb hbc hK1 hM₁1 hc8
-      (by linarith) hξ (by rw [← hSdef]; exact hS100) (by rw [← hSdef]; exact hmid'.le)
+    have e4 := h4 hK1 hM₁1 hc8 hcδ (by linarith) hξ (by rw [← hSdef]; exact hS100) (by rw [← hSdef]; exact hmid'.le)
     rw [← hSdef] at e4
     have hA' : hbA c ξ = Real.pi ^ 2 * S := by rw [hSdef]; exact hbA_eq hc0
     obtain ⟨P, hPdef⟩ : ∃ P : ℝ, P = hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) := ⟨_, rfl⟩
     have hPpos : 0 < P := by rw [hPdef, hA']; positivity
-    have hAeq : ((cc - a) * g0) * Real.sqrt Real.pi * hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) =
-        (cc - a) * G * P := by rw [hPdef, hGdef]; ring
+    have hAeq : (β_inf K c * g0) * Real.sqrt Real.pi * hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) =
+        β_inf K c * G * P := by rw [hPdef, hGdef]; ring
     rw [hAeq, ← hPdef] at e4
-    refine re_pos_of_norm_lt (A := (cc - a) * G * P) ?_
+    refine re_pos_of_norm_lt (A := β_inf K c * G * P) ?_
     refine lt_of_le_of_lt (norm_add_sub_split _ _ _) ?_
     have e3 := h3 (K := K) (c := c) (ξ := ξ)
       ⟨hδ₀pos, hδ₀le⟩ (by linarith) hξ (by rw [← hSdef]; linarith)
@@ -518,10 +506,10 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
     have hb3 : CH * S ^ (-(1 / 2 : ℝ)) ≤ G / 8 := by
       calc CH * S ^ (-(1 / 2 : ℝ)) ≤ CH * (G / (8 * CH)) := by gcongr; exact hSh S (hSwSh.trans hwin'.le)
         _ = G / 8 := by field_simp
-    have hlead' : G * P ≤ (cc - a) * G * P := by
+    have hlead' : G * P ≤ β_inf K c * G * P := by
       have := mul_pos hGpos hPpos
       nlinarith only [this, hld]
-    calc ‖iMain (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ - (((cc - a) * G * P : ℝ) : ℂ)‖ +
+    calc ‖iMain (F K c) (ceBeta1 * K * liftEps c / 2) m c ξ - ((β_inf K c * G * P : ℝ) : ℂ)‖ +
           ‖iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ‖
         ≤ CH * (M₁ ^ (-((m : ℝ) / 2)) + K ^ (-(m : ℝ)) + S ^ (-(1 / 2 : ℝ))) * P +
           2 * Real.pi * CD * K ^ (-(m : ℝ)) * P := add_le_add e4 hdual
@@ -529,6 +517,76 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
       _ ≤ (G / 8 + G / 8 + G / 8) * P := by gcongr
       _ < G * P := by linarith only [mul_pos hGpos hPpos]
       _ ≤ _ := hlead'
+
+/-- **`O.6` with a general dual seed and seed families indexed by `(K, c)`**: delegates to `o6_positivity_dual_family`. -/
+theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m R g0)
+    (D : ℝ → ℝ → ℝ → ℝ) (DE : O6DualEst m D)
+    {δ₁ c₁ c₂ U0 U1 : ℝ} (hδ₁ : 0 < δ₁) (hc₁ : 0 < c₁) (hc₂ : 0 < c₂) (hU0 : 0 ≤ U0) (hU1 : 0 ≤ U1)
+    {fa fb fc : ℝ → ℝ → ℝ}
+    (hbd : ∀ {K c : ℝ}, 1 ≤ K → 2000 ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c →
+      |fa K c| ≤ R ∧ |fb K c| ≤ R ∧ |fc K c| ≤ R)
+    (hlead : ∀ {K c : ℝ}, 1 ≤ K → 2000 ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c → 1 ≤ fc K c - fa K c)
+    (hfloor : ∀ {K c : ℝ}, 1 ≤ K → 2000 ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c →
+      ∀ x : ℝ, U0 + U1 * (K * liftEps c) + ceBeta1 * (K * liftEps c) / 2 ≤ x →
+      (1 + x) ^ (-(3 / 2 : ℝ)) * (c₁ * (K * liftEps c) + c₂ * min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x)) ≤
+        ∫ t in Icc (0 : ℝ) (ceBeta1 * (K * liftEps c) / 2),
+          airySeedU2 (fa K c) (fb K c) (fc K c) (-x + t) * bspline m (ceBeta1 * (K * liftEps c) / 2) t) :
+  ∃ K₀ c₀ : ℝ, 1 ≤ K₀ ∧ 2000 ≤ c₀ ∧ ∀ {K c ξ : ℝ}, K₀ ≤ K → c₀ ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c →
+      0 < ξ →
+      (U0 + U1 * (K * liftEps c) + ceBeta1 * (K * liftEps c) / 2) / ceBeta1 ≤ hbS c ξ →
+      0 < (iMain (airySeedU2 (fa K c) (fb K c) (fc K c))
+              (ceBeta1 * K * liftEps c / 2) m c ξ +
+            iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ).re := by
+  have hFE : O6FamilyEst m δ₁ (fun K c => airySeedU2 (fa K c) (fb K c) (fc K c))
+      (fun K c => fc K c - fa K c) g0 := by
+    refine ⟨E.g0_pos, fun _ _ _ _ => ((continuous_const.mul continuous_ceF1).add
+        (continuous_const.mul (continuous_ceG1 _))).add (continuous_const.mul (continuous_ceG1Deriv _)),
+      E.conv, ?_, ?_, ?_⟩
+    · obtain ⟨C, hC, h4⟩ := E.e4
+      exact ⟨C, hC, fun {K M₁ c ξ} hK hM₁ hc8 hcδ hc2k hξ hS100 hMS => by
+        obtain ⟨ha, hb, hc⟩ := hbd hK hc2k hc8 hcδ
+        exact h4 ha hb hc hK hM₁ hc8 hc2k hξ hS100 hMS⟩
+    · intro Sw
+      obtain ⟨C, hC, h5⟩ := E.e5 Sw
+      refine ⟨C, hC, fun {K c ξ} hK hc8 hcδ hc32 hξ hSw => ?_⟩
+      have hc2k : 2000 ≤ c := by linarith
+      obtain ⟨ha, hb, hc⟩ := hbd hK hc2k hc8 hcδ
+      have hδpos : 0 ≤ ceBeta1 * K * liftEps c / 2 := by
+        have := ceBeta1_pos; have := liftEps_pos (by linarith : 0 < c); positivity
+      have hp := h5 ha hb hc (Or.inl rfl) hδpos hc32 hξ hSw
+      have hm := h5 ha hb hc (Or.inr rfl) hδpos hc32 hξ hSw
+      set Mn := iMain (airySeedU2 (fa K c) (fb K c) (fc K c)) (ceBeta1 * K * liftEps c / 2) m c ξ
+      set Dx := iDual (airySeedU2 (fa K c) (fb K c) (fc K c)) (ceBeta1 * K * liftEps c / 2) m c ξ
+      set T : ℂ := ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) * windowSmooth (ceBeta1 * K * liftEps c / 2) m
+        (airySeedU2 (fa K c) (fb K c) (fc K c)) (-(ceBeta1 * hbS c ξ) - liftEps c / (2 * ceCs)) : ℝ) : ℂ)
+      have hsplit : Mn - T = (1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) + (Mn + ((-1 : ℝ) : ℂ) * Dx - T)) := by
+        push_cast; ring
+      rw [hsplit, norm_mul, show ‖(1 / 2 : ℂ)‖ = 1 / 2 by simp]
+      calc (1 / 2 : ℝ) * ‖(Mn + ((1 : ℝ) : ℂ) * Dx - T) + (Mn + ((-1 : ℝ) : ℂ) * Dx - T)‖
+          ≤ (1 / 2 : ℝ) * (‖Mn + ((1 : ℝ) : ℂ) * Dx - T‖ + ‖Mn + ((-1 : ℝ) : ℂ) * Dx - T‖) :=
+            mul_le_mul_of_nonneg_left (norm_add_le _ _) (by norm_num)
+        _ ≤ (1 / 2 : ℝ) * (C * ξ⁻¹ * (liftEps c ^ 2 + ((1 + (ceBeta1 * K * liftEps c / 2) * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ *
+              c ^ (-(1 / 2 : ℝ))) + C * ξ⁻¹ * (liftEps c ^ 2 + ((1 + (ceBeta1 * K * liftEps c / 2) *
+              c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)))) :=
+            mul_le_mul_of_nonneg_left (add_le_add hp hm) (by norm_num)
+        _ = _ := by ring
+    · obtain ⟨C, hC, h6⟩ := E.e6
+      refine ⟨C, hC, fun {K c ξ L} hK hc8 hcδ hc2k hξ hL hL0 hL2 hS100 => ?_⟩
+      obtain ⟨ha, hb, hc⟩ := hbd hK hc2k hc8 hcδ
+      have hc0 : 0 < c := by linarith
+      have hδpos : 0 < ceBeta1 * K * liftEps c / 2 := by
+        have := ceBeta1_pos; have := liftEps_pos hc0; positivity
+      have hδle : ceBeta1 * K * liftEps c / 2 ≤ 2 := by
+        have h1 : (K * liftEps c) ^ 3 * c = K ^ 3 := by
+          calc (K * liftEps c) ^ 3 * c = K ^ 3 * (liftEps c ^ 3 * c) := by ring
+            _ = K ^ 3 := by rw [liftEps_cube_mul hc0, mul_one]
+        have hKε : K * liftEps c ≤ 1 / 2 := by
+          by_contra hcon; push Not at hcon
+          have h2 := mul_lt_mul_of_pos_right (pow_lt_pow_left₀ (n := 3) hcon (by norm_num) (by norm_num)) hc0
+          rw [h1] at h2; norm_num at h2; linarith
+        nlinarith [ceBeta1_lt_eight, ceBeta1_pos]
+      exact h6 ha hb hc ⟨hδpos.le, hδle⟩ (by linarith) hξ hL hL0 hL2 hS100
+  exact o6_positivity_dual_family hm hFE D DE hδ₁ hc₁ hc₂ hU0 hU1 hlead hfloor
 
 /-- **`O.6` with a general dual seed** (`u1co:O6`, "also holds if only `F_p` is a bounded rational-Airy family and `D_p` is
 admissible with the reflected estimates `(e3)` and `|I_dual[D_p]| ≲ ξ⁻¹ c^{-1/2}` on each fixed Airy window, uniformly in `K ≥ 1`"):
@@ -645,6 +703,9 @@ theorem o6DualEst_of_oneLevel {m : ℕ} {R g0 : ℝ} (E : O6Est m R g0) {a b c�
 
 /-- info: 'FormalResearch.SignUncertainty.o6DualEst_of_oneLevel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms o6DualEst_of_oneLevel
+
+/-- info: 'FormalResearch.SignUncertainty.o6_positivity_dual_family' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms o6_positivity_dual_family
 
 /-- info: 'FormalResearch.SignUncertainty.o6_positivity_dual_Kc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms o6_positivity_dual_Kc
