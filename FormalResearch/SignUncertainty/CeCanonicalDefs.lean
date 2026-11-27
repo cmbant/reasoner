@@ -3,6 +3,7 @@ module
 public import FormalResearch.SignUncertainty.HeadlineDefs
 public import FormalResearch.SignUncertainty.ShellGapHankel
 public import FormalResearch.SignUncertainty.AirySquareSimple
+public import FormalResearch.SignUncertainty.CeShiftedLiftDefs
 
 /-!
 # Statement objects and input structure for `thm:ce-canonical-iff` (= `thm:intro-gap`)
@@ -275,15 +276,12 @@ structure CeCanonicalInputs (D : ShellHBData) (_t : ℕ → ℝ) : Prop where
   shell_reduction : ShellReduction D
   /-- `thm:ce-hb-lift` (with `thm:ce-hb-lift-tangency`), weak Laplace positivity (M6, M8). -/
   ce_hb_lift : CeHbLift D
-  /-- `thm:ce-airy-transfer` (1), upper bound (via `thm:ce-shifted-lift` and `thm:al-rational-density`), for
-  the shell class of `D` with offsets `o(c^{1/3})`: for each `v < u_sh` and all large `d` there is an admissible
-  pair, strictly negative on the shells and on `[c/π² - (v/β₁) c^{1/3}, ∞)` (stated in the weaker form
-  `R²/2 ≤ d/(2π²) - (v/β₁)(d/2)^{1/3}` for some radius `R` of the shell class). The Airy-LP rational-density
-  half (`thm:al-rational-density`) and Euclidean reduction `ce_airy_transfer_upper_of_shifted_lift` to the open M6
-  Hankel lift `CeShiftedLift` (`thm:ce-shifted-lift`) are proved in `AiryRationalDensity.lean`. -/
-  ce_airy_transfer_upper : ∀ v : ℝ, (v : EReal) < uSh D → ∀ r : ℝ → ℕ → ℝ,
-    ShellOffsetsSmall r →
-      ∀ᶠ d : ℕ in atTop, ∃ R ∈ ceShellRadiusSet D r d,
-        R ^ 2 / 2 ≤ (d : ℝ) / (2 * π ^ 2) - (v / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ)
+  /-- `thm:ce-shifted-lift` (`ce_shifted_witnesses.tex`; open, M6 Mellin-Hankel lift): every rational-Airy lift
+  seed `IsAiryLiftSeed S u_* H₀` on a compact `S` lifts to Cohn-Elkies Hankel pairs strictly negative beyond
+  `c/π² - (u_*/β₁) c^{1/3} + K₀` and near the sites (`CeShiftedLiftDefs.lean`). Together with the proved
+  `thm:al-rational-density` it gives `thm:ce-airy-transfer` (1), upper bound, as
+  `CeCanonicalInputs.ce_airy_transfer_upper` (`ce_airy_transfer_upper_of_shifted_lift`, `AiryRationalDensity.lean`).
+  It does not depend on `D`. -/
+  shifted_lift : CeShiftedLift
 
 end FormalResearch.SignUncertainty

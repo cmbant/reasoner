@@ -20,6 +20,7 @@ public import FormalResearch.SignUncertainty.AiryNodeSquare
 public import FormalResearch.SignUncertainty.AiryActiveHeight
 public import FormalResearch.SignUncertainty.CeTerminalDeflation
 public import FormalResearch.SignUncertainty.AiryNodeSign
+public import FormalResearch.SignUncertainty.AiryRationalDensity
 
 /-!
 # Paper I headline theorems from one input structure each (M0 skeleton)
@@ -56,7 +57,9 @@ Headlines and their inputs (open fields in bold):
   seeds), **`attainment`** (`gt:7.9a`, `lem:finite-hankel-compactness`), **`exact_origin`** (`gt:7.9b`).
 * `thm_ce_canonical_iff` (`thm:intro-gap` = `thm:ce-canonical-iff`, parts (1)-(4), with (i)-(iv); the zero enumeration `t` exists and is unique: `HbZeroEnum.lean`), from
   `CeCanonicalInputs D t` (`CeCanonicalDefs.lean`): **`shell_reduction`** (`thm:ce-shell-reduction`),
-  **`ce_hb_lift`** (`thm:ce-hb-lift`, weak positivity), **`ce_airy_transfer_upper`** (`thm:ce-airy-transfer` (1)). The extraction and
+  **`ce_hb_lift`** (`thm:ce-hb-lift`, weak positivity), **`shifted_lift`** (`thm:ce-shifted-lift`, `CeShiftedLift`; with the
+  proved `thm:al-rational-density` it gives `thm:ce-airy-transfer` (1), upper bound, as `CeCanonicalInputs.ce_airy_transfer_upper`,
+  `AiryRationalDensity.lean`). The extraction and
   constraint system `eq:ce-laplace-constraint` of `thm:ce-shell-gap` (Hankel form `HankelShellGapLimit`) is the
   theorem `hankelShellGapLimit_proved` (`ShellGapExtract.lean`) and no longer a field; `thm:airy-square-attained` (1), (3) is the theorem `airySquareAttained` (`CeCanonicalDefs.lean`, from
   `AirySquareSimple.lean`) and no longer a field, nor are `lem:airy-square-bound` (`Λ_m > a_m`: `airyLambdaSection_hb_gt_airyZero`, `AirySquareBound.lean`),

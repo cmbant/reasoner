@@ -20,9 +20,10 @@ Source:
     `ce_airy_transfer_upper_of_shifted_lift` derives the `CeCanonicalInputs.ce_airy_transfer_upper`
     field from the Hankel-level statement `CeShiftedLift` of `thm:ce-shifted-lift`.
 * `CFT/sign_uncertainty/paper/ce_shifted_witnesses.tex`:
-  - Theorem `thm:ce-shifted-lift` (lines 38–73): its Hankel-level statement is packaged here as
-    `CeShiftedLift : Prop` (**not proved here**; open M6 Mellin–Hankel lift work, parallel to
-    `CeHbLiftAssembly.CeHankelPair`).
+  - Theorem `thm:ce-shifted-lift`: its Hankel-level statement `CeShiftedLift : Prop` and the seed class
+    `IsAiryLiftSeed` are in `CeShiftedLiftDefs.lean` (**not proved**; open M6 Mellin–Hankel lift work,
+    parallel to `CeHbLiftAssembly.CeHankelPair`); `CeShiftedLift` is the field `shifted_lift` of
+    `CeCanonicalInputs`, and `CeCanonicalInputs.ce_airy_transfer_upper` (the former field) is derived here.
 -/
 
 @[expose] public section
@@ -45,24 +46,6 @@ def IsAiryStrictLiftSeed (S : Set ℝ) (d₀ : ℝ) (H₀ : ℂ → ℂ) : Prop 
   (∃ c₀ : ℝ, 0 < c₀ ∧ ∀ u : ℝ, u ≤ d₀ → c₀ * (1 + |u|) ^ (-(3 / 2 : ℝ)) ≤ -(H₀ (u : ℂ)).re) ∧
   0 < airyBetaPlus H₀ ∧
   (∀ y : ℝ, 0 < y → 0 < airyLaplace (fun u => (H₀ (u : ℂ)).re) y)
-
-/-- General rational–Airy lift seed at `(S, u_*)` matching hypotheses `(a)`–`(c)` of
-`thm:ce-shifted-lift` (`ce_shifted_witnesses.tex` lines 40–51): either the strict-cutoff floor on
-`(-∞, u_*]` or a simple first zero (`H_0 < 0` on `(-∞, u_*)`, `H_0(u_*) = 0 < H_0'(u_*)`, and
-`-H_0(-x) ≥ c_0 (1 + x)^{-3/2}` for `x ≥ |u_*| + 1`), and weak Laplace positivity `ℒ_y(H_0) ≥ 0`
-for `y > 0`. -/
-def IsAiryLiftSeed (S : Set ℝ) (u_star : ℝ) (H₀ : ℂ → ℂ) : Prop :=
-  InGenRationalAiry H₀ ∧
-  (∫ u : ℝ, (H₀ (u : ℂ)).re) = 0 ∧
-  (∀ s ∈ S, (H₀ (s : ℂ)).re < 0) ∧
-  ((∃ c₀ : ℝ, 0 < c₀ ∧ ∀ u : ℝ, u ≤ u_star →
-      c₀ * (1 + |u|) ^ (-(3 / 2 : ℝ)) ≤ -(H₀ (u : ℂ)).re) ∨
-   ((∀ u : ℝ, u < u_star → (H₀ (u : ℂ)).re < 0) ∧
-    (H₀ (u_star : ℂ)).re = 0 ∧ 0 < (deriv H₀ (u_star : ℂ)).re ∧
-    ∃ c₀ : ℝ, 0 < c₀ ∧ ∀ x : ℝ, |u_star| + 1 ≤ x →
-      c₀ * (1 + x) ^ (-(3 / 2 : ℝ)) ≤ -(H₀ ((-x : ℝ) : ℂ)).re)) ∧
-  0 < airyBetaPlus H₀ ∧
-  (∀ y : ℝ, 0 < y → 0 ≤ airyLaplace (fun u => (H₀ (u : ℂ)).re) y)
 
 /-- Supremum `u_{\mathrm{strict}}(S)` of cutoffs `u_*` admitting a rational–Airy lift seed
 (`ce_airy_lp_proofs.tex` line 900). -/
@@ -1188,12 +1171,12 @@ theorem thm_al_rational_density {S : Set ℝ} (hS : IsCompact S)
           mul_le_mul_of_nonneg_left hb hlam_pos.le
       _ = m_S / 2 := by field_simp [hM_R_pos.ne']
   -- Step 1: Smooth shifted stage `F ∈ 𝒢 ∩ 𝓢(ℝ)`
-  obtain ⟨F, hF_cl, hF_im, hF_sch, hF_sites, hF_ray, hF_lap⟩ :=
+  obtain ⟨F, hF_cl, -, hF_sch, hF_sites, hF_ray, hF_lap⟩ :=
     exists_shifted_smooth_stage hS hWit hd₀v₀ hm_S_pos hS_margin
       (by positivity : 0 < (lam * c_L) / 2)
   -- Step 2: Hermite–Airy rational truncation `F_N` (`lem_al_hermite_approx`)
   obtain ⟨_, _, hFN_rat_and_beta, hFN_unif, _, _, hFN_neg, hFN_lap, _, hFN_bplus⟩ :=
-    lem_al_hermite_approx hF_cl hF_im hF_sch
+    lem_al_hermite_approx hF_cl hF_sch
   have hS_C : IsCompact ((Complex.ofReal) '' S) := hS.image Complex.continuous_ofReal
   have hev_S := Metric.tendstoUniformlyOn_iff.mp (hFN_unif _ hS_C) (m_S / 8) (by positivity)
   have hev_neg := hFN_neg ((lam * c_R) / 2) (by positivity)
@@ -1434,30 +1417,6 @@ theorem airyUStrict_eq_airyUSh {S : Set ℝ} (hS : IsCompact S) :
 
 /-! ### Section 4: `CeShiftedLift` (`thm:ce-shifted-lift`) and Conditional `ce_airy_transfer_upper` -/
 
-/-- The Hankel-level statement of `thm:ce-shifted-lift` (`ce_shifted_witnesses.tex` lines 38–65;
-**not proved here** — open M6 Mellin–Hankel lift work, parallel to `CeHbLiftAssembly.CeHankelPair`):
-given a compact set `S ⊆ ℝ` and a rational–Airy lift seed `IsAiryLiftSeed S u_* H₀`, there exist
-`K₀ > 0`, a neighborhood radius `ρ₁ > 0`, and `d₀ : ℕ` such that for every dimension `d ≥ d₀`
-(`c = d / 2`), there is a radial Cohn–Elkies Hankel pair `(G, 𝓗_{d/2} G)` strictly negative on
-`[c / π² - (u_* / β₁) c^{1/3} + K₀, ∞)` and on all nonnegative radial points
-`c / π² - (s' / β₁) c^{1/3}` with `dist(s', S) ≤ ρ₁`. -/
-def CeShiftedLift : Prop :=
-  ∀ (S : Set ℝ), IsCompact S → ∀ (u_star : ℝ) (H₀ : ℂ → ℂ), IsAiryLiftSeed S u_star H₀ →
-    ∃ (K₀ ρ₁ : ℝ) (d₀ : ℕ), 0 < K₀ ∧ 0 < ρ₁ ∧ ∀ d : ℕ, d₀ ≤ d →
-      ∃ G : ℝ → ℝ,
-        ContinuousOn G (Ici 0) ∧
-        IntegrableOn (fun Δ => G Δ * hankelRho0 ((d : ℝ) / 2) Δ) (Ioi 0) ∧
-        (∀ Δ : ℝ, 0 ≤ Δ → 0 < besselHankelTransform ((d : ℝ) / 2) G Δ) ∧
-        IntegrableOn (fun Δ =>
-          besselHankelTransform ((d : ℝ) / 2) G Δ * hankelRho0 ((d : ℝ) / 2) Δ) (Ioi 0) ∧
-        0 < G 0 ∧ G 0 = besselHankelTransform ((d : ℝ) / 2) G 0 ∧
-        (∀ Δ : ℝ,
-          ((d : ℝ) / 2) / π ^ 2 - (u_star / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) + K₀ ≤ Δ →
-          G Δ < 0) ∧
-        (∀ s' : ℝ, (∃ s ∈ S, |s' - s| ≤ ρ₁) →
-          0 ≤ ((d : ℝ) / 2) / π ^ 2 - (s' / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) →
-          G (((d : ℝ) / 2) / π ^ 2 - (s' / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ)) < 0)
-
 /-- **`CeCanonicalInputs.ce_airy_transfer_upper` (`thm:ce-airy-transfer`(1), upper bound) from
 `CeShiftedLift`** (`ce_airy_lp_proofs.tex` lines 975–981):
 combines the unconditional `thm_al_rational_density` with `CeShiftedLift` (`thm:ce-shifted-lift`)
@@ -1580,5 +1539,18 @@ theorem ce_airy_transfer_upper_of_shifted_lift (hLift : CeShiftedLift) (D : Shel
 /-- info: 'FormalResearch.SignUncertainty.ce_airy_transfer_upper_of_shifted_lift' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.SignUncertainty.ce_airy_transfer_upper_of_shifted_lift
+
+/-- The former field `ce_airy_transfer_upper` of `CeCanonicalInputs` (`thm:ce-airy-transfer`(1), upper bound),
+derived from the field `shifted_lift : CeShiftedLift` by `ce_airy_transfer_upper_of_shifted_lift`. -/
+theorem CeCanonicalInputs.ce_airy_transfer_upper {D : ShellHBData} {t : ℕ → ℝ}
+    (I : CeCanonicalInputs D t) :
+    ∀ v : ℝ, (v : EReal) < uSh D → ∀ r : ℝ → ℕ → ℝ, ShellOffsetsSmall r →
+      ∀ᶠ d : ℕ in atTop, ∃ R ∈ ceShellRadiusSet D r d,
+        R ^ 2 / 2 ≤ (d : ℝ) / (2 * π ^ 2) - (v / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) :=
+  ce_airy_transfer_upper_of_shifted_lift I.shifted_lift D
+
+/-- info: 'FormalResearch.SignUncertainty.CeCanonicalInputs.ce_airy_transfer_upper' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.CeCanonicalInputs.ce_airy_transfer_upper
 
 end FormalResearch.SignUncertainty

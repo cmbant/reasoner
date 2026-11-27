@@ -38,16 +38,18 @@ open FormalResearch.Special FormalResearch.CohnElkies
 
 /-- Rational–Airy representation `(e22)`–`(e23)` with asymptotic coefficients `(β₀₀, β₁₁)`:
 `F ∈ 𝒢` admits real polynomials `(P₀₀, Q₀₀), (P₀₁, Q₀₁), (P₁₁, Q₁₁)` with monic denominators whose
-complex zeros lie in `‖z‖ ≤ R_*` (`R_* ≥ 4`), satisfying `(e22)` for `‖z‖ > R_*` and `(e23)` for
-`‖w‖ ≥ R_* + 2`. -/
+zeros are real and lie in `[-R_*, R_*]` (`R_* ≥ 4`; the paper's "poles inside `[-R_*, R_*]`"), satisfying
+`(e22)` for `‖z‖ > R_*` (hence, by the identity theorem, off the removable real poles) and `(e23)` for
+`‖w‖ ≥ R_* + 2`. Membership in `𝒢` (`InAiryClass`: entire, real on `ℝ`, integrable, Airy-type growth) is
+part of the definition; the paper derives it from `(e22)`-`(e23)` (`u1c_o1_upper.tex`, after `(e23)`). -/
 def HasGenRationalAiryCoeffs (F : ℂ → ℂ) (β₀₀ β₁₁ : ℝ) : Prop :=
   InAiryClass F ∧
   ∃ (R_star C : ℝ) (P00 Q00 P01 Q01 P11 Q11 : ℝ[X]),
     4 ≤ R_star ∧ 0 ≤ C ∧
     Q00.Monic ∧ Q01.Monic ∧ Q11.Monic ∧
-    (∀ z : ℂ, Polynomial.aeval z Q00 = 0 → ‖z‖ ≤ R_star) ∧
-    (∀ z : ℂ, Polynomial.aeval z Q01 = 0 → ‖z‖ ≤ R_star) ∧
-    (∀ z : ℂ, Polynomial.aeval z Q11 = 0 → ‖z‖ ≤ R_star) ∧
+    (∀ z : ℂ, Polynomial.aeval z Q00 = 0 → z.im = 0 ∧ ‖z‖ ≤ R_star) ∧
+    (∀ z : ℂ, Polynomial.aeval z Q01 = 0 → z.im = 0 ∧ ‖z‖ ≤ R_star) ∧
+    (∀ z : ℂ, Polynomial.aeval z Q11 = 0 → z.im = 0 ∧ ‖z‖ ≤ R_star) ∧
     (∀ z : ℂ, R_star < ‖z‖ →
       F z = (Polynomial.aeval z P00 / Polynomial.aeval z Q00) * airyAiC z ^ 2 +
             (Polynomial.aeval z P01 / Polynomial.aeval z Q01) * (airyAiC z * deriv airyAiC z) +
@@ -74,9 +76,9 @@ private lemma aeval_ofReal_eq_eval (P : ℝ[X]) (x : ℝ) :
   simp [Algebra.algebraMap_eq_smul_one]
 
 private lemma aeval_ne_zero_of_gt {Q : ℝ[X]} {R_star : ℝ}
-    (hQ : ∀ z : ℂ, Polynomial.aeval z Q = 0 → ‖z‖ ≤ R_star) {z : ℂ} (hz : R_star < ‖z‖) :
+    (hQ : ∀ z : ℂ, Polynomial.aeval z Q = 0 → z.im = 0 ∧ ‖z‖ ≤ R_star) {z : ℂ} (hz : R_star < ‖z‖) :
     Polynomial.aeval z Q ≠ 0 :=
-  fun h0 => not_le_of_gt hz (hQ z h0)
+  fun h0 => not_le_of_gt hz (hQ z h0).2
 
 /-- Real-axis Airy envelopes on `(-∞, 0]`: `|\Ai(u)| ≤ 3 (1 + |u|)^{-1/4}` and
 `|\Ai'(u)| ≤ 5 (1 + |u|)^{1/4}`. -/
@@ -591,14 +593,14 @@ theorem HasGenRationalAiryCoeffs.add {F G : ℂ → ℂ} {α₀₀ α₁₁ β�
     hR1.trans (le_max_left _ _), add_nonneg hC1 hC2,
     hm00a.mul hm00b, hm01a.mul hm01b, hm11a.mul hm11b,
     fun z h0 => (mul_eq_zero.mp (by simpa [map_mul] using h0)).elim
-      (fun h => (hQ00a z h).trans (le_max_left _ _))
-      (fun h => (hQ00b z h).trans (le_max_right _ _)),
+      (fun h => ⟨(hQ00a z h).1, (hQ00a z h).2.trans (le_max_left _ _)⟩)
+      (fun h => ⟨(hQ00b z h).1, (hQ00b z h).2.trans (le_max_right _ _)⟩),
     fun z h0 => (mul_eq_zero.mp (by simpa [map_mul] using h0)).elim
-      (fun h => (hQ01a z h).trans (le_max_left _ _))
-      (fun h => (hQ01b z h).trans (le_max_right _ _)),
+      (fun h => ⟨(hQ01a z h).1, (hQ01a z h).2.trans (le_max_left _ _)⟩)
+      (fun h => ⟨(hQ01b z h).1, (hQ01b z h).2.trans (le_max_right _ _)⟩),
     fun z h0 => (mul_eq_zero.mp (by simpa [map_mul] using h0)).elim
-      (fun h => (hQ11a z h).trans (le_max_left _ _))
-      (fun h => (hQ11b z h).trans (le_max_right _ _)),
+      (fun h => ⟨(hQ11a z h).1, (hQ11a z h).2.trans (le_max_left _ _)⟩)
+      (fun h => ⟨(hQ11b z h).1, (hQ11b z h).2.trans (le_max_right _ _)⟩),
     ?_, ?_⟩
   · intro z hz
     dsimp only
@@ -794,7 +796,8 @@ theorem hasGenRationalAiryCoeffs_airySeedF (n : ℕ) :
     simp only [map_sub, Polynomial.aeval_X, Polynomial.aeval_C, Algebra.algebraMap_eq_smul_one,
       Complex.real_smul, mul_one, sub_eq_zero] at hz
     rw [hz, Complex.norm_real, Real.norm_eq_abs]
-    exact (by linarith only [abs_nonneg a] : |a| ≤ 2 * |a|).trans (le_max_right _ _)
+    exact ⟨Complex.ofReal_im _,
+      (by linarith only [abs_nonneg a] : |a| ≤ 2 * |a|).trans (le_max_right _ _)⟩
   · intro z hz
     have hza : z ≠ (a : ℂ) := by
       intro h0
@@ -846,7 +849,8 @@ theorem hasGenRationalAiryCoeffs_airySeedG (n : ℕ) :
     simp only [map_pow, map_sub, Polynomial.aeval_X, Polynomial.aeval_C,
       Algebra.algebraMap_eq_smul_one, Complex.real_smul, mul_one, sq_eq_zero_iff, sub_eq_zero] at hz
     rw [hz, Complex.norm_real, Real.norm_eq_abs]
-    exact (by linarith only [abs_nonneg a] : |a| ≤ 2 * |a|).trans (le_max_right _ _)
+    exact ⟨Complex.ofReal_im _,
+      (by linarith only [abs_nonneg a] : |a| ≤ 2 * |a|).trans (le_max_right _ _)⟩
   · intro z hz
     have hza : z ≠ (a : ℂ) := by
       intro h0
@@ -895,7 +899,8 @@ theorem hasGenRationalAiryCoeffs_airySeedG1Deriv :
     simp only [map_pow, map_sub, Polynomial.aeval_X, Polynomial.aeval_C,
       Algebra.algebraMap_eq_smul_one, Complex.real_smul, mul_one, sq_eq_zero_iff, sub_eq_zero] at hz
     rw [hz, Complex.norm_real, Real.norm_eq_abs]
-    exact (by linarith only [abs_nonneg a1'] : |a1'| ≤ 2 * |a1'|).trans (le_max_right _ _)
+    exact ⟨Complex.ofReal_im _,
+      (by linarith only [abs_nonneg a1'] : |a1'| ≤ 2 * |a1'|).trans (le_max_right _ _)⟩
   · intro z hz
     have hza : z ≠ (a1' : ℂ) := by
       intro h0

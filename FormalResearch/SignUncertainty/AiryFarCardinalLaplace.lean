@@ -868,7 +868,7 @@ theorem lem_al_far_cardinal_laplace :
         rw [intervalIntegral.integral_eq_sub_of_hasDerivAt hderiv
           (hmaj_on.intervalIntegrable_of_Icc (by linarith only [hA_pos]))]
         simp only [sub_zero, Real.one_rpow]
-        ring
+        ring_nf
       have hsqrt_le : (1 + A / 2) ^ (1 / 2 : ℝ) - 1 ≤ A := by
         have h1A : 1 + A / 2 ≤ A := by linarith only [hA2]
         have hA1 : 1 ≤ A := by linarith only [hA2]

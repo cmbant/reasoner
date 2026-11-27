@@ -660,44 +660,6 @@ lemma norm_airySmoothMSq_le_on_neg_sphere {ε : ℝ} (hε : 0 < ε) (_hε1 : ε 
     _ = (Kφ * (2 / ε ^ 2) ^ m) ^ 2 * (|u|⁻¹) ^ (2 * m) := by
         rw [mul_pow, ← pow_mul, mul_comm m 2]
 
-/-- Rapid decay of `M_ε(u)` and all its derivatives on `(-∞, 0]`. -/
-theorem airySmoothMSq_neg_rapid_decay {ε : ℝ} (hε : 0 < ε) (hε1 : ε ≤ 1) (k n : ℕ) :
-    ∃ C : ℝ, 0 ≤ C ∧ ∀ u : ℝ, u ≤ 0 →
-      |u| ^ k * |iteratedDeriv n (fun x : ℝ => (airySmoothMSq ε (x : ℂ)).re) u| ≤ C := by
-  have hcont_iter := (contDiff_re_of_differentiable (differentiable_airySmoothMSq ε)).2 n
-  have hcont_d : Continuous (fun u : ℝ =>
-      |u| ^ k * |iteratedDeriv n (fun x : ℝ => (airySmoothMSq ε (x : ℂ)).re) u|) :=
-    (continuous_abs.pow k).mul (continuous_abs.comp hcont_iter)
-  obtain ⟨M_loc, hM_loc⟩ := isCompact_Icc.exists_bound_of_continuousOn
-    (s := Icc (-4 : ℝ) 0) hcont_d.continuousOn
-  obtain ⟨C_k, hCk_nn, hCk⟩ := norm_airySmoothMSq_le_on_neg_sphere hε hε1 k
-  refine ⟨max (max M_loc 0) (n.factorial * C_k), by positivity, fun u hu => ?_⟩
-  by_cases hu4 : -4 ≤ u
-  · have h1 := hM_loc u ⟨hu4, hu⟩
-    rw [Real.norm_eq_abs, abs_of_nonneg (by positivity)] at h1
-    exact h1.trans ((le_max_left M_loc 0).trans (le_max_left _ _))
-  · push Not at hu4
-    have hu_abs : 4 < |u| := by rw [abs_of_neg (by linarith)]; linarith
-    have hcauchy := Complex.norm_iteratedDeriv_le_of_forall_mem_sphere_norm_le n zero_lt_one
-      (differentiable_airySmoothMSq ε).differentiableOn.diffContOnCl
-      (fun ζ hζ => hCk hu4.le zero_lt_one le_rfl ζ hζ)
-    rw [one_pow, div_one] at hcauchy
-    have hderiv_le : |iteratedDeriv n (fun x : ℝ => (airySmoothMSq ε (x : ℂ)).re) u| ≤
-        n.factorial * (C_k * (|u|⁻¹) ^ (2 * k)) := by
-      rw [iteratedDeriv_re_of_differentiable (differentiable_airySmoothMSq ε)]
-      exact (Complex.abs_re_le_norm _).trans hcauchy
-    have hpow_le : |u| ^ k * (|u|⁻¹) ^ (2 * k) ≤ 1 := by
-      rw [show 2 * k = k + k by omega, pow_add, ← mul_assoc, ← mul_pow,
-        mul_inv_cancel₀ (by linarith), one_pow, one_mul]
-      exact pow_le_one₀ (by positivity) (inv_le_one_of_one_le₀ (by linarith))
-    calc |u| ^ k * |iteratedDeriv n (fun x : ℝ => (airySmoothMSq ε (x : ℂ)).re) u|
-        ≤ |u| ^ k * (n.factorial * (C_k * (|u|⁻¹) ^ (2 * k))) :=
-          mul_le_mul_of_nonneg_left hderiv_le (by positivity)
-      _ = (n.factorial * C_k) * (|u| ^ k * (|u|⁻¹) ^ (2 * k)) := by ring
-      _ ≤ (n.factorial * C_k) * 1 :=
-          mul_le_mul_of_nonneg_left hpow_le (by positivity)
-      _ ≤ max (max M_loc 0) (n.factorial * C_k) := by rw [mul_one]; exact le_max_right _ _
-
 private lemma pow_mul_exp_neg_le (N : ℕ) {x : ℝ} (hx : 0 ≤ x) :
     x ^ N * Real.exp (-x) ≤ N.factorial := by
   have hterm : x ^ N / (N.factorial : ℝ) ≤ Real.exp x := by
@@ -1566,7 +1528,10 @@ private lemma airySmoothReg_weighted_l1_tendsto {H : ℂ → ℂ} (hH : InAiryCl
     Iic_union_Ioi, setIntegral_univ]
 
 /-- **Lemma `lem:al-smooth`** (`ce_airy_lp_proofs.tex` lines 47–77):
-smooth regularization `H_ε(z) = M_ε(z) H(z + 2ε)` inside `𝒢 ∩ 𝓢(ℝ)`. -/
+smooth regularization `H_ε(z) = M_ε(z) H(z + 2ε)` inside `𝒢 ∩ 𝓢(ℝ)`, for one fixed even bump `φ`
+(`airySmoothPhi`). The `L¹(e^{Y u_+} du)` convergence is stated with the Bochner integral of
+`‖H_ε - H‖ e^{Y u_+}`; that integrand is integrable (both functions are in `𝒢`, with Airy decay on `u ≥ 0`),
+though integrability is not restated here. -/
 theorem lem_al_smooth {H : ℂ → ℂ} (hH : InAiryClass H) :
     (∀ ε ∈ Ioc (0 : ℝ) 1,
       Differentiable ℂ (airySmoothMSq ε) ∧

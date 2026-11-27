@@ -817,10 +817,9 @@ private lemma airyHermite_quadrature_and_expansion {F : ℂ → ℂ} (hF : InAir
   exact ⟨fun z => hS_eq_F z ▸ hS_hasSum z, hcF_hasSum_zero, hball_maj⟩
 
 /-- **Lemma `lem:al-hermite-approx`** (`ce_airy_lp_proofs.tex` lines 803–869):
-for real-on-`ℝ` `F ∈ 𝒢 ∩ 𝓢(ℝ)`, the Hermite--Airy expansion `(eq:al-hermite)` holds on all of `ℂ`,
+for `F ∈ 𝒢 ∩ 𝓢(ℝ)` (real on `ℝ` by `InAiryClass`), the Hermite--Airy expansion `(eq:al-hermite)` holds on all of `ℂ`,
 `∑ F'(a_n)/Ai'(a_n)² = 0`, and the partial sums `F_N ∈ ℛ_Ai^gen` satisfy (a)–(d). -/
 theorem lem_al_hermite_approx {F : ℂ → ℂ} (hF : InAiryClass F)
-    (hF_im : ∀ u : ℝ, (F (u : ℂ)).im = 0)
     (hF_schwartz : ∃ S_F : SchwartzMap ℝ ℝ, ∀ u : ℝ, S_F u = (F (u : ℂ)).re) :
     (∀ z : ℂ, HasSum (fun n : ℕ => airyHermiteTerm F n z) (F z)) ∧
     HasSum (fun n : ℕ => (deriv F (airyZ n : ℂ)).re / airyAi' (airyZ n) ^ 2) 0 ∧
@@ -850,7 +849,7 @@ theorem lem_al_hermite_approx {F : ℂ → ℂ} (hF : InAiryClass F)
     have hfun : (fun t : ℝ => (F (t : ℂ)).re) = (S_F : ℝ → ℝ) := funext fun t => (hSF t).symm
     rwa [hfun] at h1
   obtain ⟨hF_hasSum, hcF_hasSum_zero, hball_maj⟩ :=
-    airyHermite_quadrature_and_expansion hF hF_im hSF
+    airyHermite_quadrature_and_expansion hF hF.2.2.2 hSF
   set cG : ℕ → ℝ := fun n => (F (airyZ n : ℂ)).re / airyAi' (airyZ n) ^ 2
   set cF : ℕ → ℝ := fun n => (deriv F (airyZ n : ℂ)).re / airyAi' (airyZ n) ^ 2
   set cAbs : ℕ → ℝ := fun n => |cG n| + |cF n|
