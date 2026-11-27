@@ -76,7 +76,7 @@ private lemma integrable_one_add_abs_rpow_mul_exp_neg_sq {p : ℝ} (hp : 0 ≤ p
   have hg_cont : Continuous g := by
     refine Continuous.mul ((continuous_const.add continuous_abs).rpow_const fun τ => ?_)
       (Real.continuous_exp.comp (continuous_neg.comp (continuous_pow 2)))
-    left; linarith [abs_nonneg τ]
+    left; show 1 + |τ| ≠ 0; linarith [abs_nonneg τ]
   have h_top : IntegrableOn g (Ioi 1) := by
     set m := Nat.ceil ((p + 2) / 2)
     have hm_int : IntegrableOn (fun τ : ℝ => (2 : ℝ) ^ p * (Nat.factorial m : ℝ) * τ ^ (-2 : ℝ))
@@ -99,8 +99,9 @@ private lemma integrable_one_add_abs_rpow_mul_exp_neg_sq {p : ℝ} (hp : 0 ≤ p
       _ ≤ (2 : ℝ) ^ p * ((Nat.factorial m : ℝ) * τ ^ (-2 : ℝ)) := by gcongr
       _ = (2 : ℝ) ^ p * (Nat.factorial m : ℝ) * τ ^ (-2 : ℝ) := by ring
   have h_bot : IntegrableOn g (Iio (-1)) := by
-    have hpre : -Ioi (1 : ℝ) = Iio (-1) := by ext x; simp [lt_neg]
+    have hpre : Neg.neg ⁻¹' Ioi (1 : ℝ) = Iio (-1) := by ext x; simp
     have h_neg := h_top.comp_neg
+    change IntegrableOn (fun x => g (-x)) (Neg.neg ⁻¹' Ioi 1) volume at h_neg
     rw [hpre] at h_neg
     exact h_neg.congr_fun (fun τ _ => by dsimp [g]; simp [abs_neg]) measurableSet_Iio
   have h_mid : IntegrableOn g (Icc (-1) 1) := hg_cont.continuousOn.integrableOn_Icc
@@ -427,7 +428,7 @@ private lemma one_sub_tebCutoff_eVariationOn_le {δ a b : ℝ} (hδ : 0 < δ) (h
   rw [eVariationOn_ofReal (fun τ => 1 - tebCutoff δ τ)]
   have hneg : eVariationOn (fun τ => 1 - tebCutoff δ τ) (Icc a b) =
       eVariationOn (fun τ => -(1 - tebCutoff δ τ)) (Icc a b) := by
-    simp only [eVariationOn, Pi.neg_apply, edist_neg_neg]
+    simp only [eVariationOn, edist_neg_neg]
   rw [hneg]
   have hm : MonotoneOn (fun τ => -(1 - tebCutoff δ τ)) (Icc a b) := fun x hx y hy hxy => by
     have h1 := tebCutoff_monotoneOn_Ici δ hδ (ha.trans hx.1) (ha.trans hy.1) hxy
@@ -445,8 +446,9 @@ private lemma cos_pi_re_abs_lt_one {σ₀ : ℝ} (h0 : 0 < σ₀) (h1 : σ₀ < 
   have hlt : Real.cos (π * σ₀) < Real.cos 0 :=
     Real.strictAntiOn_cos ⟨le_rfl, Real.pi_pos.le⟩ ⟨hpiσ_pos.le, hpiσ_le⟩ hpiσ_pos
   have hgt : Real.cos π < Real.cos (π * σ₀) :=
-    Real.strictAntiOn_cos ⟨hpiσ_pos.le, hpiσ_le⟩ ⟨le_rfl, Real.pi_pos.le⟩ hpiσ_lt
-  rw [Real.cos_zero, Real.cos_pi] at hlt hgt
+    Real.strictAntiOn_cos ⟨hpiσ_pos.le, hpiσ_le⟩ ⟨Real.pi_pos.le, le_rfl⟩ hpiσ_lt
+  rw [Real.cos_zero] at hlt
+  rw [Real.cos_pi] at hgt
   exact abs_lt.2 ⟨hgt, hlt⟩
 
 private lemma stripPoissonQ_hasDerivAt' {σ₀ η₀ ε τ : ℝ} (h0 : 0 < σ₀) (h1 : σ₀ < 1) :
@@ -484,9 +486,10 @@ private lemma stripPoissonQ_hasDerivAt' {σ₀ η₀ ε τ : ℝ} (h0 : 0 < σ�
     have hinv := (hasDerivAt_const s ((1 / 2 : ℝ) * Real.sin (π * σ₀))).div hinner hden
     refine hinv.congr_deriv ?_
     unfold stripPoissonP1; field_simp [hden]; ring
-  have hp := ((hd_p (τ - η₀)).comp τ ((hasDerivAt_id τ).sub_const η₀)).congr_deriv (by simp)
-  have hp1 := (((hd_p1 (τ + η₀)).comp τ ((hasDerivAt_id τ).add_const η₀)).congr_deriv (by simp)).const_mul ε
-  simpa [stripPoissonQ] using hp.add hp1
+  have hp := ((hd_p (τ - η₀)).comp τ ((hasDerivAt_id τ).sub_const η₀)).congr_deriv (mul_one _)
+  have hp1 := (((hd_p1 (τ + η₀)).comp τ ((hasDerivAt_id τ).add_const η₀)).congr_deriv (mul_one _)).const_mul ε
+  unfold stripPoissonQ
+  exact (hp.add hp1).congr_deriv (by ring)
 
 private lemma stripPoissonQ_continuous {σ₀ η₀ ε : ℝ} (h0 : 0 < σ₀) (h1 : σ₀ < 1) :
     Continuous (stripPoissonQ σ₀ η₀ ε) :=
@@ -649,7 +652,7 @@ private lemma tebAmp0_mul_edgeAmp_block_bv_le {c sgn s : ℝ} (hc : 3e6 ≤ c) (
   exact (hmul.2.2 τ hτ).trans_eq hexp_M.symm
 
 /-- Common Hankel edge phase setup (`van_der_corput_{first,second}_comp` with `w = id`) for `sgn = ±1`. -/
-private lemma hankel_phase_bounds {sgn ξ : ℝ} (hsgn : sgn = 1 ∨ sgn = -1) (hξ : 0 < ξ) :
+private lemma hankel_phase_bounds {sgn ξ : ℝ} (hsgn : sgn = 1 ∨ sgn = -1) (_hξ : 0 < ξ) :
     let φ : ℝ → ℝ := fun y => -sgn * edgePhi (hankelBandMu ξ) y
     let φ' : ℝ → ℝ := fun y => sgn * (hankelEdgeM y - hankelBandMu ξ)
     let φ'' : ℝ → ℝ := fun y => sgn * hankelEdgeM' y
@@ -795,6 +798,7 @@ private lemma tau0_lt_two_rhoR_of_xi_le {c R_J r ξ : ℝ} (hc : 3e6 ≤ c)
       rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hwr_bds.1] at h1
       simpa using h1
     rw [hyw] at hreY
+    rw [neg_div] at hreY
     have hwr_le : wr ≤ 1.002 * r / langerScale c := by
       have h1 := (abs_le.1 hreY).2
       have h2 : 0.9981 * wr ≤ r / langerScale c := by linarith
@@ -823,7 +827,7 @@ private lemma tau0_lt_two_rhoR_of_xi_le {c R_J r ξ : ℝ} (hc : 3e6 ≤ c)
     have hm_root : hankelEdgeM τ₀ = hankelBandMu ξ := hankelBandTau0_root hμ0
     have hmlog := hankelEdgeM_sub_log_mono le_rfl hτ₀_nn
     simp only [hankelEdgeM_zero, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero,
-      Real.log_one, sub_zero, mul_zero, hm_root] at hmlog
+      Real.log_one, sub_zero, hm_root] at hmlog
     have hlog_lb : τ₀ ^ 2 / (1 + τ₀ ^ 2) ≤ Real.log (1 + τ₀ ^ 2) := by
       have h1 := Real.one_sub_inv_le_log_of_pos (show 0 < 1 + τ₀ ^ 2 by positivity)
       refine le_trans ?_ h1
@@ -833,16 +837,23 @@ private lemma tau0_lt_two_rhoR_of_xi_le {c R_J r ξ : ℝ} (hc : 3e6 ≤ c)
     have hτ₀_sq_le_μ : τ₀ ^ 2 ≤ 2.025 * hankelBandMu ξ := by
       have h1 : τ₀ ^ 2 / 1.01 ≤ τ₀ ^ 2 / (1 + τ₀ ^ 2) :=
         div_le_div_of_nonneg_left (sq_nonneg _) (by positivity) (by linarith [hτ₀_sq])
-      have h2 : τ₀ ^ 2 / 2.02 ≤ 1 / 2 * Real.log (1 + τ₀ ^ 2) := by linarith [hlog_lb]
-      linarith [h2, hmlog, hμ0.le]
+      have h2 : τ₀ ^ 2 / 2.02 ≤ 1 / 2 * Real.log (1 + τ₀ ^ 2) := by
+        calc τ₀ ^ 2 / 2.02 = (1 / 2 : ℝ) * (τ₀ ^ 2 / 1.01) := by ring
+          _ ≤ (1 / 2 : ℝ) * (τ₀ ^ 2 / (1 + τ₀ ^ 2)) := mul_le_mul_of_nonneg_left h1 (by norm_num)
+          _ ≤ (1 / 2 : ℝ) * Real.log (1 + τ₀ ^ 2) := mul_le_mul_of_nonneg_left hlog_lb (by norm_num)
+      have h3 : τ₀ ^ 2 / 2.02 ≤ hankelBandMu ξ := by linarith
+      calc τ₀ ^ 2 = 2.02 * (τ₀ ^ 2 / 2.02) := by ring
+        _ ≤ 2.02 * hankelBandMu ξ := mul_le_mul_of_nonneg_left h3 (by norm_num)
+        _ ≤ 2.025 * hankelBandMu ξ := mul_le_mul_of_nonneg_right (by norm_num) hμ0.le
     have hτ₀_sq_r : τ₀ ^ 2 ≤ 2.03 * r / langerScale c := by
       have h1 : τ₀ ^ 2 ≤ 2.025 * (1.002 * r / langerScale c) := by
         calc τ₀ ^ 2 ≤ 2.025 * hankelBandMu ξ := hτ₀_sq_le_μ
           _ ≤ 2.025 * wr := by gcongr
           _ ≤ 2.025 * (1.002 * r / langerScale c) := by gcongr
       have h2 : 2.025 * (1.002 * r / langerScale c) ≤ 2.03 * r / langerScale c := by
-        rw [div_le_div_iff₀ hK hK]
-        nlinarith [hr.le, hK.le]
+        calc 2.025 * (1.002 * r / langerScale c) = (2.025 * 1.002) * (r / langerScale c) := by ring
+          _ ≤ 2.03 * (r / langerScale c) := mul_le_mul_of_nonneg_right (by norm_num) (div_nonneg hr.le hK.le)
+          _ = 2.03 * r / langerScale c := by ring
       exact h1.trans h2
     have hsq_lt : τ₀ ^ 2 < (2 * rhoR hankelBandParams c r) ^ 2 := by
       have hρ_eq : 2 * rhoR hankelBandParams c r = 4 * langerKappa * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r := by
@@ -859,7 +870,7 @@ private lemma tau0_lt_two_rhoR_of_xi_le {c R_J r ξ : ℝ} (hc : 3e6 ≤ c)
         have hk0 : langerKappa ≠ 0 := langerKappa_pos.ne'
         have hc23_pos : c ^ (2 / 3 : ℝ) ≠ 0 := (Real.rpow_pos_of_pos hc0 _).ne'
         field_simp; ring
-      have hpi2 : Real.pi ^ 2 < 10 := by nlinarith [Real.pi_lt_d2]
+      have hpi2 : Real.pi ^ 2 < 10 := by nlinarith [Real.pi_lt_d2, Real.pi_pos]
       have hk3_lb : 4.8 < 16 * langerKappa ^ 3 := by
         rw [hk3, show (16 : ℝ) * (3 / Real.pi ^ 2) = 48 / Real.pi ^ 2 by ring, lt_div_iff₀ (by positivity)]
         nlinarith
@@ -885,13 +896,12 @@ private lemma xi_le_1028r_of_tau0_lt {c R_J r ξ : ℝ} (hc : 3e6 ≤ c)
     rw [abs_neg, abs_of_pos (by positivity)]
     exact h1028.trans (hRJ_ub.trans (hankelBand_radius_ge_one hc))
   have hw1_bds := hankelXi_w_bounds hc0 hrA (by linarith)
-  set ξ₁ := hankelXi c (-1028 * r)
+  set ξ₁ := hankelXi c (-(1028 * r))
   set w₁ := Real.pi ^ 2 * ξ₁ - 1
   have hU := hankelBootU_xi hc0 hrA
   have hyw : (chartY etaC (w₁ : ℂ)).re = -(1028 * r) / langerScale c := by
     unfold hankelBandU at hU
-    have h1 : langerScale c * (chartY etaC (w₁ : ℂ)).re = -1028 * r := by
-      simpa [show -(1028 * r) = -1028 * r by ring] using hU
+    have h1 : langerScale c * (chartY etaC (w₁ : ℂ)).re = -(1028 * r) := hU
     rw [eq_div_iff hK.ne']; linarith
   have hyn : ‖(w₁ : ℂ)‖ ≤ 1e-3 := by
     rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hw1_bds.1]
@@ -901,7 +911,7 @@ private lemma xi_le_1028r_of_tau0_lt {c R_J r ξ : ℝ} (hc : 3e6 ≤ c)
     have h1 := (Complex.abs_re_le_norm (chartY etaC (w₁ : ℂ) + (w₁ : ℂ))).trans hnormY
     rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hw1_bds.1] at h1
     simpa using h1
-  rw [hyw] at hreY
+  rw [hyw, neg_div] at hreY
   have hw1_ge : 1028 * r / (1.0019 * langerScale c) ≤ w₁ := by
     have h1 := (abs_le.1 hreY).1
     have h2 : (1028 * r) / langerScale c ≤ 1.0019 * w₁ := by linarith
@@ -918,21 +928,16 @@ private lemma xi_le_1028r_of_tau0_lt {c R_J r ξ : ℝ} (hc : 3e6 ≤ c)
     have h2 : w₁ / 1.0005 ≤ w₁ / (1 + w₁) :=
       div_le_div_of_nonneg_left hw1_bds.1 h1w_pos (by linarith [hw1_bds.2.1])
     have h3 : 1025 * r / langerScale c ≤ (1028 * r / (1.0019 * langerScale c)) / 1.0005 := by
-      rw [div_le_div_iff₀ hK (by positivity)]
-      have h_eq : 1028 * r / (1.0019 * langerScale c) / 1.0005 * langerScale c =
-          (1028 / (1.0019 * 1.0005)) * r := by field_simp [hK.ne']; ring
-      have : 1025 * r * (1.0019 * langerScale c) ≤ 1028 * r * langerScale c := by
-        have hnum : (1025 * 1.0019 : ℝ) ≤ 1028 := by norm_num
-        calc 1025 * r * (1.0019 * langerScale c) = (1025 * 1.0019) * (r * langerScale c) := by ring
-          _ ≤ 1028 * (r * langerScale c) := mul_le_mul_of_nonneg_right hnum (mul_pos hr hK).le
-          _ = 1028 * r * langerScale c := by ring
-      -- simpler: prove (1025 * 1.0019 * 1.0005) ≤ 1028 directly
-      clear this h_eq
-      have : (1025 : ℝ) * 1.0019 * 1.0005 ≤ 1028 := by norm_num
-      nlinarith [mul_pos hr hK]
+      calc 1025 * r / langerScale c = 1025 * (r / langerScale c) := by ring
+        _ ≤ (1028 / (1.0019 * 1.0005)) * (r / langerScale c) :=
+            mul_le_mul_of_nonneg_right (by norm_num) (div_nonneg hr.le hK.le)
+        _ = (1028 * r / (1.0019 * langerScale c)) / 1.0005 := by ring
     have h4 : (1028 * r / (1.0019 * langerScale c)) / 1.0005 ≤ w₁ / 1.0005 :=
       div_le_div_of_nonneg_right hw1_ge (by norm_num)
     linarith [h3, h4, h2, hfrac, hlog1]
+  have hξ_eq_neg : hankelXi c (-1028 * r) = ξ₁ := by
+    dsimp [ξ₁]; congr 1; ring
+  rw [hξ_eq_neg]
   by_contra hlt
   have hξ_gt : ξ₁ < ξ := not_le.1 hlt
   have hξ₁_pos : 0 < ξ₁ := hankelXi_pos hc0 hrA
@@ -1112,14 +1117,13 @@ private lemma core_piece_scale_bound {c ε : ℝ} {f : ℝ → ℝ} (hc : 3e6 �
   have hnorm_le : ‖∫ τ in Icc (-4 * δ) (4 * δ), coreFn τ‖ ≤
       (volume.real (Icc (-4 * δ) (4 * δ))) *
         ((1 / ζ₀.re) * (4 * P.A_0) ^ (5 / 2 : ℝ) * (1 + 4 * P.A_0) ^ (P.M + 5 / 2) * P.C_W) :=
-    norm_setIntegral_le_of_norm_le_const (μ := volume) (s := Icc (-4 * δ) (4 * δ))
-      measure_Icc_lt_top hpt
+    (norm_setIntegral_le_of_norm_le_const (μ := volume) (s := Icc (-4 * δ) (4 * δ))
+      measure_Icc_lt_top hpt).trans_eq (mul_comm _ _)
   have hvol : volume.real (Icc (-4 * δ) (4 * δ)) = 8 * δ := by
     rw [Real.volume_real_Icc_of_le (by linarith)]; ring
   have h_δ : ‖∫ τ : ℝ, coreFn τ‖ ≤
       (8 * P.A_0 * (4 * P.A_0) ^ (5 / 2 : ℝ) * (1 + 4 * P.A_0) ^ (P.M + 5 / 2) * P.C_W / ζ₀.re) *
         c ^ (-(1 / 3 : ℝ)) := by
-    change ‖∫ τ : ℝ, coreFn τ‖ ≤ _
     rw [hsupp]
     refine hnorm_le.trans_eq ?_
     rw [hvol]; dsimp [δ]; ring
@@ -1147,6 +1151,95 @@ private lemma core_piece_scale_bound {c ε : ℝ} {f : ℝ → ℝ} (hc : 3e6 �
       ≤ C_core * (c ^ (-(1 / 3 : ℝ)) / ζ₀.re) := h_δ.trans_eq (by dsimp [C_core]; ring)
     _ ≤ C_core * ((3 / P.κ_ζ) / Real.cos ψ * r ^ (-(1 / 2 : ℝ))) := mul_le_mul_of_nonneg_left hcσ_le hC_nn
     _ = _ := by dsimp [C_core]; ring
+
+private lemma inner_half_bv {c ε sgn σ₀ η₀ r : ℝ} (hc : 3e6 ≤ c)
+    (hσ₀ : 0 < σ₀) (hσ₀_le : σ₀ ≤ 0.04) (hε : |ε| ≤ 1) (hsgn : sgn = 1 ∨ sgn = -1) (hr : 0 < r) :
+    let P := hankelBandParams
+    let δ₀ := P.A_0 * c ^ (-(1 / 3 : ℝ))
+    let ρr := rhoR P c r
+    let χ₁ : ℝ → ℝ := fun τ => tebCutoff δ₀ τ * (1 - tebCutoff (4 * ρr) τ)
+    let h₁ : ℝ → ℂ := fun τ => (χ₁ τ : ℂ) * (stripPoissonQ σ₀ η₀ ε (sgn * τ) : ℂ) *
+      (tebAmp0 c (sgn * τ) * hankelEdgeAmp c (sgn * τ))
+    ∀ s > 0, BoundedVariationOn h₁ (Icc s (2 * s)) ∧
+      (∀ τ ∈ Icc s (2 * s), ‖h₁ τ‖ + (eVariationOn h₁ (Icc s (2 * s))).toReal ≤
+        (16 * 8704) * (1 / σ₀) * c ^ (5 / 6 : ℝ) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (6 : ℝ) *
+          Real.exp (-s ^ 2)) := by
+  intro P δ₀ ρr χ₁ h₁ s hs
+  have hc0 : 0 < c := by linarith only [hc]
+  have h1 : σ₀ < 1 := by linarith only [hσ₀_le]
+  have hδ_pos : 0 < δ₀ := by dsimp [δ₀]; have := P.hA_0; positivity
+  have hρr_pos : 0 < ρr := by
+    show 0 < P.κ_ζ * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r
+    have := P.hκ_ζ; positivity
+  have hsgn_abs : |sgn| = 1 := by rcases hsgn with rfl | rfl <;> norm_num
+  have hQ_bd : ∀ τ : ℝ, |stripPoissonQ σ₀ η₀ ε τ| ≤ 1 / σ₀ := fun τ =>
+    (stripPoissonQ_abs_le hσ₀ h1 η₀ hε τ).trans (stripPoissonCalQ_le hσ₀ hσ₀_le η₀ τ)
+  have hs_le : s ≤ 2 * s := by linarith only [hs]
+  have hf1_bd : ∀ τ ∈ Icc s (2 * s), ‖(tebCutoff δ₀ τ : ℂ)‖ ≤ 1 := fun τ _ => by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_le]
+    exact ⟨by linarith only [tebCutoff_nonneg δ₀ τ], tebCutoff_le_one δ₀ τ⟩
+  have hf1_bv : eVariationOn (fun τ => (tebCutoff δ₀ τ : ℂ)) (Icc s (2 * s)) ≤ ENNReal.ofReal 1 := by
+    rw [eVariationOn_ofReal]; exact tebCutoff_eVariationOn_le hδ_pos hs.le hs_le
+  have hf2_bd : ∀ τ ∈ Icc s (2 * s), ‖((1 - tebCutoff (4 * ρr) τ : ℝ) : ℂ)‖ ≤ 1 := fun τ _ => by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_le]
+    exact ⟨by linarith only [tebCutoff_le_one (4 * ρr) τ], by linarith only [tebCutoff_nonneg (4 * ρr) τ]⟩
+  have hf2_bv : eVariationOn (fun τ => ((1 - tebCutoff (4 * ρr) τ : ℝ) : ℂ)) (Icc s (2 * s)) ≤ ENNReal.ofReal 1 :=
+    one_sub_tebCutoff_eVariationOn_le (by positivity) hs.le hs_le
+  have h12 := bv_norm_add_tv_mul zero_le_one zero_le_one zero_le_one zero_le_one
+    hf1_bd hf2_bd hf1_bv hf2_bv
+  have hf12_bd : ∀ τ ∈ Icc s (2 * s), ‖(χ₁ τ : ℂ)‖ ≤ 1 := fun τ hτ => by
+    have : (χ₁ τ : ℂ) = (tebCutoff δ₀ τ : ℂ) * ((1 - tebCutoff (4 * ρr) τ : ℝ) : ℂ) := by
+      dsimp [χ₁]; push_cast; ring
+    rw [this, norm_mul]
+    exact (mul_le_mul (hf1_bd τ hτ) (hf2_bd τ hτ) (norm_nonneg _) zero_le_one).trans_eq (mul_one 1)
+  have hf12_bv : eVariationOn (fun τ => (χ₁ τ : ℂ)) (Icc s (2 * s)) ≤ ENNReal.ofReal 2 := by
+    have : (fun τ => (χ₁ τ : ℂ)) = fun τ => (tebCutoff δ₀ τ : ℂ) * ((1 - tebCutoff (4 * ρr) τ : ℝ) : ℂ) := by
+      ext τ; dsimp [χ₁]; push_cast; ring
+    rw [this]; exact h12.2.1.trans (ENNReal.ofReal_le_ofReal (by norm_num))
+  have hQ_s_bd : ∀ τ ∈ Icc s (2 * s), ‖(stripPoissonQ σ₀ η₀ ε (sgn * τ) : ℂ)‖ ≤ 1 / σ₀ := fun τ _ => by
+    rw [Complex.norm_real, Real.norm_eq_abs]; exact hQ_bd _
+  have hQ_tv : eVariationOn (fun τ => (stripPoissonQ σ₀ η₀ ε (sgn * τ) : ℂ)) (Icc s (2 * s)) ≤
+      ENNReal.ofReal (1 / σ₀) := by
+    rw [eVariationOn_ofReal (fun τ => stripPoissonQ σ₀ η₀ ε (sgn * τ))]
+    have hQ_all := eVariationOn_stripPoissonQ_le hσ₀ hσ₀_le η₀ hε
+    rcases hsgn with rfl | rfl
+    · simpa using (eVariationOn.mono _ (subset_univ _)).trans hQ_all
+    · have hcomp := eVariationOn_comp_neg (stripPoissonQ σ₀ η₀ ε)
+      have hsub : eVariationOn (fun τ => stripPoissonQ σ₀ η₀ ε (-1 * τ)) (Icc s (2 * s)) ≤
+          eVariationOn (fun τ => stripPoissonQ σ₀ η₀ ε (-τ)) univ := by
+        simpa using eVariationOn.mono (fun τ => stripPoissonQ σ₀ η₀ ε (-τ)) (subset_univ _)
+      exact hsub.trans (hcomp.trans hQ_all)
+  have h123 := bv_norm_add_tv_mul zero_le_one (by positivity) (by norm_num) (by positivity)
+    hf12_bd hQ_s_bd hf12_bv hQ_tv
+  have hf123_bd : ∀ τ ∈ Icc s (2 * s),
+      ‖(χ₁ τ : ℂ) * (stripPoissonQ σ₀ η₀ ε (sgn * τ) : ℂ)‖ ≤ 1 * (1 / σ₀) := fun τ hτ => by
+    rw [norm_mul]; exact mul_le_mul (hf12_bd τ hτ) (hQ_s_bd τ hτ) (norm_nonneg _) zero_le_one
+  have hf123_bv : eVariationOn (fun τ => (χ₁ τ : ℂ) * (stripPoissonQ σ₀ η₀ ε (sgn * τ) : ℂ))
+      (Icc s (2 * s)) ≤ ENNReal.ofReal (3 / σ₀) :=
+    h123.2.1.trans (ENNReal.ofReal_le_ofReal (by ring_nf; linarith only [div_pos zero_lt_one hσ₀]))
+  obtain ⟨hamp_bv, hamp_ev, hamp_all⟩ := tebAmp0_mul_edgeAmp_block_bv_le hc hsgn_abs hs
+  set Mamp := 8704 * c ^ (5 / 6 : ℝ) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (6 : ℝ) * Real.exp (-s ^ 2)
+  have hMamp_nn : 0 ≤ Mamp := by dsimp [Mamp]; positivity
+  have hamp_bd : ∀ τ ∈ Icc s (2 * s),
+      ‖tebAmp0 c (sgn * τ) * hankelEdgeAmp c (sgn * τ)‖ ≤ Mamp := fun τ hτ => by
+    have := hamp_all τ hτ
+    have htv : 0 ≤ (eVariationOn (fun t => tebAmp0 c (sgn * t) * hankelEdgeAmp c (sgn * t))
+        (Icc s (2 * s))).toReal := ENNReal.toReal_nonneg
+    dsimp [Mamp] at *; linarith only [this, htv]
+  have htot := bv_norm_add_tv_mul (by positivity) hMamp_nn (by positivity) hMamp_nn
+    hf123_bd hamp_bd hf123_bv hamp_ev
+  have heq_h1 : (fun τ => (χ₁ τ : ℂ) * (stripPoissonQ σ₀ η₀ ε (sgn * τ) : ℂ) *
+      (tebAmp0 c (sgn * τ) * hankelEdgeAmp c (sgn * τ))) = h₁ := rfl
+  refine ⟨heq_h1 ▸ htot.1, fun τ hτ => ?_⟩
+  have hb := htot.2.2 τ hτ
+  have h4mul : (1 * (1 / σ₀) + 3 / σ₀) * (Mamp + Mamp) =
+      (8 * 8704) * (1 / σ₀) * c ^ (5 / 6 : ℝ) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (6 : ℝ) * Real.exp (-s ^ 2) := by
+    dsimp [Mamp]; ring
+  have h8_le : (8 * 8704 : ℝ) * (1 / σ₀) * c ^ (5 / 6 : ℝ) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (6 : ℝ) * Real.exp (-s ^ 2) ≤
+      (16 * 8704) * (1 / σ₀) * c ^ (5 / 6 : ℝ) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (6 : ℝ) * Real.exp (-s ^ 2) := by
+    have : 0 ≤ (1 / σ₀) * c ^ (5 / 6 : ℝ) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (6 : ℝ) * Real.exp (-s ^ 2) := by positivity
+    linarith only [this]
+  linarith only [hb, h4mul, h8_le]
 
 /-- Inner oscillatory piece `χ₁ = χ₀ (1 - ψ_r)` on `Ioi 0` for `sgn = ±1` and `ξ > 0`. -/
 private lemma inner_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 ≤ c)
@@ -1183,11 +1276,17 @@ private lemma inner_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
       rw [Real.le_sqrt (by norm_num) (by linarith)]; norm_num [hr]
     have hc_nn : 0 ≤ c ^ (-(1 / 3 : ℝ)) := Real.rpow_nonneg hc0.le _
     dsimp [δ₀, ρr]
+    have hκr : 16 ≤ P.κ_ζ * Real.sqrt r := by
+      calc (16 : ℝ) = 1 * 16 := by ring
+        _ ≤ P.κ_ζ * Real.sqrt r := mul_le_mul hκ_ge hsqrt_ge (by norm_num) P.hκ_ζ.le
     calc 2 * (P.A_0 * c ^ (-(1 / 3 : ℝ)))
         = (2 * P.A_0) * c ^ (-(1 / 3 : ℝ)) := by ring
-      _ ≤ (P.κ_ζ * Real.sqrt r) * c ^ (-(1 / 3 : ℝ)) := by gcongr; nlinarith
-      _ = 16 * (P.κ_ζ * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r) / 16 := by ring
-      _ ≤ 16 * (P.κ_ζ * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r) := by linarith [mul_nonneg (mul_nonneg P.hκ_ζ.le hc_nn) (Real.sqrt_nonneg r)]
+      _ ≤ 16 * c ^ (-(1 / 3 : ℝ)) := mul_le_mul_of_nonneg_right (by linarith) hc_nn
+      _ ≤ (P.κ_ζ * Real.sqrt r) * c ^ (-(1 / 3 : ℝ)) := mul_le_mul_of_nonneg_right hκr hc_nn
+      _ ≤ 16 * ((P.κ_ζ * Real.sqrt r) * c ^ (-(1 / 3 : ℝ))) := by
+          have : 0 ≤ (P.κ_ζ * Real.sqrt r) * c ^ (-(1 / 3 : ℝ)) := by positivity
+          linarith
+      _ = 16 * (P.κ_ζ * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r) := by ring
   have hsgn_abs : |sgn| = 1 := by rcases hsgn with rfl | rfl <;> norm_num
   have hQ_bd : ∀ τ : ℝ, |stripPoissonQ σ₀ η₀ ε τ| ≤ 1 / σ₀ := fun τ =>
     (stripPoissonQ_abs_le hσ₀ h1 η₀ hε τ).trans (stripPoissonCalQ_le hσ₀ hσ₀_le η₀ τ)
@@ -1249,82 +1348,13 @@ private lemma inner_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
   refine ⟨hInt, ?_⟩
   have hInt_eq : ∫ τ in Ioi (0 : ℝ), F₁ τ = ∫ τ in (2 * δ₀)..(16 * ρr), F₁ τ := by
     have h1 : ∫ τ in Ioi (0 : ℝ), F₁ τ = ∫ τ in Icc (2 * δ₀) (16 * ρr), F₁ τ := by
+      have hinter : Ioi (0 : ℝ) ∩ Icc (2 * δ₀) (16 * ρr) = Icc (2 * δ₀) (16 * ρr) :=
+        Set.inter_eq_right.2 (fun τ (hτ : τ ∈ Icc (2 * δ₀) (16 * ρr)) => lt_of_lt_of_le (by positivity) hτ.1)
       rw [setIntegral_congr_fun measurableSet_Ioi hEq_ind,
-        setIntegral_indicator measurableSet_Icc,
-        Set.inter_eq_self_of_subset_right (fun τ hτ => lt_of_lt_of_le (by positivity) hτ.1)]
+        setIntegral_indicator measurableSet_Icc, hinter]
     rw [h1, integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le ha_le_b]
   rw [hInt_eq]
-  have hh₁_bv : ∀ s > 0, BoundedVariationOn h₁ (Icc s (2 * s)) ∧
-      (∀ τ ∈ Icc s (2 * s), ‖h₁ τ‖ + (eVariationOn h₁ (Icc s (2 * s))).toReal ≤
-        (16 * 8704) * (1 / σ₀) * c ^ (5 / 6 : ℝ) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (6 : ℝ) *
-          Real.exp (-s ^ 2)) := by
-    intro s hs
-    have hs_le : s ≤ 2 * s := by linarith
-    have hf1_bd : ∀ τ ∈ Icc s (2 * s), ‖(tebCutoff δ₀ τ : ℂ)‖ ≤ 1 := fun τ _ => by
-      rw [Complex.norm_real, Real.norm_eq_abs, abs_le]
-      exact ⟨by linarith [tebCutoff_nonneg δ₀ τ], tebCutoff_le_one δ₀ τ⟩
-    have hf1_bv : eVariationOn (fun τ => (tebCutoff δ₀ τ : ℂ)) (Icc s (2 * s)) ≤ ENNReal.ofReal 1 := by
-      rw [eVariationOn_ofReal]; exact tebCutoff_eVariationOn_le hδ_pos hs.le hs_le
-    have hf2_bd : ∀ τ ∈ Icc s (2 * s), ‖((1 - tebCutoff (4 * ρr) τ : ℝ) : ℂ)‖ ≤ 1 := fun τ _ => by
-      rw [Complex.norm_real, Real.norm_eq_abs, abs_le]
-      exact ⟨by linarith [tebCutoff_le_one (4 * ρr) τ], by linarith [tebCutoff_nonneg (4 * ρr) τ]⟩
-    have hf2_bv : eVariationOn (fun τ => ((1 - tebCutoff (4 * ρr) τ : ℝ) : ℂ)) (Icc s (2 * s)) ≤ ENNReal.ofReal 1 :=
-      one_sub_tebCutoff_eVariationOn_le (by positivity) hs.le hs_le
-    have h12 := bv_norm_add_tv_mul zero_le_one zero_le_one zero_le_one zero_le_one
-      hf1_bd hf2_bd hf1_bv hf2_bv
-    have hf12_bd : ∀ τ ∈ Icc s (2 * s), ‖(χ₁ τ : ℂ)‖ ≤ 1 := fun τ hτ => by
-      have : (χ₁ τ : ℂ) = (tebCutoff δ₀ τ : ℂ) * ((1 - tebCutoff (4 * ρr) τ : ℝ) : ℂ) := by
-        dsimp [χ₁]; push_cast; ring
-      rw [this, norm_mul]
-      exact mul_le_mul (hf1_bd τ hτ) (hf2_bd τ hτ) (norm_nonneg _) zero_le_one
-    have hf12_bv : eVariationOn (fun τ => (χ₁ τ : ℂ)) (Icc s (2 * s)) ≤ ENNReal.ofReal 2 := by
-      have : (fun τ => (χ₁ τ : ℂ)) = fun τ => (tebCutoff δ₀ τ : ℂ) * ((1 - tebCutoff (4 * ρr) τ : ℝ) : ℂ) := by
-        ext τ; dsimp [χ₁]; push_cast; ring
-      rw [this]; exact h12.2.1.trans (ENNReal.ofReal_le_ofReal (by norm_num))
-    have hQ_s_bd : ∀ τ ∈ Icc s (2 * s), ‖(stripPoissonQ σ₀ η₀ ε (sgn * τ) : ℂ)‖ ≤ 1 / σ₀ := fun τ _ => by
-      rw [Complex.norm_real, Real.norm_eq_abs]; exact hQ_bd _
-    have hQ_tv : eVariationOn (fun τ => (stripPoissonQ σ₀ η₀ ε (sgn * τ) : ℂ)) (Icc s (2 * s)) ≤
-        ENNReal.ofReal (1 / σ₀) := by
-      rw [eVariationOn_ofReal (fun τ => stripPoissonQ σ₀ η₀ ε (sgn * τ))]
-      have hQ_all := eVariationOn_stripPoissonQ_le hσ₀ hσ₀_le η₀ hε
-      rcases hsgn with rfl | rfl
-      · simpa using (eVariationOn.mono _ (subset_univ _)).trans hQ_all
-      · have hcomp := eVariationOn_comp_neg (stripPoissonQ σ₀ η₀ ε)
-        have hsub : eVariationOn (fun τ => stripPoissonQ σ₀ η₀ ε (-1 * τ)) (Icc s (2 * s)) ≤
-            eVariationOn (fun τ => stripPoissonQ σ₀ η₀ ε (-τ)) univ := by
-          simpa using eVariationOn.mono (fun τ => stripPoissonQ σ₀ η₀ ε (-τ)) (subset_univ _)
-        exact hsub.trans (hcomp.trans hQ_all)
-    have h123 := bv_norm_add_tv_mul zero_le_one (by positivity) (by norm_num) (by positivity)
-      hf12_bd hQ_s_bd hf12_bv hQ_tv
-    have hf123_bd : ∀ τ ∈ Icc s (2 * s),
-        ‖(χ₁ τ : ℂ) * (stripPoissonQ σ₀ η₀ ε (sgn * τ) : ℂ)‖ ≤ 1 * (1 / σ₀) := fun τ hτ => by
-      rw [norm_mul]; exact mul_le_mul (hf12_bd τ hτ) (hQ_s_bd τ hτ) (norm_nonneg _) zero_le_one
-    have hf123_bv : eVariationOn (fun τ => (χ₁ τ : ℂ) * (stripPoissonQ σ₀ η₀ ε (sgn * τ) : ℂ))
-        (Icc s (2 * s)) ≤ ENNReal.ofReal (3 / σ₀) :=
-      h123.2.1.trans (ENNReal.ofReal_le_ofReal (by ring_nf; linarith [div_pos zero_lt_one hσ₀]))
-    obtain ⟨hamp_bv, hamp_ev, hamp_all⟩ := tebAmp0_mul_edgeAmp_block_bv_le hc hsgn_abs hs
-    set Mamp := 8704 * c ^ (5 / 6 : ℝ) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (6 : ℝ) * Real.exp (-s ^ 2)
-    have hMamp_nn : 0 ≤ Mamp := by dsimp [Mamp]; positivity
-    have hamp_bd : ∀ τ ∈ Icc s (2 * s),
-        ‖tebAmp0 c (sgn * τ) * hankelEdgeAmp c (sgn * τ)‖ ≤ Mamp := fun τ hτ => by
-      have := hamp_all τ hτ
-      have htv : 0 ≤ (eVariationOn (fun t => tebAmp0 c (sgn * t) * hankelEdgeAmp c (sgn * t))
-          (Icc s (2 * s))).toReal := ENNReal.toReal_nonneg
-      dsimp [Mamp] at *; linarith
-    have htot := bv_norm_add_tv_mul (by positivity) hMamp_nn (by positivity) hMamp_nn
-      hf123_bd hamp_bd hf123_bv hamp_ev
-    have heq_h1 : (fun τ => (χ₁ τ : ℂ) * (stripPoissonQ σ₀ η₀ ε (sgn * τ) : ℂ) *
-        (tebAmp0 c (sgn * τ) * hankelEdgeAmp c (sgn * τ))) = h₁ := rfl
-    refine ⟨heq_h1 ▸ htot.1, fun τ hτ => ?_⟩
-    have hb := htot.2.2 τ hτ
-    have h4mul : (1 * (1 / σ₀) + 3 / σ₀) * (Mamp + Mamp) =
-        (8 * 8704) * (1 / σ₀) * c ^ (5 / 6 : ℝ) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (6 : ℝ) * Real.exp (-s ^ 2) := by
-      dsimp [Mamp]; ring
-    have h8_le : (8 * 8704 : ℝ) * (1 / σ₀) * c ^ (5 / 6 : ℝ) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (6 : ℝ) * Real.exp (-s ^ 2) ≤
-        (16 * 8704) * (1 / σ₀) * c ^ (5 / 6 : ℝ) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (6 : ℝ) * Real.exp (-s ^ 2) := by
-      have : 0 ≤ (1 / σ₀) * c ^ (5 / 6 : ℝ) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (6 : ℝ) * Real.exp (-s ^ 2) := by positivity
-      linarith
-    linarith [hb, h4mul, h8_le]
+  have hh₁_bv := @inner_half_bv c ε sgn σ₀ η₀ r hc hσ₀ hσ₀_le hε hsgn (by linarith only [hr] : 0 < r)
   obtain ⟨hφ, hφ', hφ'_mono, h_upper, h_lower, h_mid⟩ := hankel_phase_bounds hsgn hξ
   have hφ'_cont : ContinuousOn φ' (Ioi 0) :=
     fun y hy => (hφ' y hy).continuousAt.continuousWithinAt
@@ -1388,9 +1418,9 @@ private lemma inner_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
   have hsplit3 : ∫ τ in a..b, F₁ τ =
       (∫ τ in a..x₁, F₁ τ) + (∫ τ in x₁..x₂, F₁ τ) + (∫ τ in x₂..b, F₁ τ) := by
     have h1 := intervalIntegral.integral_add_adjacent_intervals
-      (hF₁_cont.intervalIntegrable a x₁) (hF₁_cont.intervalIntegrable x₁ x₂)
+      (hF₁_cont.intervalIntegrable (μ := volume) a x₁) (hF₁_cont.intervalIntegrable (μ := volume) x₁ x₂)
     have h2 := intervalIntegral.integral_add_adjacent_intervals
-      (hF₁_cont.intervalIntegrable a x₂) (hF₁_cont.intervalIntegrable x₂ b)
+      (hF₁_cont.intervalIntegrable (μ := volume) a x₂) (hF₁_cont.intervalIntegrable (μ := volume) x₂ b)
     rw [← h1] at h2; exact h2.symm
   set G₁ : ℝ := 3 * 16 * 8704 * 64 * (1 / σ₀) * c ^ (-(1 / 6 : ℝ))
   have hG₁_nn : 0 ≤ G₁ := by dsimp [G₁]; positivity
@@ -1406,7 +1436,7 @@ private lemma inner_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
         exact (min_le_right _ _).trans_eq h2
       have hτ₀_pos : 0 < τ₀ := by linarith [show 0 < a by positivity]
       have hsum := dyadic_sum_rpow_half_le (by positivity : 0 < a) ha_le_x1
-        (mul_nonneg (by norm_num) hG₁_nn) F₁
+        (show 0 ≤ 32 * G₁ by linarith [hG₁_nn]) F₁
         (hF₁_cont.intervalIntegrable a x₁) (fun s u v hs hau huv hvx hsu hv2s => by
           have hvb : v ≤ b := hvx.trans (min_le_left _ _)
           have hs1 : s ≤ 1 := by linarith
@@ -1450,7 +1480,7 @@ private lemma inner_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
         rw [min_eq_right hlt.le]
         exact le_max_right _ _
       have hx2_pos : 0 < x₂ := lt_of_lt_of_le (by positivity) (ha_le_x1.trans hx1_le_x2)
-      exact dyadic_sum_rpow_half_le hx2_pos hx2_le_b (mul_nonneg (by norm_num) hG₁_nn) F₁
+      exact dyadic_sum_rpow_half_le hx2_pos hx2_le_b (show 0 ≤ 32 * G₁ by linarith [hG₁_nn]) F₁
         (hF₁_cont.intervalIntegrable x₂ b) (fun s u v hs hxu huv hvb hsu hv2s => by
           have hs1 : s ≤ 1 := by linarith
           have hlam_pos : 0 < (1 / 32 : ℝ) * s ^ 2 := by positivity
@@ -1483,11 +1513,12 @@ private lemma inner_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
       128 * (16 * 8704 * 64) * (1 / σ₀) * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) * τ₀ ^ 2 *
         (if δ₀ < τ₀ ∧ τ₀ < 32 * ρr then 1 else 0) := by
     by_cases hcond : δ₀ < τ₀ ∧ τ₀ < 32 * ρr
-    · rw [if_pos hcond, mul_one]
+    · rw [ite_eq_left hcond, mul_one]
       have hτ₀_pos : 0 < τ₀ := lt_trans hδ_pos hcond.1
-      have hτ₀_le1 : τ₀ ≤ 1 := by linarith [hcond.2]
-      have hx1_ge : τ₀ / 2 ≤ x₁ := le_min (by linarith [hcond.2]) (le_max_right _ _)
-      have hx2_le : x₂ ≤ 2 * τ₀ := (min_le_right _ _).trans (max_le (by linarith [hcond.1]) le_rfl)
+      have hρ2 : 2 * ρr ≤ 0.035 := hρ_ub
+      have hτ₀_le1 : τ₀ ≤ 1 := by linarith only [hcond.2, hρ2]
+      have hx1_ge : τ₀ / 2 ≤ x₁ := le_min (by linarith only [hcond.2]) (le_max_right _ _)
+      have hx2_le : x₂ ≤ 2 * τ₀ := (min_le_right _ _).trans (max_le (by linarith only [hcond.1]) le_rfl)
       set m := min x₂ (max x₁ τ₀)
       have hx1_m : x₁ ≤ m := le_min hx1_le_x2 (le_max_left _ _)
       have hm_x2 : m ≤ x₂ := min_le_left _ _
@@ -1495,10 +1526,10 @@ private lemma inner_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
         (intervalIntegral.integral_add_adjacent_intervals
           (hF₁_cont.intervalIntegrable x₁ m) (hF₁_cont.intervalIntegrable m x₂)).symm
       have hvdc2_sub : ∀ {u v s : ℝ}, 0 < s → s ≤ 1 → τ₀ / 2 ≤ u → u ≤ v → v ≤ 2 * τ₀ →
-          s ≤ u → v ≤ 2 * s →
+          s ≤ u → v ≤ 2 * s → s ≤ τ₀ →
           ‖∫ τ in u..v, F₁ τ‖ ≤
             64 * (16 * 8704 * 64) * (1 / σ₀) * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) * τ₀ ^ 2 := by
-        intro u v s hs hs1 hu_lo huv hv_hi hsu hv2s
+        intro u v s hs hs1 hu_lo huv hv_hi hsu hv2s hs_le_τ₀
         have hsub : Icc u v ⊆ Ioi 0 := fun τ hτ => lt_of_lt_of_le (half_pos hτ₀_pos) (hu_lo.trans hτ.1)
         have hsub_s : Icc u v ⊆ Icc s (2 * s) := Icc_subset_Icc hsu hv2s
         have hbv_s := (hh₁_bv s hs).1
@@ -1510,8 +1541,10 @@ private lemma inner_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
         have hlam_le : ∀ y ∈ Icc u v, (1 / 64 : ℝ) * τ₀ ≤ |φ'' y| := fun y hy => by
           have h1 : (1 / 64 : ℝ) * τ₀ ≤ (1 / 32 : ℝ) * τ₀ / (1 + τ₀ ^ 3) := by
             rw [le_div_iff₀ (by positivity)]
-            have hcube : τ₀ ^ 3 ≤ 1 := by nlinarith [hτ₀_pos.le, hτ₀_le1]
-            have hadd : 1 + τ₀ ^ 3 ≤ 2 := by linarith
+            have hcube : τ₀ ^ 3 ≤ 1 := by
+              calc τ₀ ^ 3 ≤ 1 ^ 3 := pow_le_pow_left₀ hτ₀_pos.le hτ₀_le1 3
+                _ = 1 := one_pow 3
+            have hadd : 1 + τ₀ ^ 3 ≤ 2 := by linarith only [hcube]
             calc (1 / 64 : ℝ) * τ₀ * (1 + τ₀ ^ 3) ≤ (1 / 64 : ℝ) * τ₀ * 2 :=
                   mul_le_mul_of_nonneg_left hadd (by positivity)
               _ = (1 / 32 : ℝ) * τ₀ := by ring
@@ -1522,12 +1555,11 @@ private lemma inner_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
           (fun y hy => hφ y (hsub hy)) (fun y hy => hφ' y (hsub hy))
           (Or.elim hφ'_mono (fun hm => Or.inl (hm.mono hsub)) (fun ha => Or.inr (ha.mono hsub)))
           hlam_le hh₁_cont.continuousOn hbv_uv
-          (fun τ hτ => by linarith [hh₁_le_bound s hs hs1 τ (hsub_s hτ)])
+          (fun τ hτ => le_sub_iff_add_le.2 (hh₁_le_bound s hs hs1 τ (hsub_s hτ)))
         have hF_rw : (fun x => h₁ x * (1 : ℂ) * Complex.exp (Complex.I * (c : ℂ) * (φ x : ℂ))) = F₁ :=
           funext fun τ => (hF₁_eq τ).symm
         change ‖∫ τ in u..v, h₁ τ * (1 : ℂ) * Complex.exp (Complex.I * (c : ℂ) * (φ τ : ℂ))‖ ≤ _ at hvdc
         rw [hF_rw] at hvdc
-        have hs_le_τ₀ : s ≤ τ₀ := by linarith [hsu, huv, hv_hi]
         have hs52 : s ^ (5 / 2 : ℝ) ≤ τ₀ ^ (5 / 2 : ℝ) :=
           Real.rpow_le_rpow hs.le hs_le_τ₀ (by norm_num)
         have hden : Real.sqrt (c * ((1 / 64 : ℝ) * τ₀)) = (1 / 8 : ℝ) * (c ^ (1 / 2 : ℝ) * τ₀ ^ (1 / 2 : ℝ)) := by
@@ -1541,7 +1573,7 @@ private lemma inner_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
         calc ‖∫ τ in u..v, F₁ τ‖
             ≤ 8 * ((B - (eVariationOn h₁ (Icc s (2 * s))).toReal) + (eVariationOn h₁ (Icc u v)).toReal) /
                 Real.sqrt (c * ((1 / 64 : ℝ) * τ₀)) := hvdc
-          _ ≤ 8 * B / Real.sqrt (c * ((1 / 64 : ℝ) * τ₀)) := by gcongr; linarith
+          _ ≤ 8 * B / Real.sqrt (c * ((1 / 64 : ℝ) * τ₀)) := by gcongr; linarith only [htv_uv]
           _ ≤ 8 * (16 * 8704 * 64 * (1 / σ₀) * c ^ (5 / 6 : ℝ) * τ₀ ^ (5 / 2 : ℝ)) /
                 ((1 / 8 : ℝ) * (c ^ (1 / 2 : ℝ) * τ₀ ^ (1 / 2 : ℝ))) := by
               rw [hden]
@@ -1555,43 +1587,50 @@ private lemma inner_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
           64 * (16 * 8704 * 64) * (1 / σ₀) * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) * τ₀ ^ 2 := by
         rcases le_or_gt τ₀ x₁ with hτx | hxτ
         · have hm_eq : m = x₁ := by
-            have : max x₁ τ₀ = x₁ := max_eq_left hτx
-            rw [this]; exact min_eq_right hx1_le_x2
+            show min x₂ (max x₁ τ₀) = x₁
+            rw [max_eq_left hτx, min_eq_right hx1_le_x2]
           rw [hm_eq, intervalIntegral.integral_same, norm_zero]; positivity
         · have hm_le : m ≤ τ₀ := (min_le_right _ _).trans (max_le hxτ.le le_rfl)
-          exact hvdc2_sub (half_pos hτ₀_pos) (by linarith) hx1_ge hx1_m (hm_le.trans (by linarith))
-            hx1_ge (by linarith)
+          exact hvdc2_sub (half_pos hτ₀_pos) (by linarith only [hτ₀_le1, hτ₀_pos]) hx1_ge hx1_m
+            (hm_le.trans (by linarith only [hτ₀_pos])) hx1_ge (by linarith only [hm_le])
+            (by linarith only [hτ₀_pos])
       have h_right : ‖∫ τ in m..x₂, F₁ τ‖ ≤
           64 * (16 * 8704 * 64) * (1 / σ₀) * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) * τ₀ ^ 2 := by
         rcases le_or_gt x₂ τ₀ with hxτ | hτx
-        · have hm_eq : m = x₂ := min_eq_left (hxτ.trans (le_max_right _ _))
+        · have hm_eq : m = x₂ := by
+            show min x₂ (max x₁ τ₀) = x₂
+            exact min_eq_left (hxτ.trans (le_max_right _ _))
           rw [hm_eq, intervalIntegral.integral_same, norm_zero]; positivity
         · have hm_ge : τ₀ ≤ m := le_min hτx.le (le_max_right _ _)
-          exact hvdc2_sub hτ₀_pos hτ₀_le1 (by linarith) hm_x2 hx2_le hm_ge hx2_le
+          exact hvdc2_sub hτ₀_pos hτ₀_le1 (by linarith only [hm_ge, hτ₀_pos]) hm_x2 hx2_le hm_ge hx2_le le_rfl
       calc ‖∫ τ in x₁..x₂, F₁ τ‖
           ≤ ‖∫ τ in x₁..m, F₁ τ‖ + ‖∫ τ in m..x₂, F₁ τ‖ := by rw [hsplit_m]; exact norm_add_le _ _
-        _ ≤ _ := by linarith
-    · rw [ite_eq_right.2 (fun h => absurd h hcond), mul_zero]
+        _ ≤ _ := by linarith only [h_left, h_right]
+    · rw [ite_eq_right hcond, mul_zero]
       have hx_eq : x₁ = x₂ := by
         have hnot : ¬ (δ₀ < τ₀ ∧ τ₀ < 32 * ρr) := hcond
         rcases le_or_gt τ₀ δ₀ with hle | hgt
         · have hx1 : x₁ = a := by
             show min b (max a (τ₀ / 2)) = a
-            rw [max_eq_left (by linarith), min_eq_right ha_le_b]
+            rw [max_eq_left (by linarith only [hle, show a = 2 * δ₀ from rfl, hτ₀_nn]),
+              min_eq_right ha_le_b]
           have hx2 : x₂ = a := by
             show min b (max a (2 * τ₀)) = a
-            rw [max_eq_left (by linarith), min_eq_right ha_le_b]
+            rw [max_eq_left (by linarith only [hle, show a = 2 * δ₀ from rfl]),
+              min_eq_right ha_le_b]
           rw [hx1, hx2]
         · have hge : 32 * ρr ≤ τ₀ := not_lt.1 fun hlt => hnot ⟨hgt, hlt⟩
-          have hx1 : x₁ = b := min_eq_left (le_trans (by linarith) (le_max_right a (τ₀ / 2)))
-          have hx2 : x₂ = b := min_eq_left (le_trans (by linarith) (le_max_right a (2 * τ₀)))
+          have hx1 : x₁ = b :=
+            min_eq_left (le_trans (by linarith only [hge, show b = 16 * ρr from rfl]) (le_max_right a (τ₀ / 2)))
+          have hx2 : x₂ = b :=
+            min_eq_left (le_trans (by linarith only [hge, show b = 16 * ρr from rfl, hρr_pos]) (le_max_right a (2 * τ₀)))
           rw [hx1, hx2]
       rw [hx_eq, intervalIntegral.integral_same, norm_zero]
   have hb_pow : b ^ (1 / 2 : ℝ) = 4 * ρr ^ (1 / 2 : ℝ) := by
     dsimp [b]; rw [Real.mul_rpow (by norm_num) hρr_pos.le]
     have h16 : (16 : ℝ) ^ (1 / 2 : ℝ) = 4 := by
       rw [← Real.sqrt_eq_rpow, show (16 : ℝ) = 4 ^ 2 by norm_num, Real.sqrt_sq (by norm_num)]
-    rw [h16]]
+    rw [h16]
   have htri : ‖∫ τ in a..b, F₁ τ‖ ≤
       ‖∫ τ in a..x₁, F₁ τ‖ + ‖∫ τ in x₁..x₂, F₁ τ‖ + ‖∫ τ in x₂..b, F₁ τ‖ := by
     rw [hsplit3]
@@ -1647,10 +1686,7 @@ private lemma outer_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
     show 0 < P.κ_ζ * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r
     have := P.hκ_ζ; positivity
   have h_norm_sq : √(σ₀ ^ 2 + η₀ ^ 2) = ‖(σ₀ : ℂ) + (η₀ : ℂ) * Complex.I‖ := by
-    rw [Complex.norm_def, Complex.normSq_apply]
-    simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.I_re, mul_zero,
-      Complex.ofReal_im, Complex.I_im, mul_one, sub_self, add_zero, Complex.add_im, zero_mul,
-      add_zero, zero_add, ← sq]
+    simp [Complex.norm_def, Complex.normSq_apply, ← sq]
   have h4ρ_ge : 2 * √(σ₀ ^ 2 + η₀ ^ 2) ≤ 4 * ρr := by
     rw [h_norm_sq]; linarith
   have hsgn_abs : |sgn| = 1 := by rcases hsgn with rfl | rfl <;> norm_num
@@ -1717,7 +1753,9 @@ private lemma outer_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
         _ = (1 + |τ|) ^ (11 / 2 : ℝ) := h2
     rw [norm_mul, norm_mul, norm_mul, Complex.norm_real, Complex.norm_real,
       Real.norm_eq_abs, Real.norm_eq_abs]
-    rw [abs_mul, hsgn_abs, one_mul] at hamp
+    have hsq_sgn : (sgn * τ) ^ 2 = τ ^ 2 := by
+      rw [mul_pow, ← sq_abs sgn, hsgn_abs, one_pow, one_mul]
+    rw [abs_mul, hsgn_abs, one_mul, hsq_sgn] at hamp
     have h12 : |ψ_r τ| * |stripPoissonQ σ₀ η₀ ε (sgn * τ)| ≤ 1 * (1 / σ₀) :=
       mul_le_mul hψ hQ (abs_nonneg _) zero_le_one
     have h34 : ‖tebAmp0 c (sgn * τ)‖ * ‖hankelBandK c (sgn * τ) ξ‖ ≤
@@ -1725,8 +1763,10 @@ private lemma outer_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
           (4 * (1 + |τ|) ^ (1 / 2 : ℝ)) :=
       mul_le_mul hamp hK_bd (norm_nonneg _) (by positivity)
     calc |ψ_r τ| * |stripPoissonQ σ₀ η₀ ε (sgn * τ)| *
-          (‖tebAmp0 c (sgn * τ)‖ * ‖hankelBandK c (sgn * τ) ξ‖)
-        ≤ (1 * (1 / σ₀)) *
+          ‖tebAmp0 c (sgn * τ)‖ * ‖hankelBandK c (sgn * τ) ξ‖
+        = (|ψ_r τ| * |stripPoissonQ σ₀ η₀ ε (sgn * τ)|) *
+            (‖tebAmp0 c (sgn * τ)‖ * ‖hankelBandK c (sgn * τ) ξ‖) := by ring
+      _ ≤ (1 * (1 / σ₀)) *
             ((c ^ (5 / 6 : ℝ) * |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * Real.exp (-τ ^ 2)) *
               (4 * (1 + |τ|) ^ (1 / 2 : ℝ))) :=
           mul_le_mul h12 h34 (mul_nonneg (norm_nonneg _) (norm_nonneg _)) (by positivity)
@@ -1749,7 +1789,7 @@ private lemma outer_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
     · have h8 : ¬ (8 * ρr < τ) := fun h => hτ (lt_trans (by positivity) h)
       rw [Set.indicator_of_notMem hτ, Set.indicator_of_notMem h8]
   rw [h_eq_Ioi]
-  set C_bv : ℝ := 2 * 56 * 2 * 8704
+  set C_bv : ℝ := 240 * 8704
   have hh₂_bv : ∀ s : ℝ, 4 * ρr ≤ s → BoundedVariationOn h₂ (Icc s (2 * s)) ∧
       (∀ τ ∈ Icc s (2 * s), ‖h₂ τ‖ + (eVariationOn h₂ (Icc s (2 * s))).toReal ≤
         C_bv * σ₀ * c ^ (5 / 6 : ℝ) * (1 + s ^ (-2 : ℝ)) * s ^ (5 / 2 : ℝ) *
@@ -1893,9 +1933,9 @@ private lemma outer_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
     have hsplit3 : ∫ τ in a..B, F₂ τ =
         (∫ τ in a..x₁, F₂ τ) + (∫ τ in x₁..x₂, F₂ τ) + (∫ τ in x₂..B, F₂ τ) := by
       have h1 := intervalIntegral.integral_add_adjacent_intervals
-        (hF₂_cont.intervalIntegrable a x₁) (hF₂_cont.intervalIntegrable x₁ x₂)
+        (hF₂_cont.intervalIntegrable (μ := volume) a x₁) (hF₂_cont.intervalIntegrable (μ := volume) x₁ x₂)
       have h2 := intervalIntegral.integral_add_adjacent_intervals
-        (hF₂_cont.intervalIntegrable a x₂) (hF₂_cont.intervalIntegrable x₂ B)
+        (hF₂_cont.intervalIntegrable (μ := volume) a x₂) (hF₂_cont.intervalIntegrable (μ := volume) x₂ B)
       rw [← h1] at h2; exact h2.symm
     set G₂ := C_f * σ₀ * c ^ (-(1 / 6 : ℝ))
     have hG₂_nn : 0 ≤ G₂ := by dsimp [G₂, C_f, C_bv]; positivity
@@ -1951,6 +1991,7 @@ private lemma outer_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
             by_contra hle
             have : x₂ = B := min_eq_left (not_lt.1 hle)
             linarith
+          show 2 * τ₀ ≤ min B (max a (2 * τ₀))
           rw [min_eq_right hlt.le]
           exact le_max_right _ _
         have hx2_pos : 0 < x₂ := lt_of_lt_of_le ha_pos (ha_le_x1.trans hx1_le_x2)
@@ -1993,121 +2034,131 @@ private lemma outer_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
     have hmid_bd : ‖∫ τ in x₁..x₂, F₂ τ‖ ≤
         2 * C_s * σ₀ * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) * (if 4 * ρr < τ₀ then 1 else 0) := by
       by_cases hcond : 4 * ρr < τ₀
-      · rw [ite_eq_left.2 (fun h => absurd hcond h), mul_one]
+      · rw [ite_eq_left hcond, mul_one]
         have hτ₀_pos : 0 < τ₀ := lt_trans (by positivity) hcond
-        have hx1_ge : τ₀ / 2 ≤ x₁ := le_min (by linarith) (le_max_right _ _)
-        have hx2_le : x₂ ≤ 2 * τ₀ := (min_le_right _ _).trans (max_le (by linarith) le_rfl)
-        set m := min x₂ (max x₁ τ₀)
-        have hx1_m : x₁ ≤ m := le_min hx1_le_x2 (le_max_left _ _)
-        have hm_x2 : m ≤ x₂ := min_le_left _ _
-        have hsplit_m : ∫ τ in x₁..x₂, F₂ τ = (∫ τ in x₁..m, F₂ τ) + ∫ τ in m..x₂, F₂ τ :=
-          (intervalIntegral.integral_add_adjacent_intervals
-            (hF₂_cont.intervalIntegrable x₁ m) (hF₂_cont.intervalIntegrable m x₂)).symm
-        have hvdc2_out : ∀ {u v s : ℝ}, 4 * ρr ≤ s → τ₀ / 2 ≤ u → u ≤ v → v ≤ 2 * τ₀ →
-            s ≤ u → v ≤ 2 * s → (1 + τ₀ ^ 3 ≤ 8 * (1 + s ^ 3) ∧ s ≤ τ₀) →
-            ‖∫ τ in u..v, F₂ τ‖ ≤ C_s * σ₀ * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) := by
-          intro u v s hs_ge hu_lo huv hv_hi hsu hv2s ⟨hden1, hs_le⟩
-          have hs : 0 < s := lt_of_lt_of_le (by positivity) hs_ge
-          have hsub : Icc u v ⊆ Ioi 0 := fun τ hτ => lt_of_lt_of_le (half_pos hτ₀_pos) (hu_lo.trans hτ.1)
-          have hsub_s : Icc u v ⊆ Icc s (2 * s) := Icc_subset_Icc hsu hv2s
-          have hbv_s := (hh₂_bv s hs_ge).1
-          have hbv_uv : BoundedVariationOn h₂ (Icc u v) := hbv_s.mono hsub_s
-          have htv_uv : (eVariationOn h₂ (Icc u v)).toReal ≤ (eVariationOn h₂ (Icc s (2 * s))).toReal :=
-            ENNReal.toReal_mono hbv_s (eVariationOn.mono h₂ hsub_s)
-          set B := C_bv * σ₀ * c ^ (5 / 6 : ℝ) * (1 + s ^ (-2 : ℝ)) * s ^ (5 / 2 : ℝ) *
-            (1 + s) ^ (7 : ℝ) * Real.exp (-s ^ 2)
-          have hlam_pos : 0 < (1 / 32 : ℝ) * τ₀ / (1 + τ₀ ^ 3) := by positivity
-          have hvdc := van_der_corput_second_comp (w := id) (w' := fun _ => 1)
-            (M := B - (eVariationOn h₂ (Icc s (2 * s))).toReal)
-            huv hc0 hlam_pos (fun x _ => hasDerivAt_id x) continuousOn_const (fun _ _ => zero_le_one)
-            (fun y hy => hφ y (hsub hy)) (fun y hy => hφ' y (hsub hy))
-            (Or.elim hφ'_mono (fun hm => Or.inl (hm.mono hsub)) (fun ha => Or.inr (ha.mono hsub)))
-            (fun y hy => h_mid hτ₀_pos y (hu_lo.trans hy.1) (hy.2.trans hv_hi))
-            hh₂_cont.continuousOn hbv_uv
-            (fun τ hτ => by linarith [(hh₂_bv s hs_ge).2 τ (hsub_s hτ)])
-          have hF_rw : (fun x => h₂ x * (1 : ℂ) * Complex.exp (Complex.I * (c : ℂ) * (φ x : ℂ))) = F₂ :=
-            funext fun τ => (hF₂_eq τ).symm
-          change ‖∫ τ in u..v, h₂ τ * (1 : ℂ) * Complex.exp (Complex.I * (c : ℂ) * (φ τ : ℂ))‖ ≤ _ at hvdc
-          rw [hF_rw] at hvdc
-          have hτ_gt_s : (1 / 8 : ℝ) * (s / (1 + s ^ 3)) ≤ τ₀ / (1 + τ₀ ^ 3) := by
-            rw [div_le_div_iff₀ (by positivity) (by positivity)]
-            have h1 : s * (1 + τ₀ ^ 3) ≤ s * (8 * (1 + s ^ 3)) := mul_le_mul_of_nonneg_left hden1 hs.le
-            have h2 : s * (8 * (1 + s ^ 3)) ≤ 8 * τ₀ * (1 + s ^ 3) := by
-              nlinarith [pow_pos hs 3]
-            calc 1 * s * (1 + τ₀ ^ 3) = s * (1 + τ₀ ^ 3) := by ring
-              _ ≤ s * (8 * (1 + s ^ 3)) := h1
-              _ ≤ 8 * τ₀ * (1 + s ^ 3) := h2
-              _ = τ₀ * (8 * (1 + s ^ 3)) := by ring
-          have hlam_lb : (1 / 256 : ℝ) * (s / (1 + s ^ 3)) ≤ (1 / 32 : ℝ) * τ₀ / (1 + τ₀ ^ 3) := by
-            calc (1 / 256 : ℝ) * (s / (1 + s ^ 3))
-                = (1 / 32 : ℝ) * ((1 / 8 : ℝ) * (s / (1 + s ^ 3))) := by ring
-              _ ≤ (1 / 32 : ℝ) * (τ₀ / (1 + τ₀ ^ 3)) := mul_le_mul_of_nonneg_left hτ_gt_s (by norm_num)
-              _ = (1 / 32 : ℝ) * τ₀ / (1 + τ₀ ^ 3) := by ring
-          have hden_sqrt : (1 / 16 : ℝ) * Real.sqrt (c * (s / (1 + s ^ 3))) ≤
-              Real.sqrt (c * ((1 / 32 : ℝ) * τ₀ / (1 + τ₀ ^ 3))) := by
-            rw [← Real.sqrt_sq (by norm_num : (0 : ℝ) ≤ 1 / 16), ← Real.sqrt_mul (by norm_num)]
-            apply Real.sqrt_le_sqrt
-            have : (1 / 16 : ℝ) ^ 2 * (c * (s / (1 + s ^ 3))) ≤
-                c * ((1 / 256 : ℝ) * (s / (1 + s ^ 3))) := by ring_nf; rfl
-            exact this.trans (mul_le_mul_of_nonneg_left hlam_lb hc0.le)
-          have hden_eq : (1 / 16 : ℝ) * Real.sqrt (c * (s / (1 + s ^ 3))) =
-              (1 / 16 : ℝ) * (c ^ (1 / 2 : ℝ) * Real.sqrt (s / (1 + s ^ 3))) := by
-            rw [Real.sqrt_mul hc0.le, Real.sqrt_eq_rpow]
-          have hc_comb : c ^ (5 / 6 : ℝ) / c ^ (1 / 2 : ℝ) = c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) := by
-            rw [div_eq_mul_inv, Real.rpow_neg hc0.le]
-          have hos := outer_saddle_factor_le hs
-          have h_pref_nn : 0 ≤ 128 * C_bv * σ₀ * (c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ))) := by
-            dsimp [C_bv]; positivity
-          calc ‖∫ τ in u..v, F₂ τ‖
-              ≤ 8 * ((B - (eVariationOn h₂ (Icc s (2 * s))).toReal) + (eVariationOn h₂ (Icc u v)).toReal) /
-                  Real.sqrt (c * ((1 / 32 : ℝ) * τ₀ / (1 + τ₀ ^ 3))) := hvdc
-            _ ≤ 8 * B / Real.sqrt (c * ((1 / 32 : ℝ) * τ₀ / (1 + τ₀ ^ 3))) := by gcongr; linarith
-            _ ≤ 8 * B / ((1 / 16 : ℝ) * (c ^ (1 / 2 : ℝ) * Real.sqrt (s / (1 + s ^ 3)))) := by
-                refine div_le_div_of_nonneg_left (by dsimp [B, C_bv]; positivity) (by positivity) ?_
-                rw [← hden_eq]; exact hden_sqrt
-            _ = (128 * C_bv * σ₀ * (c ^ (5 / 6 : ℝ) / c ^ (1 / 2 : ℝ))) *
-                  ((1 + s ^ (-2 : ℝ)) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (7 : ℝ) * Real.exp (-s ^ 2) /
-                    Real.sqrt (s / (1 + s ^ 3))) := by dsimp [B]; ring
-            _ = (128 * C_bv * σ₀ * (c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)))) *
-                  ((1 + s ^ (-2 : ℝ)) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (7 : ℝ) * Real.exp (-s ^ 2) /
-                    Real.sqrt (s / (1 + s ^ 3))) := by rw [hc_comb]
-            _ ≤ (128 * C_bv * σ₀ * (c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)))) * (2 ^ 10 * (Nat.factorial 7 : ℝ)) :=
-                mul_le_mul_of_nonneg_left hos h_pref_nn
-            _ = C_s * σ₀ * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) := by dsimp [C_s]; ring
-        have h_left : ‖∫ τ in x₁..m, F₂ τ‖ ≤ C_s * σ₀ * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) := by
-          rcases le_or_gt τ₀ x₁ with hτx | hxτ
-          · have hm_eq : m = x₁ := by
-              show min x₂ (max x₁ τ₀) = x₁
-              rw [max_eq_left hτx]; exact min_eq_right hx1_le_x2
-            rw [hm_eq, intervalIntegral.integral_same, norm_zero]; dsimp [C_s, C_bv]; positivity
-          · have hτ8 : 4 * ρr ≤ τ₀ / 2 := by
-              have hax : a ≤ x₁ := ha_le_x1
-              linarith [show a = 8 * ρr from rfl]
-            have hm_le : m ≤ τ₀ := (min_le_right _ _).trans (max_le hxτ.le le_rfl)
-            refine hvdc2_out hτ8 hx1_ge hx1_m (hm_le.trans (by linarith)) hx1_ge (by linarith) ⟨?_, by linarith⟩
-            have : 1 + τ₀ ^ 3 = 1 + 8 * (τ₀ / 2) ^ 3 := by ring
-            linarith [this]
-        have h_right : ‖∫ τ in m..x₂, F₂ τ‖ ≤ C_s * σ₀ * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) := by
-          rcases le_or_gt x₂ τ₀ with hxτ | hτx
-          · have hm_eq : m = x₂ := by
-              show min x₂ (max x₁ τ₀) = x₂
-              exact min_eq_left (hxτ.trans (le_max_right _ _))
-            rw [hm_eq, intervalIntegral.integral_same, norm_zero]; dsimp [C_s, C_bv]; positivity
-          · have hm_ge : τ₀ ≤ m := le_min hτx.le (le_max_right _ _)
-            refine hvdc2_out hcond.le (by linarith) hm_x2 hx2_le hm_ge hx2_le ⟨?_, le_rfl⟩
-            linarith [pow_nonneg hτ₀_pos.le 3]
-        calc ‖∫ τ in x₁..x₂, F₂ τ‖
-            ≤ ‖∫ τ in x₁..m, F₂ τ‖ + ‖∫ τ in m..x₂, F₂ τ‖ := by rw [hsplit_m]; exact norm_add_le _ _
-          _ ≤ _ := by linarith
-      · rw [ite_eq_right.2 (fun h => absurd h hcond), mul_zero]
+        by_cases hB : B < τ₀ / 2
+        · have hx1 : x₁ = B := min_eq_left (le_trans hB.le (le_max_right _ _))
+          have hx2 : x₂ = B := min_eq_left (le_trans (by linarith only [hB, hτ₀_pos]) (le_max_right _ _))
+          rw [hx1, hx2, intervalIntegral.integral_same, norm_zero]
+          have hC_s_nn : 0 ≤ C_s := by dsimp [C_s, C_bv]; positivity
+          positivity
+        · have hB_ge : τ₀ / 2 ≤ B := not_lt.1 hB
+          have hx1_ge : τ₀ / 2 ≤ x₁ := le_min hB_ge (le_max_right _ _)
+          have hx2_le : x₂ ≤ 2 * τ₀ := (min_le_right _ _).trans (max_le (by dsimp [a]; linarith only [hcond]) le_rfl)
+          set m := min x₂ (max x₁ τ₀)
+          have hx1_m : x₁ ≤ m := le_min hx1_le_x2 (le_max_left _ _)
+          have hm_x2 : m ≤ x₂ := min_le_left _ _
+          have hsplit_m : ∫ τ in x₁..x₂, F₂ τ = (∫ τ in x₁..m, F₂ τ) + ∫ τ in m..x₂, F₂ τ :=
+            (intervalIntegral.integral_add_adjacent_intervals
+              (hF₂_cont.intervalIntegrable (μ := volume) x₁ m)
+              (hF₂_cont.intervalIntegrable (μ := volume) m x₂)).symm
+          have hvdc2_out : ∀ {u v s : ℝ}, 4 * ρr ≤ s → τ₀ / 2 ≤ u → u ≤ v → v ≤ 2 * τ₀ →
+              s ≤ u → v ≤ 2 * s → (1 + τ₀ ^ 3 ≤ 8 * (1 + s ^ 3) ∧ s ≤ τ₀) →
+              ‖∫ τ in u..v, F₂ τ‖ ≤ C_s * σ₀ * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) := by
+            intro u v s hs_ge hu_lo huv hv_hi hsu hv2s ⟨hden1, hs_le⟩
+            have hs : 0 < s := lt_of_lt_of_le (by positivity) hs_ge
+            have hsub : Icc u v ⊆ Ioi 0 := fun τ hτ => lt_of_lt_of_le (half_pos hτ₀_pos) (hu_lo.trans hτ.1)
+            have hsub_s : Icc u v ⊆ Icc s (2 * s) := Icc_subset_Icc hsu hv2s
+            have hbv_s := (hh₂_bv s hs_ge).1
+            have hbv_uv : BoundedVariationOn h₂ (Icc u v) := hbv_s.mono hsub_s
+            have htv_uv : (eVariationOn h₂ (Icc u v)).toReal ≤ (eVariationOn h₂ (Icc s (2 * s))).toReal :=
+              ENNReal.toReal_mono hbv_s (eVariationOn.mono h₂ hsub_s)
+            set B' := C_bv * σ₀ * c ^ (5 / 6 : ℝ) * (1 + s ^ (-2 : ℝ)) * s ^ (5 / 2 : ℝ) *
+              (1 + s) ^ (7 : ℝ) * Real.exp (-s ^ 2)
+            have hlam_pos : 0 < (1 / 32 : ℝ) * τ₀ / (1 + τ₀ ^ 3) := by positivity
+            have hvdc := van_der_corput_second_comp (w := id) (w' := fun _ => 1)
+              (M := B' - (eVariationOn h₂ (Icc s (2 * s))).toReal)
+              huv hc0 hlam_pos (fun x _ => hasDerivAt_id x) continuousOn_const (fun _ _ => zero_le_one)
+              (fun y hy => hφ y (hsub hy)) (fun y hy => hφ' y (hsub hy))
+              (Or.elim hφ'_mono (fun hm => Or.inl (hm.mono hsub)) (fun ha => Or.inr (ha.mono hsub)))
+              (fun y hy => h_mid hτ₀_pos y (hu_lo.trans hy.1) (hy.2.trans hv_hi))
+              hh₂_cont.continuousOn hbv_uv
+              (fun τ hτ => le_sub_iff_add_le.2 ((hh₂_bv s hs_ge).2 τ (hsub_s hτ)))
+            have hF_rw : (fun x => h₂ x * (1 : ℂ) * Complex.exp (Complex.I * (c : ℂ) * (φ x : ℂ))) = F₂ :=
+              funext fun τ => (hF₂_eq τ).symm
+            change ‖∫ τ in u..v, h₂ τ * (1 : ℂ) * Complex.exp (Complex.I * (c : ℂ) * (φ τ : ℂ))‖ ≤ _ at hvdc
+            rw [hF_rw] at hvdc
+            have hτ_gt_s : (1 / 8 : ℝ) * (s / (1 + s ^ 3)) ≤ τ₀ / (1 + τ₀ ^ 3) := by
+              rw [show (1 / 8 : ℝ) * (s / (1 + s ^ 3)) = (s / 8) / (1 + s ^ 3) by ring,
+                div_le_div_iff₀ (by positivity) (by positivity)]
+              have h1 : s * (1 + τ₀ ^ 3) ≤ s * (8 * (1 + s ^ 3)) := mul_le_mul_of_nonneg_left hden1 hs.le
+              have h2 : s * (8 * (1 + s ^ 3)) ≤ 8 * τ₀ * (1 + s ^ 3) := by
+                nlinarith [pow_pos hs 3]
+              calc (s / 8) * (1 + τ₀ ^ 3) = (s * (1 + τ₀ ^ 3)) / 8 := by ring
+                _ ≤ (s * (8 * (1 + s ^ 3))) / 8 := div_le_div_of_nonneg_right h1 (by norm_num)
+                _ ≤ (8 * τ₀ * (1 + s ^ 3)) / 8 := div_le_div_of_nonneg_right h2 (by norm_num)
+                _ = τ₀ * (1 + s ^ 3) := by ring
+            have hlam_lb : (1 / 256 : ℝ) * (s / (1 + s ^ 3)) ≤ (1 / 32 : ℝ) * τ₀ / (1 + τ₀ ^ 3) := by
+              calc (1 / 256 : ℝ) * (s / (1 + s ^ 3))
+                  = (1 / 32 : ℝ) * ((1 / 8 : ℝ) * (s / (1 + s ^ 3))) := by ring
+                _ ≤ (1 / 32 : ℝ) * (τ₀ / (1 + τ₀ ^ 3)) := mul_le_mul_of_nonneg_left hτ_gt_s (by norm_num)
+                _ = (1 / 32 : ℝ) * τ₀ / (1 + τ₀ ^ 3) := by ring
+            have hden_sqrt : (1 / 16 : ℝ) * Real.sqrt (c * (s / (1 + s ^ 3))) ≤
+                Real.sqrt (c * ((1 / 32 : ℝ) * τ₀ / (1 + τ₀ ^ 3))) := by
+              rw [← Real.sqrt_sq (by norm_num : (0 : ℝ) ≤ 1 / 16), ← Real.sqrt_mul (by norm_num)]
+              apply Real.sqrt_le_sqrt
+              have : (1 / 16 : ℝ) ^ 2 * (c * (s / (1 + s ^ 3))) ≤
+                  c * ((1 / 256 : ℝ) * (s / (1 + s ^ 3))) := by ring_nf; rfl
+              exact this.trans (mul_le_mul_of_nonneg_left hlam_lb hc0.le)
+            have hden_eq : (1 / 16 : ℝ) * Real.sqrt (c * (s / (1 + s ^ 3))) =
+                (1 / 16 : ℝ) * (c ^ (1 / 2 : ℝ) * Real.sqrt (s / (1 + s ^ 3))) := by
+              rw [Real.sqrt_mul hc0.le, Real.sqrt_eq_rpow]
+            have hc_comb : c ^ (5 / 6 : ℝ) / c ^ (1 / 2 : ℝ) = c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) := by
+              rw [div_eq_mul_inv, Real.rpow_neg hc0.le]
+            have hos := outer_saddle_factor_le hs
+            have h_pref_nn : 0 ≤ 128 * C_bv * σ₀ * (c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ))) := by
+              dsimp [C_bv]; positivity
+            calc ‖∫ τ in u..v, F₂ τ‖
+                ≤ 8 * ((B' - (eVariationOn h₂ (Icc s (2 * s))).toReal) + (eVariationOn h₂ (Icc u v)).toReal) /
+                    Real.sqrt (c * ((1 / 32 : ℝ) * τ₀ / (1 + τ₀ ^ 3))) := hvdc
+              _ ≤ 8 * B' / Real.sqrt (c * ((1 / 32 : ℝ) * τ₀ / (1 + τ₀ ^ 3))) := by gcongr; linarith only [htv_uv]
+              _ ≤ 8 * B' / ((1 / 16 : ℝ) * (c ^ (1 / 2 : ℝ) * Real.sqrt (s / (1 + s ^ 3)))) := by
+                  refine div_le_div_of_nonneg_left (by dsimp [B', C_bv]; positivity) (by positivity) ?_
+                  rw [← hden_eq]; exact hden_sqrt
+              _ = (128 * C_bv * σ₀ * (c ^ (5 / 6 : ℝ) / c ^ (1 / 2 : ℝ))) *
+                    ((1 + s ^ (-2 : ℝ)) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (7 : ℝ) * Real.exp (-s ^ 2) /
+                      Real.sqrt (s / (1 + s ^ 3))) := by dsimp [B']; ring
+              _ = (128 * C_bv * σ₀ * (c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)))) *
+                    ((1 + s ^ (-2 : ℝ)) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (7 : ℝ) * Real.exp (-s ^ 2) /
+                      Real.sqrt (s / (1 + s ^ 3))) := by rw [hc_comb]
+              _ ≤ (128 * C_bv * σ₀ * (c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)))) * (2 ^ 10 * (Nat.factorial 7 : ℝ)) :=
+                  mul_le_mul_of_nonneg_left hos h_pref_nn
+              _ = C_s * σ₀ * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) := by dsimp [C_s]; ring
+          have h_left : ‖∫ τ in x₁..m, F₂ τ‖ ≤ C_s * σ₀ * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) := by
+            rcases le_or_gt τ₀ x₁ with hτx | hxτ
+            · have hm_eq : m = x₁ := by
+                show min x₂ (max x₁ τ₀) = x₁
+                rw [max_eq_left hτx]; exact min_eq_right hx1_le_x2
+              rw [hm_eq, intervalIntegral.integral_same, norm_zero]; dsimp [C_s, C_bv]; positivity
+            · have hτ8 : 4 * ρr ≤ τ₀ / 2 := by
+                have hax : a ≤ x₁ := ha_le_x1
+                linarith only [hax, hxτ, show a = 8 * ρr from rfl]
+              have hm_le : m ≤ τ₀ := (min_le_right _ _).trans (max_le hxτ.le le_rfl)
+              refine hvdc2_out hτ8 hx1_ge hx1_m (hm_le.trans (by linarith only [hτ₀_pos]))
+                hx1_ge (by linarith only [hm_le]) ⟨?_, by linarith only [hτ₀_pos]⟩
+              have : 1 + τ₀ ^ 3 = 1 + 8 * (τ₀ / 2) ^ 3 := by ring
+              linarith only [this]
+          have h_right : ‖∫ τ in m..x₂, F₂ τ‖ ≤ C_s * σ₀ * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) := by
+            rcases le_or_gt x₂ τ₀ with hxτ | hτx
+            · have hm_eq : m = x₂ := by
+                show min x₂ (max x₁ τ₀) = x₂
+                exact min_eq_left (hxτ.trans (le_max_right _ _))
+              rw [hm_eq, intervalIntegral.integral_same, norm_zero]; dsimp [C_s, C_bv]; positivity
+            · have hm_ge : τ₀ ≤ m := le_min hτx.le (le_max_right _ _)
+              refine hvdc2_out hcond.le (by linarith only [hm_ge, hτ₀_pos]) hm_x2 hx2_le hm_ge hx2_le ⟨?_, le_rfl⟩
+              linarith only [pow_nonneg hτ₀_pos.le 3]
+          calc ‖∫ τ in x₁..x₂, F₂ τ‖
+              ≤ ‖∫ τ in x₁..m, F₂ τ‖ + ‖∫ τ in m..x₂, F₂ τ‖ := by rw [hsplit_m]; exact norm_add_le _ _
+            _ ≤ _ := by linarith only [h_left, h_right]
+      · rw [ite_eq_right hcond, mul_zero]
         have hx_eq : x₁ = x₂ := by
           have hle : τ₀ ≤ 4 * ρr := not_lt.1 hcond
           have hx1 : x₁ = a := by
             show min B (max a (τ₀ / 2)) = a
-            rw [max_eq_left (by linarith), min_eq_right ha_le_b]
+            rw [max_eq_left (by linarith), min_eq_right haB]
           have hx2 : x₂ = a := by
             show min B (max a (2 * τ₀)) = a
-            rw [max_eq_left (by linarith), min_eq_right ha_le_b]
+            rw [max_eq_left (by linarith), min_eq_right haB]
           rw [hx1, hx2]
         rw [hx_eq, intervalIntegral.integral_same, norm_zero]
     have ha_pow : a ^ (-(3 / 2 : ℝ)) ≤ ρr ^ (-(3 / 2 : ℝ)) :=
@@ -2124,36 +2175,787 @@ private lemma outer_half_osc_bound {c ε sgn σ₀ η₀ r ξ : ℝ} (hc : 3e6 �
     have h1_nn : 0 ≤ c⁻¹ * ρr ^ (-(3 / 2 : ℝ)) := by positivity
     have h2_nn : 0 ≤ c ^ (-(1 / 2 : ℝ)) * (if 4 * ρr < τ₀ then 1 else 0) := by split_ifs <;> positivity
     calc ‖∫ τ in a..B, F₂ τ‖
-        ≤ 2 * G₂ * a ^ (-(3 / 2 : ℝ)) +
+        ≤ ‖∫ τ in a..x₁, F₂ τ‖ + ‖∫ τ in x₁..x₂, F₂ τ‖ + ‖∫ τ in x₂..B, F₂ τ‖ := htri
+      _ ≤ 2 * G₂ * a ^ (-(3 / 2 : ℝ)) +
             2 * C_s * σ₀ * c ^ (5 / 6 : ℝ) * c ^ (-(1 / 2 : ℝ)) * (if 4 * ρr < τ₀ then 1 else 0) +
             2 * G₂ * a ^ (-(3 / 2 : ℝ)) := add_le_add (add_le_add hlow_bd hmid_bd) hup_bd
       _ ≤ 4 * C_f * σ₀ * c ^ (-(1 / 6 : ℝ)) * ρr ^ (-(3 / 2 : ℝ)) +
             2 * C_s * σ₀ * c ^ (5 / 6 : ℝ) * (c ^ (-(1 / 2 : ℝ)) * (if 4 * ρr < τ₀ then 1 else 0)) := by
           have h4 : 2 * G₂ * a ^ (-(3 / 2 : ℝ)) + 2 * G₂ * a ^ (-(3 / 2 : ℝ)) ≤
               4 * G₂ * ρr ^ (-(3 / 2 : ℝ)) := by
-            have : 0 ≤ G₂ := hG₂_nn
-            nlinarith [ha_pow]
+            have h1 := mul_le_mul_of_nonneg_left ha_pow hG₂_nn
+            linarith only [h1]
           dsimp [G₂] at h4 ⊢
-          linarith [h4]
+          linarith only [h4]
       _ = 4 * C_f * σ₀ * c ^ (5 / 6 : ℝ) * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ))) +
             2 * C_s * σ₀ * c ^ (5 / 6 : ℝ) * (c ^ (-(1 / 2 : ℝ)) * (if 4 * ρr < τ₀ then 1 else 0)) := by
           rw [hc_comb']; ring
       _ ≤ C_out * σ₀ * c ^ (5 / 6 : ℝ) * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ))) +
             C_out * σ₀ * c ^ (5 / 6 : ℝ) * (c ^ (-(1 / 2 : ℝ)) * (if 4 * ρr < τ₀ then 1 else 0)) := by
-          refine add_le_add ?_ ?_ <;> gcongr
+          have h01 : 0 ≤ σ₀ * c ^ (5 / 6 : ℝ) * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ))) :=
+            mul_nonneg (mul_nonneg hσ₀.le (Real.rpow_nonneg hc0.le _)) h1_nn
+          have h02 : 0 ≤ σ₀ * c ^ (5 / 6 : ℝ) * (c ^ (-(1 / 2 : ℝ)) * (if 4 * ρr < τ₀ then 1 else 0)) :=
+            mul_nonneg (mul_nonneg hσ₀.le (Real.rpow_nonneg hc0.le _)) h2_nn
+          have t1 : (4 * C_f) * (σ₀ * c ^ (5 / 6 : ℝ) * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ)))) ≤
+              C_out * (σ₀ * c ^ (5 / 6 : ℝ) * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ)))) :=
+            mul_le_mul_of_nonneg_right hCf_le h01
+          have t2 : (2 * C_s) * (σ₀ * c ^ (5 / 6 : ℝ) * (c ^ (-(1 / 2 : ℝ)) * (if 4 * ρr < τ₀ then 1 else 0))) ≤
+              C_out * (σ₀ * c ^ (5 / 6 : ℝ) * (c ^ (-(1 / 2 : ℝ)) * (if 4 * ρr < τ₀ then 1 else 0))) :=
+            mul_le_mul_of_nonneg_right hCs_le h02
+          linarith only [t1, t2]
       _ = _ := by ring
   have hInt_a : IntegrableOn F₂ (Ioi a) := hInt.mono_set (Ioi_subset_Ioi (by positivity))
-  have htend := (intervalIntegral_tendsto_integral_Ioi ha_pos hInt_a).norm
+  have htend := (intervalIntegral_tendsto_integral_Ioi a hInt_a tendsto_id).norm
   exact le_of_tendsto htend (eventually_atTop.2 ⟨a, fun B hB => hfin_bd B hB⟩)
 
 end ThreePieces
 
 section Assembly
 
+private lemma integral_real_eq_pos_add_neg {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    {g : ℝ → E} (hg : Integrable g) :
+    ∫ τ : ℝ, g τ = (∫ τ in Ioi (0 : ℝ), g τ) + ∫ τ in Ioi (0 : ℝ), g (-τ) := by
+  have h1 := integral_add_compl (s := Ioi (0 : ℝ)) measurableSet_Ioi hg
+  have hcompl : ∫ τ in (Ioi (0 : ℝ))ᶜ, g τ = ∫ τ in Ioi (0 : ℝ), g (-τ) := by
+    rw [compl_Ioi]
+    have h0 := integral_comp_neg_Ioi (0 : ℝ) g
+    rw [neg_zero] at h0
+    exact h0.symm
+  rw [← h1, hcompl, add_comm]
+
+private lemma scale_J_norm_le {c ε ξ M : ℝ} {ζ₀ : ℂ} {wt : ℝ → ℝ}
+    (hc : 3e6 ≤ c) (hσ₀ : 0 < ζ₀.re) (hσ₁ : ζ₀.re < 1)
+    (hQ_pt : ∀ τ : ℝ, |stripPoissonQ ζ₀.re ζ₀.im ε τ| ≤ 1 / ζ₀.re)
+    (hwt_cont : Continuous wt) (hwt_even : ∀ τ : ℝ, wt (-τ) = wt τ) (hwt_bd : ∀ τ : ℝ, |wt τ| ≤ 1)
+    (hpos : ‖∫ τ in Ioi (0 : ℝ), (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε (1 * τ) : ℂ) *
+      tebAmp0 c (1 * τ) * hankelBandK c (1 * τ) ξ‖ ≤ M)
+    (hneg : ‖∫ τ in Ioi (0 : ℝ), (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε (-1 * τ) : ℂ) *
+      tebAmp0 c (-1 * τ) * hankelBandK c (-1 * τ) ξ‖ ≤ M) :
+    ‖∫ τ : ℝ, (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
+      tebAmp0 c τ * hankelBandK c τ ξ‖ ≤ 2 * M := by
+  have hc0 : 0 < c := by linarith only [hc]
+  have hE : Continuous (fun τ => hankelBandPhi τ ξ) := by
+    have : (fun τ => hankelBandPhi τ ξ) = fun τ => Real.log (Real.pi ^ 2 * ξ) * τ + edgePhi 0 τ :=
+      funext fun τ => hankelBandPhi_eq τ ξ
+    rw [this]; exact (continuous_const.mul continuous_id).add continuous_edgePhi_zero
+  have hKc : Continuous (fun τ => hankelBandK c τ ξ) := by
+    unfold hankelBandK
+    exact ((hankelEdgeAmp_continuous hc0).mul continuous_const).mul
+      (Complex.continuous_exp.comp (continuous_const.mul
+        (continuous_const.sub (continuous_const.mul (Complex.continuous_ofReal.comp hE)))))
+  have hJ_cont : Continuous (fun τ : ℝ => (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
+      tebAmp0 c τ * hankelBandK c τ ξ) :=
+    ((Complex.continuous_ofReal.comp hwt_cont).mul
+      (Complex.continuous_ofReal.comp (stripPoissonQ_continuous hσ₀ hσ₁))).mul
+      (continuous_tebAmp0 c) |>.mul hKc
+  have hF_dom : Integrable (fun τ : ℝ => (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
+      tebAmp0 c τ * hankelBandK c τ ξ) := by
+    have hK_bd : ∀ τ, ‖hankelBandK c τ ξ‖ ≤ 4 * (1 + |τ|) ^ (1 / 2 : ℝ) := fun τ => by
+      rw [norm_hankelBandK hc0]
+      have := hankelEdgeAmp_bound (by linarith only [hc] : 1 ≤ c) τ
+      linarith only [this, norm_nonneg (hankelEdgeAmp' c τ)]
+    let dom : ℝ → ℝ := fun τ => (1 / ζ₀.re) * 4 * c ^ (5 / 6 : ℝ) *
+      ((1 + |τ|) ^ (11 / 2 : ℝ) * Real.exp (-τ ^ 2))
+    have hdom_int : Integrable dom :=
+      (integrable_one_add_abs_rpow_mul_exp_neg_sq (by norm_num : (0 : ℝ) ≤ 11 / 2)).const_mul _
+    refine hdom_int.mono' hJ_cont.aestronglyMeasurable (ae_of_all _ fun τ => ?_)
+    have hamp := norm_tebAmp0_le hc0.le (τ := τ)
+    have hpow : |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ) ≤
+        (1 + |τ|) ^ (11 / 2 : ℝ) := by
+      have h1 : |τ| ^ (5 / 2 : ℝ) ≤ (1 + |τ|) ^ (5 / 2 : ℝ) :=
+        Real.rpow_le_rpow (abs_nonneg _) (by linarith only) (by norm_num)
+      have h2 : (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ) =
+          (1 + |τ|) ^ (11 / 2 : ℝ) := by
+        rw [← Real.rpow_add (by linarith only [abs_nonneg τ]),
+          ← Real.rpow_add (by linarith only [abs_nonneg τ])]
+        norm_num
+      calc |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ)
+          ≤ (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ) := by gcongr
+        _ = _ := h2
+    rw [norm_mul, norm_mul, norm_mul, Complex.norm_real, Complex.norm_real,
+      Real.norm_eq_abs, Real.norm_eq_abs,
+      mul_assoc (|wt τ| * |stripPoissonQ ζ₀.re ζ₀.im ε τ|)]
+    have h12 : |wt τ| * |stripPoissonQ ζ₀.re ζ₀.im ε τ| ≤ 1 * (1 / ζ₀.re) :=
+      mul_le_mul (hwt_bd τ) (hQ_pt τ) (abs_nonneg _) zero_le_one
+    have h34 : ‖tebAmp0 c τ‖ * ‖hankelBandK c τ ξ‖ ≤
+        (c ^ (5 / 6 : ℝ) * |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * Real.exp (-τ ^ 2)) *
+          (4 * (1 + |τ|) ^ (1 / 2 : ℝ)) := mul_le_mul hamp (hK_bd τ) (norm_nonneg _) (by positivity)
+    calc |wt τ| * |stripPoissonQ ζ₀.re ζ₀.im ε τ| * (‖tebAmp0 c τ‖ * ‖hankelBandK c τ ξ‖)
+        ≤ (1 * (1 / ζ₀.re)) * ((c ^ (5 / 6 : ℝ) * |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * Real.exp (-τ ^ 2)) *
+            (4 * (1 + |τ|) ^ (1 / 2 : ℝ))) :=
+          mul_le_mul h12 h34 (mul_nonneg (norm_nonneg _) (norm_nonneg _)) (by positivity)
+      _ = (1 / ζ₀.re) * 4 * c ^ (5 / 6 : ℝ) *
+            ((|τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ)) * Real.exp (-τ ^ 2)) := by ring
+      _ ≤ dom τ := by dsimp [dom]; gcongr
+  rw [integral_real_eq_pos_add_neg hF_dom]
+  have hneg_eq : (fun τ : ℝ => (wt (-τ) : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε (-τ) : ℂ) *
+        tebAmp0 c (-τ) * hankelBandK c (-τ) ξ) =
+      fun τ : ℝ => (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε (-1 * τ) : ℂ) *
+        tebAmp0 c (-1 * τ) * hankelBandK c (-1 * τ) ξ := by
+    ext τ; rw [hwt_even τ]; simp only [neg_one_mul]
+  have hpos_eq : (fun τ : ℝ => (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
+        tebAmp0 c τ * hankelBandK c τ ξ) =
+      fun τ : ℝ => (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε (1 * τ) : ℂ) *
+        tebAmp0 c (1 * τ) * hankelBandK c (1 * τ) ξ := by
+    ext τ; simp only [one_mul]
+  rw [hneg_eq, hpos_eq]
+  calc ‖(∫ τ in Ioi (0 : ℝ), _) + ∫ τ in Ioi (0 : ℝ), _‖
+      ≤ ‖∫ τ in Ioi (0 : ℝ), _‖ + ‖∫ τ in Ioi (0 : ℝ), _‖ := norm_add_le _ _
+    _ ≤ M + M := add_le_add hpos hneg
+    _ = 2 * M := by ring
+
 /-- Universal constant `C_Y'` in `(ct:Wbound)` (`constant_terms_lower.tex` `ct:dyadic` (1) Step 1a). -/
 noncomputable def hankelScaleBandC : ℝ := 1e20
 
 lemma hankelScaleBandC_pos : 0 < hankelScaleBandC := by unfold hankelScaleBandC; norm_num
+
+private lemma inner_dm_pos_bound {c u_T R_J r : ℝ} {f : ℝ → ℝ} {ζ₀ : ℂ} {J₁ : ℝ → ℂ}
+    (hc : 3e6 ≤ c) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T) (hr_lb : 256 ≤ r) (hr_RJ : r ≤ R_J)
+    (hRJ_ub : R_J ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1)
+    (hσ₀ : 0 < ζ₀.re) (hfinP : IsFiniteMeasure (hankelDmPos c f))
+    (hdmPos_le : (hankelDmPos c f univ).toReal ≤ 1)
+    (hJ₁_pos_int : IntegrableOn J₁ (Ioi 0) (hankelDmPos c f))
+    (hJ₁_pt : ∀ ξ ∈ Ioi (0 : ℝ), ‖J₁ ξ‖ ≤
+      2 * 27380416512 * (1 / ζ₀.re) * c ^ (5 / 6 : ℝ) *
+        (c⁻¹ * rhoR hankelBandParams c r ^ (1 / 2 : ℝ) +
+          c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2 *
+            (if hankelBandParams.A_0 * c ^ (-(1 / 3 : ℝ)) < hankelBandTau0 ξ ∧
+                hankelBandTau0 ξ < 32 * rhoR hankelBandParams c r then 1 else 0))) :
+    ‖∫ ξ in Ioi (0 : ℝ), J₁ ξ ∂hankelDmPos c f‖ ≤
+      2 * 27380416512 * (1 / ζ₀.re) * c ^ (5 / 6 : ℝ) *
+        (c⁻¹ * rhoR hankelBandParams c r ^ (1 / 2 : ℝ) +
+          hankelBandParams.C_τ * c ^ (-(7 / 6 : ℝ)) *
+            ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-min (1028 * r) R_J)),
+              (-hankelBandU c ξ) ∂hankelDmPos c f +
+          1024 * hankelBandParams.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r * hankelBootB2 c f R_J) := by
+  let P := hankelBandParams
+  have hc0 : 0 < c := by linarith only [hc]
+  have hr0 : 0 < r := by linarith only [hr_lb]
+  set δ₀ := P.A_0 * c ^ (-(1 / 3 : ℝ))
+  set ρr := rhoR P c r
+  set r_til := min (1028 * r) R_J
+  have hr_til_pos : 0 < r_til := lt_min (by positivity) (lt_of_lt_of_le hr0 hr_RJ)
+  have hr_til_RJ : r_til ≤ R_J := min_le_right _ _
+  have hRJ_A : R_J ≤ langerRadius c := hRJ_ub.trans (hankelBand_radius_ge_one hc)
+  have hr_til_A : r_til ≤ langerRadius c := hr_til_RJ.trans hRJ_A
+  have hu_abs : |u_T| ≤ langerRadius c := hankelBoot_abs_uT hc hu0 hu3
+  have hr_til_u : -r_til ≤ u_T := by
+    show -min (1028 * r) R_J ≤ u_T
+    rcases le_total (1028 * r) R_J with h | h
+    · rw [min_eq_left h]; linarith only [hr_lb, hu3]
+    · rw [min_eq_right h]; linarith only [hr_lb, hr_RJ, hu3]
+  have hr_til_neg_A : |-r_til| ≤ langerRadius c := by
+    rw [abs_neg, abs_of_pos hr_til_pos]; exact hr_til_A
+  have hmonoξ : hankelXi c u_T ≤ hankelXi c (-r_til) :=
+    le_of_mul_le_mul_left (hankel_phi_anti hc0 hr_til_neg_A hu_abs hr_til_u) hc0
+  have hRJ_neg_A : |-R_J| ≤ langerRadius c := by
+    rw [abs_neg, abs_of_pos (lt_of_lt_of_le hr0 hr_RJ)]; exact hRJ_A
+  have hmonoξ_RJ : hankelXi c (-r_til) ≤ hankelXi c (-R_J) :=
+    le_of_mul_le_mul_left (hankel_phi_anti hc0 hRJ_neg_A hr_til_neg_A (by linarith only [hr_til_RJ])) hc0
+  have hξT_pos : 0 < hankelXi c u_T := hankelXi_pos hc0 hu_abs
+  let C_J1 : ℝ := 2 * 27380416512 * (1 / ζ₀.re) * c ^ (5 / 6 : ℝ)
+  have hC_J1_pos : 0 < C_J1 := by positivity
+  let bandSet := Icc (hankelXi c u_T) (hankelXi c (-r_til))
+  let tailSet := Ici (hankelXi c (-R_J))
+  let uFn : ℝ → ℝ := fun ξ => -hankelBandU c ξ
+  let f₁ : ℝ → ℝ := fun _ => C_J1 * (c⁻¹ * ρr ^ (1 / 2 : ℝ))
+  let f₂ : ℝ → ℝ := fun ξ => C_J1 * (P.C_τ * c ^ (-(7 / 6 : ℝ))) * bandSet.indicator uFn ξ
+  let f₃ : ℝ → ℝ := fun ξ => C_J1 * (1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r) *
+    tailSet.indicator (fun _ => (1 : ℝ)) ξ
+  have hf₁_int : IntegrableOn f₁ (Ioi 0) (hankelDmPos c f) :=
+    integrableOn_const (hs := (measure_lt_top (hankelDmPos c f) _).ne)
+  have hT_wb := hankelXi_w_bounds hc0 hu_abs hu0
+  have hr_wb := hankelXi_w_bounds hc0 hr_til_neg_A (by linarith only [hr_til_pos])
+  have huFn_contOn : ContinuousOn uFn bandSet := by
+    intro ξ hξ
+    have hpi_sq_nn : 0 ≤ Real.pi ^ 2 := sq_nonneg Real.pi
+    have hle1 : Real.pi ^ 2 * hankelXi c u_T ≤ Real.pi ^ 2 * ξ :=
+      mul_le_mul_of_nonneg_left hξ.1 hpi_sq_nn
+    have hle2 : Real.pi ^ 2 * ξ ≤ Real.pi ^ 2 * hankelXi c (-r_til) :=
+      mul_le_mul_of_nonneg_left hξ.2 hpi_sq_nn
+    have hw_lo : 0 ≤ Real.pi ^ 2 * ξ - 1 := by linarith only [hle1, hT_wb.1]
+    have hw_hi : Real.pi ^ 2 * ξ - 1 ≤ 5e-4 := by linarith only [hle2, hr_wb.2.1]
+    exact (hankelBandU_continuousAt hw_lo hw_hi).continuousWithinAt.neg
+  have hf₂_int : IntegrableOn f₂ (Ioi 0) (hankelDmPos c f) := by
+    have hband_int : IntegrableOn uFn bandSet (hankelDmPos c f) := huFn_contOn.integrableOn_Icc
+    have hind_int : Integrable (bandSet.indicator uFn) (hankelDmPos c f) :=
+      (integrable_indicator_iff measurableSet_Icc).2 hband_int
+    exact (hind_int.const_mul _).integrableOn
+  have hf₃_int : IntegrableOn f₃ (Ioi 0) (hankelDmPos c f) := by
+    have hind_int : Integrable (tailSet.indicator (fun _ => (1 : ℝ))) (hankelDmPos c f) :=
+      (integrable_indicator_iff measurableSet_Ici).2
+        (integrableOn_const (hs := (measure_lt_top (hankelDmPos c f) _).ne))
+    exact (hind_int.const_mul _).integrableOn
+  have hc_pow : c ^ (-(1 / 2 : ℝ)) * (c ^ (-(2 / 3 : ℝ))) = c ^ (-(7 / 6 : ℝ)) := by
+    rw [← Real.rpow_add hc0]; norm_num
+  have hρ_sq : (32 * ρr) ^ 2 = 1024 * P.κ_ζ ^ 2 * c ^ (-(2 / 3 : ℝ)) * r := by
+    have hdef : ρr = P.κ_ζ * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r := rfl
+    rw [hdef]
+    have h1 : (c ^ (-(1 / 3 : ℝ))) ^ 2 = c ^ (-(2 / 3 : ℝ)) := by
+      rw [← Real.rpow_natCast, ← Real.rpow_mul hc0.le]; norm_num
+    have h2 : Real.sqrt r ^ 2 = r := Real.sq_sqrt hr0.le
+    calc (32 * (P.κ_ζ * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r)) ^ 2
+        = 1024 * P.κ_ζ ^ 2 * (c ^ (-(1 / 3 : ℝ))) ^ 2 * Real.sqrt r ^ 2 := by ring
+      _ = 1024 * P.κ_ζ ^ 2 * c ^ (-(2 / 3 : ℝ)) * r := by rw [h1, h2]
+  have hae : ∀ᵐ ξ ∂(hankelDmPos c f).restrict (Ioi 0), ‖J₁ ξ‖ ≤ f₁ ξ + f₂ ξ + f₃ ξ := by
+    rw [ae_restrict_iff' measurableSet_Ioi]
+    refine ae_of_all _ fun ξ hξ_pos => ?_
+    have hj := hJ₁_pt ξ hξ_pos
+    dsimp only [f₁, f₂, f₃]
+    have hτ0_nn : 0 ≤ hankelBandTau0 ξ := hankelBandTau0_nonneg ξ
+    have hCτ_pos : 0 < P.C_τ * c ^ (-(2 / 3 : ℝ)) := by have := P.hC_τ; positivity
+    have hband_nn : 0 ≤ bandSet.indicator uFn ξ := by
+      refine Set.indicator_nonneg (fun y hy => ?_) ξ
+      have htb := hankelBandTau0_band hc hu0 hu3 hr_til_pos.le hr_til_A hy
+      exact nonneg_of_mul_nonneg_right ((sq_nonneg (hankelBandTau0 y)).trans htb) hCτ_pos
+    have htail_nn : 0 ≤ tailSet.indicator (fun _ => (1 : ℝ)) ξ :=
+      Set.indicator_nonneg (fun _ _ => zero_le_one) ξ
+    have h_term : c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2 *
+          (if δ₀ < hankelBandTau0 ξ ∧ hankelBandTau0 ξ < 32 * ρr then 1 else 0) ≤
+        P.C_τ * c ^ (-(7 / 6 : ℝ)) * bandSet.indicator uFn ξ +
+        1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r * tailSet.indicator (fun _ => (1 : ℝ)) ξ := by
+      by_cases hcond : δ₀ < hankelBandTau0 ξ ∧ hankelBandTau0 ξ < 32 * ρr
+      · rw [ite_eq_left hcond, mul_one]
+        have hu_le : hankelXi c u_T ≤ ξ := by
+          by_contra hlt; push Not at hlt
+          exact not_lt.2 (hankelBandTau0_below hc hu0 hu3 hlt) hcond.1
+        rcases le_total (1028 * r) R_J with hcase | hcase
+        · have hr_til_eq : r_til = 1028 * r := min_eq_left hcase
+          have hξ_hi : ξ ≤ hankelXi c (-r_til) := by
+            rw [hr_til_eq]
+            exact (xi_le_1028r_of_tau0_lt hc hRJ_ub hr0 hcase hcond.2).trans_eq (by congr 1; ring)
+          have hmem : ξ ∈ bandSet := ⟨hu_le, hξ_hi⟩
+          have htb := hankelBandTau0_band hc hu0 hu3 hr_til_pos.le hr_til_A hmem
+          rw [Set.indicator_of_mem hmem]
+          have hle1 : c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2 ≤ P.C_τ * c ^ (-(7 / 6 : ℝ)) * uFn ξ := by
+            calc c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2
+                ≤ c ^ (-(1 / 2 : ℝ)) * (P.C_τ * c ^ (-(2 / 3 : ℝ)) * uFn ξ) :=
+                    mul_le_mul_of_nonneg_left htb (Real.rpow_nonneg hc0.le _)
+              _ = P.C_τ * (c ^ (-(1 / 2 : ℝ)) * c ^ (-(2 / 3 : ℝ))) * uFn ξ := by ring
+              _ = _ := by rw [hc_pow]
+          have htail_0 : 0 ≤ 1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r *
+              tailSet.indicator (fun _ => (1 : ℝ)) ξ :=
+            mul_nonneg (mul_nonneg (by positivity) hr0.le) htail_nn
+          exact le_add_of_le_of_nonneg hle1 htail_0
+        · have hr_til_eq : r_til = R_J := min_eq_right hcase
+          rcases le_or_gt ξ (hankelXi c (-R_J)) with hxi | hxi
+          · have hmem : ξ ∈ bandSet := ⟨hu_le, by rw [hr_til_eq]; exact hxi⟩
+            have htb := hankelBandTau0_band hc hu0 hu3 hr_til_pos.le hr_til_A hmem
+            rw [Set.indicator_of_mem hmem]
+            have hle1 : c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2 ≤ P.C_τ * c ^ (-(7 / 6 : ℝ)) * uFn ξ := by
+              calc c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2
+                  ≤ c ^ (-(1 / 2 : ℝ)) * (P.C_τ * c ^ (-(2 / 3 : ℝ)) * uFn ξ) :=
+                      mul_le_mul_of_nonneg_left htb (Real.rpow_nonneg hc0.le _)
+                _ = P.C_τ * (c ^ (-(1 / 2 : ℝ)) * c ^ (-(2 / 3 : ℝ))) * uFn ξ := by ring
+                _ = _ := by rw [hc_pow]
+            have htail_0 : 0 ≤ 1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r *
+                tailSet.indicator (fun _ => (1 : ℝ)) ξ :=
+              mul_nonneg (mul_nonneg (by positivity) hr0.le) htail_nn
+            exact le_add_of_le_of_nonneg hle1 htail_0
+          · have hmem : ξ ∈ tailSet := hxi.le
+            rw [Set.indicator_of_mem hmem, mul_one]
+            have hsq_le : hankelBandTau0 ξ ^ 2 ≤ (32 * ρr) ^ 2 :=
+              pow_le_pow_left₀ hτ0_nn hcond.2.le 2
+            have hle2 : c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2 ≤
+                1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r := by
+              calc c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2
+                  ≤ c ^ (-(1 / 2 : ℝ)) * (32 * ρr) ^ 2 :=
+                      mul_le_mul_of_nonneg_left hsq_le (Real.rpow_nonneg hc0.le _)
+                _ = 1024 * P.κ_ζ ^ 2 * (c ^ (-(1 / 2 : ℝ)) * c ^ (-(2 / 3 : ℝ))) * r := by
+                    rw [hρ_sq]; ring
+                _ = _ := by rw [hc_pow]
+            have hband_0 : 0 ≤ P.C_τ * c ^ (-(7 / 6 : ℝ)) * bandSet.indicator uFn ξ :=
+              mul_nonneg (mul_nonneg P.hC_τ.le (Real.rpow_nonneg hc0.le _)) hband_nn
+            exact le_add_of_nonneg_of_le hband_0 hle2
+      · rw [ite_eq_right hcond, mul_zero]
+        have h1 : 0 ≤ P.C_τ * c ^ (-(7 / 6 : ℝ)) * bandSet.indicator uFn ξ :=
+          mul_nonneg (mul_nonneg P.hC_τ.le (Real.rpow_nonneg hc0.le _)) hband_nn
+        have h2 : 0 ≤ 1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r *
+            tailSet.indicator (fun _ => (1 : ℝ)) ξ :=
+          mul_nonneg (mul_nonneg (by positivity) hr0.le) htail_nn
+        exact add_nonneg h1 h2
+    have hpt : ‖J₁ ξ‖ ≤ C_J1 * (c⁻¹ * ρr ^ (1 / 2 : ℝ) +
+        P.C_τ * c ^ (-(7 / 6 : ℝ)) * bandSet.indicator uFn ξ +
+        1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r * tailSet.indicator (fun _ => (1 : ℝ)) ξ) :=
+      hj.trans (mul_le_mul_of_nonneg_left (by linarith only [h_term]) hC_J1_pos.le)
+    calc ‖J₁ ξ‖ ≤ _ := hpt
+      _ = C_J1 * (c⁻¹ * ρr ^ (1 / 2 : ℝ)) +
+          C_J1 * (P.C_τ * c ^ (-(7 / 6 : ℝ))) * bandSet.indicator uFn ξ +
+          C_J1 * (1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r) *
+            tailSet.indicator (fun _ => (1 : ℝ)) ξ := by ring
+  have hsum_int : IntegrableOn (fun ξ => f₁ ξ + f₂ ξ + f₃ ξ) (Ioi 0) (hankelDmPos c f) :=
+    (hf₁_int.add hf₂_int).add hf₃_int
+  have hρr_nn : 0 ≤ ρr := by
+    show 0 ≤ P.κ_ζ * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r
+    have := P.hκ_ζ; positivity
+  have hf₁_bd : ∫ ξ in Ioi (0 : ℝ), f₁ ξ ∂hankelDmPos c f ≤ C_J1 * (c⁻¹ * ρr ^ (1 / 2 : ℝ)) := by
+    dsimp [f₁]; rw [setIntegral_const, smul_eq_mul]
+    have hmeas : (hankelDmPos c f).real (Ioi 0) ≤ (hankelDmPos c f univ).toReal :=
+      ENNReal.toReal_mono (measure_ne_top (hankelDmPos c f) univ) (measure_mono (subset_univ _))
+    exact mul_le_of_le_one_left (mul_nonneg hC_J1_pos.le (mul_nonneg (inv_nonneg.2 hc0.le) (Real.rpow_nonneg hρr_nn _)))
+      (hmeas.trans hdmPos_le)
+  have hf₂_bd : ∫ ξ in Ioi (0 : ℝ), f₂ ξ ∂hankelDmPos c f ≤
+      C_J1 * (P.C_τ * c ^ (-(7 / 6 : ℝ))) * ∫ ξ in bandSet, uFn ξ ∂hankelDmPos c f := by
+    dsimp [f₂]; rw [integral_const_mul]
+    refine mul_le_mul_of_nonneg_left ?_ (mul_nonneg hC_J1_pos.le (by have := P.hC_τ; positivity))
+    have hband_sub : bandSet ⊆ Ioi (0 : ℝ) := fun ξ hξ => lt_of_lt_of_le hξT_pos hξ.1
+    rw [setIntegral_indicator measurableSet_Icc, inter_eq_self_of_subset_right hband_sub]
+  have hf₃_bd : ∫ ξ in Ioi (0 : ℝ), f₃ ξ ∂hankelDmPos c f ≤
+      C_J1 * (1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r) * hankelBootB2 c f R_J := by
+    dsimp [f₃]; rw [integral_const_mul]
+    refine mul_le_mul_of_nonneg_left ?_ (mul_nonneg hC_J1_pos.le (by positivity))
+    have htail_sub : tailSet ⊆ Ioi (0 : ℝ) := fun ξ hξ =>
+      lt_of_lt_of_le (lt_of_lt_of_le (lt_of_lt_of_le hξT_pos hmonoξ) hmonoξ_RJ) hξ
+    rw [setIntegral_indicator measurableSet_Ici, inter_eq_self_of_subset_right htail_sub,
+      setIntegral_const, smul_eq_mul, mul_one]
+    rfl
+  calc ‖∫ ξ in Ioi (0 : ℝ), J₁ ξ ∂hankelDmPos c f‖
+      ≤ ∫ ξ in Ioi (0 : ℝ), ‖J₁ ξ‖ ∂hankelDmPos c f := norm_integral_le_integral_norm _
+    _ ≤ ∫ ξ in Ioi (0 : ℝ), (f₁ ξ + f₂ ξ + f₃ ξ) ∂hankelDmPos c f :=
+        integral_mono_ae hJ₁_pos_int.norm hsum_int hae
+    _ = (∫ ξ in Ioi (0 : ℝ), f₁ ξ ∂hankelDmPos c f) +
+        (∫ ξ in Ioi (0 : ℝ), f₂ ξ ∂hankelDmPos c f) +
+        (∫ ξ in Ioi (0 : ℝ), f₃ ξ ∂hankelDmPos c f) := by
+        have ha1 := integral_add (hf₁_int.add hf₂_int) hf₃_int
+        have ha2 := integral_add hf₁_int hf₂_int
+        simp only [Pi.add_apply] at ha1 ha2
+        rw [ha1, ha2]
+    _ ≤ _ := by
+        have := add_le_add (add_le_add hf₁_bd hf₂_bd) hf₃_bd
+        linarith only [this]
+
+private lemma outer_dm_pos_bound {c u_T R_J r : ℝ} {f : ℝ → ℝ} {ζ₀ : ℂ} {J₂ : ℝ → ℂ}
+    (hc : 3e6 ≤ c) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T) (hr_lb : 256 ≤ r) (hr_RJ : r ≤ R_J)
+    (hRJ_ub : R_J ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1)
+    (hσ₀ : 0 < ζ₀.re) (hfinP : IsFiniteMeasure (hankelDmPos c f))
+    (hdmPos_le : (hankelDmPos c f univ).toReal ≤ 1)
+    (hJ₂_pos_int : IntegrableOn J₂ (Ioi 0) (hankelDmPos c f))
+    (hJ₂_pt : ∀ ξ ∈ Ioi (0 : ℝ), ‖J₂ ξ‖ ≤
+      2 * 3e15 * ζ₀.re * c ^ (5 / 6 : ℝ) *
+        (c⁻¹ * rhoR hankelBandParams c r ^ (-(3 / 2 : ℝ)) +
+          c ^ (-(1 / 2 : ℝ)) * (if 4 * rhoR hankelBandParams c r < hankelBandTau0 ξ then 1 else 0))) :
+    ‖∫ ξ in Ioi (0 : ℝ), J₂ ξ ∂hankelDmPos c f‖ ≤
+      2 * 3e15 * ζ₀.re * c ^ (5 / 6 : ℝ) *
+        (c⁻¹ * rhoR hankelBandParams c r ^ (-(3 / 2 : ℝ)) + c ^ (-(1 / 2 : ℝ)) * hankelBootB2 c f r) := by
+  let P := hankelBandParams
+  have hc0 : 0 < c := by linarith only [hc]
+  have hr0 : 0 < r := by linarith only [hr_lb]
+  set ρr := rhoR P c r
+  have hu_abs : |u_T| ≤ langerRadius c := hankelBoot_abs_uT hc hu0 hu3
+  have hξT_pos : 0 < hankelXi c u_T := hankelXi_pos hc0 hu_abs
+  have hrA_r : |-r| ≤ langerRadius c := by
+    rw [abs_neg, abs_of_pos hr0]
+    exact hr_RJ.trans (hRJ_ub.trans (hankelBand_radius_ge_one hc))
+  have hξr_lt : hankelXi c u_T ≤ hankelXi c (-r) :=
+    le_of_mul_le_mul_left (hankel_phi_anti hc0 hrA_r hu_abs (by linarith only [hr_lb, hu3])) hc0
+  let C_J2 : ℝ := 2 * 3e15 * ζ₀.re * c ^ (5 / 6 : ℝ)
+  let tailSet_r := Ici (hankelXi c (-r))
+  let g₁ : ℝ → ℝ := fun _ => C_J2 * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ)))
+  let g₂ : ℝ → ℝ := fun ξ => C_J2 * c ^ (-(1 / 2 : ℝ)) * tailSet_r.indicator (fun _ => (1 : ℝ)) ξ
+  have hg₁_int : IntegrableOn g₁ (Ioi 0) (hankelDmPos c f) :=
+    integrableOn_const (hs := (measure_lt_top (hankelDmPos c f) _).ne)
+  have hg₂_int : IntegrableOn g₂ (Ioi 0) (hankelDmPos c f) := by
+    have hind_int : Integrable (tailSet_r.indicator (fun _ => (1 : ℝ))) (hankelDmPos c f) :=
+      (integrable_indicator_iff measurableSet_Ici).2
+        (integrableOn_const (hs := (measure_lt_top (hankelDmPos c f) _).ne))
+    exact (hind_int.const_mul _).integrableOn
+  have hρr_nn : 0 ≤ ρr := by
+    show 0 ≤ P.κ_ζ * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r
+    have := P.hκ_ζ; positivity
+  have hae : ∀ᵐ ξ ∂(hankelDmPos c f).restrict (Ioi 0), ‖J₂ ξ‖ ≤ g₁ ξ + g₂ ξ := by
+    rw [ae_restrict_iff' measurableSet_Ioi]
+    refine ae_of_all _ fun ξ hξ_pos => ?_
+    have hj := hJ₂_pt ξ hξ_pos
+    dsimp [g₁, g₂]
+    have hind_le : (if 4 * ρr < hankelBandTau0 ξ then (1 : ℝ) else 0) ≤
+        tailSet_r.indicator (fun _ => (1 : ℝ)) ξ := by
+      by_cases hcond : 4 * ρr < hankelBandTau0 ξ
+      · rw [ite_eq_left hcond]
+        have hmem : ξ ∈ tailSet_r := by
+          by_contra hlt
+          have hlt' : ξ < hankelXi c (-r) := lt_of_not_ge hlt
+          have hτ := tau0_lt_two_rhoR_of_xi_le hc hRJ_ub hr0 hr_RJ hlt'.le
+          change hankelBandTau0 ξ < 2 * ρr at hτ
+          linarith only [hcond, hτ, hρr_nn]
+        rw [Set.indicator_of_mem hmem]
+      · rw [ite_eq_right hcond]
+        exact Set.indicator_nonneg (fun _ _ => zero_le_one) ξ
+    calc ‖J₂ ξ‖ ≤ C_J2 * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ)) +
+          c ^ (-(1 / 2 : ℝ)) * (if 4 * ρr < hankelBandTau0 ξ then 1 else 0)) := hj
+      _ ≤ C_J2 * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ)) +
+          c ^ (-(1 / 2 : ℝ)) * tailSet_r.indicator (fun _ => (1 : ℝ)) ξ) := by gcongr
+      _ = _ := by ring
+  have hC_J2_nn : 0 ≤ C_J2 := by dsimp [C_J2]; positivity
+  have hg₁_bd : ∫ ξ in Ioi (0 : ℝ), g₁ ξ ∂hankelDmPos c f ≤ C_J2 * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ))) := by
+    dsimp [g₁]; rw [setIntegral_const, smul_eq_mul]
+    have hmeas : (hankelDmPos c f).real (Ioi 0) ≤ (hankelDmPos c f univ).toReal :=
+      ENNReal.toReal_mono (measure_ne_top (hankelDmPos c f) univ) (measure_mono (subset_univ _))
+    exact mul_le_of_le_one_left (mul_nonneg hC_J2_nn (mul_nonneg (inv_nonneg.2 hc0.le) (Real.rpow_nonneg hρr_nn _)))
+      (hmeas.trans hdmPos_le)
+  have hg₂_bd : ∫ ξ in Ioi (0 : ℝ), g₂ ξ ∂hankelDmPos c f ≤
+      C_J2 * c ^ (-(1 / 2 : ℝ)) * hankelBootB2 c f r := by
+    dsimp [g₂]; rw [integral_const_mul]
+    refine mul_le_mul_of_nonneg_left ?_ (mul_nonneg hC_J2_nn (by positivity))
+    have htail_sub : tailSet_r ⊆ Ioi (0 : ℝ) := fun ξ hξ =>
+      lt_of_lt_of_le (lt_of_lt_of_le hξT_pos hξr_lt) hξ
+    rw [setIntegral_indicator measurableSet_Ici, inter_eq_self_of_subset_right htail_sub,
+      setIntegral_const, smul_eq_mul, mul_one]
+    rfl
+  calc ‖∫ ξ in Ioi (0 : ℝ), J₂ ξ ∂hankelDmPos c f‖
+      ≤ ∫ ξ in Ioi (0 : ℝ), ‖J₂ ξ‖ ∂hankelDmPos c f := norm_integral_le_integral_norm _
+    _ ≤ ∫ ξ in Ioi (0 : ℝ), (g₁ ξ + g₂ ξ) ∂hankelDmPos c f :=
+        integral_mono_ae hJ₂_pos_int.norm (hg₁_int.add hg₂_int) hae
+    _ = (∫ ξ in Ioi (0 : ℝ), g₁ ξ ∂hankelDmPos c f) +
+        (∫ ξ in Ioi (0 : ℝ), g₂ ξ ∂hankelDmPos c f) := integral_add hg₁_int hg₂_int
+    _ ≤ C_J2 * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ))) + C_J2 * c ^ (-(1 / 2 : ℝ)) * hankelBootB2 c f r :=
+        add_le_add hg₁_bd hg₂_bd
+    _ = _ := by ring
+
+private lemma hankel_H_strip_bound {c ε : ℝ} {f : ℝ → ℝ} (hc32 : 3 / 2 < c)
+    (hε : ε = 1 ∨ ε = -1) (hf : IsHankelEigenfn c ε f) (hmass : hankelMass c f = 1) :
+    ∃ M : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖tebPrefactor c ζ * hankelWtS c ε f ζ‖ ≤ M := by
+  have hc0 : 0 < c := by linarith only [hc32]
+  refine ⟨c ^ (5 / 6 : ℝ) * 2 ^ 6 * 2 * (2 ^ 9 * (Nat.factorial 6 : ℝ)), fun ζ h0 h1 => ?_⟩
+  have hpf := norm_tebPrefactor_le c hc0.le h0 h1
+  have hW := hankelWtS_norm_le hc32 hf hε h0 h1
+  rw [hmass, one_mul] at hW
+  have hexp2 : Real.exp (1 / (6 * c)) ≤ 2 := hankelBand_exp_le_two (by linarith only [hc32])
+  have hnorm_le : ‖ζ‖ ≤ 1 + |ζ.im| := by
+    have hre := Complex.re_add_im ζ
+    have htri : ‖ζ‖ ≤ ‖(ζ.re : ℂ)‖ + ‖(ζ.im : ℂ) * Complex.I‖ := by
+      calc ‖ζ‖ = ‖(ζ.re : ℂ) + (ζ.im : ℂ) * Complex.I‖ := by rw [hre]
+        _ ≤ _ := norm_add_le _ _
+    calc ‖ζ‖ ≤ ‖(ζ.re : ℂ)‖ + ‖(ζ.im : ℂ) * Complex.I‖ := htri
+      _ ≤ 1 + |ζ.im| := by
+          rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg h0, norm_mul,
+            Complex.norm_real, Real.norm_eq_abs, Complex.norm_I, mul_one]; linarith only [h1]
+  have hζ1 : ‖ζ * (1 - ζ)‖ ≤ 2 * (1 + |ζ.im|) ^ 2 := by
+    have h1ζ : ‖1 - ζ‖ ≤ 2 + |ζ.im| := by
+      calc ‖1 - ζ‖ ≤ ‖(1 : ℂ)‖ + ‖ζ‖ := norm_sub_le _ _
+        _ ≤ 2 + |ζ.im| := by rw [norm_one]; linarith only [hnorm_le]
+    have h1ζ' : ‖1 - ζ‖ ≤ 2 * (1 + |ζ.im|) := h1ζ.trans (by linarith only [abs_nonneg ζ.im])
+    rw [norm_mul]
+    calc ‖ζ‖ * ‖1 - ζ‖ ≤ (1 + |ζ.im|) * (2 * (1 + |ζ.im|)) :=
+          mul_le_mul hnorm_le h1ζ' (norm_nonneg _) (by positivity)
+      _ = 2 * (1 + |ζ.im|) ^ 2 := by ring
+  have hpf1 : ‖ζ * (1 - ζ)‖ ^ (5 / 2 : ℝ) ≤ 2 ^ (5 / 2 : ℝ) * (1 + |ζ.im|) ^ (5 : ℝ) := by
+    have hsq : ((1 + |ζ.im|) ^ 2) ^ (5 / 2 : ℝ) = (1 + |ζ.im|) ^ (5 : ℝ) := by
+      rw [← Real.rpow_natCast (1 + |ζ.im|) 2, ← Real.rpow_mul (by linarith only [abs_nonneg ζ.im])]; norm_num
+    calc ‖ζ * (1 - ζ)‖ ^ (5 / 2 : ℝ) ≤ (2 * (1 + |ζ.im|) ^ 2) ^ (5 / 2 : ℝ) :=
+          Real.rpow_le_rpow (norm_nonneg _) hζ1 (by norm_num)
+      _ = 2 ^ (5 / 2 : ℝ) * ((1 + |ζ.im|) ^ 2) ^ (5 / 2 : ℝ) :=
+          Real.mul_rpow zero_le_two (sq_nonneg _)
+      _ = 2 ^ (5 / 2 : ℝ) * (1 + |ζ.im|) ^ (5 : ℝ) := by rw [hsq]
+  have hW1 : (1 + ‖ζ‖) ^ (1 / 2 : ℝ) ≤ 2 ^ (1 / 2 : ℝ) * (1 + |ζ.im|) ^ (1 / 2 : ℝ) := by
+    have : 1 + ‖ζ‖ ≤ 2 * (1 + |ζ.im|) := by linarith only [hnorm_le, abs_nonneg ζ.im]
+    rw [← Real.mul_rpow zero_le_two (by linarith only [abs_nonneg ζ.im])]
+    exact Real.rpow_le_rpow (by positivity) this (by norm_num)
+  have h2pow : (2 : ℝ) ^ (5 / 2 : ℝ) * 2 ^ (1 / 2 : ℝ) ≤ 2 ^ 6 := by
+    rw [← Real.rpow_add zero_lt_two]; norm_num
+  have hcomb : (1 + |ζ.im|) ^ (5 : ℝ) * (1 + |ζ.im|) ^ (1 / 2 : ℝ) = (1 + |ζ.im|) ^ (11 / 2 : ℝ) := by
+    rw [← Real.rpow_add (by linarith only [abs_nonneg ζ.im])]; norm_num
+  have h9 : (1 + |ζ.im|) ^ (11 / 2 : ℝ) * Real.exp (-ζ.im ^ 2) ≤ 2 ^ 9 * (Nat.factorial 6 : ℝ) := by
+    have hle : (1 + |ζ.im|) ^ (11 / 2 : ℝ) ≤ (1 + |ζ.im|) ^ (9 : ℝ) :=
+      Real.rpow_le_rpow_of_exponent_le (by linarith only [abs_nonneg ζ.im]) (by norm_num)
+    calc (1 + |ζ.im|) ^ (11 / 2 : ℝ) * Real.exp (-ζ.im ^ 2)
+        ≤ (1 + |ζ.im|) ^ (9 : ℝ) * Real.exp (-|ζ.im| ^ 2) := by
+            rw [sq_abs]; exact mul_le_mul_of_nonneg_right hle (Real.exp_pos _).le
+      _ ≤ 2 ^ 9 * (Nat.factorial 6 : ℝ) := one_add_rpow_nine_exp_le |ζ.im| (abs_nonneg _)
+  rw [norm_mul]
+  calc ‖tebPrefactor c ζ‖ * ‖hankelWtS c ε f ζ‖
+      ≤ (c ^ (5 / 6 : ℝ) * ‖ζ * (1 - ζ)‖ ^ (5 / 2 : ℝ) * Real.exp (-ζ.im ^ 2)) *
+          (Real.exp (1 / (6 * c)) * (1 + ‖ζ‖) ^ (1 / 2 : ℝ)) :=
+        mul_le_mul hpf hW (norm_nonneg _) (by positivity)
+    _ ≤ (c ^ (5 / 6 : ℝ) * (2 ^ (5 / 2 : ℝ) * (1 + |ζ.im|) ^ (5 : ℝ)) * Real.exp (-ζ.im ^ 2)) *
+          (2 * (2 ^ (1 / 2 : ℝ) * (1 + |ζ.im|) ^ (1 / 2 : ℝ))) := by
+        gcongr
+    _ = c ^ (5 / 6 : ℝ) * ((2 : ℝ) ^ (5 / 2 : ℝ) * 2 ^ (1 / 2 : ℝ)) * 2 *
+          ((1 + |ζ.im|) ^ (11 / 2 : ℝ) * Real.exp (-ζ.im ^ 2)) := by rw [← hcomb]; ring
+    _ ≤ c ^ (5 / 6 : ℝ) * 2 ^ 6 * 2 * (2 ^ 9 * (Nat.factorial 6 : ℝ)) := by gcongr
+
+private lemma hankel_scale_combine {r ψ I_band B2_r B2_RJ n_H n_core n_in n_out n_pf : ℝ}
+    (hr_lb : 256 ≤ r) (hcos_pos : 0 < Real.cos ψ)
+    (hband_nn : 0 ≤ I_band) (hB2_r_nn : 0 ≤ B2_r) (hB2_RJ_nn : 0 ≤ B2_RJ)
+    (hn_H_nn : 0 ≤ n_H) (h_tri : n_H ≤ n_core + n_in + n_out)
+    (hCore_bd : n_core ≤
+      8 * hankelBandParams.A_0 * (4 * hankelBandParams.A_0) ^ (5 / 2 : ℝ) *
+        (1 + 4 * hankelBandParams.A_0) ^ (hankelBandParams.M + 5 / 2) *
+        hankelBandParams.C_W * (3 / hankelBandParams.κ_ζ) / Real.cos ψ * r ^ (-(1 / 2 : ℝ)))
+    (hInner_bd : n_in ≤
+      (4 * 27380416512 * (3 / hankelBandParams.κ_ζ ^ (1 / 2 : ℝ)) / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) +
+      (2 * 27380416512 * (3 / hankelBandParams.κ_ζ) * hankelBandParams.C_τ / Real.cos ψ) *
+        r ^ (-(1 / 2 : ℝ)) * I_band +
+      (2 * 27380416512 * (3 / hankelBandParams.κ_ζ) * 1024 * hankelBandParams.κ_ζ ^ 2 / Real.cos ψ) *
+        r ^ (1 / 2 : ℝ) * B2_RJ)
+    (hOuter_bd : n_out ≤
+      (8 * 3e15 / hankelBandParams.κ_ζ ^ (1 / 2 : ℝ)) * r ^ (-(1 / 4 : ℝ)) +
+      (4 * 3e15 * hankelBandParams.κ_ζ) * r ^ (1 / 2 : ℝ) * B2_r)
+    (hpf_lb' : (1 / 128 : ℝ) * r ^ (5 / 4 : ℝ) ≤ n_pf) :
+    n_H / n_pf ≤ hankelScaleBandC *
+      (r ^ (-(3 / 2 : ℝ)) + r ^ (-(7 / 4 : ℝ)) * I_band + r ^ (-(3 / 4 : ℝ)) * (B2_r + B2_RJ)) /
+      Real.cos ψ := by
+  let P := hankelBandParams
+  have hr0 : 0 < r := by linarith only [hr_lb]
+  have hcos_le1 : Real.cos ψ ≤ 1 := Real.cos_le_one ψ
+  have h_inv_cos_ge1 : 1 ≤ 1 / Real.cos ψ := (one_le_div hcos_pos).mpr hcos_le1
+  have hk_bd := hankelLangerKappa_bounds
+  have hκ_ge1 : 1 ≤ P.κ_ζ := by show 1 ≤ 2 * langerKappa; linarith only [hk_bd.1]
+  have hκ_le14 : P.κ_ζ ≤ 1.4 := by show 2 * langerKappa ≤ 1.4; linarith only [hk_bd.2]
+  have hκ_pos : 0 < P.κ_ζ := P.hκ_ζ
+  have hA0_le8 : P.A_0 ≤ 8 := by
+    have h1 : 32 / langerKappa ≤ 64 := by
+      rw [div_le_iff₀ langerKappa_pos]; linarith only [hk_bd.1]
+    calc P.A_0 = Real.sqrt (32 / langerKappa) := rfl
+      _ ≤ Real.sqrt 64 := Real.sqrt_le_sqrt h1
+      _ = 8 := by norm_num
+  have hA0_nonneg : 0 ≤ P.A_0 := P.hA_0.le
+  have hCW_eq : P.C_W = 2 := rfl
+  have hM_eq : P.M = 1 / 2 := rfl
+  have hCτ_le22 : P.C_τ ≤ 22 := by
+    show 11 / langerKappa ≤ 22
+    rw [div_le_iff₀ langerKappa_pos]; linarith only [hk_bd.1]
+  have h_core_coeff : (8 * P.A_0 * (4 * P.A_0) ^ (5 / 2 : ℝ) * (1 + 4 * P.A_0) ^ (P.M + 5 / 2) * P.C_W) *
+      (3 / P.κ_ζ) ≤ 1e12 := by
+    have h4A : (4 * P.A_0) ^ (5 / 2 : ℝ) ≤ 32 ^ (3 : ℝ) := by
+      calc (4 * P.A_0) ^ (5 / 2 : ℝ) ≤ (32 : ℝ) ^ (5 / 2 : ℝ) :=
+            Real.rpow_le_rpow (by positivity) (by linarith only [hA0_le8]) (by norm_num)
+        _ ≤ 32 ^ (3 : ℝ) := Real.rpow_le_rpow_of_exponent_le (by norm_num) (by norm_num)
+    have h14A : (1 + 4 * P.A_0) ^ (P.M + 5 / 2) = (1 + 4 * P.A_0) ^ (3 : ℝ) := by rw [hM_eq]; norm_num
+    have h14A_bd : (1 + 4 * P.A_0) ^ (3 : ℝ) ≤ 33 ^ (3 : ℝ) :=
+      Real.rpow_le_rpow (by positivity) (by linarith only [hA0_le8]) (by norm_num)
+    have h3κ : 3 / P.κ_ζ ≤ 3 := div_le_self (by norm_num) hκ_ge1
+    rw [hCW_eq, h14A]
+    calc 8 * P.A_0 * (4 * P.A_0) ^ (5 / 2 : ℝ) * (1 + 4 * P.A_0) ^ (3 : ℝ) * 2 * (3 / P.κ_ζ)
+        ≤ 8 * 8 * 32 ^ (3 : ℝ) * 33 ^ (3 : ℝ) * 2 * 3 := by gcongr
+      _ ≤ 1e12 := by norm_num
+  have hκ12_ge1 : 1 ≤ P.κ_ζ ^ (1 / 2 : ℝ) := Real.one_le_rpow hκ_ge1 (by norm_num)
+  have hr_32_le : r ^ (-(1 / 2 : ℝ)) ≤ r ^ (-(1 / 4 : ℝ)) :=
+    Real.rpow_le_rpow_of_exponent_le (by linarith only [hr_lb]) (by norm_num)
+  have h_core_step : (8 * P.A_0 * (4 * P.A_0) ^ (5 / 2 : ℝ) * (1 + 4 * P.A_0) ^ (P.M + 5 / 2) * P.C_W) *
+      (3 / P.κ_ζ) / Real.cos ψ * r ^ (-(1 / 2 : ℝ)) ≤
+      (1e12 / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) := by
+    have h1 := mul_le_mul_of_nonneg_right h_core_coeff (by positivity : 0 ≤ r ^ (-(1 / 2 : ℝ)) / Real.cos ψ)
+    calc _ = ((8 * P.A_0 * (4 * P.A_0) ^ (5 / 2 : ℝ) * (1 + 4 * P.A_0) ^ (P.M + 5 / 2) * P.C_W) *
+          (3 / P.κ_ζ)) * (r ^ (-(1 / 2 : ℝ)) / Real.cos ψ) := by ring
+      _ ≤ 1e12 * (r ^ (-(1 / 2 : ℝ)) / Real.cos ψ) := h1
+      _ ≤ 1e12 * (r ^ (-(1 / 4 : ℝ)) / Real.cos ψ) := by gcongr
+      _ = _ := by ring
+  have hCτ_nn : 0 ≤ P.C_τ := P.hC_τ.le
+  have h_in1 : 4 * 27380416512 * (3 / P.κ_ζ ^ (1 / 2 : ℝ)) ≤ 4e11 := by
+    have h1 : 3 / P.κ_ζ ^ (1 / 2 : ℝ) ≤ 3 := div_le_self (by norm_num) hκ12_ge1
+    calc 4 * 27380416512 * (3 / P.κ_ζ ^ (1 / 2 : ℝ)) ≤ 4 * 27380416512 * 3 := by gcongr
+      _ ≤ 4e11 := by norm_num
+  have h_in2 : 2 * 27380416512 * (3 / P.κ_ζ) * P.C_τ ≤ 4e12 := by
+    have h1 : 3 / P.κ_ζ ≤ 3 := div_le_self (by norm_num) hκ_ge1
+    calc 2 * 27380416512 * (3 / P.κ_ζ) * P.C_τ ≤ 2 * 27380416512 * 3 * 22 := by gcongr
+      _ ≤ 4e12 := by norm_num
+  have h_in3 : 2 * 27380416512 * (3 / P.κ_ζ) * 1024 * P.κ_ζ ^ 2 ≤ 4e14 := by
+    have h1 : 3 / P.κ_ζ ≤ 3 := div_le_self (by norm_num) hκ_ge1
+    have h2 : P.κ_ζ ^ 2 ≤ 1.4 ^ 2 := by nlinarith only [hκ_le14, hκ_ge1]
+    calc 2 * 27380416512 * (3 / P.κ_ζ) * 1024 * P.κ_ζ ^ 2
+        ≤ 2 * 27380416512 * 3 * 1024 * 1.4 ^ 2 := by gcongr
+      _ ≤ 4e14 := by norm_num
+  have h_out1 : (8 * 3e15 / P.κ_ζ ^ (1 / 2 : ℝ)) ≤ 3e16 / Real.cos ψ := by
+    have h1 : 8 * 3e15 / P.κ_ζ ^ (1 / 2 : ℝ) ≤ 3e16 := by
+      calc 8 * 3e15 / P.κ_ζ ^ (1 / 2 : ℝ) ≤ 8 * 3e15 / 1 := by gcongr
+        _ ≤ 3e16 := by norm_num
+    calc 8 * 3e15 / P.κ_ζ ^ (1 / 2 : ℝ) ≤ 3e16 * 1 := by linarith only [h1]
+      _ ≤ 3e16 * (1 / Real.cos ψ) := mul_le_mul_of_nonneg_left h_inv_cos_ge1 (by norm_num)
+      _ = 3e16 / Real.cos ψ := by ring
+  have h_out2 : 4 * 3e15 * P.κ_ζ ≤ 2e16 / Real.cos ψ := by
+    have h1 : 4 * 3e15 * P.κ_ζ ≤ 2e16 := by linarith only [hκ_le14]
+    calc 4 * 3e15 * P.κ_ζ ≤ 2e16 * 1 := by linarith only [h1]
+      _ ≤ 2e16 * (1 / Real.cos ψ) := mul_le_mul_of_nonneg_left h_inv_cos_ge1 (by norm_num)
+      _ = 2e16 / Real.cos ψ := by ring
+  have hH_bd_norm : n_H ≤
+      ((1e12 + 4e11 + 3e16) / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) +
+      (4e12 / Real.cos ψ) * r ^ (-(1 / 2 : ℝ)) * I_band +
+      ((2e16 + 4e14) / Real.cos ψ) * r ^ (1 / 2 : ℝ) * (B2_r + B2_RJ) := by
+    have hCore_bd' : n_core ≤
+        8 * P.A_0 * (4 * P.A_0) ^ (5 / 2 : ℝ) * (1 + 4 * P.A_0) ^ (P.M + 5 / 2) * P.C_W *
+          (3 / P.κ_ζ) / Real.cos ψ * r ^ (-(1 / 2 : ℝ)) := hCore_bd
+    have hInner1 : n_in ≤
+        (4e11 / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) +
+        (4e12 / Real.cos ψ) * r ^ (-(1 / 2 : ℝ)) * I_band +
+        (4e14 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * B2_RJ := by
+      refine hInner_bd.trans ?_
+      have h1 : (4 * 27380416512 * (3 / P.κ_ζ ^ (1 / 2 : ℝ)) / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) ≤
+          (4e11 / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) := by gcongr
+      have h2 : (2 * 27380416512 * (3 / P.κ_ζ) * P.C_τ / Real.cos ψ) * r ^ (-(1 / 2 : ℝ)) * I_band ≤
+          (4e12 / Real.cos ψ) * r ^ (-(1 / 2 : ℝ)) * I_band := by gcongr
+      have h3 : (2 * 27380416512 * (3 / P.κ_ζ) * 1024 * P.κ_ζ ^ 2 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * B2_RJ ≤
+          (4e14 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * B2_RJ := by gcongr
+      linarith only [h1, h2, h3]
+    have hOuter1 : n_out ≤
+        (3e16 / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) +
+        (2e16 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * B2_r := by
+      refine hOuter_bd.trans ?_
+      have h1 : (8 * 3e15 / P.κ_ζ ^ (1 / 2 : ℝ)) * r ^ (-(1 / 4 : ℝ)) ≤
+          (3e16 / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) := by gcongr
+      have h2 : (4 * 3e15 * P.κ_ζ) * r ^ (1 / 2 : ℝ) * B2_r ≤
+          (2e16 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * B2_r := by gcongr
+      linarith only [h1, h2]
+    have hB2_mix : (4e14 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * B2_RJ +
+        (2e16 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * B2_r ≤
+        ((2e16 + 4e14) / Real.cos ψ) * r ^ (1 / 2 : ℝ) * (B2_r + B2_RJ) := by
+      have h_pos1 : 0 ≤ (2e16 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * B2_RJ := by positivity
+      have h_pos2 : 0 ≤ (4e14 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * B2_r := by positivity
+      have heq : ((2e16 + 4e14) / Real.cos ψ) * r ^ (1 / 2 : ℝ) * (B2_r + B2_RJ) =
+          (4e14 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * B2_RJ +
+          (2e16 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * B2_r +
+          (2e16 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * B2_RJ +
+          (4e14 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * B2_r := by ring
+      rw [heq]; linarith only [h_pos1, h_pos2]
+    have hsum_r : ((1e12 + 4e11 + 3e16) / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) =
+        (1e12 / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) +
+        (4e11 / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) +
+        (3e16 / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) := by ring
+    rw [hsum_r]
+    linarith only [h_tri, hCore_bd', h_core_step, hInner1, hOuter1, hB2_mix]
+  have hr_exp1 : r ^ (-(1 / 4 : ℝ)) / r ^ (5 / 4 : ℝ) = r ^ (-(3 / 2 : ℝ)) := by
+    rw [← Real.rpow_sub hr0]; norm_num
+  have hr_exp2 : r ^ (-(1 / 2 : ℝ)) / r ^ (5 / 4 : ℝ) = r ^ (-(7 / 4 : ℝ)) := by
+    rw [← Real.rpow_sub hr0]; norm_num
+  have hr_exp3 : r ^ (1 / 2 : ℝ) / r ^ (5 / 4 : ℝ) = r ^ (-(3 / 4 : ℝ)) := by
+    rw [← Real.rpow_sub hr0]; norm_num
+  calc n_H / n_pf
+      ≤ n_H / ((1 / 128 : ℝ) * r ^ (5 / 4 : ℝ)) :=
+        div_le_div_of_nonneg_left hn_H_nn (by positivity) hpf_lb'
+    _ ≤ (((1e12 + 4e11 + 3e16) / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) +
+          (4e12 / Real.cos ψ) * r ^ (-(1 / 2 : ℝ)) * I_band +
+          ((2e16 + 4e14) / Real.cos ψ) * r ^ (1 / 2 : ℝ) * (B2_r + B2_RJ)) /
+          ((1 / 128 : ℝ) * r ^ (5 / 4 : ℝ)) := by gcongr
+    _ = ((128 * (1e12 + 4e11 + 3e16)) * (r ^ (-(1 / 4 : ℝ)) / r ^ (5 / 4 : ℝ)) +
+          (128 * 4e12) * (r ^ (-(1 / 2 : ℝ)) / r ^ (5 / 4 : ℝ)) * I_band +
+          (128 * (2e16 + 4e14)) * (r ^ (1 / 2 : ℝ) / r ^ (5 / 4 : ℝ)) * (B2_r + B2_RJ)) / Real.cos ψ := by ring
+    _ = ((128 * (1e12 + 4e11 + 3e16)) * r ^ (-(3 / 2 : ℝ)) +
+          (128 * 4e12) * r ^ (-(7 / 4 : ℝ)) * I_band +
+          (128 * (2e16 + 4e14)) * r ^ (-(3 / 4 : ℝ)) * (B2_r + B2_RJ)) / Real.cos ψ := by
+        rw [hr_exp1, hr_exp2, hr_exp3]
+    _ ≤ hankelScaleBandC *
+          (r ^ (-(3 / 2 : ℝ)) + r ^ (-(7 / 4 : ℝ)) * I_band + r ^ (-(3 / 4 : ℝ)) * (B2_r + B2_RJ)) /
+          Real.cos ψ := by
+        unfold hankelScaleBandC
+        have h_r1 : (128 * (1e12 + 4e11 + 3e16) : ℝ) ≤ 1e20 := by norm_num
+        have h_r2 : (128 * 4e12 : ℝ) ≤ 1e20 := by norm_num
+        have h_r3 : (128 * (2e16 + 4e14) : ℝ) ≤ 1e20 := by norm_num
+        have hr1_nn : 0 ≤ r ^ (-(3 / 2 : ℝ)) := (Real.rpow_pos_of_pos hr0 _).le
+        have hr2_nn : 0 ≤ r ^ (-(7 / 4 : ℝ)) * I_band := mul_nonneg (Real.rpow_pos_of_pos hr0 _).le hband_nn
+        have hr3_nn : 0 ≤ r ^ (-(3 / 4 : ℝ)) * (B2_r + B2_RJ) :=
+          mul_nonneg (Real.rpow_pos_of_pos hr0 _).le (add_nonneg hB2_r_nn hB2_RJ_nn)
+        have t1 := mul_le_mul_of_nonneg_right h_r1 hr1_nn
+        have t2 : (128 * 4e12) * (r ^ (-(7 / 4 : ℝ)) * I_band) ≤ 1e20 * (r ^ (-(7 / 4 : ℝ)) * I_band) :=
+          mul_le_mul_of_nonneg_right h_r2 hr2_nn
+        have t3 : (128 * (2e16 + 4e14)) * (r ^ (-(3 / 4 : ℝ)) * (B2_r + B2_RJ)) ≤
+            1e20 * (r ^ (-(3 / 4 : ℝ)) * (B2_r + B2_RJ)) :=
+          mul_le_mul_of_nonneg_right h_r3 hr3_nn
+        exact div_le_div_of_nonneg_right (by linarith only [t1, t2, t3]) hcos_pos.le
+
+private lemma hankel_scale_fubini {c ε : ℝ} {f : ℝ → ℝ} {ζ₀ : ℂ}
+    (hc : 3e6 ≤ c) (hf : IsHankelEigenfn c ε f)
+    (hσ₀ : 0 < ζ₀.re) (hσ₁ : ζ₀.re < 1)
+    (hQ_pt : ∀ τ : ℝ, |stripPoissonQ ζ₀.re ζ₀.im ε τ| ≤ 1 / ζ₀.re)
+    (hfinP : IsFiniteMeasure (hankelDmPos c f)) (hfinN : IsFiniteMeasure (hankelDmNeg c f))
+    (wt : ℝ → ℝ) (hwt_cont : Continuous wt) (hwt_bd : ∀ τ, |wt τ| ≤ 1) :
+    let J : ℝ → ℂ := fun ξ => ∫ τ : ℝ, (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
+      tebAmp0 c τ * hankelBandK c τ ξ
+    ((∫ τ : ℝ, (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
+        (tebAmp0 c τ * hankelWtS c ε f ((τ : ℂ) * Complex.I))) =
+      (∫ ξ in Ioi (0 : ℝ), J ξ ∂hankelDmPos c f) - ∫ ξ in Ioi (0 : ℝ), J ξ ∂hankelDmNeg c f) ∧
+    Integrable J (hankelDmPos c f) ∧ Integrable J (hankelDmNeg c f) := by
+  intro J
+  have hc0 : 0 < c := by linarith only [hc]
+  have hc32 : 3 / 2 < c := by linarith only [hc]
+  let g0 : ℝ → ℂ := fun τ => (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) * tebAmp0 c τ
+  let G : ℝ → ℝ → ℂ := fun τ ξ => g0 τ * hankelBandK c τ ξ
+  have hg0_cont : Continuous g0 :=
+    ((Complex.continuous_ofReal.comp hwt_cont).mul
+      (Complex.continuous_ofReal.comp (stripPoissonQ_continuous hσ₀ hσ₁))).mul (continuous_tebAmp0 c)
+  have hG_meas : Measurable (Function.uncurry G) :=
+    (hg0_cont.measurable.comp measurable_fst).mul (hankelBandK_measurable hc0)
+  have hg0_bd : ∀ τ : ℝ, ‖g0 τ‖ ≤ (1 / ζ₀.re) * c ^ (5 / 6 : ℝ) *
+      ((1 + |τ|) ^ (5 : ℝ) * Real.exp (-τ ^ 2)) := fun τ => by
+    dsimp [g0]
+    have hamp := norm_tebAmp0_le hc0.le (τ := τ)
+    have h1τ : |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) ≤ (1 + |τ|) ^ (5 : ℝ) := by
+      have h1 : |τ| ^ (5 / 2 : ℝ) ≤ (1 + |τ|) ^ (5 / 2 : ℝ) :=
+        Real.rpow_le_rpow (abs_nonneg _) (by linarith only) (by norm_num)
+      have h1τ_pos : 0 < 1 + |τ| := by linarith only [abs_nonneg τ]
+      calc |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ)
+          ≤ (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) := by gcongr
+        _ = (1 + |τ|) ^ (5 : ℝ) := by rw [← Real.rpow_add h1τ_pos]; norm_num
+    have h12 : |wt τ| * |stripPoissonQ ζ₀.re ζ₀.im ε τ| ≤ 1 * (1 / ζ₀.re) :=
+      mul_le_mul (hwt_bd τ) (hQ_pt τ) (abs_nonneg _) zero_le_one
+    rw [norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs, Real.norm_eq_abs]
+    calc |wt τ| * |stripPoissonQ ζ₀.re ζ₀.im ε τ| * ‖tebAmp0 c τ‖
+        ≤ (1 * (1 / ζ₀.re)) *
+            (c ^ (5 / 6 : ℝ) * |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * Real.exp (-τ ^ 2)) :=
+          mul_le_mul h12 hamp (norm_nonneg _) (by positivity)
+      _ = (1 / ζ₀.re) * c ^ (5 / 6 : ℝ) * (|τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ)) * Real.exp (-τ ^ 2) := by ring
+      _ ≤ (1 / ζ₀.re) * c ^ (5 / 6 : ℝ) * (1 + |τ|) ^ (5 : ℝ) * Real.exp (-τ ^ 2) := by gcongr
+      _ = _ := by ring
+  have hG_int_of : ∀ (dm : Measure ℝ), IsFiniteMeasure dm → dm (Iic 0) = 0 →
+      Integrable (Function.uncurry G) (volume.prod dm) := by
+    intro dm hfin _
+    let dom : ℝ → ℝ := fun τ => (1 / ζ₀.re) * 4 * c ^ (5 / 6 : ℝ) *
+      ((1 + |τ|) ^ (11 / 2 : ℝ) * Real.exp (-τ ^ 2))
+    have hdom_int : Integrable dom :=
+      (integrable_one_add_abs_rpow_mul_exp_neg_sq (by norm_num : (0 : ℝ) ≤ 11 / 2)).const_mul _
+    exact (Integrable.comp_fst (ν := dm) hdom_int).mono' hG_meas.aestronglyMeasurable (ae_of_all _ fun ⟨τ, ξ⟩ => by
+      dsimp [Function.uncurry, G, dom]
+      rw [norm_mul, norm_hankelBandK hc0]
+      have hK_bd : ‖hankelEdgeAmp c τ‖ ≤ 4 * (1 + |τ|) ^ (1 / 2 : ℝ) := by
+        have := hankelEdgeAmp_bound (by linarith only [hc] : 1 ≤ c) τ
+        linarith only [this, norm_nonneg (hankelEdgeAmp' c τ)]
+      have h1pow : (1 + |τ|) ^ (5 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ) = (1 + |τ|) ^ (11 / 2 : ℝ) := by
+        rw [← Real.rpow_add (by linarith only [abs_nonneg τ])]; norm_num
+      calc ‖g0 τ‖ * ‖hankelEdgeAmp c τ‖
+          ≤ ((1 / ζ₀.re) * c ^ (5 / 6 : ℝ) * ((1 + |τ|) ^ (5 : ℝ) * Real.exp (-τ ^ 2))) *
+              (4 * (1 + |τ|) ^ (1 / 2 : ℝ)) := mul_le_mul (hg0_bd τ) hK_bd (norm_nonneg _) (by positivity)
+        _ = (1 / ζ₀.re) * 4 * c ^ (5 / 6 : ℝ) *
+              (((1 + |τ|) ^ (5 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ)) * Real.exp (-τ ^ 2)) := by ring
+        _ = _ := by rw [h1pow])
+  have hGP := hG_int_of (hankelDmPos c f) hfinP (hankelDmPos_Iic c f)
+  have hGN := hG_int_of (hankelDmNeg c f) hfinN (hankelDmNeg_Iic c f)
+  have hJ_P : Integrable J (hankelDmPos c f) := hGP.integral_prod_right
+  have hJ_N : Integrable J (hankelDmNeg c f) := hGN.integral_prod_right
+  have h_eq : (fun τ : ℝ => (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
+        (tebAmp0 c τ * hankelWtS c ε f ((τ : ℂ) * Complex.I))) =
+      fun τ : ℝ => (∫ ξ : ℝ, G τ ξ ∂hankelDmPos c f) - ∫ ξ : ℝ, G τ ξ ∂hankelDmNeg c f := by
+    ext τ
+    have hsub := hankelDm_integral_sub hc0 hf (B := 4 * (1 + |τ|) ^ (1 / 2 : ℝ))
+      (K := fun ξ => hankelBandK c τ ξ)
+      (((hankelBandK_measurable hc0).comp (measurable_const.prodMk measurable_id)).aestronglyMeasurable)
+      (fun ξ _ => by
+        rw [norm_hankelBandK hc0]
+        have := hankelEdgeAmp_bound (by linarith only [hc] : 1 ≤ c) τ
+        linarith only [this, norm_nonneg (hankelEdgeAmp' c τ)])
+    have hW_eq := hankelBand_W_edge hc32 hf τ
+    have hint_eq : (∫ ξ : ℝ, hankelBandK c τ ξ ∂hankelDmPos c f) -
+        ∫ ξ : ℝ, hankelBandK c τ ξ ∂hankelDmNeg c f = hankelWtS c ε f ((τ : ℂ) * Complex.I) :=
+      hW_eq.symm
+    rw [← hint_eq]
+    dsimp [G, g0]
+    rw [integral_const_mul, integral_const_mul]; ring
+  have hIoi_eq : ∀ (dm : Measure ℝ), dm (Iic 0) = 0 → Integrable J dm →
+      ∫ ξ : ℝ, J ξ ∂dm = ∫ ξ in Ioi (0 : ℝ), J ξ ∂dm := by
+    intro dm hsupp hint_dm
+    have h1 := integral_add_compl (s := Ioi (0 : ℝ)) measurableSet_Ioi hint_dm
+    have hcompl : ∫ ξ in (Ioi (0 : ℝ))ᶜ, J ξ ∂dm = 0 := by
+      rw [compl_Ioi, Measure.restrict_eq_zero.2 hsupp, integral_zero_measure]
+    rw [hcompl, add_zero] at h1; exact h1.symm
+  refine ⟨?_, hJ_P, hJ_N⟩
+  have hswP : (∫ τ : ℝ, ∫ ξ : ℝ, G τ ξ ∂hankelDmPos c f) =
+      ∫ ξ : ℝ, J ξ ∂hankelDmPos c f := by
+    simpa [Function.uncurry, G, J] using integral_integral_swap hGP
+  have hswN : (∫ τ : ℝ, ∫ ξ : ℝ, G τ ξ ∂hankelDmNeg c f) =
+      ∫ ξ : ℝ, J ξ ∂hankelDmNeg c f := by
+    simpa [Function.uncurry, G, J] using integral_integral_swap hGN
+  have h_int_sub : (∫ τ : ℝ, (∫ ξ : ℝ, G τ ξ ∂hankelDmPos c f) - ∫ ξ : ℝ, G τ ξ ∂hankelDmNeg c f) =
+      (∫ τ : ℝ, ∫ ξ : ℝ, G τ ξ ∂hankelDmPos c f) - ∫ τ : ℝ, ∫ ξ : ℝ, G τ ξ ∂hankelDmNeg c f :=
+    integral_sub hGP.integral_prod_left hGN.integral_prod_left
+  rw [h_eq, h_int_sub, hswP, hswN,
+    hIoi_eq _ (hankelDmPos_Iic c f) hJ_P, hIoi_eq _ (hankelDmNeg_Iic c f) hJ_N]
 
 /-- **Step 1a (`ct:Wbound`, `constant_terms_lower.tex` `ct:dyadic` (1))**: scale-`r` strip-band
 reduction at any scale `r ∈ [256, R_J]` (`R_J ∈ [10⁻⁴ c^{2/3}, 10⁻⁴ c^{2/3} + 1]`).
@@ -2165,7 +2967,7 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
     (hc : 3e6 ≤ c) (hε : ε = 1 ∨ ε = -1) (hf : IsHankelEigenfn c ε f) (hmass : hankelMass c f = 1)
     (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T) (hT : c * hankelXi c u_T = T)
     (htail : ∀ Δ : ℝ, T ≤ Δ → 0 ≤ f Δ)
-    (hRJ_lb : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ R_J)
+    (_hRJ_lb : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ R_J)
     (hRJ_ub : R_J ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1)
     (hr_lb : 256 ≤ r) (hr_RJ : r ≤ R_J)
     {ζ₀ : ℂ} {ψ : ℝ}
@@ -2202,60 +3004,8 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
     (tebPrefactor_differentiableOn c).mul (hankelWtS_differentiableOn hc32 hf)
   have hH_symm : ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → H (1 - ζ) = (ε : ℂ) * H ζ := fun ζ h0 h1 => by
     dsimp [H]; rw [tebPrefactor_symm, hankelWtS_one_sub hc32 hf hε h0 h1]; ring
-  have hH_bd : ∃ M : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖H ζ‖ ≤ M := by
-    refine ⟨c ^ (5 / 6 : ℝ) * 2 ^ 6 * 2 * (2 ^ 9 * (Nat.factorial 6 : ℝ)), fun ζ h0 h1 => ?_⟩
-    have hpf := norm_tebPrefactor_le c hc0.le h0 h1
-    have hW := hankelWtS_norm_le hc32 hf hε h0 h1
-    rw [hmass, one_mul] at hW
-    have hexp2 : Real.exp (1 / (6 * c)) ≤ 2 := hankelBand_exp_le_two (by linarith)
-    have hnorm_le : ‖ζ‖ ≤ 1 + |ζ.im| := by
-      calc ‖ζ‖ ≤ ‖(ζ.re : ℂ)‖ + ‖(ζ.im : ℂ) * Complex.I‖ := by
-            conv_lhs => rw [← Complex.re_add_im ζ]; exact norm_add_le _ _
-        _ ≤ 1 + |ζ.im| := by
-            rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg h0, norm_mul,
-              Complex.norm_real, Real.norm_eq_abs, Complex.norm_I, mul_one]; linarith
-    have hζ1 : ‖ζ * (1 - ζ)‖ ≤ 2 * (1 + |ζ.im|) ^ 2 := by
-      have h1ζ : ‖1 - ζ‖ ≤ 2 + |ζ.im| := by
-        calc ‖1 - ζ‖ ≤ ‖(1 : ℂ)‖ + ‖ζ‖ := norm_sub_le _ _
-          _ ≤ 2 + |ζ.im| := by rw [norm_one]; linarith
-      have h1ζ' : ‖1 - ζ‖ ≤ 2 * (1 + |ζ.im|) := h1ζ.trans (by linarith [abs_nonneg ζ.im])
-      rw [norm_mul]
-      calc ‖ζ‖ * ‖1 - ζ‖ ≤ (1 + |ζ.im|) * (2 * (1 + |ζ.im|)) :=
-            mul_le_mul hnorm_le h1ζ' (norm_nonneg _) (by positivity)
-        _ = 2 * (1 + |ζ.im|) ^ 2 := by ring
-    have hpf1 : ‖ζ * (1 - ζ)‖ ^ (5 / 2 : ℝ) ≤ 2 ^ (5 / 2 : ℝ) * (1 + |ζ.im|) ^ (5 : ℝ) := by
-      calc ‖ζ * (1 - ζ)‖ ^ (5 / 2 : ℝ) ≤ (2 * (1 + |ζ.im|) ^ 2) ^ (5 / 2 : ℝ) :=
-            Real.rpow_le_rpow (norm_nonneg _) hζ1 (by norm_num)
-        _ = 2 ^ (5 / 2 : ℝ) * ((1 + |ζ.im|) ^ (2 : ℝ)) ^ (5 / 2 : ℝ) := by
-            rw [Real.mul_rpow zero_le_two (sq_nonneg _)]; norm_cast
-        _ = 2 ^ (5 / 2 : ℝ) * (1 + |ζ.im|) ^ (5 : ℝ) := by
-            rw [← Real.rpow_mul (by linarith [abs_nonneg ζ.im])]; norm_num
-    have hW1 : (1 + ‖ζ‖) ^ (1 / 2 : ℝ) ≤ 2 ^ (1 / 2 : ℝ) * (1 + |ζ.im|) ^ (1 / 2 : ℝ) := by
-      have : 1 + ‖ζ‖ ≤ 2 * (1 + |ζ.im|) := by linarith [abs_nonneg ζ.im]
-      rw [← Real.mul_rpow zero_le_two (by linarith [abs_nonneg ζ.im])]
-      exact Real.rpow_le_rpow (by positivity) this (by norm_num)
-    have h2pow : (2 : ℝ) ^ (5 / 2 : ℝ) * 2 ^ (1 / 2 : ℝ) ≤ 2 ^ 6 := by
-      rw [← Real.rpow_add zero_lt_two]; norm_num
-    have hcomb : (1 + |ζ.im|) ^ (5 : ℝ) * (1 + |ζ.im|) ^ (1 / 2 : ℝ) = (1 + |ζ.im|) ^ (11 / 2 : ℝ) := by
-      rw [← Real.rpow_add (by linarith [abs_nonneg ζ.im])]; norm_num
-    have h9 : (1 + |ζ.im|) ^ (11 / 2 : ℝ) * Real.exp (-ζ.im ^ 2) ≤ 2 ^ 9 * (Nat.factorial 6 : ℝ) := by
-      have hle : (1 + |ζ.im|) ^ (11 / 2 : ℝ) ≤ (1 + |ζ.im|) ^ (9 : ℝ) :=
-        Real.rpow_le_rpow_of_exponent_le (by linarith [abs_nonneg ζ.im]) (by norm_num)
-      calc (1 + |ζ.im|) ^ (11 / 2 : ℝ) * Real.exp (-ζ.im ^ 2)
-          ≤ (1 + |ζ.im|) ^ (9 : ℝ) * Real.exp (-|ζ.im| ^ 2) := by
-              rw [sq_abs]; exact mul_le_mul_of_nonneg_right hle (Real.exp_pos _).le
-        _ ≤ 2 ^ 9 * (Nat.factorial 6 : ℝ) := one_add_rpow_nine_exp_le |ζ.im| (abs_nonneg _)
-    dsimp [H]; rw [norm_mul]
-    calc ‖tebPrefactor c ζ‖ * ‖hankelWtS c ε f ζ‖
-        ≤ (c ^ (5 / 6 : ℝ) * ‖ζ * (1 - ζ)‖ ^ (5 / 2 : ℝ) * Real.exp (-ζ.im ^ 2)) *
-            (Real.exp (1 / (6 * c)) * (1 + ‖ζ‖) ^ (1 / 2 : ℝ)) :=
-          mul_le_mul hpf hW (norm_nonneg _) (by positivity)
-      _ ≤ (c ^ (5 / 6 : ℝ) * (2 ^ (5 / 2 : ℝ) * (1 + |ζ.im|) ^ (5 : ℝ)) * Real.exp (-ζ.im ^ 2)) *
-            (2 * (2 ^ (1 / 2 : ℝ) * (1 + |ζ.im|) ^ (1 / 2 : ℝ))) := by
-          gcongr
-      _ = c ^ (5 / 6 : ℝ) * ((2 : ℝ) ^ (5 / 2 : ℝ) * 2 ^ (1 / 2 : ℝ)) * 2 *
-            ((1 + |ζ.im|) ^ (11 / 2 : ℝ) * Real.exp (-ζ.im ^ 2)) := by rw [← hcomb]; ring
-      _ ≤ c ^ (5 / 6 : ℝ) * 2 ^ 6 * 2 * (2 ^ 9 * (Nat.factorial 6 : ℝ)) := by gcongr
+  have hH_bd : ∃ M : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖H ζ‖ ≤ M :=
+    hankel_H_strip_bound hc32 hε hf hmass
   obtain ⟨M_bd, hM_bd⟩ := hH_bd
   obtain ⟨hQH_int, hH_rep⟩ := stripPoisson_representation_symm hH_cont hH_holo hM_bd hH_symm hσ₀ hσ₁
   set δ₀ := P.A_0 * c ^ (-(1 / 3 : ℝ))
@@ -2267,9 +3017,49 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
     (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) * (tebAmp0 c τ * hankelWtS c ε f ((τ : ℂ) * Complex.I))
   let outerFn : ℝ → ℂ := fun τ => (ψ_r τ : ℂ) *
     (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) * (tebAmp0 c τ * hankelWtS c ε f ((τ : ℂ) * Complex.I))
+  have hδ4_le : 4 * δ₀ ≤ 8 * ρr := by
+    have hk := hankelLangerKappa_bounds
+    have hA0_le : P.A_0 ≤ 8 := by
+      show Real.sqrt (32 / langerKappa) ≤ 8
+      exact Real.sqrt_le_iff.2 ⟨by norm_num, by rw [div_le_iff₀ langerKappa_pos]; linarith only [hk.1]⟩
+    have hκ_ge : 1 ≤ P.κ_ζ := by show 1 ≤ 2 * langerKappa; linarith only [hk.1]
+    have hsqrt_ge : 16 ≤ Real.sqrt r := by
+      rw [Real.le_sqrt (by norm_num) hr0.le]; linarith only [hr_lb]
+    have hc_nn : 0 ≤ c ^ (-(1 / 3 : ℝ)) := Real.rpow_nonneg hc0.le _
+    have hκr : 16 ≤ P.κ_ζ * Real.sqrt r := by
+      calc (16 : ℝ) = 1 * 16 := by ring
+        _ ≤ P.κ_ζ * Real.sqrt r := mul_le_mul hκ_ge hsqrt_ge (by norm_num) P.hκ_ζ.le
+    calc 4 * δ₀ = (4 * P.A_0) * c ^ (-(1 / 3 : ℝ)) := by dsimp [δ₀]; ring
+      _ ≤ 32 * c ^ (-(1 / 3 : ℝ)) := mul_le_mul_of_nonneg_right (by linarith only [hA0_le]) hc_nn
+      _ ≤ (2 * (P.κ_ζ * Real.sqrt r)) * c ^ (-(1 / 3 : ℝ)) :=
+          mul_le_mul_of_nonneg_right (by linarith only [hκr]) hc_nn
+      _ ≤ 8 * (P.κ_ζ * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r) := by
+          have : 0 ≤ (P.κ_ζ * Real.sqrt r) * c ^ (-(1 / 3 : ℝ)) := by positivity
+          linarith only [this]
+  have hpart : ∀ τ : ℝ, ((1 - tebCutoff δ₀ τ : ℝ) : ℂ) + (χ₁ τ : ℂ) + (ψ_r τ : ℂ) = 1 := fun τ => by
+    have hreal : (1 - tebCutoff δ₀ τ) + χ₁ τ + ψ_r τ = 1 := by
+      dsimp [χ₁, ψ_r]
+      rcases le_or_gt |τ| (8 * ρr) with hle | hgt
+      · have h0 : tebCutoff (4 * ρr) τ = 0 :=
+          tebCutoff_eq_zero (by positivity) (by linarith only [hle])
+        rw [h0]; ring
+      · have h1 : tebCutoff δ₀ τ = 1 :=
+          tebCutoff_eq_one (by dsimp [δ₀]; have := P.hA_0; positivity) (hδ4_le.trans hgt.le)
+        rw [h1]; ring
+    exact_mod_cast hreal
   have hsum_fn : (fun τ => coreFn τ + innerFn τ + outerFn τ) =
       fun τ => (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) * H ((τ : ℂ) * Complex.I) := by
-    ext τ; dsimp [coreFn, innerFn, outerFn, χ₁, ψ_r, H, tebAmp0]; push_cast; ring
+    ext τ
+    have hp := hpart τ
+    calc coreFn τ + innerFn τ + outerFn τ
+        = (((1 - tebCutoff δ₀ τ : ℝ) : ℂ) + (χ₁ τ : ℂ) + (ψ_r τ : ℂ)) *
+            ((stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
+              (tebPrefactor c ((τ : ℂ) * Complex.I) * hankelWtS c ε f ((τ : ℂ) * Complex.I))) := by
+            dsimp [coreFn, innerFn, outerFn]; unfold tebAmp0; ring
+      _ = 1 * ((stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
+            (tebPrefactor c ((τ : ℂ) * Complex.I) * hankelWtS c ε f ((τ : ℂ) * Complex.I))) := by rw [hp]
+      _ = (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) * H ((τ : ℂ) * Complex.I) := by
+            dsimp [H]; rw [one_mul]
   have hinner_int : Integrable innerFn := by
     have hcont_χ₁ : Continuous χ₁ :=
       (tebCutoff_continuous δ₀).mul (continuous_const.sub (tebCutoff_continuous (4 * ρr)))
@@ -2283,7 +3073,7 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
           (abs_nonneg _) zero_le_one |>.trans_eq (mul_one 1))
     have heq : (fun τ => (Complex.ofReal ∘ χ₁) τ *
         ((stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) * H ((τ : ℂ) * Complex.I))) = innerFn := by
-      ext τ; dsimp [innerFn, H, tebAmp0, Function.comp_def]; ring
+      ext τ; dsimp [innerFn, H, Function.comp_def]; unfold tebAmp0; ring
     rwa [heq] at h1
   have houter_int : Integrable outerFn := by
     have h1 := hQH_int.bdd_mul (Complex.continuous_ofReal.comp (tebCutoff_continuous (4 * ρr))).aestronglyMeasurable
@@ -2293,16 +3083,21 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
         exact ⟨by linarith [tebCutoff_nonneg (4 * ρr) τ], tebCutoff_le_one (4 * ρr) τ⟩)
     have heq : (fun τ => (Complex.ofReal ∘ ψ_r) τ *
         ((stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) * H ((τ : ℂ) * Complex.I))) = outerFn := by
-      ext τ; dsimp [outerFn, ψ_r, H, tebAmp0, Function.comp_def]; ring
+      ext τ; dsimp [outerFn, ψ_r, H, Function.comp_def]; unfold tebAmp0; ring
     rwa [heq] at h1
   have hcore_int : Integrable coreFn := by
     have hsub : coreFn = fun τ => (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) * H ((τ : ℂ) * Complex.I) -
         (innerFn τ + outerFn τ) := by
-      ext τ; dsimp [coreFn, innerFn, outerFn, χ₁, ψ_r, H, tebAmp0]; push_cast; ring
+      ext τ; have h1 := congrFun hsum_fn τ; exact eq_sub_of_add_eq (by linear_combination h1)
     rw [hsub]; exact hQH_int.sub (hinner_int.add houter_int)
   have hH_split : H ζ₀ = (∫ τ : ℝ, coreFn τ) + (∫ τ : ℝ, innerFn τ) + ∫ τ : ℝ, outerFn τ := by
-    rw [hH_rep, ← hsum_fn, integral_add (hcore_int.add hinner_int) houter_int,
-      integral_add hcore_int hinner_int]
+    have h1 : ∫ τ : ℝ, (coreFn τ + innerFn τ + outerFn τ) =
+        (∫ τ : ℝ, coreFn τ) + (∫ τ : ℝ, innerFn τ) + ∫ τ : ℝ, outerFn τ := by
+      have ha1 := integral_add (hcore_int.add hinner_int) houter_int
+      have ha2 := integral_add hcore_int hinner_int
+      simp only [Pi.add_apply] at ha1 ha2
+      rw [ha1, ha2]
+    rw [hH_rep, ← hsum_fn]; exact h1
   -- Core bound
   have hCore_bd := core_piece_scale_bound hc hε hf hmass hr_lb hζ₀_lo hζ₀_max hcos_eq hcos_pos hcore_int
   -- Setup Fubini for inner & outer via `hankelDmPos`, `hankelDmNeg`
@@ -2326,92 +3121,8 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
       ((∫ τ : ℝ, (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
           (tebAmp0 c τ * hankelWtS c ε f ((τ : ℂ) * Complex.I))) =
         (∫ ξ in Ioi (0 : ℝ), J ξ ∂hankelDmPos c f) - ∫ ξ in Ioi (0 : ℝ), J ξ ∂hankelDmNeg c f) ∧
-      Integrable J (hankelDmPos c f) ∧ Integrable J (hankelDmNeg c f) := by
-    intro wt hwt_cont hwt_bd J
-    let g0 : ℝ → ℂ := fun τ => (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) * tebAmp0 c τ
-    let G : ℝ → ℝ → ℂ := fun τ ξ => g0 τ * hankelBandK c τ ξ
-    have hg0_cont : Continuous g0 :=
-      ((Complex.continuous_ofReal.comp hwt_cont).mul
-        (Complex.continuous_ofReal.comp (stripPoissonQ_continuous hσ₀ hσ₁))).mul (continuous_tebAmp0 c)
-    have hG_meas : Measurable (Function.uncurry G) :=
-      (hg0_cont.measurable.comp measurable_fst).mul (hankelBandK_measurable hc0)
-    have hg0_bd : ∀ τ : ℝ, ‖g0 τ‖ ≤ (1 / ζ₀.re) * c ^ (5 / 6 : ℝ) *
-        ((1 + |τ|) ^ (5 : ℝ) * Real.exp (-τ ^ 2)) := fun τ => by
-      dsimp [g0]
-      have hamp := norm_tebAmp0_le hc0.le (τ := τ)
-      have h1τ : |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) ≤ (1 + |τ|) ^ (5 : ℝ) := by
-        have h1 : |τ| ^ (5 / 2 : ℝ) ≤ (1 + |τ|) ^ (5 / 2 : ℝ) :=
-          Real.rpow_le_rpow (abs_nonneg _) (by linarith) (by norm_num)
-        have h1τ_pos : 0 < 1 + |τ| := by linarith [abs_nonneg τ]
-        calc |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ)
-            ≤ (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) := by gcongr
-          _ = (1 + |τ|) ^ (5 : ℝ) := by rw [← Real.rpow_add h1τ_pos]; norm_num
-      have h12 : |wt τ| * |stripPoissonQ ζ₀.re ζ₀.im ε τ| ≤ 1 * (1 / ζ₀.re) :=
-        mul_le_mul (hwt_bd τ) (hQ_pt τ) (abs_nonneg _) zero_le_one
-      rw [norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs, Real.norm_eq_abs]
-      calc |wt τ| * |stripPoissonQ ζ₀.re ζ₀.im ε τ| * ‖tebAmp0 c τ‖
-          ≤ (1 * (1 / ζ₀.re)) *
-              (c ^ (5 / 6 : ℝ) * |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * Real.exp (-τ ^ 2)) :=
-            mul_le_mul h12 hamp (norm_nonneg _) (by positivity)
-        _ = (1 / ζ₀.re) * c ^ (5 / 6 : ℝ) * (|τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ)) * Real.exp (-τ ^ 2) := by ring
-        _ ≤ (1 / ζ₀.re) * c ^ (5 / 6 : ℝ) * (1 + |τ|) ^ (5 : ℝ) * Real.exp (-τ ^ 2) := by gcongr
-        _ = _ := by ring
-    have hG_int_of : ∀ (dm : Measure ℝ), IsFiniteMeasure dm → dm (Iic 0) = 0 →
-        Integrable (Function.uncurry G) (volume.prod dm) := by
-      intro dm hfin _
-      let dom : ℝ → ℝ := fun τ => (1 / ζ₀.re) * 4 * c ^ (5 / 6 : ℝ) *
-        ((1 + |τ|) ^ (11 / 2 : ℝ) * Real.exp (-τ ^ 2))
-      have hdom_int : Integrable dom :=
-        (integrable_one_add_abs_rpow_mul_exp_neg_sq (by norm_num : (0 : ℝ) ≤ 11 / 2)).const_mul _
-      exact (hdom_int.comp_fst).mono' hG_meas.aestronglyMeasurable (ae_of_all _ fun ⟨τ, ξ⟩ => by
-        dsimp [Function.uncurry, G, dom]
-        rw [norm_mul, norm_hankelBandK hc0]
-        have hK_bd : ‖hankelEdgeAmp c τ‖ ≤ 4 * (1 + |τ|) ^ (1 / 2 : ℝ) := by
-          have := hankelEdgeAmp_bound (by linarith : 1 ≤ c) τ
-          linarith [norm_nonneg (hankelEdgeAmp' c τ)]
-        have h1pow : (1 + |τ|) ^ (5 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ) = (1 + |τ|) ^ (11 / 2 : ℝ) := by
-          rw [← Real.rpow_add (by linarith [abs_nonneg τ])]; norm_num
-        calc ‖g0 τ‖ * ‖hankelEdgeAmp c τ‖
-            ≤ ((1 / ζ₀.re) * c ^ (5 / 6 : ℝ) * ((1 + |τ|) ^ (5 : ℝ) * Real.exp (-τ ^ 2))) *
-                (4 * (1 + |τ|) ^ (1 / 2 : ℝ)) := mul_le_mul (hg0_bd τ) hK_bd (norm_nonneg _) (by positivity)
-          _ = (1 / ζ₀.re) * 4 * c ^ (5 / 6 : ℝ) *
-                (((1 + |τ|) ^ (5 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ)) * Real.exp (-τ ^ 2)) := by ring
-          _ = _ := by rw [h1pow])
-    have hGP := hG_int_of (hankelDmPos c f) hfinP (hankelDmPos_Iic c f)
-    have hGN := hG_int_of (hankelDmNeg c f) hfinN (hankelDmNeg_Iic c f)
-    have hJ_P : Integrable J (hankelDmPos c f) := hGP.integral_prod_right
-    have hJ_N : Integrable J (hankelDmNeg c f) := hGN.integral_prod_right
-    have h_eq : (fun τ : ℝ => (wt τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
-          (tebAmp0 c τ * hankelWtS c ε f ((τ : ℂ) * Complex.I))) =
-        fun τ : ℝ => (∫ ξ : ℝ, G τ ξ ∂hankelDmPos c f) - ∫ ξ : ℝ, G τ ξ ∂hankelDmNeg c f := by
-      ext τ
-      have hsub := hankelDm_integral_sub hc0 hf (B := 4 * (1 + |τ|) ^ (1 / 2 : ℝ))
-        (K := fun ξ => hankelBandK c τ ξ)
-        (((hankelBandK_measurable hc0).comp (measurable_const.prodMk measurable_id)).aestronglyMeasurable)
-        (fun ξ _ => by
-          rw [norm_hankelBandK hc0]
-          have := hankelEdgeAmp_bound (by linarith : 1 ≤ c) τ
-          linarith [norm_nonneg (hankelEdgeAmp' c τ)])
-      have hK_eq : (fun ξ => hankelBandK c τ ξ) = fun ξ =>
-          hankelEdgeAmp c τ * 1 * Complex.exp ((c : ℂ) * ((0 : ℂ) - Complex.I * (hankelBandPhi τ ξ : ℂ))) := rfl
-      have hW_eq := hankelBand_W_edge hc32 hf τ
-      have hint_eq : (∫ ξ : ℝ, hankelBandK c τ ξ ∂hankelDmPos c f) -
-          ∫ ξ : ℝ, hankelBandK c τ ξ ∂hankelDmNeg c f = hankelWtS c ε f ((τ : ℂ) * Complex.I) :=
-        hW_eq.symm
-      rw [← hint_eq]
-      dsimp [G, g0]
-      rw [integral_const_mul, integral_const_mul]; ring
-    have hIoi_eq : ∀ (dm : Measure ℝ), dm (Iic 0) = 0 → Integrable J dm →
-        ∫ ξ : ℝ, J ξ ∂dm = ∫ ξ in Ioi (0 : ℝ), J ξ ∂dm := by
-      intro dm hsupp hint_dm
-      have h1 := integral_add_compl (s := Ioi (0 : ℝ)) measurableSet_Ioi hint_dm
-      have hcompl : ∫ ξ in (Ioi (0 : ℝ))ᶜ, J ξ ∂dm = 0 := by
-        rw [compl_Ioi, Measure.restrict_eq_zero.2 hsupp, integral_zero_measure]
-      rw [hcompl, add_zero] at h1; exact h1.symm
-    refine ⟨?_, hJ_P, hJ_N⟩
-    rw [h_eq, integral_sub hGP.integral_prod_left hGN.integral_prod_left,
-      integral_integral_swap hGP, integral_integral_swap hGN,
-      ← hIoi_eq _ (hankelDmPos_Iic c f) hJ_P, ← hIoi_eq _ (hankelDmNeg_Iic c f) hJ_N]
+      Integrable J (hankelDmPos c f) ∧ Integrable J (hankelDmNeg c f) :=
+    hankel_scale_fubini hc hf hσ₀ hσ₁ hQ_pt hfinP hfinN
   -- Apply `hfubini` to `innerFn`
   have hχ₁_cont : Continuous χ₁ :=
     (tebCutoff_continuous δ₀).mul (continuous_const.sub (tebCutoff_continuous (4 * ρr)))
@@ -2454,7 +3165,7 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
     have hρmin : 0 < ρr / 3 := by positivity
     have hpf := norm_tebPrefactor_ge_on_annulus hc0 hρmin hζ₀_lo hζ₀_max
     have hdiv : (ρr / 3) ^ (5 / 2 : ℝ) = (1 / 3 : ℝ) ^ (5 / 2 : ℝ) * ρr ^ (5 / 2 : ℝ) := by
-      rw [div_eq_mul_inv, mul_comm, Real.mul_rpow (by norm_num) hρr_pos.le]
+      rw [div_eq_mul_inv, mul_comm, Real.mul_rpow (by norm_num) hρr_pos.le, ← one_div]
     have h13 : (1 / 3 : ℝ) ^ (5 / 2 : ℝ) = (3 / P.κ_ζ)⁻¹ ^ (5 / 2 : ℝ) * P.κ_ζ ^ (-(5 / 2 : ℝ)) := by
       have hκ_nn : 0 ≤ P.κ_ζ := hκ_pos.le
       have hκ3_eq : (3 / P.κ_ζ)⁻¹ = P.κ_ζ * (1 / 3 : ℝ) := by rw [inv_div]; ring
@@ -2496,7 +3207,9 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
       linarith
     dsimp [C_pf_r]
     calc (1 / 128 : ℝ) ≤ (1 / 27 : ℝ) * (1 / 2) * (1 / 2) := by norm_num
-      _ ≤ (3 / P.κ_ζ)⁻¹ ^ (5 / 2 : ℝ) * (0.965 : ℝ) ^ (5 / 2 : ℝ) * Real.exp (-0.04) := by gcongr
+      _ ≤ (3 / P.κ_ζ)⁻¹ ^ (5 / 2 : ℝ) * (0.965 : ℝ) ^ (5 / 2 : ℝ) * Real.exp (-0.04) :=
+          mul_le_mul (mul_le_mul (h13.trans hpow) h0965 (by norm_num) (by positivity))
+            hexp004 (by norm_num) (by positivity)
   -- Bound the inner integral `∫ innerFn` via `inner_half_osc_bound`:
   have hInner_bd : ‖∫ τ : ℝ, innerFn τ‖ ≤
       (4 * 27380416512 * (3 / P.κ_ζ ^ (1 / 2 : ℝ)) / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) +
@@ -2513,77 +3226,11 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
             c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2 *
               (if δ₀ < hankelBandTau0 ξ ∧ hankelBandTau0 ξ < 32 * ρr then 1 else 0)) := by
       intro ξ hξ
-      have hpos := inner_half_osc_bound hc hσ₀ hσ₀_le hε_abs (Or.inl rfl) hξ hr_lb hρ_ub
-      have hneg := inner_half_osc_bound hc hσ₀ hσ₀_le hε_abs (Or.inr rfl) hξ hr_lb hρ_ub
-      have hJ_cont : Continuous (fun τ : ℝ => (χ₁ τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
-          tebAmp0 c τ * hankelBandK c τ ξ) := by
-        have hK := hankelBandK_measurable hc0
-        -- wait: continuous_edgePhi_zero is proved in HankelBandAssembly, let's build continuity directly
-        have hE : Continuous (fun τ => hankelBandPhi τ ξ) := by
-          have : (fun τ => hankelBandPhi τ ξ) = fun τ => Real.log (Real.pi ^ 2 * ξ) * τ + edgePhi 0 τ :=
-            funext fun τ => hankelBandPhi_eq τ ξ
-          rw [this]; exact (continuous_const.mul continuous_id).add continuous_edgePhi_zero
-        have hKc : Continuous (fun τ => hankelBandK c τ ξ) := by
-          unfold hankelBandK
-          exact ((hankelEdgeAmp_continuous hc0).mul continuous_const).mul
-            (Complex.continuous_exp.comp (continuous_const.mul
-              (continuous_const.sub (continuous_const.mul (Complex.continuous_ofReal.comp hE)))))
-        exact ((Complex.continuous_ofReal.comp hχ₁_cont).mul
-          (Complex.continuous_ofReal.comp (stripPoissonQ_continuous hσ₀ hσ₁))).mul
-          (continuous_tebAmp0 c) |>.mul hKc
-      have hF_dom : Integrable (fun τ : ℝ => (χ₁ τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
-          tebAmp0 c τ * hankelBandK c τ ξ) := by
-        have hK_bd : ∀ τ, ‖hankelBandK c τ ξ‖ ≤ 4 * (1 + |τ|) ^ (1 / 2 : ℝ) := fun τ => by
-          rw [norm_hankelBandK hc0]
-          have := hankelEdgeAmp_bound (by linarith : 1 ≤ c) τ
-          linarith [norm_nonneg (hankelEdgeAmp' c τ)]
-        let dom : ℝ → ℝ := fun τ => (1 / ζ₀.re) * 4 * c ^ (5 / 6 : ℝ) * ((1 + |τ|) ^ (11 / 2 : ℝ) * Real.exp (-τ ^ 2))
-        have hdom_int : Integrable dom :=
-          (integrable_one_add_abs_rpow_mul_exp_neg_sq (by norm_num : (0 : ℝ) ≤ 11 / 2)).const_mul _
-        refine hdom_int.mono' hJ_cont.aestronglyMeasurable (ae_of_all _ fun τ => ?_)
-        have hamp := norm_tebAmp0_le hc0.le (τ := τ)
-        have hpow : |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ) ≤
-            (1 + |τ|) ^ (11 / 2 : ℝ) := by
-          have h1 : |τ| ^ (5 / 2 : ℝ) ≤ (1 + |τ|) ^ (5 / 2 : ℝ) :=
-            Real.rpow_le_rpow (abs_nonneg _) (by linarith) (by norm_num)
-          have h2 : (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ) =
-              (1 + |τ|) ^ (11 / 2 : ℝ) := by
-            rw [← Real.rpow_add (by linarith [abs_nonneg τ]), ← Real.rpow_add (by linarith [abs_nonneg τ])]; norm_num
-          calc |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ)
-              ≤ (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ) := by gcongr
-            _ = _ := h2
-        rw [norm_mul, norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs, Real.norm_eq_abs]
-        have h12 : |χ₁ τ| * |stripPoissonQ ζ₀.re ζ₀.im ε τ| ≤ 1 * (1 / ζ₀.re) :=
-          mul_le_mul (hχ₁_bd τ) (hQ_pt τ) (abs_nonneg _) zero_le_one
-        have h34 : ‖tebAmp0 c τ‖ * ‖hankelBandK c τ ξ‖ ≤
-            (c ^ (5 / 6 : ℝ) * |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * Real.exp (-τ ^ 2)) *
-              (4 * (1 + |τ|) ^ (1 / 2 : ℝ)) := mul_le_mul hamp (hK_bd τ) (norm_nonneg _) (by positivity)
-        calc |χ₁ τ| * |stripPoissonQ ζ₀.re ζ₀.im ε τ| * (‖tebAmp0 c τ‖ * ‖hankelBandK c τ ξ‖)
-            ≤ (1 * (1 / ζ₀.re)) * ((c ^ (5 / 6 : ℝ) * |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * Real.exp (-τ ^ 2)) *
-                (4 * (1 + |τ|) ^ (1 / 2 : ℝ))) :=
-              mul_le_mul h12 h34 (mul_nonneg (norm_nonneg _) (norm_nonneg _)) (by positivity)
-          _ = (1 / ζ₀.re) * 4 * c ^ (5 / 6 : ℝ) *
-                ((|τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ)) * Real.exp (-τ ^ 2)) := by ring
-          _ ≤ dom τ := by dsimp [dom]; gcongr
-      dsimp [J₁]
-      rw [integral_real_eq_pos_add_neg hF_dom]
+      have hpos := @inner_half_osc_bound c ε 1 ζ₀.re ζ₀.im r ξ hc hσ₀ hσ₀_le hε_abs (Or.inl rfl) hξ hr_lb hρ_ub
+      have hneg := @inner_half_osc_bound c ε (-1) ζ₀.re ζ₀.im r ξ hc hσ₀ hσ₀_le hε_abs (Or.inr rfl) hξ hr_lb hρ_ub
       have h_even_1 : ∀ τ : ℝ, χ₁ (-τ) = χ₁ τ := fun τ => by
         dsimp [χ₁]; rw [tebCutoff_even, tebCutoff_even]
-      have hneg_eq : (fun τ : ℝ => (χ₁ (-τ) : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε (-τ) : ℂ) *
-            tebAmp0 c (-τ) * hankelBandK c (-τ) ξ) =
-          fun τ : ℝ => (χ₁ τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε (-1 * τ) : ℂ) *
-            tebAmp0 c (-1 * τ) * hankelBandK c (-1 * τ) ξ := by
-        ext τ; rw [h_even_1 τ]; simp only [neg_one_mul]
-      have hpos_eq : (fun τ : ℝ => (χ₁ τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
-            tebAmp0 c τ * hankelBandK c τ ξ) =
-          fun τ : ℝ => (χ₁ τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε (1 * τ) : ℂ) *
-            tebAmp0 c (1 * τ) * hankelBandK c (1 * τ) ξ := by
-        ext τ; simp only [one_mul]
-      rw [hneg_eq, hpos_eq]
-      calc ‖(∫ τ in Ioi (0 : ℝ), _) + ∫ τ in Ioi (0 : ℝ), _‖
-          ≤ ‖∫ τ in Ioi (0 : ℝ), _‖ + ‖∫ τ in Ioi (0 : ℝ), _‖ := norm_add_le _ _
-        _ ≤ _ + _ := add_le_add hpos.2 hneg.2
-        _ = _ := by ring
+      exact (scale_J_norm_le hc hσ₀ hσ₁ hQ_pt hχ₁_cont h_even_1 hχ₁_bd hpos.2 hneg.2).trans_eq (by ring)
     -- Integrate `J₁` over `dmPos` and `dmNeg`:
     have hu_abs : |u_T| ≤ langerRadius c := hankelBoot_abs_uT hc hu0 hu3
     set r_til := min (1028 * r) R_J
@@ -2596,6 +3243,7 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
       have h2 : (2 : ℝ) ≤ R_J := by nlinarith
       linarith
     have hr_til_u : -r_til ≤ u_T := by
+      show -min (1028 * r) R_J ≤ u_T
       rcases le_total (1028 * r) R_J with h | h
       · rw [min_eq_left h]; linarith
       · rw [min_eq_right h]; exact hRu
@@ -2621,7 +3269,7 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
         have hj := hJ₁_pt ξ hξ_pos
         have hnot : ¬ (δ₀ < hankelBandTau0 ξ ∧ hankelBandTau0 ξ < 32 * ρr) :=
           fun hc1 => not_lt.2 hτ hc1.1
-        rw [ite_eq_right.2 (fun h => absurd h hnot), mul_zero, add_zero] at hj
+        rw [ite_eq_right hnot, mul_zero, add_zero] at hj
         exact hj
       have hconst_int : IntegrableOn
           (fun _ : ℝ => 2 * 27380416512 * (1 / ζ₀.re) * c ^ (5 / 6 : ℝ) * (c⁻¹ * ρr ^ (1 / 2 : ℝ)))
@@ -2639,184 +3287,8 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
               ENNReal.toReal_mono (measure_ne_top (hankelDmNeg c f) univ) (measure_mono (subset_univ _))
             exact mul_le_of_le_one_left (by positivity) (hmeas.trans hdmNeg_le)
     -- Bound on `dmPos`:
-    have hpos_bd : ‖∫ ξ in Ioi (0 : ℝ), J₁ ξ ∂hankelDmPos c f‖ ≤
-        2 * 27380416512 * (1 / ζ₀.re) * c ^ (5 / 6 : ℝ) *
-          (c⁻¹ * ρr ^ (1 / 2 : ℝ) +
-            P.C_τ * c ^ (-(7 / 6 : ℝ)) *
-              ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f +
-            1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r * hankelBootB2 c f R_J) := by
-      let C_J1 : ℝ := 2 * 27380416512 * (1 / ζ₀.re) * c ^ (5 / 6 : ℝ)
-      have hC_J1_pos : 0 < C_J1 := by positivity
-      let bandSet := Icc (hankelXi c u_T) (hankelXi c (-r_til))
-      let tailSet := Ici (hankelXi c (-R_J))
-      let uFn : ℝ → ℝ := fun ξ => -hankelBandU c ξ
-      let f₁ : ℝ → ℝ := fun _ => C_J1 * (c⁻¹ * ρr ^ (1 / 2 : ℝ))
-      let f₂ : ℝ → ℝ := fun ξ => C_J1 * (P.C_τ * c ^ (-(7 / 6 : ℝ))) * bandSet.indicator uFn ξ
-      let f₃ : ℝ → ℝ := fun ξ => C_J1 * (1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r) *
-        tailSet.indicator (fun _ => (1 : ℝ)) ξ
-      have hf₁_int : IntegrableOn f₁ (Ioi 0) (hankelDmPos c f) :=
-        integrableOn_const (hs := (measure_lt_top (hankelDmPos c f) _).ne)
-      have huFn_contOn : ContinuousOn uFn bandSet := by
-        intro ξ hξ
-        have hT_wb := hankelXi_w_bounds hc0 hu_abs hu0
-        have hrA' : |-r_til| ≤ langerRadius c := by rw [abs_neg, abs_of_pos hr_til_pos]; exact hr_til_A
-        have hr_wb := hankelXi_w_bounds hc0 hrA' (by linarith)
-        have hpi_sq_nn : 0 ≤ Real.pi ^ 2 := sq_nonneg Real.pi
-        have hle1 : Real.pi ^ 2 * hankelXi c u_T ≤ Real.pi ^ 2 * ξ :=
-          mul_le_mul_of_nonneg_left hξ.1 hpi_sq_nn
-        have hle2 : Real.pi ^ 2 * ξ ≤ Real.pi ^ 2 * hankelXi c (-r_til) :=
-          mul_le_mul_of_nonneg_left hξ.2 hpi_sq_nn
-        have hw_lo : 0 ≤ Real.pi ^ 2 * ξ - 1 := by linarith [hle1, hT_wb.1]
-        have hw_hi : Real.pi ^ 2 * ξ - 1 ≤ 5e-4 := by linarith [hle2, hr_wb.2.1]
-        exact (hankelBandU_continuousAt hw_lo hw_hi).continuousWithinAt.neg
-      have hf₂_int : IntegrableOn f₂ (Ioi 0) (hankelDmPos c f) := by
-        have hband_int : IntegrableOn uFn bandSet (hankelDmPos c f) :=
-          huFn_contOn.integrableOn_Icc.mono_measure Measure.restrict_le_self
-        have hind_int : Integrable (bandSet.indicator uFn) (hankelDmPos c f) :=
-          (integrable_indicator_iff measurableSet_Icc).2 hband_int
-        exact (hind_int.const_mul _).integrableOn
-      have hf₃_int : IntegrableOn f₃ (Ioi 0) (hankelDmPos c f) := by
-        have hind_int : Integrable (tailSet.indicator (fun _ => (1 : ℝ))) (hankelDmPos c f) :=
-          (integrable_indicator_iff measurableSet_Ici).2
-            (integrableOn_const (hs := (measure_lt_top (hankelDmPos c f) _).ne))
-        exact (hind_int.const_mul _).integrableOn
-      have hc_pow : c ^ (-(1 / 2 : ℝ)) * (c ^ (-(2 / 3 : ℝ))) = c ^ (-(7 / 6 : ℝ)) := by
-        rw [← Real.rpow_add hc0]; norm_num
-      have hρ_sq : (32 * ρr) ^ 2 = 1024 * P.κ_ζ ^ 2 * c ^ (-(2 / 3 : ℝ)) * r := by
-        have hdef : ρr = P.κ_ζ * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r := rfl
-        rw [hdef]
-        have h1 : (c ^ (-(1 / 3 : ℝ))) ^ 2 = c ^ (-(2 / 3 : ℝ)) := by
-          rw [← Real.rpow_natCast, ← Real.rpow_mul hc0.le]; norm_num
-        have h2 : Real.sqrt r ^ 2 = r := Real.sq_sqrt hr0.le
-        calc (32 * (P.κ_ζ * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r)) ^ 2
-            = 1024 * P.κ_ζ ^ 2 * (c ^ (-(1 / 3 : ℝ))) ^ 2 * Real.sqrt r ^ 2 := by ring
-          _ = 1024 * P.κ_ζ ^ 2 * c ^ (-(2 / 3 : ℝ)) * r := by rw [h1, h2]
-      have hae : ∀ᵐ ξ ∂(hankelDmPos c f).restrict (Ioi 0),
-          ‖J₁ ξ‖ ≤ f₁ ξ + f₂ ξ + f₃ ξ := by
-        rw [ae_restrict_iff' measurableSet_Ioi]
-        refine ae_of_all _ fun ξ hξ_pos => ?_
-        have hj := hJ₁_pt ξ hξ_pos
-        dsimp [f₁, f₂, f₃]
-        have hτ0_nn : 0 ≤ hankelBandTau0 ξ := hankelBandTau0_nonneg ξ
-        have hband_nn : 0 ≤ bandSet.indicator uFn ξ := by
-          refine Set.indicator_nonneg (fun y hy => ?_) ξ
-          have htb := hankelBandTau0_band hc hu0 hu3 hr_til_pos.le hr_til_A hy
-          have hCτ_pos : 0 < P.C_τ * c ^ (-(2 / 3 : ℝ)) := by have := P.hC_τ; positivity
-          nlinarith [sq_nonneg (hankelBandTau0 y)]
-        have htail_nn : 0 ≤ tailSet.indicator (fun _ => (1 : ℝ)) ξ :=
-          Set.indicator_nonneg (fun _ _ => zero_le_one) ξ
-        have h_term : c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2 *
-              (if δ₀ < hankelBandTau0 ξ ∧ hankelBandTau0 ξ < 32 * ρr then 1 else 0) ≤
-            P.C_τ * c ^ (-(7 / 6 : ℝ)) * bandSet.indicator uFn ξ +
-            1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r * tailSet.indicator (fun _ => (1 : ℝ)) ξ := by
-          by_cases hcond : δ₀ < hankelBandTau0 ξ ∧ hankelBandTau0 ξ < 32 * ρr
-          · rw [if_pos hcond, mul_one]
-            have hu_le : hankelXi c u_T ≤ ξ := by
-              by_contra hlt
-              push Not at hlt
-              exact not_lt.2 (hankelBandTau0_below hc hu0 hu3 hlt) hcond.1
-            rcases le_total (1028 * r) R_J with hcase | hcase
-            · have hr_til_eq : r_til = 1028 * r := min_eq_left hcase
-              have hξ_hi : ξ ≤ hankelXi c (-r_til) := by
-                rw [hr_til_eq]
-                exact xi_le_1028r_of_tau0_lt hc hRJ_ub hr0 hcase hcond.2
-              have hmem : ξ ∈ bandSet := ⟨hu_le, hξ_hi⟩
-              have htb := hankelBandTau0_band hc hu0 hu3 hr_til_pos.le hr_til_A hmem
-              rw [Set.indicator_of_mem hmem]
-              have hle1 : c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2 ≤
-                  P.C_τ * c ^ (-(7 / 6 : ℝ)) * uFn ξ := by
-                calc c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2
-                    ≤ c ^ (-(1 / 2 : ℝ)) * (P.C_τ * c ^ (-(2 / 3 : ℝ)) * uFn ξ) := by gcongr
-                  _ = P.C_τ * (c ^ (-(1 / 2 : ℝ)) * c ^ (-(2 / 3 : ℝ))) * uFn ξ := by ring
-                  _ = _ := by rw [hc_pow]
-              have htail_0 : 0 ≤ 1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r *
-                  tailSet.indicator (fun _ => (1 : ℝ)) ξ := by positivity
-              linarith
-            · have hr_til_eq : r_til = R_J := min_eq_right hcase
-              rcases le_or_gt ξ (hankelXi c (-R_J)) with hxi | hxi
-              · have hmem : ξ ∈ bandSet := ⟨hu_le, by rw [hr_til_eq]; exact hxi⟩
-                have htb := hankelBandTau0_band hc hu0 hu3 hr_til_pos.le hr_til_A hmem
-                rw [Set.indicator_of_mem hmem]
-                have hle1 : c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2 ≤
-                    P.C_τ * c ^ (-(7 / 6 : ℝ)) * uFn ξ := by
-                  calc c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2
-                      ≤ c ^ (-(1 / 2 : ℝ)) * (P.C_τ * c ^ (-(2 / 3 : ℝ)) * uFn ξ) := by gcongr
-                    _ = P.C_τ * (c ^ (-(1 / 2 : ℝ)) * c ^ (-(2 / 3 : ℝ))) * uFn ξ := by ring
-                    _ = _ := by rw [hc_pow]
-                have htail_0 : 0 ≤ 1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r *
-                    tailSet.indicator (fun _ => (1 : ℝ)) ξ := by positivity
-                linarith
-              · have hmem : ξ ∈ tailSet := hxi.le
-                rw [Set.indicator_of_mem hmem, mul_one]
-                have hsq_le : hankelBandTau0 ξ ^ 2 ≤ (32 * ρr) ^ 2 :=
-                  pow_le_pow_left₀ hτ0_nn hcond.2.le 2
-                have hle2 : c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2 ≤
-                    1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r := by
-                  calc c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2
-                      ≤ c ^ (-(1 / 2 : ℝ)) * (32 * ρr) ^ 2 := by gcongr
-                    _ = 1024 * P.κ_ζ ^ 2 * (c ^ (-(1 / 2 : ℝ)) * c ^ (-(2 / 3 : ℝ))) * r := by
-                        rw [hρ_sq]; ring
-                    _ = _ := by rw [hc_pow]
-                have hband_0 : 0 ≤ P.C_τ * c ^ (-(7 / 6 : ℝ)) * bandSet.indicator uFn ξ := by
-                  have := P.hC_τ; positivity
-                linarith
-          · rw [if_neg hcond, mul_zero, add_zero]
-            have h1 : 0 ≤ P.C_τ * c ^ (-(7 / 6 : ℝ)) * bandSet.indicator uFn ξ := by
-              have := P.hC_τ; positivity
-            have h2 : 0 ≤ 1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r *
-                tailSet.indicator (fun _ => (1 : ℝ)) ξ := by positivity
-            linarith [hj]
-        have hpt : ‖J₁ ξ‖ ≤ C_J1 * (c⁻¹ * ρr ^ (1 / 2 : ℝ) +
-            P.C_τ * c ^ (-(7 / 6 : ℝ)) * bandSet.indicator uFn ξ +
-            1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r * tailSet.indicator (fun _ => (1 : ℝ)) ξ) := by
-          rcases eq_or_ne (if δ₀ < hankelBandTau0 ξ ∧ hankelBandTau0 ξ < 32 * ρr then (1 : ℝ) else 0) 0 with hz | _
-          · calc ‖J₁ ξ‖ ≤ C_J1 * (c⁻¹ * ρr ^ (1 / 2 : ℝ) +
-                c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2 *
-                  (if δ₀ < hankelBandTau0 ξ ∧ hankelBandTau0 ξ < 32 * ρr then 1 else 0)) := hj
-              _ ≤ _ := mul_le_mul_of_nonneg_left (by linarith [h_term]) hC_J1_pos.le
-          · calc ‖J₁ ξ‖ ≤ C_J1 * (c⁻¹ * ρr ^ (1 / 2 : ℝ) +
-                c ^ (-(1 / 2 : ℝ)) * hankelBandTau0 ξ ^ 2 *
-                  (if δ₀ < hankelBandTau0 ξ ∧ hankelBandTau0 ξ < 32 * ρr then 1 else 0)) := hj
-              _ ≤ _ := mul_le_mul_of_nonneg_left (by linarith [h_term]) hC_J1_pos.le
-        calc ‖J₁ ξ‖ ≤ _ := hpt
-          _ = C_J1 * (c⁻¹ * ρr ^ (1 / 2 : ℝ)) +
-              C_J1 * (P.C_τ * c ^ (-(7 / 6 : ℝ))) * bandSet.indicator uFn ξ +
-              C_J1 * (1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r) *
-                tailSet.indicator (fun _ => (1 : ℝ)) ξ := by ring
-      have hJ₁_pos_int : IntegrableOn J₁ (Ioi 0) (hankelDmPos c f) := hInner_fub.2.1.integrableOn
-      have hsum_int : IntegrableOn (fun ξ => f₁ ξ + f₂ ξ + f₃ ξ) (Ioi 0) (hankelDmPos c f) :=
-        (hf₁_int.add hf₂_int).add hf₃_int
-      have hf₁_bd : ∫ ξ in Ioi (0 : ℝ), f₁ ξ ∂hankelDmPos c f ≤ C_J1 * (c⁻¹ * ρr ^ (1 / 2 : ℝ)) := by
-        dsimp [f₁]; rw [setIntegral_const, smul_eq_mul]
-        have hmeas : (hankelDmPos c f).real (Ioi 0) ≤ (hankelDmPos c f univ).toReal :=
-          ENNReal.toReal_mono (measure_ne_top (hankelDmPos c f) univ) (measure_mono (subset_univ _))
-        exact mul_le_of_le_one_left (by positivity) (hmeas.trans hdmPos_le)
-      have hf₂_bd : ∫ ξ in Ioi (0 : ℝ), f₂ ξ ∂hankelDmPos c f ≤
-          C_J1 * (P.C_τ * c ^ (-(7 / 6 : ℝ))) * ∫ ξ in bandSet, uFn ξ ∂hankelDmPos c f := by
-        dsimp [f₂]; rw [integral_const_mul]
-        refine mul_le_mul_of_nonneg_left ?_ (by have := P.hC_τ; positivity)
-        have hband_sub : bandSet ⊆ Ioi (0 : ℝ) := fun ξ hξ => lt_of_lt_of_le hξT_pos hξ.1
-        rw [setIntegral_indicator measurableSet_Icc, inter_eq_self_of_subset_right hband_sub]
-      have hf₃_bd : ∫ ξ in Ioi (0 : ℝ), f₃ ξ ∂hankelDmPos c f ≤
-          C_J1 * (1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r) * hankelBootB2 c f R_J := by
-        dsimp [f₃]; rw [integral_const_mul]
-        refine mul_le_mul_of_nonneg_left ?_ (by positivity)
-        have htail_sub : tailSet ⊆ Ioi (0 : ℝ) := fun ξ hξ =>
-          lt_of_lt_of_le (lt_of_lt_of_le (lt_of_lt_of_le hξT_pos hmonoξ) hmonoξ_RJ) hξ
-        rw [setIntegral_indicator measurableSet_Ici, inter_eq_self_of_subset_right htail_sub,
-          setIntegral_const, smul_eq_mul, mul_one]
-        rfl
-      calc ‖∫ ξ in Ioi (0 : ℝ), J₁ ξ ∂hankelDmPos c f‖
-          ≤ ∫ ξ in Ioi (0 : ℝ), ‖J₁ ξ‖ ∂hankelDmPos c f := norm_integral_le_integral_norm _
-        _ ≤ ∫ ξ in Ioi (0 : ℝ), (f₁ ξ + f₂ ξ + f₃ ξ) ∂hankelDmPos c f :=
-            integral_mono_ae hJ₁_pos_int.norm hsum_int hae
-        _ = (∫ ξ in Ioi (0 : ℝ), f₁ ξ ∂hankelDmPos c f) +
-            (∫ ξ in Ioi (0 : ℝ), f₂ ξ ∂hankelDmPos c f) +
-            (∫ ξ in Ioi (0 : ℝ), f₃ ξ ∂hankelDmPos c f) := by
-            rw [integral_add (hf₁_int.add hf₂_int) hf₃_int, integral_add hf₁_int hf₂_int]
-        _ ≤ _ := by
-            have := add_le_add (add_le_add hf₁_bd hf₂_bd) hf₃_bd
-            linarith
+    have hpos_bd := inner_dm_pos_bound hc hu0 hu3 hr_lb hr_RJ hRJ_ub hσ₀ hfinP hdmPos_le
+      hInner_fub.2.1.integrableOn hJ₁_pt
     -- Combine `hpos_bd` and `hneg_bd` via `hInner_fub.1`, converting `1 / ζ₀.re * c^(5/6)` to `r`:
     have hinv_re : (1 / ζ₀.re) * c ^ (5 / 6 : ℝ) ≤ (3 / P.κ_ζ / Real.cos ψ) * c ^ (7 / 6 : ℝ) * r ^ (-(1 / 2 : ℝ)) := by
       have h1 : 1 / ζ₀.re ≤ (3 / P.κ_ζ) * c ^ (1 / 3 : ℝ) * r ^ (-(1 / 2 : ℝ)) / Real.cos ψ := by
@@ -2826,7 +3298,7 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
           rw [Real.sqrt_eq_rpow, ← Real.rpow_add hr0]; simp
         calc (1 : ℝ) = ((P.κ_ζ / 3) * (3 / P.κ_ζ)) * (c ^ (-(1 / 3 : ℝ)) * c ^ (1 / 3 : ℝ)) *
               (Real.sqrt r * r ^ (-(1 / 2 : ℝ))) * (Real.cos ψ / Real.cos ψ) := by
-              rw [hc13, hr12, div_mul_cancel₀ _ hκ_pos.ne', div_self hcos_pos.ne']; ring
+              rw [hc13, hr12]; field_simp
           _ = ((P.κ_ζ / 3) * c ^ (-(1 / 3 : ℝ)) * Real.sqrt r * Real.cos ψ) *
                 ((3 / P.κ_ζ) * c ^ (1 / 3 : ℝ) * r ^ (-(1 / 2 : ℝ)) / Real.cos ψ) := by ring
           _ ≤ ζ₀.re * ((3 / P.κ_ζ) * c ^ (1 / 3 : ℝ) * r ^ (-(1 / 2 : ℝ)) / Real.cos ψ) := by
@@ -2858,17 +3330,17 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
     have hc_cancel : c ^ (7 / 6 : ℝ) * c ^ (-(7 / 6 : ℝ)) = 1 := by
       rw [← Real.rpow_add hc0]; simp
     have hr_12_sq : r ^ (-(1 / 2 : ℝ)) * r = r ^ (1 / 2 : ℝ) := by
-      conv_rhs => rw [← Real.rpow_one r]
-      rw [← Real.rpow_add hr0]; norm_num
+      have hr1 : r ^ (-(1 / 2 : ℝ)) * r = r ^ (-(1 / 2 : ℝ)) * r ^ (1 : ℝ) := by rw [Real.rpow_one]
+      rw [hr1, ← Real.rpow_add hr0]; norm_num
     have hκ_pow : (3 / P.κ_ζ) * P.κ_ζ ^ (1 / 2 : ℝ) = 3 / P.κ_ζ ^ (1 / 2 : ℝ) := by
       rw [div_mul_eq_mul_div, div_eq_div_iff hκ_pos.ne' (Real.rpow_pos_of_pos hκ_pos _).ne']
-      conv_rhs => rw [mul_assoc, ← Real.rpow_add hκ_pos]
+      conv_lhs => rw [mul_assoc, ← Real.rpow_add hκ_pos]
       norm_num
     have hband_nn : 0 ≤ ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f := by
       refine setIntegral_nonneg measurableSet_Icc fun ξ hξ => ?_
       have htb := hankelBandTau0_band hc hu0 hu3 hr_til_pos.le hr_til_A hξ
       have hCτ_pos : 0 < P.C_τ * c ^ (-(2 / 3 : ℝ)) := by have := P.hC_τ; positivity
-      nlinarith [sq_nonneg (hankelBandTau0 ξ)]
+      exact nonneg_of_mul_nonneg_right ((sq_nonneg (hankelBandTau0 ξ)).trans htb) hCτ_pos
     have hB2_RJ_nn : 0 ≤ hankelBootB2 c f R_J := hankelBootB2_nonneg c f R_J
     have hκ_pos' : 0 < P.κ_ζ := P.hκ_ζ
     have hCτ_pos' : 0 < P.C_τ := P.hC_τ
@@ -2882,13 +3354,23 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
               P.C_τ * c ^ (-(7 / 6 : ℝ)) *
                 ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f +
               1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r * hankelBootB2 c f R_J) := by
-            linarith [hpos_bd, hneg_bd]
+            linarith only [hpos_bd, hneg_bd]
       _ ≤ 2 * 27380416512 * ((3 / P.κ_ζ / Real.cos ψ) * c ^ (7 / 6 : ℝ) * r ^ (-(1 / 2 : ℝ))) *
             (2 * (c⁻¹ * ρr ^ (1 / 2 : ℝ)) +
               P.C_τ * c ^ (-(7 / 6 : ℝ)) *
                 ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f +
               1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r * hankelBootB2 c f R_J) := by
-            gcongr
+            have hrhs_nn : 0 ≤ 2 * (c⁻¹ * ρr ^ (1 / 2 : ℝ)) +
+                P.C_τ * c ^ (-(7 / 6 : ℝ)) *
+                  ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f +
+                1024 * P.κ_ζ ^ 2 * c ^ (-(7 / 6 : ℝ)) * r * hankelBootB2 c f R_J :=
+              add_nonneg (add_nonneg (mul_nonneg zero_le_two (mul_nonneg (inv_nonneg.2 hc0.le)
+                (Real.rpow_nonneg hρr_pos.le _))) (mul_nonneg (mul_nonneg hCτ_pos'.le
+                  (Real.rpow_nonneg hc0.le _)) hband_nn))
+                (mul_nonneg (mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) (sq_nonneg _))
+                  (Real.rpow_nonneg hc0.le _)) hr0.le) hB2_RJ_nn)
+            have h1 := mul_le_mul_of_nonneg_left hinv_re (by norm_num : (0 : ℝ) ≤ 2 * 27380416512)
+            exact mul_le_mul_of_nonneg_right (by linarith only [h1]) hrhs_nn
       _ = 2 * 27380416512 * (3 / P.κ_ζ / Real.cos ψ) *
             (2 * (c ^ (7 / 6 : ℝ) * r ^ (-(1 / 2 : ℝ)) * (c⁻¹ * ρr ^ (1 / 2 : ℝ))) +
               P.C_τ * (c ^ (7 / 6 : ℝ) * c ^ (-(7 / 6 : ℝ))) * r ^ (-(1 / 2 : ℝ)) *
@@ -2901,7 +3383,11 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
             (2 * 27380416512 * (3 / P.κ_ζ) * 1024 * P.κ_ζ ^ 2 / Real.cos ψ) * r ^ (1 / 2 : ℝ) *
               hankelBootB2 c f R_J := by
             rw [hc_inv_ρ, hc_cancel, hr_12_sq]; ring
-      _ = _ := by rw [hκ_pow]
+      _ = (4 * 27380416512 * (3 / P.κ_ζ ^ (1 / 2 : ℝ)) / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) +
+            (2 * 27380416512 * (3 / P.κ_ζ) * P.C_τ / Real.cos ψ) * r ^ (-(1 / 2 : ℝ)) *
+              ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f +
+            (2 * 27380416512 * (3 / P.κ_ζ) * 1024 * P.κ_ζ ^ 2 / Real.cos ψ) * r ^ (1 / 2 : ℝ) *
+              hankelBootB2 c f R_J := by rw [hκ_pow]
   -- Bound the outer integral `∫ outerFn` via `outer_half_osc_bound`:
   have hOuter_bd : ‖∫ τ : ℝ, outerFn τ‖ ≤
       (8 * 3e15 / P.κ_ζ ^ (1 / 2 : ℝ)) * r ^ (-(1 / 4 : ℝ)) +
@@ -2912,81 +3398,20 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
         2 * 3e15 * ζ₀.re * c ^ (5 / 6 : ℝ) *
           (c⁻¹ * ρr ^ (-(3 / 2 : ℝ)) + c ^ (-(1 / 2 : ℝ)) * (if 4 * ρr < hankelBandTau0 ξ then 1 else 0)) := by
       intro ξ hξ
-      have hpos := outer_half_osc_bound hc hσ₀ hσ₀_le hε_abs (Or.inl rfl) hξ hr_lb hζ₀_hi
-      have hneg := outer_half_osc_bound hc hσ₀ hσ₀_le hε_abs (Or.inr rfl) hξ hr_lb hζ₀_hi
-      have hE : Continuous (fun τ => hankelBandPhi τ ξ) := by
-        have : (fun τ => hankelBandPhi τ ξ) = fun τ => Real.log (Real.pi ^ 2 * ξ) * τ + edgePhi 0 τ :=
-          funext fun τ => hankelBandPhi_eq τ ξ
-        rw [this]; exact (continuous_const.mul continuous_id).add continuous_edgePhi_zero
-      have hKc : Continuous (fun τ => hankelBandK c τ ξ) := by
-        unfold hankelBandK
-        exact ((hankelEdgeAmp_continuous hc0).mul continuous_const).mul
-          (Complex.continuous_exp.comp (continuous_const.mul
-            (continuous_const.sub (continuous_const.mul (Complex.continuous_ofReal.comp hE)))))
-      have hJ_cont : Continuous (fun τ : ℝ => (ψ_r τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
-          tebAmp0 c τ * hankelBandK c τ ξ) :=
-        ((Complex.continuous_ofReal.comp (tebCutoff_continuous (4 * ρr))).mul
-          (Complex.continuous_ofReal.comp (stripPoissonQ_continuous hσ₀ hσ₁))).mul
-          (continuous_tebAmp0 c) |>.mul hKc
-      have hF_dom : Integrable (fun τ : ℝ => (ψ_r τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
-          tebAmp0 c τ * hankelBandK c τ ξ) := by
-        have hK_bd : ∀ τ, ‖hankelBandK c τ ξ‖ ≤ 4 * (1 + |τ|) ^ (1 / 2 : ℝ) := fun τ => by
-          rw [norm_hankelBandK hc0]
-          have := hankelEdgeAmp_bound (by linarith : 1 ≤ c) τ
-          linarith [norm_nonneg (hankelEdgeAmp' c τ)]
-        let dom : ℝ → ℝ := fun τ => (1 / ζ₀.re) * 4 * c ^ (5 / 6 : ℝ) * ((1 + |τ|) ^ (11 / 2 : ℝ) * Real.exp (-τ ^ 2))
-        have hdom_int : Integrable dom :=
-          (integrable_one_add_abs_rpow_mul_exp_neg_sq (by norm_num : (0 : ℝ) ≤ 11 / 2)).const_mul _
-        refine hdom_int.mono' hJ_cont.aestronglyMeasurable (ae_of_all _ fun τ => ?_)
-        have hamp := norm_tebAmp0_le hc0.le (τ := τ)
-        have hpow : |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ) ≤
-            (1 + |τ|) ^ (11 / 2 : ℝ) := by
-          have h1 : |τ| ^ (5 / 2 : ℝ) ≤ (1 + |τ|) ^ (5 / 2 : ℝ) :=
-            Real.rpow_le_rpow (abs_nonneg _) (by linarith) (by norm_num)
-          have h2 : (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ) =
-              (1 + |τ|) ^ (11 / 2 : ℝ) := by
-            rw [← Real.rpow_add (by linarith [abs_nonneg τ]), ← Real.rpow_add (by linarith [abs_nonneg τ])]; norm_num
-          calc |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ)
-              ≤ (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ) := by gcongr
-            _ = _ := h2
-        rw [norm_mul, norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs, Real.norm_eq_abs]
-        have h12 : |ψ_r τ| * |stripPoissonQ ζ₀.re ζ₀.im ε τ| ≤ 1 * (1 / ζ₀.re) :=
-          mul_le_mul (hψr_bd τ) (hQ_pt τ) (abs_nonneg _) zero_le_one
-        have h34 : ‖tebAmp0 c τ‖ * ‖hankelBandK c τ ξ‖ ≤
-            (c ^ (5 / 6 : ℝ) * |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * Real.exp (-τ ^ 2)) *
-              (4 * (1 + |τ|) ^ (1 / 2 : ℝ)) := mul_le_mul hamp (hK_bd τ) (norm_nonneg _) (by positivity)
-        calc |ψ_r τ| * |stripPoissonQ ζ₀.re ζ₀.im ε τ| * (‖tebAmp0 c τ‖ * ‖hankelBandK c τ ξ‖)
-            ≤ (1 * (1 / ζ₀.re)) * ((c ^ (5 / 6 : ℝ) * |τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * Real.exp (-τ ^ 2)) *
-                (4 * (1 + |τ|) ^ (1 / 2 : ℝ))) :=
-              mul_le_mul h12 h34 (mul_nonneg (norm_nonneg _) (norm_nonneg _)) (by positivity)
-          _ = (1 / ζ₀.re) * 4 * c ^ (5 / 6 : ℝ) *
-                ((|τ| ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (5 / 2 : ℝ) * (1 + |τ|) ^ (1 / 2 : ℝ)) * Real.exp (-τ ^ 2)) := by ring
-          _ ≤ dom τ := by dsimp [dom]; gcongr
-      dsimp [J₂]
-      rw [integral_real_eq_pos_add_neg hF_dom]
-      have h_even_r : ∀ τ : ℝ, ψ_r (-τ) = ψ_r τ := fun τ => tebCutoff_even (4 * ρr) τ
-      have hneg_eq : (fun τ : ℝ => (ψ_r (-τ) : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε (-τ) : ℂ) *
-            tebAmp0 c (-τ) * hankelBandK c (-τ) ξ) =
-          fun τ : ℝ => (ψ_r τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε (-1 * τ) : ℂ) *
-            tebAmp0 c (-1 * τ) * hankelBandK c (-1 * τ) ξ := by
-        ext τ; rw [h_even_r τ]; simp only [neg_one_mul]
-      have hpos_eq : (fun τ : ℝ => (ψ_r τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε τ : ℂ) *
-            tebAmp0 c τ * hankelBandK c τ ξ) =
-          fun τ : ℝ => (ψ_r τ : ℂ) * (stripPoissonQ ζ₀.re ζ₀.im ε (1 * τ) : ℂ) *
-            tebAmp0 c (1 * τ) * hankelBandK c (1 * τ) ξ := by
-        ext τ; simp only [one_mul]
-      rw [hneg_eq, hpos_eq]
-      calc ‖(∫ τ in Ioi (0 : ℝ), _) + ∫ τ in Ioi (0 : ℝ), _‖
-          ≤ ‖∫ τ in Ioi (0 : ℝ), _‖ + ‖∫ τ in Ioi (0 : ℝ), _‖ := norm_add_le _ _
-        _ ≤ _ + _ := add_le_add hpos.2 hneg.2
-        _ = _ := by ring
+      have hζ₀_eq : (ζ₀.re : ℂ) + (ζ₀.im : ℂ) * Complex.I = ζ₀ := Complex.re_add_im ζ₀
+      have hζ₀_hi' : ‖(ζ₀.re : ℂ) + (ζ₀.im : ℂ) * Complex.I‖ ≤ 2 * rhoR hankelBandParams c r := by
+        rw [hζ₀_eq]; exact hζ₀_hi
+      have hpos := outer_half_osc_bound hc hσ₀ hσ₀_le hε_abs (Or.inl rfl) hξ hr_lb hζ₀_hi'
+      have hneg := outer_half_osc_bound hc hσ₀ hσ₀_le hε_abs (Or.inr rfl) hξ hr_lb hζ₀_hi'
+      exact (scale_J_norm_le hc hσ₀ hσ₁ hQ_pt (tebCutoff_continuous (4 * ρr))
+        (tebCutoff_even (4 * ρr)) hψr_bd hpos.2 hneg.2).trans_eq (by ring)
     have hu_abs : |u_T| ≤ langerRadius c := hankelBoot_abs_uT hc hu0 hu3
     have hξT_pos : 0 < hankelXi c u_T := hankelXi_pos hc0 hu_abs
     have hrA_r : |-r| ≤ langerRadius c := by
       rw [abs_neg, abs_of_pos hr0]
       exact hr_RJ.trans (hRJ_ub.trans (hankelBand_radius_ge_one hc))
     have hξr_lt : hankelXi c u_T ≤ hankelXi c (-r) :=
-      le_of_mul_le_mul_left (hankel_phi_anti hc0 hrA_r hu_abs (by linarith)) hc0
+      le_of_mul_le_mul_left (hankel_phi_anti hc0 hrA_r hu_abs (by linarith only [hr_lb, hu3])) hc0
     have hneg_bd2 : ‖∫ ξ in Ioi (0 : ℝ), J₂ ξ ∂hankelDmNeg c f‖ ≤
         2 * 3e15 * ζ₀.re * c ^ (5 / 6 : ℝ) * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ))) := by
       have hae : ∀ᵐ ξ ∂(hankelDmNeg c f).restrict (Ioi 0),
@@ -2996,9 +3421,10 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
           rw [ae_iff]; simp only [not_lt]; exact hdm_neg_tail
         filter_upwards [hlt] with ξ hξ_lt hξ_pos
         have hτ := tau0_lt_two_rhoR_of_xi_le hc hRJ_ub hr0 hr_RJ (hξ_lt.le.trans hξr_lt)
-        have hnot : ¬ (4 * ρr < hankelBandTau0 ξ) := by linarith
+        change hankelBandTau0 ξ < 2 * ρr at hτ
+        have hnot : ¬ (4 * ρr < hankelBandTau0 ξ) := by linarith only [hτ, hρr_pos]
         have hj := hJ₂_pt ξ hξ_pos
-        rw [ite_eq_right.2 (fun h => absurd h hnot), mul_zero, add_zero] at hj
+        rw [ite_eq_right hnot, mul_zero, add_zero] at hj
         exact hj
       have hconst_int : IntegrableOn
           (fun _ : ℝ => 2 * 3e15 * ζ₀.re * c ^ (5 / 6 : ℝ) * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ))))
@@ -3012,64 +3438,12 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
             rw [setIntegral_const, smul_eq_mul]
             have hmeas : (hankelDmNeg c f).real (Ioi 0) ≤ (hankelDmNeg c f univ).toReal :=
               ENNReal.toReal_mono (measure_ne_top (hankelDmNeg c f) univ) (measure_mono (subset_univ _))
-            exact mul_le_of_le_one_left (by positivity) (hmeas.trans hdmNeg_le)
-    have hpos_bd2 : ‖∫ ξ in Ioi (0 : ℝ), J₂ ξ ∂hankelDmPos c f‖ ≤
-        2 * 3e15 * ζ₀.re * c ^ (5 / 6 : ℝ) *
-          (c⁻¹ * ρr ^ (-(3 / 2 : ℝ)) + c ^ (-(1 / 2 : ℝ)) * hankelBootB2 c f r) := by
-      let C_J2 : ℝ := 2 * 3e15 * ζ₀.re * c ^ (5 / 6 : ℝ)
-      let tailSet_r := Ici (hankelXi c (-r))
-      let g₁ : ℝ → ℝ := fun _ => C_J2 * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ)))
-      let g₂ : ℝ → ℝ := fun ξ => C_J2 * c ^ (-(1 / 2 : ℝ)) * tailSet_r.indicator (fun _ => (1 : ℝ)) ξ
-      have hg₁_int : IntegrableOn g₁ (Ioi 0) (hankelDmPos c f) :=
-        integrableOn_const (hs := (measure_lt_top (hankelDmPos c f) _).ne)
-      have hg₂_int : IntegrableOn g₂ (Ioi 0) (hankelDmPos c f) := by
-        have hind_int : Integrable (tailSet_r.indicator (fun _ => (1 : ℝ))) (hankelDmPos c f) :=
-          (integrable_indicator_iff measurableSet_Ici).2
-            (integrableOn_const (hs := (measure_lt_top (hankelDmPos c f) _).ne))
-        exact (hind_int.const_mul _).integrableOn
-      have hae : ∀ᵐ ξ ∂(hankelDmPos c f).restrict (Ioi 0), ‖J₂ ξ‖ ≤ g₁ ξ + g₂ ξ := by
-        rw [ae_restrict_iff' measurableSet_Ioi]
-        refine ae_of_all _ fun ξ hξ_pos => ?_
-        have hj := hJ₂_pt ξ hξ_pos
-        dsimp [g₁, g₂]
-        have hind_le : (if 4 * ρr < hankelBandTau0 ξ then (1 : ℝ) else 0) ≤
-            tailSet_r.indicator (fun _ => (1 : ℝ)) ξ := by
-          by_cases hcond : 4 * ρr < hankelBandTau0 ξ
-          · rw [if_pos hcond]
-            have hmem : ξ ∈ tailSet_r := by
-              by_contra hlt
-              push Not at hlt
-              have hτ := tau0_lt_two_rhoR_of_xi_le hc hRJ_ub hr0 hr_RJ hlt.le
-              linarith
-            rw [Set.indicator_of_mem hmem]
-          · rw [if_neg hcond]
-            exact Set.indicator_nonneg (fun _ _ => zero_le_one) ξ
-        calc ‖J₂ ξ‖ ≤ C_J2 * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ)) +
-              c ^ (-(1 / 2 : ℝ)) * (if 4 * ρr < hankelBandTau0 ξ then 1 else 0)) := hj
-          _ ≤ C_J2 * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ)) +
-              c ^ (-(1 / 2 : ℝ)) * tailSet_r.indicator (fun _ => (1 : ℝ)) ξ) := by gcongr
-          _ = _ := by ring
-      have hg₁_bd : ∫ ξ in Ioi (0 : ℝ), g₁ ξ ∂hankelDmPos c f ≤ C_J2 * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ))) := by
-        dsimp [g₁]; rw [setIntegral_const, smul_eq_mul]
-        have hmeas : (hankelDmPos c f).real (Ioi 0) ≤ (hankelDmPos c f univ).toReal :=
-          ENNReal.toReal_mono (measure_ne_top (hankelDmPos c f) univ) (measure_mono (subset_univ _))
-        exact mul_le_of_le_one_left (by positivity) (hmeas.trans hdmPos_le)
-      have hg₂_bd : ∫ ξ in Ioi (0 : ℝ), g₂ ξ ∂hankelDmPos c f ≤
-          C_J2 * c ^ (-(1 / 2 : ℝ)) * hankelBootB2 c f r := by
-        dsimp [g₂]; rw [integral_const_mul]
-        refine mul_le_mul_of_nonneg_left ?_ (by positivity)
-        have htail_sub : tailSet_r ⊆ Ioi (0 : ℝ) := fun ξ hξ =>
-          lt_of_lt_of_le (lt_of_lt_of_le hξT_pos hξr_lt) hξ
-        rw [setIntegral_indicator measurableSet_Ici, inter_eq_self_of_subset_right htail_sub,
-          setIntegral_const, smul_eq_mul, mul_one]
-        rfl
-      calc ‖∫ ξ in Ioi (0 : ℝ), J₂ ξ ∂hankelDmPos c f‖
-          ≤ ∫ ξ in Ioi (0 : ℝ), ‖J₂ ξ‖ ∂hankelDmPos c f := norm_integral_le_integral_norm _
-        _ ≤ ∫ ξ in Ioi (0 : ℝ), (g₁ ξ + g₂ ξ) ∂hankelDmPos c f :=
-            integral_mono_ae hOuter_fub.2.1.integrableOn.norm (hg₁_int.add hg₂_int) hae
-        _ = (∫ ξ in Ioi (0 : ℝ), g₁ ξ ∂hankelDmPos c f) +
-            (∫ ξ in Ioi (0 : ℝ), g₂ ξ ∂hankelDmPos c f) := integral_add hg₁_int hg₂_int
-        _ ≤ _ := add_le_add hg₁_bd hg₂_bd
+            have hnn : 0 ≤ 2 * 3e15 * ζ₀.re * c ^ (5 / 6 : ℝ) * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ))) :=
+              mul_nonneg (mul_nonneg (mul_nonneg (by positivity) hσ₀.le) (Real.rpow_nonneg hc0.le _))
+                (mul_nonneg (inv_nonneg.2 hc0.le) (Real.rpow_nonneg hρr_pos.le _))
+            exact mul_le_of_le_one_left hnn (hmeas.trans hdmNeg_le)
+    have hpos_bd2 := outer_dm_pos_bound hc hu0 hu3 hr_lb hr_RJ hRJ_ub hσ₀ hfinP hdmPos_le
+      hOuter_fub.2.1.integrableOn hJ₂_pt
     have hre_c : ζ₀.re * c ^ (5 / 6 : ℝ) ≤ 2 * P.κ_ζ * c ^ (1 / 2 : ℝ) * r ^ (1 / 2 : ℝ) := by
       have h1 : ζ₀.re ≤ 2 * P.κ_ζ * c ^ (-(1 / 3 : ℝ)) * r ^ (1 / 2 : ℝ) := by
         calc ζ₀.re ≤ ‖ζ₀‖ := Complex.re_le_norm ζ₀
@@ -3103,8 +3477,9 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
     have hc_out_2 : c ^ (1 / 2 : ℝ) * c ^ (-(1 / 2 : ℝ)) = 1 := by
       rw [← Real.rpow_add hc0]; simp
     have hκ_out : P.κ_ζ * P.κ_ζ ^ (-(3 / 2 : ℝ)) = 1 / P.κ_ζ ^ (1 / 2 : ℝ) := by
-      conv_lhs => rw [← Real.rpow_one P.κ_ζ, ← Real.rpow_add hκ_pos]
-      rw [one_div, ← Real.rpow_neg hκ_pos.le]; norm_num
+      have h1 : P.κ_ζ * P.κ_ζ ^ (-(3 / 2 : ℝ)) = P.κ_ζ ^ (1 : ℝ) * P.κ_ζ ^ (-(3 / 2 : ℝ)) := by
+        rw [Real.rpow_one]
+      rw [h1, ← Real.rpow_add hκ_pos, one_div, ← Real.rpow_neg hκ_pos.le]; norm_num
     have hB2_r_nn : 0 ≤ hankelBootB2 c f r := hankelBootB2_nonneg c f r
     calc ‖∫ τ : ℝ, outerFn τ‖
         = ‖(∫ ξ in Ioi (0 : ℝ), J₂ ξ ∂hankelDmPos c f) - ∫ ξ in Ioi (0 : ℝ), J₂ ξ ∂hankelDmNeg c f‖ := by
@@ -3113,10 +3488,13 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
             norm_sub_le _ _
       _ ≤ 2 * 3e15 * (ζ₀.re * c ^ (5 / 6 : ℝ)) *
             (2 * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ))) + c ^ (-(1 / 2 : ℝ)) * hankelBootB2 c f r) := by
-            linarith [hpos_bd2, hneg_bd2]
+            linarith only [hpos_bd2, hneg_bd2]
       _ ≤ 2 * 3e15 * (2 * P.κ_ζ * c ^ (1 / 2 : ℝ) * r ^ (1 / 2 : ℝ)) *
             (2 * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ))) + c ^ (-(1 / 2 : ℝ)) * hankelBootB2 c f r) := by
-            gcongr
+            have hrhs : 0 ≤ 2 * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ))) + c ^ (-(1 / 2 : ℝ)) * hankelBootB2 c f r :=
+              add_nonneg (mul_nonneg zero_le_two (mul_nonneg (inv_nonneg.2 hc0.le) (Real.rpow_nonneg hρr_pos.le _)))
+                (mul_nonneg (Real.rpow_nonneg hc0.le _) hB2_r_nn)
+            exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hre_c (by norm_num)) hrhs
       _ = 4 * 3e15 * P.κ_ζ *
             (2 * (c ^ (1 / 2 : ℝ) * r ^ (1 / 2 : ℝ) * (c⁻¹ * ρr ^ (-(3 / 2 : ℝ)))) +
               (c ^ (1 / 2 : ℝ) * c ^ (-(1 / 2 : ℝ))) * r ^ (1 / 2 : ℝ) * hankelBootB2 c f r) := by ring
@@ -3126,74 +3504,7 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
       _ = (8 * 3e15 / P.κ_ζ ^ (1 / 2 : ℝ)) * r ^ (-(1 / 4 : ℝ)) +
             (4 * 3e15 * P.κ_ζ) * r ^ (1 / 2 : ℝ) * hankelBootB2 c f r := by
             rw [hκ_out]; ring
-  -- Combine Core, Inner, Outer and divide by `‖tebPrefactor c ζ₀‖ ≥ C_pf_r * r^(5/4)`:
-  have hcos_le1 : Real.cos ψ ≤ 1 := Real.cos_le_one ψ
-  have h_inv_cos_ge1 : 1 ≤ 1 / Real.cos ψ := one_le_div hcos_pos |>.mpr hcos_le1
-  have hk_bd := hankelLangerKappa_bounds
-  have hκ_ge1 : 1 ≤ P.κ_ζ := by show 1 ≤ 2 * langerKappa; linarith
-  have hκ_le14 : P.κ_ζ ≤ 1.4 := by show 2 * langerKappa ≤ 1.4; linarith
-  have hA0_le8 : P.A_0 ≤ 8 := by
-    have h1 : 32 / langerKappa ≤ 64 := by
-      rw [div_le_iff₀ langerKappa_pos]; linarith [hk_bd.1]
-    calc P.A_0 = Real.sqrt (32 / langerKappa) := rfl
-      _ ≤ Real.sqrt 64 := Real.sqrt_le_sqrt h1
-      _ = 8 := by norm_num
-  have hA0_nonneg : 0 ≤ P.A_0 := P.hA_0.le
-  have hCW_eq : P.C_W = 2 := rfl
-  have hM_eq : P.M = 1 / 2 := rfl
-  have hCτ_le22 : P.C_τ ≤ 22 := by
-    show 11 / langerKappa ≤ 22
-    rw [div_le_iff₀ langerKappa_pos]; linarith [hk_bd.1]
-  have h_core_coeff : (8 * P.A_0 * (4 * P.A_0) ^ (5 / 2 : ℝ) * (1 + 4 * P.A_0) ^ (P.M + 5 / 2) * P.C_W) *
-      (3 / P.κ_ζ) ≤ 1e11 := by
-    have h4A : (4 * P.A_0) ^ (5 / 2 : ℝ) ≤ 32 ^ (3 : ℝ) := by
-      calc (4 * P.A_0) ^ (5 / 2 : ℝ) ≤ (32 : ℝ) ^ (5 / 2 : ℝ) :=
-            Real.rpow_le_rpow (by positivity) (by linarith) (by norm_num)
-        _ ≤ 32 ^ (3 : ℝ) := Real.rpow_le_rpow_of_exponent_le (by norm_num) (by norm_num)
-    have h14A : (1 + 4 * P.A_0) ^ (P.M + 5 / 2) = (1 + 4 * P.A_0) ^ (3 : ℝ) := by rw [hM_eq]; norm_num
-    have h14A_bd : (1 + 4 * P.A_0) ^ (3 : ℝ) ≤ 33 ^ (3 : ℝ) :=
-      Real.rpow_le_rpow (by positivity) (by linarith) (by norm_num)
-    have h3κ : 3 / P.κ_ζ ≤ 3 := div_le_self (by norm_num) hκ_ge1
-    rw [hCW_eq, h14A]
-    calc 8 * P.A_0 * (4 * P.A_0) ^ (5 / 2 : ℝ) * (1 + 4 * P.A_0) ^ (3 : ℝ) * 2 * (3 / P.κ_ζ)
-        ≤ 8 * 8 * 32 ^ (3 : ℝ) * 33 ^ (3 : ℝ) * 2 * 3 := by gcongr
-      _ ≤ 1e11 := by norm_num
-  have hκ12_ge1 : 1 ≤ P.κ_ζ ^ (1 / 2 : ℝ) := Real.one_le_rpow hκ_ge1 (by norm_num)
-  have h_core_step : (8 * P.A_0 * (4 * P.A_0) ^ (5 / 2 : ℝ) * (1 + 4 * P.A_0) ^ (P.M + 5 / 2) * P.C_W) *
-      (3 / P.κ_ζ) / Real.cos ψ * r ^ (-(1 / 2 : ℝ)) ≤
-      (1e11 / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) := by
-    have h1 := mul_le_mul_of_nonneg_right h_core_coeff (by positivity : 0 ≤ r ^ (-(1 / 2 : ℝ)) / Real.cos ψ)
-    calc _ = ((8 * P.A_0 * (4 * P.A_0) ^ (5 / 2 : ℝ) * (1 + 4 * P.A_0) ^ (P.M + 5 / 2) * P.C_W) *
-          (3 / P.κ_ζ)) * (r ^ (-(1 / 2 : ℝ)) / Real.cos ψ) := by ring
-      _ ≤ 1e11 * (r ^ (-(1 / 2 : ℝ)) / Real.cos ψ) := h1
-      _ ≤ 1e11 * (r ^ (-(1 / 4 : ℝ)) / Real.cos ψ) := by gcongr
-      _ = _ := by ring
-  have h_in1 : 4 * 27380416512 * (3 / P.κ_ζ ^ (1 / 2 : ℝ)) ≤ 4e11 := by
-    have h1 : 3 / P.κ_ζ ^ (1 / 2 : ℝ) ≤ 3 := div_le_self (by norm_num) hκ12_ge1
-    calc 4 * 27380416512 * (3 / P.κ_ζ ^ (1 / 2 : ℝ)) ≤ 4 * 27380416512 * 3 := by gcongr
-      _ ≤ 4e11 := by norm_num
-  have h_in2 : 2 * 27380416512 * (3 / P.κ_ζ) * P.C_τ ≤ 4e12 := by
-    have h1 : 3 / P.κ_ζ ≤ 3 := div_le_self (by norm_num) hκ_ge1
-    calc 2 * 27380416512 * (3 / P.κ_ζ) * P.C_τ ≤ 2 * 27380416512 * 3 * 22 := by gcongr
-      _ ≤ 4e12 := by norm_num
-  have h_in3 : 2 * 27380416512 * (3 / P.κ_ζ) * 1024 * P.κ_ζ ^ 2 ≤ 4e14 := by
-    have h1 : 3 / P.κ_ζ ≤ 3 := div_le_self (by norm_num) hκ_ge1
-    have h2 : P.κ_ζ ^ 2 ≤ 1.4 ^ 2 := by nlinarith
-    calc 2 * 27380416512 * (3 / P.κ_ζ) * 1024 * P.κ_ζ ^ 2
-        ≤ 2 * 27380416512 * 3 * 1024 * 1.4 ^ 2 := by gcongr
-      _ ≤ 4e14 := by norm_num
-  have h_out1 : (8 * 3e15 / P.κ_ζ ^ (1 / 2 : ℝ)) ≤ 3e16 / Real.cos ψ := by
-    have h1 : 8 * 3e15 / P.κ_ζ ^ (1 / 2 : ℝ) ≤ 3e16 := by
-      calc 8 * 3e15 / P.κ_ζ ^ (1 / 2 : ℝ) ≤ 8 * 3e15 / 1 := by gcongr
-        _ ≤ 3e16 := by norm_num
-    calc 8 * 3e15 / P.κ_ζ ^ (1 / 2 : ℝ) ≤ 3e16 * 1 := by linarith
-      _ ≤ 3e16 * (1 / Real.cos ψ) := mul_le_mul_of_nonneg_left h_inv_cos_ge1 (by norm_num)
-      _ = 3e16 / Real.cos ψ := by ring
-  have h_out2 : 4 * 3e15 * P.κ_ζ ≤ 2e16 / Real.cos ψ := by
-    have h1 : 4 * 3e15 * P.κ_ζ ≤ 2e16 := by nlinarith
-    calc 4 * 3e15 * P.κ_ζ ≤ 2e16 * 1 := by linarith
-      _ ≤ 2e16 * (1 / Real.cos ψ) := mul_le_mul_of_nonneg_left h_inv_cos_ge1 (by norm_num)
-      _ = 2e16 / Real.cos ψ := by ring
+  -- Combine Core, Inner, Outer and divide by `‖tebPrefactor c ζ₀‖ ≥ (1 / 128) * r^(5/4)`:
   set r_til := min (1028 * r) R_J
   have hr_til_pos : 0 < r_til := lt_min (by positivity) (lt_of_lt_of_le hr0 hr_RJ)
   have hr_til_RJ : r_til ≤ R_J := min_le_right _ _
@@ -3202,107 +3513,20 @@ theorem hankel_scale_band_reduction {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ}
     refine setIntegral_nonneg measurableSet_Icc fun ξ hξ => ?_
     have htb := hankelBandTau0_band hc hu0 hu3 hr_til_pos.le hr_til_A hξ
     have hCτ_pos : 0 < P.C_τ * c ^ (-(2 / 3 : ℝ)) := by have := P.hC_τ; positivity
-    nlinarith [sq_nonneg (hankelBandTau0 ξ)]
+    exact nonneg_of_mul_nonneg_right ((sq_nonneg (hankelBandTau0 ξ)).trans htb) hCτ_pos
   have hB2_r_nn : 0 ≤ hankelBootB2 c f r := hankelBootB2_nonneg c f r
   have hB2_RJ_nn : 0 ≤ hankelBootB2 c f R_J := hankelBootB2_nonneg c f R_J
-  have hH_bd_norm : ‖H ζ₀‖ ≤
-      ((1e11 + 4e11 + 3e16) / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) +
-      (4e12 / Real.cos ψ) * r ^ (-(1 / 2 : ℝ)) *
-        ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f +
-      ((2e16 + 4e14) / Real.cos ψ) * r ^ (1 / 2 : ℝ) * (hankelBootB2 c f r + hankelBootB2 c f R_J) := by
-    have h_tri : ‖H ζ₀‖ ≤ ‖∫ τ : ℝ, coreFn τ‖ + ‖∫ τ : ℝ, innerFn τ‖ + ‖∫ τ : ℝ, outerFn τ‖ := by
-      rw [hH_split]
-      exact (norm_add_le _ _).trans (add_le_add_right (norm_add_le _ _) _)
-    have hInner1 : ‖∫ τ : ℝ, innerFn τ‖ ≤
-        (4e11 / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) +
-        (4e12 / Real.cos ψ) * r ^ (-(1 / 2 : ℝ)) *
-          ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f +
-        (4e14 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * hankelBootB2 c f R_J := by
-      refine hInner_bd.trans ?_
-      have h1 : (4 * 27380416512 * (3 / P.κ_ζ ^ (1 / 2 : ℝ)) / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) ≤
-          (4e11 / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) := by gcongr
-      have h2 : (2 * 27380416512 * (3 / P.κ_ζ) * P.C_τ / Real.cos ψ) * r ^ (-(1 / 2 : ℝ)) *
-            ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f ≤
-          (4e12 / Real.cos ψ) * r ^ (-(1 / 2 : ℝ)) *
-            ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f := by gcongr
-      have h3 : (2 * 27380416512 * (3 / P.κ_ζ) * 1024 * P.κ_ζ ^ 2 / Real.cos ψ) * r ^ (1 / 2 : ℝ) *
-            hankelBootB2 c f R_J ≤
-          (4e14 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * hankelBootB2 c f R_J := by gcongr
-      linarith
-    have hOuter1 : ‖∫ τ : ℝ, outerFn τ‖ ≤
-        (3e16 / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) +
-        (2e16 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * hankelBootB2 c f r := by
-      refine hOuter_bd.trans ?_
-      have h1 : (8 * 3e15 / P.κ_ζ ^ (1 / 2 : ℝ)) * r ^ (-(1 / 4 : ℝ)) ≤
-          (3e16 / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) := by gcongr
-      have h2 : (4 * 3e15 * P.κ_ζ) * r ^ (1 / 2 : ℝ) * hankelBootB2 c f r ≤
-          (2e16 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * hankelBootB2 c f r := by gcongr
-      linarith
-    have hB2_mix : (4e14 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * hankelBootB2 c f R_J +
-        (2e16 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * hankelBootB2 c f r ≤
-        ((2e16 + 4e14) / Real.cos ψ) * r ^ (1 / 2 : ℝ) * (hankelBootB2 c f r + hankelBootB2 c f R_J) := by
-      have h_pos1 : 0 ≤ (2e16 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * hankelBootB2 c f R_J := by positivity
-      have h_pos2 : 0 ≤ (4e14 / Real.cos ψ) * r ^ (1 / 2 : ℝ) * hankelBootB2 c f r := by positivity
-      linarith
-    linarith [hCore_bd, h_core_step, hInner1, hOuter1, hB2_mix]
-  have hr_exp1 : r ^ (-(1 / 4 : ℝ)) / r ^ (5 / 4 : ℝ) = r ^ (-(3 / 2 : ℝ)) := by
-    rw [← Real.rpow_sub hr0]; norm_num
-  have hr_exp2 : r ^ (-(1 / 2 : ℝ)) / r ^ (5 / 4 : ℝ) = r ^ (-(7 / 4 : ℝ)) := by
-    rw [← Real.rpow_sub hr0]; norm_num
-  have hr_exp3 : r ^ (1 / 2 : ℝ) / r ^ (5 / 4 : ℝ) = r ^ (-(3 / 4 : ℝ)) := by
-    rw [← Real.rpow_sub hr0]; norm_num
+  have h_tri : ‖H ζ₀‖ ≤ ‖∫ τ : ℝ, coreFn τ‖ + ‖∫ τ : ℝ, innerFn τ‖ + ‖∫ τ : ℝ, outerFn τ‖ := by
+    rw [hH_split]
+    exact (norm_add_le _ _).trans (add_le_add (norm_add_le _ _) le_rfl)
   have hpf_pos : 0 < ‖tebPrefactor c ζ₀‖ := lt_of_lt_of_le (by positivity) hpf_lb
-  have hpf_lb' : (1 / 128 : ℝ) * r ^ (5 / 4 : ℝ) ≤ ‖tebPrefactor c ζ₀‖ := by
-    have : (1 / 128 : ℝ) * r ^ (5 / 4 : ℝ) ≤ C_pf_r * r ^ (5 / 4 : ℝ) :=
-      mul_le_mul_of_nonneg_right hC_pf_lb hr_54_pos.le
-    exact this.trans hpf_lb
+  have hpf_lb' : (1 / 128 : ℝ) * r ^ (5 / 4 : ℝ) ≤ ‖tebPrefactor c ζ₀‖ :=
+    (mul_le_mul_of_nonneg_right hC_pf_lb hr_54_pos.le).trans hpf_lb
   have hW_eq_div : ‖hankelWtS c ε f ζ₀‖ = ‖H ζ₀‖ / ‖tebPrefactor c ζ₀‖ := by
     dsimp [H]; rw [norm_mul, mul_div_cancel_left₀ _ hpf_pos.ne']
   rw [hW_eq_div]
-  calc ‖H ζ₀‖ / ‖tebPrefactor c ζ₀‖
-      ≤ ‖H ζ₀‖ / ((1 / 128 : ℝ) * r ^ (5 / 4 : ℝ)) :=
-        div_le_div_of_nonneg_left (norm_nonneg _) (by positivity) hpf_lb'
-    _ ≤ (((1e11 + 4e11 + 3e16) / Real.cos ψ) * r ^ (-(1 / 4 : ℝ)) +
-          (4e12 / Real.cos ψ) * r ^ (-(1 / 2 : ℝ)) *
-            ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f +
-          ((2e16 + 4e14) / Real.cos ψ) * r ^ (1 / 2 : ℝ) * (hankelBootB2 c f r + hankelBootB2 c f R_J)) /
-          ((1 / 128 : ℝ) * r ^ (5 / 4 : ℝ)) := by gcongr
-    _ = ((128 * (1e11 + 4e11 + 3e16)) * (r ^ (-(1 / 4 : ℝ)) / r ^ (5 / 4 : ℝ)) +
-          (128 * 4e12) * (r ^ (-(1 / 2 : ℝ)) / r ^ (5 / 4 : ℝ)) *
-            ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f +
-          (128 * (2e16 + 4e14)) * (r ^ (1 / 2 : ℝ) / r ^ (5 / 4 : ℝ)) *
-            (hankelBootB2 c f r + hankelBootB2 c f R_J)) / Real.cos ψ := by ring
-    _ = ((128 * (1e11 + 4e11 + 3e16)) * r ^ (-(3 / 2 : ℝ)) +
-          (128 * 4e12) * r ^ (-(7 / 4 : ℝ)) *
-            ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f +
-          (128 * (2e16 + 4e14)) * r ^ (-(3 / 4 : ℝ)) *
-            (hankelBootB2 c f r + hankelBootB2 c f R_J)) / Real.cos ψ := by
-        rw [hr_exp1, hr_exp2, hr_exp3]
-    _ ≤ hankelScaleBandC *
-          (r ^ (-(3 / 2 : ℝ)) +
-            r ^ (-(7 / 4 : ℝ)) *
-              ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f +
-            r ^ (-(3 / 4 : ℝ)) * (hankelBootB2 c f r + hankelBootB2 c f R_J)) / Real.cos ψ := by
-        unfold hankelScaleBandC
-        have h_add_rhs :
-            (128 * (1e11 + 4e11 + 3e16)) * r ^ (-(3 / 2 : ℝ)) +
-              (128 * 4e12) * r ^ (-(7 / 4 : ℝ)) *
-                ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f +
-              (128 * (2e16 + 4e14)) * r ^ (-(3 / 4 : ℝ)) *
-                (hankelBootB2 c f r + hankelBootB2 c f R_J) ≤
-            1e20 * (r ^ (-(3 / 2 : ℝ)) +
-              r ^ (-(7 / 4 : ℝ)) *
-                ∫ ξ in Icc (hankelXi c u_T) (hankelXi c (-r_til)), (-hankelBandU c ξ) ∂hankelDmPos c f +
-              r ^ (-(3 / 4 : ℝ)) * (hankelBootB2 c f r + hankelBootB2 c f R_J)) := by
-          have h_r1 : (128 * (1e11 + 4e11 + 3e16) : ℝ) ≤ 1e20 := by norm_num
-          have h_r2 : (128 * 4e12 : ℝ) ≤ 1e20 := by norm_num
-          have h_r3 : (128 * (2e16 + 4e14) : ℝ) ≤ 1e20 := by norm_num
-          nlinarith [Real.rpow_pos_of_pos hr0 (-(3 / 2 : ℝ)),
-            Real.rpow_pos_of_pos hr0 (-(7 / 4 : ℝ)),
-            Real.rpow_pos_of_pos hr0 (-(3 / 4 : ℝ)),
-            mul_nonneg (Real.rpow_pos_of_pos hr0 (-(7 / 4 : ℝ))).le hband_nn,
-            mul_nonneg (Real.rpow_pos_of_pos hr0 (-(3 / 4 : ℝ))).le (add_nonneg hB2_r_nn hB2_RJ_nn)]
-        exact div_le_div_of_nonneg_right h_add_rhs hcos_pos.le
+  exact hankel_scale_combine hr_lb hcos_pos hband_nn hB2_r_nn hB2_RJ_nn (norm_nonneg _)
+    h_tri hCore_bd hInner_bd hOuter_bd hpf_lb'
 
 /-- Corollary of `hankel_scale_band_reduction` rewriting the band integral via `hankelBootB1`
 at `r̃ = min (1028 * r) R_J`. -/
@@ -3329,7 +3553,7 @@ theorem hankel_scale_band_reduction_B1 {c ε T u_T R_J r : ℝ} {f : ℝ → ℝ
       r_til * hankelBootB1 c f r_til u_T := by
     unfold hankelBootB1
     rw [mul_inv_cancel_left₀ hr_til_pos.ne']
-  rw [← hB1]
+  rw [mul_assoc, ← hB1]
   exact hankel_scale_band_reduction hc hε hf hmass hu0 hu3 hT htail hRJ_lb hRJ_ub hr_lb hr_RJ
     hζ₀_lo hζ₀_hi hcos_eq hcos_pos
 
