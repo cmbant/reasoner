@@ -30,12 +30,12 @@ lemma lintegral_xi_d_s4_3 {f : ℝ × ℝ → ℝ≥0∞} (hf : Measurable f) :
     ∫⁻ y : ℝ × ℝ, f y = ENNReal.ofReal 2 * ∫⁻ q : ℝ × ℝ, f (q.1 + q.2, q.1 - q.2) := by
   let e₁ : ℝ × ℝ ≃ᵐ ℝ × ℝ :=
     { toEquiv :=
-        { toFun := fun q => (q.1, q.1 + q.2)
-          invFun := fun q => (q.1, q.2 - q.1)
-          left_inv := fun ⟨x, y⟩ => by simp
-          right_inv := fun ⟨x, z⟩ => by simp }
-      measurable_toFun := measurable_fst.prodMk (measurable_fst.add measurable_snd)
-      measurable_invFun := measurable_fst.prodMk (measurable_snd.sub measurable_fst) }
+        { toFun := fun q => (q.1 + q.2, q.2)
+          invFun := fun q => (q.1 - q.2, q.2)
+          left_inv := fun ⟨x, y⟩ => Prod.ext (by ring) rfl
+          right_inv := fun ⟨x, z⟩ => Prod.ext (by ring) rfl }
+      measurable_toFun := (measurable_fst.add measurable_snd).prodMk measurable_snd
+      measurable_invFun := (measurable_fst.sub measurable_snd).prodMk measurable_snd }
   let e₂ : ℝ × ℝ ≃ᵐ ℝ × ℝ :=
     { toEquiv :=
         { toFun := fun q => (q.1 + q.2, q.1 - q.2)
@@ -48,10 +48,10 @@ lemma lintegral_xi_d_s4_3 {f : ℝ × ℝ → ℝ≥0∞} (hf : Measurable f) :
           ((measurable_fst.sub measurable_snd).div_const 2) }
   have h1 : ∀ g : ℝ × ℝ → ℝ≥0∞, Measurable g → ∫⁻ q : ℝ × ℝ, g (e₁ q) = ∫⁻ q : ℝ × ℝ, g q := by
     intro g hg
-    rw [Measure.volume_eq_prod, lintegral_prod _ hg.aemeasurable,
-      lintegral_prod (fun q => g (e₁ q)) (hg.comp e₁.measurable).aemeasurable]
-    refine lintegral_congr fun x => ?_
-    simpa [e₁] using lintegral_add_left_eq_self (fun y => g (x, y)) x
+    rw [Measure.volume_eq_prod, lintegral_prod_symm _ hg.aemeasurable,
+      lintegral_prod_symm (fun q => g (e₁ q)) (hg.comp e₁.measurable).aemeasurable]
+    refine lintegral_congr fun y => ?_
+    simpa [e₁] using lintegral_add_right_eq_self (fun x => g (x, y)) y
   have he_map : Measure.map e₂ (volume : Measure (ℝ × ℝ)) =
       ENNReal.ofReal (1 / 2) • (volume : Measure (ℝ × ℝ)) := by
     let s1 : ℝ × ℝ ≃ᵐ ℝ × ℝ :=
@@ -62,13 +62,13 @@ lemma lintegral_xi_d_s4_3 {f : ℝ × ℝ → ℝ≥0∞} (hf : Measurable f) :
             right_inv := fun ⟨x, z⟩ => Prod.ext rfl (by ring) }
         measurable_toFun := measurable_fst.prodMk ((measurable_const.mul measurable_snd).add measurable_fst)
         measurable_invFun := measurable_fst.prodMk ((measurable_fst.sub measurable_snd).div_const 2) }
-    have hcomp : ∀ q : ℝ × ℝ, s1 (e₁ q) = e₂ q := fun q => by
-      simp [s1, e₁, e₂]; exact Prod.ext rfl (by ring)
+    have hcomp : ∀ q : ℝ × ℝ, s1 (e₁ q) = e₂ q := fun q =>
+      Prod.ext rfl (by dsimp [s1, e₁, e₂]; ring)
     have hmap_s1 : Measure.map s1 (volume : Measure (ℝ × ℝ)) =
         ENNReal.ofReal (1 / 2) • (volume : Measure (ℝ × ℝ)) := by
       ext s hs
       rw [Measure.map_apply s1.measurable hs, Measure.smul_apply, smul_eq_mul,
-        ← lintegral_indicator_one hs, ← lintegral_indicator_one (s1.measurable hs)]
+        ← lintegral_indicator_one hs]
       have h_lhs : ∀ g : ℝ × ℝ → ℝ≥0∞, Measurable g →
           ∫⁻ q : ℝ × ℝ, g (s1 q) = ENNReal.ofReal (1 / 2) * ∫⁻ q : ℝ × ℝ, g q := by
         intro g hg
@@ -92,15 +92,15 @@ lemma lintegral_xi_d_s4_3 {f : ℝ × ℝ → ℝ≥0∞} (hf : Measurable f) :
       have hind : (fun q => (s.indicator (1 : ℝ × ℝ → ℝ≥0∞)) (s1 q)) =
           (s1 ⁻¹' s).indicator (1 : ℝ × ℝ → ℝ≥0∞) := by ext q; rfl
       rw [hind, lintegral_indicator_one (s1.measurable hs)] at hl1
-      exact hl1.symm
+      exact hl1
     have hmap_e1 : Measure.map e₁ (volume : Measure (ℝ × ℝ)) = volume := by
       ext s hs
-      rw [Measure.map_apply e₁.measurable hs, ← lintegral_indicator_one hs,
-        ← lintegral_indicator_one (e₁.measurable hs)]
+      rw [Measure.map_apply e₁.measurable hs, ← lintegral_indicator_one hs]
       have hl1 := h1 (s.indicator 1) (measurable_const.indicator hs)
       have hind : (fun q => (s.indicator (1 : ℝ × ℝ → ℝ≥0∞)) (e₁ q)) =
           (e₁ ⁻¹' s).indicator (1 : ℝ × ℝ → ℝ≥0∞) := by ext q; rfl
-      rw [hind] at hl1; exact hl1.symm
+      rw [hind, lintegral_indicator_one (e₁.measurable hs)] at hl1
+      exact hl1
     have he2_eq : (e₂ : ℝ × ℝ → ℝ × ℝ) = s1 ∘ e₁ := (funext hcomp).symm
     have hmap_comp : Measure.map (s1 ∘ e₁) (volume : Measure (ℝ × ℝ)) =
         Measure.map s1 (Measure.map e₁ (volume : Measure (ℝ × ℝ))) :=
@@ -166,7 +166,7 @@ lemma spinLambda_pow_sub_one_le {c : ℝ} {N : ℕ} (hc : 49 ≤ c)
   have hlam_le_exp : spinLambda a ≤ Real.exp (24 / n) := by
     have ha2_ge : n / 24 ≤ a - 2 := by dsimp [a]; linarith
     have h1 : 1 / (a - 2) ≤ 24 / n :=
-      (one_div_le_one_div_of_le (by positivity) ha2_ge).trans_eq (by ring)
+      (one_div_le_one_div_of_le (by positivity) ha2_ge).trans_eq (by ring_nf)
     exact hlam_le_add.trans (by
       calc 1 + 1 / (a - 2) ≤ 1 + 24 / n := by linarith
         _ = 24 / n + 1 := add_comm _ _
@@ -208,11 +208,11 @@ lemma sq_mul_exp_neg_le {u c : ℝ} (hu0 : 0 ≤ u) (hc0 : 0 < c) :
     _ = 4 / c ^ 2 := by rw [hexp_mul, mul_one]
 
 lemma spinS4_3_3_cap_term
-    {c R C_22b κ D bStar ε : ℝ} {Φ : ℝ × ℝ → ℝ}
+    {c R C_22b κ D bStar δ_hi ε : ℝ} {Φ : ℝ × ℝ → ℝ}
     (hR : 2 ≤ R) (hε_pos : 0 < ε) (hn_pos : 0 < c - 1)
     (hε_eq : (c - 1) * ε ^ (3 / 2 : ℝ) = 1)
     (hC22_pos : 0 < C_22b) (hκ_pos : 0 < κ)
-    (hD0 : 0 ≤ D) (hbStar0 : 0 ≤ bStar)
+    (hD0 : 0 ≤ D) (_hbStar0 : 0 ≤ bStar)
     (hΦ : SpinTestClass ((c - 1) / 12) Φ)
     (hS_int : IntegrableOn (fun d : ℝ => spinSlitIntegral ((c - 1) / 12) Φ d) (Icc (-D) D))
     (hS_le : ∫ d in Icc (-D) D, spinSlitIntegral ((c - 1) / 12) Φ d ≤ C_22b)
@@ -222,14 +222,14 @@ lemma spinS4_3_3_cap_term
     (hfold_c : ∀ ξ d : ℝ, |ξ| < bStar → |d| ≤ D →
       IntegrableOn (fun s : ℝ => ((c - 1) / 12) * Real.exp (12 * ((c - 1) / 12) * spinL s) *
         |spinDeltaA ((c - 1) / 12) Φ (s + d) (s - d)|) {s : ℝ | bStar ≤ |s|} →
-      ε ≤ bStar - |ξ| → bStar - |ξ| ≤ xiStar →
+      ε ≤ bStar - |ξ| → bStar - |ξ| ≤ δ_hi →
       ((c - 1) / 12) * Real.exp ((c - 1) * spinL ξ) * |spinDeltaA ((c - 1) / 12) Φ (ξ + d) (ξ - d)| ≤
         C_22b * (1 + spinSlitIntegral ((c - 1) / 12) Φ d) * (bStar - |ξ|)⁻¹ *
           Real.exp (-κ * (c - 1) * (bStar - |ξ|) ^ (3 / 2 : ℝ)))
     (ha2 : 2 < (c - 1) / 12)
     {A_cap : Set (ℝ × ℝ)} (hA_meas : MeasurableSet A_cap)
     (hA_sub : ∀ y ∈ A_cap, 0 < y.1 ∧ 0 < y.2 ∧
-      (y.1 + y.2) / 2 ≤ bStar - ε * (R / 2) ∧ bStar - xiStar ≤ (y.1 + y.2) / 2 ∧
+      (y.1 + y.2) / 2 ≤ bStar - ε * (R / 2) ∧ bStar - δ_hi ≤ (y.1 + y.2) / 2 ∧
       |(y.1 - y.2) / 2| ≤ D) :
     let n := c - 1
     let a := n / 12
@@ -267,7 +267,7 @@ lemma spinS4_3_3_cap_term
       rw [abs_of_pos hξ0]
       have : ε * 1 ≤ ε * (R / 2) := mul_le_mul_of_nonneg_left (by linarith) hε_pos.le
       linarith
-    have hδ_hi : bStar - |ξ| ≤ xiStar := by rw [abs_of_pos hξ0]; linarith
+    have hδ_hi : bStar - |ξ| ≤ δ_hi := by rw [abs_of_pos hξ0]; linarith
     have hw : spinWc a (ξ + d) * spinWc a (ξ - d) ≤ a * Real.exp (n * spinL ξ) := by
       have h := spinWc_mul_le_exp ha2.le hy1.le hy2.le
       simpa [a, n, hsum, show 12 * (n / 12) = n by ring] using h
@@ -283,28 +283,29 @@ lemma spinS4_3_3_cap_term
     have hinv_le : (bStar - |ξ|)⁻¹ ≤ ε⁻¹ := inv_anti₀ hε_pos hδ_lo
     let u := (bStar - |ξ|) / ε
     have hu_ge_R2 : R / 2 ≤ u := by
-      dsimp [u]; rw [le_div_iff₀ hε_pos]; linarith
+      dsimp [u]; rw [le_div_iff₀ hε_pos, abs_of_pos hξ0]; linarith
     have hu1 : 1 ≤ u := by linarith
     have hu_split := rpow_three_halves_split hu1 hu_ge_R2 (by positivity)
     have hn_rpow : n * (bStar - |ξ|) ^ (3 / 2 : ℝ) = u ^ (3 / 2 : ℝ) := by
       dsimp [u]
-      rw [Real.div_rpow hδ_pos.le hε_pos.le, div_eq_mul_inv n _, div_eq_mul_inv _ _]
-      calc n * ((bStar - |ξ|) ^ (3 / 2 : ℝ) * (ε ^ (3 / 2 : ℝ))⁻¹)
-          = (n * ε ^ (3 / 2 : ℝ)) * ((bStar - |ξ|) ^ (3 / 2 : ℝ) * (ε ^ (3 / 2 : ℝ))⁻¹) := by
-              rw [hε_eq]
-        _ = (bStar - |ξ|) ^ (3 / 2 : ℝ) * (ε ^ (3 / 2 : ℝ))⁻¹ := by rw [one_mul]
+      rw [Real.div_rpow hδ_pos.le hε_pos.le, eq_div_iff (Real.rpow_pos_of_pos hε_pos _).ne']
+      calc n * (bStar - |ξ|) ^ (3 / 2 : ℝ) * ε ^ (3 / 2 : ℝ)
+          = ((c - 1) * ε ^ (3 / 2 : ℝ)) * (bStar - |ξ|) ^ (3 / 2 : ℝ) := by dsimp [n]; ring
+        _ = (bStar - |ξ|) ^ (3 / 2 : ℝ) := by rw [hε_eq, one_mul]
     have hexp_le : Real.exp (-κ * n * (bStar - |ξ|) ^ (3 / 2 : ℝ)) ≤
         Real.exp (-c_22 * R ^ (3 / 2 : ℝ)) * Real.exp (-(κ / (2 * ε)) * (bStar - ξ)) := by
       rw [← Real.exp_add]
       refine Real.exp_le_exp.mpr ?_
       have hsub_eq : bStar - |ξ| = bStar - ξ := by rw [abs_of_pos hξ0]
+      have h25 : (2 : ℝ) ^ (-(5 / 2 : ℝ)) = (1 / 2 : ℝ) / (2 : ℝ) ^ (3 / 2 : ℝ) := by
+        have h2 : (2 : ℝ) ^ (5 / 2 : ℝ) = 2 * (2 : ℝ) ^ (3 / 2 : ℝ) := by
+          rw [show (5 / 2 : ℝ) = 1 + 3 / 2 by norm_num, Real.rpow_add (by norm_num), Real.rpow_one]
+        rw [Real.rpow_neg (by norm_num), h2]; ring
       have hdiv_eq : κ * ((1 / 2 : ℝ) * (R / 2) ^ (3 / 2 : ℝ) + (1 / 2 : ℝ) * u) =
           c_22 * R ^ (3 / 2 : ℝ) + (κ / (2 * ε)) * (bStar - ξ) := by
         dsimp [c_22, u]
-        rw [hsub_eq, Real.div_rpow (by positivity) (by positivity),
-          show (2 : ℝ) ^ (-(5 / 2 : ℝ)) = (1 / 2 : ℝ) / (2 : ℝ) ^ (3 / 2 : ℝ) by
-            rw [Real.rpow_neg (by norm_num)]; norm_num]
-        field_simp [hε_pos.ne']; ring
+        rw [hsub_eq, Real.div_rpow (by positivity) (by positivity), h25]
+        field_simp [hε_pos.ne']
       have hle : κ * ((1 / 2 : ℝ) * (R / 2) ^ (3 / 2 : ℝ) + (1 / 2 : ℝ) * u) ≤
           κ * (n * (bStar - |ξ|) ^ (3 / 2 : ℝ)) := by
         rw [hn_rpow]; exact mul_le_mul_of_nonneg_left hu_split hκ_pos.le
@@ -348,7 +349,7 @@ lemma spinS4_3_3_cap_term
         have := (hA_sub _ hq).2.2.2.2; rw [hdiff] at this; exact abs_le.mp this
       rw [Set.indicator_of_mem hq]
       exact hpt q.1 q.2 hq (hq_int hd_mem)
-    · rw [Set.indicator_of_notMem hq]; exact zero_le _
+    · rw [Set.indicator_of_notMem hq]; exact zero_le
   let c_d : ℝ := C_22b * ε⁻¹ * Real.exp (-c_22 * R ^ (3 / 2 : ℝ))
   have hcd_nn : 0 ≤ c_d := by positivity
   let g1 : ℝ → ℝ≥0∞ := (Icc (0 : ℝ) (bStar - ε * (R / 2))).indicator
@@ -368,10 +369,11 @@ lemma spinS4_3_3_cap_term
     (ENNReal.continuous_ofReal.comp (Real.continuous_exp.comp
       (continuous_const.mul (continuous_const.sub continuous_id)))).measurable.indicator
       measurableSet_Icc |>.aemeasurable
-  have hg2_meas : AEMeasurable g2 volume :=
-    ((ENNReal.continuous_ofReal.measurable.comp_aemeasurable
-      ((aemeasurable_const.add hS_int.aestronglyMeasurable.aemeasurable).const_mul c_d)).indicator
-      measurableSet_Icc)
+  have hg2_meas : AEMeasurable g2 volume := by
+    dsimp [g2]
+    rw [aemeasurable_indicator_iff measurableSet_Icc]
+    exact ENNReal.continuous_ofReal.measurable.comp_aemeasurable
+      ((aemeasurable_const.add hS_int.aestronglyMeasurable.aemeasurable).const_mul c_d)
   have hprod : ∫⁻ q : ℝ × ℝ, g1 q.1 * g2 q.2 = (∫⁻ ξ : ℝ, g1 ξ) * (∫⁻ d : ℝ, g2 d) := by
     rw [Measure.volume_eq_prod]; exact lintegral_prod_mul hg1_meas hg2_meas
   have hξ_int : ∫⁻ ξ : ℝ, g1 ξ ≤ ENNReal.ofReal (2 * ε / κ) := by
@@ -382,6 +384,7 @@ lemma spinS4_3_3_cap_term
       by_cases hξ : ξ ∈ Icc (0 : ℝ) (bStar - ε * (R / 2))
       · have ht_mem : bStar - ξ ∈ Ioi (0 : ℝ) := by
           have : 0 < ε * (R / 2) := by positivity
+          change 0 < bStar - ξ
           linarith [hξ.2]
         simp only [g1, h_Ioi, Set.indicator_of_mem hξ, Set.indicator_of_mem ht_mem, le_rfl]
       · simp [g1, Set.indicator_of_notMem hξ]
@@ -433,7 +436,7 @@ lemma spinS4_3_3_cap_term
     _ = ENNReal.ofReal (2 * ((2 * ε / κ) * (c_d * (2 * D + C_22b)))) := by
         rw [← ENNReal.ofReal_mul (by positivity), ← ENNReal.ofReal_mul (by norm_num)]
     _ = ENNReal.ofReal (2 * C_22b * (2 * D + C_22b) * (2 / κ) * Real.exp (-c_22 * R ^ (3 / 2 : ℝ))) := by
-        congr 1; dsimp [c_d]; field_simp [hε_pos.ne', hκ_pos.ne']; ring
+        congr 1; dsimp [c_d]; field_simp [hε_pos.ne', hκ_pos.ne']
 
 lemma spinS4_d4_four_quadrants {a x₁ L : ℝ} (ha : 2 < a) {Φ : ℝ × ℝ → ℝ}
     (hΦ : SpinTestClass a Φ) :
@@ -457,7 +460,7 @@ lemma spinS4_d4_four_quadrants {a x₁ L : ℝ} (ha : 2 < a) {Φ : ℝ × ℝ �
   let E4 : Set (ℝ × ℝ) := {q ∈ E_all | q.1 < 0 ∧ q.2 < 0}
   have hE1_eq : E1 = E_pp := by
     ext q
-    simp only [E1, E_all, E_pp, Set.mem_sep_iff, Set.mem_setOf_eq, spinLongDist]
+    simp only [E1, E_all, E_pp, Set.mem_ofPred_eq, spinLongDist]
     constructor
     · rintro ⟨⟨h1, h2⟩, hp1, hp2⟩
       rw [abs_of_pos hp1, abs_of_pos hp2] at h2
@@ -485,9 +488,11 @@ lemma spinS4_d4_four_quadrants {a x₁ L : ℝ} (ha : 2 < a) {Φ : ℝ × ℝ �
       (by rw [Measure.volume_eq_prod, Measure.prod_prod]; simp)
   have hae_E : E_all =ᵐ[volume] E1 ∪ E2 ∪ E3 ∪ E4 := by
     refine Filter.eventuallyEqSet_iff'.2 ?_
+    change ∀ᵐ q : ℝ × ℝ ∂volume, (q ∈ E_all) = (q ∈ E1 ∪ E2 ∪ E3 ∪ E4)
     rw [ae_iff]
     refine measure_mono_null (fun q hq => ?_) hnull_axes
     by_contra hnz
+    change ¬ (q.1 = 0 ∨ q.2 = 0) at hnz
     push Not at hnz
     apply hq; apply propext
     rcases lt_or_gt_of_ne hnz.1 with hx | hx <;> rcases lt_or_gt_of_ne hnz.2 with hy | hy
@@ -506,16 +511,16 @@ lemma spinS4_d4_four_quadrants {a x₁ L : ℝ} (ha : 2 < a) {Φ : ℝ × ℝ �
     let e := MeasurableEquiv.prodCongr (MeasurableEquiv.neg ℝ) (MeasurableEquiv.refl ℝ)
     have hmp : MeasurePreserving e volume volume :=
       (Measure.measurePreserving_neg volume).prod (MeasurePreserving.id volume)
+    have heq : ∀ q : ℝ × ℝ, e q = (-q.1, q.2) := fun _ => rfl
     have hpre : e ⁻¹' E2 = E1 := by
       ext q
-      simp only [Set.mem_preimage, e, MeasurableEquiv.prodCongr_apply, MeasurableEquiv.neg_apply,
-        MeasurableEquiv.refl_apply, E2, E1, E_all, Set.mem_sep_iff, Set.mem_setOf_eq, spinLongDist]
+      simp only [Set.mem_preimage, heq, E2, E1, E_all, Set.mem_ofPred_eq, spinLongDist]
       constructor
       · rintro ⟨⟨h1, h2⟩, hq1, hq2⟩; rw [abs_neg] at h2; exact ⟨⟨by linarith, h2⟩, by linarith, hq2⟩
       · rintro ⟨⟨h1, h2⟩, hq1, hq2⟩; rw [abs_neg]; exact ⟨⟨by linarith, h2⟩, by linarith, hq2⟩
     rw [← integral_indicator hmE1, ← integral_indicator hmE2, ← hmp.integral_comp' (E2.indicator g)]
     refine integral_congr_ae (Eventually.of_forall fun q => ?_)
-    have heq : e q = (-q.1, q.2) := rfl
+    dsimp only
     by_cases hq : q ∈ E1
     · have hq2 : e q ∈ E2 := by rwa [← hpre] at hq
       rw [Set.indicator_of_mem hq, Set.indicator_of_mem hq2, heq, hg_nl]
@@ -525,16 +530,16 @@ lemma spinS4_d4_four_quadrants {a x₁ L : ℝ} (ha : 2 < a) {Φ : ℝ × ℝ �
     let e := MeasurableEquiv.prodCongr (MeasurableEquiv.refl ℝ) (MeasurableEquiv.neg ℝ)
     have hmp : MeasurePreserving e volume volume :=
       (MeasurePreserving.id volume).prod (Measure.measurePreserving_neg volume)
+    have heq : ∀ q : ℝ × ℝ, e q = (q.1, -q.2) := fun _ => rfl
     have hpre : e ⁻¹' E3 = E1 := by
       ext q
-      simp only [Set.mem_preimage, e, MeasurableEquiv.prodCongr_apply, MeasurableEquiv.neg_apply,
-        MeasurableEquiv.refl_apply, E3, E1, E_all, Set.mem_sep_iff, Set.mem_setOf_eq, spinLongDist]
+      simp only [Set.mem_preimage, heq, E3, E1, E_all, Set.mem_ofPred_eq, spinLongDist]
       constructor
       · rintro ⟨⟨h1, h2⟩, hq1, hq2⟩; rw [abs_neg] at h2; exact ⟨⟨by linarith, h2⟩, hq1, by linarith⟩
       · rintro ⟨⟨h1, h2⟩, hq1, hq2⟩; rw [abs_neg]; exact ⟨⟨by linarith, h2⟩, hq1, by linarith⟩
     rw [← integral_indicator hmE1, ← integral_indicator hmE3, ← hmp.integral_comp' (E3.indicator g)]
     refine integral_congr_ae (Eventually.of_forall fun q => ?_)
-    have heq : e q = (q.1, -q.2) := rfl
+    dsimp only
     by_cases hq : q ∈ E1
     · have hq3 : e q ∈ E3 := by rwa [← hpre] at hq
       rw [Set.indicator_of_mem hq, Set.indicator_of_mem hq3, heq, hg_nr]
@@ -544,16 +549,16 @@ lemma spinS4_d4_four_quadrants {a x₁ L : ℝ} (ha : 2 < a) {Φ : ℝ × ℝ �
     let e := MeasurableEquiv.prodCongr (MeasurableEquiv.neg ℝ) (MeasurableEquiv.neg ℝ)
     have hmp : MeasurePreserving e volume volume :=
       (Measure.measurePreserving_neg volume).prod (Measure.measurePreserving_neg volume)
+    have heq : ∀ q : ℝ × ℝ, e q = (-q.1, -q.2) := fun _ => rfl
     have hpre : e ⁻¹' E4 = E1 := by
       ext q
-      simp only [Set.mem_preimage, e, MeasurableEquiv.prodCongr_apply, MeasurableEquiv.neg_apply,
-        E4, E1, E_all, Set.mem_sep_iff, Set.mem_setOf_eq, spinLongDist]
+      simp only [Set.mem_preimage, heq, E4, E1, E_all, Set.mem_ofPred_eq, spinLongDist]
       constructor
       · rintro ⟨⟨h1, h2⟩, hq1, hq2⟩; rw [abs_neg, abs_neg] at h2; exact ⟨⟨by linarith, h2⟩, by linarith, by linarith⟩
       · rintro ⟨⟨h1, h2⟩, hq1, hq2⟩; rw [abs_neg, abs_neg]; exact ⟨⟨by linarith, h2⟩, by linarith, by linarith⟩
     rw [← integral_indicator hmE1, ← integral_indicator hmE4, ← hmp.integral_comp' (E4.indicator g)]
     refine integral_congr_ae (Eventually.of_forall fun q => ?_)
-    have heq : e q = (-q.1, -q.2) := rfl
+    dsimp only
     by_cases hq : q ∈ E1
     · have hq4 : e q ∈ E4 := by rwa [← hpre] at hq
       rw [Set.indicator_of_mem hq, Set.indicator_of_mem hq4, heq, hg_nl, hg_nr]
