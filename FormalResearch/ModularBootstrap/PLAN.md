@@ -73,8 +73,7 @@ Quot.sound]`.
   integrality: INT-T tools including `int:repair` and `int:sonine` at integer weights (`hankel_repair`, `hankelSonine_inv`), INT-4 at
   `(H_w)`, `int:atom` unconditional.
 - *Mixtures (headline 4):* PM-0, PM-1, PM-2 to stated scopes (partial), PM-4 done at every fixed charge in range; `pmix:o1` two-sided for every common source (`pmix_o1_common`) with the component comparison (`pmix_o1_component_comparison_unconditional`); PM-2 consumer ports and `pmix:rigidity` (a), and (b) at zero offset (`src_sigma_unconditional`, `src_two_level_exclusion`, `src_theorem_two_six`); `pmix:liminf` conditional on component `c_0^*` lower bounds (`pmix_liminf_of_component_c0`); FT-CC done with its Hankel-prescribed and fixed-weight instances (`hankelPrescribed_chartCompactness`,
-  `fixedWeight_chartCompactness`); `shellReduction_littleO` gives the `o(d^{1/3})` shell reduction at all levels (Paper I's `O(1)`
-  `ShellReduction` still needs M8's all-level `teb_mellin` / `teb_bootstrap_hb`).
+  `fixedWeight_chartCompactness`); `shellReduction_littleO` is the `o(d^{1/3})` shell reduction at all levels; Paper I's `O(1)` `shellReduction_proved` (and `hbMultilevelLower_proved`, `hbConstruction_proved`, `hankelAttainment_proved`, `hankelExactOrigin_proved`) is unconditional.
 
 **Counts** (counted from Appendix A against the TeX at `80acaed64`). 264 stated results: 261 `result` environments, the
 `theorem` and `corollary` of `modular_bootstrap_gap_proof.tex`, and Lemma A_V (`rem:cardy`, a `remarkx`); several labels on one
@@ -150,8 +149,8 @@ multiscale dyadic bootstrap `ctl:dyadic` (beyond its top scale) and the half-mom
    Phase-free Paper I machinery is directly reusable (`CtDualId`, `CtRoscUpper`, `CtRoscEta`, `CtRoscDefect`, `CtBoasAverage`,
    `CtBoasTent`, `CtBoasFreeze`, `CtBoasAssembly`, `CtChartIft`, `CtChartInverse`, `CtSdEval`, `FctCfuTheta.cfu_chart`,
    `CtDyadicArea`, `CtDyadicRadius`, `HalfDiscMoments`); no `LowerMainInputs` or `UpperMainInputs` field follows from Paper I
-   without new Virasoro-phase proofs. Paper I's `CtLowerFinal.ct_lower` (master `1e8e81d`) is unconditional in the old
-   `-C c^{-1} log c` form (absolute half-moment `hankel_neg_half_moment_le`, pointwise CFU); its TeX is now log-free too (R560).
+   without new Virasoro-phase proofs. Paper I's `CtLowerFinal.ct_lower` is unconditional and log-free (`CtLowerStatement`, `- C * c⁻¹`; since reasoner `8c6407a`,
+   via `CtLowerLogFreeSkeleton`, `CtWindowSigned`, `CtBoasExactAssembly`).
 2. *FIVE-L restatement (S):* Best next step 1.
 3. *FIVE-L field `pass2` (C7b, M):* Best next step 2 (FS.1 is available in Lean).
 4. *FIVE-L field `chart` (`cts:cauchy-dual` (1) with `cts:phic-exp`, C6; M-L):* Best next step 3. Since PR 313 `cts:phic-exp` is
@@ -194,6 +193,8 @@ multiscale dyadic bootstrap `ctl:dyadic` (beyond its top scale) and the half-mom
    `c_0^*(w,Q_i)` (via `ctu:c0`, `int:strict-weak`); needs FIVE-W. `ft_commonSource_twoEdge` is the one-level case
    `(P,Q) = (1,0)` of `wone:ftlfw` with zero vacuum slack; the slack form of `wone:ftlfw` does not give the signed-source lower half
    directly (`V_src/V_{Q_0}` need not be monotone), so the lower half reruns the fixed-weight chain over `CommonSource`.
+   *Route note:* `pmix:liminf` consumes exactly the general-weight weak lower bound `T_weak >= T_* + c0*(w,Q) - o(1)` (FIVE-L/FIVE-W at
+   general weight), not the upper expansion or `gamma_0`; the FIVE-L phase theorem works on weakly feasible tests, so export that consequence directly.
 2. *PM-0b (M, 2-3k):* `ctu:jets` at a general amplitude, hence `pmix:jets` (the input of `pmix:main` through `ctu:c0`).
 3. *`pmix:rigidity` rest (M):* (a) and (b) at zero offset are in Lean for `CommonSource` (`Mixtures/SourceRigidity`, `SourceTwoLevel`).
    Not formalised: `D_2` lower bound, positive-mass existence for `A_2 < A_2^*`, offset `R_off`, `pmix:D1` log asymptotic, rebase
@@ -233,7 +234,7 @@ Listed by headline. "Needs" names packages or labels whose Lean is not yet suffi
   `besselI0C_two_term_sharp` (`cts:edge-hankel` (2), `LowerEdgeAsymp.lean`, unrestricted `v >= 0`; `G` is the defined Hankel
   integral, Hankel inversion is not formalised); `besselI0C_two_term`; `boas_residue_identity`, `boas_local_lower`,
   `boas_residue_zero`, `rect_boundary_zero` (`cts:boas` Step 3); `markov_select`, `dyadic_term_le`, `gauss_window_exponents`
-  (bookkeeping; `pass2_exponents`, `top_edge_exponent` are the log-form exponents of the old two-pass proof);
+  (bookkeeping; `pass2_exponents`, `top_edge_exponent` are the exponents of the old two-pass proof, kept in `FiveTerm/LowerDyadic.lean`);
   `lowerFirstGood_of_chart_on_band` (a first good radius with `eta(R_1) <= C`, modulo `chart`; since PR 313 a proof step of no
   TeX statement, kept as the template for C7b).
 - *Skeleton (still the pre-PR-313 form):* `LowerMainInputs prob c0 gamma0` (data `Gout`, `phi`, `uhat`, `c1` with `0 < c1`,
@@ -271,13 +272,18 @@ Listed by headline. "Needs" names packages or labels whose Lean is not yet suffi
   threshold depends on `D`. Proved: `sharpUpperFamily_of_inputs`, `sharp_upper_of_inputs`, **`spinless_upper_of_inputs`**.
   Satisfiability of `UpperMainInputs` is not checked.
 - *Open:* C11-C14 (section 1.1, headline 3, steps 5, 7, 9, 10); statements unchanged at `80acaed64`.
+  *Route note:* C14 consumes C11-C13 (C13(2) window norm and mass, C11 branch cut and prefactor). First step: define the physical `h0`, sites and
+  split point in `UpperMainInputs`; expose a common design/estimate record (C11 geometry, C12 far, C13 window); prove the C14 scalar cancellation
+  against it. Keep `C_V`, `C_I`, `C_tau`, `K_delta` independent of the final detuning bound `D`; factor the outer amplitude from the contractive Blaschke
+  product rather than weakening the unit-modulus hypothesis.
 
 **FIVE-W** (headline 3; L, 5-8k). Closes `ctu:main`, `ctu:O1` (`c_0^*(w,Q)` clauses), `ctu:table`, `ctu:weight`, `ctu:strip`,
 `ctu:tip-window`, `ctu:tip-kernel`, `thm:fixed-weight-expansion`. Needs FIVE-L, FIVE-U, PM-0b (`ctu:jets` at `(w,A)` for the
 `(w,Q)` constants), `fixedWeightAxioms_of_problem`. Route notes (PR 307 corrections in the `ctu` transfer table): the C10
 descendant factor is `log(1 - e^{-4 pi mu_l F(v)})` (unnormalised), and the Region-I `Q`-ratio at `s^2 = -a(x)` is
 `Q(e^{-4 pi xi_*})/Q(e^{-4 pi x})`, the reciprocal of the normalised `Q` factor of the slit modulus, not `1`. Design rule: keep FIVE-L/FIVE-U stated over general data so FIVE-W is an
-instance (5-8k) rather than a copy (15-25k).
+instance (5-8k) rather than a copy (15-25k). *Route note:* `LowerMainInputs` on lane-f2a hard-wires Virasoro (`Gout`, `virasoroPhi`, `virasoroC1`,
+`c0Star`, `gamma0`); add a small general chart/amplitude interface at the transfer boundary. `teb:quant_c1_near` is needed when `c0* >= 0`.
 
 **PM-0b** (headlines 3, 4; M, 2-3k). Closes `ctu:jets`, `ctu:piece4`, `cts:base-jets`, the rest of `ctu:common-functional`
 and of `pmix:jets` (`j(w,A) = alpha_tip g1(w,A)`, `ctu:g13A`, the defect identity and the equality criterion). Route: the TeX
@@ -287,12 +293,15 @@ a real integral `J_k` of the even data `f(t) = log(A(x(t))/A(xi_*))` (`ctu:all-o
 multiplied onto `Gout`, giving `OuterDatum W_A K g1 (Gout * G_{A,4})`, not a strip construction of `G_{A,4}`; then
 `comb_minimum` gives `j = alpha_tip g1`, linked to `pmix_jensen` by `I_1 = int F/t^2`. Shift-term algebra checked:
 `-4 pi r_i xi_*/sqrt2 . 8 alpha_tip/pi = -12 xi_bar r_i` (`alpha_tip = xi_*/(4 sqrt2)`, `xi_bar = xi_*^2/3`). Suits bounded runs.
+*Route note:* its first consumers need only the general outer first jet (`g1`); prove that first and the higher jets later.
 
 **PA2** (headlines 2, 4; L). Open: `dsl:one-level-clusters`, `dsl:near-opt-mass` beyond `(H_w)` (done there: `one_level_clusters`,
 `one_level_near_opt_mass`), `sr:single-level`, `dsl:hb-clusters`, `dsl:hb-mass`. The cluster structure needs only the `O(1)` law; the
 exact first atom `d_1` and `(t_2^* - t_1^*) c^{-1/3}` need `c_0^*` (FIVE-W; it uses `rig:R`, not `bl:norm`). The HB forms (`dsl:hb-clusters`: inactive extra sites by `ds:primal` (d);
 `dsl:hb-mass`: raw masses on the fixed window and on shrinking windows `h_n = o(1)` by Markov on the moment bounds) need PM-3.
 Needs W-P5, FIVE-W, PM-3 (HB forms).
+*Route note:* the exact cluster count, spacing and ratio `d_1/(rho(T_V) J(T_V))` of `sr:single-level` do not need the `c_0^*` identification; only the
+exponential equivalent with `c_0^*` does. Do not gate PA2 wholesale on FIVE-W.
 
 **SLK, rest** (headlines 2, 4; S). HB1 for the identification of the node data at general `(P,Q)` (`hb_blnorm`, `hb_blnorm_s`
   take the node data for a given `D`). Optional in-place edits: re-derive `proposition_P_general`, `lemmaQ_general_part3` as the
@@ -321,7 +330,8 @@ only `limsup_le`); the consumer ports are done (`Mixtures/SourceRigidity`, `Sour
 **FT-H4b** (headline 4; M-L). Realign `FTH4b` to the paper's H4b (`fold_tip_universality.tex`, `ft:hyp`, `\textlabel` `ft:H4b`):
 general Hermite-Biehler data `(P,Q)`, terminal index `m`, support clause (a), one-sided designs (D1)-(D4); then Lemma WP
 (`sr:window-pairing`), Lemma WR (`sr:WR`) and C5(c) at every HB level (`FTSigma` is the Airy level only). The present `windows`
-field assumes tail bounds that are conclusions of WP, so it is replaced, not extended; re-point Concordance row C5c. Needs FT-1,
+field assumes tail bounds that are conclusions of WP, so it is replaced, not extended; re-point Concordance row C5c. *Route note:* replace the
+`windows` field (a conclusion of Lemma WP used as hypothesis) by the paper's D1-D4 premises first, then prove WP/WR. Needs FT-1,
 `Upper/Rigidity`.
 
 **PM-3** (headline 4; L). `pmix:hbphase`, `pmix:hbtap`, `pmix:rigidity` (rest per section 1.1); `gt:2.1`, `gt:2.4`-`gt:2.6` for mixtures. Needs PM-1,
@@ -337,7 +347,7 @@ PM-3 (`pmix:rigidity`, `pmix:hbtap`), PM-2 (`pmix:vac`), W-T2w (`ut:ideal`), SLK
 
 **HB1** (headline 4; S-M after its inputs). `gt:hb` for general `(P,Q)` (the single-component case of `pmix:rigidity` with
 `int:hb-reserve`, `sr:single-level`); closes `wone:ftlfw`, `wone:genlower` for all `m_0`. Needs PM-3, INT-2HB, PA2, FT-H4b, SLK,
-PA1, LP1, Paper I M8 (TE.0' for all `(P,Q)`, via the `ChartCompactness` instances).
+PA1, LP1 (Paper I's M8 is done: `hbMultilevelLower_proved`, `hankelAttainment_proved`, `ChartCompactness` instances).
 
 **PM-5** (headline 4; S). `pmix:main` (assembly), `pmix:dominated` (Corollary PM-S, general `lambda`), `pmix:floor-criterion`
 (PM-S0: uniform Cardy floor iff `lambda({0}) > 0` and `A(x) > 0`; cf. Lean `FloorData`). Needs PM-0 to PM-4, PA2 (`pmix:main`
@@ -384,8 +394,9 @@ rests on L.5-L.7, `ap:lemHp`, `ap:thmQ`(4), `lam:thmB` (equality case, `airy_sig
 
 **INT-T, rest** (headline 1; L, about 3.6k done of 8-12k). `int:cheb` at the paper's floor `640 N^2` (filtered inverse on the
 oversampled grid: `Corr (2(M+1)) M R` for `R >= 320` by a de la Vallée-Poussin taper, `L^1` norms of the `K_j`, a contraction on
-the `l^infty` cube; no obstruction known, 1.5-2.5k; check whether `int:main`'s prefactor depends on the floor exponent: if not,
-`int:cheb` is off the headline path since `int:atom` takes an abstract floor); `int:sonine` and `int:repair` for real `w >= 1` (Lean has
+the `l^infty` cube; no obstruction known, 1.5-2.5k). *Route note:* the paper's polynomial prefactor in `int:main` needs the quadratic Chebyshev floor, so
+`int:cheb` (quadratic floor; the constant 640 may be a larger fixed constant) is kept for the exact claim; `int:cheb-explicit` (`8 N^{5/2}`) is an interim
+route giving the same exponential rates but the prefactor `n^{10/3}/(log n)^{5/2}` (unchecked); `int:sonine` and `int:repair` for real `w >= 1` (Lean has
 integer `w` only, `Integrality/{WeberLaplace,HankelSonine,RepairHankel}`, with `max 4 (2048 pi^2 B^2 e^{16 pi B})` for the
 `int:sonine` bound in place of the paper's constants; the real-weight route compresses the Hankel operator at real `w >= 1/2`,
 since PRs 299/301). INT-R uses the abstract projection repair (real `w >= 1`); INT-R0
@@ -395,6 +406,9 @@ needs pointwise crossing identities on the band.
 c^{-1/3} eta`, maximal reserve `(2 kappa_res + o(1)) c^{-1/3} eta`, `kappa_res = 1/(2 ell_V L_*)`, uniformly for `0 < eta <= 1`;
 variational formula `int:reserve-var`, i.e. `ds:E`(c)), `int:strict-weak`. Lower half: inputs in Lean for `(H_w)` and positive
 mixtures, modulo the `bl:norm` check; upper half needs PA2 (section 1.1, headline 1, step 2).
+*Route note (lower half):* uses `bl:norm`, attainment, the terminal-atom normalised mass (PA2), crossing and the reserve variational formula
+(`int:hb-reserve`(a)). A positive lower slope gives strict-weak equality without the sharp upper reserve. It must be uniform down to exponentially
+small `eta` (additive `o(1)` cost errors do not suffice). INT-3 needs only a positive uniform reserve constant.
 
 **INT-3** (headline 1; M). `int:main` and `int:hb-integer` (the HB-site version, with the same cluster-mass and concentration
 clauses at every fixed terminal or later HB node). Needs INT-1, INT-2, INT-T, W-P6; PA2 (`dsl:one-level-clusters`, `dsl:hb-mass`,
@@ -485,7 +499,7 @@ INT-T, INT-1 (done) ; SLK + W-P6 + DU-G -> INT-2 lower ; + PA2 -> INT-2 upper ; 
 PA2 (dsl:hb-mass) -> sd:R concentration clause                                                       [headline 1]
 INT-1 + INT-4 + SPIN-S4 + FIVE-U -> INT-S                                                            [headline 1]
 PM-1 + PM-2 + PM-4 + PA2 + W-T2w + SLK + FT-H4b -> PM-3                                              [headline 4]
-PM-3 + SLK + DU-F + PA2 -> INT-2HB -> {HB1 (+ Paper I M8), PM-5 (+ INT-3, INT-4, FIVE-W)}  [headline 4]
+PM-3 + SLK + DU-F + PA2 -> INT-2HB -> {HB1, PM-5 (+ INT-3, INT-4, FIVE-W)}  [headline 4]
 ```
 
 | wave | open packages | why |
@@ -507,13 +521,15 @@ INT-2, its corollaries wait for FIVE-W and PA2.
   certificates are not on the completion path. `int:repair` / `int:sonine` at integer weights `w >= 1` are acceptable, since the
   main results use only integer weights; move to real `w` only if the change is easy (do not open a real-weight route for it).
 - No time boxes; a stalled route is a ledger row, not a stop. At most three runs at once; launch only with at least 1.5 GB disk free.
-- Since 2026-11-26 (owner): no new Sonnet agents; agy `gemini-4-neon-medium` for the hardest L steps, agy
-  `gemini-4-hydrogen-medium` for bounded steps, Haiku for docs and `THEOREM_MAP.md` rows. Agy drafts are checked against the
+- Since 2026-11-26 (owner): no new Sonnet lanes for proofs. Current practice: agy hydrogen-high runs (`gemini-4-hydrogen-high`), one fresh
+  run per coherent package; Sonnet subagents only for docs and review. Agy drafts are checked against the
   paper before landing (as for every `from an agy draft, checked` commit).
 - For each long lane (FIVE-*, SPIN-*, PM-*) five pushes adding results without moving the lane's headline force a direction
   statement.
 - Shared files: the umbrella `FormalResearch/ModularBootstrap.lean`, `THEOREM_MAP.md` and this plan take targeted edits after
   merging `origin/master`; never apply an agent's stale umbrella or plan as a diff.
+- Integration (route note): before calling CFT headlines verified, build `FormalResearch.SignUncertainty FormalResearch.ModularBootstrap
+  FormalResearch.TwoEdgeBootstrap` together (cross-paper imports).
 
 ### 2.5 Code to reuse
 
@@ -538,7 +554,7 @@ INT-2, its corollaries wait for FIVE-W and PA2.
 | explicit Bessel constants | `vlo:BesselConst` (`kappa_0 = 1/4`, `kappa_1 = 1`) | Lean's constants are existential; not needed downstream |
 | vacuum-slack Theorem J | `int:Jslack` (alias of `vlo:J`) | used only by INT-L |
 | unflavoured `N = (2,2)`, real weights outside `(H_w)` | main-text remark; `wone:ftlfw` for real `w` | `V = f_a * f_a` is not of Cardy type; real `w` can be revisited after PM-0 |
-| FT-3..6 beyond FT-CC | chart-form Lemmas 1-2, C5d `m >= 2`, Lemma FT-R log rate | Paper I's plan owns `ft:L1`, `ft:L2`, `ft:riesz`, `fto1:mellin` (with its M8); this plan has no `FT-7` |
+| FT-3..6 beyond FT-CC | chart-form Lemmas 1-2, C5d `m >= 2`, Lemma FT-R log rate | Paper I's plan owns `ft:L1`, `ft:L2`, `ft:riesz`, `fto1:mellin`; this plan has no `FT-7` |
 | five-term `c_0^*` clauses outside `(H_w)` | `ctu:scope` remark | out of the paper's scope |
 | Theorem FQ (notes) | `fq:main` (`CFT/notes/five_term_quantisation.tex`) | a coefficient dictionary (jets -> five constants, both papers), not a Paper II result; the Virasoro constants are already Lean theorems (FIVE-0) and FJ (2) gives the read-off; its open abstract quantisation theorem (R558) is not a target |
 | `O(c'^{-1})` upper remainder | `CFT/notes/five_term_remainders.md` (R561) | unverified candidate, used by neither paper |
@@ -689,11 +705,10 @@ label cited by this plan, `THEOREM_MAP.md` or `docs/lean_status.md` disappeared 
   instances C1, C2, C3 (`O(1)`), C5a, C5b and C5c are proved by other routes and FT reuses those proofs (no refactor of Prop T,
   Theorem R or `Sigma` through FT: about 8k lines at stake for little gain).
 - **Agreed interface** (`SignUncertainty/PLAN.md` section 5): `HermiteBiehlerData` lives in `SignUncertainty/HermiteBiehlerData.lean`;
-  the base structure `ChartCompactness` is owned by this lane (FT-CC); its M8 TE.0' is a converter into `ChartCompactness` plus
-  the shared rigidity theorem. `ChartCompactness` and its concrete instances are on master: `FoldTip/HankelChartCompactness.lean`
+  the base structure `ChartCompactness` is owned by this lane (FT-CC); Paper I's TE.0' converter into it is done. `ChartCompactness` and its concrete instances are on master: `FoldTip/HankelChartCompactness.lean`
   (Paper I's Hankel multilevel problem; `radialRigidity_to_chartCompactness` converts Paper I's `RadialRigidityPackage` without
-  editing `RadialRigidity.lean`; `shellReduction_littleO` is the `o(d^{1/3})` shell reduction at all levels, and Paper I's `O(1)`
-  `ShellReduction` still needs M8's all-level `teb_mellin` / `teb_bootstrap_hb`) and `FoldTip/FixedWeightChartCompactness.lean`
+  editing `RadialRigidity.lean`; `shellReduction_littleO` is the `o(d^{1/3})` shell reduction at all levels; Paper I's `O(1)`
+  `shellReduction_proved` is unconditional) and `FoldTip/FixedWeightChartCompactness.lean`
   (Paper II's fixed-weight problems). Paper I's `lem:qual-compact` is in Lean (`Analysis/QualCompact`: `qual_compact`,
   `qual_compact_real`); Paper II's `compact_negative_mass` is not re-derived from it (it assumes pointwise convergence off one
   compact set, not local `L^1` convergence); use `qual_compact` for `bl:norm`-type or FT-3..6 needs.
@@ -705,21 +720,19 @@ label cited by this plan, `THEOREM_MAP.md` or `docs/lean_status.md` disappeared 
   Paper I supplement (`CFT/common/fine_order_*.tex`), and both papers' lower proofs use them (Paper II via `\plainpartref` to the
   companion supplement). One Lean copy, phase-free, in a shared file (FS.1 is in `SignUncertainty/FineOrderSigned*.lean`; FS.2 and FJ are
   to follow there or in `Asymptotics/`; record the choice in both plans). FS.2's proof already exists inside Paper I's
-  `ct_dyadic_radius`; extracting it and re-deriving `ct_dyadic_radius` is the first step. Paper I's `ct_lower` (master `1e8e81d`) is
-  the log form; the shared FS.1 and Paper I's exact-phase Fejér positivity give its log-free form.
+  `ct_dyadic_radius`; extracting it and re-deriving `ct_dyadic_radius` is the first step. Paper I's `ct_lower` is log-free (shared FS.1 and exact-phase Fejér positivity).
 - **Five-term lower bound: shared analytic cores** (`SignUncertainty/PLAN.md` section 5, item 7). FIVE-L and Paper I's F1 are
   one mechanism for two phases; phase-free cores have one copy. Here: `LowerBoasResidue` (`boas_residue_zero`,
   `rect_boundary_zero`), `LowerDyadic` (`markov_select`, `dyadic_term_le`), `LowerGoodCircle` (`lowerGoodSet`). Paper I:
-  `CtHalfDiscPoisson`, `CtFejer`, `CtSd*` (`sd_eval`), `CtCfu*`, `CtMorse*`, `CtDyadicArea`, `CtDyadicRadius`, `CtScale*`,
-  `CtHalfMoment`, and the shared `Complex/HalfDiscCauchy` (`halfDisc_cauchy`), `Complex/HalfDiscMoments`, `Complex/HalfDiscPoisson`
+  `CtHalfDiscPoisson`, `CtFejer`, `CtSd*` (`sd_eval`), `CtCfu*`, `CtMorse*`, `CtDyadicArea`, `CtDyadicRadius`, and the shared `Complex/HalfDiscCauchy` (`halfDisc_cauchy`), `Complex/HalfDiscMoments`, `Complex/HalfDiscPoisson`
   (upper half-disc; this lane's `FiveTerm/HalfDisc*` is the right half-disc, a different object), `Asymptotics/DyadicAbsorption`.
-  Paper I has proved its whole log-form stack (`ct_lower` unconditional; scale-`r` bootstrap `CtScale*`, half-moment
-  `hankel_neg_half_moment_le`); since PR 313 Paper II's lower route needs neither the scale-`r` bootstrap nor the half-moment.
+  Paper I's `ct_lower` is unconditional and log-free (`FineOrderSigned*`, `CtWindowSigned*`, `CtBoas{Mollify..ExactAssembly}`); the log-form
+  stack (`CtScale*`, `CtHalfMoment`, `CtWindow*`, `CtBoas{Concrete,Rates,Total,Final,Eventual}`) is deleted, and Paper II's lower route never needed it (PR 313).
   Any new shared core goes to whichever lane needs it first, which records it in both plans.
 - **Five-term upper bound (same rule as Paper I's M10).** FIVE-U's exact-CFU geometry (`cts:upper-design`, `cts:shifted-langer`)
   instantiates Paper I's divided-difference chart (`FctCfuTheta.cfu_chart`, `FctHomotopy*`, `FctJCBound`, `FctWeighted`);
   FIVE-L's `cts:cauchy-dual` reuses `CtSd*`, `CtMorse*`, `CtOsc*`, `CtCfu*`.
-- TE.0' beyond `alpha = 0`: Paper I's M8 is the Hankel type-(I) instance for polynomial `(P,Q)`; Paper II did the Airy type-(II)
+- TE.0' beyond `alpha = 0`: Paper I's Hankel type-(I) instance for polynomial `(P,Q)` is done (`hankelAttainment_proved`, `hbMultilevelLower_proved`); Paper II did the Airy type-(II)
   constant-Clark-pair instance in `ConcreteBootstrap/QuantC1Clark.lean` and does not edit `QuantC1Airy.lean`, which Paper I's
   `HankelQuantC1` imports.
 
@@ -856,7 +869,7 @@ Stated in Paper II without proof; they belong to Paper I's plan and Lean, except
 | `sr:window-pairing`, `sr:WR` | Lemmas WP, WR | none | FT-H4b (not in Paper I's plan) |
 | `teb:quant_c1` | Proposition TE.0 | `teb_quant_c1_typeII` (`ConcreteBootstrap/QuantC1Airy`) | formalised (Airy, type II; constant caveat in 5.1) |
 | `teb:quant_c1_near` | Remark TE.0 flat | none | FIVE-L; not needed at Virasoro |
-| `teb:quant_c1_hb` | Proposition TE.0' | `teb_quant_c1_clark_typeII`, `_firstLevel` (`m_0 = 2`) | partial: general `(P,Q)` is Paper I's M8 |
+| `teb:quant_c1_hb` | Proposition TE.0' | `teb_quant_c1_clark_typeII`, `_firstLevel` (`m_0 = 2`) | partial: general `(P,Q)` is proved on Paper I's side (`hbMultilevelLower_proved`) |
 | `teb:bootstrap` | Theorem TE.2 | `teb_bootstrap_part1/2/3`, `teb_bootstrap_hb`, `teb_mellin_o1_lower` | formalised |
 | `teb:kernel` | Lemma TE.1 | `stripPoisson_representation_symm` (`StripBand/StripPoissonRep`) | formalised (a) |
 | `teb:edge-osc` | Lemma TE.1a | `teb_edge_osc` | formalised |
