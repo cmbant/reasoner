@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.Special.AiryEnvelope
+public import FormalResearch.SignUncertainty.CeTerminalDeflation
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.Families
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.Design
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.VagueLimit
@@ -27,13 +28,14 @@ fixed-weight modular bootstrap.
 | `H2+` | `FTH2plus` |
 | `H3` | `FTH3` |
 | `H4a` | `FTH4a` |
-| `H4b` | `FTH4b` (with its data `FTCrossingData`); **does not yet match the paper's H4b**, see below |
+| `H4b` | `FTH4b` (with its data `FTCrossingData`), matching `ft:H4b` for general `D : ShellHBData` |
 
-**Known gap (H4b).** `FTH4b` is the earlier Airy-only form (`N = Ai`, terminal index `m = 1`): equality pairing of the
-extremal crossing measures with the Property-(P) comb families, with a `windows` field that assumes tail bounds. The
-paper's `ft:H4b` is for general polynomial Hermite–Biehler data `(P,Q)` (`N = P Ai + Q Ai'`, terminal index `m`), has the
-support clause (a), and needs only the one-sided designs (D1)–(D4); the tail bounds are conclusions of Lemma WP
-(`ft:WP`), and Lemma WR (`ft:WR`) is not in Lean. The realignment is package FT-H4b of `ModularBootstrap/PLAN.md`.
+* `H4b` (`ft:H4b`, Appendix `ft:dual`): for polynomial Hermite–Biehler data `D : ShellHBData` (`N = P Ai + Q Ai'`,
+  terminal index `m = D.S.card`), `FTCrossingData` gives the extremal dual measures and their rescaled window
+  pushforwards `μ_c = X.window c ν`. `FTH4b D X` states: (a) uniform upper support bound and cluster points in
+  `S_N = {t_1, ..., t_{m-1}} ∪ (-∞, t_m]`; (b) existence of one-sided designs (`FTDesign`, `(D1)–(D4)`) with limit `W > 0`
+  on `S_N` and with limit `R G_N` for every `R ∈ ℛ_N` of Lemma WR (`ft:WR`).
+  Tail bounds and vague convergence `ft:C5c` are proved from `FTH4b` in `FoldTip/DualMeasures.lean`.
 
 ## Conventions
 
@@ -47,12 +49,8 @@ support clause (a), and needs only the one-sided designs (D1)–(D4); the tail b
   holomorphic on a neighbourhood of the closed disc `D_c = {|u| ≤ A_c²}`, `A_c = a₀ c^{1/3}`, real on `ℝ`.
   The envelope is `C₀ e(u) exp(ς_c Re √u) (1+|u|)^{N₀} (Re √u)^{-q}` off the cut, with `e = airyEnv`.
 * The outside-chart convention of the far lobe (`ξ < ξ_* - r₀` counts as `u_c = +∞`) is built into `FTChart.lobe`.
-* `H4b`: the TeX's rescaled window measures, the crossing-test family `𝒜_c`, the pairing `v[g]` and the Airy comb
-  tests are given by data `FTCrossingData` and by the Property-`sr:P` structures of `Upper.Rigidity`
-  (`DesignPropertyP`, `SameSiteFamily`, `DisplacedFamily`, `OmittedFamily`): the designs of Property (P)
-  contain, for every omitted-site index, tests positive on the band beyond their first site (`DesignTest.nonneg`),
-  not required to be feasible, whose windows converge locally uniformly to the Airy comb windows, and the pairing
-  `∫ Ψ dμ = ∫ Ψ` (`DesignTest.crossing`).  The window coordinate is part of the data (`FTCrossingData.window`).
+* `H4b`: the TeX's rescaled window measures are given by data `FTCrossingData` (`extremal` and `window`), with
+  one-sided designs `FTDesign` obeying `(D1)–(D4)`.
 -/
 
 @[expose] public section
@@ -62,6 +60,7 @@ open Filter Topology MeasureTheory Metric Set Asymptotics
 namespace FormalResearch.ModularBootstrap.FoldTip
 
 open FormalResearch.Special FormalResearch.ModularBootstrap.Upper.Rigidity
+  FormalResearch.SignUncertainty
 
 /-! ### The fold constants -/
 
@@ -287,32 +286,68 @@ structure FTH4a (S : FoldTipSetting) (ch : FTChart S.scale) (c0 a0 N0 q : ℝ) (
   W_holomorphic_zerofree : ∀ K : Set ℂ, IsCompact K → ∀ᶠ c in atTop,
     K ⊆ ball (0 : ℂ) (discRadius a0 c) ∧ AnalyticOnNhd ℂ (ch.W S c) K ∧ ∀ u ∈ K, ch.W S c u ≠ 0
 
-/-- Data for `H4b`: the extremal crossing measures `μ_c` on the energy axis, the crossing-test family `𝒜_c`
-with the pairing constant `v[g]`, and the rescaled window measure of a crossing measure (in the Airy window
-variable). -/
+/-- Data for `H4b` (`ft:H4b`): the extremal dual (crossing) measures `ν ∈ X.extremal c` and their rescaled
+window pushforwards `μ_c = X.window c ν` on `ℝ`. -/
 structure FTCrossingData (S : FoldTipSetting) where
   extremal : ℝ → Set (Measure ℝ)
   window : ℝ → Measure ℝ → Measure ℝ
-  tests : ℝ → Set S.Comp
-  vac : ℝ → S.Comp → ℝ
 
-/-- **`H4b`** (crossing measures pair with comb tests).  (1) every extremal crossing measure pairs with every
-`g ∈ 𝒜_c` as `∫ g dμ_c = -v[g]`; (2) along every sequence `c_j → ∞` of extremal measures the rescaled window
-measures `μ_j` are locally bounded with uniformly small tails (against every design test); (3) the window
-algebra of Property (P): a class `𝒟` of windows with design tests for the `μ_j` (positive on the band beyond the
-first site, not required to be feasible, windows converging to the Airy comb windows) and the same-site,
-displaced and omitted-site families, i.e. tests isolating every node `a_n`. -/
-structure FTH4b (S : FoldTipSetting) (X : FTCrossingData S) : Prop where
-  pairing : ∃ c0 : ℝ, ∀ c, c0 ≤ c → ∀ ν ∈ X.extremal c, ∀ g ∈ X.tests c,
-    Integrable (S.ev g) ν ∧ ∫ x, S.ev g x ∂ν = -X.vac c g
-  windows : ∀ (cs : ℕ → ℝ) (ν : ℕ → Measure ℝ), Tendsto cs atTop atTop →
-    (∀ j, ν j ∈ X.extremal (cs j)) →
-      LocallyBounded (fun j => X.window (cs j) (ν j)) ∧
-      (∀ (D : Window) (T : DesignTest (fun j => X.window (cs j) (ν j)) D) (ε : ℝ), 0 < ε →
-        ∃ R₀ : ℝ, ∀ R : ℝ, R₀ ≤ R → ∀ᶠ j in atTop,
-          ∫ u in Iio (-R), T.Ψ j u ∂(X.window (cs j) (ν j)) ≤ ε) ∧
-      ∃ 𝒟 : Set Window, DesignPropertyP (fun j => X.window (cs j) (ν j)) 𝒟 ∧
-        Nonempty (SameSiteFamily 𝒟) ∧ Nonempty (DisplacedFamily 𝒟) ∧ Nonempty (OmittedFamily 𝒟)
+/-- The closed support set `S_N := {t_1, ..., t_{m-1}} ∪ (-∞, t_m]` for polynomial Hermite–Biehler data `D`. -/
+def hbSupport (D : ShellHBData) : Set ℝ :=
+  (D.S : Set ℝ) ∪ Iic D.tm
+
+lemma isClosed_hbSupport (D : ShellHBData) : IsClosed (hbSupport D) :=
+  D.S.finite_toSet.isClosed.union isClosed_Iic
+
+/-- A one-sided design (`ft:H4b` (b), `(D1)–(D4)`) for dual measures `X.window c ν` (`ν ∈ X.extremal c`)
+with continuous integrable limit `W : ℝ → ℝ`:
+* `(D1)`: `∫ U_c dμ_c ≤ ∫ U_c du` eventually for every `ν ∈ X.extremal c`;
+* `(D2)`: `U_c ≥ 0` on `(-∞, b]` for a fixed `b` and large `c`;
+* `(D3)`: `U_c → W` locally uniformly as `c → ∞`;
+* `(D4)`: `limsup_c ∫ U_c du ≤ ∫ W du`. -/
+def FTDesign {S : FoldTipSetting} (X : FTCrossingData S) (W : ℝ → ℝ) : Prop :=
+  Continuous W ∧ Integrable W ∧
+  ∃ U : ℝ → ℝ → ℝ,
+    (∃ c0 : ℝ, ∀ c, c0 ≤ c → Continuous (U c) ∧ Integrable (U c) ∧
+      ∀ ν ∈ X.extremal c, Integrable (U c) (X.window c ν) ∧
+        ∫ u, U c u ∂(X.window c ν) ≤ ∫ u, U c u) ∧
+    (∃ b : ℝ, ∀ᶠ c in atTop, ∀ u : ℝ, u ≤ b → 0 ≤ U c u) ∧
+    TendstoLocallyUniformly U W atTop ∧
+    ∀ ε : ℝ, 0 < ε → ∀ᶠ c in atTop, ∫ u : ℝ, U c u ≤ (∫ u : ℝ, W u) + ε
+
+/-- Continuous test window `(u - p)/(u - z) * G_N(u)` with removable singularity resolved via `dslope`
+(`ft:WR` (i)). -/
+noncomputable def hbSimpleTest (D : ShellHBData) (z p : ℝ) (u : ℂ) : ℂ :=
+  D.G u + ((z - p : ℝ) : ℂ) * dslope D.G (z : ℂ) u
+
+/-- Continuous test window `((u - b)/(u - z_k))^2 * ((u - q)/(u - t_m)) * G_N(u)` with removable
+singularities resolved via iterated `dslope` (`ft:WR` (ii)). -/
+noncomputable def hbPairedTest (D : ShellHBData) (k : ℕ) (b q : ℝ) (u : ℂ) : ℂ :=
+  let zk := hbZeroEnum D k
+  let H1 := fun v : ℂ => D.G v + ((D.tm - q : ℝ) : ℂ) * dslope D.G (D.tm : ℂ) v
+  let H2 := fun v : ℂ => H1 v + ((zk - b : ℝ) : ℂ) * dslope H1 (zk : ℂ) v
+  H2 u + ((zk - b : ℝ) : ℂ) * dslope H2 (zk : ℂ) u
+
+/-- **`H4b`** (`ft:H4b`, Paper I Appendix `ft:dual`): dual measures at Hermite–Biehler level `D : ShellHBData`
+and one-sided designs `(D1)–(D4)`.
+* `(a)`: `supp μ_c ⊂ (-∞, B]` for large `c`, and every finite limit of points of `supp μ_{c_j}` (`c_j → ∞`) lies in `S_N`.
+* `(b)`: there exists a one-sided design with limit `W > 0` on `S_N`, and for every `R ∈ ℛ_N` of Lemma WR (`ft:WR`),
+  a one-sided design with limit `R G_N`. -/
+structure FTH4b {S : FoldTipSetting} (D : ShellHBData) (X : FTCrossingData S) : Prop where
+  support_upper : ∃ B : ℝ, ∀ᶠ c in atTop, ∀ ν ∈ X.extremal c,
+    IsLocallyFiniteMeasure (X.window c ν) ∧ (X.window c ν) (Ioi B) = 0
+  support_limit : ∀ (cs : ℕ → ℝ) (ν : ℕ → Measure ℝ) (xs : ℕ → ℝ) (x : ℝ),
+    Tendsto cs atTop atTop → (∀ j, ν j ∈ X.extremal (cs j)) →
+    (∀ j, xs j ∈ (X.window (cs j) (ν j)).support) → Tendsto xs atTop (𝓝 x) → x ∈ hbSupport D
+  pos_design : ∃ W : ℝ → ℝ, (∀ u ∈ hbSupport D, 0 < W u) ∧ FTDesign X W
+  test_one : FTDesign X (fun u => (D.G (u : ℂ)).re)
+  test_simple : ∀ z ∈ D.S, ∃ δ : ℝ, 0 < δ ∧
+    ∀ p : ℝ, 0 < |p - z| → |p - z| < δ → (z = D.tm → p < 0) →
+      FTDesign X (fun u => (hbSimpleTest D z p (u : ℂ)).re)
+  test_paired : ∀ (k : ℕ), D.S.card ≤ k → ∀ (b q : ℝ),
+    b < 0 → b ≠ hbZeroEnum D k → q < 0 → q ≠ D.tm → q ≠ hbZeroEnum D k →
+    (∀ t ∈ D.S, t ≠ D.tm → q < t) →
+      FTDesign X (fun u => (hbPairedTest D k b q (u : ℂ)).re)
 
 /-- info: 'FormalResearch.ModularBootstrap.FoldTip.FTH2hol.toFTH2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
