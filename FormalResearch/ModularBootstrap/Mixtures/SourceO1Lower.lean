@@ -271,7 +271,7 @@ theorem twoEdgeInstance_of_YVForSrc {C : CommonSource} (Q : LemmaQSrcData C)
     rw [hI.2.2, ← hΔ_eq, foldChartOfLemmaQSrc_Δ, virasoroUT,
       virasoroUChart_deltaChart hc_pos (Q.abs_le_virasoro hc_pos.le hu_bd)]
 
-/-- **Theorem `FT-L.FW` for `CommonSource`** (via Theorem `FT-2E` with fixed HB data and `yvInputForSrc_bvChoice`):
+/-- **Theorem `FT-L.FW` (`wone:ftlfw`), one-level case `(P, Q) = (1, 0)` with zero vacuum slack (`C_vac = 0`), for `CommonSource`** (via Theorem `FT-2E` with fixed HB data and `yvInputForSrc_bvChoice`):
 every weakly feasible test of `C.src` at `(c'/12, T)` with `C₁ ≤ c'` obeys `T ≥ ξ̄ c' + A_opt c'^{1/3} - K`. -/
 theorem ft_commonSource_twoEdge {C : CommonSource} (Q : LemmaQSrcData C) :
     ∃ K C₁ : ℝ, Q.cQ ≤ C₁ ∧ 0 ≤ K ∧
