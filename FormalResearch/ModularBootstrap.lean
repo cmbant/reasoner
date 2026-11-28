@@ -166,8 +166,10 @@ public import FormalResearch.ModularBootstrap.Mixtures.VacTwoZero
 public import FormalResearch.ModularBootstrap.Mixtures.DualMajorant
 public import FormalResearch.ModularBootstrap.Mixtures.ThermalSeparation
 public import FormalResearch.ModularBootstrap.Mixtures.Primal
-public import FormalResearch.ModularBootstrap.Mixtures.DualityLP
 public import FormalResearch.ModularBootstrap.Mixtures.Duality
+public import FormalResearch.ModularBootstrap.TwoLevel.ConstrainedDualitySELP
+public import FormalResearch.ModularBootstrap.Mixtures.Duality
+public import FormalResearch.ModularBootstrap.TwoLevel.ConstrainedDualitySE
 public import FormalResearch.ModularBootstrap.Blowup.NormLimitCore
 public import FormalResearch.ModularBootstrap.Blowup.NormLimitIdentify
 public import FormalResearch.ModularBootstrap.Blowup.AiryNormLimit
@@ -181,6 +183,8 @@ public import FormalResearch.ModularBootstrap.Stability.AiryStabilityLower
 public import FormalResearch.ModularBootstrap.Stability.AiryStability
 public import FormalResearch.ModularBootstrap.Stability.TerminalStability
 public import FormalResearch.ModularBootstrap.Stability.ClarkStability
+public import FormalResearch.ModularBootstrap.Stability.ClarkStabilityLimit
+public import FormalResearch.ModularBootstrap.Stability.HbStability
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.SpectrumCorollary
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.ClusterBarycentre
 public import FormalResearch.ModularBootstrap.Crossing.Setup
