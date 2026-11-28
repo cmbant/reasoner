@@ -51,7 +51,7 @@ Quot.sound]`.
    gives Paper I its log-free `thm:ct-lower`), so `combined` consumes it rather than re-proving it. First step: *check* that
    `HalfCubicData` accepts the analytic weights `-V_1/(1-e^{-4 pi x})^2`, `3/(16 pi x)` of `cts:Kedge-signed`, then instantiate
    `fs_pairing_principal` and `fs_pairing_aux` for them.
-6. **Universality:** PM-0b (jets at general amplitude), FT-H4b, then INT-2, INT-S (headline 1); `pmix:liminf` needs the component `c_0^*(w,Q_i)` lower bounds (FIVE-W `ctu:c0`, `int:strict-weak`).
+6. **Universality:** PM-0b and FT-H4b are done (section 2.2); next INT-2, INT-S (headline 1), PA2 mixture cases, PM-3, PM-5, INT-3; `pmix:liminf` needs the component `c_0^*(w,Q_i)` lower bounds (FIVE-W `ctu:c0` at general weight, `int:strict-weak`).
 
 **Where things stand.**
 - *Lower and upper `O(1)` law, every integer `(w,Q)`:* `Delta_best = c'/Lambda_V + A_opt c'^{1/3} + O(1)` two-sided, no hypothesis
@@ -72,20 +72,20 @@ Quot.sound]`.
   all fourteen `s4:*` results proved (`spinS4_4_4`, `spinS4` unconditional); integer spin (SPIN-Z) not started;
   integrality: INT-T tools including `int:repair` and `int:sonine` at integer weights (`hankel_repair`, `hankelSonine_inv`), INT-4 at
   `(H_w)`, `int:atom` unconditional.
-- *Mixtures (headline 4):* PM-0, PM-1, PM-2 to stated scopes (partial), PM-4 done at every fixed charge in range; `pmix:o1` two-sided for every common source (`pmix_o1_common`) with the component comparison (`pmix_o1_component_comparison_unconditional`); PM-2 consumer ports and `pmix:rigidity` (a), and (b) at zero offset (`src_sigma_unconditional`, `src_two_level_exclusion`, `src_theorem_two_six`); `pmix:liminf` conditional on component `c_0^*` lower bounds (`pmix_liminf_of_component_c0`); FT-CC done with its Hankel-prescribed and fixed-weight instances (`hankelPrescribed_chartCompactness`,
+- *Mixtures (headline 4):* PM-0, PM-1, PM-2 to stated scopes (partial), PM-4 done at every fixed charge in range; `pmix:o1` two-sided for every common source (`pmix_o1_common`) with the component comparison (`pmix_o1_component_comparison_unconditional`); PM-2 consumer ports and `pmix:rigidity` (a), and (b) at zero offset (`src_sigma_unconditional`, `src_two_level_exclusion`, `src_theorem_two_six`); `pmix:liminf` conditional on component `c_0^*` lower bounds (`pmix_liminf_of_component_c0`); PM-0b done (`pmix_jets_common`, `pmix_jensen_full`); FT-CC done with its Hankel-prescribed and fixed-weight instances (`hankelPrescribed_chartCompactness`,
   `fixedWeight_chartCompactness`); `shellReduction_littleO` is the `o(d^{1/3})` shell reduction at all levels; Paper I's `O(1)` `shellReduction_proved` (and `hbMultilevelLower_proved`, `hbConstruction_proved`, `hankelAttainment_proved`, `hankelExactOrigin_proved`) is unconditional.
 
 **Counts** (counted from Appendix A against the TeX at `80acaed64`). 264 stated results: 261 `result` environments, the
 `theorem` and `corollary` of `modular_bootstrap_gap_proof.tex`, and Lemma A_V (`rem:cardy`, a `remarkx`); several labels on one
-result are one row. State on `master`: **125 done, 51 partial, 59 planned, 6 not planned, 23 recalled from Paper I**
+result are one row. State on `master`: **125 done, 52 partial, 58 planned, 6 not planned, 23 recalled from Paper I**
 (22 in `recalled_paper1.tex`, mapped in 7.10, and `dsl:compact-mass`). Appendix A has every label. Changes since `0932a6c6f`:
 `spinnotes:K3` left the paper (now in the note `notes/tex/spinning_integer_alternative_proofs.tex`); new `sd:spinmoment`,
 `spinnotes:L3a`, `spinnotes:L8a` (planned); `cts:rosc-uncond` partial -> planned (Lean's `eta(R_1) <= C` is no longer part of
-its statement, see 5.3).
+its statement, see 5.3); `ctu:jets` planned -> partial (PM-0b: (b), (c) and product additivity at general `(w,A)`).
 
 *Counting rule.* A label moves only when its row says so and its whole statement changes class. A general-`m` or general-factor
 part still open, a statement proved in a different variable, or one proved under a hypothesis the paper omits keeps it partial or
-planned; a proved proof step that is not part of the statement moves nothing (`cts:boas` Step 3, `ctu:jets` at Virasoro,
+planned; a proved proof step that is not part of the statement moves nothing (`cts:boas` Step 3, `ctu:piece4` at Virasoro,
 `ctl:dyadic`/`ctl:pass2`/`ctl:freeze` exponent bookkeeping, `lowerFirstGood_of_chart_on_band`). Calls that need the rule spelled out:
 - *Partial, modulo a named hypothesis:* `cts:transfer`, `thm:spinless-expansion`, `cts:lower-main` (first display only, and with the
   weaker `-C c'^{-1} log c'`); `pmix:rebase` (local finiteness of the push-forwards).
@@ -93,15 +93,15 @@ planned; a proved proof step that is not part of the statement moves nothing (`c
   only; the paper states the dominated class `(H_{w,lambda})`, mixtures are PM-4); `dsl:reserve` (the `d = 2` swap-invariant form
   `dslReserve` only); `cts:smooth-env` (all three parts at Virasoro; stated for general `(w,Q)` outer functions);
   `cts:edge-hankel` ((1) and (2) at Virasoro via `LowerEdgeHankel` and `LowerEdgeAsymp`; `G` is the defined Hankel integral);
-  `ctu:common-functional` (Virasoro data); `cts:involution` (weaker endpoint bound near `+-i`); `bl:norm` (`u`- and `s`-variable; node data a hypothesis at general `(P,Q)`);
+  `ctu:common-functional` (general amplitude: defect, minimum and equality in Lean; regularisation only the bound for `eps` in `(0,1)`, not the two-sided `D_eps` estimates or smoothness at `z = 1`); `ctu:jets` ((b), (c) at every `w >= 1`; (a) with `G_{A,4}` defined through the strip transform, its identification with `exp L_f(P(z))` and the `z^2` coefficient not stated); `cts:involution` (weaker endpoint bound near `+-i`); `bl:norm` (`u`- and `s`-variable; node data a hypothesis at general `(P,Q)`);
   `pmix:smooth` (coefficient `1/2` for the paper's `3/8`); `pmix:vac` (`(1,0)`, `(2,1)`, one-sided limit); `pmix:punif`,
-  `pmix:ramped`, `pmix:o1`, `pmix:weight`, `pmix:crossing`, `pmix:jets`, `int:repair`, `int:sonine` (integer weights `w >= 1`;
+  `pmix:ramped`, `pmix:o1`, `pmix:weight`, `pmix:crossing`, `pmix:jets` (`pmix_jets_common`, `pmix_jensen_full`; inherits the `ctu:common-functional` regularisation scope), `int:repair`, `int:sonine` (integer weights `w >= 1`;
   Lean's constants differ from the paper's), `int:obstr` ((a) at `(H_w)`), `se:3.3`, `sr:cor`, `ds:farkas`, `ds:E1`,
   `dsl:strip-fixed` (evenness of `G` and analyticity of `g` on `(-a',inf)` not stated), `ds:primal` (analyticity clause and class `(H_{w,lambda})`), `dsl:one-level-clusters`, `dsl:near-opt-mass` (`(H_w)` only; mixtures and dominated sources not ported), `pmix:duality` (see `ds:primal`), `pmix:rigidity` ((a); (b) at zero offset), `rem:corL`, `sd:R` (`spinDR` proves the Airy law of the dimension marginals; the
   `dsl:hb-mass` concentration bounds are not in Lean), `sr:P`,
   `sr:Sigma0`, `sr:Sigma`, `ctu:O1`, `ut:ideal`, `ut:IIF`, `ut:I`, `ut:III`, `ut:Vac`, `gt:2.4`-`gt:2.6` (the missing part is named
   in each row).
-- *Planned although Lean has a related object or step:* `ctu:jets`, `ctu:piece4` (Virasoro jets only); `int:cheb` (Lean
+- *Planned although Lean has a related object or step:* `ctu:piece4` (Virasoro jets only; the general-amplitude jets are `ctu:jets`); `int:cheb` (Lean
   has the floor `8 N^{5/2}` of `int:cheb-explicit`, not `640 N^2`); `cts:boas` (Step 3 core only); `cts:rosc-uncond` (Lean has
   `eta(R_1) <= C` at a first good radius modulo `chart`, weaker than (1)'s `eta(R) <= C c'^{-1/3}`).
 - *Done although proved in a different form:* `cts:langer` (`lowerLangerPhase_holds` links the chart to the comb phase on the real
@@ -135,7 +135,7 @@ the paper's number). Package details are in section 2.
 |---|---|---|---|
 | **3** | **Five-term expansion** `thm:fixed-weight-expansion`, `thm:spinless-expansion`: `Delta_best = c'/Lambda_V + A_opt c'^{1/3} + c_0^* + c_1^Langer c'^{-1/3} + d_2^* c'^{-2/3} + E`, `-C_- c'^{-1} log c' <= E <= C_+ c'^{-1} log c'` (the supplement's `cts:transfer`, `ctu:main` and the main text have the sharper `-C_- c'^{-1}` below) | **Weaker.** `O(1)` law at every `(w,Q)`. Virasoro constants complete (FIVE-0). Virasoro expansion proved modulo `UpperMainInputs` (`spinless_upper_of_inputs`) and `LowerMainInputs` (`spinless_lower_of_inputs`, log lower remainder); satisfiability of neither structure is checked. Nothing at general `(w,Q)` | FIVE-L restatement and fields, FIVE-U fields, then FIVE-W |
 | **2** | **Extremal spectrum**: attainment and atomicity (`ds:primal`), Airy clusters (`sr:Sigma`, `sr:cor`, `sr:single-level`), Clark curve (`gt:2.1`, `gt:2.4`-`gt:2.6`) | **Weaker or special.** `Sigma_0`, `Sigma` for the extremal measures at every weight (paper: any measure satisfying `Gap`); `gt:2.1` matches; `gt:2.5`, `gt:2.6`, `ut:T2`, `wone:clark`(c) at every weight for two-zero designs; `ds:E` done; `ds:primal` and `dsl:strip-fixed`(a) at every fixed charge `12 S <= c~`; `sr:cor` cluster masses, positions and barycentre; `se:3.1` both assertions; `se:cdual` and `se:terminal-stability` (multilevel) done; `dsl:one-level-clusters` and `dsl:near-opt-mass` at `(H_w)`; nothing for `sr:single-level` | PA2 rest (`sr:single-level` and the exact first atom need FIVE-W `ctu:main`; mixture and HB forms) |
-| **4** | **Universality across chiral algebras**: fixed weight (`n1:T5`), `N = 1` (`n1:T3`), positive mixtures (`pmix:main`), prescribed HB levels (`gt:hb`) | **Partly.** `O(1)` law and duality at every `(w,Q)`, `N = 1`; PM-4 duality for sources and mixtures; `bl:norm` for any `HermiteBiehlerData` (`hb_blnorm`, `hb_blnorm_s`); stability slopes (`se:3.1`, `se:terminal-stability`); `pmix:o1` two-sided for every common source with the component comparison; mixtures PM-0..PM-2 partial; `pmix:rigidity` (a) and the zero-offset part of (b) for `CommonSource`; FT-CC with its Hankel-prescribed and fixed-weight instances. Five-term, general HB levels: none | PM-0b, FT-H4b, `pmix:liminf` (needs FIVE-W `ctu:c0`), then PA2 rest, PM-3, INT-2HB, HB1, PM-5; five-term at `(w,Q)` via FIVE-W |
+| **4** | **Universality across chiral algebras**: fixed weight (`n1:T5`), `N = 1` (`n1:T3`), positive mixtures (`pmix:main`), prescribed HB levels (`gt:hb`) | **Partly.** `O(1)` law and duality at every `(w,Q)`, `N = 1`; PM-4 duality for sources and mixtures; `bl:norm` for any `HermiteBiehlerData` (`hb_blnorm`, `hb_blnorm_s`); stability slopes (`se:3.1`, `se:terminal-stability`); `pmix:o1` two-sided for every common source with the component comparison; mixtures PM-0..PM-2 partial, with PM-0b (jets at general amplitude, `pmix_jets_common`, unconditional `pmix_jensen_full`); `pmix:rigidity` (a) and the zero-offset part of (b) for `CommonSource`; FT-CC with its Hankel-prescribed and fixed-weight instances; FT-H4b (`FTH4b D X` matches `ft:H4b`, `ft_C5c` at every `D : ShellHBData`, `fwH4bW` unconditional at every weight). Five-term, general HB levels: none | `pmix:liminf` (needs FIVE-W `ctu:c0` at general weight), then PA2 rest, PM-3, INT-2HB, HB1, PM-5; five-term at `(w,Q)` via FIVE-W |
 | **1** | **Spin does not help**: continuous spin (`s4:S4`, `spinnotes:S3`, `sd:R`, `sd:spinmoment`), integer spin (`isl:main`, `spinnotes:L8a`), finite-order programmes (`isl:finite`); integrality shifts the spinless optimum exponentially little (`int:main`) and by `O(log c')` with continuous spin (`int:cont-spin`) | **Partly.** `spinnotes:S3` unconditional (`spinS3`: `(c-1)/Lambda_V - C (c-1)^{1/3} log(c-1)^{2/3} <= Delta_L <= Delta_spin <= Delta_best <= (c-1)/Lambda_V + A_opt (c-1)^{1/3} + C_+`); `sd:*` done except the `dsl:hb-mass` clause of `sd:R`; `s4:S4` and all `s4:*` unconditional (`spinS4`); `int:obstr`(a), `int:atom` unconditional (with `int:repair`, `int:sonine` at integer weights). `sd:spinmoment` (SD-M2) unconditional (`spinMoment_vagueLimit`, `spinMoment_cluster_ratio_tendsto`, `spinMoment_endpoint_tendsto`, `spinMoment_pair`). Integer spin and `int:main`: none | INT-S, SPIN-Z; INT-2, INT-3 |
 
 ### 1.1 Next steps per headline, smallest first
@@ -190,16 +190,16 @@ multiscale dyadic bootstrap `ctl:dyadic` (beyond its top scale) and the half-mom
 1. *`pmix:liminf` (M):* `pmix_o1_common` is the two-sided law for every common source and weakly feasible `T`; the component comparison
    is `pmix_o1_component_comparison_unconditional` (`0 < c`, `12 Smax <= c`; `pmix_o1_component_strict_gt` is a Lean addition) and
    `pmix_liminf_of_component_c0` gives `pmix:liminf` conditional on component lower bounds `hcomp`. Not in Lean: those bounds as
-   `c_0^*(w,Q_i)` (via `ctu:c0`, `int:strict-weak`); needs FIVE-W. `ft_commonSource_twoEdge` is the one-level case
+   `c_0^*(w,Q_i)` (via `ctu:c0`, `int:strict-weak`); needs the general-weight weak lower bound of FIVE-W `ctu:c0`. PM-0b no longer blocks it. `ft_commonSource_twoEdge` is the one-level case
    `(P,Q) = (1,0)` of `wone:ftlfw` with zero vacuum slack; the slack form of `wone:ftlfw` does not give the signed-source lower half
    directly (`V_src/V_{Q_0}` need not be monotone), so the lower half reruns the fixed-weight chain over `CommonSource`.
    *Route note:* `pmix:liminf` consumes exactly the general-weight weak lower bound `T_weak >= T_* + c0*(w,Q) - o(1)` (FIVE-L/FIVE-W at
    general weight), not the upper expansion or `gamma_0`; the FIVE-L phase theorem works on weakly feasible tests, so export that consequence directly.
-2. *PM-0b (M, 2-3k):* `ctu:jets` at a general amplitude, hence `pmix:jets` (the input of `pmix:main` through `ctu:c0`).
+2. *PM-0b remainder (S):* `ctu:jets` (a): the identification of `G_{A,4}` with the Poisson form `exp L_f(P(z))` and its `z^2` coefficient; `ctu:common-functional` regularisation: the two-sided `D_eps` estimates and smoothness at `z = 1`.
 3. *`pmix:rigidity` rest (M):* (a) and (b) at zero offset are in Lean for `CommonSource` (`Mixtures/SourceRigidity`, `SourceTwoLevel`).
    Not formalised: `D_2` lower bound, positive-mass existence for `A_2 < A_2^*`, offset `R_off`, `pmix:D1` log asymptotic, rebase
    transfer to the original `n`; (c) is PM-3.
-4. *FT-H4b (M-L)*, then PA2 (HB forms), PM-3, INT-2HB, HB1, PM-5 in that order (section 2.3).
+4. PA2 (HB forms), PM-3, INT-2HB, HB1, PM-5 in that order (section 2.3). Lemma WR is stated for the HB levels only (general real-entire `N` not stated; integrability of the tests is a hypothesis).
 
 **Headline 1 (spin, integrality).**
 1. *INT-2 `int:reserve`, `int:strict-weak` (M-L) at `(H_w)`, lower half first:* in the TeX, INT-2 is the canonical case
@@ -278,22 +278,12 @@ Listed by headline. "Needs" names packages or labels whose Lean is not yet suffi
   product rather than weakening the unit-modulus hypothesis.
 
 **FIVE-W** (headline 3; L, 5-8k). Closes `ctu:main`, `ctu:O1` (`c_0^*(w,Q)` clauses), `ctu:table`, `ctu:weight`, `ctu:strip`,
-`ctu:tip-window`, `ctu:tip-kernel`, `thm:fixed-weight-expansion`. Needs FIVE-L, FIVE-U, PM-0b (`ctu:jets` at `(w,A)` for the
-`(w,Q)` constants), `fixedWeightAxioms_of_problem`. Route notes (PR 307 corrections in the `ctu` transfer table): the C10
+`ctu:tip-window`, `ctu:tip-kernel`, `thm:fixed-weight-expansion`. Needs FIVE-L, FIVE-U, `fixedWeightAxioms_of_problem`; PM-0b (`ctu:jets` at `(w,A)` for the
+`(w,Q)` constants) is done. Route notes (PR 307 corrections in the `ctu` transfer table): the C10
 descendant factor is `log(1 - e^{-4 pi mu_l F(v)})` (unnormalised), and the Region-I `Q`-ratio at `s^2 = -a(x)` is
 `Q(e^{-4 pi xi_*})/Q(e^{-4 pi x})`, the reciprocal of the normalised `Q` factor of the slit modulus, not `1`. Design rule: keep FIVE-L/FIVE-U stated over general data so FIVE-W is an
 instance (5-8k) rather than a copy (15-25k). *Route note:* `LowerMainInputs` on lane-f2a hard-wires Virasoro (`Gout`, `virasoroPhi`, `virasoroC1`,
 `c0Star`, `gamma0`); add a small general chart/amplitude interface at the transfer boundary. `teb:quant_c1_near` is needed when `c0* >= 0`.
-
-**PM-0b** (headlines 3, 4; M, 2-3k). Closes `ctu:jets`, `ctu:piece4`, `cts:base-jets`, the rest of `ctu:common-functional`
-and of `pmix:jets` (`j(w,A) = alpha_tip g1(w,A)`, `ctu:g13A`, the defect identity and the equality criterion). Route: the TeX
-proves `ctu:jets` in the half-plane coordinate `P = (zeta - 1/zeta)/(2i)` (`Re P > 0` on `Omega`, `P o sigma = P`), every odd jet
-a real integral `J_k` of the even data `f(t) = log(A(x(t))/A(xi_*))` (`ctu:all-outer-jets`), the geometry-only jets being
-`cts:base-jets`. So: a half-plane Schwarz integral of `f` (`Complex/HardyHalfPlane`, Paper I's half-plane outer files)
-multiplied onto `Gout`, giving `OuterDatum W_A K g1 (Gout * G_{A,4})`, not a strip construction of `G_{A,4}`; then
-`comb_minimum` gives `j = alpha_tip g1`, linked to `pmix_jensen` by `I_1 = int F/t^2`. Shift-term algebra checked:
-`-4 pi r_i xi_*/sqrt2 . 8 alpha_tip/pi = -12 xi_bar r_i` (`alpha_tip = xi_*/(4 sqrt2)`, `xi_bar = xi_*^2/3`). Suits bounded runs.
-*Route note:* its first consumers need only the general outer first jet (`g1`); prove that first and the higher jets later.
 
 **PA2** (headlines 2, 4; L). Open: `dsl:one-level-clusters`, `dsl:near-opt-mass` beyond `(H_w)` (done there: `one_level_clusters`,
 `one_level_near_opt_mass`), `sr:single-level`, `dsl:hb-clusters`, `dsl:hb-mass`. The cluster structure needs only the `O(1)` law; the
@@ -327,17 +317,10 @@ only `limsup_le`); the consumer ports are done (`Mixtures/SourceRigidity`, `Sour
 
 **PM-4** (headline 4; **done** — moved to section 2.2).
 
-**FT-H4b** (headline 4; M-L). Realign `FTH4b` to the paper's H4b (`fold_tip_universality.tex`, `ft:hyp`, `\textlabel` `ft:H4b`):
-general Hermite-Biehler data `(P,Q)`, terminal index `m`, support clause (a), one-sided designs (D1)-(D4); then Lemma WP
-(`sr:window-pairing`), Lemma WR (`sr:WR`) and C5(c) at every HB level (`FTSigma` is the Airy level only). The present `windows`
-field assumes tail bounds that are conclusions of WP, so it is replaced, not extended; re-point Concordance row C5c. *Route note:* replace the
-`windows` field (a conclusion of Lemma WP used as hypothesis) by the paper's D1-D4 premises first, then prove WP/WR. Needs FT-1,
-`Upper/Rigidity`.
-
 **PM-3** (headline 4; L). `pmix:hbphase`, `pmix:hbtap`, `pmix:rigidity` (rest per section 1.1); `gt:2.1`, `gt:2.4`-`gt:2.6` for mixtures. Needs PM-1,
 PM-2 (`pmix:vac`; consumer ports done), PM-4, PA2 (one-level part: `dsl:one-level-clusters`, `dsl:near-opt-mass`;
 `pmix:rigidity`(c) cites `dsl:hb-clusters`, `dsl:hb-mass` only as forward pointers), W-T2w (`ut:ideal`; general `m` for the HB
-taper), SLK, FT-H4b, W-P6.
+taper), SLK, W-P6 (FT-H4b done).
 
 **INT-2HB** (headline 4; L). `int:hb-reserve` (any strict HB pair; `m_0 = 1` is `int:reserve`), a sharp law with matching
 upper bounds since PR 307 (`int:hb-res-sharp`: normalised infimum `(kappa_N^res + o(1)) n^{-1/3} eta`, maximal reserve
@@ -346,12 +329,12 @@ PM-3 (`pmix:rigidity`, `pmix:hbtap`), PM-2 (`pmix:vac`), W-T2w (`ut:ideal`), SLK
 (`dsl:hb-clusters`), `pmix:o1`, `pmix:rebase`, `pmix:dominated` (PM-5 for the dominated clause).
 
 **HB1** (headline 4; S-M after its inputs). `gt:hb` for general `(P,Q)` (the single-component case of `pmix:rigidity` with
-`int:hb-reserve`, `sr:single-level`); closes `wone:ftlfw`, `wone:genlower` for all `m_0`. Needs PM-3, INT-2HB, PA2, FT-H4b, SLK,
+`int:hb-reserve`, `sr:single-level`); closes `wone:ftlfw`, `wone:genlower` for all `m_0`. Needs PM-3, INT-2HB, PA2, SLK,
 PA1, LP1 (Paper I's M8 is done: `hbMultilevelLower_proved`, `hankelAttainment_proved`, `ChartCompactness` instances).
 
 **PM-5** (headline 4; S). `pmix:main` (assembly), `pmix:dominated` (Corollary PM-S, general `lambda`), `pmix:floor-criterion`
 (PM-S0: uniform Cardy floor iff `lambda({0}) > 0` and `A(x) > 0`; cf. Lean `FloorData`). Needs PM-0 to PM-4, PA2 (`pmix:main`
-(3)-(5)), INT-2HB, INT-3, INT-4, FIVE-W (`ctu:c0`), PM-0b.
+(3)-(5)), INT-2HB, INT-3, INT-4, FIVE-W (`ctu:c0`); PM-0b done.
 
 **SPIN-Z** (headline 1; M analytic part, certificates later). `isl:main`, `isl:finite`, `spinnotes:K1`, `K2`, `K4`, `K4a`,
 `L0a`-`L9`, `L3a`, `L8a` (`spinnotes:K3` left the paper at PR 311; it and the explicit real-collar bounds are in the note
@@ -427,7 +410,9 @@ uses `dsl:reserve` with weights `(1/2,1/2)` and the Virasoro product source, whi
 
 - **FIVE-0** (Virasoro data): constants, Langer, phase locking, half-disc geometry, outer function `Gout` with `gout_outerDatum`,
   chain to `cts:main`, jets `g1Out_eq_g1Vir`, `g3Out_eq_g3Vir`, `gamma0_eq_gamma0Of_out`, `comb_minimum_virasoro_c0Star`
-  (`FiveTerm/`, about 16.7k). Open part is PM-0b.
+  (`FiveTerm/`, about 16.7k). The general amplitude is PM-0b (below).
+- **PM-0b** (`ctu:jets` (b), (c), `ctu:common-functional` defect/minimum/equality, `pmix:jets`, `pmix:jensen` at general `(w,A)`): `Mixtures/{JetsAmp,JetsOuter,JetsAmpIntegrals,JetsG1,JetsG3,PmixJets}.lean` (`JetAmplitude`, `g1OutWA_eq`, `g3OutWA_eq`, `I1Amp_mul`, `I3Amp_mul`, `goutWA_factor`, `c0Star_WA_succ`, `goutWA_sigma_formula`, `comb_*_WA`, `pmix_jets_common`, `pmix_jensen_full`; scopes in 7.6, 7.7).
+- **FT-H4b** (`ft:H4b`, `ft:WP`, `ft:WR` for HB levels, `ft:C5c` at every HB level): `FoldTip/{Hypotheses,WindowPairing,DualMeasures,FixedWeightSetting,FixedWeightCrossing,ProfWinLimit,FixedWeightDualDesigns}.lean` (`FTH4b`, `lemma_WP`, `lemma_WR`, `ft_C5c`, `fwH4bW`, `ft_C5c_fixedWeight`).
 - **FIVE-S** (Virasoro outer function): `outerS1`-`outerS4` (`FiveTerm/Outer*`, `Complex/StripBdryFunctional`; about 12k).
 - **W-P5**: design side at every weight (`Upper/Positivity/VacuumBumped`, `Upper/Assembly/BumpedDesignWindow`,
   `FoldTip/InstancesAllWeights`).
@@ -480,7 +465,7 @@ uses `dsl:reserve` with weights `(1/2,1/2)` and the Virasoro product source, whi
 - **PM-2 consumer ports, `pmix:o1` comparison, `pmix:liminf` (conditional)**: `Mixtures/{SourceRigidity,SourceTwoLevel,O1Liminf}.lean` (`src_sigma_unconditional`, `src_two_level_exclusion`, `src_theorem_two_six`, `pmix_o1_component_comparison_unconditional`, `pmix_liminf_of_component_c0`); scopes in section 7.7.
 - **FT-CC**: `FoldTip/ChartCompactness.lean` (`ChartCompactness`, `uT_bddAbove`, `subseq_extremal`, `chartCompactness_limsup_ereal`, `chartCompactness_limsup`, `chartCompactness_profile`); instances `FoldTip/HankelChartCompactness.lean` (`radialRigidity_to_chartCompactness` from Paper I's `RadialRigidityPackage`, `hankelPrescribed_chartCompactness`, `hankelPrescribed_liminf_lower` (`gt:7.5`), `hankelPrescribed_profile_rigidity`, `shellReduction_littleO`; no edit of `SignUncertainty/`) and `FoldTip/FixedWeightChartCompactness.lean` (`fixedWeight_chartCompactness` for any `FixedWeightProblem` and `HermiteBiehlerData`, `_limsup`, `_profile`, `_virasoro`, `_clark`).
 - Earlier lanes: **A** (`O(1)` upper bound at `w = 1`, `Upper/Ramped/`), **B** (`Sigma_0`, `Sigma`), **C** (`N = 1`), **D**
-  (bump at `w > 1`, P1-P4), **TL1-TL6** (two-level lane), **FT-0, FT-1, FT-2** (`FoldTip/`). Lessons kept: state the general lemma
+  (bump at `w > 1`, P1-P4), **TL1-TL6** (two-level lane), **FT-0, FT-1, FT-2** (`FoldTip/`; FT-H4b is listed above). Lessons kept: state the general lemma
   in its own file and re-derive the old declaration under its old name; state weight-one lemmas in an abstract-integrand form
   first (`rampedWindow_part_gen`). Open follow-ups of TL: the `integrable` field of `TwoZeroTransferData`; a shared core builder
   for `bootstrapHB_of_YVForWThr`/`_Clark` (about 200 duplicated lines).
@@ -490,7 +475,7 @@ uses `dsl:reserve` with weights `(1/2,1/2)` and the Virasoro product source, whi
 Edges (a package waits for everything it needs; checked against the `\ref`s of each proof in the TeX at `80acaed64`):
 
 ```
-FIVE-0 (done) -> FIVE-S (done) -> {FIVE-L, FIVE-U} -> FIVE-W <- W-P5, W-P6 (done), PM-0b        [headline 3]
+FIVE-0 (done) -> FIVE-S (done) -> {FIVE-L, FIVE-U} -> FIVE-W <- W-P5, W-P6 (done), PM-0b (done)        [headline 3]
 shared FS.1, FS.2, FJ (with Paper I) -> FIVE-L fields combined, pass2, chart                       [headline 3]
 DU-G (done) -> PA1 (done) -> {INT-4 (H_w done), DU-F (done), PM-4 (done)} ; PA1 + W-P5 -> PA2 one-level (H_w done) ; + FIVE-W -> PA2 rest  [headline 2]
 SPIN-F (done) -> SPIN-S4 (done) -> {SPIN-Z, INT-S}                                        [headline 1]
@@ -498,13 +483,13 @@ SPIN-D (done) + Sigma (done) + W-P5 (done) -> SPIN-M (done)                     
 INT-T, INT-1 (done) ; SLK + W-P6 + DU-G -> INT-2 lower ; + PA2 -> INT-2 upper ; INT-1 + INT-2 + PA2 (+ FIVE-W) -> INT-3  [headline 1]
 PA2 (dsl:hb-mass) -> sd:R concentration clause                                                       [headline 1]
 INT-1 + INT-4 + SPIN-S4 + FIVE-U -> INT-S                                                            [headline 1]
-PM-1 + PM-2 + PM-4 + PA2 + W-T2w + SLK + FT-H4b -> PM-3                                              [headline 4]
+PM-1 + PM-2 + PM-4 + PA2 + W-T2w + SLK + FT-H4b (done) -> PM-3                                              [headline 4]
 PM-3 + SLK + DU-F + PA2 -> INT-2HB -> {HB1, PM-5 (+ INT-3, INT-4, FIVE-W)}  [headline 4]
 ```
 
 | wave | open packages | why |
 |---|---|---|
-| 1 | FIVE-L restatement, FT-H4b, SLK rest, INT-T rest, PM-0b, W-T2w general `m`, PM-1 rest, shared FS.2/FJ (2) | no open parent |
+| 1 | FIVE-L restatement, SLK rest, INT-T rest, W-T2w general `m`, PM-1 rest, shared FS.2/FJ (2) | no open parent |
 | 2 | FIVE-L fields, FIVE-U, INT-2, INT-4 for sources, PM-2 rest | need wave 1 at most |
 | 3 | FIVE-W | |
 | 4 | PA2, INT-3 (main part earlier), INT-S, SPIN-Z | SPIN-Z with `SpinZEnclosures` |
@@ -613,8 +598,7 @@ Unconditional, pinned axioms. "Scope" is the Lean statement's scope, sometimes s
   longer states it (the former Proposition 2.3; `pmix:rigidity`(c) is the current statement).
 - `wone:ftlfw` (since PR 299) no longer assumes W4 and allows normalised vacuum slack; Theorem W1'(1), W1'(2) and J are its
   corollaries. Lean's `FixedWeightLowerBoundInput`, `theoremFTLFW_W_of_YVFor` have the W4 shape, now a special case.
-- Named input structures that are still hypotheses somewhere: `FTH4b` (also the wrong form,
-  FT-H4b), `DesignPropertyP` for non-design families, `UpperMainInputs`, `LowerMainInputs` (and the derived `SharpUpperFamily`,
+- Named input structures that are still hypotheses somewhere: `DesignPropertyP` for non-design families, `UpperMainInputs`, `LowerMainInputs` (and the derived `SharpUpperFamily`,
   `LowerPhaseStatement`), and the planned `SpinZEnclosures`. Proved inputs that earlier plans listed: `MehlerOddMomentInput`,
   `BesselI0Asymptotic`, `BesselComplexExpansion`, `SDVAmplitudeInput` (design combs), `ShiftSumEstimate`, `TwoZeroIdealApprox`,
   `DesignTailBounds`, `TwoSimpleZeroTransfer`.
@@ -712,7 +696,7 @@ label cited by this plan, `THEOREM_MAP.md` or `docs/lean_status.md` disappeared 
   (Paper II's fixed-weight problems). Paper I's `lem:qual-compact` is in Lean (`Analysis/QualCompact`: `qual_compact`,
   `qual_compact_real`); Paper II's `compact_negative_mass` is not re-derived from it (it assumes pointwise convergence off one
   compact set, not local `L^1` convergence); use `qual_compact` for `bl:norm`-type or FT-3..6 needs.
-- Paper I does not plan Lemma WP, Lemma WR or `teb:quant_c1_near`; here they are FT-H4b and FIVE-L/FIVE-W.
+- Paper I does not plan Lemma WP, Lemma WR or `teb:quant_c1_near`; here Lemmas WP and WR are done (FT-H4b) and `teb:quant_c1_near` is FIVE-L/FIVE-W.
 - **Reverse imports.** Paper I's Lean imports Paper II files: `CtDyadicRadius` imports `FiveTerm/LowerGoodCircle`, `LowerDyadic`;
   `CtDyadicArea` imports `FiveTerm/LowerGoodArea`, `LowerGoodWtilde`; `HankelQuantC1` imports `ConcreteBootstrap/QuantC1Airy`.
   Edit these only in place with their statements kept, and rebuild `FormalResearch.SignUncertainty` after any change.
@@ -797,8 +781,8 @@ One line per group; labels by state are in Appendix A, declarations in `THEOREM_
   as `dslReserve`.
 
 ### 7.6 Five-term expansion
-- **FIVE0** (`cts:langer`, `cts:phaselock`, `cts:main` done; `cts:involution`, `ctu:common-functional` partial; `ctu:piece4`,
-  `ctu:jets`, `cts:base-jets` planned): Virasoro only (weight one, `A = 1`). `OuterDatum` records only what `cts:main` uses, with
+- **FIVE0** (`cts:langer`, `cts:phaselock`, `cts:main` done; `cts:involution`, `ctu:common-functional`, `ctu:jets` partial; `ctu:piece4`,
+  `cts:base-jets` planned): the Virasoro data (weight one, `A = 1`) for `cts:*`; `ctu:common-functional` and `ctu:jets` at general `(w,A)` through `Mixtures/Jets*` and `PmixJets` (PM-0b): `JetAmplitude` carries the amplitude conditions; `ctu:jets` (b) `g1OutWA_eq`, `g3OutWA_eq` for all `w >= 1`, product additivity `I1Amp_mul`, `I3Amp_mul`, `goutWA_factor`, `c0Star_WA_succ`; (c) pointwise form `goutWA_sigma_formula`; (a) with `G_{A,4}` defined through the strip transform, its identification with `exp L_f(P(z))` and the `z^2` coefficient not stated; `ctu:common-functional` defect, minimum and equality (`comb_*_WA`) match, regularisation `comb_regularisation_WA` is the bound only (`eps` in `(0,1)`; two-sided `D_eps` estimates and smoothness at `z = 1` not formalised). `OuterDatum` records only what `cts:main` uses, with
   the weaker endpoint bound `c <= |G| <= C|1+z^2|^{-5/4}` near `+-i` (`gout_near_I`) in place of the paper's two-sided
   `|1+z^2|^{-1} (log)^{1/2}`; `gout_near_one` is the two-sided `|z-1|^{1/2}` bound; `cts:R-id` holds by construction. Lean's
   jet route (strip coordinate, Poisson slope of `hbarA`, strip-Cauchy identities) does not follow the paper's four-piece
@@ -815,9 +799,8 @@ One line per group; labels by state are in Appendix A, declarations in `THEOREM_
 - **PM** (eleven labels partial, five planned). Scopes: `pmix:rebase` (local finiteness of weighted push-forwards a hypothesis;
   `nu_j` on `(0,oo)`, `W_j >= 0` measurable, `n_j > 12 r`; since PR 301 an exact affine push-forward identity); `pmix:weight`
   (atomic `lambda`; the nonnegative-Taylor-coefficient clause of (a) not formalised); `pmix:crossing` ((b) in the abstract form of
-  `fwM_of_decay` with `|h_0(-alpha)| <= 2` a hypothesis; the `AdmissibleSpectrum` corollary not ported); `pmix:jets` (only
-  `pmix_jets_hyp` and `MixtureData.pmix_jensen`, whose integrability is a hypothesis; since PR 301 the paper's form is an exact
-  integrated relative-entropy identity); `pmix:punif` (no separate `-5/2` bound on `G`); `pmix:ramped` (at
+  `fwM_of_decay` with `|h_0(-alpha)| <= 2` a hypothesis; the `AdmissibleSpectrum` corollary not ported); `pmix:jets`
+  (`pmix_jets_common` for `CommonSource` through `Mixtures/PmixJets`, inheriting the `ctu:common-functional` regularisation scope; `pmix:jensen`: `MixtureData.pmix_jensen_full`, unconditional, the inequality, the exact defect identity and the equality criterion); `pmix:punif` (no separate `-5/2` bound on `G`); `pmix:ramped` (at
   `d = M0 c'^{-1/3}` for each fixed `M0`); `pmix:smooth` (coefficient `1/2` for `3/8`, hypothesis (i) on the whole window, vacuum
   step at `d = M0 c'^{-1/3}`); `pmix:o1` (two-sided for every `CommonSource`, `pmix_o1_lower_common`, `pmix_o1_common`, `pmix_o1_levels_common`; the comparison clause `T_mix >= min_i T_{V,i}(n - 12 r_i)` is `pmix_o1_component_comparison_unconditional` (`0 < c`, `12 Smax <= c`; `pmix_o1_component_strict_gt` is a Lean addition); `pmix:liminf` partial: `pmix_liminf_of_component_c0` is conditional on component lower bounds `hcomp`, the identification with `c_0^*(w,Q_i)` (via `ctu:c0`, `int:strict-weak`) is not formalised; since PR 304 a
   strictness clause, not in Lean); `pmix:vac` (`(1,0)`, `(2,1)`, any common source; second limit one-sided; `g > 0` proved where
@@ -866,7 +849,7 @@ Stated in Paper II without proof; they belong to Paper I's plan and Lean, except
 | `gt:1.1` | Theorem 1.1 | `airyClark_quadrature`, `airyClark_hasSum_unc` | formalised |
 | `lem:hb-uniqueness` | Lemma H.2a | `hb_uniqueness` | formalised |
 | `gt:1.2` | Theorem 1.2 | `clark_two_node_uncertainty`, `clark_two_node_equality_iff` | formalised |
-| `sr:window-pairing`, `sr:WR` | Lemmas WP, WR | none | FT-H4b (not in Paper I's plan) |
+| `sr:window-pairing`, `sr:WR` | Lemmas WP, WR | `lemma_WP`, `lemma_WR` (`FoldTip/WindowPairing`, `DualMeasures`) | formalised (WR at the HB levels; general real-entire `N` not stated; integrability of the tests a hypothesis); not in Paper I's plan |
 | `teb:quant_c1` | Proposition TE.0 | `teb_quant_c1_typeII` (`ConcreteBootstrap/QuantC1Airy`) | formalised (Airy, type II; constant caveat in 5.1) |
 | `teb:quant_c1_near` | Remark TE.0 flat | none | FIVE-L; not needed at Virasoro |
 | `teb:quant_c1_hb` | Proposition TE.0' | `teb_quant_c1_clark_typeII`, `_firstLevel` (`m_0 = 2`) | partial: general `(P,Q)` is proved on Paper I's side (`hbMultilevelLower_proved`) |
@@ -903,8 +886,8 @@ PL planned, NP not planned, R recalled from Paper I. Groups are those of section
 **`constant_term_universality.tex`** (10)
 - PL / FIVEW: `ctu:main`, `ctu:table`, `ctu:weight`, `ctu:strip`, `ctu:tip-window`, `ctu:tip-kernel`
 - P / FIVEW: `ctu:O1` (`ctu:Airy`, `ctu:c0`)
-- P / FIVE0: `ctu:common-functional`
-- PL / FIVE0: `ctu:piece4`, `ctu:jets`
+- P / FIVE0: `ctu:common-functional`, `ctu:jets`
+- PL / FIVE0: `ctu:piece4`
 
 **`crossing_sum_rule.tex`** (3)
 - D / CR: `fw:abel`, `fw:crossing`, `fw:FWC`
@@ -1024,7 +1007,7 @@ PL planned, NP not planned, R recalled from Paper I. Groups are those of section
 - PL / FIVEW: `thm:fixed-weight-expansion`
 
 Files with no stated result: `modular_bootstrap_main.tex`, `five_term_roadmap.tex`, `spinning_airy_moment_proof.tex`,
-`spinning_integer_poincare.tex`, `spinning_integer_multipliers.tex`. Totals: 264 results; done 125, partial 51, planned 59, not
+`spinning_integer_poincare.tex`, `spinning_integer_multipliers.tex`. Totals: 264 results; done 125, partial 52, planned 58, not
 planned 6, recalled 23 (counted from the rows above).
 
 ## Appendix B. Calibration (lines of Lean under `FormalResearch/ModularBootstrap/`, `master` `7d1ee0f`)
