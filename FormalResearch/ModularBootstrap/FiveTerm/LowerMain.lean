@@ -15,15 +15,15 @@ Source: `CFT/modular_bootstrap/paper/constant_term_slit_strip.tex`, Theorem C9 (
 one-pass log-free proof, with Lemma C6 (`cts:cauchy-dual`), Lemma C7 (`cts:rosc-uncond`), Lemma C7b (`ctl:pass2`),
 Lemma C8 (`cts:boas`), Proposition C1 (`cts:langer`).
 
-* `LowerMainInputs prob c0 γ0` (a structure) holds the **open TeX lemmas as used in the proof of C9**, as fields over
-  concrete objects (`lowerF`, `lowerH`, `lowerPNodes`, `lowerEta`, `lowerBand`, `lowerSc`, ...): the shifted Airy chart
-  `φ_c` (`LowerChart`, `cts:cauchy-dual`(1)), the combined dual identity (`LowerCombined`, `cts:rosc-uncond`(4)),
-  the power-law good circle (`LowerPass2`, `ctl:pass2`), and Boas positivity (`LowerBoas`, `cts:boas`).
-  `ctl:freeze` is used inside `cts:boas`; `K_edge^ε` and `cts:dual-id` are consumed inside `cts:rosc-uncond`(4) and `cts:boas`.
+* `LowerMainInputs prob c0 γ0` (a structure) holds the remaining **open TeX lemmas as used in the proof of C9**,
+  as fields over concrete objects (`lowerF`, `lowerH`, `lowerPNodes`, `lowerEta`, `lowerBand`, `lowerSc`, ...): the
+  shifted Airy chart `φ_c` (`LowerChart`, `cts:cauchy-dual`(1)), the combined dual identity (`LowerCombined`,
+  `cts:rosc-uncond`(4)), and Boas positivity (`LowerBoas`, `cts:boas`).  `ctl:freeze` is used inside `cts:boas`, and
+  `K_edge^ε` and `cts:dual-id` are consumed inside `cts:rosc-uncond`(4) and `cts:boas`.
 * Already proved facts are **not** fields: `LowerPrelim prob` packages `rem:corL`(b) and the sign/range facts of
   `lemmaQ_part3` (at Virasoro: `lowerPrelim_virasoro` in `LowerMainVirasoro`), `LowerLangerPhase` is discharged by
-  `lowerLangerPhase_holds`, and `LowerEdgeHankel`, `LowerBoasResidue`, `LowerDyadic`, `LowerCorL`, `LowerSign` are used by
-  the field discharges.
+  `lowerLangerPhase_holds`, `LowerPass2` is discharged at Virasoro by `lowerPass2_of_chart` (`LowerPass2Main`), and
+  `LowerEdgeHankel`, `LowerBoasResidue`, `LowerDyadic`, `LowerCorL`, `LowerSign` are used by the field discharges.
 * `nodes_lower` (private): the first Airy node alone gives `P_R(H) ≥ κ(ũ_T - φ_c(a_1))/(2 Ai'(a_1)²)`.
 * `lowerPhase_of_inputs` (**the skeleton**): `LowerMainInputs prob c0 γ0` and `c0 < 0` give `C ≥ 0` with
   `LowerPhaseStatementSharp prob c0 γ0 C` (log-free `cts:lower-main` phase bound).  It includes the `ũ ↔ τ` bridge
@@ -118,10 +118,10 @@ def LowerBoas (prob : FixedWeightProblem) (Gout : ℂ → ℂ) (c1 : ℝ) (phi :
       -(C * c ^ (-(4 / 3 : ℝ))) ≤ lowerBand prob Gout phi uhat c R g
 
 /-- **The inputs of `cts:lower-main`.**  The data are the shifted chart `φ_c` (`phi`, `uhat`), the outer function
-`G_outer` (`Gout`) and the chart radius `c_1`; the fields are the open TeX lemmas as used in the proof of Theorem C9:
-`cts:cauchy-dual` (1) (`LowerChart`), `cts:rosc-uncond` (4) (`LowerCombined`),
-`ctl:pass2` (`LowerPass2`), and `cts:boas` (`LowerBoas`).  `cts:langer` `LowerLangerPhase` is discharged
-unconditionally by `lowerLangerPhase_holds`. -/
+`G_outer` (`Gout`) and the chart radius `c_1`; the fields are the remaining open TeX lemmas as used in the proof of Theorem C9:
+`cts:cauchy-dual` (1) (`LowerChart`), `cts:rosc-uncond` (4) (`LowerCombined`), and `cts:boas` (`LowerBoas`).
+`cts:langer` (`LowerLangerPhase`) is discharged unconditionally by `lowerLangerPhase_holds`, and `ctl:pass2`
+(`LowerPass2`) is discharged at Virasoro by `lowerPass2_of_chart` (`LowerPass2Main`). -/
 structure LowerMainInputs (prob : FixedWeightProblem) (c0 γ0 : ℝ) where
   Gout : ℂ → ℂ
   phi : ℝ → ℂ → ℂ
@@ -131,7 +131,6 @@ structure LowerMainInputs (prob : FixedWeightProblem) (c0 γ0 : ℝ) where
   c1_small : 10 * c1 ≤ virasoroBVChoice
   chart : LowerChart c0 γ0 c1 phi uhat
   combined : LowerCombined prob Gout c1 phi uhat
-  pass2 : LowerPass2 prob c1 phi
   boas : LowerBoas prob Gout c1 phi uhat
 
 /-- The chart point of the reference phase minus `K c^{-2}`:
@@ -378,14 +377,14 @@ private lemma rpow_neg_one_mul {c : ℝ} (hc : 0 < c) :
 /-- **One-pass upper bound on the node sum in `cts:lower-main`.**  For every violating test there is a good radius with
 `P_R(H) + g_vac/2π ≤ C_0 c^{-4/3}`, `C_0` independent of the test and of `K`. -/
 private lemma lower_pass_bound {prob : FixedWeightProblem} {c0 γ0 : ℝ}
-    (h : LowerMainInputs prob c0 γ0) :
+    (h : LowerMainInputs prob c0 γ0) (hpass : LowerPass2 prob h.c1 h.phi) :
     ∃ cc C₀ : ℝ, ∀ c : ℝ, cc ≤ c → ∀ (T : ℝ) (g : ℝ → ℝ), prob.IsWeaklyFeasible (c / 12) T g →
       LowerViolator h.phi c T → T ≤ virasoroDeltaChart c (-virasoroAThr) →
       ∃ (N : ℕ) (R : ℝ), LowerGoodCircle N R ∧ LowerRadiusRange h.c1 c R ∧
         lowerPNodes N (lowerH prob h.phi c g R) + prob.gVac (c / 12) g / (2 * π) ≤
           C₀ * c ^ (-(4 / 3 : ℝ)) := by
   obtain ⟨cc4, C4, h4⟩ := h.combined
-  obtain ⟨cc2, Cp, hp2⟩ := h.pass2
+  obtain ⟨cc2, Cp, hp2⟩ := hpass
   obtain ⟨cc8, C8, h8⟩ := h.boas
   set C4' := max C4 0 with hC4'
   set Cp' := max Cp 0 with hCp'
@@ -555,9 +554,9 @@ feasible test has first-site phase at least `τ_*(c) - C c^{-2}`.  Proof: `ctl:p
 (`lower_pass_bound`), the first node (`nodes_lower`) and the Langer identification (`LowerLangerPhase`) at
 `u_* = lowerUstar`. -/
 theorem lowerPhase_of_inputs {prob : FixedWeightProblem} {c0 γ0 : ℝ} (hc0 : c0 < 0)
-    (hP : LowerPrelim prob) (h : LowerMainInputs prob c0 γ0) :
+    (hP : LowerPrelim prob) (h : LowerMainInputs prob c0 γ0) (hpass : LowerPass2 prob h.c1 h.phi) :
     ∃ C : ℝ, 0 ≤ C ∧ LowerPhaseStatementSharp prob c0 γ0 C := by
-  obtain ⟨ccp, C₀, hpass⟩ := lower_pass_bound h
+  obtain ⟨ccp, C₀, hpass⟩ := lower_pass_bound h hpass
   obtain ⟨cP, κ, hκ, hprel⟩ := hP
   obtain ⟨cc_ch, Cφ, hCφ, hch⟩ := h.chart
   obtain ⟨cb, hlang⟩ := lowerLangerPhase_holds

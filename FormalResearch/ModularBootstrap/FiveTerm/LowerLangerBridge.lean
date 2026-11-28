@@ -324,7 +324,7 @@ private lemma cpow_three_halves_neg_sub_I_tendsto {r : ℝ} (hr : 0 < r) :
   · congr 1; push_cast; ring
   · congr 1; ring
 
-private lemma tip_potential_cumulN_eq {x : ℝ}
+lemma tip_potential_cumulN_eq {x : ℝ}
     (hx_gt : xiStar < x)
     (hx_lt : x < xiStar + min (min TipFront.lemmaGPotentialInput_virasoro.r_A (1 / 2)) (xiStar / 2)) :
     (x - xiStar) ^ (3 / 2 : ℝ) *

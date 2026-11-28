@@ -80,6 +80,9 @@ public import FormalResearch.ModularBootstrap.FiveTerm.UpperPairGamma
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperTipSharedD
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperMainInputs
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerMain
+public import FormalResearch.ModularBootstrap.FiveTerm.LowerPass2Window
+public import FormalResearch.ModularBootstrap.FiveTerm.LowerPass2Top
+public import FormalResearch.ModularBootstrap.FiveTerm.LowerPass2Main
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerMainVirasoro
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryMoment
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryPrimitive
