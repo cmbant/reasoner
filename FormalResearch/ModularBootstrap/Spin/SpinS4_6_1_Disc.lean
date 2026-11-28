@@ -351,7 +351,7 @@ lemma spinPtilde_jacobian_on {c u₁ u₂ : ℝ} (hc : 40 ≤ c)
   exact ⟨hb₁₂, hb₁_pos, hcov_id, hcov_abs, hcov_neg, hhalf_le⟩
 
 lemma spinPtilde_tail_le_of_env {c C_κ C₂ r_d cA A B : ℝ}
-    (hc : 40 ≤ c) (hCκ : 0 < C_κ) (hr_d : 0 < r_d) (hcA : 0 < cA)
+    (hc : 40 ≤ c) (hCκ : 0 < C_κ) (_hr_d : 0 < r_d) (_hcA : 0 < cA)
     (hA1 : 1 ≤ A) (hAB : A ≤ B)
     (hB_an : B < r_d * (c - 1) ^ (2 / 3 : ℝ))
     (hB_cA : B ≤ (cA * (c - 1) ^ (1 / 3 : ℝ)) ^ 2)
@@ -427,7 +427,7 @@ lemma spinPtilde_tail_le_of_env {c C_κ C₂ r_d cA A B : ℝ}
         HasDerivAt (fun y : ℝ => -(6 / 5 : ℝ) * Real.exp (-(5 / 6 : ℝ) * y))
           (Real.exp (-(5 / 6 : ℝ) * x)) x := fun x _ => by
       have h1 := ((hasDerivAt_id x).const_mul (-(5 / 6 : ℝ))).exp.const_mul (-(6 / 5 : ℝ))
-      exact h1.congr_deriv (by dsimp only; ring)
+      exact h1.congr_deriv (by simp only [id_eq]; ring)
     have hint_c : Continuous (fun x : ℝ => Real.exp (-(5 / 6 : ℝ) * x)) := by fun_prop
     rw [intervalIntegral.integral_eq_sub_of_hasDerivAt hderiv (hint_c.intervalIntegrable A B)]
     ring
@@ -474,8 +474,8 @@ private lemma disc_r0_exists :
     linarith only [hsq_hi, hmr]
 
 lemma spin_rhoMinus_Icc_le_of_slack {C₀ r₁ C₂₄ C_p c x₁ : ℝ}
-    (hc : 40 ≤ c) (hr₁_pos : 0 < r₁) (hr₁_lt : r₁ < xiStar)
-    (hx₁ : x₁ ≤ xiStar + C₀ * (c - 1) ^ (-(2 / 3 : ℝ)))
+    (hc : 40 ≤ c) (_hr₁_pos : 0 < r₁) (_hr₁_lt : r₁ < xiStar)
+    (_hx₁ : x₁ ≤ xiStar + C₀ * (c - 1) ^ (-(2 / 3 : ℝ)))
     {Φ : ℝ × ℝ → ℝ} (hS : SpinSlackHyp c x₁ Φ)
     (h24_bd : (spinRhoProjMeasure c (fun q => max (-spinG ((c - 1) / 12) Φ q.1 q.2) 0)
       (Icc 0 (xiStar - r₁))).toReal ≤ C₂₄ * ((c - 1) ^ (-(2 / 3 : ℝ)) * Real.log (c - 1)) + C_p * (c - 1) ^ (-3 : ℝ)) :
@@ -796,12 +796,79 @@ private lemma spinPtilde_ofReal_im' {c : ℝ} (hc40 : 40 ≤ c) {Φ : ℝ × ℝ
       (spinCalNorm c Φ : ℂ)).im = 0
   rw [Complex.div_ofReal_im, hnum_im, zero_div]
 
+private lemma spinPtilde_quantC1B2_apply
+    {c n R_dom_n u_T u_hi C_κ51 C₂ cA δ_lobe_n : ℝ}
+    {Φ : ℝ × ℝ → ℝ}
+    (hteb_n : ∀ Ψ : ℂ → ℂ, ∀ u₀ : ℝ,
+      AnalyticOnNhd ℂ Ψ (closedBall (0 : ℂ) (n ^ (1 / 6 : ℝ))) →
+      (∀ x ∈ Icc (-(n ^ (1 / 6 : ℝ))) (n ^ (1 / 6 : ℝ)), (Ψ (x : ℂ)).im = 0) →
+      (∀ u ∈ closedBall (0 : ℂ) (n ^ (1 / 6 : ℝ)), ¬ (u.im = 0 ∧ u.re ≤ 0) →
+        ‖Ψ u‖ ≤ (2 * C_κ51) * airyEnv u *
+          Real.exp ((C₂ * n ^ (-(1 / 3 : ℝ)) * Real.log n) * (u ^ (1 / 2 : ℂ)).re) *
+          ‖u‖ ^ (-(1 / 2 : ℝ)) * ((u ^ (1 / 2 : ℂ)).re)⁻¹) →
+      airyZero 1 < u₀ → u₀ ≤ n ^ (1 / 6 : ℝ) →
+      (∀ x ∈ Icc (-(n ^ (1 / 6 : ℝ))) u₀, 0 ≤ (Ψ (x : ℂ)).re) →
+      ∫ x in (-(n ^ (1 / 6 : ℝ)))..(n ^ (1 / 6 : ℝ)), ‖Ψ (x : ℂ)‖ ≤ 1 →
+      (1 / 2 : ℝ) - δ_lobe_n ≤ ∫ x in u₀..(n ^ (1 / 6 : ℝ)), max 0 (-(Ψ (x : ℂ)).re) →
+      (∀ R' ∈ Icc (0 : ℝ) (n ^ (1 / 6 : ℝ)), -R' ≤ u₀ →
+        ∫ x in (-R')..(n ^ (1 / 6 : ℝ)), (Ψ (x : ℂ)).re ≤ δ_lobe_n) →
+      QuantC1B2Holds Ψ u₀)
+    (hR_eq : n ^ (1 / 6 : ℝ) = R_dom_n)
+    (han_dom : AnalyticOnNhd ℂ (spinPtilde c Φ) (closedBall (0 : ℂ) R_dom_n))
+    (him_dom : ∀ x ∈ Icc (-R_dom_n) R_dom_n, (spinPtilde c Φ (x : ℂ)).im = 0)
+    (hR_lt_uhi : R_dom_n < u_hi) (hu_hi_cA : u_hi ≤ (cA * n ^ (1 / 3 : ℝ)) ^ 2)
+    (henv : ∀ u : ℂ, u ≠ 0 → ‖u‖ ≤ (cA * n ^ (1 / 3 : ℝ)) ^ 2 → 0 < (u ^ (1 / 2 : ℂ)).re →
+      ‖spinPtilde c Φ u‖ ≤ C_κ51 * spinAiryEnv u *
+        Real.exp (C₂ * n ^ (-(1 / 3 : ℝ)) * Real.log n * (u ^ (1 / 2 : ℂ)).re) /
+          (Real.sqrt ‖u‖ * (u ^ (1 / 2 : ℂ)).re))
+    (huT_gt : airyZero 1 < u_T) (huT_le_dom : u_T ≤ R_dom_n)
+    (hpos_band : ∀ x ∈ Icc (-R_dom_n) u_T, 0 ≤ (spinPtilde c Φ (x : ℂ)).re)
+    (hL1_le : ∫ x in (-R_dom_n)..R_dom_n, ‖((2 : ℝ) : ℂ) * spinPtilde c Φ (x : ℂ)‖ ≤ 1)
+    (hlobe_lb : (1 / 2 : ℝ) - δ_lobe_n ≤
+      ∫ x in u_T..R_dom_n, max 0 (-(((2 : ℝ) : ℂ) * spinPtilde c Φ (x : ℂ)).re))
+    (hwin_ub : ∀ R' ∈ Icc (0 : ℝ) R_dom_n, -R' ≤ u_T →
+      ∫ x in (-R')..R_dom_n, (((2 : ℝ) : ℂ) * spinPtilde c Φ (x : ℂ)).re ≤ δ_lobe_n) :
+    QuantC1B2Holds (fun u => ((2 : ℝ) : ℂ) * spinPtilde c Φ u) u_T := by
+  subst hR_eq
+  refine hteb_n (fun u => ((2 : ℝ) : ℂ) * spinPtilde c Φ u) u_T
+    (analyticOnNhd_const.mul han_dom) ?_ ?_ huT_gt huT_le_dom ?_ hL1_le hlobe_lb hwin_ub
+  · intro x hx
+    have him := him_dom x hx
+    simp only [Complex.mul_im, Complex.ofReal_re, Complex.ofReal_im, zero_mul, add_zero, him, mul_zero]
+  · intro u hu hcut
+    have hnorm_u : ‖u‖ ≤ (cA * n ^ (1 / 3 : ℝ)) ^ 2 :=
+      (mem_closedBall_zero_iff.mp hu).trans (hR_lt_uhi.le.trans hu_hi_cA)
+    have hu_ne : u ≠ 0 := fun h0 => hcut ⟨by simp [h0], by simp [h0]⟩
+    have hu_slit : u ∈ Complex.slitPlane := by
+      rw [Complex.mem_slitPlane_iff]; by_contra hns; push Not at hns; exact hcut ⟨hns.2, hns.1⟩
+    have hre_pos : 0 < (u ^ (1 / 2 : ℂ)).re := re_cpow_half_pos_of_slit hu_slit
+    have hbd := henv u hu_ne hnorm_u hre_pos
+    have h_inv : (Real.sqrt ‖u‖ * (u ^ (1 / 2 : ℂ)).re)⁻¹ =
+        ‖u‖ ^ (-(1 / 2 : ℝ)) * ((u ^ (1 / 2 : ℂ)).re)⁻¹ := by
+      rw [Real.sqrt_eq_rpow, mul_inv, Real.rpow_neg (norm_nonneg _)]
+    have h_env_eq : spinAiryEnv u = airyEnv u := rfl
+    have hbd' : ‖spinPtilde c Φ u‖ ≤ C_κ51 * airyEnv u *
+        Real.exp (C₂ * n ^ (-(1 / 3 : ℝ)) * Real.log n * (u ^ (1 / 2 : ℂ)).re) *
+        (‖u‖ ^ (-(1 / 2 : ℝ)) * ((u ^ (1 / 2 : ℂ)).re)⁻¹) := by
+      rw [← h_env_eq, ← h_inv, ← div_eq_mul_inv]
+      exact hbd
+    have h2_norm : ‖((2 : ℝ) : ℂ) * spinPtilde c Φ u‖ = 2 * ‖spinPtilde c Φ u‖ := by
+      rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg two_pos.le]
+    have hmul2 := mul_le_mul_of_nonneg_left hbd' two_pos.le
+    rw [h2_norm]
+    exact hmul2.trans_eq (by ring)
+  · intro x hx
+    have hre := hpos_band x hx
+    simp only [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
+    linarith only [hre]
+
 theorem spinPtilde_quant_c1 {C₀ : ℝ} (hC₀ : 0 < C₀) :
     ∃ (r₁ c₀ C_κ51 C₂ r_d cA C_dl κ_obs : ℝ),
       0 < r₁ ∧ r₁ < xiStar / 2 ∧
       virasoroDeltaChart 1 (virasoroBV ^ 2) < (xiStar - r₁) ^ 2 / 3 ∧
       (xiStar + r₁) ^ 2 / 3 < virasoroDeltaChart 1 (-(virasoroBV ^ 2)) ∧
       40 ≤ c₀ ∧ 0 < C_κ51 ∧ 0 < C₂ ∧ 0 < r_d ∧ 0 < cA ∧ 0 < C_dl ∧ 0 < κ_obs ∧
+      r_d = 2 * virasoroBV ^ 2 ∧ cA = virasoroBV ∧
       ∀ {c x₁ u_T : ℝ}, c₀ ≤ c →
         let n := c - 1
         let R_dom := n ^ (1 / 6 : ℝ)
@@ -935,7 +1002,7 @@ theorem spinPtilde_quant_c1 {C₀ : ℝ} (hC₀ : 0 < C₀) :
     (max (c₁_teb + 1) (max (c_R + 1) (max ((12 * C₂) ^ 6 + 1) (max (1 + (C₀ / r₁) ^ (3 / 2 : ℝ)) 50))))
   have hc0_40 : 40 ≤ c₀ := (by norm_num : (40 : ℝ) ≤ 49).trans ((le_max_left _ _).trans (le_max_left _ _))
   refine ⟨r₁, c₀, C_κ51, C₂, r_d, cA, C_dl, κ_obs,
-    hr₁_pos, hr₁_half, hlo, hhi, hc0_40, hCκ51_pos, hC2_pos, hrd_pos, hcA_pos, hCdl_pos, hκ_pos, ?_⟩
+    hr₁_pos, hr₁_half, hlo, hhi, hc0_40, hCκ51_pos, hC2_pos, hrd_pos, hcA_pos, hCdl_pos, hκ_pos, rfl, rfl, ?_⟩
   intro c x₁ u_T hc n R_dom_n hx₁ huT_gt huT_le hx1_eq Φ hS
   have hc49 : 49 ≤ c := ((le_max_left _ _).trans (le_max_left _ _)).trans hc
   have hc40 : 40 ≤ c := by linarith
@@ -1067,7 +1134,7 @@ theorem spinPtilde_quant_c1 {C₀ : ℝ} (hC₀ : 0 < C₀) :
     have h1 := virasoroUChart_strictAnti hn_pos hmem_div_lo hξ_m_mem (hξ_scale_lo ▸ hlo_ac1)
     rwa [virasoroUChart_deltaChart hn_pos (abs_of_nonneg (sq_nonneg _)).le] at h1
   have h_ac_sq : virasoroAC n ^ 2 = r_d * n ^ (2 / 3 : ℝ) := by
-    rw [virasoroAC_sq n hn_pos.le]; dsimp [r_d]
+    rw [virasoroAC_sq n hn_pos.le]
   have hu_hi_cA : u_hi ≤ (cA * n ^ (1 / 3 : ℝ)) ^ 2 := by
     have hbv_abs1 : |virasoroBV ^ 2| ≤ virasoroAC 1 ^ 2 := by
       rw [abs_of_nonneg (sq_nonneg _)]
@@ -1302,21 +1369,21 @@ theorem spinPtilde_quant_c1 {C₀ : ℝ} (hC₀ : 0 < C₀) :
         rw [intervalIntegral.integral_of_le hrm_le_bhi]
         exact setIntegral_mono_on hQmax_int.integrableOn hQ_int.abs.integrableOn measurableSet_Ioc
           fun b _ => max_le (neg_le_abs _) (abs_nonneg _)
-      have h1 := mul_le_mul_of_nonneg_left hmono1 (inv_nonneg.mpr hB_pos.le)
-      rw [← hb_uhi, ← hjac_tail.2.2.2.1] at h1
+      have h1_rhs : (spinCalNorm c Φ)⁻¹ * ∫ b in (xiStar - r₁)..b_hi, |Q b| =
+          ∫ u in R_dom_n..u_hi, |(spinPtilde c Φ (u : ℂ)).re| := by
+        rw [← hb_uhi, ← hjac_tail.2.2.2.1]
+      have h1 : (spinCalNorm c Φ)⁻¹ * ∫ b in Ioc (xiStar - r₁) b_hi, max (-Q b) 0 ≤
+          ∫ u in R_dom_n..u_hi, |(spinPtilde c Φ (u : ℂ)).re| :=
+        (mul_le_mul_of_nonneg_left hmono1 (inv_nonneg.mpr hB_pos.le)).trans_eq h1_rhs
+      have hcont_P : ContinuousOn (fun x : ℝ => spinPtilde c Φ (x : ℂ)) (Icc R_dom_n u_hi) :=
+        han.continuousOn.comp continuous_ofReal.continuousOn fun x hx => by
+          rw [mem_ball_zero_iff, Complex.norm_real, Real.norm_eq_abs, ← h_ac_sq]
+          exact abs_lt.mpr ⟨by linarith only [hx.1, hnegR_dom_gt_ac, hR_dom_ge4], by linarith only [hx.2, huhi_lt_ac]⟩
       have h2 : ∫ x in R_dom_n..u_hi, |(spinPtilde c Φ (x : ℂ)).re| ≤
           ∫ x in R_dom_n..u_hi, ‖spinPtilde c Φ (x : ℂ)‖ := by
         refine intervalIntegral.integral_mono_on hR_lt_uhi.le
-          ((Complex.continuous_re.comp (han.continuousOn.comp continuous_ofReal.continuousOn
-            fun x hx => by
-              rw [mem_ball_zero_iff, Complex.norm_real, Real.norm_eq_abs, ← h_ac_sq]
-              exact abs_lt.mpr ⟨by linarith [hx.1, hnegR_dom_gt_ac],
-                by linarith [hx.2, huhi_lt_ac]⟩)).abs.intervalIntegrable_of_Icc hR_lt_uhi.le)
-          ((continuous_norm.comp_continuousOn (han.continuousOn.comp continuous_ofReal.continuousOn
-            fun x hx => by
-              rw [mem_ball_zero_iff, Complex.norm_real, Real.norm_eq_abs, ← h_ac_sq]
-              exact abs_lt.mpr ⟨by linarith [hx.1, hnegR_dom_gt_ac],
-                by linarith [hx.2, huhi_lt_ac]⟩)).intervalIntegrable_of_Icc hR_lt_uhi.le)
+          ((Complex.continuous_re.comp_continuousOn hcont_P).abs.intervalIntegrable_of_Icc hR_lt_uhi.le)
+          ((continuous_norm.comp_continuousOn hcont_P).intervalIntegrable_of_Icc hR_lt_uhi.le)
           fun x _ => Complex.abs_re_le_norm _
       exact h1.trans (h2.trans htail_le)
     have hjac_lobe := spinPtilde_jacobian_on hc40 (hulo_gt_ac.trans hulo_lt_uT)
@@ -1343,14 +1410,15 @@ theorem spinPtilde_quant_c1 {C₀ : ℝ} (hC₀ : 0 < C₀) :
     have hIoc_rm_2 : 2 * (spinCalNorm c Φ)⁻¹ * ∫ b in Ioc (0 : ℝ) (xiStar - r₁), max (-Q b) 0 ≤
         2 * (C₂₄ + C_p) / κ_obs * (n ^ (-(2 / 3 : ℝ)) * Real.log n) := by
       have h1 : 2 * (spinCalNorm c Φ)⁻¹ ≤ 2 / κ_obs := by
-        have hinv := inv_anti₀ hκ_pos hB_lo; linarith only [hinv]
+        rw [div_eq_mul_inv]
+        exact mul_le_mul_of_nonneg_left (inv_anti₀ hκ_pos hB_lo) zero_le_two
       have h2 := mul_le_mul h1 hIoc_rm_δ (setIntegral_nonneg measurableSet_Ioc fun _ _ => le_max_right _ _)
         (div_nonneg zero_le_two hκ_pos.le)
-      linarith only [h2]
+      exact h2.trans_eq (by ring)
     have hsplit_tot : 2 * (spinCalNorm c Φ)⁻¹ * ∫ b in Ioi (0 : ℝ), max (-Q b) 0 =
-        2 * (spinCalNorm c Φ)⁻¹ * ∫ b in Ioc 0 (xiStar - r₁), max (-Q b) 0 +
-        2 * ((spinCalNorm c Φ)⁻¹ * ∫ b in Ioc (xiStar - r₁) b_hi, max (-Q b) 0) +
-        2 * (spinCalNorm c Φ)⁻¹ * ∫ b in Ioc b_hi x₁, max (-Q b) 0 := by
+        2 * (spinCalNorm c Φ)⁻¹ * (∫ b in Ioc 0 (xiStar - r₁), max (-Q b) 0) +
+        2 * ((spinCalNorm c Φ)⁻¹ * (∫ b in Ioc (xiStar - r₁) b_hi, max (-Q b) 0)) +
+        2 * (spinCalNorm c Φ)⁻¹ * (∫ b in Ioc b_hi x₁, max (-Q b) 0) := by
       have hsum : ∫ b in Ioi (0 : ℝ), max (-Q b) 0 =
           (∫ b in Ioc 0 (xiStar - r₁), max (-Q b) 0) +
           (∫ b in Ioc (xiStar - r₁) b_hi, max (-Q b) 0) +
@@ -1369,7 +1437,12 @@ theorem spinPtilde_quant_c1 {C₀ : ℝ} (hC₀ : 0 < C₀) :
     have hlog_nn : 0 ≤ n ^ (-(2 / 3 : ℝ)) * Real.log n :=
       mul_nonneg (Real.rpow_nonneg hn_pos.le _) (Real.log_nonneg hn_ge1)
     have hmul_dl := mul_le_mul_of_nonneg_right hCdl_split hlog_nn
-    linarith only [h_lobe_Q, hsplit_tot, hIoc_rm_2, h_mid_le, h_lobe_eq, hδ_lobe_eq, hmul_dl]
+    have h_comb : (C₂₃ + 1) / (2 * κ_obs) * (n ^ (-(2 / 3 : ℝ)) * Real.log n) +
+        2 * (C₂₄ + C_p) / κ_obs * (n ^ (-(2 / 3 : ℝ)) * Real.log n) +
+        2 * C_tail * (n ^ (-(2 / 3 : ℝ)) * Real.log n) ≤
+        C_dl * (n ^ (-(2 / 3 : ℝ)) * Real.log n) := by
+      rw [← add_mul, ← add_mul]; exact hmul_dl
+    linarith only [h_lobe_Q, hsplit_tot, hIoc_rm_2, h_mid_le, h_lobe_eq, hδ_lobe_eq, h_comb]
   -- Hypothesis 8 of `teb_quant_c1_typeII`: truncated integral upper bound on `[-R', R_dom_n]`
   have hwin_ub : ∀ R' ∈ Icc (0 : ℝ) R_dom_n, -R' ≤ u_T →
       ∫ x in (-R')..R_dom_n, (((2 : ℝ) : ℂ) * spinPtilde c Φ (x : ℂ)).re ≤ δ_lobe n := by
@@ -1389,8 +1462,8 @@ theorem spinPtilde_quant_c1 {C₀ : ℝ} (hC₀ : 0 < C₀) :
     have hx1_hi : x₁ ≤ xiStar + r₁ := by linarith only [hx1_ub_hi, hC0_r1]
     have h_hi_ext : 0 ≤ ∫ b in Ioi (xiStar + r₁), Q b := by
       refine setIntegral_nonneg measurableSet_Ioi fun b hb => ?_
-      have hgb := spinGcal_re_nonneg_of_ge ha_pos.le hS.2.1 hS.1 hS.2.2.2.2
-        (by linarith only [mem_Ioi.mp hb, hx1_hi])
+      have hb_ge : x₁ ≤ b := by linarith only [mem_Ioi.mp hb, hx1_hi]
+      have hgb := spinGcal_re_nonneg_of_ge ha_pos.le hS.2.1 hS.1 hS.2.2.2.2 hb_ge
       exact mul_nonneg (mul_nonneg ha_pos.le (Real.exp_pos _).le) hgb
     have hxs_m_le_p : xiStar - r₁ ≤ xiStar + r₁ := by linarith only [hr₁_pos]
     have hsplit_top : ∫ b in Ioi (0 : ℝ), Q b =
@@ -1422,7 +1495,7 @@ theorem spinPtilde_quant_c1 {C₀ : ℝ} (hC₀ : 0 < C₀) :
       · calc ∫ u in u_lo..u_hi, (spinPtilde c Φ (u : ℂ)).re
             = (spinCalNorm c Φ)⁻¹ * ∫ b in (xiStar - r₁)..(xiStar + r₁), Q b := h1
           _ ≤ κ_obs⁻¹ * (((C₂₃ + 1) / 2 + C₂₄ + C_p) * (n ^ (-(2 / 3 : ℝ)) * Real.log n)) :=
-              mul_le_mul hdiv_le hQ_win_le hQnn hκ_pos.le
+              mul_le_mul hdiv_le hQ_win_le hQnn (inv_nonneg.mpr hκ_pos.le)
           _ = ((C₂₃ + 1) / 2 + C₂₄ + C_p) / κ_obs * (n ^ (-(2 / 3 : ℝ)) * Real.log n) := by ring
       · have hneg' : (spinCalNorm c Φ)⁻¹ * ∫ b in (xiStar - r₁)..(xiStar + r₁), Q b ≤ 0 :=
           mul_nonpos_of_nonneg_of_nonpos (inv_nonneg.mpr hB_pos.le) hQneg.le
@@ -1441,11 +1514,11 @@ theorem spinPtilde_quant_c1 {C₀ : ℝ} (hC₀ : 0 < C₀) :
       have hnegR'_ge : u_lo ≤ -R' := by linarith only [hulo_lt_negR, hR'.2]
       have hnegR'_le_Rdom : -R' ≤ R_dom_n := by linarith only [hR'.1, hR_dom_ge4]
       have h12 := (intervalIntegral.integral_add_adjacent_intervals
-        ((hcont_re.mono (Icc_subset_Icc le_rfl (hnegR'_le_Rdom.trans hR_lt_uhi.le))).intervalIntegrable_of_Icc hnegR'_ge)
-        ((hcont_re.mono (Icc_subset_Icc hnegR'_ge hR_lt_uhi.le)).intervalIntegrable_of_Icc hnegR'_le_Rdom)).symm
+        ((hcont_re.mono (Icc_subset_Icc le_rfl (hnegR'_le_Rdom.trans hR_lt_uhi.le))).intervalIntegrable_of_Icc (μ := volume) hnegR'_ge)
+        ((hcont_re.mono (Icc_subset_Icc hnegR'_ge hR_lt_uhi.le)).intervalIntegrable_of_Icc (μ := volume) hnegR'_le_Rdom)).symm
       have h23 := (intervalIntegral.integral_add_adjacent_intervals
-        ((hcont_re.mono (Icc_subset_Icc le_rfl hR_lt_uhi.le)).intervalIntegrable_of_Icc (hnegR'_ge.trans hnegR'_le_Rdom))
-        ((hcont_re.mono (Icc_subset_Icc (hnegR'_ge.trans hnegR'_le_Rdom) le_rfl)).intervalIntegrable_of_Icc hR_lt_uhi.le)).symm
+        ((hcont_re.mono (Icc_subset_Icc le_rfl hR_lt_uhi.le)).intervalIntegrable_of_Icc (μ := volume) (hnegR'_ge.trans hnegR'_le_Rdom))
+        ((hcont_re.mono (Icc_subset_Icc (hnegR'_ge.trans hnegR'_le_Rdom) le_rfl)).intervalIntegrable_of_Icc (μ := volume) hR_lt_uhi.le)).symm
       linarith only [h12, h23]
     have h_band_nn : 0 ≤ ∫ x in u_lo..(-R'), (spinPtilde c Φ (x : ℂ)).re := by
       refine intervalIntegral.integral_nonneg (by linarith only [hulo_lt_negR, hR'.2]) fun x hx => ?_
@@ -1454,7 +1527,7 @@ theorem spinPtilde_quant_c1 {C₀ : ℝ} (hC₀ : 0 < C₀) :
         (hx.2.trans hnegR'_le_uT)
     have h_tail_neg : -(∫ x in R_dom_n..u_hi, (spinPtilde c Φ (x : ℂ)).re) ≤
         C_tail * (n ^ (-(2 / 3 : ℝ)) * Real.log n) := by
-      have hi1 := (hcont_re.mono (Icc_subset_Icc (hulo_lt_negR.le.trans (by linarith only [hR_dom_ge4])) le_rfl)).intervalIntegrable_of_Icc hR_lt_uhi.le
+      have hi1 := (hcont_re.mono (Icc_subset_Icc (hulo_lt_negR.le.trans (by linarith only [hR_dom_ge4])) le_rfl)).intervalIntegrable_of_Icc (μ := volume) hR_lt_uhi.le
       have hnorm1 := intervalIntegral.norm_integral_le_integral_norm
         (f := fun x : ℝ => (spinPtilde c Φ (x : ℂ)).re) (μ := volume) hR_lt_uhi.le
       rw [Real.norm_eq_abs] at hnorm1
@@ -1464,7 +1537,7 @@ theorem spinPtilde_quant_c1 {C₀ : ℝ} (hC₀ : 0 < C₀) :
           ((continuous_norm.comp_continuousOn (han.continuousOn.comp continuous_ofReal.continuousOn
             fun x hx => by
               rw [mem_ball_zero_iff, Complex.norm_real, Real.norm_eq_abs, ← h_ac_sq]
-              exact abs_lt.mpr ⟨hnegR_dom_gt_ac.trans_le hx.1, hx.2.trans huhi_lt_ac⟩)).intervalIntegrable_of_Icc hR_lt_uhi.le)
+              exact abs_lt.mpr ⟨by linarith only [hnegR_dom_gt_ac, hR_dom_ge4, hx.1], hx.2.trans_lt huhi_lt_ac⟩)).intervalIntegrable_of_Icc hR_lt_uhi.le)
           fun x _ => by rw [Real.norm_eq_abs]; exact Complex.abs_re_le_norm _
       linarith only [(abs_le.mp (hnorm1.trans (h2.trans htail_le))).1]
     have h_two_eq : ∫ x in (-R')..R_dom_n, (((2 : ℝ) : ℂ) * spinPtilde c Φ (x : ℂ)).re =
@@ -1490,40 +1563,12 @@ theorem spinPtilde_quant_c1 {C₀ : ℝ} (hC₀ : 0 < C₀) :
       _ = (2 * (((C₂₃ + 1) / 2 + C₂₄ + C_p) / κ_obs + C_tail)) * (n ^ (-(2 / 3 : ℝ)) * Real.log n) := by ring
       _ ≤ C_dl * (n ^ (-(2 / 3 : ℝ)) * Real.log n) := mul_le_mul_of_nonneg_right hCdl_win hlog_nn
       _ = δ_lobe n := hδ_lobe_eq.symm
-  -- Apply `teb_quant_c1_typeII` to `Ψ₂ u := 2 * spinPtilde c Φ u`
-  have hB2 : QuantC1B2Holds (fun u => ((2 : ℝ) : ℂ) * spinPtilde c Φ u) u_T := by
-    refine hteb n hc_teb (fun u => ((2 : ℝ) : ℂ) * spinPtilde c Φ u) u_T ?_ ?_ ?_
-      huT_gt (huT_le.trans (by linarith only [hAThr_lt, hR_dom_ge4])) ?_ hL1_le hlobe_lb hwin_ub
-    · refine analyticOnNhd_const.mul (han.mono (closedBall_subset_ball ?_))
-      rw [← h_ac_sq]; exact hR_dom_lt_ac
-    · intro x hx
-      have him := him_dom x hx
-      simp only [Complex.mul_im, Complex.ofReal_re, Complex.ofReal_im, zero_mul, add_zero, him, mul_zero]
-    · intro u hu hcut
-      have hnorm_u : ‖u‖ ≤ (cA * n ^ (1 / 3 : ℝ)) ^ 2 :=
-        (mem_closedBall_zero_iff.mp hu).trans (hR_lt_uhi.le.trans hu_hi_cA)
-      have hu_ne : u ≠ 0 := fun h0 => hcut ⟨by simp [h0], by simp [h0]⟩
-      have hu_slit : u ∈ Complex.slitPlane := by
-        rw [Complex.mem_slitPlane_iff]; by_contra hns; push Not at hns; exact hcut ⟨hns.2, hns.1⟩
-      have hre_pos : 0 < (u ^ (1 / 2 : ℂ)).re := re_cpow_half_pos_of_slit hu_slit
-      have hbd := henv u hu_ne hnorm_u hre_pos
-      have h_eq : Real.sqrt ‖u‖ = ‖u‖ ^ (1 / 2 : ℝ) := Real.sqrt_eq_rpow _
-      have h_inv : (Real.sqrt ‖u‖ * (u ^ (1 / 2 : ℂ)).re)⁻¹ =
-          ‖u‖ ^ (-(1 / 2 : ℝ)) * ((u ^ (1 / 2 : ℂ)).re)⁻¹ := by
-        rw [h_eq, mul_inv, Real.rpow_neg (norm_nonneg _)]
-      have h_env_eq : spinAiryEnv u = airyEnv u := rfl
-      calc ‖((2 : ℝ) : ℂ) * spinPtilde c Φ u‖
-          = 2 * ‖spinPtilde c Φ u‖ := by rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg two_pos.le]
-        _ ≤ 2 * (C_κ51 * spinAiryEnv u * Real.exp (ς n * (u ^ (1 / 2 : ℂ)).re) *
-              (Real.sqrt ‖u‖ * (u ^ (1 / 2 : ℂ)).re)⁻¹) := by
-            gcongr; simpa [div_eq_mul_inv, ς] using hbd
-        _ = (2 * C_κ51) * airyEnv u * Real.exp (ς n * (u ^ (1 / 2 : ℂ)).re) *
-              ‖u‖ ^ (-(1 / 2 : ℝ)) * ((u ^ (1 / 2 : ℂ)).re)⁻¹ := by
-            rw [h_env_eq, h_inv]; ring
-    · intro x hx
-      have hre : 0 ≤ (spinPtilde c Φ (x : ℂ)).re := hpos_band x hx
-      simp only [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
-      linarith only [hre]
+  -- Apply `teb_quant_c1_typeII` to `Ψ₂ u := 2 * spinPtilde c Φ u` via helper
+  have han_dom : AnalyticOnNhd ℂ (spinPtilde c Φ) (closedBall (0 : ℂ) R_dom_n) :=
+    han.mono (closedBall_subset_ball (by rw [← h_ac_sq]; exact hR_dom_lt_ac))
+  have hB2 : QuantC1B2Holds (fun u => ((2 : ℝ) : ℂ) * spinPtilde c Φ u) u_T :=
+    spinPtilde_quantC1B2_apply (hteb n hc_teb) rfl han_dom him_dom hR_lt_uhi hu_hi_cA henv
+      huT_gt (huT_le.trans (by linarith only [hAThr_lt, hR_dom_ge4])) hpos_band hL1_le hlobe_lb hwin_ub
   exact ⟨hB_lo, han, him_ball, henv, him_dom, hpos_band, hL1_le, hB2⟩
 
 end FormalResearch.ModularBootstrap.Spin

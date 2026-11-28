@@ -175,12 +175,14 @@ public import FormalResearch.ModularBootstrap.Blowup.ClarkNormLimit
 public import FormalResearch.ModularBootstrap.Blowup.SlackFeasible
 public import FormalResearch.ModularBootstrap.Blowup.NormLimitConcrete
 public import FormalResearch.ModularBootstrap.Blowup.HbNormLimit
+public import FormalResearch.ModularBootstrap.Blowup.NormLimitSVariable
 public import FormalResearch.ModularBootstrap.Stability.AiryStabilityBase
 public import FormalResearch.ModularBootstrap.Stability.AiryStabilityLower
 public import FormalResearch.ModularBootstrap.Stability.AiryStability
 public import FormalResearch.ModularBootstrap.Stability.TerminalStability
 public import FormalResearch.ModularBootstrap.Stability.ClarkStability
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.SpectrumCorollary
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.ClusterBarycentre
 public import FormalResearch.ModularBootstrap.Crossing.Setup
 public import FormalResearch.ModularBootstrap.Crossing.SumRule
 public import FormalResearch.ModularBootstrap.Crossing.LemmaInputs
@@ -571,6 +573,7 @@ public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroBumpVacuum
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroTransferW
 public import FormalResearch.ModularBootstrap.TwoLevel.WOneFiveClarkAll
 public import FormalResearch.ModularBootstrap.TwoLevel.SoftEdgeCrossingCorollary
+public import FormalResearch.ModularBootstrap.TwoLevel.SoftEdgeOffsetCorollary
 public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumFunction
 public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimum
 public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumNodes
