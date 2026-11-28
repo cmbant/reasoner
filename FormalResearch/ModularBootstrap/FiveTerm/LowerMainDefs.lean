@@ -16,14 +16,14 @@ Extracted from `LowerMain.lean` so that `LowerGoodCircle`, `LowerGoodArea`,
 
 @[expose] public section
 
-open Real Complex Metric
+open Real Complex Metric MeasureTheory Set
 open scoped Real
 
 namespace FormalResearch.ModularBootstrap.FiveTerm
 
 open FormalResearch.Special FormalResearch.ModularBootstrap
 open FormalResearch.ModularBootstrap.Crossing FormalResearch.ModularBootstrap.ConcreteBootstrap
-open FormalResearch.ModularBootstrap.FixedWeightTip
+open FormalResearch.ModularBootstrap.FixedWeightTip FormalResearch.ModularBootstrap.Upper.Comb
 
 noncomputable section
 
@@ -92,6 +92,40 @@ Paper II's holomorphic chart `virasoroUChart` and the comb phase `tauPhase`. -/
 def LowerLangerPhase : Prop :=
   ∃ cb : ℝ, ∀ c : ℝ, cb ≤ c → ∀ u : ℝ, -(|airyZero 1| + 1) ≤ u → u < 0 →
     tauPhase (√(3 * virasoroDeltaChart c u / c)) = -u / (betaTip * c ^ (2 / 3 : ℝ))
+
+/-- Outer-measure multiplier `M̃_ε(z) = (1+ε)(1+z²)/(1+z²+ε(1+z))` (`cts:Meps`). -/
+noncomputable def lowerMt (ε : ℝ) (z : ℂ) : ℂ :=
+  (1 + ε : ℂ) * (1 + z ^ 2) / (1 + z ^ 2 + ε * (1 + z))
+
+/-- `W̃_ε(y) = |M̃_ε(iy)|²`. -/
+noncomputable def lowerWeps (ε y : ℝ) : ℝ := ‖lowerMt ε (Complex.I * y)‖ ^ 2
+
+/-- `θ̃_ε(y) = arg G_outer(iy) + 2 arg M̃_ε(iy)` (`cts:theta-eps`). -/
+noncomputable def lowerThetaEps (Gout : ℂ → ℂ) (ε y : ℝ) : ℝ :=
+  Complex.arg (Gout (Complex.I * y)) + 2 * Complex.arg (lowerMt ε (Complex.I * y))
+
+/-- `y(x) = √((cosh πx - √2)/(cosh πx + √2))`. -/
+noncomputable def lowerY (x : ℝ) : ℝ := √((Real.cosh (π * x) - √2) / (Real.cosh (π * x) + √2))
+
+/-- The edge-kernel outer band `s_c(x) = W̃_ε(y) sin(θ̃_ε(y) - 2π c N(x))`, `ε = c^{-2}`
+(`cts:Kedge-outer`). -/
+noncomputable def lowerSc (Gout : ℂ → ℂ) (c x : ℝ) : ℝ :=
+  lowerWeps (c ^ (-2 : ℝ)) (lowerY x) *
+    Real.sin (lowerThetaEps Gout (c ^ (-2 : ℝ)) (lowerY x) - 2 * π * c * cumulN x)
+
+/-- The transferred taper `w̃_R(v') = w_R(-û(-v'))` on `[0, R']` (`R' = -φ_c(-R)`, equivalently `t ∈ [Δ(0), Δ(φ_c(-R))]`)
+and `1` beyond, as a function of the threshold `t` (`v' = -ũ(t/c)`). -/
+noncomputable def lowerTaper (phi : ℝ → ℂ → ℂ) (uhat : ℝ → ℝ → ℝ) (c R t : ℝ) : ℝ :=
+  if virasoroDeltaChart c 0 ≤ t ∧ t ≤ virasoroDeltaChart c (phi c ((-R : ℝ) : ℂ)).re then
+    lowerWR R (-uhat c (virasoroUChart c (t / c))) else 1
+
+/-- The band integral `∫_{v_0}^∞ w̃_R(v') Ψ̃(-v') [1 + 2 s_c] dv'`, `v_0 = c^{4/7}`, written in the threshold
+variable (`Ψ̃(ũ) dũ = -M[g]⁻¹ g V dt`): this is the term bounded below by `cts:boas`. -/
+noncomputable def lowerBand (prob : FixedWeightProblem) (Gout : ℂ → ℂ) (phi : ℝ → ℂ → ℂ)
+    (uhat : ℝ → ℝ → ℝ) (c R : ℝ) (g : ℝ → ℝ) : ℝ :=
+  ∫ t in Ioi (virasoroDeltaChart c (-(c ^ (4 / 7 : ℝ)))),
+    lowerTaper phi uhat c R t * (g t * prob.cardyV (c / 12) t / prob.cardyNorm (c / 12) g) *
+      (1 + 2 * lowerSc Gout c (√(3 * t / c)))
 
 end
 
