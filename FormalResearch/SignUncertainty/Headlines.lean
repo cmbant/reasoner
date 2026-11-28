@@ -62,8 +62,8 @@ Headlines and their inputs (open fields in bold):
   `hbMultilevelLower_proved D` (`HankelBootMultilevel.lean`), `hbConstruction_proved D` (`HbConstruction.lean`),
   `hankelAttainment_proved` (`HankelAttainment.lean`), and `hankelExactOrigin_proved` (`HankelExactOrigin.lean`)
   discharge all fields of the former `HbMultilevelInputs D`.
-* `thm_ce_canonical_iff` (`thm:intro-gap` = `thm:ce-canonical-iff`, parts (1)-(4), with (i)-(iv); the zero enumeration `t` exists and is unique: `HbZeroEnum.lean`), unconditional (`CeCanonicalInputs D t` has no open fields;
-  `shell_reduction` (`thm:ce-shell-reduction`) is proved as `shellReduction_proved` in `CeShellReductionProved.lean`);
+* `thm_ce_canonical_iff` (`thm:intro-gap` = `thm:ce-canonical-iff`, parts (1)-(4), with (i)-(iv); the zero enumeration `t` exists and is unique: `HbZeroEnum.lean`), unconditional (
+  `thm:ce-shell-reduction` is proved as `shellReduction_proved` in `CeShellReductionProved.lean`);
   `ce_hb_lift` (`thm:ce-hb-lift`, weak positivity) is proved as `ce_hb_lift_proved` (`CeHbLift.lean`) and no longer a field,
   and `shifted_lift` (`thm:ce-shifted-lift`) is proved as `ce_shifted_lift_proved` (`CeShiftedLift.lean`) and no longer
   a field, giving unconditional `ce_airy_transfer_upper` (`thm:ce-airy-transfer`(1) upper bound,
@@ -472,15 +472,6 @@ lemma hbModel_airy (c : ℝ) :
   rw [abs_of_neg (airyZero_neg 1)]
   show c / π ^ 2 - (airyZero 1 / hankelBeta1) * c ^ (1 / 3 : ℝ) = _
   ring
-
-/-- The lower half of `u1cl:multilevel` at `(P, Q) = (1, 0)` (from `hb_thresholds_lower`; the prescribed sites are
-empty there; superseded at all `D : ShellHBData` by `hbMultilevelLower_proved` in `HankelBootMultilevel.lean`). -/
-theorem hbMultilevelLower_airy : HbMultilevelLower ShellHBData.airy := by
-  intro R_off _
-  obtain ⟨C, c₀, h⟩ := hb_thresholds_lower
-  refine ⟨C, c₀, fun c hc ε hε r _ T f hf => ?_⟩
-  rw [hbModel_airy]
-  exact h c hc ε hε T f hf.toIsHankelFeasible
 
 
 /-! ### Headline `thm:intro-gap` (`thm:ce-canonical-iff`) -/
@@ -933,7 +924,7 @@ height at which every optimizer has a Laplace zero of even order (`L = L' = 0`) 
 (`ShellBoundedRemainder`), (iii) `lim ρ_d = -t_m/β₁` for offsets `o(c^{1/3})` (`ShellLimit`) and (iv) `liminf ρ_d =
 -t_m/β₁` for some such shells (`ShellLiminf`); (i) forces `m` odd.
 
-Unconditional (`CeCanonicalInputs D t` has no remaining open fields). Differences from the
+Unconditional. Differences from the
 paper's text: `d` is an integer here
 (`ρ_d` is `+∞` for an empty shell class); in (ii) the offsets are fixed per statement, and the quotient integrals in
 (1) and (2)(a) are required to exist; the hypothesis `IsHbZeroEnum` on `t` is
@@ -1077,9 +1068,6 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
 #guard_msgs (whitespace := lax) in
 #print axioms thm_ce_shell_gap_even
 
-/-- info: 'FormalResearch.SignUncertainty.hbMultilevelLower_airy' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms hbMultilevelLower_airy
 
 /-- info: 'FormalResearch.SignUncertainty.SignSeparationPackage.Tneg_asymp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
