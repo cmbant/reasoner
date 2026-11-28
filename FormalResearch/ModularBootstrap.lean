@@ -191,7 +191,6 @@ public import FormalResearch.ModularBootstrap.Mixtures.DualMajorant
 public import FormalResearch.ModularBootstrap.Mixtures.ThermalSeparation
 public import FormalResearch.ModularBootstrap.Mixtures.Primal
 public import FormalResearch.ModularBootstrap.Mixtures.Duality
-public import FormalResearch.ModularBootstrap.TwoLevel.ConstrainedDualitySELP
 public import FormalResearch.ModularBootstrap.Mixtures.Duality
 public import FormalResearch.ModularBootstrap.TwoLevel.ConstrainedDualitySE
 public import FormalResearch.ModularBootstrap.Blowup.NormLimitCore
