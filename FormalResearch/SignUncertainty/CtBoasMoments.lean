@@ -5,6 +5,7 @@ public import FormalResearch.SignUncertainty.CtBandTop
 public import FormalResearch.SignUncertainty.CtDyadicTaperBuild
 public import FormalResearch.SignUncertainty.CtBoasFarField
 public import FormalResearch.SignUncertainty.CtBoasNeg
+public import FormalResearch.SignUncertainty.CtDyadicMoments
 
 /-!
 # `ct:boas`, `ct:Bj-pointwise` (f): the band moments in the variable `L`, from the top scale
@@ -17,7 +18,7 @@ and by the taper estimate `trunc_lo`: with `h = hankelHL c f` (`h(L) dL = dm(ξ)
 * `∫_{L > L_J} |h| ≤ K c^{-1/3}`  (the tail `B₂(R_J)`).
 
 This needs only the top-scale bootstrap `hankel_top_moments`; no multiscale bootstrap: the moments at any smaller radius
-`R' ≤ R_J` follow by Chebyshev (`v' ≥ R'` beyond `Λ`), see `CtBoasConcrete`.  **Proved**, unconditional.
+`R' ≤ R_J` follow by Chebyshev (`v' ≥ R'` beyond `Λ`, proved below).  **Proved**, unconditional.
 -/
 
 @[expose] public section
@@ -380,5 +381,119 @@ lemma tail_chebyshev {c LJ Λ R' M B : ℝ} {h : ℝ → ℝ} (hh : Integrable h
 /-- info: 'FormalResearch.SignUncertainty.tail_chebyshev' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms tail_chebyshev
+
+/-! ### Taper geometry and `trunc_lo` at any radius `R ≤ b² c^{2/3}` -/
+
+/-- The Gaussian step in the variable `L`: `sf(L) = 𝔰_far(c e^L/π²)`. -/
+noncomputable def boasSf (c : ℝ) (L : ℝ) : ℝ :=
+  sFar c (c * (Real.exp L / π ^ 2))
+
+/-- `Λ ≤ L_J`, and `v' ≥ R - 1/2` on `[Λ, L_J]` (so the tail beyond `Λ` is a Chebyshev tail of the first moment). -/
+lemma boas_geometry {ε c R LJ : ℝ} (hc : 0 < c) (hB : TaperBand ε c R) (hLJ0 : 0 ≤ LJ) (hLJe : Real.exp LJ - 1 ≤ 5e-4)
+    (hLJv : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ ctVprime c LJ) (hRhi : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ)) :
+    ctTaperLam ε c R ≤ LJ ∧ ∀ L, ctTaperLam ε c R ≤ L → L ≤ LJ → R - 1 / 2 ≤ ctVprime c L := by
+  have hΛ0 := hB.inputs.Lam_pos
+  have hΛe := hB.Lam_le_small
+  have hvΛ : R - 1 / 2 ≤ ctVprime c (ctTaperLam ε c R) := by
+    have h1 := hB.inputs.v_Lam
+    have h2 := hB.v_le _ hΛ0 le_rfl
+    linarith
+  have hle : ctTaperLam ε c R ≤ LJ := by
+    by_contra hcon
+    rw [not_le] at hcon
+    have h0 := ctVprime_strictMonoOn hc hΛe ⟨hLJ0, hcon.le⟩ ⟨hΛ0.le, le_rfl⟩ hcon
+    have h1 := hB.vp_le_R _ hΛ0 le_rfl
+    have h2 := hB.Rprime_le
+    linarith
+  refine ⟨hle, fun L hL hLJ => ?_⟩
+  have := (ctVprime_strictMonoOn hc hLJe).monotoneOn ⟨hΛ0.le, hle⟩ ⟨hΛ0.le.trans hL, hLJ⟩ hL
+  linarith
+
+/-- `L_min ≤ Λ` once `c^{4/7} + 1/2 ≤ R`. -/
+lemma lmin_le_lam {ε c R Lmin : ℝ} (hc : 0 < c) (hB : TaperBand ε c R) (hL0 : 0 ≤ Lmin)
+    (hLe : Real.exp Lmin - 1 ≤ 5e-4) (hLv : ctVprime c Lmin = c ^ (4 / 7 : ℝ))
+    (hR : c ^ (4 / 7 : ℝ) + 1 / 2 ≤ R) : Lmin ≤ ctTaperLam ε c R := by
+  have hΛ0 := hB.inputs.Lam_pos
+  have hvΛ : R - 1 / 2 ≤ ctVprime c (ctTaperLam ε c R) := by
+    have h1 := hB.inputs.v_Lam
+    have h2 := hB.v_le _ hΛ0 le_rfl
+    linarith
+  by_contra hcon
+  rw [not_le] at hcon
+  have := ctVprime_strictMonoOn hc hLe ⟨hΛ0.le, hcon.le⟩ ⟨hL0, le_rfl⟩ hcon
+  rw [hLv] at this
+  linarith
+
+/-- The field `trunc_lo` (`ct:dyadic` (1), the taper estimate): `∫_{L<L_min} w̃(1 - 𝔰)|h| ≤ 2^{12}(K+1)c₁^{-24}c^{-29/21}`
+for any `0 ≤ 𝔰 ≤ 1` (`𝔰 = 𝔰_far` for `ct:boas`, `𝔰 = 0` for the taper estimate of `ct:dyadic` (4))
+from the first moment `∫_{(0,L_J]} v'|h| ≤ Kc^{1/3}` (`ct_boas_moments_top`). -/
+theorem boas_field_trunc_lo {c₁ K Lmin LJ : ℝ} {h sf : ℝ → ℝ} (hsf : ∀ L, 0 ≤ sf L ∧ sf L ≤ 1) (hc : 3 ≤ c) (hB : TaperBand ε c R) (hc₁ : 0 < c₁)
+    (hRlo : c₁ ^ 2 * c ^ (2 / 3 : ℝ) ≤ R) (hh : Integrable h) (hmass : ∫ L, |h L| = 1)
+    (hL0 : 0 < Lmin) (hLe : Real.exp Lmin - 1 ≤ 5e-4) (hLv : ctVprime c Lmin = c ^ (4 / 7 : ℝ))
+    (hLΛ : Lmin ≤ ctTaperLam ε c R) (hLJ : Lmin ≤ LJ) (hLJe : Real.exp LJ - 1 ≤ 5e-4) (hK0 : 0 ≤ K)
+    (hMom : ∫ L in Ioc 0 LJ, ctVprime c L * |h L| ≤ K * c ^ (1 / 3 : ℝ)) :
+    ∫ L in Iio Lmin, ctTaper ε c R L * (1 - sf L) * |h L| ≤ 2 ^ 12 * (K + 1) / c₁ ^ 24 * c ^ (-(29 / 21) : ℝ) := by
+  have hc0 : 0 < c := by linarith
+  have hc1 : 1 < c := by linarith
+  have hR0 := hB.inputs.R_pos
+  have hI := hB.inputs
+  have hc4 : 1 ≤ c ^ (4 / 7 : ℝ) := Real.one_le_rpow hc1.le (by norm_num)
+  have hc13 : 1 ≤ c ^ (1 / 3 : ℝ) := Real.one_le_rpow hc1.le (by norm_num)
+  have hmono := (ctVprime_strictMonoOn hc0 hLe).monotoneOn
+  have hvp : ∀ L, 0 < L → L < Lmin → 0 ≤ ctVprime c L ∧ ctVprime c L ≤ c ^ (4 / 7 : ℝ) := by
+    intro L hL1 hL2
+    refine ⟨ctVprime_nonneg hc0 hL1.le (by linarith [Real.exp_le_exp.2 hL2.le]), ?_⟩
+    rw [← hLv]; exact hmono ⟨hL1.le, hL2.le⟩ ⟨hL0.le, le_rfl⟩ hL2.le
+  have hint1 : IntegrableOn (fun L => ctVprime c L * |h L|) (Icc 0 LJ) := integrableOn_vprime_mul_abs hh hLJe
+  have hsub : Ioo 0 Lmin ⊆ Icc 0 LJ := fun x hx => ⟨hx.1.le, hx.2.le.trans hLJ⟩
+  have hsub' : Ioo 0 Lmin ⊆ Ioc 0 LJ := fun x hx => ⟨hx.1, hx.2.le.trans hLJ⟩
+  have key := boas_trunc_lo (h := h) (wt := ctTaper ε c R) (sf := sf) (v := fun L => ctVprime c L + 1 / 2)
+    (R := R) (V0 := c ^ (4 / 7 : ℝ) + 1 / 2) (Mv := K * c ^ (1 / 3 : ℝ) + 1 / 2) (Lmin := Lmin) hR0
+    (by linarith) hsf (fun L => (hI.reg.mem L).1)
+    (fun L hL => ctTaper_nonpos ε c R hL) ?_ ?_ ?_ ?_
+  · refine key.trans ?_
+    have hV : c ^ (4 / 7 : ℝ) + 1 / 2 ≤ 2 * c ^ (4 / 7 : ℝ) := by linarith
+    have hMv0 : 0 ≤ K * c ^ (1 / 3 : ℝ) + 1 / 2 := by positivity
+    have hMv : K * c ^ (1 / 3 : ℝ) + 1 / 2 ≤ (K + 1) * c ^ (1 / 3 : ℝ) := by nlinarith
+    exact trunc_lo_rate hc1.le hc₁ hRlo (by linarith) hV hMv0 hMv
+  · intro L hL1 hL2
+    have hLΛ' : L ≤ ctTaperLam ε c R := hL2.le.trans hLΛ
+    rw [ctTaper_eq_of_pos ε c R hL1]
+    refine (taperW_le_pow hR0 (hI.profile.v_pos L hL1).le).trans ?_
+    have hVb : ctTaperVbar ε c R L ≤ ctVprime c L + 1 / 2 := by
+      unfold ctTaperVbar
+      simp only [hLΛ', ↓reduceIte]
+      exact (min_le_right _ _).trans (hB.v_le L hL1 hLΛ')
+    have := pow_le_pow_left₀ (div_nonneg (hI.profile.v_pos L hL1).le hR0.le)
+      (div_le_div_of_nonneg_right hVb hR0.le) 12
+    linarith
+  · intro L hL1 hL2
+    obtain ⟨h1, h2⟩ := hvp L hL1 hL2
+    exact ⟨by linarith, by linarith⟩
+  · have : IntegrableOn (fun L => ctVprime c L * |h L| + 1 / 2 * |h L|) (Ioo 0 Lmin) :=
+      (hint1.mono_set hsub).add (hh.abs.integrableOn.const_mul _)
+    exact this.congr_fun (fun L _ => by ring) measurableSet_Ioo
+  · have hA : IntegrableOn (fun L => ctVprime c L * |h L|) (Ioo 0 Lmin) := hint1.mono_set hsub
+    have hBi : IntegrableOn (fun L => 1 / 2 * |h L|) (Ioo 0 Lmin) := hh.abs.integrableOn.const_mul _
+    have e : ∫ L in Ioo 0 Lmin, (ctVprime c L + 1 / 2) * |h L| =
+        (∫ L in Ioo 0 Lmin, ctVprime c L * |h L|) + ∫ L in Ioo 0 Lmin, 1 / 2 * |h L| := by
+      rw [← integral_add hA hBi]
+      exact integral_congr_ae (ae_of_all _ fun L => by ring)
+    have h1 : ∫ L in Ioo 0 Lmin, ctVprime c L * |h L| ≤ K * c ^ (1 / 3 : ℝ) := by
+      refine le_trans ?_ hMom
+      exact setIntegral_mono_set (hint1.mono_set Ioc_subset_Icc_self)
+        ((ae_restrict_iff' measurableSet_Ioc).2 (ae_of_all _ fun L hL =>
+          mul_nonneg (ctVprime_nonneg hc0 hL.1.le (by linarith [Real.exp_le_exp.2 hL.2])) (abs_nonneg _)))
+        (ae_of_all _ hsub')
+    have h2 : ∫ L in Ioo 0 Lmin, 1 / 2 * |h L| ≤ 1 / 2 := by
+      rw [integral_const_mul]
+      have : ∫ L in Ioo 0 Lmin, |h L| ≤ 1 := by
+        rw [← hmass]; exact setIntegral_le_integral hh.abs (ae_of_all _ fun L => abs_nonneg _)
+      linarith
+    rw [e]; linarith
+
+/-- info: 'FormalResearch.SignUncertainty.boas_field_trunc_lo' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms boas_field_trunc_lo
 
 end FormalResearch.SignUncertainty

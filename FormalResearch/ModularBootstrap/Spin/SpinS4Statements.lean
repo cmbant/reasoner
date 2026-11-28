@@ -98,12 +98,12 @@ noncomputable def spinEtaProjMeasure (a : ℝ) (G : ℝ × ℝ → ℝ) : Measur
 (`(s4:eO1.1)`). -/
 noncomputable def spinTruncInv (a : ℝ) (N : ℕ) (Φ : ℝ × ℝ → ℝ) (xL xR : ℝ) : ℝ :=
   ∑ j ∈ Finset.range N, ∑ ℓ ∈ Finset.range N,
-    spinDa a Φ (spinLambda a ^ j * xL) (spinLambda a ^ ℓ * xR)
+    spinDeltaA a Φ (spinLambda a ^ j * xL) (spinLambda a ^ ℓ * xR)
 
 /-- Complex truncated outward inverse `G_n^{[N]}(b_L, b_R)` (`(s4:sec4.1)`). -/
 noncomputable def spinTruncInvC (a : ℝ) (N : ℕ) (Φ : ℝ × ℝ → ℝ) (bL bR : ℂ) : ℂ :=
   ∑ j ∈ Finset.range N, ∑ ℓ ∈ Finset.range N,
-    spinDaC a Φ ((spinLambda a ^ j : ℝ) * bL) ((spinLambda a ^ ℓ : ℝ) * bR)
+    spinDeltaAC a Φ ((spinLambda a ^ j : ℝ) * bL) ((spinLambda a ^ ℓ : ℝ) * bR)
 
 /-- Adaptive transverse-slice integral `Q_{n,χ}(b)` (`(s4:eO2.2)`). -/
 noncomputable def spinQSlice (c : ℝ) (N : ℕ) (Φ : ℝ × ℝ → ℝ) (χ : ℝ → ℝ) (b : ℂ) : ℂ :=
@@ -182,12 +182,12 @@ def SpinS4_2_2 : Prop :=
 
 /-- **`s4:2.3` (Corollary 2.3, calibrated vacuum remainder).** -/
 def SpinS4_2_3 : Prop :=
-  ∃ (c_σ C c₀ : ℝ), 0 < c_σ ∧ 0 < C ∧ 40 ≤ c₀ ∧
+  ∀ {C_x : ℝ}, ∃ (c_σ C c₀ : ℝ), 0 < c_σ ∧ 0 < C ∧ 40 ≤ c₀ ∧
     ∀ {c x₁ : ℝ}, c₀ ≤ c →
       let n := c - 1
       let a := n / 12
       let δ_n := n ^ (-(2 / 3 : ℝ)) * Real.log n
-      ∀ {C_x : ℝ}, x₁ ≤ xiStar + C_x * n ^ (-(2 / 3 : ℝ)) →
+      0 ≤ x₁ → x₁ ≤ xiStar + C_x * n ^ (-(2 / 3 : ℝ)) →
         ∀ {Φ : ℝ × ℝ → ℝ}, SpinTestClass a Φ → spinM2 a Φ = 1 →
           (∀ ξ d : ℝ, x₁ ^ 2 ≤ ξ ^ 2 + d ^ 2 → 0 ≤ spinG a Φ (ξ + d) (ξ - d)) →
           spinCalInt c Φ ≤ -spinPhiVac a Φ - c_σ * spinPosAngVar a Φ + C * δ_n ∧
@@ -330,8 +330,8 @@ def SpinS4_5_2 : Prop :=
         ∀ {Φ : ℝ × ℝ → ℝ}, SpinSlackHyp c x₁ Φ →
           κ ≤ spinCalNorm c Φ →
           let I_b := Icc (xiStar - r₀) (xiStar + r₀)
-          let u_hi := virasoroUChart n (xiStar - r₀)
-          let u_lo := virasoroUChart n (xiStar + r₀)
+          let u_hi := virasoroUChart n ((xiStar - r₀) ^ 2 / 3)
+          let u_lo := virasoroUChart n ((xiStar + r₀) ^ 2 / 3)
           (∫ u in Icc u_lo u_hi, (spinPtilde c Φ (u : ℂ)).re) =
             (spinCalNorm c Φ)⁻¹ *
               ∫ b in I_b, a * Real.exp (n * spinL b) * (spinGcal a Φ (b : ℂ)).re ∧

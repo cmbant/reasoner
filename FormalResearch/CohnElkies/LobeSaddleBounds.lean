@@ -594,7 +594,7 @@ private lemma lobe_add_bound {c σ_star g' τ_sd z_pos ε : ℝ}
         have hnn : 0 ≤ ε * Real.exp (-(3 / 320 : ℝ) * z_pos) := by positivity
         nlinarith only [hnn]
 
-private lemma lobe_outer_and_add_bounds {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
+lemma lobe_outer_and_add_bounds {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
     (hΔ₁ : 1 ≤ Δ₁) (hU : 1 ≤ U) (hc : max (20 * Δ₁) (60 * U ^ (3 / 2 : ℝ)) ≤ c)
     (hΔ_lo : Δ₁ ≤ Δ) (hΔ_hi : Δ ≤ (c / π ^ 2) * Real.exp (-(π ^ 2 * U * c ^ (-(2 / 3 : ℝ)))))
     (hξ : ξ = Δ / c) (hσ0 : 0 < σ_star) (hσ1 : σ_star < 1) (hσ_eq : stripGReal σ_star = -Real.log (π ^ 2 * ξ))

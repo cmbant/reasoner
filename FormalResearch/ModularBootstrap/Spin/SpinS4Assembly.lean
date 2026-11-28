@@ -5,6 +5,18 @@ public import FormalResearch.ModularBootstrap.Spin.SpinS1
 public import FormalResearch.ModularBootstrap.Spin.SpinS1c
 public import FormalResearch.ModularBootstrap.Spin.SpinS2xS24
 public import FormalResearch.ModularBootstrap.Duality.ConstrainedThreshold
+public import FormalResearch.ModularBootstrap.Spin.SpinS4_2_1
+public import FormalResearch.ModularBootstrap.Spin.SpinS4_2_2
+public import FormalResearch.ModularBootstrap.Spin.SpinS4_2_3
+public import FormalResearch.ModularBootstrap.Spin.SpinS4_2_4
+public import FormalResearch.ModularBootstrap.Spin.SpinS4_3_3
+public import FormalResearch.ModularBootstrap.Spin.SpinS4_3_4
+public import FormalResearch.ModularBootstrap.Spin.SpinS4_4_1
+public import FormalResearch.ModularBootstrap.Spin.SpinS4_4_2
+public import FormalResearch.ModularBootstrap.Spin.SpinS4_4_3
+public import FormalResearch.ModularBootstrap.Spin.SpinS4_5_1
+public import FormalResearch.ModularBootstrap.Spin.SpinS4_5_2
+public import FormalResearch.ModularBootstrap.Spin.SpinS4_6_1
 
 /-!
 # SPIN-S4 Assembly (`s4:4.4` and `s4:S4` modulo the intermediate `s4:*` `Prop`s)
@@ -528,5 +540,23 @@ theorem spinS4_of_props
 /-- info: 'FormalResearch.ModularBootstrap.Spin.spinS4_of_props' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.ModularBootstrap.Spin.spinS4_of_props
+
+/-- **Corollary 6.2 (`s4:4.4`, unconditional)** of `spinning_s4.tex`. -/
+theorem spinS4_4_4 : SpinS4_4_4 :=
+  spinS4_4_4_of_props spinS4_4_3 spinS4_5_1 spinS4_5_2 spinS4_6_1
+
+/-- **Theorem S4 (`s4:S4`, unconditional)** of `spinning_s4.tex`: continuous-spin threshold,
+slack-feasible obstruction, attainment, and wider-cone extension for `{t_L, t_R ≥ -η a}`. -/
+theorem spinS4 : SpinS4 :=
+  spinS4_of_props spinS4_2_1 spinS4_2_2 spinS4_2_3 spinS4_2_4 spinS4_3_3 spinS4_3_4
+    spinS4_4_1 spinS4_4_2 spinS4_4_3 spinS4_5_1 spinS4_5_2 spinS4_6_1 spinS4_4_4
+
+/-- info: 'FormalResearch.ModularBootstrap.Spin.spinS4_4_4' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.Spin.spinS4_4_4
+
+/-- info: 'FormalResearch.ModularBootstrap.Spin.spinS4' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.Spin.spinS4
 
 end FormalResearch.ModularBootstrap.Spin

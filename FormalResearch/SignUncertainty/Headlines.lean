@@ -21,6 +21,7 @@ public import FormalResearch.SignUncertainty.AiryActiveHeight
 public import FormalResearch.SignUncertainty.CeTerminalDeflation
 public import FormalResearch.SignUncertainty.AiryNodeSign
 public import FormalResearch.SignUncertainty.AiryRationalDensity
+public import FormalResearch.SignUncertainty.CeHbLift
 
 /-!
 # Paper I headline theorems from one input structure each (M0 skeleton)
@@ -47,18 +48,20 @@ Headlines and their inputs (open fields in bold):
 
 * `thm_intro_radii` (`thm:intro-radii`, `gt:7.9`, `gt:7.12`, `gt:7.12a`), from `RadiiInputs`:
   `hb_thresholds_upper` (`thm:hb-thresholds` upper half at `(P,Q) = (1,0)`, i.e. `u1co:O9p`; proved as
-  `hbThresholdsUpper` in `HbUpperM1.lean`, which imports this file, so it is a field here only for import order),
-  **`ce_hb_lift_m1`** (`thm:ce-hb-lift`, `m₀ = 1`; its Laplace hypothesis is proved here from
-  `shellLaplaceF_m1_pos`). Proved here from these and from `hb_thresholds_lower`, `shell_reduction_m1_proved`: the gluing `ce_radius_airy_order_of_bounds`, the
-  origin option `constrained_threshold_eq_unconstrained`, the density expansion `ce_volume_expansion`.
+  `hbThresholdsUpper` in `HbUpperM1.lean`, which imports this file, so it is a field here only for import order);
+  `ce_hb_lift_m1` is proved via `ce_hb_lift_proved ShellHBData.airy` (`CeHbLift.lean`), making `thm_intro_radii_ce`
+  unconditional. Proved here from these and from `hb_thresholds_lower`, `shell_reduction_m1_proved`: the gluing
+  `ce_radius_airy_order_of_bounds`, the origin option `constrained_threshold_eq_unconstrained`, the density expansion
+  `ce_volume_expansion`.
 * `thm_intro_hb` (`thm:intro-hb` = `u1cl:multilevel` = `thm:hb-thresholds`, all Hermite–Biehler levels), from
   `HbMultilevelInputs D` (`HbMultilevelDefs.lean`): **`lower`** (lower half; `fto1:thm`, `fto1:mellin`, `gt:7.7p`,
   `u1cl:rep`, TE.0'; proved for `(P,Q) = (1,0)` as `hbMultilevelLower_airy`), **`construction`** (`u1co:O9p`, all-level
   seeds), **`attainment`** (`gt:7.9a`, `lem:finite-hankel-compactness`), **`exact_origin`** (`gt:7.9b`).
 * `thm_ce_canonical_iff` (`thm:intro-gap` = `thm:ce-canonical-iff`, parts (1)-(4), with (i)-(iv); the zero enumeration `t` exists and is unique: `HbZeroEnum.lean`), from
-  `CeCanonicalInputs D t` (`CeCanonicalDefs.lean`): **`shell_reduction`** (`thm:ce-shell-reduction`),
-  **`ce_hb_lift`** (`thm:ce-hb-lift`, weak positivity), **`shifted_lift`** (`thm:ce-shifted-lift`, `CeShiftedLift`; with the
-  proved `thm:al-rational-density` it gives `thm:ce-airy-transfer` (1), upper bound, as `CeCanonicalInputs.ce_airy_transfer_upper`,
+  `CeCanonicalInputs D t` (`CeCanonicalDefs.lean`): **`shell_reduction`** (`thm:ce-shell-reduction`);
+  `ce_hb_lift` (`thm:ce-hb-lift`, weak positivity) is proved as `ce_hb_lift_proved` (`CeHbLift.lean`) and no longer a field,
+  and `shifted_lift` (`thm:ce-shifted-lift`) is proved as `ce_shifted_lift_proved` (`CeShiftedLift.lean`) and no longer
+  a field, giving unconditional `ce_airy_transfer_upper` (`thm:ce-airy-transfer`(1) upper bound,
   `AiryRationalDensity.lean`). The extraction and
   constraint system `eq:ce-laplace-constraint` of `thm:ce-shell-gap` (Hankel form `HankelShellGapLimit`) is the
   theorem `hankelShellGapLimit_proved` (`ShellGapExtract.lean`) and no longer a field; `thm:airy-square-attained` (1), (3) is the theorem `airySquareAttained` (`CeCanonicalDefs.lean`, from
@@ -126,14 +129,6 @@ lemma airyOrderModel_eq (d : ℕ) :
 
 /-! ### Statements of the TeX theorems used as inputs -/
 
-/-- `thm:hb-thresholds` at `(P, Q) = (1, 0)`, upper half (`u1co:O9p`, Theorem O.9', the one-level
-construction): for large `c` and either eigenvalue there is a feasible `f` at a threshold at most
-`c/π² + A c^{1/3} + C`. -/
-def HbThresholdsUpper : Prop :=
-  ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
-    ∃ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f ∧
-      T ≤ c / π ^ 2 + airyOrderCoeff * c ^ (1 / 3 : ℝ) + C
-
 /-- `prop:ce-one-profile`, attainment step (uniform envelope from the proof of `gt:3.1`): normalised
 one-profile witnesses at thresholds above a feasible `u₀` obey a common bound
 `C (1 + |z|)^ν e(z)`. -/
@@ -159,10 +154,9 @@ It stays a field here only because `HbUpperM1` imports this file; supply it with
 structure OneLevelThresholds : Prop where
   hb_thresholds_upper : HbThresholdsUpper
 
-/-- Inputs of `thm:intro-radii`. -/
+/-- Inputs of `thm:intro-radii` (`ce_hb_lift_m1` is proved in `CeHbLift.lean` as
+`ce_hb_lift_proved ShellHBData.airy` and no longer a field). -/
 structure RadiiInputs : Prop extends OneLevelThresholds where
-  /-- `thm:ce-hb-lift` with `m₀ = 1`, `N = Ai` (the paper's route II, `ce_radius.tex`). -/
-  ce_hb_lift_m1 : CeHbLift ShellHBData.airy
 
 /-- `gt:7.5`, first claim, one level, `ε = -1`: `liminf c^{-1/3}(T_c - c/π²) ≥ A`
 (from `radial_compactness` via `radial_rigidity_liminf_ereal`). -/
@@ -265,14 +259,16 @@ theorem thm_intro_radii_sign :
     (exists_abs_bound_nat (f := fun d => aSignNeg d ^ 2 / 2 - airyOrderModel d)
       (fun d hd => (h d hd).2)).imp fun C hC d _ => hC d⟩
 
+end Radii2
+
 /-- **Headline B (`gt:7.12`, `gt:7.12a`, `thm:intro-radii`, Cohn–Elkies radius).** (In the paper `r_CE(d)`
 is the Schwartz infimum; it equals `optimalL1CERadius d` by `ce_schwartz_radius_eq_L1_radius`.) For every integer
 `d ≥ 2`, `r_CE(d)²/2 = d/(2π²) + A (d/2)^{1/3} + O(1)`, and the ball of radius `r_CE(d)/2` has volume
 `(πd)^{-1/2} (e/(2π))^{d/2} exp(π² A (d/2)^{1/3} + O(1))`, in both the multiplicative
 and the logarithmic form (`eq:intro-density`; the constant `-log π / 2` is absorbed in the `O(1)`).
 
-Proved from `RadiiInputs` (`ce_hb_lift_m1`) and `shell_reduction_m1_proved` by the gluing
-`ce_radius_airy_order_of_bounds` and the Stirling expansion `ce_volume_expansion`. -/
+Unconditional (proved from `ce_hb_lift_proved ShellHBData.airy` and `shell_reduction_m1_proved` by the gluing
+`ce_radius_airy_order_of_bounds` and the Stirling expansion `ce_volume_expansion`). -/
 theorem thm_intro_radii_ce :
     (∃ C : ℝ, ∀ d : ℕ, 2 ≤ d → |optimalL1CERadius d ^ 2 / 2 - airyOrderModel d| ≤ C) ∧
     (∃ c₁ c₂ : ℝ, 0 < c₁ ∧ ∀ d : ℕ, 2 ≤ d →
@@ -287,8 +283,8 @@ theorem thm_intro_radii_ce :
         (((d : ℝ) / 2) * Real.log (Real.exp 1 / (2 * π)) +
           π ^ 2 * airyOrderCoeff * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) - (1 / 2 : ℝ) * Real.log (d : ℝ))| ≤ C') := by
   obtain ⟨C_lo, d_lo, hlo0⟩ := shell_reduction_m1_proved
-  -- the upper half from `ce_hb_lift_m1` at `D = airy`, no shells, `R_off = 0`
-  obtain ⟨K₀, d_hi, hhi0⟩ := I.ce_hb_lift_m1 (fun y hy => (airy_laplace_negG_pos hy).le) 0 le_rfl
+  -- the upper half from `ce_hb_lift_proved` at `D = airy`, no shells, `R_off = 0`
+  obtain ⟨K₀, d_hi, hhi0⟩ := ce_hb_lift_proved ShellHBData.airy (fun y hy => (airy_laplace_negG_pos hy).le) 0 le_rfl
   have hA : -(ShellHBData.airy.tm / hankelBeta1) = airyOrderCoeff := by
     unfold airyOrderCoeff
     rw [abs_of_neg (airyZero_neg 1)]
@@ -316,8 +312,6 @@ theorem thm_intro_radii_ce :
   obtain ⟨hmult, hlog⟩ := ce_volume_expansion airyOrderCoeff hr_pos ⟨C, hC⟩
   exact ⟨⟨C, fun d hd => by unfold airyOrderModel; exact hC d hd⟩, hmult, hlog⟩
 
-end Radii2
-
 /-- **`thm:intro-radii`** (`gt:7.9`, `gt:7.12`, `gt:7.12a`): the three radii at Airy order, and the
 volume/density expansion of the Cohn–Elkies ball (`eq:intro-density`). -/
 theorem thm_intro_radii (I : RadiiInputs) :
@@ -336,7 +330,7 @@ theorem thm_intro_radii (I : RadiiInputs) :
         |Real.log ((volume : Measure (Euc d)).real (Metric.ball 0 (optimalL1CERadius d / 2))) -
           (((d : ℝ) / 2) * Real.log (Real.exp 1 / (2 * π)) +
             π ^ 2 * airyOrderCoeff * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) - (1 / 2 : ℝ) * Real.log (d : ℝ))| ≤ C') :=
-  ⟨thm_intro_radii_sign I, thm_intro_radii_ce I⟩
+  ⟨thm_intro_radii_sign I, thm_intro_radii_ce⟩
 
 /-! ### Headline `thm:intro-hb` (`u1cl:multilevel`) -/
 
@@ -795,7 +789,7 @@ lemma shell_i_to_ii {D : ShellHBData} {t : ℕ → ℝ} (I : CeCanonicalInputs D
     LaplaceNonneg D → ShellBoundedRemainder D := by
   intro hi R_off hR r hr
   obtain ⟨C₁, d₁, h₁⟩ := I.shell_reduction R_off hR
-  obtain ⟨K₀, d₂, h₂⟩ := I.ce_hb_lift hi R_off hR
+  obtain ⟨K₀, d₂, h₂⟩ := ce_hb_lift_proved D hi R_off hR
   refine ⟨max C₁ K₀, max d₁ d₂, fun d hd => ?_⟩
   obtain ⟨R, hRm, hRle⟩ := h₂ d (le_trans (le_max_right _ _) hd) r hr
   have hne : (ceShellRadiusSet D r d).Nonempty := ⟨R, hRm⟩
@@ -871,7 +865,7 @@ lemma shell_iv_to_i (D : ShellHBData) (h : ShellLiminf D) : LaplaceNonneg D := b
   linarith
 
 
-lemma shell_i_to_iii {D : ShellHBData} {t : ℕ → ℝ} (I : CeCanonicalInputs D t) (hi : LaplaceNonneg D) :
+lemma shell_i_to_iii (D : ShellHBData) (hi : LaplaceNonneg D) :
     ShellLimit D := by
   intro r hr
   have hβ := hankelBeta1_pos
@@ -888,7 +882,7 @@ lemma shell_i_to_iii {D : ShellHBData} {t : ℕ → ℝ} (I : CeCanonicalInputs 
     set v : ℝ := (-(hankelBeta1 * w) + D.tm) / 2 with hv
     have hvlt : v < D.tm := by rw [hv]; linarith
     have hvgt : -(hankelBeta1 * w) < v := by rw [hv]; linarith
-    have hup := I.ce_airy_transfer_upper v (by rw [hSh]; exact EReal.coe_lt_coe_iff.2 hvlt) r hr
+    have hup := ce_airy_transfer_upper D v (by rw [hSh]; exact EReal.coe_lt_coe_iff.2 hvlt) r hr
     filter_upwards [hup, eventually_ge_atTop 1] with d hd h1
     obtain ⟨R, hR, hle⟩ := hd
     refine ⟨R, hR, le_trans hle ?_⟩
@@ -1033,8 +1027,8 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
         exact ht.1.antitone (by omega)
       refine le_trans (EReal.coe_le_coe_iff.2 (hanti.trans (hτ2.trans hτ1).le)) hle
   · refine ⟨fun hi => ?_, ⟨shell_i_to_ii I, fun h => shell_iv_to_i D (shell_ii_to_iii_liminf h)⟩,
-      ⟨shell_i_to_iii I, fun h => shell_iv_to_i D (shell_iii_to_iv h)⟩,
-      ⟨fun hi => shell_iii_to_iv (shell_i_to_iii I hi), shell_iv_to_i D⟩⟩
+      ⟨shell_i_to_iii D, fun h => shell_iv_to_i D (shell_iii_to_iv h)⟩,
+      ⟨fun hi => shell_iii_to_iv (shell_i_to_iii D hi), shell_iv_to_i D⟩⟩
     by_contra hnodd
     obtain ⟨y, hy, hneg⟩ := even_m_laplace_sign D (Nat.not_odd_iff_even.mp hnodd)
     exact absurd (hi y hy) (not_le.mpr hneg)

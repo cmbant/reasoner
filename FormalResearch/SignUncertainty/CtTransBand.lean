@@ -4,21 +4,21 @@ public import Mathlib
 public import FormalResearch.SignUncertainty.CtCombinedTop
 public import FormalResearch.SignUncertainty.CtLangerEdgeChart
 public import FormalResearch.SignUncertainty.CtRoscAssembly
+public import FormalResearch.SignUncertainty.CtBoasLmin
 
 /-!
 # `ct:dyadic` (4), the transition band
 
-`constant_terms_lower.tex`, proof of `ct:dyadic` (4) / `(ct:combined)`, the transition band `v' ∈ [v₀, R']`.  The step `CtCombinedPieces.trans`,
-`∫_{ξ ≥ ξ(-v₀)} w̃ sin X dm - s₂ - ∫_{ξ>ξ(-R')} sin X dm = O(c^{-4/3})`, is proved (`ct_combined_trans`) from one named input, the
-identification `ct_langer_edge` of the Lean series Langer chart `ũ(ξ)` with the CFU edge chart (`cΦ_Ph(τ₀(L);L) = (4/3)(-ũ)^{3/2}`, proved in `CtLangerEdgeChart`), by
+`constant_terms_lower.tex`, proof of `ct:dyadic` (4) / `(ct:combined)`, the transition band `v' ∈ [v₀, R']`. Provides the decomposition
+`ct_trans_decomp` and rate bound `trans_rate_bound` (`∫_{ξ ≥ ξ(-v₀)} w̃ sin X dm - s₂ - ∫_{ξ>ξ(-R')} sin X dm = O(c^{-4/3})`) consumed
+by `CtLowerLogFreeSkeleton.ct_combined_trans_sharp`, using the chart identification `ct_langer_edge` (`CtLangerEdgeChart`):
 
 * `phase_remainder`, `ct_trans_phase_pt`: at one point, `X = (4/3)v'^{3/2} + 2√v'δ` (`(ct:theta-cfu-match)`: `2v'^{1/2}(v - v') = -θ_ε(τ₀)`,
   `v - v' = δ = -λψ_ε ∈ (0, λM]`) and `|sin X - sin((4/3)v^{3/2})| ≤ (2/3)δ²/√v'`;
 * `trans_weight_bound`, `ct_trans_E1`: against `w̃ ≤ 2((v'+δ)/R)^{12}` and the top-scale first moment `∫ v'|h| ≤ Kc^{1/3}`;
 * `ct_trans_transport`: `s₂` in the Langer variable `x = ũ`, `L = log π²ξ(x)`, with the transport error `R' r_∞`;
-* `ct_trans_decomp`, `trans_rate_bound`, `ct_combined_trans`: the assembly with the taper estimate `boas_field_trunc_lo` for `L < L_min`.
-
-`CtCombinedOpen` (the one step `window`) is here; `ct_lower_of_open` is in `CtLowerOfOpen` (after the proof `ct_rosc_book` of `CtRoscBook`).-/
+* `ct_trans_decomp`, `trans_rate_bound`: the assembly with the taper estimate `boas_field_trunc_lo` for `L < L_min`.
+-/
 
 @[expose] public section
 
@@ -650,109 +650,8 @@ lemma trans_rate_bound {c c₁ R R' M K : ℝ} (hc0 : 0 < c) (hc₁ : 0 < c₁) 
             _ = c ^ (-(4 / 3) : ℝ) := mul_one _
   nlinarith [hb1, hb3, hb4]
 
-/-- **`CtCombinedPieces.trans`** (`ct:dyadic` (4), transition band), from the identification `ct_langer_edge` of the Langer chart with the edge chart:
-for small `c₁`, `|∫_{ξ ≥ ξ(-v₀)} w̃ sin X dm - s₂ - ∫_{ξ > ξ(-R')} sin X dm| ≤ C c^{-4/3}`.  Proof: `w̃ = 1` beyond `Λ`; on `(L_min, Λ]` the phase
-`X = (4/3)v'^{3/2} + 2√v'δ` of `ct_trans_phase_pt` against `(4/3)v^{3/2}` costs `O(c^{-2/3}v'^{-1/2})`, integrated against `w̃|h| ≤ C(v'/R)^{12}|h|`
-by the first moment `∫ v'|h| ≤ Kc^{1/3}` (`ct_trans_E1`); the substitution `v = -û(x)`, `L = L(x)` and transport `ct_trans_transport` turn `s₂` into
-`∫_0^Λ w̃ h sin((4/3)v^{3/2}) dL` up to `R' r_∞`; the part `L < L_min` is the taper estimate (`boas_field_trunc_lo`). -/
-theorem ct_combined_trans : ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ →
-    CtDyadicBound c₁ fun R ε c f => ctStr R ε c f - ctOscS2 R ε c f - ctSout R ε c f := by
-  obtain ⟨K, cM, hK0, hmom⟩ := ct_boas_moments_top
-  obtain ⟨κ₀, hκ₀, cL, hcL1, hL⟩ := ctLv0_facts
-  obtain ⟨γ, hγ, hband⟩ := taperBand_pm
-  obtain ⟨ρ, M, hρ, hM0, hwin⟩ := ct_window_pm
-  refine ⟨min (min γ (1 / 200)) (min 1 (ρ / 16)), lt_min (lt_min hγ (by norm_num)) (lt_min one_pos (by positivity)),
-    fun c₁ hc₁ hc₁le => ?_⟩
-  have hc₁a : c₁ ≤ γ := (hc₁le.trans (min_le_left _ _)).trans (min_le_left _ _)
-  have hc₁b : c₁ ≤ 1 / 200 := (hc₁le.trans (min_le_left _ _)).trans (min_le_right _ _)
-  have hc₁c : c₁ ≤ 1 := (hc₁le.trans (min_le_right _ _)).trans (min_le_left _ _)
-  have hc₁d : c₁ ≤ ρ / 16 := (hc₁le.trans (min_le_right _ _)).trans (min_le_right _ _)
-  obtain ⟨cB, hcB3, hB⟩ := hband c₁ hc₁ hc₁a
-  have hev : ∀ᶠ c : ℝ in atTop, cM ≤ c ∧ cL ≤ c ∧ cB ≤ c ∧ Real.exp 7 ≤ c ∧ 5000 ≤ c ∧
-      (2 ≤ c ^ (4 / 7 : ℝ) ∧ c ^ (4 / 7 : ℝ) + 1 / 2 ≤ c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧
-      c ^ (7 / 3 : ℝ) * Real.exp (-(1 / 40000 * c)) ≤ 1 := by
-    filter_upwards [eventually_ge_atTop cM, eventually_ge_atTop cL, eventually_ge_atTop cB,
-      eventually_ge_atTop (Real.exp 7), eventually_ge_atTop (5000 : ℝ), ev_hcR hc₁,
-      eventually_rpow_mul_exp_le (7 / 3) (1 / 40000) (by norm_num)] with c h1 h2 h3 h4 h5 h6 h7
-    exact ⟨h1, h2, h3, h4, h5, h6, h7⟩
-  obtain ⟨c₀, hc₀⟩ := eventually_atTop.1 hev
-  refine ⟨174 * M ^ 2 * K / c₁ ^ 3 + 2 ^ 12 * (K + 1) / c₁ ^ 24 + 8 * |hankelTailI0| * c₁ ^ 2, c₀,
-    fun c hc ε hε T f hf hm hT _hgap R hR _hgood => ?_⟩
-  obtain ⟨hcM, hcL, hcB, hc7, hc5, ⟨hc47, hcR⟩, hexpo⟩ := hc₀ c hc
-  have hc0 : 0 < c := lt_of_lt_of_le (Real.exp_pos 7) hc7
-  have hc3 : 3 ≤ c := le_trans (by linarith [Real.add_one_le_exp (7 : ℝ)]) hc7
-  have hlog7 : 7 ≤ Real.log c := (Real.le_log_iff_exp_le hc0).2 hc7
-  have hf' := hf.toIsHankelEigenfn
-  have hBR : TaperBand ε c R := hB c hcB ε hε R hR.1 hR.2
-  have hI := hBR.inputs
-  have hR0 : 0 < R := hI.R_pos
-  have h23 : 0 < c ^ (2 / 3 : ℝ) := Real.rpow_pos_of_pos hc0 _
-  have hRhi : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) := by
-    have : 4 * c₁ ^ 2 ≤ (1 / 100 : ℝ) ^ 2 := by nlinarith
-    nlinarith [hR.2]
-  obtain ⟨hW, hU⟩ := hwin ε hε
-  obtain ⟨LJ, Lt, -, hLJe, hLJv, -, hLt0, hLtLJ, -, -, -, -, hMom, -⟩ := hmom c ε T f hcM hf hε hm hT
-  obtain ⟨hL0, hLe, hLv, -⟩ := hL c hcL
-  have hh : Integrable (hankelHL c f) := integrable_hankelHL hc0 hf'
-  have hmass1 : ∫ L, |hankelHL c f L| = 1 := by rw [integral_abs_hankelHL hc0 hf', hm]
-  have hLJ0 : 0 ≤ LJ := hLt0.trans hLtLJ
-  obtain ⟨hΛJ, -⟩ := boas_geometry hc0 hBR hLJ0 hLJe hLJv hRhi
-  have hLΛ : ctLv0 c ≤ ctTaperLam ε c R := lmin_le_lam hc0 hBR hL0.le hLe hLv (hcR.trans hR.1)
-  -- `R' ≤ A`, `R' > 0`, the window at `R`
-  have hrR : ctRprime ε c R ≤ R := hBR.Rprime_le
-  have hrA : ctRprime ε c R ≤ langerRadius c := by
-    have hκ := hankelLangerKappa_bounds.1
-    rw [langerRadius_eq]
-    have : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ c ^ (2 / 3 : ℝ) * langerKappa * 4.94e-4 := by nlinarith
-    linarith
-  have hR1 : 1 ≤ c₁ ^ 2 * c ^ (2 / 3 : ℝ) := by linarith
-  have hr0 : 0 < ctRprime ε c R := by have := hBR.Rprime_ge; linarith [hR.1]
-  have hRρ : -ρ < ctMu c * (-R) := by
-    have h2 : (2 : ℝ) ^ ((2 : ℝ) / 3) ≤ 2 := by
-      calc (2 : ℝ) ^ ((2 : ℝ) / 3) ≤ (2 : ℝ) ^ (1 : ℝ) :=
-            Real.rpow_le_rpow_of_exponent_le (by norm_num) (by norm_num)
-        _ = 2 := Real.rpow_one 2
-    have hμR : ctMu c * R ≤ 8 * c₁ ^ 2 := by
-      unfold ctMu
-      have e : c ^ (-(2 / 3) : ℝ) * c ^ (2 / 3 : ℝ) = 1 := by
-        rw [← Real.rpow_add hc0]; norm_num
-      calc (2 : ℝ) ^ ((2 : ℝ) / 3) * c ^ (-(2 / 3) : ℝ) * R
-          ≤ 2 * c ^ (-(2 / 3) : ℝ) * (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) :=
-            mul_le_mul (mul_le_mul_of_nonneg_right h2 (Real.rpow_nonneg hc0.le _)) hR.2 hR0.le (by positivity)
-        _ = 8 * c₁ ^ 2 * (c ^ (-(2 / 3) : ℝ) * c ^ (2 / 3 : ℝ)) := by ring
-        _ = 8 * c₁ ^ 2 := by rw [e, mul_one]
-    nlinarith [sq_nonneg c₁]
-  have hdec := ct_trans_decomp (K := K) (LJ := LJ) hW hU hε hc5 hBR hf' hm hc₁ hR.1 hr0 hrA hRρ hL0 hLe hLv hLΛ hΛJ hLJe hK0 hMom
-  have hrate := trans_rate_bound hc0 hc₁ hR.1 hR.2 hrR (hankelRinf_nonneg hc5 hf' hε hm) hexpo hM0 hK0 hc3
-  have hlog1 : 1 ≤ Real.log c := by linarith
-  have hη : 0 ≤ c⁻¹ * ctEta c₁ ε c f R :=
-    mul_nonneg (inv_nonneg.2 hc0.le) (ctEta_nonneg c₁ ε c f hR0.le)
-  have hCnn : 0 ≤ 174 * M ^ 2 * K / c₁ ^ 3 + 2 ^ 12 * (K + 1) / c₁ ^ 24 + 8 * |hankelTailI0| * c₁ ^ 2 := by positivity
-  have hcp : 0 < c ^ (-(4 / 3) : ℝ) := Real.rpow_pos_of_pos hc0 _
-  have hX : c ^ (-(4 / 3) : ℝ) ≤ c ^ (-(4 / 3) : ℝ) * Real.log c := le_mul_of_one_le_right hcp.le hlog1
-  calc |ctStr R ε c f - ctOscS2 R ε c f - ctSout R ε c f|
-      ≤ 174 * (ctLam c * M) ^ 2 / (R * Real.sqrt R) * (K * c ^ (1 / 3 : ℝ)) +
-        2 ^ 12 * (K + 1) / c₁ ^ 24 * c ^ (-(29 / 21) : ℝ) + ctRprime ε c R * hankelRinf c := hdec
-    _ ≤ (174 * M ^ 2 * K / c₁ ^ 3 + 2 ^ 12 * (K + 1) / c₁ ^ 24 + 8 * |hankelTailI0| * c₁ ^ 2) * c ^ (-(4 / 3) : ℝ) := by
-        exact hrate
-    _ ≤ (174 * M ^ 2 * K / c₁ ^ 3 + 2 ^ 12 * (K + 1) / c₁ ^ 24 + 8 * |hankelTailI0| * c₁ ^ 2) *
-          (c⁻¹ * ctEta c₁ ε c f R + c ^ (-(4 / 3) : ℝ) * Real.log c) :=
-        mul_le_mul_of_nonneg_left (by linarith) hCnn
-
-/-- info: 'FormalResearch.SignUncertainty.ct_trans_phase_pt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms ct_trans_phase_pt
-
-/-- info: 'FormalResearch.SignUncertainty.ct_trans_transport' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms ct_trans_transport
-
 /-- info: 'FormalResearch.SignUncertainty.ct_trans_E1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ct_trans_E1
-
-/-- info: 'FormalResearch.SignUncertainty.ct_combined_trans' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms ct_combined_trans
 
 end FormalResearch.SignUncertainty

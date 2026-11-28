@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.ModularBootstrap.Integrality.AtomBounds
+public import FormalResearch.ModularBootstrap.Integrality.RepairHankel
 public import FormalResearch.ModularBootstrap.Integrality.ShellInvCells
 
 /-!
@@ -470,7 +471,7 @@ private lemma atom_tail_brace {a t B B₀ wR C_son C_exp H_k P_k δ : ℝ} {m : 
     _ ≤ (1 + C_son) * Real.exp (C_exp * H_k) * P_k ^ (-(m : ℝ) / 2) :=
         mul_le_mul_of_nonneg_right h1 (by positivity)
 
-private lemma atom_tail_r_bound (C : CommonSource) (repair : IntRepairSonineInput C.src.w)
+private lemma atom_tail_r_bound (C : CommonSource)
     {c_vac : ℝ} (hc_vac_pos : 0 < c_vac)
     {a T δ : ℝ} (ha24 : 24 ≤ a)
     (hrho_lb : ∀ {t : ℝ}, a / 8 ≤ t → c_vac * rhoLowerCore C.src.w a t ≤ C.src.cardyDensity a t)
@@ -482,8 +483,8 @@ private lemma atom_tail_r_bound (C : CommonSource) (repair : IntRepairSonineInpu
     {j : ℕ} {Mk : ℕ}
     (ha_const : Real.log (max (2 * π * (9 / 4 * (3 * max C.src.tv 1 *
         (max (1 : ℝ) ((C.src.w : ℝ) / 2)) ^ ((C.src.w : ℝ) / 2))) *
-      (8 : ℝ) ^ (((C.src.w - 1 : ℕ) : ℝ) / 2) * (1 + repair.C_son) / c_vac) 1) + 1 ≤ a)
-    (hM_ord : (2 * ((9 * π + repair.C_son + 1) + 2)) *
+      (8 : ℝ) ^ (((C.src.w - 1 : ℕ) : ℝ) / 2) * (1 + sonineRepairConst) / c_vac) 1) + 1 ≤ a)
+    (hM_ord : (2 * ((9 * π + sonineRepairConst + 1) + 2)) *
         (a + (T + ((j + 2 : ℕ) : ℝ)) + Real.log (1 / δ) + (C.src.w : ℝ)) /
       Real.log (a * (T + (j : ℝ))) ≤ (Mk : ℝ))
     {σ₀_real μ₀_real : Measure ℝ}
@@ -497,7 +498,7 @@ private lemma atom_tail_r_bound (C : CommonSource) (repair : IntRepairSonineInpu
       let m : ℕ := Mk + 1
       |r t| ≤ 2 * π * (σ₀_real.real univ + μ₀_real.real univ) * (t / B₀) ^ (((C.src.w - 1 : ℕ) : ℝ) / 2) *
         (min 1 ((2 * π * Real.exp 1 * h * Real.sqrt t / ((m : ℝ) * Real.sqrt B₀)) ^ m) +
-          repair.C_son * Real.exp (repair.C_son * (B + (C.src.w : ℝ))) *
+          sonineRepairConst * Real.exp (sonineRepairConst * (B + (C.src.w : ℝ))) *
             (2 * π * Real.exp 1 * h * Real.sqrt B / ((m : ℝ) * Real.sqrt B₀)) ^ m))
     {t : ℝ} (ht : T + ((j + 2 : ℕ) : ℝ) < t) :
     |r t| ≤ (1 / 2 : ℝ) ^ (j + 4) * δ * C.src.cardyDensity a t := by
@@ -505,8 +506,8 @@ private lemma atom_tail_r_bound (C : CommonSource) (repair : IntRepairSonineInpu
   let c0 : ℝ := max (1 : ℝ) (wR / 2)
   let C_w_fac : ℝ := (8 : ℝ) ^ (((C.src.w - 1 : ℕ) : ℝ) / 2)
   let C_count_fac : ℝ := 3 * max C.src.tv 1 * c0 ^ (wR / 2)
-  let C_const : ℝ := 2 * π * (9 / 4 * C_count_fac) * C_w_fac * (1 + repair.C_son) / c_vac
-  let C_exp : ℝ := 9 * π + repair.C_son + 1
+  let C_const : ℝ := 2 * π * (9 / 4 * C_count_fac) * C_w_fac * (1 + sonineRepairConst) / c_vac
+  let C_exp : ℝ := 9 * π + sonineRepairConst + 1
   let K : ℝ := 2 * (C_exp + 2)
   let B₀ : ℝ := T + (j : ℝ)
   let B : ℝ := T + ((j + 2 : ℕ) : ℝ)
@@ -629,10 +630,10 @@ private lemma atom_tail_r_bound (C : CommonSource) (repair : IntRepairSonineInpu
       Real.exp (8 * π * a + (2 * π + 1) * B) *
         ((a * t) ^ (1 / 4 : ℝ) * Real.exp (-4 * π * x_t) *
           (min 1 ((2 * π * Real.exp 1 * Real.sqrt t / ((m : ℝ) * Real.sqrt B₀)) ^ m) +
-            repair.C_son * Real.exp (repair.C_son * (B + wR)) *
+            sonineRepairConst * Real.exp (sonineRepairConst * (B + wR)) *
               (2 * π * Real.exp 1 * Real.sqrt B / ((m : ℝ) * Real.sqrt B₀)) ^ m)) ≤
-      (1 + repair.C_son) * Real.exp (C_exp * H_k) * P_k ^ (-(m : ℝ) / 2) :=
-    atom_tail_brace ha_pos ht_pos hB0_pos hPk_pos rfl hδ0 hδ1 hB_nn hwR_nn repair.hC_son_nn
+      (1 + sonineRepairConst) * Real.exp (C_exp * H_k) * P_k ^ (-(m : ℝ) / 2) :=
+    atom_tail_brace ha_pos ht_pos hB0_pos hPk_pos rfl hδ0 hδ1 hB_nn hwR_nn sonineRepairConst_nonneg
       rfl rfl h2sqrt_le
   have hC_const_exp : C_const * Real.exp (-H_k) ≤ 1 := by
     have hlog_nn : 0 ≤ Real.log (1 / δ) := Real.log_nonneg (one_le_one_div hδ0 hδ1)
@@ -707,11 +708,11 @@ private lemma atom_tail_r_bound (C : CommonSource) (repair : IntRepairSonineInpu
       (Real.exp_pos _).le) (Real.sqrt_nonneg _)) hden_nn) _
   have htail_nn : 0 ≤
       min 1 ((2 * π * Real.exp 1 * Real.sqrt t / ((m : ℝ) * Real.sqrt B₀)) ^ m) +
-        repair.C_son * Real.exp (repair.C_son * (B + wR)) *
+        sonineRepairConst * Real.exp (sonineRepairConst * (B + wR)) *
           (2 * π * Real.exp 1 * Real.sqrt B / ((m : ℝ) * Real.sqrt B₀)) ^ m :=
     add_nonneg (le_min zero_le_one ht1_nn)
-      (mul_nonneg (mul_nonneg repair.hC_son_nn (Real.exp_pos _).le) ht2_nn)
-  exact atom_tail_finish hc_vac_pos hδ0 repair.hC_son_nn hV_nn hrho_pos hCc_nn hCw_nn htail_nn
+      (mul_nonneg (mul_nonneg sonineRepairConst_nonneg (Real.exp_pos _).le) ht2_nn)
+  exact atom_tail_finish hc_vac_pos hδ0 sonineRepairConst_nonneg hV_nn hrho_pos hCc_nn hCw_nn htail_nn
     hpowB0_nn hexpB_nn hrho_cd rfl hC_const_exp hexp_tail hcomb_exp hbrace hrt_tail hsum_meas2
     ht_B0_le hrho_eq
 
@@ -719,7 +720,7 @@ end CellHelpers
 
 /-- Single-cell step builder `CellStep` for `atomShellSetup`. -/
 lemma atom_cell_step (C : CommonSource) {W : ℕ → ℝ} (hW : SufficientMomentFloor W)
-    (repair : IntRepairSonineInput C.src.w) {c_vac : ℝ} (hc_vac_pos : 0 < c_vac)
+    {c_vac : ℝ} (hc_vac_pos : 0 < c_vac)
     {a T δ : ℝ} (ha0 : C.a₀ ≤ a) (ha24 : 24 ≤ a) (hT : a / 8 ≤ T) (hδ0 : 0 < δ) (hδ1 : δ ≤ 1)
     (hrho_lb : ∀ {t : ℝ}, a / 8 ≤ t → c_vac * rhoLowerCore C.src.w a t ≤ C.src.cardyDensity a t)
     (meas : SourceCrossingMeasure C.src a) (hsupp : meas.ν (Ici T)ᶜ = 0)
@@ -731,10 +732,10 @@ lemma atom_cell_step (C : CommonSource) {W : ℕ → ℝ} (hW : SufficientMoment
         3 * C.src.tv * R ^ ((C.src.w : ℝ) / 2) * Real.exp (6 * π * a + 4 * π * Real.sqrt (a * R)))
     (ha_const : Real.log (max (2 * π * (9 / 4 * (3 * max C.src.tv 1 *
         (max (1 : ℝ) ((C.src.w : ℝ) / 2)) ^ ((C.src.w : ℝ) / 2))) *
-      (8 : ℝ) ^ (((C.src.w - 1 : ℕ) : ℝ) / 2) * (1 + repair.C_son) / c_vac) 1) + 1 ≤ a)
+      (8 : ℝ) ^ (((C.src.w - 1 : ℕ) : ℝ) / 2) * (1 + sonineRepairConst) / c_vac) 1) + 1 ≤ a)
     (M : ℕ → ℕ) (hM1 : ∀ k, 1 ≤ M k)
     (hM_ord : ∀ k : ℕ, 1 ≤ k →
-      (2 * ((9 * π + repair.C_son + 1) + 2)) *
+      (2 * ((9 * π + sonineRepairConst + 1) + 2)) *
         (a + (T + ((k + 1 : ℕ) : ℝ)) + Real.log (1 / δ) + (C.src.w : ℝ)) /
       Real.log (a * (T + ((k - 1 : ℕ) : ℝ))) ≤ (M k : ℝ))
     (hM_fl : ∀ k : ℕ, 1 ≤ k → ∀ s : ℝ, T + ((k - 1 : ℕ) : ℝ) ≤ s →
@@ -1309,7 +1310,7 @@ lemma atom_cell_step (C : CommonSource) {W : ℕ → ℝ} (hW : SufficientMoment
     have hμ_U0 : μ₀ U₀ = Ntot := by rw [hμ₀_U0_univ, hμ₀_univ]
     rw [hσ_U0, hμ_U0, hsum_nat]
   obtain ⟨r, hr_cont, hr_cross, hr_bd⟩ :=
-    repair.repair hB0_pos hB0_lt_B Mk hσ₀_real_supp hμ₀_real_supp hσ₀_real_mom
+    hankel_repair C.src.hw hB0_pos hB0_lt_B Mk hσ₀_real_supp hμ₀_real_supp hσ₀_real_mom
   have hσ_univ_le : σ₀_real.real univ ≤ 9 / 8 * meas.ν.real (Icc T B) := by
     have hσ_eq_μ : σ₀_real univ = μ₀_real univ := by
       have h1 : σ₀_real univ = σ₀ U₀ := by
@@ -1432,14 +1433,14 @@ lemma atom_cell_step (C : CommonSource) {W : ℕ → ℝ} (hW : SufficientMoment
     rw [hemp, measure_empty]
   have hr_abs_le : ∀ {t : ℝ}, B < t →
       |r t| ≤ (1 / 2 : ℝ) ^ (j + 4) * S.δ * C.src.cardyDensity a t := fun {t} ht => by
-    have hMk_ord : (2 * ((9 * π + repair.C_son + 1) + 2)) *
+    have hMk_ord : (2 * ((9 * π + sonineRepairConst + 1) + 2)) *
         (a + (T + ((j + 2 : ℕ) : ℝ)) + Real.log (1 / δ) + (C.src.w : ℝ)) /
         Real.log (a * (T + (j : ℝ))) ≤ (Mk : ℝ) := by
       have hk_prev : ((k - 1 : ℕ) : ℝ) = (j : ℝ) := rfl
       have hk_next : ((k + 1 : ℕ) : ℝ) = ((j + 2 : ℕ) : ℝ) := rfl
       have h0 := hM_ord k hk1
       rwa [hk_prev, hk_next] at h0
-    exact atom_tail_r_bound C repair hc_vac_pos ha24 hrho_lb hT hδ0 hδ1 meas hcount_fn ha_const
+    exact atom_tail_r_bound C hc_vac_pos ha24 hrho_lb hT hδ0 hδ1 meas hcount_fn ha_const
       hMk_ord hσ_univ_le hμ_univ_le hr_bd ht
   have hR_le : Rp₀ + Rm₀ ≤ S.cm ((1 / 2 : ℝ) ^ (j + 4)) := by
     have hreal_le : Rp₀_real + Rm₀_real ≤
