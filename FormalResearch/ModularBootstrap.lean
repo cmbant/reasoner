@@ -172,6 +172,7 @@ public import FormalResearch.ModularBootstrap.Mixtures.O1Lower
 public import FormalResearch.ModularBootstrap.Mixtures.O1
 public import FormalResearch.ModularBootstrap.Mixtures.O1Liminf
 public import FormalResearch.ModularBootstrap.Mixtures.SourceTwoLevel
+public import FormalResearch.ModularBootstrap.Mixtures.PmixJets
 public import FormalResearch.ModularBootstrap.Mixtures.SourceBandBound
 public import FormalResearch.ModularBootstrap.Mixtures.SourceLemmaQBase
 public import FormalResearch.ModularBootstrap.Mixtures.SourceLemmaQGap
