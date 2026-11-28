@@ -94,12 +94,11 @@ private lemma hasFDerivAt_of_continuousAt_partials {f : ℝ × ℝ → ℂ} {dL 
   have hh2 : |h.2| ≤ ‖h‖ := by simpa [Real.norm_eq_abs] using norm_snd_le h
   have h1 : ‖f (p₀.1 + h.1, p₀.2 + h.2) - f (p₀.1, p₀.2 + h.2) - h.1 • dL p₀‖ ≤
       (ε / 2) * |h.1| := by
-    let g : ℝ → ℂ := fun s => f (s, p₀.2 + h.2) - s • dL p₀
+    let g : ℝ → ℂ := (fun s => f (s, p₀.2 + h.2)) - (fun s => s • dL p₀)
     have hg : ∀ s ∈ uIcc p₀.1 (p₀.1 + h.1),
-        HasDerivWithinAt g (dL (s, p₀.2 + h.2) - dL p₀) (uIcc p₀.1 (p₀.1 + h.1)) s := by
-      intro s _
-      have hs := ((hL s (p₀.2 + h.2)).sub ((hasDerivAt_id' s).smul_const (dL p₀))).congr_deriv (by simp)
-      exact hs.hasDerivWithinAt.congr_of_eventuallyEq (Eventually.of_forall fun _ => rfl) rfl
+        HasDerivWithinAt g (dL (s, p₀.2 + h.2) - dL p₀) (uIcc p₀.1 (p₀.1 + h.1)) s := fun s _ =>
+      (((hL s (p₀.2 + h.2)).sub ((hasDerivAt_id' s).smul_const (dL p₀))).congr_deriv
+        (by simp)).hasDerivWithinAt
     have hbd : ∀ s ∈ uIcc p₀.1 (p₀.1 + h.1), ‖dL (s, p₀.2 + h.2) - dL p₀‖ ≤ ε / 2 := by
       intro s hsI
       have hdist : dist (s, p₀.2 + h.2) p₀ < δL := by
@@ -113,19 +112,18 @@ private lemma hasFDerivAt_of_continuousAt_partials {f : ℝ × ℝ → ℂ} {dL 
         exact max_lt (lt_of_le_of_lt (hs1.trans hh1) hhL) (lt_of_le_of_lt hh2 hhL)
       exact le_of_lt (by simpa [dist_eq_norm] using hδL hdist)
     have hmv := (convex_uIcc p₀.1 (p₀.1 + h.1)).norm_image_sub_le_of_norm_hasDerivWithin_le
-      (fun s hs => hg s hs) (fun s hs => hbd s hs) left_mem_uIcc right_mem_uIcc
-    rw [Real.norm_eq_abs, sub_add_cancel_left, abs_neg] at hmv
+      hg hbd left_mem_uIcc right_mem_uIcc
+    rw [Real.norm_eq_abs, add_sub_cancel_left] at hmv
     have heqg : g (p₀.1 + h.1) - g p₀.1 =
         f (p₀.1 + h.1, p₀.2 + h.2) - f (p₀.1, p₀.2 + h.2) - h.1 • dL p₀ := by
-      dsimp only [g]; rw [add_smul]; abel
+      dsimp only [g, Pi.sub_apply]; rw [add_smul]; abel
     rwa [heqg] at hmv
   have h2 : ‖f (p₀.1, p₀.2 + h.2) - f (p₀.1, p₀.2) - h.2 • dA p₀‖ ≤ (ε / 2) * |h.2| := by
-    let g : ℝ → ℂ := fun t => f (p₀.1, t) - t • dA p₀
+    let g : ℝ → ℂ := (fun t => f (p₀.1, t)) - (fun t => t • dA p₀)
     have hg : ∀ t ∈ uIcc p₀.2 (p₀.2 + h.2),
-        HasDerivWithinAt g (dA (p₀.1, t) - dA p₀) (uIcc p₀.2 (p₀.2 + h.2)) t := by
-      intro t _
-      have ht := ((hA p₀.1 t).sub ((hasDerivAt_id' t).smul_const (dA p₀))).congr_deriv (by simp)
-      exact ht.hasDerivWithinAt.congr_of_eventuallyEq (Eventually.of_forall fun _ => rfl) rfl
+        HasDerivWithinAt g (dA (p₀.1, t) - dA p₀) (uIcc p₀.2 (p₀.2 + h.2)) t := fun t _ =>
+      (((hA p₀.1 t).sub ((hasDerivAt_id' t).smul_const (dA p₀))).congr_deriv
+        (by simp)).hasDerivWithinAt
     have hbd : ∀ t ∈ uIcc p₀.2 (p₀.2 + h.2), ‖dA (p₀.1, t) - dA p₀‖ ≤ ε / 2 := by
       intro t htI
       have hdist : dist (p₀.1, t) p₀ < δA := by
@@ -138,11 +136,11 @@ private lemma hasFDerivAt_of_continuousAt_partials {f : ℝ × ℝ → ℂ} {dL 
         exact max_lt (by positivity) (lt_of_le_of_lt (ht2.trans hh2) hhA)
       exact le_of_lt (by simpa [dist_eq_norm] using hδA hdist)
     have hmv := (convex_uIcc p₀.2 (p₀.2 + h.2)).norm_image_sub_le_of_norm_hasDerivWithin_le
-      (fun t ht => hg t ht) (fun t ht => hbd t ht) left_mem_uIcc right_mem_uIcc
-    rw [Real.norm_eq_abs, sub_add_cancel_left, abs_neg] at hmv
+      hg hbd left_mem_uIcc right_mem_uIcc
+    rw [Real.norm_eq_abs, add_sub_cancel_left] at hmv
     have heqg : g (p₀.2 + h.2) - g p₀.2 =
         f (p₀.1, p₀.2 + h.2) - f (p₀.1, p₀.2) - h.2 • dA p₀ := by
-      dsimp only [g]; rw [add_smul]; abel
+      dsimp only [g, Pi.sub_apply]; rw [add_smul]; abel
     rwa [heqg] at hmv
   have hsplit : f (p₀ + h) - f p₀ - clmFromCols (dL p₀) (dA p₀) h =
       (f (p₀.1 + h.1, p₀.2 + h.2) - f (p₀.1, p₀.2 + h.2) - h.1 • dL p₀) +
@@ -160,7 +158,7 @@ private lemma hasFDerivAt_of_continuousAt_partials {f : ℝ × ℝ → ℂ} {dL 
 
 private lemma fctWarpIntegrand_continuous_param {K4 ε c : ℝ} (hK4 : 1 ≤ K4) (hc : 0 < c)
     (hτ₁ : c ^ (-(1 / 4 : ℝ)) ≤ (fct_comp_D_part1 StripKernelChoice.star).choose)
-    {τ : ℝ} (hτ : 0 < τ) :
+    {τ : ℝ} (_hτ : 0 < τ) :
     Continuous (fun p : ℝ × ℝ => fctWarpIntegrand K4 ε c p.1 p.2 τ) := by
   have hm : Continuous (fun p : ℝ × ℝ => mellinK0 c ((τ : ℂ) * Complex.I) (fctXi1 p.1)) := by
     set K_m : ℂ := (1 - (τ : ℂ) * Complex.I) ^ (-(1 / 2 : ℂ)) *
@@ -359,26 +357,29 @@ private lemma fctChart_inv_hasFDerivAt {K4 ε c : ℝ} (W : FctWarpChartData K4 
   have hpΩ : p ∈ concretePhaseDom W.ellMin ε c := W.h_rect_sub hp_mem
   have hΨ_cd : ContDiffAt ℝ ∞ Ψ p := by
     have h1 := ((contDiffAt_const (c := -fctKappa c)).mul (W.box.atil_contDiffAt hpΩ))
-    have h2 := (contDiffAt_const (c := lam)).mul contDiffAt_snd
+    have h2 := (contDiffAt_const (c := lam)).mul (contDiffAt_snd : ContDiffAt ℝ ∞ Prod.snd p)
     exact h1.prodMk h2
   have hΨ_fd : HasFDerivAt Ψ
       ((invChartDerivEquiv uL uA lam huL hlam : (ℝ × ℝ) ≃L[ℝ] (ℝ × ℝ)) : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ)) p :=
-    (W.box.chain_rule hpΩ (fctKappa c) lam (Ξhat := id) (hasFDerivAt_id _)
-      (Eventually.of_forall fun _ => rfl)).1
+    ((W.box.chain_rule hpΩ (fctKappa c) lam (Ξhat := id)
+      (hasFDerivAt_id (fctChart (fctKappa c) lam (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) p))
+      (Eventually.of_forall fun _ => rfl)).1).congr_fderiv
+      (ContinuousLinearMap.ext fun v => by simp [invChartDerivEquiv, uL, uA])
+  have hΨp' : Ψ p = q := hΨp
   have hn : (∞ : WithTop ℕ∞) ≠ 0 := by simp
-  set g := hΨ_cd.localInverse hΨ_fd hn
   have hstrict := hΨ_cd.hasStrictFDerivAt hΨ_fd hn
+  set g := hstrict.localInverse Ψ (invChartDerivEquiv uL uA lam huL hlam) p
   have hrinv : ∀ᶠ w in 𝓝 q, Ψ (g w) = w := by
     have := hstrict.eventually_right_inverse
-    rwa [hΨp] at this
+    rwa [hΨp'] at this
   have hgp : g q = p := by
-    have := hΨ_cd.localInverse_apply_image hΨ_fd hn
-    rwa [hΨp] at this
-  have hcont : ContinuousAt g q := by
-    have hli : ContDiffAt ℝ ∞ g q := by
-      have := hΨ_cd.to_localInverse hΨ_fd hn
-      rwa [hΨp] at this
-    exact hli.continuousAt
+    have := hstrict.localInverse_apply_image
+    rwa [hΨp'] at this
+  have hgd : HasFDerivAt g
+      ((invChartDerivEquiv uL uA lam huL hlam).symm : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ)) q := by
+    have := hstrict.to_localInverse.hasFDerivAt
+    rwa [hΨp'] at this
+  have hcont : ContinuousAt g q := hgd.continuousAt
   have hmem_nhd : ∀ᶠ w in 𝓝 q, g w ∈ I ×ˢ J := by
     have hopen : IsOpen (I ×ˢ J) := isOpen_Ioo.prod isOpen_Ioo
     exact hcont.eventually_mem (hopen.mem_nhds (by rwa [hgp]))
@@ -388,10 +389,6 @@ private lemma fctChart_inv_hasFDerivAt {K4 ε c : ℝ} (W : FctWarpChartData K4 
     filter_upwards [hrinv, hmem_nhd] with w hw1 hw2
     conv_lhs => rw [← hw1]
     exact hinj.leftInvOn_invFunOn hw2
-  have hgd : HasFDerivAt g
-      ((invChartDerivEquiv uL uA lam huL hlam).symm : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ)) q := by
-    have := hstrict.to_localInverse.hasFDerivAt
-    rwa [hΨp] at this
   exact hgd.congr_of_eventuallyEq hev_eq
 
 /-! ### 4. Uniform `uAlpha` bound on admissible box -/
@@ -464,7 +461,7 @@ private lemma concrete_uAlpha_bound {K4 ε : ℝ} (hK4 : 1 ≤ K4) :
         Real.sqrt (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) p) := by
     have hf := W.box.hasFDerivAt_atil hp
     rw [hf.fderiv]
-    simp [FctPhaseBox.fderiv_decomp]
+    simp
   have huA_eq : FctPhaseBox.uAlpha (fctKappa c) (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) p =
       -fctKappa c * fderiv ℝ (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S)) p (0, 1) := by
     rw [hdA_eq]; rfl
@@ -506,7 +503,185 @@ private lemma concrete_uAlpha_bound {K4 ε : ℝ} (hK4 : 1 ≤ K4) :
     _ = C_uA * (c ^ (2 / 3 : ℝ) * (c ^ (2 / 3 : ℝ) * c ^ (-(25 / 12 : ℝ)))) := by ring
     _ = C_uA * c ^ (-(3 / 4 : ℝ)) := by rw [hpow_tot]
 
-/-! ### 5. Unconditional `fctWarpSolve_uncond` -/
+/-! ### 5. Derivative bound on the chart residual `N` and `fctWarpSolve_uncond` -/
+
+private noncomputable def warpG (K4 ε c : ℝ) (p : ℝ × ℝ) : ℝ × ℝ :=
+  toPairCLM (((warpN0 c : ℝ) : ℂ) * fctWarpI K4 ε c p.1 p.2)
+
+private noncomputable def warpN (K4 ε c : ℝ) (W : FctWarpChartData K4 ε c) (y : ℝ × ℝ) : ℝ × ℝ :=
+  warpG K4 ε c
+    (Function.invFunOn
+      (fctChart (fctKappa c) (c ^ (-(2 / 3 : ℝ))) (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S))
+      (Ioo (W.L_ctr / 2) (2 * W.L_ctr) ×ˢ
+        Ioo (-(3 / 2 * c ^ (-(1 / 2 : ℝ)))) (3 / 2 * c ^ (-(1 / 2 : ℝ))))
+      ((airyZero 1, (0 : ℝ)) + y)) -
+  warpMEquiv y
+
+private lemma warpN_deriv_bound {K4 ε c : ℝ} (C_DL C_DA C_uA : ℝ)
+    (hK4 : 1 ≤ K4) (hε : ε = 1 ∨ ε = -1) (hc100 : 100 ≤ c)
+    (hc_tauLim : c ^ (-(1 / 4 : ℝ)) ≤ pbTauLim)
+    (hτD : c ^ (-(1 / 4 : ℝ)) ≤ (fct_comp_D_part1 StripKernelChoice.star).choose)
+    (hK4t : K4 * c ^ (-(1 / 2 : ℝ)) ≤ 1)
+    (hCDL0 : 0 ≤ C_DL) (hCuA0 : 0 ≤ C_uA)
+    (hdL_spec : ∀ {c' L1 α : ℝ}, (concreteInnerFamily K4 ε).adm c' L1 α → c' = c →
+      ‖((warpN0 c / (-fctKappa c * (concreteBoxS K4 ε c).V
+        ((concreteEll1 ε c L1, 1, α), (concreteBoxS K4 ε c).A (concreteEll1 ε c L1, 1, α))) : ℝ) : ℂ) *
+        (Complex.I * ∫ τ in Ioi (0 : ℝ), fctWarpIntegrandDerivL K4 ε c L1 α τ) -
+        Complex.I * deriv fctG0 (airyZero 1)‖ ≤ C_DL * c ^ (-(1 / 2 : ℝ)))
+    (hdA_spec : ∀ {L1 α : ℝ}, (concreteInnerFamily K4 ε).adm c L1 α →
+      ‖((c ^ (2 / 3 : ℝ) * warpN0 c : ℝ) : ℂ) *
+        (Complex.I * ∫ τ in Ioi (0 : ℝ), fctWarpIntegrandDerivAlpha K4 ε c L1 α τ) -
+        (-Complex.I * ((warpC2Star : ℝ) : ℂ) * iteratedDeriv 2 fctG0 (airyZero 1))‖ ≤
+        C_DA * c ^ (-(1 / 2 : ℝ)))
+    (huA_spec : ∀ {W : FctWarpChartData K4 ε c} {p : ℝ × ℝ},
+      W.S = concreteBoxS K4 ε c → p ∈ concretePhaseDom W.ellMin ε c →
+      |-fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) p - airyZero 1| ≤
+        c ^ (-(7 / 6 : ℝ)) →
+      |c ^ (2 / 3 : ℝ) * FctPhaseBox.uAlpha (fctKappa c) (concretePhiTilde K4 ε c)
+          (concreteTau0 ε c W.S) p| ≤ C_uA * c ^ (-(3 / 4 : ℝ)))
+    (W : FctWarpChartData K4 ε c) (hWS : W.S = concreteBoxS K4 ε c) (hWell : W.ellMin = pbellMin)
+    {y : ℝ × ℝ} (hy : y ∈ closedBall (0 : ℝ × ℝ) (c ^ (-(7 / 6 : ℝ)))) :
+    ∃ D_N : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ),
+      HasFDerivWithinAt (warpN K4 ε c W) D_N (closedBall (0 : ℝ × ℝ) (c ^ (-(7 / 6 : ℝ)))) y ∧
+      ‖D_N‖ ≤ (C_DL + C_DA + C_uA * (‖Complex.I * deriv fctG0 (airyZero 1)‖ + C_DL)) * c ^ (-(1 / 2 : ℝ)) := by
+  let I := Ioo (W.L_ctr / 2) (2 * W.L_ctr)
+  let J := Ioo (-(3 / 2 * c ^ (-(1 / 2 : ℝ)))) (3 / 2 * c ^ (-(1 / 2 : ℝ)))
+  let Ψ := fctChart (fctKappa c) (c ^ (-(2 / 3 : ℝ))) (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S)
+  have hN_eq_fun : warpN K4 ε c W =
+      fun z => warpG K4 ε c (Function.invFunOn Ψ (I ×ˢ J) ((airyZero 1, (0 : ℝ)) + z)) - warpMEquiv z := rfl
+  have hc0 : 0 < c := by linarith only [hc100]
+  have hc1 : 1 ≤ c := by linarith only [hc100]
+  have hbox_cond : c ^ (-(1 / 4 : ℝ)) ≤ pbTauLim ∧ K4 * c ^ (-(1 / 2 : ℝ)) ≤ 1 ∧ 100 ≤ c :=
+    ⟨hc_tauLim, hK4t, hc100⟩
+  have hay_ball : (airyZero 1, (0 : ℝ)) + y ∈ closedBall (airyZero 1, (0 : ℝ)) (c ^ (-(7 / 6 : ℝ))) := by
+    simpa [mem_closedBall, dist_eq_norm] using hy
+  obtain ⟨hp_mem, hΨp, hinv_fd⟩ := fctChart_inv_hasFDerivAt W hc0 (W.h_surj hay_ball)
+  set p := Function.invFunOn Ψ (I ×ˢ J) ((airyZero 1, (0 : ℝ)) + y)
+  have hΨp' : Ψ p = (airyZero 1, (0 : ℝ)) + y := hΨp
+  have hΨp_ball : Ψ p ∈ closedBall (airyZero 1, (0 : ℝ)) (c ^ (-(7 / 6 : ℝ))) := by
+    rw [hΨp']; exact hay_ball
+  have hadm : (concreteInnerFamily K4 ε).adm c p.1 p.2 :=
+    fctWarpChart_mem_adm hK4 hε hbox_cond W hWS hWell hp_mem hΨp_ball
+  have hpΩ : p ∈ concretePhaseDom W.ellMin ε c := W.h_rect_sub hp_mem
+  let uLp := FctPhaseBox.uL (fctKappa c) (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) p
+  let uAp := FctPhaseBox.uAlpha (fctKappa c) (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) p
+  let lam : ℝ := c ^ (-(2 / 3 : ℝ))
+  have huLp_eq : uLp = -fctKappa c *
+      W.S.V ((concreteEll1 ε c p.1, 1, p.2), W.S.A (concreteEll1 ε c p.1, 1, p.2)) := by
+    dsimp only [uLp, FctPhaseBox.uL]
+    rw [W.h_V_eq p hpΩ, mul_div_cancel_left₀ _ (W.box.sqrt_atil_pos hpΩ).ne']
+  have hVA_pos : 0 < W.S.V ((concreteEll1 ε c p.1, 1, p.2), W.S.A (concreteEll1 ε c p.1, 1, p.2)) := by
+    linarith [(W.h_S_V_bounds p hpΩ).1]
+  have huLp_ne : uLp ≠ 0 := by
+    rw [huLp_eq]
+    exact mul_ne_zero (neg_ne_zero.mpr (fctKappa_pos hc0).ne') hVA_pos.ne'
+  have hlam_ne : lam ≠ 0 := (Real.rpow_pos_of_pos hc0 _).ne'
+  have hinv_y := (hinv_fd huLp_ne hlam_ne).comp y ((hasFDerivAt_id y).const_add (airyZero 1, (0 : ℝ)))
+  let dL := Complex.I * ∫ τ in Ioi (0 : ℝ), fctWarpIntegrandDerivL K4 ε c p.1 p.2 τ
+  let dA := Complex.I * ∫ τ in Ioi (0 : ℝ), fctWarpIntegrandDerivAlpha K4 ε c p.1 p.2 τ
+  have hI_fd := hasFDerivAt_fctWarpI hK4 hε hc1 hτD p
+  have hG_fd : HasFDerivAt (warpG K4 ε c) (toPairCLM.comp (((warpN0 c : ℝ) : ℂ) • clmFromCols dL dA)) p :=
+    toPairCLM.hasFDerivAt.comp p (hI_fd.const_smul (((warpN0 c : ℝ) : ℂ)))
+  have hcomp := hG_fd.comp y (by simpa only [← hΨp'] using hinv_y)
+  have hN_fd : HasFDerivAt (warpN K4 ε c W)
+      ((toPairCLM.comp (((warpN0 c : ℝ) : ℂ) • clmFromCols dL dA)).comp
+        ((invChartDerivEquiv uLp uAp lam huLp_ne hlam_ne).symm : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ)) -
+        (warpMEquiv : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ))) y := by
+    rw [hN_eq_fun]
+    exact hcomp.sub warpMEquiv.toContinuousLinearMap.hasFDerivAt
+  set D_N := (toPairCLM.comp (((warpN0 c : ℝ) : ℂ) • clmFromCols dL dA)).comp
+    ((invChartDerivEquiv uLp uAp lam huLp_ne hlam_ne).symm : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ)) -
+    (warpMEquiv : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ))
+  have hDN_eq : D_N = clmFromCols (D_N (1, 0)) (D_N (0, 1)) := by
+    refine ContinuousLinearMap.ext fun v => ?_
+    have hv : v = v.1 • ((1 : ℝ), (0 : ℝ)) + v.2 • ((0 : ℝ), (1 : ℝ)) := by ext <;> simp
+    conv_lhs => rw [hv, map_add, map_smul, map_smul]
+    simp [clmFromCols_apply]
+  have hcol1_eq : D_N (1, 0) = toPairCLM
+      (((warpN0 c / uLp : ℝ) : ℂ) * dL - Complex.I * deriv fctG0 (airyZero 1)) := by
+    dsimp only [D_N]
+    rw [sub_apply, ContinuousLinearMap.comp_apply,
+      ContinuousLinearMap.comp_apply, ContinuousLinearEquiv.coe_coe,
+      ContinuousLinearEquiv.coe_coe]
+    have hsym1 : (invChartDerivEquiv uLp uAp lam huLp_ne hlam_ne).symm (1, 0) = (uLp⁻¹, 0) := by
+      simp [invChartDerivEquiv, clmFromCols_apply]
+    rw [hsym1, warpMEquiv_fst, ← map_sub]
+    congr 1
+    simp only [smul_apply, clmFromCols_apply, smul_eq_mul,
+      zero_smul, add_zero, Complex.real_smul]
+    push_cast; ring
+  have hc23_inv : lam⁻¹ = c ^ (2 / 3 : ℝ) := by
+    dsimp only [lam]; rw [Real.rpow_neg hc0.le, inv_inv]
+  have hcol2_eq : D_N (0, 1) = toPairCLM
+      (((c ^ (2 / 3 : ℝ) * warpN0 c : ℝ) : ℂ) * dA - warpW2 -
+        ((c ^ (2 / 3 : ℝ) * uAp : ℝ) : ℂ) * (((warpN0 c / uLp : ℝ) : ℂ) * dL)) := by
+    dsimp only [D_N]
+    rw [sub_apply, ContinuousLinearMap.comp_apply,
+      ContinuousLinearMap.comp_apply, ContinuousLinearEquiv.coe_coe,
+      ContinuousLinearEquiv.coe_coe]
+    have hsym2 : (invChartDerivEquiv uLp uAp lam huLp_ne hlam_ne).symm (0, 1) =
+        (-uAp / (uLp * lam), lam⁻¹) := by
+      simp [invChartDerivEquiv, clmFromCols_apply]
+    rw [hsym2, warpMEquiv_snd, ← map_sub]
+    congr 1
+    simp only [smul_apply, clmFromCols_apply, smul_eq_mul, Complex.real_smul]
+    have hce : (-uAp / (uLp * lam) : ℝ) = -(c ^ (2 / 3 : ℝ) * uAp) / uLp := by
+      rw [div_eq_mul_inv, mul_inv, ← hc23_inv]; ring
+    rw [hce, hc23_inv]
+    push_cast; ring
+  have hdL_bd : ‖((warpN0 c / uLp : ℝ) : ℂ) * dL - Complex.I * deriv fctG0 (airyZero 1)‖ ≤
+      C_DL * c ^ (-(1 / 2 : ℝ)) := by
+    have h_eq : ((warpN0 c / uLp : ℝ) : ℂ) * dL =
+        ((warpN0 c / (-fctKappa c * (concreteBoxS K4 ε c).V
+          ((concreteEll1 ε c p.1, 1, p.2), (concreteBoxS K4 ε c).A (concreteEll1 ε c p.1, 1, p.2))) : ℝ) : ℂ) *
+          (Complex.I * ∫ τ in Ioi (0 : ℝ), fctWarpIntegrandDerivL K4 ε c p.1 p.2 τ) := by
+      rw [huLp_eq, hWS]
+    rw [h_eq]
+    exact hdL_spec hadm rfl
+  have hdA_bd : ‖((c ^ (2 / 3 : ℝ) * warpN0 c : ℝ) : ℂ) * dA - warpW2‖ ≤
+      C_DA * c ^ (-(1 / 2 : ℝ)) := by
+    dsimp only [warpW2, dA]
+    exact hdA_spec hadm
+  have huA_bd : |c ^ (2 / 3 : ℝ) * uAp| ≤ C_uA * c ^ (-(1 / 2 : ℝ)) := by
+    have hadm_W : |-fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) p - airyZero 1| ≤
+        c ^ (-(7 / 6 : ℝ)) := by
+      rw [hWS]; exact hadm.2.2.1
+    have hc34 : c ^ (-(3 / 4 : ℝ)) ≤ c ^ (-(1 / 2 : ℝ)) :=
+      Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
+    exact (huA_spec hWS hpΩ hadm_W).trans (mul_le_mul_of_nonneg_left hc34 hCuA0)
+  let C_L1_bd : ℝ := ‖Complex.I * deriv fctG0 (airyZero 1)‖ + C_DL
+  have hdL_tot : ‖((warpN0 c / uLp : ℝ) : ℂ) * dL‖ ≤ C_L1_bd := by
+    have hc12 : c ^ (-(1 / 2 : ℝ)) ≤ 1 := Real.rpow_le_one_of_one_le_of_nonpos hc1 (by norm_num)
+    calc ‖((warpN0 c / uLp : ℝ) : ℂ) * dL‖
+        = ‖(((warpN0 c / uLp : ℝ) : ℂ) * dL - Complex.I * deriv fctG0 (airyZero 1)) +
+            Complex.I * deriv fctG0 (airyZero 1)‖ := by ring_nf
+      _ ≤ ‖((warpN0 c / uLp : ℝ) : ℂ) * dL - Complex.I * deriv fctG0 (airyZero 1)‖ +
+            ‖Complex.I * deriv fctG0 (airyZero 1)‖ := norm_add_le _ _
+      _ ≤ C_DL * c ^ (-(1 / 2 : ℝ)) + ‖Complex.I * deriv fctG0 (airyZero 1)‖ :=
+          add_le_add hdL_bd le_rfl
+      _ ≤ C_DL * 1 + ‖Complex.I * deriv fctG0 (airyZero 1)‖ := by gcongr
+      _ = C_L1_bd := by dsimp only [C_L1_bd]; ring
+  have hDN1_bd : ‖D_N (1, 0)‖ ≤ C_DL * c ^ (-(1 / 2 : ℝ)) := by
+    rw [hcol1_eq]; exact (toPairCLM_norm_le _).trans hdL_bd
+  have hDN2_bd : ‖D_N (0, 1)‖ ≤ (C_DA + C_uA * C_L1_bd) * c ^ (-(1 / 2 : ℝ)) := by
+    rw [hcol2_eq]
+    refine (toPairCLM_norm_le _).trans ?_
+    calc ‖(((c ^ (2 / 3 : ℝ) * warpN0 c : ℝ) : ℂ) * dA - warpW2) -
+          ((c ^ (2 / 3 : ℝ) * uAp : ℝ) : ℂ) * (((warpN0 c / uLp : ℝ) : ℂ) * dL)‖
+        ≤ ‖((c ^ (2 / 3 : ℝ) * warpN0 c : ℝ) : ℂ) * dA - warpW2‖ +
+          ‖((c ^ (2 / 3 : ℝ) * uAp : ℝ) : ℂ) * (((warpN0 c / uLp : ℝ) : ℂ) * dL)‖ := norm_sub_le _ _
+      _ ≤ C_DA * c ^ (-(1 / 2 : ℝ)) + (C_uA * c ^ (-(1 / 2 : ℝ))) * C_L1_bd := by
+          refine add_le_add hdA_bd ?_
+          rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+          exact mul_le_mul huA_bd hdL_tot (norm_nonneg _) (by positivity)
+      _ = (C_DA + C_uA * C_L1_bd) * c ^ (-(1 / 2 : ℝ)) := by ring
+  have hDN_norm : ‖D_N‖ ≤ (C_DL + C_DA + C_uA * C_L1_bd) * c ^ (-(1 / 2 : ℝ)) := by
+    calc ‖D_N‖ = ‖clmFromCols (D_N (1, 0)) (D_N (0, 1))‖ := by rw [← hDN_eq]
+      _ ≤ ‖D_N (1, 0)‖ + ‖D_N (0, 1)‖ := clmFromCols_norm_le _ _
+      _ ≤ C_DL * c ^ (-(1 / 2 : ℝ)) + (C_DA + C_uA * C_L1_bd) * c ^ (-(1 / 2 : ℝ)) :=
+          add_le_add hDN1_bd hDN2_bd
+      _ = (C_DL + C_DA + C_uA * C_L1_bd) * c ^ (-(1 / 2 : ℝ)) := by ring
+  exact ⟨D_N, hN_fd.hasFDerivWithinAt, hDN_norm⟩
 
 /-- **Unconditional `fct:warp-asymp` (1)** (Paper I, Proposition `fct:warp-asymp` (1)). -/
 theorem fctWarpSolve_uncond {K4 : ℝ} (hK4 : 1 ≤ K4) : FctWarpSolveStmt K4 := by
@@ -591,18 +766,19 @@ theorem fctWarpSolve_uncond {K4 : ℝ} (hK4 : 1 ≤ K4) : FctWarpSolveStmt K4 :=
   have hc100 : 100 ≤ c := (le_max_left 100 c₀).trans hc
   have hc0 : 0 < c := by linarith only [hc100]
   have hc1 : 1 ≤ c := by linarith only [hc100]
-  obtain ⟨W, hWC, hWS, hWell, _⟩ := hcenter hε hc_ctr
+  obtain ⟨W, hWC, hWS, hWell⟩ := hcenter hε hc_ctr
   let I := Ioo (W.L_ctr / 2) (2 * W.L_ctr)
   let J := Ioo (-(3 / 2 * c ^ (-(1 / 2 : ℝ)))) (3 / 2 * c ^ (-(1 / 2 : ℝ)))
   let Ψ := fctChart (fctKappa c) (c ^ (-(2 / 3 : ℝ))) (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S)
   let a : ℝ × ℝ := (airyZero 1, 0)
   let r : ℝ := c ^ (-(7 / 6 : ℝ))
   let ρ : ℝ := Cρ * c ^ (-(4 / 3 : ℝ))
-  let G : ℝ × ℝ → ℝ × ℝ := fun p => toPairCLM (((warpN0 c : ℝ) : ℂ) * fctWarpI K4 ε c p.1 p.2)
-  let N : ℝ × ℝ → ℝ × ℝ := fun y => G (Function.invFunOn Ψ (I ×ˢ J) (a + y)) - warpMEquiv y
-  have hN0_pos : 0 < warpN0 c := warpN0_pos hc0
-  have hG_iff : ∀ p : ℝ × ℝ, G p = 0 ↔ fctWarpI K4 ε c p.1 p.2 = 0 := fun p => by
-    dsimp only [G]
+  have hN0_pos : 0 < warpN0 c := by
+    unfold warpN0
+    have hts : (1.06 : ℝ) ≤ warpTauStar := warpTauStar_ge
+    positivity
+  have hG_iff : ∀ p : ℝ × ℝ, warpG K4 ε c p = 0 ↔ fctWarpI K4 ε c p.1 p.2 = 0 := fun p => by
+    dsimp only [warpG]
     rw [toPairCLM_eq_zero_iff, mul_eq_zero]
     simp [hN0_pos.ne']
   have hinj : InjOn Ψ (I ×ˢ J) :=
@@ -611,193 +787,93 @@ theorem fctWarpSolve_uncond {K4 : ℝ} (hK4 : 1 ≤ K4) : FctWarpSolveStmt K4 :=
   have hsurj : closedBall a r ⊆ Ψ '' (I ×ˢ J) := W.h_surj
   have hbox_cond : c ^ (-(1 / 4 : ℝ)) ≤ pbTauLim ∧ K4 * c ^ (-(1 / 2 : ℝ)) ≤ 1 ∧ 100 ≤ c :=
     ⟨hc_tauLim, hK4t, hc100⟩
-  -- Bound on `‖N 0‖`
-  have hN0_norm : κ * ‖N 0‖ ≤ ρ / 2 := by
+  -- Bound on `‖warpN K4 ε c W 0‖`
+  have hN0_norm : κ * ‖warpN K4 ε c W 0‖ ≤ ρ / 2 := by
     have h0_mem : a + (0 : ℝ × ℝ) ∈ Ψ '' (I ×ˢ J) := hsurj (by rw [add_zero]; exact mem_closedBall_self (by positivity))
     obtain ⟨hp0_mem, hΨp0⟩ := Function.invFunOn_pos h0_mem
     let p₀ := Function.invFunOn Ψ (I ×ˢ J) (a + 0)
     have hΨp0_ball : Ψ p₀ ∈ closedBall a r := by
-      rw [hΨp0, add_zero]; exact mem_closedBall_self (by positivity)
+      dsimp only [p₀]; rw [hΨp0, add_zero]; exact mem_closedBall_self (by positivity)
     have hadm0 : (concreteInnerFamily K4 ε).adm c p₀.1 p₀.2 :=
       fctWarpChart_mem_adm hK4 hε hbox_cond W hWS hWell hp0_mem hΨp0_ball
-    have hû0 : -fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c (concreteBoxS K4 ε c)) (p₀.1, p₀.2) =
+    have hp0_2 : p₀.2 = 0 := by
+      have h2 := congrArg Prod.snd hΨp0
+      have h2' : c ^ (-(2 / 3 : ℝ)) * p₀.2 = c ^ (-(2 / 3 : ℝ)) * 0 := by
+        simpa [p₀, Ψ, fctChart, a] using h2
+      exact mul_left_cancel₀ (Real.rpow_pos_of_pos hc0 (-(2 / 3 : ℝ))).ne' h2'
+    have hû0 : -fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c (concreteBoxS K4 ε c)) (p₀.1, 0) =
         airyZero 1 := by
-      have := congrArg Prod.fst hΨp0
-      simpa [Ψ, fctChart, a, hWS] using this
+      have h1 := congrArg Prod.fst hΨp0
+      rw [← hp0_2]
+      dsimp only [p₀]
+      simpa [Ψ, fctChart, a, hWS] using h1
     have hres_bd : ‖((warpN0 c : ℝ) : ℂ) * fctWarpI K4 ε c p₀.1 p₀.2‖ ≤ C_R * c ^ (-(4 / 3 : ℝ)) := by
+      rw [hp0_2] at hadm0 ⊢
       rcases hε with rfl | rfl
-      · have h := (hres1 (le_trans (le_max_left _ _) hc_R) hadm0)
+      · have h := hres1 (le_trans (le_max_left _ _) hc_R) hadm0
         dsimp only at h
         rw [hû0, fctG0_airyZero, mul_zero, sub_zero] at h
         exact h.trans (mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity))
-      · have h := (hresm1 (le_trans (le_max_right _ _) hc_R) hadm0)
+      · have h := hresm1 (le_trans (le_max_right _ _) hc_R) hadm0
         dsimp only at h
         rw [hû0, fctG0_airyZero, mul_zero, sub_zero] at h
         exact h.trans (mul_le_mul_of_nonneg_right (le_max_right _ _) (by positivity))
-    have hN0_eq : N 0 = G p₀ := by dsimp only [N]; rw [map_zero, sub_zero]
+    have hN0_eq : warpN K4 ε c W 0 = warpG K4 ε c p₀ := by
+      dsimp only [warpN, p₀, Ψ, I, J, a]; rw [map_zero, sub_zero]
     rw [hN0_eq]
-    calc κ * ‖G p₀‖ ≤ κ * ‖((warpN0 c : ℝ) : ℂ) * fctWarpI K4 ε c p₀.1 p₀.2‖ :=
+    calc κ * ‖warpG K4 ε c p₀‖ ≤ κ * ‖((warpN0 c : ℝ) : ℂ) * fctWarpI K4 ε c p₀.1 p₀.2‖ :=
           mul_le_mul_of_nonneg_left (toPairCLM_norm_le _) hκ_pos.le
       _ ≤ κ * (C_R * c ^ (-(4 / 3 : ℝ))) := mul_le_mul_of_nonneg_left hres_bd hκ_pos.le
       _ = ρ / 2 := by dsimp only [ρ, Cρ]; ring
-  -- Lipschitz bound on `N` on `closedBall 0 r`
+  -- Lipschitz bound on `warpN K4 ε c W` on `closedBall 0 r`
   have hLip : ∀ y ∈ closedBall (0 : ℝ × ℝ) r, ∀ z ∈ closedBall (0 : ℝ × ℝ) r,
-      ‖N y - N z‖ ≤ 1 / (2 * κ) * ‖y - z‖ := by
+      ‖warpN K4 ε c W y - warpN K4 ε c W z‖ ≤ 1 / (2 * κ) * ‖y - z‖ := by
     have hderiv_bd : ∀ y ∈ closedBall (0 : ℝ × ℝ) r,
-        ∃ D_N : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ), HasFDerivWithinAt N D_N (closedBall (0 : ℝ × ℝ) r) y ∧
+        ∃ D_N : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ), HasFDerivWithinAt (warpN K4 ε c W) D_N (closedBall (0 : ℝ × ℝ) r) y ∧
           ‖D_N‖ ≤ 1 / (2 * κ) := by
       intro y hy
-      have hay_ball : a + y ∈ closedBall a r := by simpa [mem_closedBall, dist_eq_norm] using hy
-      obtain ⟨hp_mem, hΨp, hinv_fd⟩ := fctChart_inv_hasFDerivAt W hc0 (hsurj hay_ball)
-      set p := Function.invFunOn Ψ (I ×ˢ J) (a + y)
-      have hΨp_ball : Ψ p ∈ closedBall a r := by rw [hΨp]; exact hay_ball
-      have hadm : (concreteInnerFamily K4 ε).adm c p.1 p.2 :=
-        fctWarpChart_mem_adm hK4 hε hbox_cond W hWS hWell hp_mem hΨp_ball
-      have hpΩ : p ∈ concretePhaseDom W.ellMin ε c := W.h_rect_sub hp_mem
-      let uLp := FctPhaseBox.uL (fctKappa c) (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) p
-      let uAp := FctPhaseBox.uAlpha (fctKappa c) (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) p
-      let lam : ℝ := c ^ (-(2 / 3 : ℝ))
-      have huLp_eq : uLp = -fctKappa c *
-          W.S.V ((concreteEll1 ε c p.1, 1, p.2), W.S.A (concreteEll1 ε c p.1, 1, p.2)) := by
-        dsimp only [uLp, FctPhaseBox.uL]
-        rw [W.h_V_eq p hpΩ, mul_div_cancel_left₀ _ (W.box.sqrt_atil_pos hpΩ).ne']
-      have hVA_pos : 0 < W.S.V ((concreteEll1 ε c p.1, 1, p.2), W.S.A (concreteEll1 ε c p.1, 1, p.2)) := by
-        linarith [(W.h_S_V_bounds p hpΩ).1]
-      have huLp_ne : uLp ≠ 0 := by
-        rw [huLp_eq]
-        exact mul_ne_zero (neg_ne_zero.mpr (fctKappa_pos hc0).ne') hVA_pos.ne'
-      have hlam_ne : lam ≠ 0 := (Real.rpow_pos_of_pos hc0 _).ne'
-      have hinv_y := (hinv_fd huLp_ne hlam_ne).comp y ((hasFDerivAt_id y).const_add a)
-      -- Derivative of `fctWarpI` at `p`
-      let dL := Complex.I * ∫ τ in Ioi (0 : ℝ), fctWarpIntegrandDerivL K4 ε c p.1 p.2 τ
-      let dA := Complex.I * ∫ τ in Ioi (0 : ℝ), fctWarpIntegrandDerivAlpha K4 ε c p.1 p.2 τ
-      have hI_fd := hasFDerivAt_fctWarpI hK4 hε hc1 hτD p
-      have hG_fd : HasFDerivAt G (toPairCLM.comp (((warpN0 c : ℝ) : ℂ) • clmFromCols dL dA)) p := by
-        have h1 : HasFDerivAt (fun q : ℝ × ℝ => ((warpN0 c : ℝ) : ℂ) * fctWarpI K4 ε c q.1 q.2)
-            (((warpN0 c : ℝ) : ℂ) • clmFromCols dL dA) p := hI_fd.const_smul (((warpN0 c : ℝ) : ℂ))
-        exact toPairCLM.hasFDerivAt.comp p h1
-      have hcomp := hG_fd.comp y (by simpa only [← hΨp] using hinv_y)
-      have hN_fd : HasFDerivAt N
-          ((toPairCLM.comp (((warpN0 c : ℝ) : ℂ) • clmFromCols dL dA)).comp
-            ((invChartDerivEquiv uLp uAp lam huLp_ne hlam_ne).symm : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ)) -
-            (warpMEquiv : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ))) y :=
-        hcomp.sub warpMEquiv.toContinuousLinearMap.hasFDerivAt
-      set D_N := (toPairCLM.comp (((warpN0 c : ℝ) : ℂ) • clmFromCols dL dA)).comp
-        ((invChartDerivEquiv uLp uAp lam huLp_ne hlam_ne).symm : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ)) -
-        (warpMEquiv : (ℝ × ℝ) →L[ℝ] (ℝ × ℝ))
-      have hDN_eq : D_N = clmFromCols (D_N (1, 0)) (D_N (0, 1)) := by
-        ext ⟨v₁, v₂⟩
-        · have hv : (v₁, v₂) = v₁ • ((1 : ℝ), (0 : ℝ)) + v₂ • ((0 : ℝ), (1 : ℝ)) := by ext <;> simp
-          conv_lhs => rw [hv, map_add, map_smul, map_smul]
-          simp [clmFromCols_apply]
-        · have hv : (v₁, v₂) = v₁ • ((1 : ℝ), (0 : ℝ)) + v₂ • ((0 : ℝ), (1 : ℝ)) := by ext <;> simp
-          conv_lhs => rw [hv, map_add, map_smul, map_smul]
-          simp [clmFromCols_apply]
-      -- Compute `D_N (1, 0)` and `D_N (0, 1)`
-      have hcol1_eq : D_N (1, 0) = toPairCLM
-          (((warpN0 c / uLp : ℝ) : ℂ) * dL - Complex.I * deriv fctG0 (airyZero 1)) := by
-        dsimp only [D_N]
-        simp only [ContinuousLinearMap.sub_apply, ContinuousLinearMap.comp_apply,
-          ContinuousLinearMap.coe_coe, warpMEquiv_fst]
-        have hsym1 : (invChartDerivEquiv uLp uAp lam huLp_ne hlam_ne).symm (1, 0) = (uLp⁻¹, 0) := by
-          simp [invChartDerivEquiv, clmFromCols_apply]
-        rw [hsym1, ← map_sub]
-        congr 1
-        simp only [ContinuousLinearMap.smul_apply, clmFromCols_apply, Prod.smul_mk, smul_eq_mul,
-          zero_smul, add_zero, smul_eq_mul]
-        push_cast; ring
-      have hc23_inv : lam⁻¹ = c ^ (2 / 3 : ℝ) := by
-        dsimp only [lam]; rw [Real.rpow_neg hc0.le, inv_inv]
-      have hcol2_eq : D_N (0, 1) = toPairCLM
-          (((c ^ (2 / 3 : ℝ) * warpN0 c : ℝ) : ℂ) * dA - warpW2 -
-            ((c ^ (2 / 3 : ℝ) * uAp : ℝ) : ℂ) * (((warpN0 c / uLp : ℝ) : ℂ) * dL)) := by
-        dsimp only [D_N]
-        simp only [ContinuousLinearMap.sub_apply, ContinuousLinearMap.comp_apply,
-          ContinuousLinearMap.coe_coe, warpMEquiv_snd]
-        have hsym2 : (invChartDerivEquiv uLp uAp lam huLp_ne hlam_ne).symm (0, 1) =
-            (-uAp / (uLp * lam), lam⁻¹) := by
-          simp [invChartDerivEquiv, clmFromCols_apply]
-        rw [hsym2, ← map_sub]
-        congr 1
-        simp only [ContinuousLinearMap.smul_apply, clmFromCols_apply, smul_eq_mul]
-        have hce : (-uAp / (uLp * lam) : ℝ) = -(c ^ (2 / 3 : ℝ) * uAp) / uLp := by
-          rw [div_eq_mul_inv, mul_inv, ← hc23_inv]; ring
-        rw [hce, hc23_inv]
-        push_cast; ring
-      -- Norm bounds on `D_N (1, 0)` and `D_N (0, 1)`
-      have hdL_bd : ‖((warpN0 c / uLp : ℝ) : ℂ) * dL - Complex.I * deriv fctG0 (airyZero 1)‖ ≤
-          C_DL * c ^ (-(1 / 2 : ℝ)) := by
-        have h_eq : ((warpN0 c / uLp : ℝ) : ℂ) * dL =
-            ((warpN0 c / (-fctKappa c * (concreteBoxS K4 ε c).V
-              ((concreteEll1 ε c p.1, 1, p.2), (concreteBoxS K4 ε c).A (concreteEll1 ε c p.1, 1, p.2))) : ℝ) : ℂ) *
-              (Complex.I * ∫ τ in Ioi (0 : ℝ), fctWarpIntegrandDerivL K4 ε c p.1 p.2 τ) := by
-          rw [huLp_eq, hWS]
-        rw [h_eq]
-        rcases hε with rfl | rfl
-        · exact (hdL1 (le_trans (le_max_left _ _) hc_DL) hadm).trans
-            (mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity))
-        · exact (hdLm1 (le_trans (le_max_right _ _) hc_DL) hadm).trans
-            (mul_le_mul_of_nonneg_right (le_max_right _ _) (by positivity))
-      have hdA_bd : ‖((c ^ (2 / 3 : ℝ) * warpN0 c : ℝ) : ℂ) * dA - warpW2‖ ≤
-          C_DA * c ^ (-(1 / 2 : ℝ)) := by
-        dsimp only [warpW2, dA]
-        rcases hε with rfl | rfl
-        · exact (hdA1 (le_trans (le_max_left _ _) hc_DA) hadm).trans
-            (mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity))
-        · exact (hdAm1 (le_trans (le_max_right _ _) hc_DA) hadm).trans
-            (mul_le_mul_of_nonneg_right (le_max_right _ _) (by positivity))
-      have huA_bd : |c ^ (2 / 3 : ℝ) * uAp| ≤ C_uA * c ^ (-(1 / 2 : ℝ)) := by
-        have hc34 : c ^ (-(3 / 4 : ℝ)) ≤ c ^ (-(1 / 2 : ℝ)) :=
-          Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
-        have h1 : |c ^ (2 / 3 : ℝ) * uAp| ≤ C_uA * c ^ (-(3 / 4 : ℝ)) := by
+      obtain ⟨D_N, hN_fd, hN_bd⟩ := warpN_deriv_bound C_DL C_DA C_uA hK4 hε hc100 hc_tauLim hτD hK4t
+        hCDL0 hCuA0
+        (fun {c' L1 α} hadm hceq => by
+          subst hceq
           rcases hε with rfl | rfl
-          · exact (huA1 hc100 hτD hWS hpΩ hadm.2.2.1).trans
+          · exact (hdL1 (le_trans (le_max_left _ _) hc_DL) hadm).trans
               (mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity))
-          · exact (huAm1 hc100 hτD hWS hpΩ hadm.2.2.1).trans
-              (mul_le_mul_of_nonneg_right (le_max_right _ _) (by positivity))
-        exact h1.trans (mul_le_mul_of_nonneg_left hc34 hCuA0)
-      have hdL_tot : ‖((warpN0 c / uLp : ℝ) : ℂ) * dL‖ ≤ C_L1_bd := by
-        have hc12 : c ^ (-(1 / 2 : ℝ)) ≤ 1 := Real.rpow_le_one_of_one_le_of_nonpos hc1 (by norm_num)
-        calc ‖((warpN0 c / uLp : ℝ) : ℂ) * dL‖
-            = ‖(((warpN0 c / uLp : ℝ) : ℂ) * dL - Complex.I * deriv fctG0 (airyZero 1)) +
-                Complex.I * deriv fctG0 (airyZero 1)‖ := by ring_nf
-          _ ≤ ‖((warpN0 c / uLp : ℝ) : ℂ) * dL - Complex.I * deriv fctG0 (airyZero 1)‖ +
-                ‖Complex.I * deriv fctG0 (airyZero 1)‖ := norm_add_le _ _
-          _ ≤ C_DL * c ^ (-(1 / 2 : ℝ)) + ‖Complex.I * deriv fctG0 (airyZero 1)‖ :=
-              add_le_add hdL_bd le_rfl
-          _ ≤ C_DL * 1 + ‖Complex.I * deriv fctG0 (airyZero 1)‖ := by gcongr
-          _ = C_L1_bd := by dsimp only [C_L1_bd]; ring
-      have hDN1_bd : ‖D_N (1, 0)‖ ≤ C_DL * c ^ (-(1 / 2 : ℝ)) := by
-        rw [hcol1_eq]; exact (toPairCLM_norm_le _).trans hdL_bd
-      have hDN2_bd : ‖D_N (0, 1)‖ ≤ (C_DA + C_uA * C_L1_bd) * c ^ (-(1 / 2 : ℝ)) := by
-        rw [hcol2_eq]
-        refine (toPairCLM_norm_le _).trans ?_
-        calc ‖(((c ^ (2 / 3 : ℝ) * warpN0 c : ℝ) : ℂ) * dA - warpW2) -
-              ((c ^ (2 / 3 : ℝ) * uAp : ℝ) : ℂ) * (((warpN0 c / uLp : ℝ) : ℂ) * dL)‖
-            ≤ ‖((c ^ (2 / 3 : ℝ) * warpN0 c : ℝ) : ℂ) * dA - warpW2‖ +
-              ‖((c ^ (2 / 3 : ℝ) * uAp : ℝ) : ℂ) * (((warpN0 c / uLp : ℝ) : ℂ) * dL)‖ := norm_sub_le _ _
-          _ ≤ C_DA * c ^ (-(1 / 2 : ℝ)) + (C_uA * c ^ (-(1 / 2 : ℝ))) * C_L1_bd := by
-              refine add_le_add hdA_bd ?_
-              rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
-              exact mul_le_mul huA_bd hdL_tot (norm_nonneg _) (by positivity)
-          _ = (C_DA + C_uA * C_L1_bd) * c ^ (-(1 / 2 : ℝ)) := by ring
-      have hDN_norm : ‖D_N‖ ≤ 1 / (2 * κ) := by
-        calc ‖D_N‖ = ‖clmFromCols (D_N (1, 0)) (D_N (0, 1))‖ := by rw [← hDN_eq]
-          _ ≤ ‖D_N (1, 0)‖ + ‖D_N (0, 1)‖ := clmFromCols_norm_le _ _
-          _ ≤ C_DL * c ^ (-(1 / 2 : ℝ)) + (C_DA + C_uA * C_L1_bd) * c ^ (-(1 / 2 : ℝ)) :=
-              add_le_add hDN1_bd hDN2_bd
-          _ = C_Lip * c ^ (-(1 / 2 : ℝ)) := by dsimp only [C_Lip]; ring
-          _ ≤ 1 / (2 * κ) := hLip_le
-      exact ⟨D_N, hN_fd.hasFDerivWithinAt, hDN_norm⟩
-    intro y hy z hz
+          · exact (hdLm1 (le_trans (le_max_right _ _) hc_DL) hadm).trans
+              (mul_le_mul_of_nonneg_right (le_max_right _ _) (by positivity)))
+        (fun {L1 α} hadm => by
+          rcases hε with rfl | rfl
+          · exact (hdA1 (le_trans (le_max_left _ _) hc_DA) hadm).trans
+              (mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity))
+          · exact (hdAm1 (le_trans (le_max_right _ _) hc_DA) hadm).trans
+              (mul_le_mul_of_nonneg_right (le_max_right _ _) (by positivity)))
+        (fun {W' p'} hW'S hp' hadm' => by
+          rcases hε with rfl | rfl
+          · exact (huA1 hc100 hτD hW'S hp' hadm').trans
+              (mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity))
+          · exact (huAm1 hc100 hτD hW'S hp' hadm').trans
+              (mul_le_mul_of_nonneg_right (le_max_right _ _) (by positivity)))
+        W hWS hWell hy
+      exact ⟨D_N, hN_fd, hN_bd.trans hLip_le⟩
+    classical
     choose D_N hD_fd hD_bd using hderiv_bd
+    intro y hy z hz
+    have hD_fd' : ∀ w ∈ closedBall (0 : ℝ × ℝ) r,
+        HasFDerivWithinAt (warpN K4 ε c W)
+          (if hw : w ∈ closedBall (0 : ℝ × ℝ) r then D_N w hw else 0)
+          (closedBall (0 : ℝ × ℝ) r) w := fun w hw => by
+      simp only [hw, ↓reduceDIte]; exact hD_fd w hw
+    have hD_bd' : ∀ w ∈ closedBall (0 : ℝ × ℝ) r,
+        ‖if hw : w ∈ closedBall (0 : ℝ × ℝ) r then D_N w hw else 0‖ ≤ 1 / (2 * κ) := fun w hw => by
+      simp only [hw, ↓reduceDIte]; exact hD_bd w hw
     exact (convex_closedBall (0 : ℝ × ℝ) r).norm_image_sub_le_of_norm_hasFDerivWithin_le
-      (fun w hw => hD_fd w hw) (fun w hw => hD_bd w hw) hz hy
+      hD_fd' hD_bd' hz hy
   -- Apply `fct_zero_of_chart`
-  have hF_eq : ∀ y : ℝ × ℝ, G (Function.invFunOn Ψ (I ×ˢ J) (a + y)) = warpMEquiv y + N y := by
-    intro y; dsimp only [N]; abel
+  have hF_eq : ∀ y : ℝ × ℝ,
+      warpG K4 ε c (Function.invFunOn Ψ (I ×ˢ J) (a + y)) = warpMEquiv y + warpN K4 ε c W y := by
+    intro y; dsimp only [warpN, Ψ, I, J, a]; abel
   obtain ⟨p, hp_mem, hp_ball, hp_zero, hp_uniq⟩ :=
-    fct_zero_of_chart Ψ (I ×ˢ J) G a (by positivity) hρ_le_r hinj hsurj
+    fct_zero_of_chart Ψ (I ×ˢ J) (warpG K4 ε c) a (by positivity) hρ_le_r hinj hsurj
       warpMEquiv hκ_pos hκ_M hF_eq hLip hN0_norm
   have hcls_p : FctWarpClass C_cls ε c p.1 p.2 :=
     hofChart hε hc_cls1 W hWC hp_mem.1 hp_mem.2 hp_ball
@@ -806,7 +882,7 @@ theorem fctWarpSolve_uncond {K4 : ℝ} (hK4 : 1 ≤ K4) : FctWarpSolveStmt K4 :=
   have hzero_p : FctWarpZero K4 ε c p.1 p.2 := ⟨hint_p, (hG_iff p).mp hp_zero⟩
   refine ⟨p, ⟨hcls_p, hzero_p⟩, ?_⟩
   rintro p' ⟨hcls_p', hzero_p'⟩
-  obtain ⟨W', _, hW'S, _, hof_p'⟩ := htoChart ε c hε hc_cls2
+  obtain ⟨W', _, hW'S, _, hof_p'⟩ := htoChart hε hc_cls2
   obtain ⟨_, hp'_J, hp'_ball⟩ := hof_p' hcls_p'
   have hp'_ball_W : Ψ p' ∈ closedBall a r := by
     change fctChart (fctKappa c) (c ^ (-(2 / 3 : ℝ))) (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) p' ∈
@@ -815,7 +891,8 @@ theorem fctWarpSolve_uncond {K4 : ℝ} (hK4 : 1 ≤ K4) : FctWarpSolveStmt K4 :=
     exact hp'_ball
   have hL_pos : 0 < W.L_ctr := by linarith only [W.hL_scale.1, Real.rpow_pos_of_pos hc0 (-(2 / 3 : ℝ))]
   have hdiff_L : |p'.1 - W.L_ctr| ≤ Real.pi ^ 2 * (|C_ctr| + |C_cls|) * c ^ (-(2 : ℝ)) := by
-    refine l1_sub_ctr_of_exp_close hc100 hcls_p'.1 hL_pos ?_ ?_
+    rw [add_comm |C_ctr| |C_cls|]
+    refine l1_sub_ctr_of_exp_close (Δ5 := ctDelta5 ε c) hc100 hcls_p'.1 hL_pos ?_ ?_
     · exact hcls_p'.2.1
     · exact W.hT_ctr.trans (mul_le_mul_of_nonneg_right hWC (by positivity))
   have hdiff_lt : |p'.1 - W.L_ctr| < W.L_ctr / 2 := by
@@ -830,7 +907,7 @@ theorem fctWarpSolve_uncond {K4 : ℝ} (hK4 : 1 ≤ K4) : FctWarpSolveStmt K4 :=
       _ ≤ W.L_ctr / 2 := by linarith only [W.hL_scale.1]
   have hp'_I : p'.1 ∈ I := by
     have h := abs_lt.mp hdiff_lt
-    exact ⟨by linarith only [h.1], by linarith only [h.2]⟩
+    exact ⟨by linarith only [h.1], by linarith only [h.2, hL_pos]⟩
   exact hp_uniq p' ⟨hp'_I, hp'_J⟩ hp'_ball_W ((hG_iff p').mpr hzero_p'.2)
 
 /-- info: 'FormalResearch.SignUncertainty.fctWarpSolve_uncond' depends on axioms: [propext, Classical.choice, Quot.sound] -/

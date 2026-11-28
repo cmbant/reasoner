@@ -9,6 +9,7 @@ public import FormalResearch.SignUncertainty.FctRSymbol
 public import FormalResearch.SignUncertainty.FctDcomp
 public import FormalResearch.SignUncertainty.FctWarpAdmiss
 public import FormalResearch.SignUncertainty.FctWarpZero
+public import FormalResearch.SignUncertainty.FctWarpSolve
 public import FormalResearch.SignUncertainty.FctSplittingDescent
 public import FormalResearch.SignUncertainty.FctDescentOfRay
 public import FormalResearch.SignUncertainty.FctSplittingSegment
@@ -127,32 +128,34 @@ structure FctMainHankelInputs where
   K4 : ℝ
   /-- `K₄ ≥ 1`. -/
   K4_ge_one : 1 ≤ K4
-  /-- `fct:warp-asymp` (1) (`FctWarpSolveStmt`): exact complex zero solve, a unique `(L₁, α)` with `I_ε(L₁, α) = 0`, `|T₁ - Δ₅^ε(c)| ≤ C c⁻¹`,
-  `|α| ≤ C c^{-2/3}`. -/
-  warp_solve : FctWarpSolveStmt K4
   /-- `fct:physical-positive` (iii)-(iv) with its inputs `fct:warp-asymp` (2)-(3), `fct:splitting`, `fct:unscaled-cusp`,
   `fct:cusp-edge`, `uct:seed-asymp` (1)-(2) (`(fct:hg1-win)`-`(fct:hg1-mac)`), `fct:bump-5`, `fct:bump-sym-check`,
   `uct:pos-floor` (`Kfl = K_* ≥ 1`): `K₀, K₁` can be chosen independently of `K_d` so that the density of `W̃_c^ε` is positive on
   `L ≥ L_T`, i.e. `f ≥ 0` on `Δ ≥ T₁ + (2K_d/β₁) c^{-3/4}`. -/
   physical_positive : ∃ Kfl K0 K1 : ℝ, 1 ≤ Kfl ∧ 0 < K0 ∧ 0 < K1 ∧ ∀ Kd : ℝ, 0 < Kd → ∃ c₀ : ℝ,
     ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
-      ∀ Δ : ℝ, fctWarpT1 warp_solve ε c + 2 * Kd / hankelBeta1 * c ^ (-(3 / 4 : ℝ)) ≤ Δ →
-        0 ≤ admissF c (ctWtot (fctPhiHat warp_solve) (fctDcomp K4 (fctWarpAlpha warp_solve))
-          (fctBphys fctChi K4 (fctWarpT1 warp_solve) (fctWarpAlpha warp_solve) (fctNc warp_solve)) ε c Kfl K0 K1 Kd) Δ
+      ∀ Δ : ℝ, fctWarpT1 (fctWarpSolve_uncond K4_ge_one) ε c + 2 * Kd / hankelBeta1 * c ^ (-(3 / 4 : ℝ)) ≤ Δ →
+        0 ≤ admissF c (ctWtot (fctPhiHat (fctWarpSolve_uncond K4_ge_one))
+          (fctDcomp K4 (fctWarpAlpha (fctWarpSolve_uncond K4_ge_one)))
+          (fctBphys fctChi K4 (fctWarpT1 (fctWarpSolve_uncond K4_ge_one))
+            (fctWarpAlpha (fctWarpSolve_uncond K4_ge_one)) (fctNc (fctWarpSolve_uncond K4_ge_one))) ε c Kfl K0 K1 Kd) Δ
 
 /-- `Φ̂_c` of the inputs (`fct:splitting`, `(fct:Phihat-def)`): the definition `fctPhiHat`. -/
-noncomputable abbrev FctMainHankelInputs.PhiHat (I : FctMainHankelInputs) : ℝ → ℝ → ℂ → ℂ := fctPhiHat I.warp_solve
+noncomputable abbrev FctMainHankelInputs.PhiHat (I : FctMainHankelInputs) : ℝ → ℝ → ℂ → ℂ :=
+  fctPhiHat (fctWarpSolve_uncond I.K4_ge_one)
 
 /-- `N_c` of the inputs (`fct:splitting`, `(fct:Phihat-def)`): the definition `fctNc`. -/
-noncomputable abbrev FctMainHankelInputs.Nc (I : FctMainHankelInputs) : ℝ → ℝ → ℝ := fctNc I.warp_solve
+noncomputable abbrev FctMainHankelInputs.Nc (I : FctMainHankelInputs) : ℝ → ℝ → ℝ :=
+  fctNc (fctWarpSolve_uncond I.K4_ge_one)
 
 /-- **`(fct:F-38-bnd)`** (`fct:splitting` (1), former field `descent`/`descent_ray`): `|F(σ+iy)| ≤ C c⁻¹/log(2+|y|)` on `5/16 ≤ σ ≤ 7/16` (`fctDescent_uncond`). -/
-theorem FctMainHankelInputs.descent (I : FctMainHankelInputs) : FctDescentStmt I.warp_solve :=
-  fctDescent_uncond I.K4_ge_one I.warp_solve
+theorem FctMainHankelInputs.descent (I : FctMainHankelInputs) :
+    FctDescentStmt (fctWarpSolve_uncond I.K4_ge_one) :=
+  fctDescent_uncond I.K4_ge_one (fctWarpSolve_uncond I.K4_ge_one)
 
-/-- `fct:splitting` (1)-(2) for `Φ̂_c` (`FctSplittingStmt`; former fields `splitting`/`splitting_rest`), proved unconditionally from `warp_solve` (`fctSplitting_uncond`). -/
+/-- `fct:splitting` (1)-(2) for `Φ̂_c` (`FctSplittingStmt`; former fields `splitting`/`splitting_rest`), proved unconditionally (`fctSplitting_uncond`). -/
 theorem FctMainHankelInputs.splitting (I : FctMainHankelInputs) : FctSplittingStmt I.PhiHat :=
-  fctSplitting_uncond I.K4_ge_one I.warp_solve
+  fctSplitting_uncond I.K4_ge_one (fctWarpSolve_uncond I.K4_ge_one)
 
 /-- `fct:splitting` (2): `N_c = 1 + O_{K₄}(c⁻¹)` (the former field `splitting_norm`), from `descent` (`fctSplittingNorm_of_descent`). -/
 theorem FctMainHankelInputs.splitting_norm (I : FctMainHankelInputs) : FctSplittingNormStmt I.Nc :=
@@ -160,18 +163,21 @@ theorem FctMainHankelInputs.splitting_norm (I : FctMainHankelInputs) : FctSplitt
 
 /-- Integrability of the integrals defining `Ψ_c` and the Cauchy splitting `F_±` (`FctSplittingIntStmt`; the former field `splitting_int`), from `descent`
 (`fctSplittingInt_of_descent`): no Bochner junk value enters `fctPhiHat`, `fctNc`. -/
-theorem FctMainHankelInputs.splitting_int (I : FctMainHankelInputs) : FctSplittingIntStmt I.warp_solve :=
+theorem FctMainHankelInputs.splitting_int (I : FctMainHankelInputs) :
+    FctSplittingIntStmt (fctWarpSolve_uncond I.K4_ge_one) :=
   fctSplittingInt_of_descent I.K4_ge_one I.descent
 
-/-- `T₁ = (c/π²) e^{L₁}` of the zero pair of `warp_solve` (`fct:warp-asymp` (1)). -/
-noncomputable abbrev FctMainHankelInputs.T1 (I : FctMainHankelInputs) : ℝ → ℝ → ℝ := fctWarpT1 I.warp_solve
+/-- `T₁ = (c/π²) e^{L₁}` of the zero pair of `fctWarpSolve_uncond` (`fct:warp-asymp` (1)). -/
+noncomputable abbrev FctMainHankelInputs.T1 (I : FctMainHankelInputs) : ℝ → ℝ → ℝ :=
+  fctWarpT1 (fctWarpSolve_uncond I.K4_ge_one)
 
-/-- `α` of the zero pair of `warp_solve` (`fct:warp-asymp` (1)). -/
-noncomputable abbrev FctMainHankelInputs.alpha (I : FctMainHankelInputs) : ℝ → ℝ → ℝ := fctWarpAlpha I.warp_solve
+/-- `α` of the zero pair of `fctWarpSolve_uncond` (`fct:warp-asymp` (1)). -/
+noncomputable abbrev FctMainHankelInputs.alpha (I : FctMainHankelInputs) : ℝ → ℝ → ℝ :=
+  fctWarpAlpha (fctWarpSolve_uncond I.K4_ge_one)
 
-/-- The size bounds of `fct:warp-asymp` (1) for the chosen pair (the former field `warp_zero`), from `warp_solve`. -/
+/-- The size bounds of `fct:warp-asymp` (1) for the chosen pair (the former field `warp_zero`), from `fctWarpSolve_uncond`. -/
 theorem FctMainHankelInputs.warp_zero (I : FctMainHankelInputs) : FctWarpZeroStmt I.T1 I.alpha :=
-  fctWarpZero_of_solve I.warp_solve
+  fctWarpZero_of_solve (fctWarpSolve_uncond I.K4_ge_one)
 
 /-- `D_{τ₁}` of the inputs (`fct:comp-D`). -/
 noncomputable abbrev FctMainHankelInputs.Dcomp (I : FctMainHankelInputs) : ℝ → ℝ → ℂ → ℂ :=
