@@ -30,7 +30,7 @@ open FormalResearch.ModularBootstrap.PoissonJensen
 open FormalResearch.Special
 
 private lemma spinS4_4_2_finish {w₀ : ℂ} {R C_pj : ℝ} {f_sub : ℂ → ℂ}
-    (hR : 0 < R) (hw₀_norm : ‖w₀‖ ≤ 2 * R + 1 / 2)
+    (_hR : 0 < R) (hw₀_norm : ‖w₀‖ ≤ 2 * R + 1 / 2)
     (han_disc : AnalyticOnNhd ℂ f_sub (closedBall w₀ (1 / 2 * (1 + ‖w₀‖) ^ (-(1 / 2 : ℝ)))))
     (hf_sub_ne : f_sub w₀ ≠ 0)
     (hB_ae : ∀ᵐ w ∂(volume.restrict (ball w₀ (1 / 2 * (1 + ‖w₀‖) ^ (-(1 / 2 : ℝ))))),
