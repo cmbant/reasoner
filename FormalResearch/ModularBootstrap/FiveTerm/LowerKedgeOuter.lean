@@ -27,9 +27,9 @@ noncomputable section
 private lemma kedge_outer_sp_part {v₀ δ_loc θ K_sp Kχ K_B vstar c' x' : ℝ}
     (hv₀_pos : 0 < v₀) (hδ_pos : 0 < δ_loc) (hδ1 : δ_loc ≤ 1)
     (hv_mδ : v₀ ≤ vstar - δ_loc) (hθ0 : 0 < θ) (hθ1 : θ < 1)
-    (hKsp0 : 0 ≤ K_sp) (hKχ_pos : 0 < Kχ) (hKB : 0 ≤ K_B)
+    (_hKsp0 : 0 ≤ K_sp) (hKχ_pos : 0 < Kχ) (hKB : 0 ≤ K_B)
     (hc'_pos : 0 < c') (hlam_ge : 1 ≤ c' * δ_loc ^ 2)
-    (hx_gt : xiStar < x') (hvstar_F : edgeF vstar = x')
+    (_hx_gt : xiStar < x') (hvstar_F : edgeF vstar = x')
     (hsp : ∀ {φ φ1 f f1 f2 : ℝ → ℝ} {A A1 A2 : ℝ → ℂ} {KA lam : ℝ},
       Phase ((4 * π / 3) * edgeF' v₀) ((4 * π / 3) * (1 + 8 * π + 16 * π ^ 2)) φ φ1 f f1 f2 →
       D2 (Ioo (-1 : ℝ) 1) A A1 A2 KA → (∀ t, θ ≤ |t| → A t = 0) → 1 ≤ lam →
@@ -51,15 +51,16 @@ private lemma kedge_outer_sp_part {v₀ δ_loc θ K_sp Kχ K_B vstar c' x' : ℝ
       √(2 / 3) * (K_sp * (4 * Kχ * K_B) / δ_loc ^ 2) / c' := by
   intro χv e
   have hpi := Real.pi_pos
-  have hχ_cont : Continuous χ := continuous_iff_continuousAt.mpr fun t =>
-    continuousAt_ofReal.mp ((hχ_D2.cont0 t (mem_univ t)).continuousAt univ_mem)
+  have hχ_cont : Continuous χ := Complex.reCLM.continuous.comp
+    (continuous_iff_continuousAt.mpr fun t => (hχ_D2.d1 t (mem_univ t)).continuousAt)
   have hχv_cont : Continuous χv := hχ_cont.comp ((continuous_id.sub continuous_const).div_const δ_loc)
   let χBs : ℝ → ℂ := fun v => (χv v : ℂ) * B v * e v
-  have hχBs_int : IntegrableOn χBs (Ioi 0) :=
-    (hB_i.bdd_mul (Complex.continuous_ofReal.comp hχv_cont).aestronglyMeasurable
+  have hχBs_int' : IntegrableOn (fun v => (χv v : ℂ) * (B v * e v)) (Ioi 0) :=
+    hB_i.bdd_mul (Complex.continuous_ofReal.comp hχv_cont).aestronglyMeasurable
       ((ae_restrict_mem measurableSet_Ioi).mono fun v _ => by
-        simpa using hχ_D2.b0 ((v - vstar) / δ_loc) (mem_univ _))).congr_fun
-      (fun v _ => by dsimp [χBs, e]; ring) measurableSet_Ioi
+        simpa using hχ_D2.b0 ((v - vstar) / δ_loc) (mem_univ _))
+  have hχBs_int : IntegrableOn χBs (Ioi 0) :=
+    hχBs_int'.congr_fun (fun v _ => by dsimp [χBs, e]; ring) measurableSet_Ioi
   have hχBs_supp : ∀ v, v ∉ Ioo (vstar - δ_loc) (vstar + δ_loc) → χBs v = 0 := fun v hv => by
     have hab : δ_loc ≤ |v - vstar| := by
       rw [mem_Ioo, not_and_or, not_lt, not_lt] at hv
@@ -85,9 +86,13 @@ private lemma kedge_outer_sp_part {v₀ δ_loc θ K_sp Kχ K_B vstar c' x' : ℝ
     have hsc_c : Continuous fun t => vstar + δ_loc * t := continuous_const.add (continuous_const.mul continuous_id)
     have hδ2 : δ_loc ^ 2 ≤ 1 := pow_le_one₀ hδ_pos.le hδ1
     exact {
-      d1 := fun t ht => ((hBl.d1 (vstar + δ_loc * t) (hmem t ht)).comp t (hsc t)).congr_deriv (by ring)
-      d2 := fun t ht => (((hBl.d2 (vstar + δ_loc * t) (hmem t ht)).comp t (hsc t)).const_mul
-        (δ_loc : ℂ)).congr_deriv (by push_cast; ring)
+      d1 := fun t ht => by
+        change HasDerivAt (B ∘ fun u => vstar + δ_loc * u) _ t
+        exact ((hBl.d1 (vstar + δ_loc * t) (hmem t ht)).scomp t (hsc t)).congr_deriv (by rw [Complex.real_smul])
+      d2 := fun t ht => by
+        have h1 : HasDerivAt (Bl1 ∘ fun u => vstar + δ_loc * u) (δ_loc • Bl2 (vstar + δ_loc * t)) t :=
+          (hBl.d2 (vstar + δ_loc * t) (hmem t ht)).scomp t (hsc t)
+        exact (h1.const_mul (δ_loc : ℂ)).congr_deriv (by rw [Complex.real_smul]; push_cast; ring)
       c2 := continuousOn_const.mul (hBl.c2.comp hsc_c.continuousOn fun t ht => hmem t ht)
       K0 := hKB
       b0 := fun t ht => hBl.b0 (vstar + δ_loc * t) (hmem t ht)
@@ -98,16 +103,23 @@ private lemma kedge_outer_sp_part {v₀ δ_loc θ K_sp Kχ K_B vstar c' x' : ℝ
         rw [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _)]
         exact (mul_le_mul hδ2 (hBl.b2 _ (hmem t ht)) (norm_nonneg _) zero_le_one).trans_eq (one_mul _) }
   have hD2_A : D2 (Ioo (-1 : ℝ) 1) A A1 A2 (4 * Kχ * K_B) := by
-    have hd := D2_mulC (hχ_D2.mono (fun _ _ => mem_univ _) (by rfl)) hD2_Bl_sc
-    refine {
-      d1 := fun t ht => (hd.d1 t ht).congr_deriv (by dsimp [A1]; ring)
-      d2 := fun t ht => ((hd.d2 t ht).congr_of_eventuallyEq (Eventually.of_forall fun u => by
-        dsimp [A1]; ring)).congr_deriv (by dsimp [A2]; ring)
-      c2 := hd.c2.congr (fun t _ => by dsimp [A2]; ring)
+    have hχ_Ioo : D2 (Ioo (-1 : ℝ) 1) (fun t => (χ t : ℂ)) (fun t => (χ1 t : ℂ)) (fun t => (χ2 t : ℂ)) Kχ := {
+      d1 := fun t _ => hχ_D2.d1 t (mem_univ _)
+      d2 := fun t _ => hχ_D2.d2 t (mem_univ _)
+      c2 := hχ_D2.c2.mono fun _ _ => mem_univ _
+      K0 := hχ_D2.K0
+      b0 := fun t _ => hχ_D2.b0 t (mem_univ _)
+      b1 := fun t _ => hχ_D2.b1 t (mem_univ _)
+      b2 := fun t _ => hχ_D2.b2 t (mem_univ _) }
+    have hd := D2_mulC hχ_Ioo hD2_Bl_sc
+    exact {
+      d1 := hd.d1
+      d2 := hd.d2
+      c2 := hd.c2
       K0 := hd.K0
-      b0 := fun t ht => hd.b0 t ht
-      b1 := fun t ht => by dsimp [A1]; simpa using hd.b1 t ht
-      b2 := fun t ht => by dsimp [A2]; simpa using hd.b2 t ht }
+      b0 := hd.b0
+      b1 := hd.b1
+      b2 := hd.b2 }
   let φ_sp := fun t => (phiDual (vstar + δ_loc * t) x' - phiDual vstar x') / δ_loc ^ 2
   let f_sp := fun t => (4 * π / 3) * edgeF' (vstar + δ_loc * t)
   have hph := phiDual_phase hv₀_pos hδ_pos hδ1 hv_mδ hvstar_F
@@ -116,10 +128,14 @@ private lemma kedge_outer_sp_part {v₀ δ_loc θ K_sp Kχ K_B vstar c' x' : ℝ
       (δ_loc : ℂ) * Complex.exp (Complex.I * ((c' * phiDual vstar x' : ℝ) : ℂ)) *
         ∫ t : ℝ, A t * Complex.exp (Complex.I * ((c' * δ_loc ^ 2 : ℝ) : ℂ) * ((φ_sp t : ℝ) : ℂ)) := by
     have hv_lo_pos : 0 < vstar - δ_loc := hv₀_pos.trans_le hv_mδ
-    have h_sub_ioi : Ioc (vstar - δ_loc) (vstar + δ_loc) ⊆ Ioi 0 := fun v hv => hv_lo_pos.trans hv.1
     have h_set_eq : ∫ v in Ioi (0 : ℝ), χBs v = ∫ v in Ioc (vstar - δ_loc) (vstar + δ_loc), χBs v := by
-      refine (setIntegral_eq_setIntegral_of_forall_compl_eq_zero h_sub_ioi ?_).symm
-      intro _ _ hv_nin; exact hχBs_supp _ fun hv_ioo => hv_nin ⟨hv_ioo.1, hv_ioo.2.le⟩
+      have h1 : ∫ v in Ioi (0 : ℝ), χBs v = ∫ v : ℝ, χBs v :=
+        setIntegral_eq_integral_of_forall_compl_eq_zero fun v hv =>
+          hχBs_supp v fun hmem => hv (hv_lo_pos.trans hmem.1)
+      have h2 : ∫ v in Ioc (vstar - δ_loc) (vstar + δ_loc), χBs v = ∫ v : ℝ, χBs v :=
+        setIntegral_eq_integral_of_forall_compl_eq_zero fun v hv =>
+          hχBs_supp v fun hmem => hv ⟨hmem.1, hmem.2.le⟩
+      rw [h1, h2]
     have h_int_eq : ∫ v in Ioc (vstar - δ_loc) (vstar + δ_loc), χBs v =
         ∫ v in (vstar - δ_loc)..(vstar + δ_loc), χBs v := (intervalIntegral.integral_of_le (by linarith)).symm
     have h_cov := intervalIntegral.smul_integral_comp_mul_add χBs δ_loc vstar (a := -1) (b := 1)
@@ -130,21 +146,22 @@ private lemma kedge_outer_sp_part {v₀ δ_loc θ K_sp Kχ K_B vstar c' x' : ℝ
     have h_int_t : ∫ t in (-1 : ℝ)..1, χBs (vstar + δ_loc * t) = ∫ t : ℝ, χBs (vstar + δ_loc * t) := by
       rw [intervalIntegral.integral_of_le (by norm_num : (-1 : ℝ) ≤ 1)]
       refine setIntegral_eq_integral_of_forall_compl_eq_zero fun t ht => hχBs_supp _ fun hmem => ht ?_
-      rw [mem_Ioc]; constructor <;> nlinarith [hmem.1, hmem.2]
+      rw [mem_Ioc]; exact ⟨by nlinarith [hmem.1], by nlinarith [hmem.2]⟩
     have h_pt : ∀ t : ℝ, χBs (vstar + δ_loc * t) =
         Complex.exp (Complex.I * ((c' * phiDual vstar x' : ℝ) : ℂ)) *
           (A t * Complex.exp (Complex.I * ((c' * δ_loc ^ 2 : ℝ) : ℂ) * ((φ_sp t : ℝ) : ℂ))) := fun t => by
       dsimp [χBs, χv, A, e, φ_sp]
-      rw [show (vstar + δ_loc * t - vstar) / δ_loc = t by field_simp [hδ_pos.ne'],
-        mul_assoc (Complex.exp _), ← Complex.exp_add]
-      have harg : Complex.I * ((c' * phiDual vstar x' : ℝ) : ℂ) +
-          Complex.I * ((c' * δ_loc ^ 2 : ℝ) : ℂ) *
-            (((phiDual (vstar + δ_loc * t) x' - phiDual vstar x') / δ_loc ^ 2 : ℝ) : ℂ) =
-          Complex.I * ((c' * phiDual (vstar + δ_loc * t) x' : ℝ) : ℂ) := by
-        push_cast; field_simp [hδ_pos.ne']; ring
-      rw [mul_assoc ((χ t : ℂ) * B (vstar + δ_loc * t)), mul_comm (A t) _, mul_assoc, ← mul_assoc _ (A t),
-        mul_comm _ (A t), ← harg]
-      ring
+      rw [show (vstar + δ_loc * t - vstar) / δ_loc = t by field_simp [hδ_pos.ne']; ring]
+      calc (χ t : ℂ) * B (vstar + δ_loc * t) *
+            Complex.exp (Complex.I * ((c' * phiDual (vstar + δ_loc * t) x' : ℝ) : ℂ))
+          = ((χ t : ℂ) * B (vstar + δ_loc * t)) *
+              (Complex.exp (Complex.I * ((c' * phiDual vstar x' : ℝ) : ℂ)) *
+                Complex.exp (Complex.I * ((c' * δ_loc ^ 2 : ℝ) : ℂ) *
+                  (((phiDual (vstar + δ_loc * t) x' - phiDual vstar x') / δ_loc ^ 2 : ℝ) : ℂ))) := by
+            rw [← Complex.exp_add]
+            congr 2
+            push_cast; field_simp [hδ_pos.ne']; ring
+        _ = _ := by ring
     rw [h_set_eq, h_int_eq, h_cov2, h_int_t]
     simp_rw [h_pt, integral_const_mul]; ring
   have hpref_norm : ‖√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) * (δ_loc : ℂ) *
@@ -173,8 +190,9 @@ private lemma kedge_outer_sp_part {v₀ δ_loc θ K_sp Kχ K_B vstar c' x' : ℝ
         ((π / 2 : ℝ) : ℂ) * Complex.I by push_cast; ring, Complex.exp_ofReal_mul_I,
         Real.cos_pi_div_two, Real.sin_pi_div_two]
       simp
+    have hvstar_pos : 0 < vstar := hv₀_pos.trans_le (hv_mδ.trans (by linarith))
     have hphi_v : phiDual vstar x' = -2 * π * cumulN x' := by
-      rw [phiDual_eq (vTip_pos hx_gt).le, hvstar_F, sub_self, mul_zero, zero_mul, zero_sub]
+      rw [phiDual_eq hvstar_pos.le, hvstar_F, sub_self, mul_zero, zero_mul, zero_sub]; ring
     have hF'v_pos : 0 < edgeF' vstar := edgeF'_pos (hv₀_pos.trans_le (hv_mδ.trans (by linarith : vstar - δ_loc ≤ vstar)))
     have hrt_eq : √(2 * c' / 3) * δ_loc * √(2 * π / ((c' * δ_loc ^ 2) * ((4 * π / 3) * edgeF' vstar))) =
         (√(edgeF' vstar))⁻¹ := by
@@ -225,6 +243,46 @@ private lemma kedge_outer_sp_part {v₀ δ_loc θ K_sp Kχ K_B vstar c' x' : ℝ
         mul_le_mul_of_nonneg_left hsp_bd (by positivity)
     _ = √(2 / 3) * (K_sp * (4 * Kχ * K_B) / δ_loc ^ 2) / c' := hcalc
 
+private def outerCsm (M0 M1 M2 δ_mid v₀ : ℝ) : ℝ :=
+  M0 / δ_mid + M1 / δ_mid ^ 2 + M0 * (4 * π / 3) / δ_mid ^ 3 +
+    2 * M2 / δ_mid ^ 2 + 6 * M1 * (4 * π / 3) * v₀ ^ (1 / 2 : ℝ) / δ_mid ^ 3 +
+    (2 / 3) * M0 * v₀ ^ (3 / 2 : ℝ) * (32 * π ^ 2 / 3 / δ_mid ^ 3 + 3 * (4 * π / 3) ^ 2 / δ_mid ^ 4)
+
+private def outerCout (Kχ K_B δ_loc θ v₀ : ℝ) : ℝ :=
+  let K_χs := Kχ / δ_loc ^ 2
+  let K_L := 4 * (1 + K_χs) * K_B
+  let c0 := (4 * π / 3) * edgeF' v₀
+  let η := (θ / 4) * δ_loc
+  K_L * (1 / c0 ^ 2 + 3 * (4 * π / 3) / (c0 ^ 3 * η) + (32 * π ^ 2 / 3) / (c0 ^ 3 * η) +
+    3 * (4 * π / 3) ^ 2 / (c0 ^ 4 * η ^ 2)) / η
+
+private def outerCtail (Kχ δ_loc θ v₀ C0 C1 L2 : ℝ) : ℝ :=
+  let K_χs := Kχ / δ_loc ^ 2
+  let δ_tail := (4 * π / 3) * edgeF' v₀ * ((θ / 4) * δ_loc)
+  let K0_R := (1 + Kχ) * C0
+  let K1_R := K_χs * C0 + (1 + Kχ) * C1
+  let L2_R := (1 + Kχ) * L2 + 2 * δ_loc * (K_χs * C0 + 2 * K_χs * C1)
+  L2_R / δ_tail ^ 2 + (3 / 2 : ℝ) * K1_R / δ_tail ^ 2 +
+    (1 / 2 : ℝ) * K0_R * ((2 * π) / edgeF' v₀) / δ_tail ^ 2 + (4 * π / 3) * K0_R / δ_tail ^ 3
+
+private lemma outerCsm_nonneg {M0 M1 M2 δ_mid v₀ : ℝ}
+    (hM0 : 0 ≤ M0) (hM1 : 0 ≤ M1) (hM2 : 0 ≤ M2) (hδ : 0 < δ_mid) (hv₀ : 0 < v₀) :
+    0 ≤ outerCsm M0 M1 M2 δ_mid v₀ := by
+  unfold outerCsm; positivity
+
+private lemma outerCout_nonneg {Kχ K_B δ_loc θ v₀ : ℝ}
+    (hKχ : 0 < Kχ) (hKB : 0 ≤ K_B) (hδ : 0 < δ_loc) (hθ : 0 < θ) (hv₀ : 0 < v₀) :
+    0 ≤ outerCout Kχ K_B δ_loc θ v₀ := by
+  have := (edgeF'_pos hv₀).le
+  unfold outerCout; positivity
+
+private lemma outerCtail_nonneg {Kχ δ_loc θ v₀ C0 C1 L2 : ℝ}
+    (hKχ : 0 < Kχ) (hδ : 0 < δ_loc) (hθ : 0 < θ) (hv₀ : 0 < v₀)
+    (hC0 : 0 ≤ C0) (hC1 : 0 ≤ C1) (hL2 : 0 ≤ L2) :
+    0 ≤ outerCtail Kχ δ_loc θ v₀ C0 C1 L2 := by
+  have := (edgeF'_pos hv₀).le
+  unfold outerCtail; positivity
+
 private lemma kedge_outer_left_part {v_s v₀ vstar v_L δ_loc θ Kχ K_B M0 M1 M2 δ_mid c' x' : ℝ}
     (hvs : 0 < v_s) (hvs_le : v_s ≤ v₀) (hv₀_pos : 0 < v₀) (hv₀_L : v₀ ≤ v_L) (hv_L_lt : v_L < vstar)
     (hδ : 0 < δ_loc) (hδ1 : δ_loc ≤ 1) (hv_mδ : v₀ ≤ vstar - δ_loc)
@@ -243,18 +301,14 @@ private lemma kedge_outer_left_part {v_s v₀ vstar v_L δ_loc θ Kχ K_B M0 M1 
     (hBl : D2 (Ici v₀) B Bl1 Bl2 K_B) :
     let χv : ℝ → ℝ := fun v => χ ((v - vstar) / δ_loc)
     let e : ℝ → ℂ := fun v => Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ))
-    let K_χs := Kχ / δ_loc ^ 2
-    let K_L := 4 * (1 + K_χs) * K_B
-    let c0 := (4 * π / 3) * edgeF' v₀
-    let η := (θ / 4) * δ_loc
-    let C_sm := M0 / δ_mid + M1 / δ_mid ^ 2 + M0 * (4 * π / 3) / δ_mid ^ 3 +
-      2 * M2 / δ_mid ^ 2 + 6 * M1 * (4 * π / 3) * v₀ ^ (1 / 2 : ℝ) / δ_mid ^ 3 +
-      (2 / 3) * M0 * v₀ ^ (3 / 2 : ℝ) * (32 * π ^ 2 / 3 / δ_mid ^ 3 + 3 * (4 * π / 3) ^ 2 / δ_mid ^ 4)
-    let C_out := K_L * (1 / c0 ^ 2 + 3 * (4 * π / 3) / (c0 ^ 3 * η) + (32 * π ^ 2 / 3) / (c0 ^ 3 * η) +
-      3 * (4 * π / 3) ^ 2 / (c0 ^ 4 * η ^ 2)) / η
     ‖(∫ v in v_s..v₀, B v * e v) + ∫ v in v₀..v_L, (1 - (χv v : ℂ)) * B v * e v‖ ≤
-      C_sm * c' ^ (-(3 / 2 : ℝ)) + C_out * c' ^ (-2 : ℝ) := by
-  intro χv e K_χs K_L c0 η C_sm C_out
+      outerCsm M0 M1 M2 δ_mid v₀ * c' ^ (-(3 / 2 : ℝ)) + outerCout Kχ K_B δ_loc θ v₀ * c' ^ (-2 : ℝ) := by
+  intro χv e
+  unfold outerCsm outerCout
+  set K_χs : ℝ := Kχ / δ_loc ^ 2
+  set K_L : ℝ := 4 * (1 + K_χs) * K_B
+  set c0 : ℝ := (4 * π / 3) * edgeF' v₀
+  set η : ℝ := (θ / 4) * δ_loc
   have hpi := Real.pi_pos
   have hKχs_pos : 0 < K_χs := div_pos hKχ_pos (pow_pos hδ 2)
   let χv1 := fun v : ℝ => χ1 ((v - vstar) / δ_loc) / δ_loc
@@ -278,11 +332,12 @@ private lemma kedge_outer_left_part {v_s v₀ vstar v_L δ_loc θ Kχ K_B M0 M1 
     exact ⟨h1.1, h1.2.1⟩
   have hvL_in : χv v_L = 1 ∧ χv1 v_L = 0 := by
     have h1 : v_L ∈ Ioo (vstar - (θ / 2) * δ_loc) (vstar + (θ / 2) * δ_loc) := by
-      rw [hvL_eq]; constructor <;> nlinarith
+      have hpos : 0 < θ * δ_loc := mul_pos hθ hδ
+      rw [hvL_eq]; dsimp [η]; constructor <;> linarith
     have hev : χv =ᶠ[𝓝 v_L] 1 := Filter.eventually_of_mem (isOpen_Ioo.mem_nhds h1) fun u hu => by
       apply hχ_one; rw [abs_div, abs_of_pos hδ, div_le_iff₀ hδ, abs_le]
       constructor <;> linarith [hu.1, hu.2]
-    exact ⟨hev.self_of_nhds, (hχv_d1 v_L).congr_of_eventuallyEq hev |>.unique (hasDerivAt_const v_L 1)⟩
+    exact ⟨hev.self_of_nhds, (hχv_d1 v_L).congr_of_eventuallyEq hev.symm |>.unique (hasDerivAt_const v_L 1)⟩
   let ϕ1 : ℝ → ℝ := fun v => (4 * π / 3) * (edgeF v - x')
   let ϕ2 : ℝ → ℝ := fun v => (4 * π / 3) * edgeF' v
   let BL := fun v => (1 - (χv v : ℂ)) * B v
@@ -294,47 +349,64 @@ private lemma kedge_outer_left_part {v_s v₀ vstar v_L δ_loc θ Kχ K_B M0 M1 
       d1 := fun v _ => (hχv_d1 v).ofReal_comp
       d2 := fun v _ => (hχv_d2 v).ofReal_comp
       c2 := by
-        have hc2 : Continuous χ2 := continuous_iff_continuousAt.mpr fun t =>
-          continuousAt_ofReal.mp ((hχ_D2.cont2 t (mem_univ t)).continuousAt univ_mem)
+        have hc2 : Continuous χ2 := Complex.reCLM.continuous.comp (continuousOn_univ.mp hχ_D2.c2)
         exact (Complex.continuous_ofReal.comp ((hc2.comp ((continuous_id.sub continuous_const).div_const δ_loc)).div_const
           (δ_loc ^ 2))).continuousOn
       K0 := hKχs_pos.le
       b0 := fun v _ => (hχ_D2.b0 ((v - vstar) / δ_loc) (mem_univ _)).trans (by
         dsimp [K_χs]
         have hδ2 : δ_loc ^ 2 ≤ 1 := pow_le_one₀ hδ.le hδ1
-        exact le_div_of_mul_le (pow_pos hδ 2) (mul_le_of_le_one_right hKχ_pos.le hδ2))
+        exact (le_div_iff₀ (pow_pos hδ 2)).mpr (mul_le_of_le_one_right hKχ_pos.le hδ2))
       b1 := fun v _ => by
         dsimp [χv1]
-        rw [Complex.ofReal_div, norm_div, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hδ]
+        rw [Complex.norm_real, Real.norm_eq_abs, abs_div, abs_of_pos hδ]
         have h1 := hχ_D2.b1 ((v - vstar) / δ_loc) (mem_univ _)
-        calc ‖(χ1 ((v - vstar) / δ_loc) : ℂ)‖ / δ_loc ≤ Kχ / δ_loc := div_le_div_of_nonneg_right h1 hδ.le
+        rw [Complex.norm_real, Real.norm_eq_abs] at h1
+        calc |χ1 ((v - vstar) / δ_loc)| / δ_loc ≤ Kχ / δ_loc := div_le_div_of_nonneg_right h1 hδ.le
           _ = Kχ * δ_loc / δ_loc ^ 2 := by field_simp [hδ.ne']
           _ ≤ Kχ * 1 / δ_loc ^ 2 := by gcongr
           _ = K_χs := by dsimp [K_χs]; ring
       b2 := fun v _ => by
         dsimp [χv2]
-        rw [Complex.ofReal_div, norm_div, Complex.norm_real, Real.norm_eq_abs, abs_of_pos (pow_pos hδ 2)]
-        exact div_le_div_of_nonneg_right (hχ_D2.b2 ((v - vstar) / δ_loc) (mem_univ _)) (sq_nonneg _) }
+        rw [Complex.norm_real, Real.norm_eq_abs, abs_div, abs_of_pos (pow_pos hδ 2)]
+        have h2 := hχ_D2.b2 ((v - vstar) / δ_loc) (mem_univ _)
+        rw [Complex.norm_real, Real.norm_eq_abs] at h2
+        exact div_le_div_of_nonneg_right h2 (sq_nonneg _) }
     exact {
-      d1 := fun v hv => ((hasDerivAt_const v (1 : ℂ)).sub (hχv_D2.d1 v hv)).congr_deriv (by push_cast; ring)
-      d2 := fun v hv => ((hχv_D2.d2 v hv).neg).congr_deriv (by push_cast; ring)
-      c2 := (hχv_D2.c2.neg).congr (fun v _ => by push_cast; ring)
+      d1 := fun v hv => ((hasDerivAt_const v (1 : ℂ)).sub (hχv_D2.d1 v hv)).congr_deriv (by rw [zero_sub])
+      d2 := fun v hv => ((hχv_D2.d2 v hv).neg).congr_deriv (by rfl)
+      c2 := by change ContinuousOn (fun v => -((χv2 v : ℝ) : ℂ)) univ; exact hχv_D2.c2.neg
       K0 := by linarith
       b0 := fun v hv => (norm_sub_le (1 : ℂ) (χv v : ℂ)).trans (by rw [norm_one]; linarith [hχv_D2.b0 v hv])
-      b1 := fun v hv => by push_cast; rw [norm_neg]; exact (hχv_D2.b1 v hv).trans (by linarith)
-      b2 := fun v hv => by push_cast; rw [norm_neg]; exact (hχv_D2.b2 v hv).trans (by linarith) }
+      b1 := fun v hv => by rw [norm_neg]; exact (hχv_D2.b1 v hv).trans (by linarith)
+      b2 := fun v hv => by rw [norm_neg]; exact (hχv_D2.b2 v hv).trans (by linarith) }
   have hBL_D2 : D2 (Icc v₀ v_L) BL BL1 BL2 K_L := by
-    have hmul := D2_mulC (h1χ_D2.mono (fun _ _ => mem_univ _) (by rfl))
-      (hBl.mono (fun v hv => hv.1) (by rfl))
-    refine {
-      d1 := fun v hv => (hmul.d1 v hv).congr_deriv (by dsimp [BL1]; ring)
-      d2 := fun v hv => ((hmul.d2 v hv).congr_of_eventuallyEq (Eventually.of_forall fun u => by
-        dsimp [BL1]; ring)).congr_deriv (by dsimp [BL2]; ring)
-      c2 := hmul.c2.congr (fun v _ => by dsimp [BL2]; ring)
+    have h1χ_I : D2 (Icc v₀ v_L) (fun v => (1 : ℂ) - (χv v : ℂ)) (fun v => (-(χv1 v : ℝ) : ℂ))
+        (fun v => (-(χv2 v : ℝ) : ℂ)) (1 + K_χs) := {
+      d1 := fun v _ => h1χ_D2.d1 v (mem_univ _)
+      d2 := fun v _ => h1χ_D2.d2 v (mem_univ _)
+      c2 := h1χ_D2.c2.mono fun _ _ => mem_univ _
+      K0 := h1χ_D2.K0
+      b0 := fun v _ => h1χ_D2.b0 v (mem_univ _)
+      b1 := fun v _ => h1χ_D2.b1 v (mem_univ _)
+      b2 := fun v _ => h1χ_D2.b2 v (mem_univ _) }
+    have hBl_I : D2 (Icc v₀ v_L) B Bl1 Bl2 K_B := {
+      d1 := fun v hv => hBl.d1 v hv.1
+      d2 := fun v hv => hBl.d2 v hv.1
+      c2 := hBl.c2.mono fun _ hv => hv.1
+      K0 := hBl.K0
+      b0 := fun v hv => hBl.b0 v hv.1
+      b1 := fun v hv => hBl.b1 v hv.1
+      b2 := fun v hv => hBl.b2 v hv.1 }
+    have hmul := D2_mulC h1χ_I hBl_I
+    exact {
+      d1 := hmul.d1
+      d2 := hmul.d2
+      c2 := hmul.c2
       K0 := hmul.K0
-      b0 := fun v hv => hmul.b0 v hv
-      b1 := fun v hv => by dsimp [BL1]; simpa using hmul.b1 v hv
-      b2 := fun v hv => by dsimp [BL2]; simpa using hmul.b2 v hv }
+      b0 := hmul.b0
+      b1 := hmul.b1
+      b2 := hmul.b2 }
   have hs1_eq : Bs1 v₀ = Bl1 v₀ := (hBs_d v₀ ⟨hv₀_pos, le_rfl⟩).1.unique (hBl.d1 v₀ le_rfl)
   have hb_mid := kedge_left_ibp_mid_bound hvs hvs_le hM0 hM1 hM2 hδ_pos hc' hvs_eq hδ_mid
     (fun v hv => (hBs_d v hv).1) (fun v hv => (hBs_d v hv).2) hBs_c
@@ -381,17 +453,19 @@ private lemma kedge_outer_tail_part {v₀ vstar v_R δ_loc θ Kχ C0 C1 C2 L1 L2
       Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ))) (Ioi v_R)) :
     let χv : ℝ → ℝ := fun v => χ ((v - vstar) / δ_loc)
     let e : ℝ → ℂ := fun v => Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ))
-    let K_χs := Kχ / δ_loc ^ 2
-    let δ_tail := (4 * π / 3) * edgeF' v₀ * ((θ / 4) * δ_loc)
-    let K0_R := (1 + Kχ) * C0
-    let K1_R := K_χs * C0 + (1 + Kχ) * C1
-    let K2_R := K_χs * C0 + 2 * K_χs * C1 + (1 + Kχ) * C2
-    let L1_R := (1 + Kχ) * L1 + 2 * δ_loc * (K_χs * C0)
-    let L2_R := (1 + Kχ) * L2 + 2 * δ_loc * (K_χs * C0 + 2 * K_χs * C1)
-    let C_tail := L2_R / δ_tail ^ 2 + (3 / 2 : ℝ) * K1_R / δ_tail ^ 2 +
-      (1 / 2 : ℝ) * K0_R * ((2 * π) / edgeF' v₀) / δ_tail ^ 2 + (4 * π / 3) * K0_R / δ_tail ^ 3
-    ‖∫ v in Ioi v_R, (1 - (χv v : ℂ)) * B v * e v‖ ≤ C_tail * c' ^ (-2 : ℝ) := by
-  intro χv e K_χs δ_tail K0_R K1_R K2_R L1_R L2_R C_tail
+    ‖∫ v in Ioi v_R, (1 - (χv v : ℂ)) * B v * e v‖ ≤
+      outerCtail Kχ δ_loc θ v₀ C0 C1 L2 * c' ^ (-2 : ℝ) := by
+  intro χv e
+  unfold outerCtail
+  set K_χs : ℝ := Kχ / δ_loc ^ 2
+  set δ_tail : ℝ := (4 * π / 3) * edgeF' v₀ * ((θ / 4) * δ_loc)
+  set K0_R : ℝ := (1 + Kχ) * C0
+  set K1_R : ℝ := K_χs * C0 + (1 + Kχ) * C1
+  set K2_R : ℝ := K_χs * C0 + 2 * K_χs * C1 + (1 + Kχ) * C2
+  set L1_R : ℝ := (1 + Kχ) * L1 + 2 * δ_loc * (K_χs * C0)
+  set L2_R : ℝ := (1 + Kχ) * L2 + 2 * δ_loc * (K_χs * C0 + 2 * K_χs * C1)
+  set C_tail : ℝ := L2_R / δ_tail ^ 2 + (3 / 2 : ℝ) * K1_R / δ_tail ^ 2 +
+    (1 / 2 : ℝ) * K0_R * ((2 * π) / edgeF' v₀) / δ_tail ^ 2 + (4 * π / 3) * K0_R / δ_tail ^ 3
   have hpi := Real.pi_pos
   have hKχs_pos : 0 < K_χs := div_pos hKχ_pos (pow_pos hδ_pos 2)
   obtain ⟨hC0', hC1', hC2', hL1', hL2'⟩ := hconsts
@@ -403,12 +477,11 @@ private lemma kedge_outer_tail_part {v₀ vstar v_R δ_loc θ Kχ C0 C1 C2 L1 L2
   have hχv_d2 : ∀ v, HasDerivAt χv1 (χv2 v) v := fun v =>
     (((hdχ2 ((v - vstar) / δ_loc)).comp v (((hasDerivAt_id v).sub_const vstar).div_const δ_loc)).div_const
       δ_loc).congr_deriv (by dsimp [χv2]; ring)
-  have hχ_cont : Continuous χ := continuous_iff_continuousAt.mpr fun t =>
-    continuousAt_ofReal.mp ((hχ_D2.cont0 t (mem_univ t)).continuousAt univ_mem)
-  have hχ1_cont : Continuous χ1 := continuous_iff_continuousAt.mpr fun t =>
-    continuousAt_ofReal.mp ((hχ_D2.cont1 t (mem_univ t)).continuousAt univ_mem)
-  have hχ2_cont : Continuous χ2 := continuous_iff_continuousAt.mpr fun t =>
-    continuousAt_ofReal.mp ((hχ_D2.cont2 t (mem_univ t)).continuousAt univ_mem)
+  have hχ_cont : Continuous χ := Complex.reCLM.continuous.comp
+    (continuous_iff_continuousAt.mpr fun t => (hχ_D2.d1 t (mem_univ t)).continuousAt)
+  have hχ1_cont : Continuous χ1 := Complex.reCLM.continuous.comp
+    (continuous_iff_continuousAt.mpr fun t => (hχ_D2.d2 t (mem_univ t)).continuousAt)
+  have hχ2_cont : Continuous χ2 := Complex.reCLM.continuous.comp (continuousOn_univ.mp hχ_D2.c2)
   have hχv_cont : Continuous χv := hχ_cont.comp ((continuous_id.sub continuous_const).div_const δ_loc)
   have hχv1_cont : Continuous χv1 := (hχ1_cont.comp ((continuous_id.sub continuous_const).div_const δ_loc)).div_const δ_loc
   have hχv2_cont : Continuous χv2 :=
@@ -428,11 +501,12 @@ private lemma kedge_outer_tail_part {v₀ vstar v_R δ_loc θ Kχ C0 C1 C2 L1 L2
     · dsimp [χv2]; rw [hz.2.2, zero_div]
   have hvR_in : χv v_R = 1 ∧ χv1 v_R = 0 := by
     have h1 : v_R ∈ Ioo (vstar - (θ / 2) * δ_loc) (vstar + (θ / 2) * δ_loc) := by
-      rw [hvR_eq]; constructor <;> nlinarith
+      have hpos : 0 < θ * δ_loc := mul_pos hθ0 hδ_pos
+      rw [hvR_eq]; constructor <;> linarith
     have hev : χv =ᶠ[𝓝 v_R] 1 := Filter.eventually_of_mem (isOpen_Ioo.mem_nhds h1) fun u hu => by
       apply hχ_one; rw [abs_div, abs_of_pos hδ_pos, div_le_iff₀ hδ_pos, abs_le]
       constructor <;> linarith [hu.1, hu.2]
-    exact ⟨hev.self_of_nhds, (hχv_d1 v_R).congr_of_eventuallyEq hev |>.unique (hasDerivAt_const v_R 1)⟩
+    exact ⟨hev.self_of_nhds, (hχv_d1 v_R).congr_of_eventuallyEq hev.symm |>.unique (hasDerivAt_const v_R 1)⟩
   let BR := fun v => (1 - (χv v : ℂ)) * B v
   let BR1 := fun v => (-(χv1 v : ℝ) : ℂ) * B v + (1 - (χv v : ℂ)) * F1 v
   let BR2 := fun v => (-(χv2 v : ℝ) : ℂ) * B v + 2 * ((-(χv1 v : ℝ) : ℂ) * F1 v) + (1 - (χv v : ℂ)) * F2 v
@@ -441,39 +515,47 @@ private lemma kedge_outer_tail_part {v₀ vstar v_R δ_loc θ Kχ C0 C1 C2 L1 L2
   have h1χ_bd : ∀ v : ℝ, ‖(1 : ℂ) - (χv v : ℂ)‖ ≤ 1 + Kχ := fun v =>
     (norm_sub_le (1 : ℂ) (χv v : ℂ)).trans (by rw [norm_one]; linarith [hχ_D2.b0 ((v - vstar) / δ_loc) (mem_univ _)])
   have hχ1_bd : ∀ v : ℝ, ‖(-(χv1 v : ℝ) : ℂ)‖ ≤ K_χs := fun v => by
-    rw [Complex.norm_real, Real.norm_eq_abs, abs_neg]
+    rw [norm_neg, Complex.norm_real, Real.norm_eq_abs]
     dsimp [χv1]; rw [abs_div, abs_of_pos hδ_pos]
-    have h1 := hχ_D2.b1 ((v - vstar) / δ_loc) (mem_univ _); rw [Complex.norm_real] at h1
-    calc ‖χ1 ((v - vstar) / δ_loc)‖ / δ_loc ≤ Kχ / δ_loc := div_le_div_of_nonneg_right h1 hδ_pos.le
+    have h1 := hχ_D2.b1 ((v - vstar) / δ_loc) (mem_univ _)
+    rw [Complex.norm_real, Real.norm_eq_abs] at h1
+    calc |χ1 ((v - vstar) / δ_loc)| / δ_loc ≤ Kχ / δ_loc := div_le_div_of_nonneg_right h1 hδ_pos.le
       _ = Kχ * δ_loc / δ_loc ^ 2 := by field_simp [hδ_pos.ne']
       _ ≤ Kχ * 1 / δ_loc ^ 2 := by gcongr
       _ = K_χs := by dsimp [K_χs]; ring
   have hχ2_bd : ∀ v : ℝ, ‖(-(χv2 v : ℝ) : ℂ)‖ ≤ K_χs := fun v => by
-    rw [Complex.norm_real, Real.norm_eq_abs, abs_neg]
+    rw [norm_neg, Complex.norm_real, Real.norm_eq_abs]
     dsimp [χv2]; rw [abs_div, abs_of_pos (pow_pos hδ_pos 2)]
-    have h2 := hχ_D2.b2 ((v - vstar) / δ_loc) (mem_univ _); rw [Complex.norm_real] at h2
+    have h2 := hχ_D2.b2 ((v - vstar) / δ_loc) (mem_univ _)
+    rw [Complex.norm_real, Real.norm_eq_abs] at h2
     exact div_le_div_of_nonneg_right h2 (sq_nonneg _)
   have h_zero_bd_int : ∀ (g : ℝ → ℂ) (M : ℝ), 0 ≤ M →
       (∀ v, v ∉ Ioc (vstar - δ_loc) (vstar + δ_loc) → g v = 0) →
       (∀ v, ‖g v‖ ≤ M) → AEStronglyMeasurable g (volume.restrict (Ioi v₀)) →
       IntegrableOn g (Ioi v₀) ∧ ∫ v in Ioi v₀, ‖g v‖ ≤ 2 * δ_loc * M := fun g M hM hgz hgb hgm => by
-    have hsub_s : Ioc (vstar - δ_loc) (vstar + δ_loc) ⊆ Ioi v₀ := fun v hv => hv₀_pos.trans_le (hv_mδ.trans hv.1.le)
+    have hsub_s : Ioc (vstar - δ_loc) (vstar + δ_loc) ⊆ Ioi v₀ := fun v hv => lt_of_le_of_lt hv_mδ hv.1
     have hint_ioc : IntegrableOn g (Ioc (vstar - δ_loc) (vstar + δ_loc)) :=
-      IntegrableOn.of_bound (measure_Ioc_lt_top.trans_lt ENNReal.coe_lt_top) (hgm.mono_set hsub_s)
+      IntegrableOn.of_bound measure_Ioc_lt_top (hgm.mono_set hsub_s) M
         ((ae_restrict_mem measurableSet_Ioc).mono fun v _ => hgb v)
     have hint_compl : IntegrableOn g (Ioi v₀ \ Ioc (vstar - δ_loc) (vstar + δ_loc)) :=
       (integrableOn_zero (μ := volume) (s := Ioi v₀ \ Ioc (vstar - δ_loc) (vstar + δ_loc))).congr_fun
         (fun v hv => (hgz v hv.2).symm) (measurableSet_Ioi.diff measurableSet_Ioc)
     have hint_ioi : IntegrableOn g (Ioi v₀) := by
-      rw [← union_diff_cancel hsub_s]; exact hint_ioc.union hint_compl
+      rw [← union_sdiff_cancel hsub_s]; exact hint_ioc.union hint_compl
     have hi_eq : ∫ v in Ioi v₀, ‖g v‖ = ∫ v in Ioc (vstar - δ_loc) (vstar + δ_loc), ‖g v‖ := by
-      refine (setIntegral_eq_setIntegral_of_forall_compl_eq_zero hsub_s fun v _ hv => ?_).symm
-      rw [hgz v hv, norm_zero]
+      have h1 : ∫ v in Ioi v₀, ‖g v‖ = ∫ v : ℝ, ‖g v‖ :=
+        setIntegral_eq_integral_of_forall_compl_eq_zero fun v hv => by
+          rw [hgz v fun h => hv (hsub_s h), norm_zero]
+      have h2 : ∫ v in Ioc (vstar - δ_loc) (vstar + δ_loc), ‖g v‖ = ∫ v : ℝ, ‖g v‖ :=
+        setIntegral_eq_integral_of_forall_compl_eq_zero fun v hv => by
+          rw [hgz v hv, norm_zero]
+      rw [h1, h2]
     have hi_le : ∫ v in Ioc (vstar - δ_loc) (vstar + δ_loc), ‖g v‖ ≤ 2 * δ_loc * M := by
-      have h_c : IntegrableOn (fun _ : ℝ => M) (Ioc (vstar - δ_loc) (vstar + δ_loc)) := integrableOn_const
+      have h_c : IntegrableOn (fun _ : ℝ => M) (Ioc (vstar - δ_loc) (vstar + δ_loc)) :=
+        integrableOn_const measure_Ioc_lt_top.ne
       calc ∫ v in Ioc (vstar - δ_loc) (vstar + δ_loc), ‖g v‖
           ≤ ∫ _ in Ioc (vstar - δ_loc) (vstar + δ_loc), M :=
-            setIntegral_mono hint_ioc.norm h_c ((ae_restrict_mem measurableSet_Ioc).mono fun v _ => hgb v)
+            integral_mono_ae hint_ioc.norm h_c ((ae_restrict_mem measurableSet_Ioc).mono fun v _ => hgb v)
         _ = 2 * δ_loc * M := by
             rw [setIntegral_const, smul_eq_mul, Real.volume_real_Ioc_of_le (by linarith)]; ring
     exact ⟨hint_ioi, hi_eq ▸ hi_le⟩
@@ -486,17 +568,17 @@ private lemma kedge_outer_tail_part {v₀ vstar v_R δ_loc θ Kχ C0 C1 C2 L1 L2
     (fun v => by
       by_cases hv : v ∈ Ioi v₀
       · rw [norm_mul]; exact mul_le_mul (hχ1_bd v) ((h_osc.b0 v hv.le).trans hC0') (norm_nonneg _) hKχs_pos.le
-      · have hv' : v ∉ Ioc (vstar - δ_loc) (vstar + δ_loc) := fun h => hv (hv₀_pos.trans_le (hv_mδ.trans h.1.le))
+      · have hv' : v ∉ Ioc (vstar - δ_loc) (vstar + δ_loc) := fun h => hv (lt_of_le_of_lt hv_mδ h.1)
         rw [(hBR_supp v hv').2.1]; simp; positivity)
-    ((Complex.continuous_ofReal.comp hχv1_cont.neg).aestronglyMeasurable.mul hsm_B)
+    ((continuous_neg.comp (Complex.continuous_ofReal.comp hχv1_cont)).aestronglyMeasurable.mul hsm_B)
   have hi_g2 := h_zero_bd_int (fun v => (-(χv2 v : ℝ) : ℂ) * B v) (K_χs * C0) (by positivity)
     (fun v hv => by rw [(hBR_supp v hv).2.2]; simp)
     (fun v => by
       by_cases hv : v ∈ Ioi v₀
       · rw [norm_mul]; exact mul_le_mul (hχ2_bd v) ((h_osc.b0 v hv.le).trans hC0') (norm_nonneg _) hKχs_pos.le
-      · have hv' : v ∉ Ioc (vstar - δ_loc) (vstar + δ_loc) := fun h => hv (hv₀_pos.trans_le (hv_mδ.trans h.1.le))
+      · have hv' : v ∉ Ioc (vstar - δ_loc) (vstar + δ_loc) := fun h => hv (lt_of_le_of_lt hv_mδ h.1)
         rw [(hBR_supp v hv').2.2]; simp; positivity)
-    ((Complex.continuous_ofReal.comp hχv2_cont.neg).aestronglyMeasurable.mul hsm_B)
+    ((continuous_neg.comp (Complex.continuous_ofReal.comp hχv2_cont)).aestronglyMeasurable.mul hsm_B)
   have hi_g3 := h_zero_bd_int (fun v => 2 * ((-(χv1 v : ℝ) : ℂ) * F1 v)) (2 * (K_χs * C1)) (by positivity)
     (fun v hv => by rw [(hBR_supp v hv).2.1]; simp)
     (fun v => by
@@ -504,9 +586,9 @@ private lemma kedge_outer_tail_part {v₀ vstar v_R δ_loc θ Kχ C0 C1 C2 L1 L2
       · rw [norm_mul, norm_mul, show ‖(2 : ℂ)‖ = 2 by norm_num]
         exact mul_le_mul_of_nonneg_left (mul_le_mul (hχ1_bd v) ((h_osc.b1 v hv.le).trans hC1')
           (norm_nonneg _) hKχs_pos.le) zero_le_two
-      · have hv' : v ∉ Ioc (vstar - δ_loc) (vstar + δ_loc) := fun h => hv (hv₀_pos.trans_le (hv_mδ.trans h.1.le))
+      · have hv' : v ∉ Ioc (vstar - δ_loc) (vstar + δ_loc) := fun h => hv (lt_of_le_of_lt hv_mδ h.1)
         rw [(hBR_supp v hv').2.1]; simp; positivity)
-    (aestronglyMeasurable_const.mul ((Complex.continuous_ofReal.comp hχv1_cont.neg).aestronglyMeasurable.mul hsm_F1))
+    (aestronglyMeasurable_const.mul ((continuous_neg.comp (Complex.continuous_ofReal.comp hχv1_cont)).aestronglyMeasurable.mul hsm_F1))
   have hi_1χF1 : IntegrableOn (fun v => ((1 : ℂ) - (χv v : ℂ)) * F1 v) (Ioi v₀) :=
     h_osc.i1.bdd_mul hc_1χ.aestronglyMeasurable (ae_of_all _ h1χ_bd)
   have hi_1χF2 : IntegrableOn (fun v => ((1 : ℂ) - (χv v : ℂ)) * F2 v) (Ioi v₀) :=
@@ -515,15 +597,17 @@ private lemma kedge_outer_tail_part {v₀ vstar v_R δ_loc θ Kχ C0 C1 C2 L1 L2
   have hi_BR2 : IntegrableOn BR2 (Ioi v₀) := (hi_g2.1.add hi_g3.1).add hi_1χF2
   let h_tail : OscAmpBound v₀ BR BR1 BR2 := {
     hd1 := fun v hv => (((hasDerivAt_const v (1 : ℂ)).sub (hχv_d1 v).ofReal_comp).mul (h_osc.hd1 v hv)).congr_deriv
-      (by dsimp [BR1]; push_cast; ring)
+      (by dsimp [BR1]; ring)
     hd2 := fun v hv => by
+      have hd_pre : HasDerivAt (fun u => (-(χv1 u : ℝ) : ℂ)) (-(χv2 v : ℝ) : ℂ) v :=
+        (((hχv_d2 v).ofReal_comp).neg).congr_deriv rfl
       have hd_c1 : HasDerivAt (fun u => (-(χv1 u : ℝ) : ℂ) * B u)
           ((-(χv2 v : ℝ) : ℂ) * B v + (-(χv1 v : ℝ) : ℂ) * F1 v) v :=
-        (((hχv_d2 v).neg.ofReal_comp).mul (h_osc.hd1 v hv)).congr_deriv (by push_cast; ring)
+        hd_pre.mul (h_osc.hd1 v hv)
       have hd_c2 : HasDerivAt (fun u => ((1 : ℂ) - (χv u : ℂ)) * F1 u)
           ((-(χv1 v : ℝ) : ℂ) * F1 v + ((1 : ℂ) - (χv v : ℂ)) * F2 v) v :=
         ((((hasDerivAt_const v (1 : ℂ)).sub (hχv_d1 v).ofReal_comp).mul (h_osc.hd2 v hv))).congr_deriv
-          (by push_cast; ring)
+          (by simp only [Pi.sub_apply]; ring)
       exact (hd_c1.add hd_c2).congr_deriv (by dsimp [BR2]; ring)
     K0 := K0_R
     K1 := K1_R
@@ -548,22 +632,25 @@ private lemma kedge_outer_tail_part {v₀ vstar v_R δ_loc θ Kχ C0 C1 C2 L1 L2
       refine (norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans (add_le_add ?_ ?_)) ?_)
       · rw [norm_mul]; exact mul_le_mul (hχ2_bd v) ((h_osc.b0 v hv).trans hC0') (norm_nonneg _) hKχs_pos.le
       · rw [norm_mul, norm_mul, show ‖(2 : ℂ)‖ = 2 by norm_num]
-        exact mul_le_mul_of_nonneg_left (mul_le_mul (hχ1_bd v) ((h_osc.b1 v hv).trans hC1')
-          (norm_nonneg _) hKχs_pos.le) zero_le_two
+        exact (mul_le_mul_of_nonneg_left (mul_le_mul (hχ1_bd v) ((h_osc.b1 v hv).trans hC1')
+          (norm_nonneg _) hKχs_pos.le) zero_le_two).trans_eq (by ring)
       · rw [norm_mul]; exact mul_le_mul (h1χ_bd v) ((h_osc.b2 v hv).trans hC2') (norm_nonneg _) (by positivity)
     i1 := hi_BR1
     int1 := by
       have h1 : ∫ v in Ioi v₀, ‖BR1 v‖ ≤
           (∫ v in Ioi v₀, ‖(-(χv1 v : ℝ) : ℂ) * B v‖) + ∫ v in Ioi v₀, ‖(1 - (χv v : ℂ)) * F1 v‖ := by
-        rw [← integral_add hi_g1.1.norm hi_1χF1.norm]
-        exact setIntegral_mono hi_BR1.norm (hi_g1.1.norm.add hi_1χF1.norm)
-          ((ae_restrict_mem measurableSet_Ioi).mono fun v _ => norm_add_le _ _)
+        calc ∫ v in Ioi v₀, ‖BR1 v‖
+            ≤ ∫ v in Ioi v₀, (‖(-(χv1 v : ℝ) : ℂ) * B v‖ + ‖(1 - (χv v : ℂ)) * F1 v‖) :=
+              integral_mono_ae hi_BR1.norm (hi_g1.1.norm.add hi_1χF1.norm)
+                ((ae_restrict_mem measurableSet_Ioi).mono fun v _ => norm_add_le _ _)
+          _ = (∫ v in Ioi v₀, ‖(-(χv1 v : ℝ) : ℂ) * B v‖) + ∫ v in Ioi v₀, ‖(1 - (χv v : ℂ)) * F1 v‖ :=
+              integral_add hi_g1.1.norm hi_1χF1.norm
       have h2 : ∫ v in Ioi v₀, ‖(1 - (χv v : ℂ)) * F1 v‖ ≤ (1 + Kχ) * L1 := by
         calc ∫ v in Ioi v₀, ‖(1 - (χv v : ℂ)) * F1 v‖
             ≤ ∫ v in Ioi v₀, (1 + Kχ) * ‖F1 v‖ :=
-              setIntegral_mono hi_1χF1.norm (h_osc.i1.norm.const_mul (1 + Kχ))
+              integral_mono_ae hi_1χF1.norm (h_osc.i1.norm.const_mul (1 + Kχ))
                 ((ae_restrict_mem measurableSet_Ioi).mono fun v _ => by
-                  rw [norm_mul]; exact mul_le_mul_of_nonneg_right (h1χ_bd v) (norm_nonneg _))
+                  dsimp only; rw [norm_mul]; exact mul_le_mul_of_nonneg_right (h1χ_bd v) (norm_nonneg _))
           _ = (1 + Kχ) * ∫ v in Ioi v₀, ‖F1 v‖ := integral_const_mul _ _
           _ ≤ (1 + Kχ) * L1 := mul_le_mul_of_nonneg_left (h_osc.int1.trans hL1') (by positivity)
       dsimp [L1_R]; linarith [hi_g1.2]
@@ -573,16 +660,30 @@ private lemma kedge_outer_tail_part {v₀ vstar v_R δ_loc θ Kχ C0 C1 C2 L1 L2
           ((∫ v in Ioi v₀, ‖(-(χv2 v : ℝ) : ℂ) * B v‖) +
             ∫ v in Ioi v₀, ‖2 * ((-(χv1 v : ℝ) : ℂ) * F1 v)‖) +
             ∫ v in Ioi v₀, ‖(1 - (χv v : ℂ)) * F2 v‖ := by
-        rw [← integral_add hi_g2.1.norm hi_g3.1.norm, ← integral_add (hi_g2.1.norm.add hi_g3.1.norm) hi_1χF2.norm]
-        exact setIntegral_mono hi_BR2.norm ((hi_g2.1.norm.add hi_g3.1.norm).add hi_1χF2.norm)
-          ((ae_restrict_mem measurableSet_Ioi).mono fun v _ =>
-            (norm_add_le _ _).trans (add_le_add_right (norm_add_le _ _) _))
+        calc ∫ v in Ioi v₀, ‖BR2 v‖
+            ≤ ∫ v in Ioi v₀, ((‖(-(χv2 v : ℝ) : ℂ) * B v‖ + ‖2 * ((-(χv1 v : ℝ) : ℂ) * F1 v)‖) +
+                ‖(1 - (χv v : ℂ)) * F2 v‖) :=
+              integral_mono_ae hi_BR2.norm ((hi_g2.1.norm.add hi_g3.1.norm).add hi_1χF2.norm)
+                ((ae_restrict_mem measurableSet_Ioi).mono fun v _ => by
+                  dsimp only [BR2]
+                  calc ‖(-(χv2 v : ℝ) : ℂ) * B v + 2 * ((-(χv1 v : ℝ) : ℂ) * F1 v) + (1 - (χv v : ℂ)) * F2 v‖
+                      ≤ ‖(-(χv2 v : ℝ) : ℂ) * B v + 2 * ((-(χv1 v : ℝ) : ℂ) * F1 v)‖ + ‖(1 - (χv v : ℂ)) * F2 v‖ :=
+                        norm_add_le _ _
+                    _ ≤ (‖(-(χv2 v : ℝ) : ℂ) * B v‖ + ‖2 * ((-(χv1 v : ℝ) : ℂ) * F1 v)‖) + ‖(1 - (χv v : ℂ)) * F2 v‖ :=
+                        add_le_add (norm_add_le _ _) le_rfl)
+          _ = (∫ v in Ioi v₀, (‖(-(χv2 v : ℝ) : ℂ) * B v‖ + ‖2 * ((-(χv1 v : ℝ) : ℂ) * F1 v)‖)) +
+                ∫ v in Ioi v₀, ‖(1 - (χv v : ℂ)) * F2 v‖ :=
+              integral_add (hi_g2.1.norm.add hi_g3.1.norm) hi_1χF2.norm
+          _ = ((∫ v in Ioi v₀, ‖(-(χv2 v : ℝ) : ℂ) * B v‖) +
+                ∫ v in Ioi v₀, ‖2 * ((-(χv1 v : ℝ) : ℂ) * F1 v)‖) +
+                ∫ v in Ioi v₀, ‖(1 - (χv v : ℂ)) * F2 v‖ := by
+              rw [integral_add hi_g2.1.norm hi_g3.1.norm]
       have h2 : ∫ v in Ioi v₀, ‖(1 - (χv v : ℂ)) * F2 v‖ ≤ (1 + Kχ) * L2 := by
         calc ∫ v in Ioi v₀, ‖(1 - (χv v : ℂ)) * F2 v‖
             ≤ ∫ v in Ioi v₀, (1 + Kχ) * ‖F2 v‖ :=
-              setIntegral_mono hi_1χF2.norm (h_osc.i2.norm.const_mul (1 + Kχ))
+              integral_mono_ae hi_1χF2.norm (h_osc.i2.norm.const_mul (1 + Kχ))
                 ((ae_restrict_mem measurableSet_Ioi).mono fun v _ => by
-                  rw [norm_mul]; exact mul_le_mul_of_nonneg_right (h1χ_bd v) (norm_nonneg _))
+                  dsimp only; rw [norm_mul]; exact mul_le_mul_of_nonneg_right (h1χ_bd v) (norm_nonneg _))
           _ = (1 + Kχ) * ∫ v in Ioi v₀, ‖F2 v‖ := integral_const_mul _ _
           _ ≤ (1 + Kχ) * L2 := mul_le_mul_of_nonneg_left (h_osc.int2.trans hL2') (by positivity)
       dsimp [L2_R]; linarith [hi_g2.2, hi_g3.2] }
@@ -592,19 +693,18 @@ private lemma kedge_outer_tail_part {v₀ vstar v_R δ_loc θ Kχ C0 C1 C2 L1 L2
       (hv₀_pos.le.trans hvR_ge) hvstar_R
   obtain ⟨ht_eq, _ht_int, ht_bd⟩ := phiDual_tail_ibp2 hv₀_pos hvR_ge hc'_pos hx_R h_tail hint_R
   have hδ_tail_le : δ_tail ≤ (4 * π / 3) * (edgeF v_R - x') := by
-    have hsub := phiDual_edgeF_sub_ge hv₀_pos (hv₀_pos.le.trans (hvR_ge.trans' hvstar_R.le) |> fun _ =>
-      hv_mδ.trans (by linarith)) hvstar_R.le
+    have hsub := phiDual_edgeF_sub_ge hv₀_pos (hv_mδ.trans (by linarith)) hvstar_R.le
     rw [hx', hvR_eq] at hsub
-    dsimp [δ_tail]
+    dsimp [δ_tail]; rw [hvR_eq]
     have h4 : 0 ≤ 4 * π / 3 := by positivity
-    nlinarith [mul_le_mul_of_nonneg_left hsub h4]
+    exact (mul_le_mul_of_nonneg_left hsub h4).trans_eq' (by ring)
   have hz1 : BR v_R = 0 := by dsimp [BR]; rw [hvR_in.1]; simp
   have hz2 : ibpH BR BR1 (fun v => (4 * π / 3) * (edgeF v - x')) (fun v => (4 * π / 3) * edgeF' v) v_R = 0 := by
     unfold ibpH; dsimp [BR, BR1]; rw [hvR_in.1, hvR_in.2]; simp
   change ‖∫ v in Ioi v_R, BR v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ))‖ ≤ _
-  rw [ht_eq, hz1]
-  simp only [zero_div, zero_mul, neg_zero, add_zero, hz2]
-  rw [zero_add, norm_mul, norm_pow]
+  rw [ht_eq, hz1, hz2]
+  simp only [zero_div, zero_mul, mul_zero, zero_add, add_zero]
+  rw [norm_mul, norm_pow]
   have hlam_norm : ‖(1 : ℂ) / (Complex.I * (c' : ℂ))‖ = c'⁻¹ := by
     rw [one_div, norm_inv, norm_mul, Complex.norm_I, one_mul, Complex.norm_real,
       Real.norm_eq_abs, abs_of_pos hc'_pos]
@@ -612,10 +712,74 @@ private lemma kedge_outer_tail_part {v₀ vstar v_R δ_loc θ Kχ C0 C1 C2 L1 L2
   have hci2 : (c'⁻¹) ^ 2 = c' ^ (-2 : ℝ) := by
     rw [← Real.rpow_neg_one c', ← Real.rpow_natCast, ← Real.rpow_mul hc'_pos.le]; norm_num
   rw [hci2, mul_comm (c' ^ (-2 : ℝ))]
-  refine mul_le_mul_of_nonneg_right (ht_bd.trans ?_) (by positivity)
   have hδt_pos : 0 < δ_tail := by dsimp [δ_tail]; have := edgeF'_pos hv₀_pos; positivity
-  dsimp [C_tail, h_tail]
-  gcongr
+  have hKχs_nn : 0 ≤ K_χs := hKχs_pos.le
+  have hF'_pos := edgeF'_pos hv₀_pos
+  have h_bd_tail : h_tail.L2 / ((4 * π / 3) * (edgeF v_R - x')) ^ 2 +
+      (3 / 2 : ℝ) * h_tail.K1 / ((4 * π / 3) * (edgeF v_R - x')) ^ 2 +
+      (1 / 2 : ℝ) * h_tail.K0 * ((2 * π) / edgeF' v₀) / ((4 * π / 3) * (edgeF v_R - x')) ^ 2 +
+      (4 * π / 3) * h_tail.K0 / ((4 * π / 3) * (edgeF v_R - x')) ^ 3 ≤ C_tail := by
+    change L2_R / ((4 * π / 3) * (edgeF v_R - x')) ^ 2 +
+      (3 / 2 : ℝ) * K1_R / ((4 * π / 3) * (edgeF v_R - x')) ^ 2 +
+      (1 / 2 : ℝ) * K0_R * ((2 * π) / edgeF' v₀) / ((4 * π / 3) * (edgeF v_R - x')) ^ 2 +
+      (4 * π / 3) * K0_R / ((4 * π / 3) * (edgeF v_R - x')) ^ 3 ≤ _
+    have hL2_nn : 0 ≤ L2_R := by dsimp [L2_R]; positivity
+    have hK1_nn : 0 ≤ K1_R := by dsimp [K1_R]; positivity
+    have hK0_nn : 0 ≤ K0_R := by dsimp [K0_R]; positivity
+    dsimp [C_tail]
+    gcongr
+  exact mul_le_mul_of_nonneg_right (ht_bd.trans h_bd_tail) (by positivity)
+
+private lemma kedge_outer_combine {c' M0 C_sm C_out C_tail C_sp : ℝ}
+    (hc'_1 : 1 ≤ c') (hCout : 0 ≤ C_out) (hCtail : 0 ≤ C_tail)
+    {I_all I_sp I_rem I_sm I_left I_tail L : ℂ}
+    (hI : I_all = I_rem + I_sp) (hRem : I_rem = I_sm + I_left + I_tail)
+    (h_sm : ‖I_sm‖ ≤ (2 / 3 : ℝ) * M0 * c' ^ (-(3 / 2 : ℝ)))
+    (h_left : ‖I_left‖ ≤ C_sm * c' ^ (-(3 / 2 : ℝ)) + C_out * c' ^ (-2 : ℝ))
+    (h_tail : ‖I_tail‖ ≤ C_tail * c' ^ (-2 : ℝ))
+    (h_sp : ‖√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) * I_sp - L‖ ≤ √(2 / 3) * C_sp / c') :
+    ‖√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) * I_all - L‖ ≤
+      √(2 / 3) * ((2 / 3) * M0 + C_sm + C_out + C_sp + C_tail) / c' := by
+  have hc'_pos : 0 < c' := by linarith
+  have hpi := Real.pi_pos
+  have hcm2 : c' ^ (-2 : ℝ) ≤ c' ^ (-(3 / 2 : ℝ)) := Real.rpow_le_rpow_of_exponent_le hc'_1 (by norm_num)
+  have hb_out' : (C_out + C_tail) * c' ^ (-2 : ℝ) ≤ (C_out + C_tail) * c' ^ (-(3 / 2 : ℝ)) :=
+    mul_le_mul_of_nonneg_left hcm2 (add_nonneg hCout hCtail)
+  have hrem_tot : ‖I_rem‖ ≤ ((2 / 3) * M0 + C_sm + C_out + C_tail) * c' ^ (-(3 / 2 : ℝ)) := by
+    rw [hRem]
+    calc ‖I_sm + I_left + I_tail‖
+        ≤ (‖I_sm‖ + ‖I_left‖) + ‖I_tail‖ := (norm_add_le _ _).trans (add_le_add (norm_add_le _ _) le_rfl)
+      _ ≤ ((2 / 3 : ℝ) * M0 * c' ^ (-(3 / 2 : ℝ)) + (C_sm * c' ^ (-(3 / 2 : ℝ)) + C_out * c' ^ (-2 : ℝ))) +
+            C_tail * c' ^ (-2 : ℝ) := add_le_add (add_le_add h_sm h_left) h_tail
+      _ = ((2 / 3) * M0 + C_sm) * c' ^ (-(3 / 2 : ℝ)) + (C_out + C_tail) * c' ^ (-2 : ℝ) := by ring
+      _ ≤ ((2 / 3) * M0 + C_sm) * c' ^ (-(3 / 2 : ℝ)) + (C_out + C_tail) * c' ^ (-(3 / 2 : ℝ)) :=
+          add_le_add le_rfl hb_out'
+      _ = ((2 / 3) * M0 + C_sm + C_out + C_tail) * c' ^ (-(3 / 2 : ℝ)) := by ring
+  have hrem_pref : ‖√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) * I_rem‖ ≤
+      √(2 / 3) * ((2 / 3) * M0 + C_sm + C_out + C_tail) / c' := by
+    rw [norm_mul, norm_mul]
+    have h1 : ‖(√(2 * c' / 3) : ℂ)‖ = √(2 / 3) * √c' := by
+      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _),
+        show 2 * c' / 3 = (2 / 3) * c' by ring, Real.sqrt_mul (by norm_num)]
+    have h2 : ‖Complex.exp (Complex.I * (π : ℂ) / 4)‖ = 1 := by
+      rw [show Complex.I * (π : ℂ) / 4 = ((π / 4 : ℝ) : ℂ) * Complex.I by push_cast; ring,
+        Complex.norm_exp_ofReal_mul_I]
+    rw [h1, h2, mul_one]
+    have hprod : √c' * c' ^ (-(3 / 2 : ℝ)) = c'⁻¹ := by
+      rw [Real.sqrt_eq_rpow, ← Real.rpow_add hc'_pos, ← Real.rpow_neg_one c']; norm_num
+    calc (√(2 / 3) * √c') * ‖I_rem‖
+        ≤ (√(2 / 3) * √c') * (((2 / 3) * M0 + C_sm + C_out + C_tail) * c' ^ (-(3 / 2 : ℝ))) :=
+          mul_le_mul_of_nonneg_left hrem_tot (by positivity)
+      _ = √(2 / 3) * ((2 / 3) * M0 + C_sm + C_out + C_tail) * (√c' * c' ^ (-(3 / 2 : ℝ))) := by ring
+      _ = √(2 / 3) * ((2 / 3) * M0 + C_sm + C_out + C_tail) / c' := by rw [hprod, ← div_eq_mul_inv]
+  have htot_eq : √(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) * I_all - L =
+      √(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) * I_rem +
+        (√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) * I_sp - L) := by
+    rw [hI]; ring
+  rw [htot_eq]
+  refine (norm_add_le _ _).trans ?_
+  refine (add_le_add hrem_pref h_sp).trans_eq ?_
+  ring
 
 private lemma virasoro_kedge_outer_kernel_asymp {δ_hi : ℝ} (hδ_hi : 0 < δ_hi)
     {M0 M1 M2 K_B C0 C1 C2 L1 L2 : ℝ} (hM0 : 0 ≤ M0) (hM1 : 0 ≤ M1) (hM2 : 0 ≤ M2)
@@ -658,40 +822,19 @@ private lemma virasoro_kedge_outer_kernel_asymp {δ_hi : ℝ} (hδ_hi : 0 < δ_h
     (sub_pos.mpr (edgeF_strictMonoOn hv₀_pos.le hv_min_pos.le (by dsimp [v₀]; linarith)))
   let c₀ : ℝ := max 1 (max (2 / v₀) (δ_loc ^ (-2 : ℝ)))
   have hc₀_ge : 1 ≤ c₀ := le_max_left _ _
-  let K_χs : ℝ := Kχ / δ_loc ^ 2
-  let KA : ℝ := 4 * Kχ * K_B
-  let K_L : ℝ := 4 * (1 + K_χs) * K_B
   let η : ℝ := (θ / 4) * δ_loc
   have hη_pos : 0 < η := by positivity
-  let C_sm : ℝ := M0 / δ_mid + M1 / δ_mid ^ 2 + M0 * (4 * π / 3) / δ_mid ^ 3 +
-    2 * M2 / δ_mid ^ 2 + 6 * M1 * (4 * π / 3) * v₀ ^ (1 / 2 : ℝ) / δ_mid ^ 3 +
-    (2 / 3) * M0 * v₀ ^ (3 / 2 : ℝ) * (32 * π ^ 2 / 3 / δ_mid ^ 3 + 3 * (4 * π / 3) ^ 2 / δ_mid ^ 4)
-  let C_out : ℝ := K_L * (1 / c_ph ^ 2 + 3 * (4 * π / 3) / (c_ph ^ 3 * η) + (32 * π ^ 2 / 3) / (c_ph ^ 3 * η) +
-    3 * (4 * π / 3) ^ 2 / (c_ph ^ 4 * η ^ 2)) / η
-  let C_sp : ℝ := K_sp * KA / δ_loc ^ 2
-  let δ_tail := (4 * π / 3) * edgeF' v₀ * η
-  let K0_R : ℝ := (1 + Kχ) * C0
-  let K1_R : ℝ := K_χs * C0 + (1 + Kχ) * C1
-  let K2_R : ℝ := K_χs * C0 + 2 * K_χs * C1 + (1 + Kχ) * C2
-  let L1_R : ℝ := (1 + Kχ) * L1 + 2 * δ_loc * (K_χs * C0)
-  let L2_R : ℝ := (1 + Kχ) * L2 + 2 * δ_loc * (K_χs * C0 + 2 * K_χs * C1)
-  let C_tail : ℝ := L2_R / δ_tail ^ 2 + (3 / 2 : ℝ) * K1_R / δ_tail ^ 2 +
-    (1 / 2 : ℝ) * K0_R * ((2 * π) / edgeF' v₀) / δ_tail ^ 2 + (4 * π / 3) * K0_R / δ_tail ^ 3
+  let C_sm : ℝ := outerCsm M0 M1 M2 δ_mid v₀
+  let C_out : ℝ := outerCout Kχ K_B δ_loc θ v₀
+  let C_sp : ℝ := K_sp * (4 * Kχ * K_B) / δ_loc ^ 2
+  let C_tail : ℝ := outerCtail Kχ δ_loc θ v₀ C0 C1 L2
   let C_ker : ℝ := √(2 / 3) * ((2 / 3) * M0 + C_sm + C_out + C_sp + C_tail)
-  have hC_ker_nn : 0 ≤ C_ker := by
-    have hF'v0 := (edgeF'_pos hv₀_pos).le
-    have hKχs_nn : 0 ≤ K_χs := by positivity
-    have hKL_nn : 0 ≤ K_L := by positivity
-    have hKA_nn : 0 ≤ KA := by positivity
-    have hδt_nn : 0 ≤ δ_tail := by positivity
-    have hCsm : 0 ≤ C_sm := by dsimp [C_sm]; positivity
-    have hCout : 0 ≤ C_out := by dsimp [C_out]; positivity
-    have hCsp : 0 ≤ C_sp := by dsimp [C_sp]; positivity
-    have hK0R : 0 ≤ K0_R := by dsimp [K0_R]; positivity
-    have hK1R : 0 ≤ K1_R := by dsimp [K1_R]; positivity
-    have hL2R : 0 ≤ L2_R := by dsimp [L2_R]; positivity
-    have hCtail : 0 ≤ C_tail := by dsimp [C_tail]; positivity
-    dsimp [C_ker]; positivity
+  have hCsm : 0 ≤ C_sm := outerCsm_nonneg hM0 hM1 hM2 hδ_mid_pos hv₀_pos
+  have hCout : 0 ≤ C_out := outerCout_nonneg hKχ_pos hKB hδ_pos hθ0 hv₀_pos
+  have hCsp : 0 ≤ C_sp := div_nonneg (mul_nonneg hKsp0 (mul_nonneg (mul_nonneg (by norm_num) hKχ_pos.le) hKB)) (sq_nonneg _)
+  have hCtail : 0 ≤ C_tail := outerCtail_nonneg hKχ_pos hδ_pos hθ0 hv₀_pos hC0 hC1 hL2
+  have hC_ker_nn : 0 ≤ C_ker :=
+    mul_nonneg (Real.sqrt_nonneg _) (add_nonneg (add_nonneg (add_nonneg (add_nonneg (mul_nonneg (by norm_num) hM0) hCsm) hCout) hCsp) hCtail)
   refine ⟨c₀, C_ker, hc₀_ge, hC_ker_nn, fun {c' ε x'} hc' hε hx' => ?_⟩
   have hc'_1 : 1 ≤ c' := hc₀_ge.trans hc'
   have hc'_pos : 0 < c' := by linarith
@@ -743,39 +886,51 @@ private lemma virasoro_kedge_outer_kernel_asymp {δ_hi : ℝ} (hδ_hi : 0 < δ_h
   have hrem_mid_zero : ∫ v in Ioc v_L v_R, remF v = 0 := by
     refine setIntegral_eq_zero_of_forall_eq_zero fun v hv => ?_
     have h1 : |v - vstar| ≤ (θ / 2) * δ_loc := by
-      dsimp [v_L, v_R, η] at hv; rw [abs_le]; constructor <;> nlinarith [hv.1, hv.2]
+      have hη_le : η ≤ (θ / 2) * δ_loc := by
+        show (θ / 4) * δ_loc ≤ (θ / 2) * δ_loc
+        exact mul_le_mul_of_nonneg_right (div_le_div_of_nonneg_left hθ0.le (by norm_num) (by norm_num)) hδ_pos.le
+      have h1 : -η ≤ v - vstar := by
+        have hv1 : vstar - η ≤ v := hv.1.le
+        show -η ≤ v - vstar; linarith only [hv1]
+      have h2 : v - vstar ≤ η := by
+        have hv2 : v ≤ vstar + η := hv.2
+        show v - vstar ≤ η; linarith only [hv2]
+      rw [abs_le]; exact ⟨(neg_le_neg hη_le).trans h1, h2.trans hη_le⟩
     have h2 : |(v - vstar) / δ_loc| ≤ θ / 2 := by
       rw [abs_div, abs_of_pos hδ_pos, div_le_iff₀ hδ_pos]; exact h1
-    dsimp [remF, χv]; rw [hχ_one _ h2]; simp
+    have hχ1 : χv v = 1 := hχ_one _ h2
+    show remF v = 0
+    change (1 - (χv v : ℂ)) * B ε v * e v = 0
+    rw [hχ1]; simp
   have hrem_split : ∫ v in Ioi (0 : ℝ), remF v =
       (∫ v in Ioc (0 : ℝ) v_s, remF v) +
       ((∫ v in v_s..v₀, B ε v * e v) + ∫ v in v₀..v_L, remF v) +
       ∫ v in Ioi v_R, remF v := by
-    have hs1 : Ioi (0 : ℝ) = Ioc 0 v_R ∪ Ioi v_R := (Ioc_union_Ioi_eq_Ioi (hv₀_pos.trans hvR_ge).le).symm
+    have hs1 : Ioi (0 : ℝ) = Ioc 0 v_R ∪ Ioi v_R := (Ioc_union_Ioi_eq_Ioi (lt_of_lt_of_le hv₀_pos hvR_ge).le).symm
     have hs2 : Ioc (0 : ℝ) v_R = Ioc 0 v_L ∪ Ioc v_L v_R :=
-      (Ioc_union_Ioc_eq_Ioc le_rfl (hv₀_pos.le.trans hv₀_vL) (hvL_vs.le.trans hvs_vR.le)).symm
+      (Ioc_union_Ioc_eq_Ioc (hv₀_pos.le.trans hv₀_vL) (hvL_vs.le.trans hvs_vR.le)).symm
     have hs3 : Ioc (0 : ℝ) v_L = Ioc 0 v₀ ∪ Ioc v₀ v_L :=
-      (Ioc_union_Ioc_eq_Ioc le_rfl hv₀_pos.le hv₀_vL).symm
+      (Ioc_union_Ioc_eq_Ioc hv₀_pos.le hv₀_vL).symm
     have hs4 : Ioc (0 : ℝ) v₀ = Ioc 0 v_s ∪ Ioc v_s v₀ :=
-      (Ioc_union_Ioc_eq_Ioc le_rfl hvs_pos.le hvs_le).symm
+      (Ioc_union_Ioc_eq_Ioc hvs_pos.le hvs_le).symm
     have hi_vs : IntegrableOn remF (Ioc 0 v_s) := hrem_int.mono_set Ioc_subset_Ioi_self
     have hi_v0 : IntegrableOn remF (Ioc 0 v₀) := hrem_int.mono_set Ioc_subset_Ioi_self
     have hi_vs0 : IntegrableOn remF (Ioc v_s v₀) := hrem_int.mono_set fun _ h => hvs_pos.trans h.1
     have hi_v0L : IntegrableOn remF (Ioc v₀ v_L) := hrem_int.mono_set fun _ h => hv₀_pos.trans h.1
     have hi_LR : IntegrableOn remF (Ioc v_L v_R) := hrem_int.mono_set fun _ h => (hv₀_pos.trans_le hv₀_vL).trans h.1
-    have hi_R : IntegrableOn remF (Ioi v_R) := hrem_int.mono_set fun _ h => (hv₀_pos.trans hvR_ge).trans h
+    have hi_R : IntegrableOn remF (Ioi v_R) := hrem_int.mono_set fun _ h => (lt_of_lt_of_le hv₀_pos hvR_ge).trans h
     have hi_0R : IntegrableOn remF (Ioc 0 v_R) := hrem_int.mono_set Ioc_subset_Ioi_self
     have hi_0L : IntegrableOn remF (Ioc 0 v_L) := hrem_int.mono_set Ioc_subset_Ioi_self
     have h1 : ∫ v in Ioi (0 : ℝ), remF v = (∫ v in Ioc 0 v_R, remF v) + ∫ v in Ioi v_R, remF v := by
       rw [hs1]; exact setIntegral_union Ioc_disjoint_Ioi_same measurableSet_Ioi hi_0R hi_R
     have h2 : ∫ v in Ioc (0 : ℝ) v_R, remF v = (∫ v in Ioc 0 v_L, remF v) + ∫ v in Ioc v_L v_R, remF v := by
-      rw [hs2]; exact setIntegral_union Ioc_disjoint_Ioc_same measurableSet_Ioc hi_0L hi_LR
+      rw [hs2]; exact setIntegral_union (Ioc_disjoint_Ioc_of_le le_rfl) measurableSet_Ioc hi_0L hi_LR
     have h3 : ∫ v in Ioc (0 : ℝ) v_L, remF v = (∫ v in Ioc 0 v₀, remF v) + ∫ v in Ioc v₀ v_L, remF v := by
-      rw [hs3]; exact setIntegral_union Ioc_disjoint_Ioc_same measurableSet_Ioc hi_v0 hi_v0L
+      rw [hs3]; exact setIntegral_union (Ioc_disjoint_Ioc_of_le le_rfl) measurableSet_Ioc hi_v0 hi_v0L
     have h4 : ∫ v in Ioc (0 : ℝ) v₀, remF v = (∫ v in Ioc 0 v_s, remF v) + ∫ v in Ioc v_s v₀, remF v := by
-      rw [hs4]; exact setIntegral_union Ioc_disjoint_Ioc_same measurableSet_Ioc hi_vs hi_vs0
+      rw [hs4]; exact setIntegral_union (Ioc_disjoint_Ioc_of_le le_rfl) measurableSet_Ioc hi_vs hi_vs0
     have h_mid_eq : ∫ v in Ioc v_s v₀, remF v = ∫ v in v_s..v₀, B ε v * e v := by
-      rw [← intervalIntegral.integral_of_le hvs_le, intervalIntegral.integral_of_le hvs_le]
+      rw [intervalIntegral.integral_of_le hvs_le]
       refine setIntegral_congr_fun measurableSet_Ioc fun v hv => ?_
       dsimp [remF]; rw [hχv_zero_left v hv.2]; simp
     rw [h1, h2, hrem_mid_zero, add_zero, h3, h4, h_mid_eq, ← intervalIntegral.integral_of_le hv₀_vL]
@@ -797,64 +952,15 @@ private lemma virasoro_kedge_outer_kernel_asymp {δ_hi : ℝ} (hδ_hi : 0 < δ_h
       rcases hvstar_ge.eq_or_lt with h | hlt
       · rw [h]
       · exact (edgeF_strictMonoOn hv_min_pos.le (hv_min_pos.le.trans hvstar_ge) hlt).le
-    dsimp [δ_mid]; linarith
+    exact mul_le_mul_of_nonneg_left (sub_le_sub hFmin hFv) (by positivity)
   have hb_left := kedge_outer_left_part hvs_pos hvs_le hv₀_pos hv₀_vL hvL_vs hδ_pos hδ1 hv_mδ hθ0 hθ1 rfl
     hKχ_pos hKB hM0 hM1 hM2 hδ_mid_pos hc'_1 rfl hvstar_F hδ_mid_cond hdχ1 hdχ2 hχ_D2 hχ_one hχ_zero
     hBs_d hBs_c hBs_bd hBl
-  have hint_R : IntegrableOn remF (Ioi v_R) := hrem_int.mono_set fun _ h => (hv₀_pos.trans hvR_ge).trans h
+  have hint_R : IntegrableOn remF (Ioi v_R) := hrem_int.mono_set fun _ h => (lt_of_lt_of_le hv₀_pos hvR_ge).trans h
   have hb_tail := kedge_outer_tail_part hv₀_pos hvR_ge hv_mδ hvs_vR hδ_pos hδ1 hθ0 hθ1 rfl
     hKχ_pos hC0 hC1 hC2 hL1 hL2 hc'_pos hvstar_F hdχ1 hdχ2 hχ_D2 hχ_one hχ_zero h_osc hconsts hint_R
-  have hrem_tot : ‖∫ v in Ioi (0 : ℝ), remF v‖ ≤
-      ((2 / 3) * M0 + C_sm + C_out + C_tail) * c' ^ (-(3 / 2 : ℝ)) := by
-    rw [hrem_split]
-    have hcm2 : c' ^ (-2 : ℝ) ≤ c' ^ (-(3 / 2 : ℝ)) := Real.rpow_le_rpow_of_exponent_le hc'_1 (by norm_num)
-    have hC_out_nn : 0 ≤ C_out := by
-      have hKL_nn : 0 ≤ K_L := by positivity
-      have hKχs : 0 ≤ K_χs := by positivity
-      dsimp [C_out]; positivity
-    have hKχs : 0 ≤ K_χs := by positivity
-    have hK0R : 0 ≤ K0_R := by dsimp [K0_R]; positivity
-    have hK1R : 0 ≤ K1_R := by dsimp [K1_R]; positivity
-    have hL2R : 0 ≤ L2_R := by dsimp [L2_R]; positivity
-    have hδt_nn : 0 ≤ δ_tail := by dsimp [δ_tail]; have := (edgeF'_pos hv₀_pos).le; positivity
-    have hC_tail_nn : 0 ≤ C_tail := by dsimp [C_tail]; positivity
-    have hb_out' : (C_out + C_tail) * c' ^ (-2 : ℝ) ≤ (C_out + C_tail) * c' ^ (-(3 / 2 : ℝ)) :=
-      mul_le_mul_of_nonneg_left hcm2 (by positivity)
-    refine (norm_add_le _ _).trans ?_
-    refine (add_le_add ((norm_add_le _ _).trans (add_le_add hb_sm hb_left)) hb_tail).trans ?_
-    linarith
-  have hrem_pref : ‖√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) * ∫ v in Ioi (0 : ℝ), remF v‖ ≤
-      √(2 / 3) * ((2 / 3) * M0 + C_sm + C_out + C_tail) / c' := by
-    rw [norm_mul, norm_mul]
-    have h1 : ‖(√(2 * c' / 3) : ℂ)‖ = √(2 / 3) * √c' := by
-      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _),
-        show 2 * c' / 3 = (2 / 3) * c' by ring, Real.sqrt_mul (by norm_num)]
-    have h2 : ‖Complex.exp (Complex.I * (π : ℂ) / 4)‖ = 1 := by
-      rw [show Complex.I * (π : ℂ) / 4 = ((π / 4 : ℝ) : ℂ) * Complex.I by push_cast; ring,
-        Complex.norm_exp_ofReal_mul_I]
-    rw [h1, h2, mul_one]
-    have hprod : √c' * c' ^ (-(3 / 2 : ℝ)) = c'⁻¹ := by
-      rw [Real.sqrt_eq_rpow, ← Real.rpow_add hc'_pos, ← Real.rpow_neg_one c']; norm_num
-    calc (√(2 / 3) * √c') * ‖∫ v in Ioi (0 : ℝ), remF v‖
-        ≤ (√(2 / 3) * √c') * (((2 / 3) * M0 + C_sm + C_out + C_tail) * c' ^ (-(3 / 2 : ℝ))) :=
-          mul_le_mul_of_nonneg_left hrem_tot (by positivity)
-      _ = √(2 / 3) * ((2 / 3) * M0 + C_sm + C_out + C_tail) * (√c' * c' ^ (-(3 / 2 : ℝ))) := by ring
-      _ = √(2 / 3) * ((2 / 3) * M0 + C_sm + C_out + C_tail) / c' := by rw [hprod, div_eq_mul_inv]
-  have htot_eq : √(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) *
-      (∫ v in Ioi (0 : ℝ), B ε v * e v) -
-      Complex.I / (√(edgeF' vstar) : ℂ) * B ε vstar *
-        Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ)) =
-      √(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) * (∫ v in Ioi (0 : ℝ), remF v) +
-        (√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) *
-          (∫ v in Ioi (0 : ℝ), (χv v : ℂ) * B ε v * e v) -
-          Complex.I / (√(edgeF' vstar) : ℂ) * B ε vstar *
-            Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ))) := by
-    rw [hB_split]; ring
-  change ‖_‖ ≤ _
-  rw [htot_eq]
-  refine (norm_add_le _ _).trans ?_
-  refine (add_le_add hrem_pref hsp_err).trans_eq ?_
-  dsimp [C_ker, C_sp, KA]; ring
+  exact kedge_outer_combine (C_sm := C_sm) (C_out := C_out) (C_tail := C_tail) (C_sp := C_sp)
+    hc'_1 hCout hCtail hB_split hrem_split hb_sm hb_left hb_tail hsp_err
 
 /-- **`cts:Kedge-outer` (`virasoro_kedge_outer_of_delta`)**: for any fixed `δ_hi > 0`, uniformly for
 `ε ∈ Ioo 0 (1 / 2)` and `x' ≥ xiStar + δ_hi`, `virasoroKedgeEps c' ε x'` matches
@@ -887,23 +993,23 @@ theorem virasoro_kedge_outer_of_delta {δ_hi : ℝ} (hδ_hi : 0 < δ_hi) :
       dsimp [Ex]; rw [sq_pos_iff, sub_ne_zero]; exact (Real.exp_lt_one_iff.mpr (by nlinarith [xiStar_pos])).ne'
     have hmul : ∀ v : ℝ, (Ex : ℂ) * kedgeEpsIntegrand c' ε x' v =
         kedgeAmp0 ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)) := fun v => by
-      have hdiv : ((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 / (1 - Real.exp (-(4 * π * x'))) ^ 2 *
-          √(edgeF' v) : ℝ) = ((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 * √(edgeF' v)) * Ex⁻¹ := by
-        dsimp [Ex]; ring
+      have hbase_ne : 1 - Real.exp (-(4 * π * x')) ≠ 0 :=
+        sub_ne_zero.mpr (Real.exp_lt_one_iff.mpr (by nlinarith [xiStar_pos])).ne'
+      have hmul_id : (Ex : ℂ) * (((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 / (1 - Real.exp (-(4 * π * x'))) ^ 2 *
+          √(edgeF' v) : ℝ) : ℂ) = (((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 * √(edgeF' v) : ℝ) : ℂ) := by
+        rw [← Complex.ofReal_mul]; congr 1; dsimp [Ex]; field_simp [hbase_ne]
       unfold kedgeEpsIntegrand kedgeAmp0
-      rw [hdiv, Complex.ofReal_mul]
       calc (Ex : ℂ) * (lowerMt ε (Complex.I * (lowerY (edgeF v) : ℂ)) ^ 2 *
               Complex.exp (Complex.I * (thetaOut (lowerY (edgeF v)) : ℂ)) *
-              ((((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 * √(edgeF' v) : ℝ) : ℂ) * (Ex⁻¹ : ℂ)) *
+              (((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 / (1 - Real.exp (-(4 * π * x'))) ^ 2 * √(edgeF' v) : ℝ) : ℂ) *
               Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)))
-          = (((Ex : ℂ) * (Ex⁻¹ : ℂ)) *
-              (lowerMt ε (Complex.I * (lowerY (edgeF v) : ℂ)) ^ 2 *
-                Complex.exp (Complex.I * (thetaOut (lowerY (edgeF v)) : ℂ)) *
-                (((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 * √(edgeF' v) : ℝ) : ℂ))) *
+          = lowerMt ε (Complex.I * (lowerY (edgeF v) : ℂ)) ^ 2 *
+              Complex.exp (Complex.I * (thetaOut (lowerY (edgeF v)) : ℂ)) *
+              ((Ex : ℂ) * (((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 / (1 - Real.exp (-(4 * π * x'))) ^ 2 * √(edgeF' v) : ℝ) : ℂ)) *
               Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)) := by ring
-        _ = _ := by rw [← Complex.ofReal_inv, ← Complex.ofReal_mul, mul_inv_cancel₀ hEx_pos.ne',
-            Complex.ofReal_one, one_mul]
-    exact (hi.const_mul (Ex : ℂ)).congr_fun (fun v _ => hmul v) measurableSet_Ioi
+        _ = _ := by rw [hmul_id]
+    have hi_c : IntegrableOn (fun v => (Ex : ℂ) * kedgeEpsIntegrand c' ε x' v) (Ioi 0) := hi.const_mul (Ex : ℂ)
+    exact hi_c.congr_fun (fun v _ => hmul v) measurableSet_Ioi
   have hint1 : ∀ {c' ε x' : ℝ}, 1 ≤ c' → ε ∈ Ioo (0 : ℝ) (1 / 2) → xiStar + δ_hi ≤ x' →
       IntegrableOn (fun v => kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ))) (Ioi 0) := by
     intro c' ε x' _ hε hx'
@@ -914,25 +1020,26 @@ theorem virasoro_kedge_outer_of_delta {δ_hi : ℝ} (hδ_hi : 0 < δ_hi) :
       dsimp [Ex]; rw [sq_pos_iff, sub_ne_zero]; exact (Real.exp_lt_one_iff.mpr (by nlinarith [xiStar_pos])).ne'
     have hmul : ∀ v : ℝ, (Ex : ℂ) * (kedgeEpsIntegrand c' ε x' v * ((1 : ℂ) - 2 * Complex.I * (v : ℂ))⁻¹) =
         kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)) := fun v => by
-      have hdiv : ((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 / (1 - Real.exp (-(4 * π * x'))) ^ 2 *
-          √(edgeF' v) : ℝ) = ((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 * √(edgeF' v)) * Ex⁻¹ := by
-        dsimp [Ex]; ring
+      have hbase_ne : 1 - Real.exp (-(4 * π * x')) ≠ 0 :=
+        sub_ne_zero.mpr (Real.exp_lt_one_iff.mpr (by nlinarith [xiStar_pos])).ne'
+      have hmul_id : (Ex : ℂ) * (((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 / (1 - Real.exp (-(4 * π * x'))) ^ 2 *
+          √(edgeF' v) : ℝ) : ℂ) = (((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 * √(edgeF' v) : ℝ) : ℂ) := by
+        rw [← Complex.ofReal_mul]; congr 1; dsimp [Ex]; field_simp [hbase_ne]
       unfold kedgeEpsIntegrand kedgeAmp0Aux kedgeAmp0
-      rw [hdiv, Complex.ofReal_mul]
       calc (Ex : ℂ) * (lowerMt ε (Complex.I * (lowerY (edgeF v) : ℂ)) ^ 2 *
               Complex.exp (Complex.I * (thetaOut (lowerY (edgeF v)) : ℂ)) *
-              ((((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 * √(edgeF' v) : ℝ) : ℂ) * (Ex⁻¹ : ℂ)) *
+              (((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 / (1 - Real.exp (-(4 * π * x'))) ^ 2 * √(edgeF' v) : ℝ) : ℂ) *
               Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)) *
               ((1 : ℂ) - 2 * Complex.I * (v : ℂ))⁻¹)
-          = (((Ex : ℂ) * (Ex⁻¹ : ℂ)) *
-              (lowerMt ε (Complex.I * (lowerY (edgeF v) : ℂ)) ^ 2 *
-                Complex.exp (Complex.I * (thetaOut (lowerY (edgeF v)) : ℂ)) *
-                (((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 * √(edgeF' v) : ℝ) : ℂ) *
-                ((1 : ℂ) - 2 * Complex.I * (v : ℂ))⁻¹)) *
-              Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)) := by ring
-        _ = _ := by rw [← Complex.ofReal_inv, ← Complex.ofReal_mul, mul_inv_cancel₀ hEx_pos.ne',
-            Complex.ofReal_one, one_mul]
-    exact (hi.const_mul (Ex : ℂ)).congr_fun (fun v _ => hmul v) measurableSet_Ioi
+          = lowerMt ε (Complex.I * (lowerY (edgeF v) : ℂ)) ^ 2 *
+              Complex.exp (Complex.I * (thetaOut (lowerY (edgeF v)) : ℂ)) *
+              ((Ex : ℂ) * (((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 / (1 - Real.exp (-(4 * π * x'))) ^ 2 * √(edgeF' v) : ℝ) : ℂ)) *
+              Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)) *
+              ((1 : ℂ) - 2 * Complex.I * (v : ℂ))⁻¹ := by ring
+        _ = _ := by rw [hmul_id]; ring
+    have hi_c : IntegrableOn (fun v => (Ex : ℂ) * (kedgeEpsIntegrand c' ε x' v * ((1 : ℂ) - 2 * Complex.I * (v : ℂ))⁻¹)) (Ioi 0) :=
+      hi.const_mul (Ex : ℂ)
+    exact hi_c.congr_fun (fun v _ => hmul v) measurableSet_Ioi
   obtain ⟨c0_0, C_ker0, hc0_0, hCk0, hker0⟩ := virasoro_kedge_outer_kernel_asymp hδ_hi hM0 hM1 hM2
     hK0.le hC00 hC10 hC20 hL10 hL20 kedgeAmp0
     (fun {ε} hε => (hsm hε).1) (fun {ε} hε => (hlg hε).1) (fun {ε} hε => hosc0 hε) hint0
@@ -969,21 +1076,25 @@ theorem virasoro_kedge_outer_of_delta {δ_hi : ℝ} (hδ_hi : 0 < δ_hi) :
         ∫ v in Ioi (0 : ℝ), kedgeAmp0 ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)))).re := by
       unfold virasoroKedgeEps
       have h_in : ∫ v in Ioi (0 : ℝ), kedgeEpsIntegrand c' ε x' v =
-          (Ex⁻¹ : ℂ) * ∫ v in Ioi (0 : ℝ), kedgeAmp0 ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)) := by
+          ((Ex⁻¹ : ℝ) : ℂ) * ∫ v in Ioi (0 : ℝ), kedgeAmp0 ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)) := by
         rw [← integral_const_mul]
         refine setIntegral_congr_fun measurableSet_Ioi fun v _ => ?_
         have hdiv : ((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 / (1 - Real.exp (-(4 * π * x'))) ^ 2 *
-            √(edgeF' v) : ℝ) = ((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 * √(edgeF' v)) * Ex⁻¹ := by
-          dsimp [Ex]; ring
+            √(edgeF' v) : ℝ) = Ex⁻¹ * ((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 * √(edgeF' v)) := by
+          change _ / Ex * _ = _; ring
         unfold kedgeEpsIntegrand kedgeAmp0
         rw [hdiv, Complex.ofReal_mul]; ring
       rw [h_in]
-      have hid : (Ex⁻¹ : ℂ) * (√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) *
-            ∫ v in Ioi (0 : ℝ), kedgeAmp0 ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ))) =
-          ((√(2 * c' / 3) : ℝ) : ℂ) * (Complex.exp (Complex.I * (π : ℂ) / 4) * ((Ex⁻¹ : ℂ) *
-            ∫ v in Ioi (0 : ℝ), kedgeAmp0 ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)))) := by
-        push_cast; ring
-      rw [hid, Complex.re_ofReal_mul]; ring
+      calc -√(2 * c' / 3) *
+              (Complex.exp (Complex.I * (π : ℂ) / 4) *
+                (((Ex⁻¹ : ℝ) : ℂ) * ∫ v in Ioi (0 : ℝ), kedgeAmp0 ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)))).re
+          = -(((√(2 * c' / 3) : ℝ) : ℂ) *
+                (Complex.exp (Complex.I * (π : ℂ) / 4) *
+                  (((Ex⁻¹ : ℝ) : ℂ) * ∫ v in Ioi (0 : ℝ), kedgeAmp0 ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ))))).re := by
+              rw [Complex.re_ofReal_mul]; ring
+        _ = -((Ex⁻¹ : ℂ) * (√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) *
+                ∫ v in Ioi (0 : ℝ), kedgeAmp0 ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)))).re := by
+              congr 2; push_cast; ring
     have h_lead : -((Ex⁻¹ : ℂ) * (Complex.I / (√(edgeF' vstar) : ℂ) * kedgeAmp0 ε vstar *
           Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ)))).re =
         lowerWeps ε (lowerY x') * Real.sin (lowerThetaEps Gout ε (lowerY x') - 2 * π * c' * cumulN x') := by
@@ -992,12 +1103,11 @@ theorem virasoro_kedge_outer_of_delta {δ_hi : ℝ} (hδ_hi : 0 < δ_hi) :
             Complex.exp (Complex.I * (thetaOut (lowerY x') : ℂ))) := by
         unfold kedgeAmp0
         rw [hvstar_F]
-        change (Ex⁻¹ : ℂ) * (Complex.I / (√(edgeF' vstar) : ℂ) *
-          (lowerMt ε (Complex.I * (lowerY x' : ℂ)) ^ 2 * Complex.exp (Complex.I * (thetaOut (lowerY x') : ℂ)) *
-            ((Ex * √(edgeF' vstar) : ℝ) : ℂ))) = _
+        have hF_rw : ((1 - Real.exp (-(4 * π * x'))) ^ 2 * √(edgeF' vstar) : ℝ) = Ex * √(edgeF' vstar) := rfl
+        rw [hF_rw, Complex.ofReal_mul]
         have hs_ne : (√(edgeF' vstar) : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr (Real.sqrt_pos.mpr hF'_pos).ne'
         have hex_ne : (Ex : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hEx_pos.ne'
-        push_cast; field_simp [hs_ne, hex_ne]; ring
+        field_simp [hs_ne, hex_ne]
       have hy_mem : lowerY x' ∈ Ioo (0 : ℝ) 1 := yOfX_mem hx_gt
       have hG_polar := gout_polar hy_mem
       have hW_pos : 0 < Wslit (lowerY x') := Wslit_pos' hy_mem
@@ -1017,18 +1127,20 @@ theorem virasoro_kedge_outer_of_delta {δ_hi : ℝ} (hδ_hi : 0 < δ_hi) :
       have hmt_polar : lowerMt ε (Complex.I * (lowerY x' : ℂ)) ^ 2 =
           ((lowerWeps ε (lowerY x') : ℝ) : ℂ) *
             Complex.exp (Complex.I * (2 * Complex.arg (lowerMt ε (Complex.I * (lowerY x' : ℂ))) : ℂ)) := by
-        have h1 := Complex.norm_mul_exp_arg_mul_I (lowerMt ε (Complex.I * (lowerY x' : ℂ)))
+        have h1 : lowerMt ε (Complex.I * (lowerY x' : ℂ)) =
+            ((‖lowerMt ε (Complex.I * (lowerY x' : ℂ))‖ : ℝ) : ℂ) *
+              Complex.exp ((Complex.arg (lowerMt ε (Complex.I * (lowerY x' : ℂ))) : ℂ) * Complex.I) :=
+          (Complex.norm_mul_exp_arg_mul_I _).symm
         calc lowerMt ε (Complex.I * (lowerY x' : ℂ)) ^ 2
-            = ((‖lowerMt ε (Complex.I * (lowerY x' : ℂ))‖ : ℂ) *
-                Complex.exp ((Complex.arg (lowerMt ε (Complex.I * (lowerY x' : ℂ))) : ℂ) * Complex.I)) ^ 2 := by
-              nth_rewrite 1 [← h1]
-          _ = ((‖lowerMt ε (Complex.I * (lowerY x' : ℂ))‖ ^ 2 : ℝ) : ℂ) *
+            = ((‖lowerMt ε (Complex.I * (lowerY x' : ℂ))‖ ^ 2 : ℝ) : ℂ) *
                 (Complex.exp ((Complex.arg (lowerMt ε (Complex.I * (lowerY x' : ℂ))) : ℂ) * Complex.I)) ^ 2 := by
+              conv_lhs => rw [h1]
               push_cast; ring
           _ = ((lowerWeps ε (lowerY x') : ℝ) : ℂ) *
                 Complex.exp (Complex.I * (2 * Complex.arg (lowerMt ε (Complex.I * (lowerY x' : ℂ))) : ℂ)) := by
               unfold lowerWeps
-              rw [← Complex.exp_nat_mul]; push_cast; ring_nf
+              rw [← Complex.exp_nat_mul]
+              congr 2; push_cast; ring
       rw [show (Ex⁻¹ : ℂ) * (Complex.I / (√(edgeF' vstar) : ℂ) * kedgeAmp0 ε vstar *
             Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ))) =
           ((Ex⁻¹ : ℂ) * (Complex.I / (√(edgeF' vstar) : ℂ) * kedgeAmp0 ε vstar)) *
@@ -1040,11 +1152,25 @@ theorem virasoro_kedge_outer_of_delta {δ_hi : ℝ} (hδ_hi : 0 < δ_hi) :
             Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ)) =
           ((lowerWeps ε (lowerY x') : ℝ) : ℂ) * (Complex.I *
             Complex.exp (((lowerThetaEps Gout ε (lowerY x') - 2 * π * c' * cumulN x' : ℝ) : ℂ) * Complex.I)) := by
-        unfold lowerThetaEps
-        rw [mul_assoc (Complex.exp _), ← Complex.exp_add, ← Complex.exp_add]
-        push_cast; ring_nf
+        have h1 : Complex.exp (Complex.I * (2 * Complex.arg (lowerMt ε (Complex.I * (lowerY x' : ℂ))) : ℂ)) *
+            Complex.exp (Complex.I * (Complex.arg (Gout (Complex.I * (lowerY x' : ℂ))) : ℂ)) *
+            Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ)) =
+            Complex.exp (((lowerThetaEps Gout ε (lowerY x') - 2 * π * c' * cumulN x' : ℝ) : ℂ) * Complex.I) := by
+          rw [← Complex.exp_add, ← Complex.exp_add]
+          congr 1; unfold lowerThetaEps; push_cast; ring
+        calc Complex.I * (((lowerWeps ε (lowerY x') : ℝ) : ℂ) *
+                Complex.exp (Complex.I * (2 * Complex.arg (lowerMt ε (Complex.I * (lowerY x' : ℂ))) : ℂ)) *
+                Complex.exp (Complex.I * (Complex.arg (Gout (Complex.I * (lowerY x' : ℂ))) : ℂ))) *
+                Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ))
+            = ((lowerWeps ε (lowerY x') : ℝ) : ℂ) * (Complex.I *
+                (Complex.exp (Complex.I * (2 * Complex.arg (lowerMt ε (Complex.I * (lowerY x' : ℂ))) : ℂ)) *
+                 Complex.exp (Complex.I * (Complex.arg (Gout (Complex.I * (lowerY x' : ℂ))) : ℂ)) *
+                 Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ)))) := by ring
+          _ = _ := by rw [h1]
       rw [hcombine, Complex.re_ofReal_mul, Complex.exp_ofReal_mul_I]
-      simp [Complex.mul_re]
+      simp only [Complex.mul_re, Complex.mul_im, Complex.add_re, Complex.add_im,
+        Complex.I_re, Complex.I_im, Complex.ofReal_re, Complex.ofReal_im]
+      ring
     rw [h_ke, ← h_lead]
     have hdiff : -((Ex⁻¹ : ℂ) * (√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) *
           ∫ v in Ioi (0 : ℝ), kedgeAmp0 ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)))).re -
@@ -1057,7 +1183,8 @@ theorem virasoro_kedge_outer_of_delta {δ_hi : ℝ} (hδ_hi : 0 < δ_hi) :
       simp [Complex.sub_re, Complex.mul_re]; ring
     rw [hdiff]
     calc |(-(Ex⁻¹ : ℂ) * _).re| ≤ ‖-(Ex⁻¹ : ℂ) * _‖ := Complex.abs_re_le_norm _
-      _ = Ex⁻¹ * ‖_‖ := by rw [norm_mul, norm_neg, Complex.norm_real, Real.norm_eq_abs, abs_of_pos (inv_pos.mpr hEx_pos)]
+      _ = Ex⁻¹ * ‖_‖ := by
+          rw [norm_mul, norm_neg, norm_inv, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hEx_pos]
       _ ≤ E_min⁻¹ * (C_ker0 / c') := mul_le_mul hEx_inv hk0 (norm_nonneg _) (by positivity)
       _ ≤ E_min⁻¹ * (max C_ker0 (K1 / √(edgeF' v₀) + C_ker1) / c') := by gcongr; exact le_max_left _ _
       _ = C_k / c' := by dsimp [C_k]; ring
@@ -1065,27 +1192,31 @@ theorem virasoro_kedge_outer_of_delta {δ_hi : ℝ} (hδ_hi : 0 < δ_hi) :
         ∫ v in Ioi (0 : ℝ), kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)))).re := by
       unfold virasoroKedge1Eps
       have h_in : ∫ v in Ioi (0 : ℝ), kedgeEpsIntegrand c' ε x' v * ((1 : ℂ) - 2 * Complex.I * (v : ℂ))⁻¹ =
-          (Ex⁻¹ : ℂ) * ∫ v in Ioi (0 : ℝ), kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)) := by
+          ((Ex⁻¹ : ℝ) : ℂ) * ∫ v in Ioi (0 : ℝ), kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)) := by
         rw [← integral_const_mul]
         refine setIntegral_congr_fun measurableSet_Ioi fun v _ => ?_
         have hdiv : ((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 / (1 - Real.exp (-(4 * π * x'))) ^ 2 *
-            √(edgeF' v) : ℝ) = ((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 * √(edgeF' v)) * Ex⁻¹ := by
-          dsimp [Ex]; ring
+            √(edgeF' v) : ℝ) = Ex⁻¹ * ((1 - Real.exp (-(4 * π * edgeF v))) ^ 2 * √(edgeF' v)) := by
+          change _ / Ex * _ = _; ring
         unfold kedgeEpsIntegrand kedgeAmp0Aux kedgeAmp0
         rw [hdiv, Complex.ofReal_mul]; ring
       rw [h_in]
-      have hid : (Ex⁻¹ : ℂ) * (√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) *
-            ∫ v in Ioi (0 : ℝ), kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ))) =
-          ((√(2 * c' / 3) : ℝ) : ℂ) * (Complex.exp (Complex.I * (π : ℂ) / 4) * ((Ex⁻¹ : ℂ) *
-            ∫ v in Ioi (0 : ℝ), kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)))) := by
-        push_cast; ring
-      rw [hid, Complex.re_ofReal_mul]; ring
+      calc -√(2 * c' / 3) *
+              (Complex.exp (Complex.I * (π : ℂ) / 4) *
+                (((Ex⁻¹ : ℝ) : ℂ) * ∫ v in Ioi (0 : ℝ), kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)))).re
+          = -(((√(2 * c' / 3) : ℝ) : ℂ) *
+                (Complex.exp (Complex.I * (π : ℂ) / 4) *
+                  (((Ex⁻¹ : ℝ) : ℂ) * ∫ v in Ioi (0 : ℝ), kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ))))).re := by
+              rw [Complex.re_ofReal_mul]; ring
+        _ = -((Ex⁻¹ : ℂ) * (√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) *
+                ∫ v in Ioi (0 : ℝ), kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ)))).re := by
+              congr 2; push_cast; ring
     obtain ⟨A1, A2, hA⟩ := (hlg hε).2
     have hL1_bd : ‖Complex.I / (√(edgeF' vstar) : ℂ) * kedgeAmp0Aux ε vstar *
         Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ))‖ ≤ K1 / √(edgeF' v₀) := by
       rw [norm_mul, norm_mul, norm_div, Complex.norm_I, Complex.norm_real, Real.norm_eq_abs,
-        abs_of_pos (Real.sqrt_pos.mpr hF'_pos), mul_comm (-Complex.I),
-        show -(Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ)) =
+        abs_of_pos (Real.sqrt_pos.mpr hF'_pos),
+        show -Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ) =
           ((-(2 * π * c' * cumulN x') : ℝ) : ℂ) * Complex.I by push_cast; ring,
         Complex.norm_exp_ofReal_mul_I, mul_one]
       have hsq_ge : √(edgeF' v₀) ≤ √(edgeF' vstar) := Real.sqrt_le_sqrt hF'_v
@@ -1096,14 +1227,27 @@ theorem virasoro_kedge_outer_of_delta {δ_hi : ℝ} (hδ_hi : 0 < δ_hi) :
     have hS1_bd : ‖√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) *
         ∫ v in Ioi (0 : ℝ), kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ))‖ ≤
         K1 / √(edgeF' v₀) + C_ker1 := by
-      have htr := norm_le_add_norm_sub _ (Complex.I / (√(edgeF' vstar) : ℂ) * kedgeAmp0Aux ε vstar *
-        Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ)))
+      have htr : ‖√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) *
+          ∫ v in Ioi (0 : ℝ), kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ))‖ ≤
+          ‖Complex.I / (√(edgeF' vstar) : ℂ) * kedgeAmp0Aux ε vstar *
+            Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ))‖ +
+          ‖√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) *
+            (∫ v in Ioi (0 : ℝ), kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ))) -
+            Complex.I / (√(edgeF' vstar) : ℂ) * kedgeAmp0Aux ε vstar *
+              Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ))‖ := by
+        simpa [add_sub_cancel] using norm_add_le
+          (Complex.I / (√(edgeF' vstar) : ℂ) * kedgeAmp0Aux ε vstar *
+            Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ)))
+          (√(2 * c' / 3) * Complex.exp (Complex.I * (π : ℂ) / 4) *
+            (∫ v in Ioi (0 : ℝ), kedgeAmp0Aux ε v * Complex.exp (Complex.I * ((c' * phiDual v x' : ℝ) : ℂ))) -
+            Complex.I / (√(edgeF' vstar) : ℂ) * kedgeAmp0Aux ε vstar *
+              Complex.exp (-Complex.I * ((2 * π * c' * cumulN x' : ℝ) : ℂ)))
       have hk1' : C_ker1 / c' ≤ C_ker1 := div_le_self hCk1 hc'_1
       linarith
     rw [h_ke1, abs_neg]
     calc |((Ex⁻¹ : ℂ) * _).re| ≤ ‖(Ex⁻¹ : ℂ) * _‖ := Complex.abs_re_le_norm _
       _ = Ex⁻¹ * ‖_‖ := by
-          rw [norm_mul, ← Complex.ofReal_inv, Complex.norm_real, Real.norm_eq_abs, abs_of_pos (inv_pos.mpr hEx_pos)]
+          rw [norm_mul, norm_inv, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hEx_pos]
       _ ≤ E_min⁻¹ * (K1 / √(edgeF' v₀) + C_ker1) := mul_le_mul hEx_inv hS1_bd (norm_nonneg _) (by positivity)
       _ ≤ E_min⁻¹ * max C_ker0 (K1 / √(edgeF' v₀) + C_ker1) := by gcongr; exact le_max_right _ _
       _ = C_k := rfl
