@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerMain
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerPass2Main
+public import FormalResearch.ModularBootstrap.FiveTerm.LowerBoasAssembly
 public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaQScaleBridge
 
 /-!
@@ -76,11 +77,18 @@ theorem lowerPrelim_virasoro : LowerPrelim virasoroProblem := by
     rw [hpsi]
     exact hslope θ hθ0 hθ1
 
-/-- `LowerPhaseStatementSharp` at Virasoro from the remaining open lemmas (`pass2` and `chart` discharged unconditionally). -/
+/-- `LowerBoas` at spinless Virasoro (`cts:boas`), discharged by `virasoro_lowerBand_lower_bound`. -/
+lemma virasoroBoas_holds :
+    LowerBoas virasoroProblem Gout virasoroC1 virasoroPhi virasoroUhat := by
+  obtain ⟨cc, C, _, _, h⟩ := virasoro_lowerBand_lower_bound
+  exact ⟨cc, C, h⟩
+
+/-- `LowerPhaseStatementSharp` at Virasoro from the remaining open lemma (`pass2`, `chart`, and `boas` discharged unconditionally). -/
 theorem lowerPhase_virasoro (h : LowerMainInputs virasoroProblem) :
     ∃ C : ℝ, 0 ≤ C ∧ LowerPhaseStatementSharp virasoroProblem c0Star gamma0 C :=
   lowerPhase_of_inputs lowerPrelim_virasoro h
     (lowerPass2_of_chart c0Star_neg virasoroC1_pos virasoroC1_small virasoroChart_holds)
+    virasoroBoas_holds
 
 /-- **Lower half of `cts:lower-main` (Theorem C9, first display), modulo `LowerMainInputs`**:
 `Δ_best(c) ≥ c/Λ_V + A_opt c^{1/3} + c_0^* + c_1^Langer c^{-1/3} + d_2^* c^{-2/3} - C_- c^{-1}`. -/

@@ -84,12 +84,11 @@ def LowerBoas (prob : FixedWeightProblem) (Gout : ℂ → ℂ) (c1 : ℝ) (phi :
     ∀ (N : ℕ) (R : ℝ), LowerGoodCircle N R → LowerRadiusRange c1 c R →
       -(C * c ^ (-(4 / 3 : ℝ))) ≤ lowerBand prob Gout phi uhat c R g
 
-/-- **The remaining open inputs of `cts:lower-main`.** `cts:langer` (`LowerLangerPhase`), `ctl:pass2` (`LowerPass2`),
-and `cts:cauchy-dual` (1) / `cts:phic-exp` (`LowerChart` at `virasoroPhi`, `virasoroUhat`, `virasoroC1`) are
-now discharged unconditionally; the remaining fields are `cts:rosc-uncond` (4) (`LowerCombined`) and `cts:boas` (`LowerBoas`). -/
+/-- **The remaining open input of `cts:lower-main`.** `cts:langer` (`LowerLangerPhase`), `ctl:pass2` (`LowerPass2`),
+`cts:cauchy-dual` (1) / `cts:phic-exp` (`LowerChart`), and `cts:boas` (`LowerBoas` at `virasoroPhi`, `virasoroUhat`, `virasoroC1`)
+are now discharged unconditionally; the remaining field is `cts:rosc-uncond` (4) (`LowerCombined`). -/
 structure LowerMainInputs (prob : FixedWeightProblem) where
   combined : LowerCombined prob Gout virasoroC1 virasoroPhi virasoroUhat
-  boas : LowerBoas prob Gout virasoroC1 virasoroPhi virasoroUhat
 
 /-- The chart point of the reference phase minus `K c^{-2}`:
 `u_* = a_1 - (c_0/c_*) c^{-1/3} - γ_0 a_1 c^{-1} + β K c^{-4/3}`. -/
@@ -335,7 +334,8 @@ private lemma rpow_neg_one_mul {c : ℝ} (hc : 0 < c) :
 /-- **One-pass upper bound on the node sum in `cts:lower-main`.**  For every violating test there is a good radius with
 `P_R(H) + g_vac/2π ≤ C_0 c^{-4/3}`, `C_0` independent of the test and of `K`. -/
 private lemma lower_pass_bound {prob : FixedWeightProblem}
-    (h : LowerMainInputs prob) (hpass : LowerPass2 prob virasoroC1 virasoroPhi) :
+    (h : LowerMainInputs prob) (hpass : LowerPass2 prob virasoroC1 virasoroPhi)
+    (hboas : LowerBoas prob Gout virasoroC1 virasoroPhi virasoroUhat) :
     ∃ cc C₀ : ℝ, ∀ c : ℝ, cc ≤ c → ∀ (T : ℝ) (g : ℝ → ℝ), prob.IsWeaklyFeasible (c / 12) T g →
       LowerViolator virasoroPhi c T → T ≤ virasoroDeltaChart c (-virasoroAThr) →
       ∃ (N : ℕ) (R : ℝ), LowerGoodCircle N R ∧ LowerRadiusRange virasoroC1 c R ∧
@@ -343,7 +343,7 @@ private lemma lower_pass_bound {prob : FixedWeightProblem}
           C₀ * c ^ (-(4 / 3 : ℝ)) := by
   obtain ⟨cc4, C4, h4⟩ := h.combined
   obtain ⟨cc2, Cp, hp2⟩ := hpass
-  obtain ⟨cc8, C8, h8⟩ := h.boas
+  obtain ⟨cc8, C8, h8⟩ := hboas
   set C4' := max C4 0 with hC4'
   set Cp' := max Cp 0 with hCp'
   set C8' := max C8 0 with hC8'
@@ -513,10 +513,11 @@ feasible test has first-site phase at least `τ_*(c) - C c^{-2}`.  Proof: `ctl:p
 and the Langer identification (`LowerLangerPhase`) at `u_* = lowerUstar`. -/
 theorem lowerPhase_of_inputs {prob : FixedWeightProblem}
     (hP : LowerPrelim prob) (h : LowerMainInputs prob)
-    (hpass : LowerPass2 prob virasoroC1 virasoroPhi) :
+    (hpass : LowerPass2 prob virasoroC1 virasoroPhi)
+    (hboas : LowerBoas prob Gout virasoroC1 virasoroPhi virasoroUhat) :
     ∃ C : ℝ, 0 ≤ C ∧ LowerPhaseStatementSharp prob c0Star gamma0 C := by
   have hc0 : c0Star < 0 := c0Star_neg
-  obtain ⟨ccp, C₀, hpass⟩ := lower_pass_bound h hpass
+  obtain ⟨ccp, C₀, hpass⟩ := lower_pass_bound h hpass hboas
   obtain ⟨cP, κ, hκ, hprel⟩ := hP
   obtain ⟨cc_ch, Cφ, hCφ, hch⟩ := virasoroChart_holds
   obtain ⟨cb, hlang⟩ := lowerLangerPhase_holds

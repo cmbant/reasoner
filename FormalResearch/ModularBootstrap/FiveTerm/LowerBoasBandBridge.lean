@@ -352,10 +352,10 @@ lemma virasoro_moments_any_radius :
           (sq_nonneg _) (by linarith [sq_nonneg (virasoroAC c')]) (ha0.trans ht.1) (ht.2.trans hbA)
         have hdiv := virasoroDeltaChart_div_mem hc0 (abs_le.mpr ⟨hu_t.1.1, hu_t.1.2.trans (sq_nonneg _)⟩)
         rw [hu_t.2] at hdiv
-        have hξ_open : ((t / c' : ℝ) : ℂ) ∈ ball (xiBar : ℂ) virasoroRXiInf := by
-          rw [mem_ball, dist_eq_norm, ← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
+        have hξ_open : ((t / c' : ℝ) : ℂ) ∈ Metric.ball (xiBar : ℂ) virasoroRXiInf := by
+          rw [Metric.mem_ball, dist_eq_norm, ← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
           have h1 : |t / c' - xiBar| ≤ virasoroChartR0 := abs_le.mpr ⟨by linarith [hdiv.1], by linarith [hdiv.2]⟩
-          exact h1.trans_lt (chartParams.hr_xi0_le.trans_lt (half_lt_self virasoroRXiInf_pos))
+          exact h1.trans_lt (ConcreteBootstrap.chartParams.hr_xi0_le.trans_lt (half_lt_self virasoroRXiInf_pos))
         have hcont_at : ContinuousAt (fun x : ℝ => virasoroUChart c' (x / c')) t := by
           unfold virasoroUChart
           have hcomp := (virasoroUInf_an _ hξ_open).continuousAt.comp_of_eq
@@ -514,19 +514,19 @@ lemma virasoro_moments_any_radius :
         (intervalIntegral.integral_add_adjacent_intervals hint_T_RJ hint_RJ_R).symm
       have hcomb : virasoroBandB1 c' R T g + virasoroBandB2 c' R g ≤
           virasoroBandB1 c' R_J T g + virasoroBandB2 c' R_J g := by
-        have hraw : R⁻¹ * ∫ t in T..(virasoroDeltaChart c' (-R)), (-virasoroUT c' t) * gv t +
+        have hraw : R⁻¹ * (∫ t in T..(virasoroDeltaChart c' (-R)), (-virasoroUT c' t) * gv t) +
             ∫ t in Ici (virasoroDeltaChart c' (-R)), gv t ≤
-            R_J⁻¹ * ∫ t in T..(virasoroDeltaChart c' (-R_J)), (-virasoroUT c' t) * gv t +
+            R_J⁻¹ * (∫ t in T..(virasoroDeltaChart c' (-R_J)), (-virasoroUT c' t) * gv t) +
               ∫ t in Ici (virasoroDeltaChart c' (-R_J)), gv t := by
           rw [hR_split, hIci_split, mul_add]
           linarith only [hpart1, hpart2]
         calc virasoroBandB1 c' R T g + virasoroBandB2 c' R g
             = (virasoroProblem.cardyNorm (c' / 12) g)⁻¹ *
-                (R⁻¹ * ∫ t in T..(virasoroDeltaChart c' (-R)), (-virasoroUT c' t) * gv t +
+                (R⁻¹ * (∫ t in T..(virasoroDeltaChart c' (-R)), (-virasoroUT c' t) * gv t) +
                   ∫ t in Ici (virasoroDeltaChart c' (-R)), gv t) := by
               unfold virasoroBandB1 virasoroBandB2; dsimp [gv]; ring
           _ ≤ (virasoroProblem.cardyNorm (c' / 12) g)⁻¹ *
-                (R_J⁻¹ * ∫ t in T..(virasoroDeltaChart c' (-R_J)), (-virasoroUT c' t) * gv t +
+                (R_J⁻¹ * (∫ t in T..(virasoroDeltaChart c' (-R_J)), (-virasoroUT c' t) * gv t) +
                   ∫ t in Ici (virasoroDeltaChart c' (-R_J)), gv t) := by gcongr
           _ = virasoroBandB1 c' R_J T g + virasoroBandB2 c' R_J g := by
               unfold virasoroBandB1 virasoroBandB2; dsimp [gv]; ring
@@ -670,15 +670,29 @@ lemma lowerP0_mul_boasH_asymptotic :
       (4 / 3 * x / rhoU x) * (Real.exp (c' * besselL x) / √(2 * π * (c' * besselL x))) *
         (1 - Real.exp (-(4 * π * x))) ^ 2
     have hexp_eq : c' * besselL x = (2 * π / 3) * c' * x := by unfold besselL; ring
-    have hx_sq : x = √x * √x := (Real.mul_self_sqrt hx_pos.le).symm
-    have h3_sq : (3 : ℝ) = √3 * √3 := (Real.mul_self_sqrt (by norm_num : (0 : ℝ) ≤ 3)).symm
-    have hsc : √c' ≠ 0 := (Real.sqrt_pos.mpr hc0).ne'
-    have hsx : √x ≠ 0 := (Real.sqrt_pos.mpr hx_pos).ne'
-    have hs3 : √(3 : ℝ) ≠ 0 := (Real.sqrt_pos.mpr (by norm_num : (0 : ℝ) < 3)).ne'
+    have hx_sq : √x * √x = x := Real.mul_self_sqrt hx_pos.le
+    have h3_sq : √3 * √3 = 3 := Real.mul_self_sqrt (by norm_num : (0 : ℝ) ≤ 3)
+    have hcoef : 2 * √x / (√3 * π * √c' * rhoU x) =
+        (4 / 3 * x / rhoU x) / (2 * π * √c' * √x / √3) := by
+      have hsc : 0 < √c' := Real.sqrt_pos.mpr hc0
+      have hsx : 0 < √x := Real.sqrt_pos.mpr hx_pos
+      have hs3 : 0 < √(3 : ℝ) := Real.sqrt_pos.mpr (by norm_num)
+      rw [div_div, div_eq_div_iff (by positivity) (by positivity)]
+      calc 2 * √x * (rhoU x * (2 * π * √c' * √x / √3))
+          = 4 * π * √c' * rhoU x * (√x * √x) / √3 := by ring
+        _ = 4 * π * √c' * rhoU x * x / √3 := by rw [hx_sq]
+        _ = 4 / 3 * x * (π * √c' * rhoU x) * (3 / √3) := by ring
+        _ = 4 / 3 * x * (π * √c' * rhoU x) * (√3 * √3 / √3) := by rw [h3_sq]
+        _ = 4 / 3 * x * (√3 * π * √c' * rhoU x) := by field_simp [hs3.ne']
     rw [hsqrt_as, hexp_eq]
-    conv_rhs => rw [hx_sq, h3_sq]
-    field_simp [hρ_pos.ne', Real.pi_pos.ne', hc0.ne', hx_pos.ne', hsc, hsx, hs3]
-    ring
+    calc (2 * √x * (1 - Real.exp (-(4 * π * x))) ^ 2 / (√3 * π * √c' * rhoU x)) *
+          Real.exp (2 * π / 3 * c' * x)
+        = (2 * √x / (√3 * π * √c' * rhoU x)) *
+            Real.exp (2 * π / 3 * c' * x) * (1 - Real.exp (-(4 * π * x))) ^ 2 := by ring
+      _ = ((4 / 3 * x / rhoU x) / (2 * π * √c' * √x / √3)) *
+            Real.exp (2 * π / 3 * c' * x) * (1 - Real.exp (-(4 * π * x))) ^ 2 := by rw [hcoef]
+      _ = (4 / 3 * x / rhoU x) * (Real.exp (2 * π / 3 * c' * x) / (2 * π * √c' * √x / √3)) *
+            (1 - Real.exp (-(4 * π * x))) ^ 2 := by ring
   -- Combine with `besselV_asymptotic`
   have ha2 : (2 : ℝ) ≤ c' / 12 := by linarith only [hc10000]
   have hboasT_nn : 0 ≤ boasT c' ζ := by unfold boasT; positivity
@@ -697,8 +711,9 @@ lemma lowerP0_mul_boasH_asymptotic :
   have hex_sq_ge : e0 ^ 2 ≤ ex ^ 2 := by nlinarith only [he0_pos, hex_ge]
   have hKB_bd : K_bes / c' ≤ e0 ^ 2 / 2 := by
     rw [div_le_div_iff₀ hc0 zero_lt_two]
-    have : 2 * K_bes / e0 ^ 2 ≤ c' := by linarith only [hc_half]
-    rwa [div_le_iff₀ (sq_pos_of_pos he0_pos)] at this
+    have h1 : 2 * K_bes / e0 ^ 2 ≤ c' := by linarith only [hc_half]
+    have h2 : 2 * K_bes ≤ c' * e0 ^ 2 := (div_le_iff₀ (sq_pos_of_pos he0_pos)).mp h1
+    linarith only [h2]
   have hV_lb : (e0 ^ 2 / 2) * A ≤ V := by
     have h1 := (abs_le.mp hbes).1
     have h2 : e0 ^ 2 - K_bes / c' ≤ V / A := by linarith only [h1, hex_sq_ge]
@@ -783,11 +798,14 @@ lemma boas_zeta_to_lowerBand :
       have h1 : c' ^ (4 / 7 : ℝ) ≤ (virasoroC1 ^ 2 / 4 * c' ^ (2 / 21 : ℝ)) * c' ^ (4 / 7 : ℝ) :=
         le_mul_of_one_le_left (Real.rpow_nonneg hc0.le _) h21
       nlinarith only [h1, hpow]
-    filter_upwards [hcm1.eventually (Iic_mem_nhds (by positivity : (0 : ℝ) < 1 / 2)),
-      h47a.eventually_ge_atTop virasoroAThr, h47, eventually_ge_atTop _] with c' hcb hthr' h47' hmx
+    filter_upwards [eventually_gt_atTop (0 : ℝ),
+      hcm1.eventually (Iic_mem_nhds (by positivity : (0 : ℝ) < 1 / 2)),
+      h47a.eventually_ge_atTop virasoroAThr, h47, eventually_ge_atTop _] with c' hc0_p hcb hthr' h47' hmx
     refine ⟨hcb, hthr', h47', ?_, hmx⟩
-    have hc47_nn : 0 ≤ c' ^ (4 / 7 : ℝ) := by positivity
-    linarith only [h47', hc47_nn]
+    have hc47_nn : 0 ≤ c' ^ (4 / 7 : ℝ) := Real.rpow_nonneg hc0_p.le _
+    have hb_nn : 0 ≤ virasoroC1 ^ 2 * c' ^ (2 / 3 : ℝ) := by
+      exact mul_nonneg (sq_nonneg _) (Real.rpow_nonneg hc0_p.le _)
+    linarith only [h47', hc47_nn, hb_nn]
   obtain ⟨c_Z0, hc_Z0⟩ := eventually_atTop.mp hev
   let K_1 : ℝ := 6 * K_M
   let K_early : ℝ := 8 * 3 ^ 12 * (virasoroC1 ^ 2) ^ (-11 : ℤ) * K_M + 1
@@ -850,7 +868,7 @@ lemma boas_zeta_to_lowerBand :
       fun ζ hζ => mem_zetaStrip_of_log_im hc10000
         ((zetaMin_pos hc0).trans_le hζ) (by simpa using Real.log_nonneg hc1)
     have hdiff := (differentiableOn_boasH (by linarith only [hc10000]) hwf.1).continuousOn
-    exact Complex.continuous_re.continuousOn.comp (hdiff.comp Complex.continuous_ofReal.continuousOn hsub)
+    exact Complex.continuous_re.comp_continuousOn (hdiff.comp Complex.continuous_ofReal.continuousOn hsub)
   have h_aesm : AEStronglyMeasurable h (volume.restrict (Ici (zetaMin c'))) :=
     h_cont.aestronglyMeasurable measurableSet_Ici
   -- Taper/density properties on `Ici (zetaMin c')`
@@ -885,6 +903,7 @@ lemma boas_zeta_to_lowerBand :
       measurableSet_Ioi hT_derivW hT_inj dm).mp (hT_img_thr.symm ▸ hdm_int_thr)
     refine h1.congr_fun (fun ζ hζ => ?_) measurableSet_Ioi
     have hζ_pos : 0 < ζ := (zetaMin_pos hc0).trans hζ
+    dsimp only
     rw [smul_eq_mul, abs_of_pos (hT_deriv hζ_pos).2]
   -- Pointwise comparison between `lowerP0 c' ζ * h ζ` and `dm_ζ ζ`
   have hP0H_ub : ∀ {ζ : ℝ}, zetaMin c' ≤ ζ →
@@ -917,16 +936,11 @@ lemma boas_zeta_to_lowerBand :
     have hw := hw_Icc hζ_half
     have hP0 := hP0H_ub hζ_le
     rw [hPh_eq hζ_pos, Real.norm_eq_abs, abs_mul, abs_of_nonneg hw.1, abs_of_nonneg hP0.1]
-    have hdm_ζ_nn : 0 ≤ dm_ζ ζ := by
-      have hT_ζ : T ≤ boasT c' ζ :=
-        hT_thr.trans (hthr_eq ▸ hT_mono.monotoneOn (zetaMin_pos hc0) hζ_pos hζ_le)
-      exact mul_nonneg (hT_deriv hζ_pos).2.le (hdm_nn hT_ζ)
-    rw [Real.norm_of_nonneg (by positivity)]
     calc w (boasT c' ζ) * (lowerP0 c' ζ * h ζ) ≤ 1 * (2 * dm_ζ ζ) :=
           mul_le_mul hw.2 hP0.2 hP0.1 zero_le_one
       _ = 2 * dm_ζ ζ := one_mul _
   have hPh_int_Ici : IntegrableOn (fun ζ => lowerPζ c' R ζ * h ζ) (Ici (zetaMin c')) :=
-    MeasureTheory.integrableOn_Ici_iff_integrableOn_Ioi.mpr hPh_int_Ioi
+    (integrableOn_Ici_iff_integrableOn_Ioi).mpr hPh_int_Ioi
   -- Coordinate `ζ_R0 := zetaOfV R` corresponding to `virasoroDeltaChart c' (-R)`
   let ζ_R0 : ℝ := zetaOfV R
   have hζR0_pos : 0 < ζ_R0 := zetaOfV_pos hR_pos
@@ -959,9 +973,10 @@ lemma boas_zeta_to_lowerBand :
     have hΔ0_le : virasoroDeltaChart c' 0 ≤ virasoroDeltaChart c' (-vOfZeta ζ) :=
       (virasoroDeltaChart_strictAnti hc0).antitoneOn ⟨hm1, by linarith [sq_nonneg (virasoroAC c')]⟩
         ⟨by linarith [sq_nonneg (virasoroAC c')], sq_nonneg _⟩ hm2
-    obtain ⟨hmem_u, h_ut⟩ := virasoroUT_between hc0 hm1 (sq_nonneg _) hm2 hΔ0_le hΔ_eq.le
-    have hmem_u' : virasoroUT c' (boasT c' ζ) ∈ Icc (-(virasoroAC c' ^ 2)) (virasoroAC c' ^ 2) :=
-      ⟨hm1.trans hmem_u.1, hmem_u.2.trans (sq_nonneg _)⟩
+    obtain ⟨hmem_u, h_ut⟩ := virasoroUT_between hc0 hm1 (sq_nonneg _) hm2 hΔ0_le le_rfl
+    have hmem_u' : virasoroUT c' (boasT c' ζ) ∈ Icc (-(virasoroAC c' ^ 2)) (virasoroAC c' ^ 2) := by
+      rw [hΔ_eq]
+      exact ⟨hm1.trans hmem_u.1, hmem_u.2.trans (sq_nonneg _)⟩
     have hinj := (virasoroDeltaChart_strictAnti hc0).injOn hmem_u'
       ⟨hm1, by linarith [sq_nonneg (virasoroAC c')]⟩ (by rw [hΔ_eq, h_ut])
     linarith only [hinj]
@@ -996,8 +1011,9 @@ lemma boas_zeta_to_lowerBand :
           calc taperWζ c' R ζ ≤ 1 := (hW_spec hζ_half).2.1
             _ ≤ taperV c' ζ / R := (one_le_div hR_pos).mpr hR_lt.le
             _ ≤ (3 / 2 : ℝ) * vOfZeta ζ / R := by gcongr
-            _ ≤ 3 * (R⁻¹ * vOfZeta ζ) := by
-                have := (vOfZeta_pos hζ_pos).le; rw [inv_mul_eq_div]; linarith only [this, hR_pos]
+            _ ≤ 3 * vOfZeta ζ / R :=
+                div_le_div_of_nonneg_right (by linarith only [(vOfZeta_pos hζ_pos).le]) hR_pos.le
+            _ = 3 * (R⁻¹ * vOfZeta ζ) := by ring
       · obtain ⟨_, _, _, _, _, hneg_uR, _, _⟩ := taper_R_phi_bounds hc_tap hR
         have htap_gt : zetaR c' R < ζ := lt_of_not_ge htap
         have huR_le_v : -(virasoroPhi c' (-R)).re ≤ vOfZeta ζ := by
@@ -1005,13 +1021,18 @@ lemma boas_zeta_to_lowerBand :
             unfold zetaR; exact vOfZeta_zetaOfV (by linarith only [hneg_uR])
           rw [← hv_zr]
           unfold vOfZeta
+          have hz_nn : 0 ≤ zetaR c' R := (zetaOfV_pos (by linarith only [hneg_uR])).le
+          have hpi_nn : 0 ≤ π := Real.pi_pos.le
           exact Real.rpow_le_rpow (by positivity) (by gcongr) (by norm_num)
         have hR2 : R ≤ 2 * vOfZeta ζ := by
-          have : (1 / 2 : ℝ) * R ≤ -(virasoroPhi c' (-R)).re :=
+          have hphi_bd : |(virasoroPhi c' (-R)).re - (-R)| ≤ R / 4 :=
             (taper_R_phi_bounds hc_tap hR).2.1
-          linarith only [this, huR_le_v]
+          have : (3 / 4 : ℝ) * R ≤ -(virasoroPhi c' (-R)).re := by
+            linarith only [(abs_le.mp hphi_bd).2]
+          linarith only [this, huR_le_v, hR_pos]
         calc taperWζ c' R ζ ≤ 1 := (hW_spec hζ_half).2.1
-          _ ≤ 2 * (R⁻¹ * vOfZeta ζ) := by rw [inv_mul_eq_div, mul_div_assoc']; exact (one_le_div hR_pos).mpr hR2
+          _ ≤ 2 * (R⁻¹ * vOfZeta ζ) := by
+              rw [inv_mul_eq_div, ← mul_div_assoc]; exact (one_le_div hR_pos).mpr hR2
           _ ≤ 3 * (R⁻¹ * vOfZeta ζ) := by
               have : 0 ≤ R⁻¹ * vOfZeta ζ := mul_nonneg (inv_nonneg.mpr hR_pos.le) (vOfZeta_pos hζ_pos).le
               linarith only [this]
@@ -1027,19 +1048,21 @@ lemma boas_zeta_to_lowerBand :
       (ht.2.trans ((virasoroDeltaChart_strictAnti hc0).antitoneOn hAC_mem hRm hRm.1))
     have hdiv := virasoroDeltaChart_div_mem hc0 (abs_le.mpr ⟨hu_t.1.1, hu_t.1.2.trans (sq_nonneg _)⟩)
     rw [hu_t.2] at hdiv
-    have hξ_open : ((t / c' : ℝ) : ℂ) ∈ ball (xiBar : ℂ) virasoroRXiInf := by
-      rw [mem_ball, dist_eq_norm, ← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
+    have hξ_open : ((t / c' : ℝ) : ℂ) ∈ Metric.ball (xiBar : ℂ) virasoroRXiInf := by
+      rw [Metric.mem_ball, dist_eq_norm, ← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
       have h1 : |t / c' - xiBar| ≤ virasoroChartR0 := abs_le.mpr ⟨by linarith [hdiv.1], by linarith [hdiv.2]⟩
-      exact h1.trans_lt (chartParams.hr_xi0_le.trans_lt (half_lt_self virasoroRXiInf_pos))
+      exact h1.trans_lt (ConcreteBootstrap.chartParams.hr_xi0_le.trans_lt (half_lt_self virasoroRXiInf_pos))
     have hcont_at : ContinuousAt (fun x : ℝ => virasoroUChart c' (x / c')) t := by
       unfold virasoroUChart
       have hcomp := (virasoroUInf_an _ hξ_open).continuousAt.comp_of_eq
         (Complex.continuous_ofReal.comp (continuous_id.div_const c')).continuousAt rfl
       exact continuousAt_const.mul (Complex.continuous_re.continuousAt.comp hcomp)
     exact hcont_at.neg.continuousWithinAt
-  have hdm_cont_TR : ContinuousOn dm (Icc T (virasoroDeltaChart c' (-R))) :=
-    ((hwf.1.cont.mul (continuous_cardyV virasoroProblem (c' / 12)).continuousOn).mono
-      fun t ht => hΔ0_pos.le.trans (hT_lo.trans ht.1)).div_const _
+  have hdm_cont_TR : ContinuousOn dm (Icc T (virasoroDeltaChart c' (-R))) := by
+    have hcardy : ContinuousOn (fun t => g t * virasoroProblem.cardyV (c' / 12) t) (Ici 0) :=
+      hwf.1.cont.mul (continuous_cardyV virasoroProblem (c' / 12)).continuousOn
+    exact (hcardy.mono fun t (ht : t ∈ Icc T (virasoroDeltaChart c' (-R))) =>
+      (Set.mem_Ici.mpr (hΔ0_pos.le.trans (hT_lo.trans ht.1)))).div_const _
   -- Integrability and `3 K_M c'^{-1/3}` bound for `k (boasT c' ζ) * dm_ζ ζ`
   have hk_dm_bound : IntegrableOn (fun ζ => k (boasT c' ζ) * dm_ζ ζ) (Ioi (zetaMin c')) ∧
       (∫ ζ in Ioi (zetaMin c'), k (boasT c' ζ) * dm_ζ ζ) ≤ 3 * K_M * c' ^ (-(1 / 3 : ℝ)) := by
@@ -1049,7 +1072,7 @@ lemma boas_zeta_to_lowerBand :
     have hk_int_Ioc : IntegrableOn (fun t => k t * dm t) (Ioc (boasThreshold c') (virasoroDeltaChart c' (-R))) := by
       have h1 : IntegrableOn (fun t => 3 * (R⁻¹ * (-virasoroUT c' t)) * dm t)
           (Ioc (boasThreshold c') (virasoroDeltaChart c' (-R))) :=
-        (hk_cont_lo.mono (Ioc_subset_Icc_self.trans (Icc_subset_Icc_left hT_thr))).integrableOn_Icc.mono_set Ioc_subset_Icc_self
+        (hk_cont_lo.mono (Icc_subset_Icc_left hT_thr)).integrableOn_Icc.mono_set Ioc_subset_Icc_self
       refine h1.congr_fun (fun t ht => ?_) measurableSet_Ioc
       dsimp [k]; simp only [ht.2, ↓reduceIte]
     have hk_int_Ioi_tail : IntegrableOn (fun t => k t * dm t) (Ioi (virasoroDeltaChart c' (-R))) := by
@@ -1064,6 +1087,7 @@ lemma boas_zeta_to_lowerBand :
       have h1 := (MeasureTheory.integrableOn_image_iff_integrableOn_abs_deriv_smul
         measurableSet_Ioi hT_derivW hT_inj (fun t => k t * dm t)).mp (hT_img_thr.symm ▸ hk_int_t)
       refine h1.congr_fun (fun ζ hζ => ?_) measurableSet_Ioi
+      dsimp only
       rw [smul_eq_mul, abs_of_pos (hT_deriv ((zetaMin_pos hc0).trans hζ)).2]
       dsimp [dm_ζ]; ring
     have hk_eq_img : ∫ ζ in Ioi (zetaMin c'), k (boasT c' ζ) * dm_ζ ζ =
@@ -1084,7 +1108,7 @@ lemma boas_zeta_to_lowerBand :
               ((-virasoroUT c' t) * (g t * virasoroProblem.cardyV (c' / 12) t)) := by
           filter_upwards [ae_restrict_mem measurableSet_Ioc] with t ht
           dsimp [k, dm]; simp only [ht.2, ↓reduceIte]; ring
-        rw [MeasureTheory.setIntegral_congr_ae measurableSet_Ioc h0, MeasureTheory.integral_const_mul]
+        rw [MeasureTheory.integral_congr_ae h0, MeasureTheory.integral_const_mul]
         ring
       have hsub_int : ∫ t in Ioc (boasThreshold c') (virasoroDeltaChart c' (-R)),
             (-virasoroUT c' t) * (g t * virasoroProblem.cardyV (c' / 12) t) ≤
@@ -1093,29 +1117,38 @@ lemma boas_zeta_to_lowerBand :
         rw [intervalIntegral.integral_of_le hT_R]
         have hint_TR : IntegrableOn (fun t => (-virasoroUT c' t) * (g t * virasoroProblem.cardyV (c' / 12) t))
             (Ioc T (virasoroDeltaChart c' (-R))) := by
+          have hcardy : ContinuousOn (fun t => g t * virasoroProblem.cardyV (c' / 12) t) (Ici 0) :=
+            hwf.1.cont.mul (continuous_cardyV virasoroProblem (c' / 12)).continuousOn
           have hc_ut : ContinuousOn (fun t => (-virasoroUT c' t) * (g t * virasoroProblem.cardyV (c' / 12) t))
               (Icc T (virasoroDeltaChart c' (-R))) :=
-            hut_cont_TR.mul ((hwf.1.cont.mul (continuous_cardyV virasoroProblem (c' / 12)).continuousOn).mono
-              fun t ht => hΔ0_pos.le.trans (hT_lo.trans ht.1))
+            hut_cont_TR.mul (hcardy.mono fun t (ht : t ∈ Icc T (virasoroDeltaChart c' (-R))) =>
+              (Set.mem_Ici.mpr (hΔ0_pos.le.trans (hT_lo.trans ht.1))))
           exact hc_ut.integrableOn_Icc.mono_set Ioc_subset_Icc_self
-        refine MeasureTheory.setIntegral_mono_set hint_TR ?_ (Ioc_subset_Ioc_left hT_thr).eventuallyLE
+        refine MeasureTheory.setIntegral_mono_set hint_TR ?_ (ae_of_all _ (Ioc_subset_Ioc_left hT_thr))
         filter_upwards [ae_restrict_mem measurableSet_Ioc] with t ht
         have hu := (virasoroUT_between hc0 hRm.1 (sq_nonneg _) (by linarith only [hR_pos])
-          (hT_lo.trans ht.1) ht.2).1
+          (hT_lo.trans ht.1.le) ht.2).1
         have hut_nn : 0 ≤ -virasoroUT c' t := by linarith only [hu.2]
-        have hg_nn := hwf.2.2.2 t ht.1
-        have hV_nn := virasoroProblem.cardyV_nonneg (by rw [virasoroProblem_totalShift]; linarith)
-          (hΔ0_pos.le.trans (hT_lo.trans ht.1))
+        have hg_nn := hwf.2.2.2 t ht.1.le
+        have ha_shift : virasoroProblem.totalShift ≤ c' / 12 := by
+          rw [virasoroProblem_totalShift]; linarith
+        have hV_nn := virasoroProblem.cardyV_nonneg ha_shift
+          (hΔ0_pos.le.trans (hT_lo.trans ht.1.le))
         exact mul_nonneg hut_nn (mul_nonneg hg_nn hV_nn)
-      rw [heq]
-      unfold virasoroBandB1
-      gcongr
+      calc ∫ t in Ioc (boasThreshold c') (virasoroDeltaChart c' (-R)), k t * dm t
+          = 3 * (R⁻¹ * (virasoroProblem.cardyNorm (c' / 12) g)⁻¹ *
+              ∫ t in Ioc (boasThreshold c') (virasoroDeltaChart c' (-R)),
+                (-virasoroUT c' t) * (g t * virasoroProblem.cardyV (c' / 12) t)) := heq
+        _ ≤ 3 * (R⁻¹ * (virasoroProblem.cardyNorm (c' / 12) g)⁻¹ *
+              ∫ t in T..(virasoroDeltaChart c' (-R)),
+                (-virasoroUT c' t) * (g t * virasoroProblem.cardyV (c' / 12) t)) := by gcongr
+        _ = 3 * virasoroBandB1 c' R T g := by unfold virasoroBandB1; ring
     have hk_bd_tail : ∫ t in Ioi (virasoroDeltaChart c' (-R)), k t * dm t = virasoroBandB2 c' R g := by
       have h0 : (fun t => k t * dm t) =ᶠ[ae (volume.restrict (Ioi (virasoroDeltaChart c' (-R))))] dm := by
         filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
         have hnot : ¬ (t ≤ virasoroDeltaChart c' (-R)) := not_le.mpr (mem_Ioi.mp ht)
         dsimp [k]; simp only [hnot, ↓reduceIte, one_mul]
-      rw [MeasureTheory.setIntegral_congr_ae measurableSet_Ioi h0, MeasureTheory.setIntegral_congr_set Ioi_ae_eq_Ici]
+      rw [MeasureTheory.integral_congr_ae h0, MeasureTheory.setIntegral_congr_set Ioi_ae_eq_Ici]
       unfold virasoroBandB2
       rw [← MeasureTheory.integral_const_mul]
       congr 1; ext t; dsimp [dm]; ring
@@ -1169,10 +1202,13 @@ lemma boas_zeta_to_lowerBand :
     have hR1_lo : virasoroC1 ^ 2 * c' ^ (2 / 3 : ℝ) ≤ R := hR.1
     have h2z_le_ζR : 2 * zetaMin c' ≤ zetaR c' R := by
       obtain ⟨_, _, _, _, _, hneg_uR, _, _⟩ := taper_R_phi_bounds hc_tap hR
-      have h1 : (1 / 2 : ℝ) * R ≤ -(virasoroPhi c' (-R)).re := (taper_R_phi_bounds hc_tap hR).2.1
+      have hphi_bd : |(virasoroPhi c' (-R)).re - (-R)| ≤ R / 4 :=
+        (taper_R_phi_bounds hc_tap hR).2.1
+      have h1 : (3 / 4 : ℝ) * R ≤ -(virasoroPhi c' (-R)).re := by
+        linarith only [(abs_le.mp hphi_bd).2]
       have hv_le_uR : vOfZeta (2 * zetaMin c') ≤ -(virasoroPhi c' (-R)).re := by
         have hhalf : (1 / 2 : ℝ) * (virasoroC1 ^ 2 * c' ^ (2 / 3 : ℝ)) ≤ (1 / 2 : ℝ) * R := by linarith only [hR1_lo]
-        linarith only [hv_2z, h47_half, hhalf, h1]
+        linarith only [hv_2z, h47_half, hhalf, h1, hR_pos]
       unfold zetaR
       rw [← zetaOfV_vOfZeta (by linarith only [hzmin_pos] : 0 ≤ 2 * zetaMin c')]
       exact (zetaOfV_le_iff (vOfZeta_pos (by positivity)).le (by linarith only [hneg_uR])).mpr hv_le_uR
@@ -1234,7 +1270,7 @@ lemma boas_zeta_to_lowerBand :
         (Ioo (zetaMin c') (2 * zetaMin c')) := by
       have hsub_oo : Ioo (zetaMin c') (2 * zetaMin c') ⊆ Ioi (zetaMin c') := Ioo_subset_Ioi_self
       have h_le_k : ∀ ζ ∈ Ioo (zetaMin c') (2 * zetaMin c'),
-          ‖R⁻¹ * (-virasoroUT c' (boasT c' ζ)) * dm_ζ ζ‖ ≤ ‖k (boasT c' ζ) * dm_ζ ζ‖ := by
+          ‖R⁻¹ * (-virasoroUT c' (boasT c' ζ)) * dm_ζ ζ‖ ≤ k (boasT c' ζ) * dm_ζ ζ := by
         intro ζ hζ
         have hζ_pos : 0 < ζ := hzmin_pos.trans hζ.1
         have hζ_R0 : ζ ≤ ζ_R0 := hζ.2.le.trans h2z_le_R0
@@ -1248,24 +1284,24 @@ lemma boas_zeta_to_lowerBand :
         have hnorm1 : ‖R⁻¹ * (-virasoroUT c' (boasT c' ζ)) * dm_ζ ζ‖ =
             R⁻¹ * (-virasoroUT c' (boasT c' ζ)) * dm_ζ ζ :=
           Real.norm_of_nonneg (by positivity)
-        have hnorm2 : ‖k (boasT c' ζ) * dm_ζ ζ‖ = 3 * (R⁻¹ * (-virasoroUT c' (boasT c' ζ))) * dm_ζ ζ := by
+        have hval_k : k (boasT c' ζ) * dm_ζ ζ = 3 * (R⁻¹ * (-virasoroUT c' (boasT c' ζ))) * dm_ζ ζ := by
           dsimp [k]; simp only [hT_le_R, ↓reduceIte]
-          exact Real.norm_of_nonneg (by positivity)
-        rw [hnorm1, hnorm2]
+        rw [hnorm1, hval_k]
         nlinarith only [show 0 ≤ R⁻¹ * (-virasoroUT c' (boasT c' ζ)) * dm_ζ ζ by positivity]
       have h_aesm : AEStronglyMeasurable (fun ζ => R⁻¹ * (-virasoroUT c' (boasT c' ζ)) * dm_ζ ζ)
           (volume.restrict (Ioo (zetaMin c') (2 * zetaMin c'))) := by
         have hcont_ut : ContinuousOn (fun ζ => -virasoroUT c' (boasT c' ζ)) (Ioo (zetaMin c') (2 * zetaMin c')) := by
           refine ContinuousOn.congr (f := fun ζ => vOfZeta ζ) ?_ (fun ζ hζ => hut_boasT (hzmin_pos.trans hζ.1) (hζ.2.le.trans h2z_le_R0))
           unfold vOfZeta
-          refine ((continuousOn_const.mul continuousOn_id).div_const 2).rpow_const fun ζ hζ => Or.inl ?_
-          have hzp := hzmin_pos.trans hζ.1; positivity
+          refine ((continuousOn_const.mul continuousOn_id).div_const 2).rpow_const fun _ _ => Or.inr (by norm_num)
         have hdm_c : ContinuousOn dm_ζ (Ioo (zetaMin c') (2 * zetaMin c')) := by
           have hboas_cont : ContinuousOn (boasT c') (Ioo (zetaMin c') (2 * zetaMin c')) :=
             fun ζ hζ => (hT_deriv (hzmin_pos.trans hζ.1)).1.continuousAt.continuousWithinAt
-          have hdm_c0 : ContinuousOn dm (Ioi T) :=
-            ((hwf.1.cont.mono ((Ioi_subset_Ioi (hΔ0_pos.le.trans hT_lo)).trans Ioi_subset_Ici_self)).mul
-              (continuous_cardyV virasoroProblem (c' / 12)).continuousOn).div_const _
+          have hdm_c0 : ContinuousOn dm (Ioi T) := by
+            have hcardy : ContinuousOn (fun t => g t * virasoroProblem.cardyV (c' / 12) t) (Ici 0) :=
+              hwf.1.cont.mul (continuous_cardyV virasoroProblem (c' / 12)).continuousOn
+            exact (hcardy.mono fun t (ht : t ∈ Ioi T) =>
+              Set.mem_Ici.mpr (hΔ0_pos.le.trans (hT_lo.trans (mem_Ioi.mp ht).le))).div_const _
           have hm_boas : MapsTo (boasT c') (Ioo (zetaMin c') (2 * zetaMin c')) (Ioi T) :=
             fun ζ hζ => lt_of_le_of_lt hT_thr (hthr_eq ▸ hT_mono hzmin_pos (hzmin_pos.trans hζ.1) hζ.1)
           have hT'_c : ContinuousOn (boasT' c') (Ioo (zetaMin c') (2 * zetaMin c')) := by
@@ -1310,10 +1346,10 @@ lemma boas_zeta_to_lowerBand :
           exact hc_ut.integrableOn_Icc.mono_set Ioc_subset_Icc_self
         have hmono_t : ∫ t in boasT c' '' Ioo (zetaMin c') (2 * zetaMin c'), R⁻¹ * (-virasoroUT c' t) * dm t ≤
             ∫ t in Ioc T (virasoroDeltaChart c' (-R)), R⁻¹ * (-virasoroUT c' t) * dm t := by
-          refine MeasureTheory.setIntegral_mono_set hint_Ioc ?_ hsub_img.eventuallyLE
+          refine MeasureTheory.setIntegral_mono_set hint_Ioc ?_ (ae_of_all _ hsub_img)
           filter_upwards [ae_restrict_mem measurableSet_Ioc] with t ht
           have hu := (virasoroUT_between hc0 hRm.1 (sq_nonneg _) (by linarith only [hR_pos])
-            (hT_lo.trans ht.1) ht.2).1
+            (hT_lo.trans ht.1.le) ht.2).1
           exact mul_nonneg (mul_nonneg (inv_nonneg.mpr hR_pos.le) (by linarith only [hu.2])) (hdm_nn ht.1.le)
         refine hmono_t.trans_eq ?_
         rw [← intervalIntegral.integral_of_le hT_R]
@@ -1327,9 +1363,8 @@ lemma boas_zeta_to_lowerBand :
       have hc47_pos : 0 < c' ^ (4 / 7 : ℝ) := Real.rpow_pos_of_pos hc0 _
       have hCew_eq : C_ew = 4 * 3 ^ 12 * (c' ^ (4 / 7 : ℝ)) ^ 11 * R ^ (-11 : ℤ) := by
         dsimp [C_ew]
-        rw [div_pow, mul_pow, zpow_neg, zpow_natCast]
+        rw [div_pow, mul_pow, zpow_neg, show R ^ (11 : ℤ) = R ^ (11 : ℕ) by norm_cast]
         field_simp [hR_pos.ne', hc47_pos.ne']
-        ring
       have hR11 : R ^ (-11 : ℤ) ≤ (virasoroC1 ^ 2) ^ (-11 : ℤ) * (c' ^ (2 / 3 : ℝ)) ^ (-11 : ℤ) := by
         have hlo : virasoroC1 ^ 2 * c' ^ (2 / 3 : ℝ) ≤ R := hR.1
         have hlo_pos : 0 < virasoroC1 ^ 2 * c' ^ (2 / 3 : ℝ) := by positivity
@@ -1418,8 +1453,7 @@ lemma boas_zeta_to_lowerBand :
       have hζ_pos : 0 < ζ := (zetaMin_pos hc0).trans hζ
       have hP_nn : 0 ≤ lowerPζ c' R ζ := (hP_spec (by linarith [zetaMin_pos hc0, mem_Ioi.mp hζ])).1.le
       have hA_le := abs_boasA_le (ζ := ζ) hc0 hζ_pos hP_nn
-      rw [Real.norm_eq_abs, abs_mul, abs_of_nonneg (h_nn (mem_Ioi.mp hζ).le),
-        Real.norm_of_nonneg (by positivity [hP_nn, h_nn (mem_Ioi.mp hζ).le])]
+      rw [Real.norm_eq_abs, abs_mul, abs_of_nonneg (h_nn (mem_Ioi.mp hζ).le)]
       nlinarith only [hA_le, h_nn (mem_Ioi.mp hζ).le]
     have hwdm_osc_int : IntegrableOn (fun ζ => w (boasT c' ζ) * dm_ζ ζ * osc ζ) (Ioi (zetaMin c')) := by
       have hosc_c : ContinuousOn osc (Ioi (zetaMin c')) := by
@@ -1441,8 +1475,8 @@ lemma boas_zeta_to_lowerBand :
         have hboas_cont : ContinuousOn (boasT c') (Ioi (zetaMin c')) :=
           fun ζ hζ => (hT_deriv ((zetaMin_pos hc0).trans hζ)).1.continuousAt.continuousWithinAt
         have hdm_c0 : ContinuousOn dm (Ioi T) :=
-          ((hwf.1.cont.mono ((Ioi_subset_Ioi (hΔ0_pos.le.trans hT_lo)).trans Ioi_subset_Ici_self)).mul
-            (continuous_cardyV virasoroProblem (c' / 12)).continuousOn).div_const _
+          ((hwf.1.cont.mul (continuous_cardyV virasoroProblem (c' / 12)).continuousOn).mono
+            fun t ht => (hΔ0_pos.le.trans (hT_lo.trans (mem_Ioi.mp ht).le) : (0 : ℝ) ≤ t)).div_const _
         have hm_boas : MapsTo (boasT c') (Ioi (zetaMin c')) (Ioi T) :=
           fun ζ hζ => lt_of_le_of_lt hT_thr (hthr_eq ▸ hT_mono (zetaMin_pos hc0) ((zetaMin_pos hc0).trans hζ) hζ)
         have hT'_c : ContinuousOn (boasT' c') (Ioi (zetaMin c')) := by
@@ -1463,9 +1497,7 @@ lemma boas_zeta_to_lowerBand :
           (hdm_nn (hT_thr.trans (hthr_eq ▸ hT_mono.monotoneOn (zetaMin_pos hc0) hζ_pos hζ_le)))
       have hw_nn : 0 ≤ w (boasT c' ζ) := (hw_Icc (by linarith [zetaMin_pos hc0, hζ_le])).1
       have hk_nn : 0 ≤ k (boasT c' ζ) := hw_nn.trans (hw_le_k hζ_le)
-      have hnorm : ‖w (boasT c' ζ) * dm_ζ ζ * osc ζ‖ = w (boasT c' ζ) * dm_ζ ζ * |osc ζ| := by
-        rw [Real.norm_eq_abs, abs_mul, abs_of_nonneg (mul_nonneg hw_nn hdm_ζ_nn)]
-      rw [hnorm, Real.norm_of_nonneg (by positivity)]
+      rw [Real.norm_eq_abs, abs_mul, abs_of_nonneg (mul_nonneg hw_nn hdm_ζ_nn)]
       calc w (boasT c' ζ) * dm_ζ ζ * |osc ζ| ≤ k (boasT c' ζ) * dm_ζ ζ * 3 :=
             mul_le_mul (mul_le_mul_of_nonneg_right (hw_le_k hζ_le) hdm_ζ_nn) (hosc_bd hζ_pos)
               (abs_nonneg _) (mul_nonneg hk_nn hdm_ζ_nn)
@@ -1519,6 +1551,15 @@ lemma boas_zeta_to_lowerBand :
           rw [hpow43]; dsimp [K_err]; gcongr; linarith
   exact ⟨h_aesm, h_nn, hPh_int_Ici, h_total_bd, h_early_bd, h_band_diff⟩
 
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.virasoro_moments_any_radius' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.FiveTerm.virasoro_moments_any_radius
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.lowerP0_mul_boasH_asymptotic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.FiveTerm.lowerP0_mul_boasH_asymptotic
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.boas_zeta_to_lowerBand' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.ModularBootstrap.FiveTerm.boas_zeta_to_lowerBand
 
