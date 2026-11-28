@@ -76,15 +76,15 @@ theorem lowerPrelim_virasoro : LowerPrelim virasoroProblem := by
     rw [hpsi]
     exact hslope θ hθ0 hθ1
 
-/-- `LowerPhaseStatementSharp` at Virasoro from the open lemmas (`pass2` discharged unconditionally by `lowerPass2_of_chart`). -/
-theorem lowerPhase_virasoro (h : LowerMainInputs virasoroProblem c0Star gamma0) :
+/-- `LowerPhaseStatementSharp` at Virasoro from the remaining open lemmas (`pass2` and `chart` discharged unconditionally). -/
+theorem lowerPhase_virasoro (h : LowerMainInputs virasoroProblem) :
     ∃ C : ℝ, 0 ≤ C ∧ LowerPhaseStatementSharp virasoroProblem c0Star gamma0 C :=
-  lowerPhase_of_inputs c0Star_neg lowerPrelim_virasoro h
-    (lowerPass2_of_chart c0Star_neg h.c1_pos h.c1_small h.chart)
+  lowerPhase_of_inputs lowerPrelim_virasoro h
+    (lowerPass2_of_chart c0Star_neg virasoroC1_pos virasoroC1_small virasoroChart_holds)
 
 /-- **Lower half of `cts:lower-main` (Theorem C9, first display), modulo `LowerMainInputs`**:
 `Δ_best(c) ≥ c/Λ_V + A_opt c^{1/3} + c_0^* + c_1^Langer c^{-1/3} + d_2^* c^{-2/3} - C_- c^{-1}`. -/
-theorem spinless_lower_of_inputs (h : LowerMainInputs virasoroProblem c0Star gamma0) :
+theorem spinless_lower_of_inputs (h : LowerMainInputs virasoroProblem) :
     ∃ Cm c₁ : ℝ, ∀ c : ℝ, c₁ ≤ c →
       c / lambdaV + Aopt * c ^ (1 / 3 : ℝ) + c0Star + c1Langer * c ^ (-(1 / 3) : ℝ) +
         d2Star * c ^ (-(2 / 3) : ℝ) - Cm * c ^ (-1 : ℝ) ≤

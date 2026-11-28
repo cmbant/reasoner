@@ -66,6 +66,9 @@ public import FormalResearch.ModularBootstrap.FiveTerm.UpperTipMatch
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperDetuning
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerPhaseChart
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerPhaseSharp
+public import FormalResearch.ModularBootstrap.FiveTerm.LowerFoldChart
+public import FormalResearch.ModularBootstrap.FiveTerm.LowerVirasoroPsi
+public import FormalResearch.ModularBootstrap.FiveTerm.LowerChartMain
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerCorL
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerSign
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerBoasResidue
