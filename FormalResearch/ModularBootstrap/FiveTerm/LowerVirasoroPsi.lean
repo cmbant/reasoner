@@ -63,7 +63,7 @@ private lemma hasDerivAt_conj_conj_psi {g : ℂ → ℂ} {z d : ℂ}
   simp only [Function.comp_apply, smul_eq_mul]
   rw [map_mul, map_inv₀, Complex.conj_conj, map_sub, map_add]
 
-private lemma conj_symm_of_real_ball {g : ℂ → ℂ} {r : ℝ} (hr : 0 < r)
+private lemma conj_symm_of_real_ball {g : ℂ → ℂ} {r : ℝ} (_hr : 0 < r)
     (hg : DifferentiableOn ℂ g (ball 0 r))
     (hreal : ∃ δ > 0, δ ≤ r ∧ ∀ x : ℝ, 0 < x → x < δ → (g (x : ℂ)).im = 0) :
     ∀ w ∈ ball (0 : ℂ) r, g (starRingEnd ℂ w) = starRingEnd ℂ (g w) := by
@@ -131,11 +131,10 @@ private lemma sqrt_slitY_div_two_betaTip :
       rw [pow_succ, hsY_sq]
     rw [hc3]
     field_simp [hpi.ne', h2pos.ne']
-    rw [h2sq]
-    ring
+    norm_num
   rw [hbt']
   field_simp [hsY_pos.ne', h2pos.ne']
-  ring
+  nlinarith only [h2sq]
 
 private lemma psi0_const_eq_c0_div_cStar_betaTip :
     √slitY / (2 * betaTip ^ (3 / 2 : ℝ)) * g1Vir = (c0Star / cStar) / betaTip := by
@@ -204,7 +203,7 @@ private lemma virasoro_tauInv_exists :
   have hψF_diff : DifferentiableOn ℂ ψF (ball 0 r1) := by
     intro r hr
     have hAr := ((pg.hA_an r (ball_subset_ball hr1_rA.le hr)).differentiableAt).hasDerivAt
-    have hpow := hAr.cpow_const (hr1_slit r hr)
+    have hpow := hAr.cpow_const (c := ((2 / 3 : ℝ) : ℂ)) (hr1_slit r hr)
     exact ((hasDerivAt_id r).mul (hpow.sub_const 1)).differentiableAt.differentiableWithinAt
   have hψF_0 : ψF 0 = 0 := by simp [ψF]
   have hdψF_0 : deriv ψF 0 = 0 := by
@@ -328,12 +327,11 @@ private lemma virasoro_tauInv_exists :
     have hdΨ0 : deriv Ψ 0 = 0 := by
       have ha : (0 : ℂ) ∈ ball (0 : ℂ) r1 := mem_ball_self hr1_pos
       have hd_ψF : HasDerivAt ψF 0 0 := by
-        rw [← hdψF_0]
-        exact (hψF_diff.differentiableAt (isOpen_ball.mem_nhds ha)).hasDerivAt
+        simpa [hdψF_0] using (hψF_diff.differentiableAt (isOpen_ball.mem_nhds ha)).hasDerivAt
       have hd_sc : HasDerivAt (fun w : ℂ => (s : ℂ) * w) (s : ℂ) 0 := by
         simpa using (hasDerivAt_id (0 : ℂ)).const_mul (s : ℂ)
       have hd_cmp : HasDerivAt (fun w : ℂ => ψF ((s : ℂ) * w)) (0 * (s : ℂ)) 0 :=
-        hd_ψF.comp 0 hd_sc
+        hd_ψF.comp_of_eq 0 hd_sc (mul_zero _)
       have hd_cmp2 := hd_cmp.const_mul (s⁻¹ : ℂ)
       simpa [Ψ] using hd_cmp2.deriv
     rw [hg0, hdΨ0] at hd1
@@ -341,7 +339,7 @@ private lemma virasoro_tauInv_exists :
     have hd2 : HasDerivAt (fun w : ℂ => (s⁻¹ : ℂ) * w) (s⁻¹ : ℂ) 0 := by
       simpa using (hasDerivAt_id (0 : ℂ)).const_mul (s⁻¹ : ℂ)
     have hd_rC : HasDerivAt rC ((s : ℂ) * (1 * (s⁻¹ : ℂ))) 0 :=
-      (hd1.comp 0 hd2).const_mul (s : ℂ)
+      (hd1.comp_of_eq 0 hd2 (mul_zero _)).const_mul (s : ℂ)
     have hsC : (s : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hs_pos.ne'
     have heq : (s : ℂ) * (1 * (s⁻¹ : ℂ)) = 1 := by field_simp [hsC]
     rw [heq] at hd_rC
@@ -356,7 +354,7 @@ private lemma virasoro_tauInv_exists :
     rw [hA_conj z hz, Complex.conj_cpow (pg.A z) ((2 / 3 : ℝ) : ℂ) (Complex.slitPlane_arg_ne_pi (hr1_slit z hz))]
     have h23 : starRingEnd ℂ ((2 / 3 : ℝ) : ℂ) = ((2 / 3 : ℝ) : ℂ) := Complex.conj_ofReal _
     rw [h23]
-    simp only [map_mul, map_sub, map_one, Complex.conj_ofReal]
+    simp only [map_mul, map_sub, map_one]
   have hrC_conj : ∀ τ ∈ ball (0 : ℂ) rτ, rC (starRingEnd ℂ τ) = starRingEnd ℂ (rC τ) := by
     intro τ hτ
     have hτc : starRingEnd ℂ τ ∈ ball (0 : ℂ) rτ := by
@@ -418,8 +416,8 @@ private lemma virasoro_tauInv_exists :
       simpa [hψF_0, dist_eq_norm, norm_sub_rev, Complex.norm_real, Real.norm_eq_abs] using hmv
     have hr_diff : |r - τ| ≤ (1 / 4) * |r| := by
       have hsub : ((r - τ : ℝ) : ℂ) = -ψF (r : ℂ) := by
-        rw [hr_c] at hrel; push_cast; linear_combination -hrel
-      rw [← Complex.norm_real, hsub, norm_neg]
+        rw [hr_c] at hrel; push_cast; linear_combination hrel
+      rw [← Real.norm_eq_abs, ← Complex.norm_real, hsub, norm_neg]
       exact hψ_bd
     have h43 : |r| ≤ 4 / 3 * τ := by
       have h2 : |r| ≤ τ + |r - τ| := by
@@ -432,7 +430,8 @@ private lemma virasoro_tauInv_exists :
       linarith only [h1, h43, hτ0]
     have hr_lt_sτ : r < s * 4 / 3 := by
       have h1 : r = |r| := (abs_of_pos hr_pos).symm
-      have h2 : 4 / 3 * τ < 4 / 3 * (s / 2) := by linarith only [hτ_lt]
+      have hτ_s : τ < s / 2 := hτ_lt
+      have h2 : 4 / 3 * τ < 4 / 3 * (s / 2) := by linarith only [hτ_s]
       linarith only [h1, h43, h2]
     have hr_lt_r1 : r < r1 := by
       have : s ≤ r1 / 2 := min_le_left _ _
@@ -466,7 +465,7 @@ private lemma virasoro_tauInv_exists :
       have hrel_r : (r : ℂ) * (pg.A (r : ℂ)) ^ ((2 / 3 : ℝ) : ℂ) = (τ : ℂ) := by
         calc (r : ℂ) * (pg.A (r : ℂ)) ^ ((2 / 3 : ℝ) : ℂ)
             = (r : ℂ) + (r : ℂ) * ((pg.A (r : ℂ)) ^ ((2 / 3 : ℝ) : ℂ) - 1) := by ring
-          _ = rC (τ : ℂ) + ψF (rC (τ : ℂ)) := by rw [hr_c]; rfl
+          _ = rC (τ : ℂ) + ψF (rC (τ : ℂ)) := by rw [hr_c]
           _ = (τ : ℂ) := hrel
       rw [hAc, ← Complex.ofReal_cpow hAre_pos.le, ← Complex.ofReal_mul] at hrel_r
       exact Complex.ofReal_injective hrel_r
@@ -539,7 +538,7 @@ private lemma virasoro_Y0_exists :
   have hY0_diff : DifferentiableOn ℂ Y0 (ball 0 rY1) :=
     (Complex.differentiableOn_dslope (isOpen_ball.mem_nhds (mem_ball_self hrY1_pos))).mpr hcoshY_diff
   have hY0_0 : Y0 0 = (slitY : ℂ) := by
-    rw [dslope_same]
+    dsimp [Y0]; rw [dslope_same]
     have hd_rC : HasDerivAt rC 1 0 := hd_rC0 ▸ (hrC_diff.differentiableAt (isOpen_ball.mem_nhds (mem_ball_self hrτ_pos))).hasDerivAt
     have hd_arg : HasDerivAt (fun τ => (π : ℂ) * ((xiStar : ℂ) + rC τ)) (π : ℂ) 0 := by
       have := (hd_rC.const_add (xiStar : ℂ)).const_mul (π : ℂ)
@@ -568,7 +567,7 @@ private lemma virasoro_Y0_exists :
     have hcont : ContinuousAt Y0 0 := (hY0_diff.differentiableAt (isOpen_ball.mem_nhds (mem_ball_self hrY1_pos))).continuousAt
     have hlim : Tendsto (fun τ => (Y0 τ).re) (𝓝 0) (𝓝 slitY) := by
       have := Complex.continuous_re.continuousAt.tendsto.comp hcont.tendsto
-      simpa [hY0_0] using this
+      simpa [Function.comp_def, hY0_0] using this
     have hslitY : 0 < slitY := by unfold slitY; positivity
     exact hlim.eventually (Ioi_mem_nhds hslitY)
   obtain ⟨r2, hr2_pos, hr2_ball⟩ := Metric.mem_nhds_iff.mp hev_reY
@@ -584,15 +583,21 @@ private lemma virasoro_Y0_exists :
       have harg : (π : ℂ) * ((xiStar : ℂ) + ((rC (τ : ℂ)).re : ℝ)) =
           ((π * (xiStar + (rC (τ : ℂ)).re) : ℝ) : ℂ) := by push_cast; ring
       rw [harg, ← Complex.ofReal_cosh]
-      push_cast; simp
+      rw [show ((Real.cosh (π * (xiStar + (rC (τ : ℂ)).re)) : ℂ) - (√2 : ℂ)) /
+          ((Real.cosh (π * (xiStar + (rC (τ : ℂ)).re)) : ℂ) + (√2 : ℂ)) =
+          (((Real.cosh (π * (xiStar + (rC (τ : ℂ)).re)) - √2) /
+            (Real.cosh (π * (xiStar + (rC (τ : ℂ)).re)) + √2) : ℝ) : ℂ) by push_cast; rfl]
+      exact Complex.ofReal_im _
     have hτC : (τ : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hτ0.ne'
     have hmul : (τ : ℂ) * Y0 (τ : ℂ) = coshY (τ : ℂ) := by
-      rw [show Y0 (τ : ℂ) = dslope coshY 0 (τ : ℂ) from rfl, sub_smul_dslope]
-      simp [hcoshY_0]
+      calc (τ : ℂ) * Y0 (τ : ℂ)
+          = ((τ : ℂ) - 0) • dslope coshY 0 (τ : ℂ) := by simp [Y0]
+        _ = coshY (τ : ℂ) - coshY 0 := sub_smul_dslope coshY 0 (τ : ℂ)
+        _ = coshY (τ : ℂ) := by rw [hcoshY_0, sub_zero]
     have him2 := congrArg Complex.im hmul
     simp only [Complex.mul_im, Complex.ofReal_re, Complex.ofReal_im, zero_mul, add_zero] at him2
     rw [hnum_im] at him2
-    exact (mul_eq_zero.mp him2.symm).resolve_left hτ0.ne'
+    exact (mul_eq_zero.mp him2).resolve_left hτ0.ne'
   have hY0_real_band : ∀ τ : ℝ, 0 < τ → τ < rY →
       0 < (rC (τ : ℂ)).re ∧ (rC (τ : ℂ)).re < sτ ∧
       (rC (τ : ℂ)).im = 0 ∧
@@ -605,7 +610,9 @@ private lemma virasoro_Y0_exists :
     set y : ℝ := lowerYVal (xiStar + r)
     have hcosh_gt : √2 < Real.cosh (π * (xiStar + r)) := by
       rw [← cosh_pi_xiStar]
-      exact Real.cosh_lt_cosh.mpr (by rw [abs_of_pos (by linarith [xiStar_pos]), abs_of_pos (by linarith [xiStar_pos, hr_pos])]; linarith [Real.pi_pos, hr_pos])
+      exact Real.cosh_lt_cosh.mpr (by
+        rw [abs_of_pos (mul_pos Real.pi_pos xiStar_pos), abs_of_pos (mul_pos Real.pi_pos (by linarith only [xiStar_pos, hr_pos]))]
+        exact mul_lt_mul_of_pos_left (by linarith only [hr_pos]) Real.pi_pos)
     have hden_pos : 0 < Real.cosh (π * (xiStar + r)) + √2 := by positivity
     have hq_pos : 0 < (Real.cosh (π * (xiStar + r)) - √2) / (Real.cosh (π * (xiStar + r)) + √2) :=
       div_pos (by linarith only [hcosh_gt]) hden_pos
@@ -615,8 +622,10 @@ private lemma virasoro_Y0_exists :
     have hy1 : y < 1 := by
       rw [← Real.sqrt_one]; exact Real.sqrt_lt_sqrt hq_pos.le hq_lt1
     have hmul : (τ : ℂ) * Y0 (τ : ℂ) = coshY (τ : ℂ) := by
-      rw [show Y0 (τ : ℂ) = dslope coshY 0 (τ : ℂ) from rfl, sub_smul_dslope]
-      simp [hcoshY_0]
+      calc (τ : ℂ) * Y0 (τ : ℂ)
+          = ((τ : ℂ) - 0) • dslope coshY 0 (τ : ℂ) := by simp [Y0]
+        _ = coshY (τ : ℂ) - coshY 0 := sub_smul_dslope coshY 0 (τ : ℂ)
+        _ = coshY (τ : ℂ) := by rw [hcoshY_0, sub_zero]
     have hrc : rC (τ : ℂ) = (r : ℂ) := Complex.ext rfl him
     have hcoshy_re : (coshY (τ : ℂ)).re = y ^ 2 := by
       dsimp [coshY]; rw [hrc]
@@ -656,10 +665,13 @@ private lemma virasoro_Y0_exists :
           _ = 1 / 10 := by field_simp [hpi.ne']
       have hC_eq : Real.cosh (π * (xiStar + r)) = √2 * (1 + y ^ 2) / (1 - y ^ 2) := by
         have hden_pos : 0 < Real.cosh (π * (xiStar + r)) + √2 := by positivity
-        have hq : y ^ 2 = (Real.cosh (π * (xiStar + r)) - √2) / (Real.cosh (π * (xiStar + r)) + √2) :=
-          Real.sq_sqrt (div_nonneg (by
-            have h1 := Real.cosh_lt_cosh.mpr (by rw [abs_of_pos (by linarith [xiStar_pos]), abs_of_pos (by linarith [xiStar_pos, hr_pos])]; linarith [Real.pi_pos, hr_pos])
-            rw [cosh_pi_xiStar] at h1; linarith only [h1]) hden_pos.le)
+        have hq : y ^ 2 = (Real.cosh (π * (xiStar + r)) - √2) / (Real.cosh (π * (xiStar + r)) + √2) := by
+          have h1 : √2 < Real.cosh (π * (xiStar + r)) := by
+            rw [← cosh_pi_xiStar]
+            exact Real.cosh_lt_cosh.mpr (by
+              rw [abs_of_pos (mul_pos Real.pi_pos xiStar_pos), abs_of_pos (mul_pos Real.pi_pos (by linarith only [xiStar_pos, hr_pos]))]
+              exact mul_lt_mul_of_pos_left (by linarith only [hr_pos]) Real.pi_pos)
+          exact Real.sq_sqrt (div_nonneg (by linarith only [h1]) hden_pos.le)
         have hy2 : 0 < 1 - y ^ 2 := by nlinarith only [hy0, hy1]
         rw [eq_div_iff hy2.ne']
         have : y ^ 2 * (Real.cosh (π * (xiStar + r)) + √2) = Real.cosh (π * (xiStar + r)) - √2 := by
@@ -668,7 +680,7 @@ private lemma virasoro_Y0_exists :
       have hsq := slit_sq_tau hr_pos hπr hy0 hy1 hC_eq
       rw [htau, ← hτY] at hsq
       have hre_div : ((Y0 (τ : ℂ) - Y0 0) / (τ : ℂ)).re = ((Y0 (τ : ℂ)).re - slitY) / τ := by
-        rw [hY0_0, ← Complex.ofReal_sub, div_eq_mul_inv, ← Complex.ofReal_inv, Complex.mul_re,
+        rw [hY0_0, div_eq_mul_inv, ← Complex.ofReal_inv, Complex.mul_re,
           Complex.sub_re, Complex.ofReal_re, Complex.ofReal_im, mul_zero, sub_zero, ← div_eq_mul_inv]
       rw [hre_div]
       have halg : ((Y0 (τ : ℂ)).re - slitY) / τ - slitY * slitB =
@@ -680,12 +692,13 @@ private lemma virasoro_Y0_exists :
         _ = 290 * τ := by field_simp [hτ.1.ne']
     have h0_lim : Tendsto (fun τ : ℝ => ((Y0 (τ : ℂ) - Y0 0) / (τ : ℂ)).re) (𝓝[>] 0) (𝓝 (slitY * slitB)) := by
       have h290 : Tendsto (fun τ : ℝ => 290 * τ) (𝓝[>] 0) (𝓝 0) := by
-        simpa using ((continuous_const.mul continuous_id).continuousAt.tendsto.mono_left nhdsWithin_le_nhds :
-          Tendsto (fun τ : ℝ => 290 * τ) (𝓝[>] 0) (𝓝 (290 * 0)))
+        have hcont290 : ContinuousAt (fun τ : ℝ => 290 * τ) 0 := (continuous_const.mul continuous_id).continuousAt
+        simpa using hcont290.tendsto.mono_left nhdsWithin_le_nhds
       exact tendsto_iff_norm_sub_tendsto_zero.mpr (squeeze_zero' (Eventually.of_forall fun _ => norm_nonneg _) hbound h290)
     have hre_eq : (deriv Y0 0).re = slitY * slitB := tendsto_nhds_unique hlim h0_lim
     have him_eq : (deriv Y0 0).im = 0 := by
-      have hconj := hasDerivAt_conj_conj_psi ((hY0_diff.differentiableAt (isOpen_ball.mem_nhds (mem_ball_self hrY1_pos))).hasDerivAt)
+      have hconj := hasDerivAt_conj_conj_psi
+        (by simpa only [map_zero] using ((hY0_diff.differentiableAt (isOpen_ball.mem_nhds (mem_ball_self hrY1_pos))).hasDerivAt))
       have hfun_eq : (fun w : ℂ => starRingEnd ℂ (Y0 (starRingEnd ℂ w))) =ᶠ[𝓝 0] Y0 := by
         filter_upwards [isOpen_ball.mem_nhds (mem_ball_self hrY_pos)] with w hw
         rw [hY0_conj w (by simpa [mem_ball_zero_iff] using hw), Complex.conj_conj]
@@ -732,30 +745,35 @@ private lemma three_deriv_comp_const_mul {F : ℂ → ℂ} {ρ : ℝ} (hρ : 0 <
     iteratedDeriv 3 (fun z : ℂ => F (a * z)) 0 = a ^ 3 * iteratedDeriv 3 F 0 := by
   have h1 : ∀ z ∈ ball (0 : ℂ) ρ,
       deriv (fun w => F (a * w)) z = a * deriv F (a * z) := fun z hz => by
+    rw [mem_ball_zero_iff] at hz
     have haz : a * z ∈ ball (0 : ℂ) ρ := by
-      rw [mem_ball_zero_iff, norm_mul] at hz ⊢
+      rw [mem_ball_zero_iff, norm_mul]
       calc ‖a‖ * ‖z‖ ≤ 1 * ‖z‖ := mul_le_mul_of_nonneg_right ha (norm_nonneg _)
         _ = ‖z‖ := one_mul _
         _ < ρ := hz
     have hdF : HasDerivAt F (deriv F (a * z)) (a * z) :=
       (hF.differentiableAt (isOpen_ball.mem_nhds haz)).hasDerivAt
     have hdz : HasDerivAt (fun w : ℂ => a * w) a z := by simpa using (hasDerivAt_id z).const_mul a
-    simpa [mul_comm] using (hdF.comp z hdz).deriv
+    have hdc : HasDerivAt (fun w => F (a * w)) (deriv F (a * z) * a) z := hdF.comp z hdz
+    simpa [mul_comm] using hdc.deriv
   have hF1 : DifferentiableOn ℂ (deriv F) (ball 0 ρ) := hF.deriv isOpen_ball
   have h2 : ∀ z ∈ ball (0 : ℂ) ρ,
       deriv (deriv (fun w => F (a * w))) z = a ^ 2 * deriv (deriv F) (a * z) := fun z hz => by
     have heq : deriv (fun w => F (a * w)) =ᶠ[𝓝 z] (fun w => a * deriv F (a * w)) := by
       filter_upwards [isOpen_ball.mem_nhds hz] with w hw using h1 w hw
     rw [heq.deriv_eq]
+    rw [mem_ball_zero_iff] at hz
     have haz : a * z ∈ ball (0 : ℂ) ρ := by
-      rw [mem_ball_zero_iff, norm_mul] at hz ⊢
+      rw [mem_ball_zero_iff, norm_mul]
       calc ‖a‖ * ‖z‖ ≤ 1 * ‖z‖ := mul_le_mul_of_nonneg_right ha (norm_nonneg _)
         _ = ‖z‖ := one_mul _
         _ < ρ := hz
     have hdF1 : HasDerivAt (deriv F) (deriv (deriv F) (a * z)) (a * z) :=
       (hF1.differentiableAt (isOpen_ball.mem_nhds haz)).hasDerivAt
     have hdz : HasDerivAt (fun w : ℂ => a * w) a z := by simpa using (hasDerivAt_id z).const_mul a
-    have hdc := (hdF1.comp z hdz).const_mul a
+    have hdc0 : HasDerivAt (fun w => deriv F (a * w)) (deriv (deriv F) (a * z) * a) z :=
+      hdF1.comp z hdz
+    have hdc := hdc0.const_mul a
     rw [hdc.deriv]; ring
   have hF2 : DifferentiableOn ℂ (deriv (deriv F)) (ball 0 ρ) := hF1.deriv isOpen_ball
   have h3 : deriv (deriv (deriv (fun w => F (a * w)))) 0 = a ^ 3 * deriv (deriv (deriv F)) 0 := by
@@ -765,9 +783,12 @@ private lemma three_deriv_comp_const_mul {F : ℂ → ℂ} {ρ : ℝ} (hρ : 0 <
     have hdF2 : HasDerivAt (deriv (deriv F)) (deriv (deriv (deriv F)) 0) 0 :=
       (hF2.differentiableAt (isOpen_ball.mem_nhds (mem_ball_self hρ))).hasDerivAt
     have hdz : HasDerivAt (fun w : ℂ => a * w) a 0 := by simpa using (hasDerivAt_id (0 : ℂ)).const_mul a
-    have hdc := (hdF2.comp 0 hdz).const_mul (a ^ 2)
-    simpa [mul_zero] using hdc.deriv.trans (by ring)
-  rw [iteratedDeriv_succ, iteratedDeriv_two, iteratedDeriv_succ, iteratedDeriv_two]
+    have hdc0 : HasDerivAt (fun w => deriv (deriv F) (a * w)) (deriv (deriv (deriv F)) 0 * a) 0 := by
+      simpa [mul_zero] using hdF2.comp_of_eq 0 hdz (mul_zero a)
+    have hdc := hdc0.const_mul (a ^ 2)
+    rw [hdc.deriv]; ring
+  rw [iteratedDeriv_succ, iteratedDeriv_succ, iteratedDeriv_one,
+    iteratedDeriv_succ, iteratedDeriv_succ, iteratedDeriv_one]
   exact h3
 
 private lemma virasoro_Tout_exists :
@@ -784,7 +805,9 @@ private lemma virasoro_Tout_exists :
   have hL_cont : ContinuousAt L 0 := (hL_diff.differentiableAt (isOpen_ball.mem_nhds (mem_ball_self hρL))).continuousAt
   have hev_L : ∀ᶠ z : ℂ in 𝓝 0, ‖L z‖ < π / 4 := by
     have : Tendsto L (𝓝 0) (𝓝 0) := by simpa [hL0] using hL_cont.tendsto
-    exact this.eventually (Metric.ball_mem_nhds 0 (div_pos Real.pi_pos (by norm_num)))
+    have hball : ∀ᶠ z : ℂ in 𝓝 0, L z ∈ ball (0 : ℂ) (π / 4) :=
+      this.eventually (Metric.ball_mem_nhds (0 : ℂ) (div_pos Real.pi_pos (by norm_num)))
+    exact hball.mono fun _ h => by simpa [Metric.mem_ball, dist_eq_norm] using h
   obtain ⟨δL, hδL_pos, hδL_ball⟩ := Metric.mem_nhds_iff.mp hev_L
   have hL_conj : ∀ z ∈ ball (0 : ℂ) ρL, L (starRingEnd ℂ z) = starRingEnd ℂ (L z) := by
     refine conj_symm_of_real_ball hρL hL_diff ?_
@@ -792,7 +815,7 @@ private lemma virasoro_Tout_exists :
     have hx_half : (x : ℂ) ∈ halfDisc := by
       refine ⟨?_, by simp [hx0]⟩
       rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hx0]
-      exact hx_lt.trans_le ((min_le_right _ _).trans (min_le_right _ _)) |>.trans_lt (by norm_num)
+      exact lt_trans (hx_lt.trans_le ((min_le_right _ _).trans (min_le_right _ _))) (by norm_num)
     have hx_ρL : ‖(x : ℂ)‖ < ρL := by
       rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hx0]
       exact hx_lt.trans_le (min_le_left _ _)
@@ -803,8 +826,10 @@ private lemma virasoro_Tout_exists :
     have hGx_conj : Gout (starRingEnd ℂ (x : ℂ)) = starRingEnd ℂ (Gout (x : ℂ)) := gout_conj hx_half
     simp only [Complex.conj_ofReal] at hGx_conj
     have h_exp_eq : Complex.exp (L (x : ℂ)) = Complex.exp (starRingEnd ℂ (L (x : ℂ))) := by
-      rw [← hGx_exp, Complex.exp_conj, hGx_exp]
-      exact hGx_conj.symm
+      rw [← hGx_exp]
+      calc Gout (x : ℂ) = starRingEnd ℂ (Gout (x : ℂ)) := hGx_conj
+        _ = starRingEnd ℂ (Complex.exp (L (x : ℂ))) := by rw [hGx_exp]
+        _ = Complex.exp (starRingEnd ℂ (L (x : ℂ))) := (Complex.exp_conj _).symm
     have hdiff_exp : Complex.exp (L (x : ℂ) - starRingEnd ℂ (L (x : ℂ))) = 1 := by
       rw [Complex.exp_sub, h_exp_eq, div_self (Complex.exp_ne_zero _)]
     have hsub_eq : L (x : ℂ) - starRingEnd ℂ (L (x : ℂ)) = ((2 * (L (x : ℂ)).im : ℝ) : ℂ) * Complex.I := by
@@ -812,33 +837,28 @@ private lemma virasoro_Tout_exists :
     rw [hsub_eq] at hdiff_exp
     obtain ⟨k, hk⟩ := Complex.exp_eq_one_iff.mp hdiff_exp
     have hk_im : 2 * (L (x : ℂ)).im = 2 * (k : ℝ) * π := by
-      have := congrArg Complex.im hk
-      simp only [Complex.mul_im, Complex.ofReal_re, Complex.ofReal_im, Complex.I_re, Complex.I_im,
-        mul_one, mul_zero, add_zero, sub_zero, Complex.intCast_re, Complex.intCast_im,
-        Complex.coe_re, Complex.coe_im, zero_mul] at this
-      -- Wait: `(k : ℂ) * (2 * π * I)`:
+      have h_lhs : (((2 * (L (x : ℂ)).im : ℝ) : ℂ) * Complex.I).im = 2 * (L (x : ℂ)).im := by simp
       have h_rhs : ((k : ℂ) * (2 * (π : ℂ) * Complex.I)).im = 2 * (k : ℝ) * π := by
         simp [Complex.mul_im]; ring
-      rw [h_rhs] at this
-      exact this
-    have hLx_norm : ‖L (x : ℂ)‖ < π / 4 := by
-      simpa [Metric.mem_ball, dist_eq_norm] using hδL_ball (mem_ball_zero_iff.mpr hx_δL)
+      have := congrArg Complex.im hk
+      linarith only [this, h_lhs, h_rhs]
+    have hLx_norm : ‖L (x : ℂ)‖ < π / 4 := hδL_ball (mem_ball_zero_iff.mpr hx_δL)
     have hLim_lt : |(L (x : ℂ)).im| < π / 4 :=
       (Complex.abs_im_le_norm _).trans_lt hLx_norm
     have hk0 : k = 0 := by
       have h_k : |(k : ℝ)| * π < π / 4 := by
-        have : |(k : ℝ) * π| = |(L (x : ℂ)).im| := by rw [← abs_mul]; congr 1; linarith only [hk_im]
-        rw [abs_mul, abs_of_pos Real.pi_pos] at this
-        linarith only [this, hLim_lt]
-      have h_k1 : |(k : ℝ)| < 1 / 4 := by
-        nlinarith only [h_k, Real.pi_pos]
+        have h_abs : |(k : ℝ) * π| = |(L (x : ℂ)).im| := by
+          congr 1; linarith only [hk_im]
+        rw [abs_mul, abs_of_pos Real.pi_pos] at h_abs
+        linarith only [h_abs, hLim_lt]
+      have h_k1 : |(k : ℝ)| < 1 / 4 := by nlinarith only [h_k, Real.pi_pos]
       rcases Int.lt_trichotomy k 0 with hk_neg | rfl | hk_pos
-      · have : (1 : ℝ) ≤ -(k : ℝ) := by exact_mod_cast Int.le_sub_one_of_lt (neg_pos.mpr hk_neg) |>.trans' (by omega) |> fun _ => by exact_mod_cast (show (1 : ℤ) ≤ -k by omega)
-        have := (abs_lt.mp h_k1).1; linarith only [this, ‹(1 : ℝ) ≤ -(k : ℝ)›]
+      · have h1 : (1 : ℝ) ≤ -(k : ℝ) := by exact_mod_cast (by omega : (1 : ℤ) ≤ -k)
+        linarith only [(abs_lt.mp h_k1).1, h1]
       · rfl
-      · have : (1 : ℝ) ≤ (k : ℝ) := by exact_mod_cast (show (1 : ℤ) ≤ k by omega)
-        have := (abs_lt.mp h_k1).2; linarith only [this, ‹(1 : ℝ) ≤ (k : ℝ)›]
-    rw [hk0, Int.cast_zero, zero_mul, zero_mul] at hk_im
+      · have h1 : (1 : ℝ) ≤ (k : ℝ) := by exact_mod_cast (by omega : (1 : ℤ) ≤ k)
+        linarith only [(abs_lt.mp h_k1).2, h1]
+    rw [hk0, Int.cast_zero] at hk_im
     linarith only [hk_im]
   let oL : ℂ → ℂ := fun z => (L (Complex.I * z) - L (-Complex.I * z)) / (2 * Complex.I)
   have hoL_diff : DifferentiableOn ℂ oL (ball 0 ρL) := fun z hz => by
@@ -864,20 +884,20 @@ private lemma virasoro_Tout_exists :
       simp only [map_mul, map_neg, Complex.conj_I]
     dsimp [oL]
     rw [hc1, hc2, hL_conj _ hz2, hL_conj _ hz1]
-    have h2I : starRingEnd ℂ (2 * Complex.I) = -(2 * Complex.I) := by simp [Complex.conj_I]
+    have h2I : starRingEnd ℂ (2 * Complex.I) = -(2 * Complex.I) := by simp [Complex.conj_I]; ring
     rw [map_div₀, map_sub, h2I]
     ring
   have hdoL_0 : deriv oL 0 = (g1Vir : ℂ) := by
+    have h0 : HasDerivAt L (g1Out : ℂ) 0 := by
+      simpa [hdL0] using (hL_diff.differentiableAt (isOpen_ball.mem_nhds (mem_ball_self hρL))).hasDerivAt
+    have hd_iz : HasDerivAt (fun z : ℂ => Complex.I * z) Complex.I 0 := by
+      simpa using (hasDerivAt_id (0 : ℂ)).const_mul Complex.I
+    have hd_niz : HasDerivAt (fun z : ℂ => -Complex.I * z) (-Complex.I) 0 := by
+      simpa using (hasDerivAt_id (0 : ℂ)).const_mul (-Complex.I)
     have h1 : HasDerivAt (fun z => L (Complex.I * z)) (Complex.I * (g1Out : ℂ)) 0 := by
-      have h0 : HasDerivAt L (g1Out : ℂ) 0 := by
-        simpa [hdL0] using (hL_diff.differentiableAt (isOpen_ball.mem_nhds (mem_ball_self hρL))).hasDerivAt
-      have hc := h0.comp 0 (by simpa using (hasDerivAt_id (0 : ℂ)).const_mul Complex.I)
-      simpa [mul_zero, mul_comm] using hc
+      simpa [mul_comm] using h0.comp_of_eq 0 hd_iz (mul_zero _)
     have h2 : HasDerivAt (fun z => L (-Complex.I * z)) (-Complex.I * (g1Out : ℂ)) 0 := by
-      have h0 : HasDerivAt L (g1Out : ℂ) 0 := by
-        simpa [hdL0] using (hL_diff.differentiableAt (isOpen_ball.mem_nhds (mem_ball_self hρL))).hasDerivAt
-      have hc := h0.comp 0 (by simpa using (hasDerivAt_id (0 : ℂ)).const_mul (-Complex.I))
-      simpa [mul_zero, mul_comm] using hc
+      simpa [mul_comm] using h0.comp_of_eq 0 hd_niz (mul_zero _)
     have h12 := (h1.sub h2).div_const (2 * Complex.I)
     have hval : (Complex.I * (g1Out : ℂ) - -Complex.I * (g1Out : ℂ)) / (2 * Complex.I) = (g1Vir : ℂ) := by
       rw [g1Out_eq_g1Vir]
@@ -890,7 +910,7 @@ private lemma virasoro_Tout_exists :
       three_deriv_comp_const_mul hρL hL_diff (by simp)
     have h2 : iteratedDeriv 3 (fun z => L (-Complex.I * z)) 0 = (-Complex.I) ^ 3 * iteratedDeriv 3 L 0 :=
       three_deriv_comp_const_mul hρL hL_diff (by simp)
-    have hoL_fun : oL = (fun z => (1 / (2 * Complex.I)) • (L (Complex.I * z) - L (-Complex.I * z))) := by
+    have hoL_fun : oL = ((1 / (2 * Complex.I)) • fun z => L (Complex.I * z) - L (-Complex.I * z)) := by
       ext z; simp [oL, div_eq_inv_mul, smul_eq_mul]
     have hd1 : ContDiffAt ℂ 3 (fun z => L (Complex.I * z)) 0 := by
       have hdiff1 : DifferentiableOn ℂ (fun z => L (Complex.I * z)) (ball 0 ρL) := fun z hz => by
@@ -904,9 +924,11 @@ private lemma virasoro_Tout_exists :
         exact ((hL_diff.differentiableAt (isOpen_ball.mem_nhds hz2)).comp z
           ((hasDerivAt_id z).const_mul (-Complex.I)).differentiableAt).differentiableWithinAt
       exact ((hdiff2.analyticOnNhd isOpen_ball) 0 (mem_ball_self hρL)).contDiffAt
-    rw [hoL_fun, iteratedDeriv_const_smul (hd1.sub hd2), iteratedDeriv_sub hd1 hd2, h1, h2]
+    rw [hoL_fun, iteratedDeriv_const_smul (hd1.sub hd2),
+      show (fun z => L (Complex.I * z) - L (-Complex.I * z)) = (fun z => L (Complex.I * z)) - (fun z => L (-Complex.I * z)) from rfl,
+      iteratedDeriv_sub hd1 hd2, h1, h2]
     have hL3 : iteratedDeriv 3 L 0 / 6 = (g3Out : ℂ) := by
-      simpa [iteratedDeriv_succ, iteratedDeriv_two] using hdddL0
+      simpa [iteratedDeriv_succ, iteratedDeriv_one] using hdddL0
     have hI3 : Complex.I ^ 3 = -Complex.I := by ring_nf; rw [Complex.I_sq]; ring
     have hnI3 : (-Complex.I) ^ 3 = Complex.I := by ring_nf; rw [Complex.I_sq]; ring
     rw [hI3, hnI3, smul_eq_mul]
@@ -933,7 +955,9 @@ private lemma virasoro_Tout_exists :
     have hnhds : Ioo (-1 : ℝ) 1 ∈ 𝓝 (0 : ℝ) := Ioo_mem_nhds (by norm_num) (by norm_num)
     have hlim : Tendsto thetaOut (𝓝 0) (𝓝 0) := by
       simpa [thetaOut_soft.1] using (hcont.continuousAt hnhds).tendsto
-    exact hlim.eventually (Metric.ball_mem_nhds 0 (div_pos Real.pi_pos (by norm_num)))
+    have hball : ∀ᶠ y : ℝ in 𝓝 0, thetaOut y ∈ ball (0 : ℝ) (π / 4) :=
+      hlim.eventually (Metric.ball_mem_nhds (0 : ℝ) (div_pos Real.pi_pos (by norm_num)))
+    exact hball.mono fun _ h => by simpa [Metric.mem_ball, Real.dist_eq, Real.norm_eq_abs] using h
   obtain ⟨yθ, hyθ_pos, hyθ_ball⟩ := Metric.mem_nhds_iff.mp hev_theta
   set yTout : ℝ := min (min (rL / 3) δL) (min yθ (1 / 2))
   have hyTout_pos : 0 < yTout := lt_min (lt_min (by positivity) hδL_pos) (lt_min hyθ_pos (by norm_num))
@@ -943,10 +967,11 @@ private lemma virasoro_Tout_exists :
   have hrTout_pos : 0 < rTout := by positivity
   have hy2_le : yTout ^ 2 ≤ rTout / 4 := by
     have h1 : yTout ^ 2 ≤ (rL / 3) ^ 2 := pow_le_pow_left₀ hyTout_pos.le hyTout_rL3 2
-    nlinarith only [h1, hrL_pos]
+    have h2 : (rL / 3) ^ 2 ≤ rTout / 4 := by dsimp [rTout]; nlinarith only [sq_nonneg rL]
+    linarith only [h1, h2]
   let Mout : ℝ := max (4 / 3 * Bout / rL) (32 / 3 * Bout / rL ^ 3)
   have hMout_nn : 0 ≤ Mout := le_max_of_le_left (by positivity)
-  refine ⟨rTout, yTout, hrTout_pos, hyTout_pos, hy2_le, hyTout_half, hMout_nn, T_out,
+  refine ⟨rTout, yTout, Mout, hrTout_pos, hyTout_pos, hy2_le, hyTout_half, hMout_nn, T_out,
     hT_diff.mono (ball_subset_ball (by dsimp [rTout]; nlinarith only [hrL_pos])),
     fun w hw => hT_conj w (ball_subset_ball (by dsimp [rTout]; nlinarith only [hrL_pos]) hw),
     hT0, hdT0, fun w hw => ?_, fun y hy0 hy_lt => ?_⟩
@@ -976,7 +1001,7 @@ private lemma virasoro_Tout_exists :
         apply Complex.ext <;> simp <;> ring
       rw [hsub]
       field_simp [Complex.I_ne_zero]
-      ring
+      push_cast; ring
     have hT_y : (y : ℂ) * T_out ((y ^ 2 : ℝ) : ℂ) = oL (y : ℂ) := by
       have hy_ball : (y : ℂ) ∈ ball (0 : ℂ) rL := by
         rw [mem_ball_zero_iff, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hy0]; exact hy_rL
@@ -1028,7 +1053,7 @@ private lemma virasoro_Tout_exists :
         simpa [Metric.mem_ball, dist_eq_norm] using hδL_ball hIy_mem
       exact (Complex.abs_im_le_norm _).trans_lt hL_norm
     have hth_bd : |thetaOut y| < π / 4 := by
-      have : y ∈ ball (0 : ℝ) yθ := by rw [Real.ball_eq_Ioo]; exact ⟨by linarith only [hy0, hyθ_pos], hy_yθ⟩
+      have : y ∈ ball (0 : ℝ) yθ := by rw [Real.ball_eq_Ioo]; exact ⟨by linarith only [hy0, hyθ_pos], by linarith only [hy_yθ]⟩
       simpa [Metric.mem_ball, Real.dist_eq, Real.norm_eq_abs] using hyθ_ball this
     have hk0 : k = 0 := by
       have hdiff_bd : |(L (Complex.I * (y : ℂ))).im - thetaOut y| < π / 2 := by
@@ -1047,7 +1072,7 @@ private lemma virasoro_Tout_exists :
       · rfl
       · have : (1 : ℝ) ≤ (k : ℝ) := by exact_mod_cast (show (1 : ℤ) ≤ k by omega)
         linarith only [(abs_lt.mp hk_lt).2, this]
-    rw [hk0, Int.cast_zero, zero_mul, zero_mul] at hk_eq
+    simp only [hk0, Int.cast_zero, zero_mul] at hk_eq
     have him_th : (L (Complex.I * (y : ℂ))).im = thetaOut y := sub_eq_zero.mp hk_eq
     rw [hT_re, him_th]
     exact ⟨rfl, hth_bd.trans (by linarith only [Real.pi_pos])⟩
@@ -1075,7 +1100,7 @@ private lemma qM_bounds {ε : ℝ} (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 / 4) {z : 
   have hden_re : 7 / 16 < (1 - z ^ 2 + (ε : ℂ)).re := by
     have habs : |(z ^ 2).re| ≤ ‖z ^ 2‖ := Complex.abs_re_le_norm _
     have : (1 - z ^ 2 + (ε : ℂ)).re = 1 - (z ^ 2).re + ε := by simp
-    linarith only [this, (abs_le.mp (habs.trans hz2.le)).2, hz2, hε0, habs]
+    linarith only [this, (abs_lt.mp (habs.trans_lt hz2)).2, hε0]
   have hden_norm : 7 / 16 < ‖1 - z ^ 2 + (ε : ℂ)‖ :=
     hden_re.trans_le (Complex.re_le_norm _)
   have hden_ne : 1 - z ^ 2 + (ε : ℂ) ≠ 0 := norm_pos_iff.mp (by linarith only [hden_norm])
@@ -1160,15 +1185,16 @@ private lemma qM_bounds {ε : ℝ} (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 / 4) {z : 
         have h1 := norm_sub_norm_le (1 : ℂ) (1 - x)
         rw [norm_one, norm_sub_rev, sub_sub_cancel] at h1
         have hlb : 1 / 2 ≤ ‖x‖ := by linarith only [h1, hx1]
-        rw [norm_inv, inv_le_iff₀ (by linarith only [hlb])]
-        linarith only [hlb]
+        rw [norm_inv]
+        calc ‖x‖⁻¹ ≤ (1 / 2 : ℝ)⁻¹ := inv_anti₀ (by norm_num) hlb
+          _ = 2 := by norm_num
       have hmv := (convex_closedBall (1 : ℂ) (1 / 2)).norm_image_sub_le_of_norm_hasDerivWithin_le
         hder hinv_bd hζ_mem (mem_closedBall_self (by norm_num))
-      simpa [Complex.log_one, dist_eq_norm] using hmv
+      simpa [Complex.log_one, dist_eq_norm, norm_sub_rev] using hmv
     exact hlog_mv.trans (by linarith only [hq_bd])
   exact ⟨hu2, hq_bd, hf_bd⟩
 
-private lemma virasoro_TM_exists (ε : ℝ) (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 / 4) :
+lemma virasoro_TM_exists (ε : ℝ) (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 / 4) :
     ∃ T_M : ℂ → ℂ,
       DifferentiableOn ℂ T_M (ball 0 (1 / 4)) ∧
       (∀ w ∈ ball (0 : ℂ) (1 / 4), T_M (starRingEnd ℂ w) = starRingEnd ℂ (T_M w)) ∧
@@ -1193,7 +1219,7 @@ private lemma virasoro_TM_exists (ε : ℝ) (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 /
     obtain ⟨_, _, _, hq_slit, _⟩ := qM_bounds hε0 hε1 hz
     have hu_odd : uM ε (-z) = -uM ε z := by dsimp [uM]; ring
     have hq_inv : qM ε (-z) = (qM ε z)⁻¹ := by
-      dsimp [qM]; rw [hu_odd]; ring_nf
+      dsimp [qM]; rw [hu_odd, mul_neg, add_neg_eq_sub, sub_neg_eq_add, inv_div]
     dsimp [fM]
     rw [hq_inv, Complex.log_inv _ (Complex.slitPlane_arg_ne_pi hq_slit)]
     ring
@@ -1208,7 +1234,7 @@ private lemma virasoro_TM_exists (ε : ℝ) (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 /
       have hconj_num : 1 + Complex.I * starRingEnd ℂ (uM ε z) = starRingEnd ℂ (1 - Complex.I * uM ε z) := by
         simp [Complex.conj_I]
       have hconj_den : 1 - Complex.I * starRingEnd ℂ (uM ε z) = starRingEnd ℂ (1 + Complex.I * uM ε z) := by
-        simp [Complex.conj_I]
+        simp only [map_add, map_one, map_mul, Complex.conj_I]; ring
       rw [hconj_num, hconj_den, ← map_div₀, inv_div]
     dsimp [fM]
     have hinv_slit : (qM ε z)⁻¹ ∈ Complex.slitPlane := by
@@ -1242,8 +1268,7 @@ private lemma virasoro_TM_exists (ε : ℝ) (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 /
     have hTM_y := hTM_eq (y : ℂ) hy_ball
     have hy_re : y * (T_M ((y ^ 2 : ℝ) : ℂ)).re = (fM ε (y : ℂ)).re := by
       have hre := congrArg Complex.re hTM_y
-      rw [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero, Complex.ofReal_pow] at hre
-      exact hre.symm
+      simpa [Complex.mul_re, ← Complex.ofReal_pow] using hre.symm
     have hden_pos : 0 < 1 - y ^ 2 + ε := by nlinarith only [hy0, hy12, hε0]
     set u : ℝ := ε * y / (1 - y ^ 2 + ε)
     have hu_eq : uM ε (y : ℂ) = (u : ℂ) := by
@@ -1265,13 +1290,19 @@ private lemma virasoro_TM_exists (ε : ℝ) (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 /
       rw [h_plus, h_minus, mul_div_mul_left _ _ h1u_ne, ← Complex.exp_sub]
       congr 1; push_cast; ring
     have h2arc_gt : -π < 2 * Real.arctan u := by
-      have := Real.neg_pi_div_two_lt_arctan u; linarith only [this]
+      have := Real.neg_pi_div_two_lt_arctan u; linarith only [Real.pi_pos, this]
     have h2arc_le : 2 * Real.arctan u ≤ π := by
-      have := Real.arctan_lt_pi_div_two u; linarith only [this]
+      have := Real.arctan_lt_pi_div_two u; linarith only [Real.pi_pos, this]
     have hf_re : (fM ε (y : ℂ)).re = -2 * Real.arctan u := by
       dsimp [fM]
-      rw [hq_polar, Complex.log_exp h2arc_gt h2arc_le]
-      simp [Complex.mul_re]; ring
+      rw [hq_polar, Complex.log_exp
+        (by simp only [Complex.mul_im, Complex.ofReal_re, Complex.I_im, mul_one,
+          Complex.ofReal_im, Complex.I_re, mul_zero, add_zero]; exact h2arc_gt)
+        (by simp only [Complex.mul_im, Complex.ofReal_re, Complex.I_im, mul_one,
+          Complex.ofReal_im, Complex.I_re, mul_zero, add_zero]; exact h2arc_le)]
+      simp only [Complex.mul_re, Complex.I_re, Complex.I_im, Complex.ofReal_re,
+        Complex.ofReal_im, zero_mul, mul_zero, mul_one, add_zero, sub_zero]
+      ring
     -- Now compute `Complex.arg ((1+ε)(1 - y^2) / ((1 - y^2 + ε) + I ε y))`
     have h_m_eq : (1 + (ε : ℂ)) * (1 + (Complex.I * (y : ℂ)) ^ 2) /
         (1 + (Complex.I * (y : ℂ)) ^ 2 + (ε : ℂ) * (1 + Complex.I * (y : ℂ))) =
@@ -1283,16 +1314,19 @@ private lemma virasoro_TM_exists (ε : ℝ) (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 /
         rw [hI2]
         intro h0
         have hre0 := congrArg Complex.re h0
-        simp only [Complex.add_re, Complex.sub_re, Complex.one_re, Complex.ofReal_re, Complex.mul_re,
-          Complex.I_re, Complex.I_im, Complex.ofReal_im, mul_zero, sub_zero, add_zero, zero_re] at hre0
+        simp only [Complex.add_re, Complex.one_re, Complex.neg_re, Complex.ofReal_re,
+          Complex.mul_re, Complex.I_re, Complex.I_im, Complex.ofReal_im, mul_zero, mul_one,
+          zero_mul, sub_zero, add_zero, Complex.zero_re] at hre0
         linarith only [hre0, hden_pos]
       have hden_sq_ne : (1 - y ^ 2 + ε) ^ 2 + (ε * y) ^ 2 ≠ 0 := by positivity
-      rw [eq_div_iff hden_ne]
+      have hden_sqC : (((1 - y ^ 2 + ε) ^ 2 + (ε * y) ^ 2 : ℝ) : ℂ) ≠ 0 :=
+        Complex.ofReal_ne_zero.mpr hden_sq_ne
+      rw [div_eq_iff hden_ne]
       have hI2 : (Complex.I * (y : ℂ)) ^ 2 = -((y ^ 2 : ℝ) : ℂ) := by
         rw [mul_pow, Complex.I_sq]; push_cast; ring
-      rw [hI2]
+      rw [hI2, Complex.ofReal_div]
+      field_simp [hden_sqC]
       push_cast
-      field_simp [hden_sq_ne]
       ring_nf
       simp only [Complex.I_sq]
       ring
@@ -1305,15 +1339,16 @@ private lemma virasoro_TM_exists (ε : ℝ) (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 /
         (1 + (Complex.I * (y : ℂ)) ^ 2 + (ε : ℂ) * (1 + Complex.I * (y : ℂ)))) = -Real.arctan u := by
       rw [h_m_eq, hpolar_m, ← mul_assoc, ← Complex.ofReal_mul,
         Complex.arg_real_mul _ (mul_pos hpref_pos hrad_pos), Complex.exp_mul_I]
-      rw [Complex.arg_cos_add_sin_mul_I ⟨by linarith only [Real.neg_pi_div_two_lt_arctan (-(ε * y) / (1 - y ^ 2 + ε))],
-        by linarith only [Real.arctan_lt_pi_div_two (-(ε * y) / (1 - y ^ 2 + ε))]⟩]
+      rw [Complex.arg_cos_add_sin_mul_I
+        ⟨by linarith only [Real.pi_pos, Real.neg_pi_div_two_lt_arctan (-(ε * y) / (1 - y ^ 2 + ε))],
+        by linarith only [Real.pi_pos, Real.arctan_lt_pi_div_two (-(ε * y) / (1 - y ^ 2 + ε))]⟩]
       rw [neg_div, Real.arctan_neg]
     rw [hy_re, hf_re, harg_m]
     ring
 
 /-! ### 6. Combined Virasoro shift `virasoroPsiEps` and `virasoroPsiEps_spec` -/
 
-private structure PsiBasePack where
+structure PsiBasePack where
   rY : ℝ
   hrY_pos : 0 < rY
   sY : ℝ
@@ -1350,7 +1385,7 @@ private structure PsiBasePack where
   hTout_real : ∀ y : ℝ, 0 < y → y < yTout →
     y * (Tout ((y ^ 2 : ℝ) : ℂ)).re = thetaOut y ∧ |thetaOut y| < π
 
-private lemma virasoro_psi_base_nonempty : Nonempty PsiBasePack := by
+lemma virasoro_psi_base_nonempty : Nonempty PsiBasePack := by
   obtain ⟨rY, hrY_pos, sY, hsY_pos, hsY_le, rC, Y0, hrC_diff, hY0_diff, hY0_conj, hY0_pos,
     hY0_0, hd_Y0, hY0_band⟩ := virasoro_Y0_exists
   obtain ⟨rTout, yTout, Mout, hrTout_pos, hyTout_pos, hy2_le, hyTout_half, hMout_nn,
@@ -1359,7 +1394,7 @@ private lemma virasoro_psi_base_nonempty : Nonempty PsiBasePack := by
     hY0_0, hd_Y0, hY0_band, rTout, yTout, Mout, hrTout_pos, hyTout_pos, hy2_le, hyTout_half,
     hMout_nn, Tout, hTout_diff, hTout_conj, hTout_0, hdTout_0, hTout_bd, hTout_real⟩⟩
 
-private noncomputable def psiBase : PsiBasePack := Classical.choose virasoro_psi_base_nonempty
+noncomputable def psiBase : PsiBasePack := Classical.choice virasoro_psi_base_nonempty
 
 /-- Edge-multiplier odd factor `T_M(ε, w)` (`0 ≤ ε ≤ 1/4`). -/
 noncomputable def virasoroTM (ε : ℝ) (w : ℂ) : ℂ :=
@@ -1398,22 +1433,24 @@ theorem virasoroPsiEps_spec :
   let psiOut : ℂ → ℂ := fun a => g0 a * psiBase.Tout (argW a)
   have hargW0 : argW 0 = 0 := by simp [argW]
   have hargW_cont : ContinuousAt argW 0 := by
-    have hY0c : ContinuousAt psiBase.Y0 0 :=
-      (psiBase.hY0_diff.differentiableAt (isOpen_ball.mem_nhds (mem_ball_self psiBase.hrY_pos))).continuousAt
-    exact (continuousAt_id.neg).mul (hY0c.comp continuousAt_id.neg)
+    have hY0c : ContinuousAt psiBase.Y0 (-0) := by
+      simpa using (psiBase.hY0_diff.differentiableAt (isOpen_ball.mem_nhds (mem_ball_self psiBase.hrY_pos))).continuousAt
+    exact (continuousAt_id.neg).mul (hY0c.comp continuous_neg.continuousAt)
   have hev_argW : ∀ᶠ a : ℂ in 𝓝 0, ‖argW a‖ < wRad := by
     have : Tendsto argW (𝓝 0) (𝓝 0) := by simpa [hargW0] using hargW_cont.tendsto
-    exact this.eventually (Metric.ball_mem_nhds 0 hwRad_pos)
+    have hball : ∀ᶠ a : ℂ in 𝓝 0, argW a ∈ ball (0 : ℂ) wRad :=
+      this.eventually (Metric.ball_mem_nhds (0 : ℂ) hwRad_pos)
+    exact hball.mono fun _ h => by simpa [Metric.mem_ball, dist_eq_norm] using h
   obtain ⟨rA, hrA_pos, hrA_ball⟩ := Metric.mem_nhds_iff.mp hev_argW
   let rHalf : ℝ := min (psiBase.rY / 2) rA
   have hrHalf_pos : 0 < rHalf := lt_min (half_pos psiBase.hrY_pos) hrA_pos
   have hY0_bdd : BddAbove ((fun τ => ‖psiBase.Y0 τ‖) '' closedBall (0 : ℂ) rHalf) :=
     ((isCompact_closedBall (0 : ℂ) rHalf).image_of_continuousOn
-      ((psiBase.hY0_diff.mono (closedBall_subset_ball (by dsimp [rHalf]; linarith [min_le_left (psiBase.rY / 2) rA, psiBase.hrY_pos]))).continuousOn.norm)).bddAbove
+      ((psiBase.hY0_diff.mono (closedBall_subset_ball (by dsimp [rHalf]; linarith only [min_le_left (psiBase.rY / 2) rA, psiBase.hrY_pos]))).continuousOn.norm)).bddAbove
   set MY0 : ℝ := max (sSup ((fun τ => ‖psiBase.Y0 τ‖) '' closedBall (0 : ℂ) rHalf)) 1
   have hMY0_pos : 0 < MY0 := by positivity
   let ρ_ψ : ℝ := min rHalf (psiBase.yTout ^ 2 / (2 * MY0))
-  have hρψ_pos : 0 < ρ_ψ := lt_min hrHalf_pos (by positivity)
+  have hρψ_pos : 0 < ρ_ψ := lt_min hrHalf_pos (by have := psiBase.hyTout_pos; positivity)
   let r_ψ : ℝ := ρ_ψ / 2
   have hrψ_pos : 0 < r_ψ := half_pos hρψ_pos
   have hrψ_lt : r_ψ < ρ_ψ := half_lt_self hρψ_pos
@@ -1422,24 +1459,24 @@ theorem virasoroPsiEps_spec :
     have ha' : -a ∈ ball (0 : ℂ) psiBase.rY := by
       rw [mem_ball_zero_iff, norm_neg]
       exact (mem_ball_zero_iff.mp ha).trans_le ((min_le_left _ _).trans (min_le_left _ _) |>.trans (half_le_self psiBase.hrY_pos.le))
-    have hdY := ((psiBase.hY0_diff.differentiableAt (isOpen_ball.mem_nhds ha')).comp a (differentiableAt_id.neg)).hasDerivAt
-    have hdPow := (Complex.hasDerivAt_cpow_const (psiBase.hY0_pos _ ha').2).comp a hdY
+    have hdY := ((psiBase.hY0_diff.differentiableAt (isOpen_ball.mem_nhds ha')).comp a (hasDerivAt_neg a).differentiableAt).hasDerivAt
+    have hdPow := hdY.cpow_const (c := ((1 / 2 : ℝ) : ℂ)) (psiBase.hY0_pos _ ha').2
     exact (hdPow.div_const _).differentiableAt.differentiableWithinAt
   have hargW_diff : DifferentiableOn ℂ argW (ball 0 ρ_ψ) := fun a ha => by
     have ha' : -a ∈ ball (0 : ℂ) psiBase.rY := by
       rw [mem_ball_zero_iff, norm_neg]
       exact (mem_ball_zero_iff.mp ha).trans_le ((min_le_left _ _).trans (min_le_left _ _) |>.trans (half_le_self psiBase.hrY_pos.le))
-    have hdY := (psiBase.hY0_diff.differentiableAt (isOpen_ball.mem_nhds ha')).comp a differentiableAt_id.neg
+    have hdY := (psiBase.hY0_diff.differentiableAt (isOpen_ball.mem_nhds ha')).comp a (hasDerivAt_neg a).differentiableAt
     exact (differentiableAt_id.neg.mul hdY).differentiableWithinAt
   have hpsiOut_diff : DifferentiableOn ℂ psiOut (ball 0 ρ_ψ) := fun a ha => by
     have ha_rA : a ∈ ball (0 : ℂ) rA := ball_subset_ball ((min_le_left _ _).trans (min_le_right _ _)) ha
     have haw : argW a ∈ ball (0 : ℂ) psiBase.rTout := by
-      have h1 : ‖argW a‖ < wRad := by simpa [Metric.mem_ball, dist_eq_norm] using hrA_ball ha_rA
+      have h1 : ‖argW a‖ < wRad := hrA_ball ha_rA
       exact mem_ball_zero_iff.mpr (h1.trans_le ((min_le_left _ _).trans (div_le_self psiBase.hrTout_pos.le (by norm_num))))
     have hdT := (psiBase.hTout_diff.differentiableAt (isOpen_ball.mem_nhds haw)).comp a (hargW_diff.differentiableAt (isOpen_ball.mem_nhds ha))
     exact ((hg0_diff.differentiableAt (isOpen_ball.mem_nhds ha)).mul hdT).differentiableWithinAt
   have hcomp_bdd : ∀ {F : ℂ → ℂ}, DifferentiableOn ℂ F (ball 0 ρ_ψ) →
-      ∃ B : ℝ, 0 ≤ B ∧ ∀ a ∈ closedBall (0 : ℂ) r_ψ, ‖F a‖ ≤ B := fun hF => by
+      ∃ B : ℝ, 0 ≤ B ∧ ∀ a ∈ closedBall (0 : ℂ) r_ψ, ‖F a‖ ≤ B := fun {F} hF => by
     have hb : BddAbove ((fun a => ‖F a‖) '' closedBall (0 : ℂ) r_ψ) :=
       ((isCompact_closedBall (0 : ℂ) r_ψ).image_of_continuousOn
         ((hF.mono (closedBall_subset_ball hrψ_lt)).continuousOn.norm)).bddAbove
@@ -1467,11 +1504,11 @@ theorem virasoroPsiEps_spec :
       have h1 : HasDerivAt psiBase.Y0 (deriv psiBase.Y0 0) 0 :=
         (psiBase.hY0_diff.differentiableAt (isOpen_ball.mem_nhds h0_mem)).hasDerivAt
       rw [psiBase.hd_Y0] at h1
-      have h2 := h1.comp 0 (hasDerivAt_id (0 : ℂ)).neg
+      have h2 := h1.comp (0 : ℂ) (hasDerivAt_neg (0 : ℂ))
       simpa using h2
     have hY_slit : psiBase.Y0 (-0) ∈ Complex.slitPlane := by
       rw [neg_zero]; exact (psiBase.hY0_pos 0 h0_mem).2
-    have hpow := (Complex.hasDerivAt_cpow_const hY_slit (p := ((1 / 2 : ℝ) : ℂ))).comp 0 hdY
+    have hpow := hdY.cpow_const hY_slit (c := ((1 / 2 : ℝ) : ℂ))
     have hg0d := hpow.div_const ((2 * betaTip ^ (3 / 2 : ℝ) : ℝ) : ℂ)
     rw [hg0d.deriv, neg_zero, psiBase.hY0_0]
     have hYpos : 0 < slitY := by unfold slitY; positivity
@@ -1503,16 +1540,17 @@ theorem virasoroPsiEps_spec :
       (hg0_diff.differentiableAt (isOpen_ball.mem_nhds h0_mem)).hasDerivAt
     have hd_arg : HasDerivAt argW (-(slitY : ℂ)) 0 := by
       have h0Y : (0 : ℂ) ∈ ball (0 : ℂ) psiBase.rY := mem_ball_self psiBase.hrY_pos
-      have hdY := (psiBase.hY0_diff.differentiableAt (isOpen_ball.mem_nhds h0Y)).hasDerivAt.comp 0 (hasDerivAt_id (0 : ℂ)).neg
-      have h := (hasDerivAt_id (0 : ℂ)).neg.mul hdY
+      have hdY := (psiBase.hY0_diff.differentiableAt (isOpen_ball.mem_nhds h0Y)).hasDerivAt.comp (0 : ℂ) (hasDerivAt_neg (0 : ℂ))
+      have h := (hasDerivAt_neg (0 : ℂ)).mul hdY
       simpa [psiBase.hY0_0] using h
     have hdT : HasDerivAt psiBase.Tout ((-g3Vir : ℝ) : ℂ) (argW 0) := by
       rw [hargW0, ← psiBase.hdTout_0]
       exact (psiBase.hTout_diff.differentiableAt (isOpen_ball.mem_nhds (mem_ball_self psiBase.hrTout_pos))).hasDerivAt
-    have hdp := hdg0.mul (hdT.comp 0 hd_arg)
+    have hdp : HasDerivAt psiOut (deriv g0 0 * psiBase.Tout (argW 0) + g0 0 * ((-g3Vir : ℝ) : ℂ) * -(slitY : ℂ)) 0 := by
+      simpa [psiOut, mul_assoc] using hdg0.mul (hdT.comp 0 hd_arg)
     rw [hdp.deriv, hdg0_0, hg0_0, hargW0, psiBase.hTout_0]
     rw [show ((- (√slitY / (2 * betaTip ^ (3 / 2 : ℝ)) * (slitB / 2)) : ℝ) : ℂ) * (g1Vir : ℂ) +
-        ((√slitY / (2 * betaTip ^ (3 / 2 : ℝ)) : ℝ) : ℂ) * (((-g3Vir : ℝ) : ℂ) * -(slitY : ℂ)) =
+        ((√slitY / (2 * betaTip ^ (3 / 2 : ℝ)) : ℝ) : ℂ) * ((-g3Vir : ℝ) : ℂ) * -(slitY : ℂ) =
         ((√slitY / (2 * betaTip ^ (3 / 2 : ℝ)) * (slitY * g3Vir - slitB / 2 * g1Vir) : ℝ) : ℂ) by
       push_cast; ring]
     rw [psi0_deriv_eq_gamma0]
@@ -1523,29 +1561,35 @@ theorem virasoroPsiEps_spec :
     obtain ⟨hTM_diff, hTM_conj, hTM_bd, hdTM_bd, _⟩ := hTM
     have h_eq : ∀ a : ℂ, virasoroPsiEps ε a = psiOut a + g0 a * TM (argW a) := fun a => by
       dsimp [virasoroPsiEps, virasoroTM, psiOut, g0, argW]
-      rw [if_pos ⟨hε0, hε1⟩, dif_pos ⟨hε0, hε1⟩]
+      rw [ite_eq_left.mpr fun h => (h ⟨hε0, hε1⟩).elim, dite_eq_left.mpr fun h => (h ⟨hε0, hε1⟩).elim]
     have hTM_comp_diff : DifferentiableOn ℂ (fun a => g0 a * TM (argW a)) (ball 0 ρ_ψ) := fun a ha => by
       have ha_rA : a ∈ ball (0 : ℂ) rA := ball_subset_ball ((min_le_left _ _).trans (min_le_right _ _)) ha
       have haw : argW a ∈ ball (0 : ℂ) (1 / 4) := by
-        have h1 : ‖argW a‖ < wRad := by simpa [Metric.mem_ball, dist_eq_norm] using hrA_ball ha_rA
+        have h1 : ‖argW a‖ < wRad := hrA_ball ha_rA
         exact mem_ball_zero_iff.mpr (h1.trans_le ((min_le_right _ _).trans (by norm_num)))
       have hdTM := (hTM_diff.differentiableAt (isOpen_ball.mem_nhds haw)).comp a (hargW_diff.differentiableAt (isOpen_ball.mem_nhds ha))
       exact ((hg0_diff.differentiableAt (isOpen_ball.mem_nhds ha)).mul hdTM).differentiableWithinAt
-    have hψ_diff : DifferentiableOn ℂ (virasoroPsiEps ε) (ball 0 ρ_ψ) := by
-      simpa only [funext h_eq] using hpsiOut_diff.add hTM_comp_diff
+    have hψ_diff : DifferentiableOn ℂ (virasoroPsiEps ε) (ball 0 ρ_ψ) := fun a ha => by
+      have h1 : virasoroPsiEps ε = fun z => psiOut z + g0 z * TM (argW z) := funext h_eq
+      rw [h1]
+      exact ((hpsiOut_diff.differentiableAt (isOpen_ball.mem_nhds ha)).add
+        (hTM_comp_diff.differentiableAt (isOpen_ball.mem_nhds ha))).differentiableWithinAt
     have hψ_conj : ∀ a ∈ ball (0 : ℂ) ρ_ψ,
         virasoroPsiEps ε (starRingEnd ℂ a) = starRingEnd ℂ (virasoroPsiEps ε a) := fun a ha => by
       have haY : -a ∈ ball (0 : ℂ) psiBase.rY := by
         rw [mem_ball_zero_iff, norm_neg]
         exact (mem_ball_zero_iff.mp ha).trans_le ((min_le_left _ _).trans (min_le_left _ _) |>.trans (half_le_self psiBase.hrY_pos.le))
       have ha_rA : a ∈ ball (0 : ℂ) rA := ball_subset_ball ((min_le_left _ _).trans (min_le_right _ _)) ha
-      have haw_rad : ‖argW a‖ < wRad := by simpa [Metric.mem_ball, dist_eq_norm] using hrA_ball ha_rA
+      have haw_rad : ‖argW a‖ < wRad := hrA_ball ha_rA
       have hY_conj : psiBase.Y0 (-starRingEnd ℂ a) = starRingEnd ℂ (psiBase.Y0 (-a)) := by
         rw [show -starRingEnd ℂ a = starRingEnd ℂ (-a) by simp]
         exact psiBase.hY0_conj _ haY
       have hg0_conj : g0 (starRingEnd ℂ a) = starRingEnd ℂ (g0 a) := by
         dsimp [g0]
-        rw [hY_conj, Complex.conj_cpow _ (psiBase.hY0_pos _ haY).2]
+        rw [hY_conj, Complex.conj_cpow (psiBase.Y0 (-a)) ((1 / 2 : ℝ) : ℂ)
+          (Complex.slitPlane_arg_ne_pi (psiBase.hY0_pos _ haY).2)]
+        have h12 : starRingEnd ℂ ((1 / 2 : ℝ) : ℂ) = ((1 / 2 : ℝ) : ℂ) := Complex.conj_ofReal _
+        rw [h12]
         simp only [map_div₀, Complex.conj_ofReal]
       have hargW_conj : argW (starRingEnd ℂ a) = starRingEnd ℂ (argW a) := by
         dsimp [argW]; rw [hY_conj]; simp only [map_mul, map_neg]
@@ -1555,13 +1599,15 @@ theorem virasoroPsiEps_spec :
       have hTM_c : TM (argW (starRingEnd ℂ a)) = starRingEnd ℂ (TM (argW a)) := by
         rw [hargW_conj]
         exact hTM_conj _ (mem_ball_zero_iff.mpr (haw_rad.trans_le ((min_le_right _ _).trans (by norm_num))))
-      rw [h_eq, h_eq, hg0_conj, hTout_conj, hTM_c]
+      rw [h_eq, h_eq]
+      dsimp [psiOut]
+      rw [hg0_conj, hTout_conj, hTM_c]
       simp only [map_add, map_mul]
     have hM_part : ∀ a ∈ closedBall (0 : ℂ) r_ψ,
         ‖g0 a * TM (argW a)‖ ≤ CM * ε ∧ ‖deriv (fun z => g0 z * TM (argW z)) a‖ ≤ CM * ε := fun a ha => by
       have ha_ball : a ∈ ball (0 : ℂ) ρ_ψ := closedBall_subset_ball hrψ_lt ha
       have ha_rA : a ∈ ball (0 : ℂ) rA := ball_subset_ball ((min_le_left _ _).trans (min_le_right _ _)) ha_ball
-      have haw_rad : ‖argW a‖ < wRad := by simpa [Metric.mem_ball, dist_eq_norm] using hrA_ball ha_rA
+      have haw_rad : ‖argW a‖ < wRad := hrA_ball ha_rA
       have haw16 : argW a ∈ closedBall (0 : ℂ) (1 / 16) :=
         mem_closedBall_zero_iff.mpr (haw_rad.le.trans ((min_le_right _ _).trans (by norm_num)))
       have haw32 : argW a ∈ closedBall (0 : ℂ) (1 / 32) :=
@@ -1580,7 +1626,9 @@ theorem virasoroPsiEps_spec :
         have hda : HasDerivAt argW (deriv argW a) a :=
           (hargW_diff.differentiableAt (isOpen_ball.mem_nhds ha_ball)).hasDerivAt
         have hdTM := ((hTM_diff.differentiableAt (isOpen_ball.mem_nhds haw14)).hasDerivAt).comp a hda
-        have hprod := hdg.mul hdTM
+        have hprod : HasDerivAt (fun z => g0 z * TM (argW z))
+            (deriv g0 a * TM (argW a) + g0 a * (deriv TM (argW a) * deriv argW a)) a :=
+          hdg.mul hdTM
         rw [hprod.deriv]
         calc ‖deriv g0 a * TM (argW a) + g0 a * (deriv TM (argW a) * deriv argW a)‖
             ≤ ‖deriv g0 a‖ * ‖TM (argW a)‖ + ‖g0 a‖ * (‖deriv TM (argW a)‖ * ‖deriv argW a‖) := by
@@ -1640,13 +1688,14 @@ theorem virasoroPsiEps_spec :
     exact ⟨hψ_diff, hψ_conj, hψ_bd, h0_val, h0_der⟩
   · set τ : ℝ := tauPhase x
     have hτ_pos : 0 < τ := by
-      unfold tauPhase
+      dsimp [τ]; unfold tauPhase
       have hcum : 0 < cumulN x := by
         have h1 := cumulN_strictMonoOn (Set.mem_Ici.mpr le_rfl) (Set.mem_Ici.mpr hx_gt.le) hx_gt
         rwa [cumulN_xiStar] at h1
       exact Real.rpow_pos_of_pos (div_pos hcum kTip_pos) _
-    have hτ_rY : τ < psiBase.rY :=
-      htau_lt.trans (hrψ_lt.trans ((min_le_left _ _).trans ((min_le_left _ _).trans (half_lt_self psiBase.hrY_pos))))
+    have hτ_rY : τ < psiBase.rY := by
+      have h1 : ρ_ψ ≤ psiBase.rY / 2 := (min_le_left _ _).trans (min_le_left _ _)
+      linarith only [htau_lt, hrψ_lt, h1, psiBase.hrY_pos]
     obtain ⟨hr_pos, hr_sY, _, htau_r, _, hτY⟩ := psiBase.hY0_band τ hτ_pos hτ_rY
     set r : ℝ := (psiBase.rC (τ : ℂ)).re
     have hx_eq : x = xiStar + r := by
