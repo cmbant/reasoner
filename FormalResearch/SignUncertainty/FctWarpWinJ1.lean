@@ -31,14 +31,8 @@ namespace FormalResearch.SignUncertainty
 private noncomputable def winDJBeta (C_H : ℝ) : ℝ :=
   max 4 (max ((4 + 2 ^ 16) * ((Nat.factorial 16 : ℝ) * pbM)) C_H)
 
-private structure WinDJSetup (K4 Sw_ell ε c α : ℝ) where
-  S : ChartSetup (ℝ × ℝ × ℝ)
-  τ₁ : ℝ
-  β : ℝ
-  hβ4 : 4 ≤ β
-  θ : (ℝ × ℝ × ℝ) × ℝ → ℝ
-  δH : ℝ
-  hδH_pos : 0 < δH
+private structure WinDJProps (Sw_ell c α : ℝ) (S : ChartSetup (ℝ × ℝ × ℝ))
+    (τ₁ β δH : ℝ) (θ : (ℝ × ℝ × ℝ) × ℝ → ℝ) : Prop where
   hτ₁_pos : 0 < τ₁
   hτ₁_3 : τ₁ ^ 3 = c ^ (-(3 / 4 : ℝ))
   hτ₁_sq_le1 : τ₁ ^ 2 ≤ 1
@@ -123,21 +117,20 @@ private lemma rho_bound_of_15 {P : Type*} [NormedAddCommGroup P] [NormedSpace �
     (show (0 : ℝ) ∈ Ioo (-1 : ℝ) 6 from ⟨by norm_num, by norm_num⟩) hz
   simpa [hr0 p hp, rhoF, Real.norm_eq_abs, sub_zero] using hmv
 
-private noncomputable def mkWinDJSetup {K4 Sw_ell ε c α : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_ell)
+private lemma win_dj_props {K4 Sw_ell ε c α : ℝ} (hK4 : 1 ≤ K4)
     (hε : ε = 1 ∨ ε = -1) (hc160000 : (160000 : ℝ) ≤ c) (hcC0 : (30 * pbC0 + 1) ^ 2 ≤ c)
     (hSw_lt : Sw_ell * c ^ (-(1 / 6 : ℝ)) < 27 / 10)
     (hτ_lim : c ^ (-(1 / 4 : ℝ)) ≤ pbTauLim) (hK4t : K4 * (c ^ (-(1 / 4 : ℝ))) ^ 2 ≤ 1)
-    {δH C_H : ℝ} (hδH_pos : 0 < δH) (hCH4 : 4 ≤ C_H)
-    (hH_jc : JC 16 (Ioo (-δH) δH) fctH C_H) (hτ1_δH : (c ^ (-(1 / 4 : ℝ))) ^ 2 < δH / 6)
+    {δH C_H : ℝ} (hH_jc : JC 16 (Ioo (-δH) δH) fctH C_H) (hτ1_δH : (c ^ (-(1 / 4 : ℝ))) ^ 2 < δH / 6)
     (hα : |α| ≤ c ^ (-(1 / 2 : ℝ))) :
-    WinDJSetup K4 Sw_ell ε c α := by
-  classical
+    WinDJProps Sw_ell c α (concreteBoxS K4 ε c) (c ^ (-(1 / 4 : ℝ))) (winDJBeta C_H) δH
+      (fun q => (concreteBoxT K4 ε c).Th (c ^ (-(1 / 4 : ℝ))) K4 q.1.2.2 q.2) := by
   have hc0 : 0 < c := by linarith only [hc160000]
   have hvalid : concreteBoxValid K4 ε c := ⟨hK4, hε, hc0, hτ_lim, hK4t⟩
-  let T := concreteBoxT K4 ε c
-  let S := concreteBoxS K4 ε c
+  set T := concreteBoxT K4 ε c
+  set S := concreteBoxS K4 ε c
   obtain ⟨hTM, _, _, hSΩ, hSℓ, hSr, hSε, _, _, _⟩ := concreteBox_spec hvalid
-  let τ₁ : ℝ := c ^ (-(1 / 4 : ℝ))
+  set τ₁ : ℝ := c ^ (-(1 / 4 : ℝ))
   have hτ₁_pos : 0 < τ₁ := Real.rpow_pos_of_pos hc0 _
   have hτ₁_20 : τ₁ ≤ 1 / 20 := by
     have h2 := Real.rpow_le_rpow_of_nonpos (by norm_num) hc160000 (by norm_num : -(1 / 4 : ℝ) ≤ 0)
@@ -163,18 +156,19 @@ private noncomputable def mkWinDJSetup {K4 Sw_ell ε c α : ℝ} (hK4 : 1 ≤ K4
         _ ≤ 1 / 30 := by rw [← div_eq_mul_inv, div_le_div_iff₀ hpos (by norm_num)]; linarith only
     linarith only [h2]
   have hr0 : ∀ p ∈ S.Ω, S.r (p, 0) = 0 := fun p _ => by
-    rw [hSr]; simp only [CfuTheta.r, mul_zero, zero_pow (by norm_num : 2 ≠ 0), sub_zero, add_zero]
+    rw [hSr]; simp only [CfuTheta.r]; norm_num
   have hρ_bd : ∀ p ∈ S.Ω, ∀ z ∈ Ioo (-1 : ℝ) 6, |rhoF S.r (p, z)| ≤ 1 / 2 * |z| :=
     fun p hp z hz => rho_bound_of_15 hSε_bd hr0 hp hz
-  have hα_om : |α| < 2 * τ₁ ^ 2 := by
-    rw [hτ₁_sq]; linarith only [hα, Real.rpow_pos_of_pos hc0 (-(1 / 2 : ℝ))]
+  have hα_om : |α| < 2 * (c ^ (-(1 / 4 : ℝ))) ^ 2 := by
+    rw [← show τ₁ = c ^ (-(1 / 4 : ℝ)) from rfl, hτ₁_sq]
+    linarith only [hα, Real.rpow_pos_of_pos hc0 (-(1 / 2 : ℝ))]
   have hseg_pt : ∀ {ell : ℝ}, 0 ≤ ell → ell ≤ Sw_ell * c ^ (-(1 / 6 : ℝ)) →
       ∀ t ∈ Icc (0 : ℝ) 1, (ell, 0, α) + t • ((0 : ℝ), (1 : ℝ), (0 : ℝ)) ∈ S.Ω := by
     intro ell hell0 hell_ub t ht
     have hpt : (ell, 0, α) + t • ((0 : ℝ), (1 : ℝ), (0 : ℝ)) = (ell, t, α) := by ext <;> simp
     rw [hpt, hSΩ]
     exact ⟨⟨by linarith only [hell0], by linarith only [hell_ub, hSw_lt]⟩,
-      ⟨by linarith only [ht.1], by linarith only [ht.2]⟩, by simpa [abs_lt] using hα_om⟩
+      ⟨by linarith only [ht.1], by linarith only [ht.2]⟩, abs_lt.mp hα_om⟩
   have hSA_of : ∀ {ell : ℝ}, 0 ≤ ell → ell ≤ Sw_ell * c ^ (-(1 / 6 : ℝ)) →
       ∀ t ∈ Icc (0 : ℝ) 1, 0 ≤ S.A ((ell, 0, α) + t • ((0 : ℝ), (1 : ℝ), (0 : ℝ))) ∧
         S.A ((ell, 0, α) + t • ((0 : ℝ), (1 : ℝ), (0 : ℝ))) ≤ max 8 (2 * Sw_ell) * c ^ (-(1 / 6 : ℝ)) := by
@@ -185,12 +179,13 @@ private noncomputable def mkWinDJSetup {K4 Sw_ell ε c α : ℝ} (hK4 : 1 ≤ K4
       refine ⟨hmem, ?_, (1, 0, 0), by simp [Prod.norm_def], fun s hs => ?_⟩
       · rw [hSℓ, hpt]; exact hell0
       · rw [hpt] at hs ⊢
+        rw [hSℓ] at hs; simp only at hs
         have hsub : (ell, t, α) - s • ((1 : ℝ), (0 : ℝ), (0 : ℝ)) = (ell - s, t, α) := by ext <;> simp
-        rw [hsub, hSℓ] at hs ⊢
+        rw [hsub, hSℓ]
         refine ⟨?_, rfl⟩
         rw [hSΩ]
         exact ⟨⟨by linarith only [hs.1, hs.2, hell0], by linarith only [hs.1, hell_ub, hSw_lt]⟩,
-          ⟨by linarith only [ht.1], by linarith only [ht.2]⟩, by simpa [abs_lt] using hα_om⟩
+          ⟨by linarith only [ht.1], by linarith only [ht.2]⟩, abs_lt.mp hα_om⟩
     have hAnn : 0 ≤ S.A ((ell, 0, α) + t • ((0 : ℝ), (1 : ℝ), (0 : ℝ))) :=
       (S.A_comp hρ_bd hzp hzp rfl).1
     have hB := S.B_comp hρ_bd hzp
@@ -230,6 +225,7 @@ private noncomputable def mkWinDJSetup {K4 Sw_ell ε c α : ℝ} (hK4 : 1 ≤ K4
   let B_Th : ℝ := (4 + 2 ^ 16) * ((Nat.factorial 16 : ℝ) * pbM)
   let β : ℝ := winDJBeta C_H
   have hβ4 : 4 ≤ β := le_max_left _ _
+  have hpbM : 0 ≤ pbM := pbM_nonneg
   have hψ : ∀ q ∈ S.Ω ×ˢ Ioo (-1 : ℝ) 6,
       fderiv ℝ (fun q : (ℝ × ℝ × ℝ) × ℝ => S.ℓ q.1 - π ^ 2 / 36 * q.2 + S.r q) q ((0, 1, 0), 0) =
         τ₁ ^ 3 * q.2 ^ 5 * θ q := by
@@ -282,19 +278,20 @@ private noncomputable def mkWinDJSetup {K4 Sw_ell ε c α : ℝ} (hK4 : 1 ≤ K4
     have hcomp : ∀ f : ℝ → ℝ, JC 18 (Ioo (-1 : ℝ) 6) f T.M →
         JC 16 (S.Ω ×ˢ Ioo (-1 : ℝ) 6) (fun q => f q.2) ((Nat.factorial 16 : ℝ) * pbM) := fun f hf => by
       have h16 : JC 16 (Ioo (-1 : ℝ) 6) f pbM := (hf.mono_order (by norm_num)).mono (le_of_eq hTM)
-      exact JC.comp_clm hUd isOpen_Ioo.uniqueDiffOn L_snd hLsnd_norm pbM_nonneg h16 fun q hq => hq.2
+      exact JC.comp_clm hUd isOpen_Ioo.uniqueDiffOn L_snd hLsnd_norm hpbM h16 fun q hq => hq.2
     have h0b := hcomp T.Θ0b T.jc_Θ0b
+    have hfac_nn : 0 ≤ (Nat.factorial 16 : ℝ) * pbM := mul_nonneg (Nat.cast_nonneg _) hpbM
     have h0m : JC 16 (S.Ω ×ˢ Ioo (-1 : ℝ) 6) (fun q => (K4 * τ₁ ^ 2) * T.Θ0m q.2)
         ((Nat.factorial 16 : ℝ) * pbM) := by
       have h1 := (hcomp T.Θ0m T.jc_Θ0m).const_smul hUd (K4 * τ₁ ^ 2)
       refine (h1.mono ?_).congr fun _ _ => rfl
       rw [abs_of_nonneg (mul_nonneg (by linarith only [hK4]) (sq_nonneg τ₁))]
-      exact mul_le_of_le_one_left (by positivity) hK4t
+      exact mul_le_of_le_one_left hfac_nn hK4t
     have h1b : JC 16 (S.Ω ×ˢ Ioo (-1 : ℝ) 6) (fun q => τ₁ * T.Θ1b q.2)
         ((Nat.factorial 16 : ℝ) * pbM) := by
       have h1 := (hcomp T.Θ1b T.jc_Θ1b).const_smul hUd τ₁
       refine (h1.mono ?_).congr fun _ _ => rfl
-      rw [abs_of_pos hτ₁_pos]; exact mul_le_of_le_one_left (by positivity) hτ₁_1
+      rw [abs_of_pos hτ₁_pos]; exact mul_le_of_le_one_left hfac_nn hτ₁_1
     have h1m : JC 16 (S.Ω ×ˢ Ioo (-1 : ℝ) 6) (fun q => (K4 * τ₁ ^ 3) * T.Θ1m q.2)
         ((Nat.factorial 16 : ℝ) * pbM) := by
       have h1 := (hcomp T.Θ1m T.jc_Θ1m).const_smul hUd (K4 * τ₁ ^ 3)
@@ -304,7 +301,7 @@ private noncomputable def mkWinDJSetup {K4 Sw_ell ε c α : ℝ} (hK4 : 1 ≤ K4
         calc K4 * τ₁ ^ 3 = (K4 * τ₁ ^ 2) * τ₁ := by ring
           _ ≤ 1 * 1 := mul_le_mul hK4t hτ₁_1 hτ₁_pos.le zero_le_one
           _ = 1 := one_mul 1
-      exact mul_le_of_le_one_left (by positivity) hK3
+      exact mul_le_of_le_one_left hfac_nn hK3
     let L_α : ((ℝ × ℝ × ℝ) × ℝ) →L[ℝ] ℝ :=
       (ContinuousLinearMap.snd ℝ ℝ ℝ).comp
         ((ContinuousLinearMap.snd ℝ ℝ (ℝ × ℝ)).comp (ContinuousLinearMap.fst ℝ (ℝ × ℝ × ℝ) ℝ))
@@ -320,7 +317,7 @@ private noncomputable def mkWinDJSetup {K4 Sw_ell ε c α : ℝ} (hK4 : 1 ≤ K4
         have hqα := hq.1.2.2
         have h2τ : 2 * τ₁ ^ 2 ≤ 1 := by nlinarith only [hτ₁_20, hτ₁_pos]
         simpa [L_α, Real.norm_eq_abs, abs_le] using ⟨by linarith only [hqα.1, h2τ], by linarith only [hqα.2, h2τ]⟩
-    have hα_term := JC.mul hUd zero_le_one (by positivity) hα_jc (hcomp T.Θα T.jc_Θα)
+    have hα_term := JC.mul hUd zero_le_one hfac_nn hα_jc (hcomp T.Θα T.jc_Θα)
     have hsum := (((h0b.add hUd h0m).add hUd h1b).add hUd h1m).add hUd hα_term
     have hB_eq : ((Nat.factorial 16 : ℝ) * pbM + (Nat.factorial 16 : ℝ) * pbM +
         (Nat.factorial 16 : ℝ) * pbM + (Nat.factorial 16 : ℝ) * pbM +
@@ -352,12 +349,11 @@ private noncomputable def mkWinDJSetup {K4 Sw_ell ε c α : ℝ} (hK4 : 1 ≤ K4
     isOpen_Ioo hH_jcΦ (by rw [abs_of_nonneg (sq_nonneg τ₁)]; exact hτ₁_sq_le1) hHT
   have hJcd : ∀ p ∈ S.Ω, ContDiffOn ℝ 15 (fun s => Jfun S.V fctH (τ₁ ^ 2) (p, s)) Yint := fun p hp =>
     hJ_jc.2.2.2.1.comp (contDiffOn_const.prodMk contDiffOn_id) fun s hs => ⟨hp, hs⟩
-  exact ⟨S, τ₁, β, hβ4, θ, δH, hδH_pos, hτ₁_pos, hτ₁_3, hτ₁_sq_le1, hψ, hθ_jc, hH_jcΦ, hHT,
-    hJcd, hJ_jc.2.2.2.1, hseg_pt, hSA_of⟩
+  exact ⟨hτ₁_pos, hτ₁_3, hτ₁_sq_le1, hψ, hθ_jc, hH_jcΦ, hHT, hJcd, hJ_jc.2.2.2.1, hseg_pt, hSA_of⟩
 
 /-- On `[0, Sw_ell c^{-1/6}]`, `J₁(ell₂, Y(u)) - J₀(ell₂, Y(u)) ∈ 𝒮^8(C c^{-17/12})` and
 `(J₁(ell₂, Y(u)) - J₀(ell₂, Y(u))) - (J₁(ell₁, Y(u)) - J₀(ell₁, Y(u))) ∈ 𝒮^8(C c^{-5/4} (ell₂ - ell₁))`. -/
-theorem win_J1_sub_J0_and_diff {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_ell) :
+theorem win_J1_sub_J0_and_diff {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (_hSw : 1 ≤ Sw_ell) :
     ∃ C c₀ : ℝ, 0 ≤ C ∧ 32 ^ 4 ≤ c₀ ∧ ∀ {ε c α ell1 ell2 : ℝ},
       (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       c ^ (-(1 / 4 : ℝ)) ≤ pbTauLim → K4 * (c ^ (-(1 / 4 : ℝ))) ^ 2 ≤ 1 →
@@ -373,9 +369,10 @@ theorem win_J1_sub_J0_and_diff {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ S
           Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), fctInnerY c u)) -
           (Jfun S.V fctH (τ₁ ^ 2) ((ell1, 1, α), fctInnerY c u) -
           Jfun S.V fctH (τ₁ ^ 2) ((ell1, 0, α), fctInnerY c u)) : ℝ) : ℂ)) := by
-  obtain ⟨δH, C_H, hδH_pos, _, hCH4, hH_jc, _⟩ := fctH_spec
+  obtain ⟨δH, C_H, _, _, _, hH_jc, _⟩ := fctH_spec
   let β : ℝ := winDJBeta C_H
-  have hβ0 : 0 ≤ β := by dsimp only [winDJBeta]; positivity
+  have hβ4 : 4 ≤ β := le_max_left _ _
+  have hβ0 : 0 ≤ β := by linarith only [hβ4]
   let M_A : ℝ := max 8 (2 * Sw_ell)
   have hMA8 : 8 ≤ M_A := le_max_left _ _
   let CJmax : ℝ := ∑ n ∈ Finset.range 9, CJ n (Φb^[3] β)
@@ -404,30 +401,32 @@ theorem win_J1_sub_J0_and_diff {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ S
   obtain ⟨hc32, hc160000, hcC0, hτ1_δH, hSw_lt⟩ := hc₀ c ((le_max_right _ _).trans hc)
   have hc100 : (100 : ℝ) ≤ c := le_trans (by norm_num) hc32
   have hc0 : 0 < c := by linarith only [hc100]
-  have D := mkWinDJSetup hK4 hSw hε hc160000 hcC0 hSw_lt hτ_lim hK4t hδH_pos hCH4 hH_jc hτ1_δH hα
-  have hτ₁_le : D.τ₁ ^ 2 ≤ 1 := D.hτ₁_sq_le1
+  set S := concreteBoxS K4 ε c
+  set τ₁ := c ^ (-(1 / 4 : ℝ))
+  let θ : (ℝ × ℝ × ℝ) × ℝ → ℝ := fun q => (concreteBoxT K4 ε c).Th τ₁ K4 q.1.2.2 q.2
+  have D := win_dj_props hK4 hε hc160000 hcC0 hSw_lt hτ_lim hK4t hH_jc hτ1_δH hα
   have hell2_nn : 0 ≤ ell2 := hell1.trans h12
-  have hp20_mem : (ell2, (0 : ℝ), α) ∈ D.S.Ω := by
+  have hp20_mem : (ell2, (0 : ℝ), α) ∈ S.Ω := by
     simpa using D.hseg_pt hell2_nn hell2 0 (left_mem_Icc.mpr zero_le_one)
-  have hp21_mem : (ell2, (1 : ℝ), α) ∈ D.S.Ω := by
+  have hp21_mem : (ell2, (1 : ℝ), α) ∈ S.Ω := by
     have hsum : (ell2, (0 : ℝ), α) + (1 : ℝ) • ((0 : ℝ), (1 : ℝ), (0 : ℝ)) = (ell2, (1 : ℝ), α) := by ext <;> simp
     rw [← hsum]; exact D.hseg_pt hell2_nn hell2 1 (right_mem_Icc.mpr zero_le_one)
-  have hp10_mem : (ell1, (0 : ℝ), α) ∈ D.S.Ω := by
+  have hp10_mem : (ell1, (0 : ℝ), α) ∈ S.Ω := by
     simpa using D.hseg_pt hell1 (h12.trans hell2) 0 (left_mem_Icc.mpr zero_le_one)
-  have hp11_mem : (ell1, (1 : ℝ), α) ∈ D.S.Ω := by
+  have hp11_mem : (ell1, (1 : ℝ), α) ∈ S.Ω := by
     have hsum : (ell1, (0 : ℝ), α) + (1 : ℝ) • ((0 : ℝ), (1 : ℝ), (0 : ℝ)) = (ell1, (1 : ℝ), α) := by ext <;> simp
     rw [← hsum]; exact D.hseg_pt hell1 (h12.trans hell2) 1 (right_mem_Icc.mpr zero_le_one)
   -- Part 1: `(J1 - J0)(ell2)`
   have hpart1 : FctSymClsOn (Icc 0 (fctUc c)) 8 8 (C_tot * c ^ (-(17 / 12 : ℝ)))
-      (fun u => ((Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), fctInnerY c u) -
-        Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), fctInnerY c u) : ℝ) : ℂ)) := by
+      (fun u => ((Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), fctInnerY c u) -
+        Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), fctInnerY c u) : ℝ) : ℂ)) := by
     have hJdiff_bd : ∀ k : ℕ, k ≤ 8 → ∀ y ∈ Yint, 0 ≤ y →
-        |iteratedDeriv k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), s) -
-          Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), s)) y| ≤
-          (D.τ₁ ^ 3 * CJmax) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (4 - k) := by
+        |iteratedDeriv k (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), s) -
+          Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), s)) y| ≤
+          (τ₁ ^ 3 * CJmax) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (4 - k) := by
       intro k hk y hy hy0
-      have hdJ := D.S.dJ_jets D.hβ4 (0, 1, 0) D.θ (D.τ₁ ^ 3) D.hψ D.hθ_jc isOpen_Ioo D.hH_jcΦ
-        (by rw [abs_of_nonneg (sq_nonneg D.τ₁)]; exact hτ₁_le) D.hHT
+      have hdJ := S.dJ_jets hβ4 (0, 1, 0) θ (τ₁ ^ 3) D.hψ D.hθ_jc isOpen_Ioo D.hH_jcΦ
+        (by rw [abs_of_nonneg (sq_nonneg τ₁)]; exact D.hτ₁_sq_le1) D.hHT
         (D.hseg_pt hell2_nn hell2)
         (fun t ht => (D.hSA_of hell2_nn hell2 t ht).1)
         (fun t ht => (D.hSA_of hell2_nn hell2 t ht).2) hy hy0 (by omega : k ≤ 13)
@@ -435,33 +434,33 @@ theorem win_J1_sub_J0_and_diff {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ S
       rw [hsum] at hdJ
       have hk15 : ((k : ℕ∞) : WithTop ℕ∞) ≤ 15 := by
         rw [show (15 : WithTop ℕ∞) = (((15 : ℕ) : ℕ∞) : WithTop ℕ∞) by rfl]; exact_mod_cast (by omega : k ≤ 15)
-      have hcd1 : ContDiffAt ℝ k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), s)) y :=
+      have hcd1 : ContDiffAt ℝ k (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), s)) y :=
         ((D.hJcd (ell2, 1, α) hp21_mem).contDiffAt (isOpen_Ioo.mem_nhds hy)).of_le (m := (k : ℕ∞)) hk15
-      have hcd0 : ContDiffAt ℝ k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), s)) y :=
+      have hcd0 : ContDiffAt ℝ k (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), s)) y :=
         ((D.hJcd (ell2, 0, α) hp20_mem).contDiffAt (isOpen_Ioo.mem_nhds hy)).of_le (m := (k : ℕ∞)) hk15
-      rw [show (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), s) -
-            Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), s)) =
-          (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), s)) -
-            (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), s)) from rfl,
+      rw [show (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), s) -
+            Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), s)) =
+          (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), s)) -
+            (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), s)) from rfl,
         iteratedDeriv_sub hcd1 hcd0]
-      have hCJ_le : CJ k (Φb^[3] D.β) ≤ CJmax :=
+      have hCJ_le : CJ k (Φb^[3] β) ≤ CJmax :=
         Finset.single_le_sum (fun m _ => hCJ_nn m) (Finset.mem_range.mpr (by omega))
-      calc |iteratedDeriv k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), s)) y -
-              iteratedDeriv k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), s)) y|
-          ≤ |D.τ₁ ^ 3| * CJ k (Φb^[3] D.β) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (4 - k) := hdJ
-        _ = D.τ₁ ^ 3 * CJ k (Φb^[3] D.β) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (4 - k) := by
+      calc |iteratedDeriv k (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), s)) y -
+              iteratedDeriv k (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), s)) y|
+          ≤ |τ₁ ^ 3| * CJ k (Φb^[3] β) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (4 - k) := hdJ
+        _ = τ₁ ^ 3 * CJ k (Φb^[3] β) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (4 - k) := by
             rw [abs_of_pos (pow_pos D.hτ₁_pos 3)]
-        _ ≤ (D.τ₁ ^ 3 * CJmax) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (4 - k) := by gcongr
-    have hJdiff_cd : ContDiffOn ℝ 8 (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), s) -
-        Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), s)) Yint :=
+        _ ≤ (τ₁ ^ 3 * CJmax) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (4 - k) := by gcongr
+    have hJdiff_cd : ContDiffOn ℝ 8 (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), s) -
+        Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), s)) Yint :=
       ((D.hJcd (ell2, 1, α) hp21_mem).of_le (by norm_num)).sub ((D.hJcd (ell2, 0, α) hp20_mem).of_le (by norm_num))
     have hcomp := win_dJ_comp_Y_sym (m := 4) hc100 (mul_nonneg (pow_nonneg D.hτ₁_pos.le 3) hCJmax_nn)
       hMA8 (by norm_num) hJdiff_cd hJdiff_bd
-    have hB_le : (Nat.factorial 8 : ℝ) * 16 ^ 8 * M_A ^ 4 * 100 ^ 8 * (D.τ₁ ^ 3 * CJmax) * c ^ (-((4 : ℝ) / 6)) ≤
+    have hB_le : (Nat.factorial 8 : ℝ) * 16 ^ 8 * M_A ^ 4 * 100 ^ 8 * (τ₁ ^ 3 * CJmax) * c ^ (-((4 : ℝ) / 6)) ≤
         C_tot * c ^ (-(17 / 12 : ℝ)) := by
       have hc_pow : c ^ (-(3 / 4 : ℝ)) * c ^ (-((4 : ℝ) / 6)) = c ^ (-(17 / 12 : ℝ)) := by
         rw [← Real.rpow_add hc0]; congr 1; norm_num
-      have h1 : (Nat.factorial 8 : ℝ) * 16 ^ 8 * M_A ^ 4 * 100 ^ 8 * (D.τ₁ ^ 3 * CJmax) * c ^ (-((4 : ℝ) / 6)) =
+      have h1 : (Nat.factorial 8 : ℝ) * 16 ^ 8 * M_A ^ 4 * 100 ^ 8 * (τ₁ ^ 3 * CJmax) * c ^ (-((4 : ℝ) / 6)) =
           C1 * c ^ (-(17 / 12 : ℝ)) := by
         dsimp only [C1]; rw [D.hτ₁_3]
         calc (Nat.factorial 8 : ℝ) * 16 ^ 8 * M_A ^ 4 * 100 ^ 8 * (c ^ (-(3 / 4 : ℝ)) * CJmax) * c ^ (-((4 : ℝ) / 6))
@@ -472,115 +471,114 @@ theorem win_J1_sub_J0_and_diff {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ S
     exact hcomp.mono_B Icc_subset_Ici_self hB_le
   -- Part 2: `(J1(ell2) - J0(ell2)) - (J1(ell1) - J0(ell1))`
   have hpart2 : FctSymClsOn (Icc 0 (fctUc c)) 8 8 (C_tot * c ^ (-(5 / 4 : ℝ)) * (ell2 - ell1))
-      (fun u => (((Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), fctInnerY c u) -
-        Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), fctInnerY c u)) -
-        (Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 1, α), fctInnerY c u) -
-        Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 0, α), fctInnerY c u)) : ℝ) : ℂ)) := by
+      (fun u => (((Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), fctInnerY c u) -
+        Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), fctInnerY c u)) -
+        (Jfun S.V fctH (τ₁ ^ 2) ((ell1, 1, α), fctInnerY c u) -
+        Jfun S.V fctH (τ₁ ^ 2) ((ell1, 0, α), fctInnerY c u)) : ℝ) : ℂ)) := by
     let v : ℝ × ℝ × ℝ := (ell2 - ell1, 0, 0)
     let p10 : ℝ × ℝ × ℝ := (ell1, 0, α)
     let p11 : ℝ × ℝ × ℝ := (ell1, 1, α)
-    have hO_S : IsOpen (D.S.Ω ×ˢ Yint) := D.S.hΩ.prod isOpen_Ioo
+    have hO_S : IsOpen (S.Ω ×ˢ Yint) := S.hΩ.prod isOpen_Ioo
     have hu_n : ‖((1 : ℝ), (0 : ℝ), (0 : ℝ))‖ ≤ 1 := by simp [Prod.norm_def]
     have hJdiff_bd : ∀ k : ℕ, k ≤ 8 → ∀ y ∈ Yint, 0 ≤ y →
-        |iteratedDeriv k (fun s => (Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), s) -
-          Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), s)) -
-          (Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 1, α), s) -
-          Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 0, α), s))) y| ≤
-          ((ell2 - ell1) * D.τ₁ ^ 3 * CJuMax) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (3 - k) := by
+        |iteratedDeriv k (fun s => (Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), s) -
+          Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), s)) -
+          (Jfun S.V fctH (τ₁ ^ 2) ((ell1, 1, α), s) -
+          Jfun S.V fctH (τ₁ ^ 2) ((ell1, 0, α), s))) y| ≤
+          ((ell2 - ell1) * τ₁ ^ 3 * CJuMax) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (3 - k) := by
       intro k hk y hy hy0
       have hk15 : ((k : ℕ∞) : WithTop ℕ∞) ≤ 15 := by
         rw [show (15 : WithTop ℕ∞) = (((15 : ℕ) : ℕ∞) : WithTop ℕ∞) by rfl]; exact_mod_cast (by omega : k ≤ 15)
-      have hcd21 : ContDiffAt ℝ k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), s)) y :=
+      have hcd21 : ContDiffAt ℝ k (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), s)) y :=
         ((D.hJcd (ell2, 1, α) hp21_mem).contDiffAt (isOpen_Ioo.mem_nhds hy)).of_le (m := (k : ℕ∞)) hk15
-      have hcd20 : ContDiffAt ℝ k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), s)) y :=
+      have hcd20 : ContDiffAt ℝ k (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), s)) y :=
         ((D.hJcd (ell2, 0, α) hp20_mem).contDiffAt (isOpen_Ioo.mem_nhds hy)).of_le (m := (k : ℕ∞)) hk15
-      have hcd11 : ContDiffAt ℝ k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 1, α), s)) y :=
+      have hcd11 : ContDiffAt ℝ k (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell1, 1, α), s)) y :=
         ((D.hJcd (ell1, 1, α) hp11_mem).contDiffAt (isOpen_Ioo.mem_nhds hy)).of_le (m := (k : ℕ∞)) hk15
-      have hcd10 : ContDiffAt ℝ k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 0, α), s)) y :=
+      have hcd10 : ContDiffAt ℝ k (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell1, 0, α), s)) y :=
         ((D.hJcd (ell1, 0, α) hp10_mem).contDiffAt (isOpen_Ioo.mem_nhds hy)).of_le (m := (k : ℕ∞)) hk15
-      let f2 : ℝ → ℝ := fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), s) -
-        Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), s)
-      let f1 : ℝ → ℝ := fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 1, α), s) -
-        Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 0, α), s)
+      let f2 : ℝ → ℝ := fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), s) -
+        Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), s)
+      let f1 : ℝ → ℝ := fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell1, 1, α), s) -
+        Jfun S.V fctH (τ₁ ^ 2) ((ell1, 0, α), s)
       change |iteratedDeriv k (fun s => f2 s - f1 s) y| ≤ _
       rw [show (fun s => f2 s - f1 s) = f2 - f1 from rfl, iteratedDeriv_sub (hcd21.sub hcd20) (hcd11.sub hcd10)]
-      dsimp only [f2, f1]
-      rw [show (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), s) - Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), s)) =
-          (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), s)) - (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), s)) from rfl,
-        show (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 1, α), s) - Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 0, α), s)) =
-          (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 1, α), s)) - (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 0, α), s)) from rfl,
+      rw [show (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), s) - Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), s)) =
+          (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), s)) - (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), s)) from rfl,
+        show (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell1, 1, α), s) - Jfun S.V fctH (τ₁ ^ 2) ((ell1, 0, α), s)) =
+          (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell1, 1, α), s)) - (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell1, 0, α), s)) from rfl,
         iteratedDeriv_sub hcd21 hcd20, iteratedDeriv_sub hcd11 hcd10]
       let φ : ℝ → ℝ := fun t =>
-        iteratedDeriv k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) (p11 + t • v, s)) y -
-        iteratedDeriv k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) (p10 + t • v, s)) y
-      have hJk2 : ContDiffOn ℝ (k + 2) (Jfun D.S.V fctH (D.τ₁ ^ 2)) (D.S.Ω ×ˢ Yint) :=
+        iteratedDeriv k (fun s => Jfun S.V fctH (τ₁ ^ 2) (p11 + t • v, s)) y -
+        iteratedDeriv k (fun s => Jfun S.V fctH (τ₁ ^ 2) (p10 + t • v, s)) y
+      have hJk2 : ContDiffOn ℝ (k + 2) (Jfun S.V fctH (τ₁ ^ 2)) (S.Ω ×ˢ Yint) :=
         D.hJ_cd15.of_le (by exact_mod_cast (by omega : k + 2 ≤ 15))
       have hell_t : ∀ t ∈ Icc (0 : ℝ) 1, 0 ≤ ell1 + t * (ell2 - ell1) ∧
           ell1 + t * (ell2 - ell1) ≤ Sw_ell * c ^ (-(1 / 6 : ℝ)) := fun t ht =>
         ⟨by nlinarith only [hell1, h12, ht.1], by nlinarith only [h12, hell2, ht.1, ht.2]⟩
       have hder : ∀ t ∈ Icc (0 : ℝ) 1, HasDerivWithinAt φ
-          (iteratedDeriv k (fun s => fderiv ℝ (Jfun D.S.V fctH (D.τ₁ ^ 2)) (p11 + t • v, s) (v, 0)) y -
-           iteratedDeriv k (fun s => fderiv ℝ (Jfun D.S.V fctH (D.τ₁ ^ 2)) (p10 + t • v, s) (v, 0)) y)
+          (iteratedDeriv k (fun s => fderiv ℝ (Jfun S.V fctH (τ₁ ^ 2)) (p11 + t • v, s) (v, 0)) y -
+           iteratedDeriv k (fun s => fderiv ℝ (Jfun S.V fctH (τ₁ ^ 2)) (p10 + t • v, s) (v, 0)) y)
           (Icc (0 : ℝ) 1) t := fun t ht => by
         obtain ⟨ht0, htu⟩ := hell_t t ht
         have hp1t_eq : p11 + t • v = (ell1 + t * (ell2 - ell1), 1, α) := by ext <;> simp [p11, v]
         have hp0t_eq : p10 + t • v = (ell1 + t * (ell2 - ell1), 0, α) := by ext <;> simp [p10, v]
-        have hm1 : p11 + t • v ∈ D.S.Ω := by
+        have hm1 : p11 + t • v ∈ S.Ω := by
           rw [hp1t_eq]
           have hsum : (ell1 + t * (ell2 - ell1), (0 : ℝ), α) + (1 : ℝ) • ((0 : ℝ), (1 : ℝ), (0 : ℝ)) =
               (ell1 + t * (ell2 - ell1), (1 : ℝ), α) := by ext <;> simp
           rw [← hsum]; exact D.hseg_pt ht0 htu 1 (right_mem_Icc.mpr zero_le_one)
-        have hm0 : p10 + t • v ∈ D.S.Ω := by
+        have hm0 : p10 + t • v ∈ S.Ω := by
           rw [hp0t_eq]
           simpa using D.hseg_pt ht0 htu 0 (left_mem_Icc.mpr zero_le_one)
         exact ((hasDerivAt_iteratedDeriv_path hO_S p11 v y k _ hJk2 t ⟨hm1, hy⟩).sub
           (hasDerivAt_iteratedDeriv_path hO_S p10 v y k _ hJk2 t ⟨hm0, hy⟩)).hasDerivWithinAt
       have hbd : ∀ t ∈ Icc (0 : ℝ) 1,
-          ‖iteratedDeriv k (fun s => fderiv ℝ (Jfun D.S.V fctH (D.τ₁ ^ 2)) (p11 + t • v, s) (v, 0)) y -
-           iteratedDeriv k (fun s => fderiv ℝ (Jfun D.S.V fctH (D.τ₁ ^ 2)) (p10 + t • v, s) (v, 0)) y‖ ≤
-            ((ell2 - ell1) * D.τ₁ ^ 3 * CJuMax) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (3 - k) := fun t ht => by
+          ‖iteratedDeriv k (fun s => fderiv ℝ (Jfun S.V fctH (τ₁ ^ 2)) (p11 + t • v, s) (v, 0)) y -
+           iteratedDeriv k (fun s => fderiv ℝ (Jfun S.V fctH (τ₁ ^ 2)) (p10 + t • v, s) (v, 0)) y‖ ≤
+            ((ell2 - ell1) * τ₁ ^ 3 * CJuMax) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (3 - k) := fun t ht => by
         obtain ⟨ht0, htu⟩ := hell_t t ht
         let p_t : ℝ × ℝ × ℝ := (ell1 + t * (ell2 - ell1), 0, α)
         have hp1t_eq : p11 + t • v = p_t + ((0 : ℝ), (1 : ℝ), (0 : ℝ)) := by ext <;> simp [p11, v, p_t]
         have hp0t_eq : p10 + t • v = p_t := by ext <;> simp [p10, v, p_t]
         have hv_eq : (v, (0 : ℝ)) = (ell2 - ell1) • (((1 : ℝ), (0 : ℝ), (0 : ℝ)), (0 : ℝ)) := by
           ext <;> simp [v]
-        have hfn1 : (fun s => fderiv ℝ (Jfun D.S.V fctH (D.τ₁ ^ 2)) (p11 + t • v, s) (v, 0)) =
-            fun s => (ell2 - ell1) * fderiv ℝ (Jfun D.S.V fctH (D.τ₁ ^ 2)) (p_t + (0, 1, 0), s) ((1, 0, 0), 0) := by
+        have hfn1 : (fun s => fderiv ℝ (Jfun S.V fctH (τ₁ ^ 2)) (p11 + t • v, s) (v, 0)) =
+            fun s => (ell2 - ell1) * fderiv ℝ (Jfun S.V fctH (τ₁ ^ 2)) (p_t + (0, 1, 0), s) ((1, 0, 0), 0) := by
           ext s; rw [hp1t_eq, hv_eq, map_smul, smul_eq_mul]
-        have hfn0 : (fun s => fderiv ℝ (Jfun D.S.V fctH (D.τ₁ ^ 2)) (p10 + t • v, s) (v, 0)) =
-            fun s => (ell2 - ell1) * fderiv ℝ (Jfun D.S.V fctH (D.τ₁ ^ 2)) (p_t, s) ((1, 0, 0), 0) := by
+        have hfn0 : (fun s => fderiv ℝ (Jfun S.V fctH (τ₁ ^ 2)) (p10 + t • v, s) (v, 0)) =
+            fun s => (ell2 - ell1) * fderiv ℝ (Jfun S.V fctH (τ₁ ^ 2)) (p_t, s) ((1, 0, 0), 0) := by
           ext s; rw [hp0t_eq, hv_eq, map_smul, smul_eq_mul]
         rw [hfn1, hfn0, iteratedDeriv_const_mul_field, iteratedDeriv_const_mul_field, ← mul_sub,
           Real.norm_eq_abs, abs_mul, abs_of_nonneg (sub_nonneg.mpr h12)]
-        have hdJu := D.S.dJ_jets_u D.hβ4 (0, 1, 0) (1, 0, 0) hu_n D.θ (D.τ₁ ^ 3) D.hψ D.hθ_jc
-          isOpen_Ioo D.hH_jcΦ (by rw [abs_of_nonneg (sq_nonneg D.τ₁)]; exact hτ₁_le) D.hHT
+        have hdJu := S.dJ_jets_u hβ4 (0, 1, 0) (1, 0, 0) hu_n θ (τ₁ ^ 3) D.hψ D.hθ_jc
+          isOpen_Ioo D.hH_jcΦ (by rw [abs_of_nonneg (sq_nonneg τ₁)]; exact D.hτ₁_sq_le1) D.hHT
           (D.hseg_pt ht0 htu) (fun s hs => (D.hSA_of ht0 htu s hs).1)
           (fun s hs => (D.hSA_of ht0 htu s hs).2) hy hy0 (by omega : k ≤ 12)
-        have hCJu_le : CJu k (Φb^[3] D.β) ≤ CJuMax :=
+        have hCJu_le : CJu k (Φb^[3] β) ≤ CJuMax :=
           Finset.single_le_sum (fun m _ => hCJu_nn m) (Finset.mem_range.mpr (by omega))
-        calc (ell2 - ell1) * |iteratedDeriv k (fun s => fderiv ℝ (Jfun D.S.V fctH (D.τ₁ ^ 2)) (p_t + (0, 1, 0), s) ((1, 0, 0), 0)) y -
-              iteratedDeriv k (fun s => fderiv ℝ (Jfun D.S.V fctH (D.τ₁ ^ 2)) (p_t, s) ((1, 0, 0), 0)) y|
-            ≤ (ell2 - ell1) * (|D.τ₁ ^ 3| * CJu k (Φb^[3] D.β) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (3 - k)) := by gcongr
-          _ = (ell2 - ell1) * (D.τ₁ ^ 3 * CJu k (Φb^[3] D.β) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (3 - k)) := by
+        calc (ell2 - ell1) * |iteratedDeriv k (fun s => fderiv ℝ (Jfun S.V fctH (τ₁ ^ 2)) (p_t + (0, 1, 0), s) ((1, 0, 0), 0)) y -
+              iteratedDeriv k (fun s => fderiv ℝ (Jfun S.V fctH (τ₁ ^ 2)) (p_t, s) ((1, 0, 0), 0)) y|
+            ≤ (ell2 - ell1) * (|τ₁ ^ 3| * CJu k (Φb^[3] β) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (3 - k)) := by gcongr
+          _ = (ell2 - ell1) * (τ₁ ^ 3 * CJu k (Φb^[3] β) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (3 - k)) := by
               rw [abs_of_pos (pow_pos D.hτ₁_pos 3)]
-          _ ≤ (ell2 - ell1) * (D.τ₁ ^ 3 * CJuMax * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (3 - k)) := by gcongr
-          _ = ((ell2 - ell1) * D.τ₁ ^ 3 * CJuMax) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (3 - k) := by ring
+          _ ≤ (ell2 - ell1) * (τ₁ ^ 3 * CJuMax * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (3 - k)) := by gcongr
+          _ = ((ell2 - ell1) * τ₁ ^ 3 * CJuMax) * max y (M_A * c ^ (-(1 / 6 : ℝ))) ^ (3 - k) := by ring
       have hmv := (convex_Icc (0 : ℝ) 1).norm_image_sub_le_of_norm_hasDerivWithin_le hder hbd
         (left_mem_Icc.mpr zero_le_one) (right_mem_Icc.mpr zero_le_one)
       have hp11_eq : p11 + (1 : ℝ) • v = (ell2, 1, α) := by ext <;> simp [p11, v]
       have hp10_eq : p10 + (1 : ℝ) • v = (ell2, 0, α) := by ext <;> simp [p10, v]
-      have hφ1 : φ 1 = iteratedDeriv k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), s)) y -
-          iteratedDeriv k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), s)) y := by
+      have hφ1 : φ 1 = iteratedDeriv k (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), s)) y -
+          iteratedDeriv k (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), s)) y := by
         dsimp only [φ]; rw [hp11_eq, hp10_eq]
-      have hφ0 : φ 0 = iteratedDeriv k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 1, α), s)) y -
-          iteratedDeriv k (fun s => Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 0, α), s)) y := by
+      have hφ0 : φ 0 = iteratedDeriv k (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell1, 1, α), s)) y -
+          iteratedDeriv k (fun s => Jfun S.V fctH (τ₁ ^ 2) ((ell1, 0, α), s)) y := by
         dsimp only [φ]; rw [zero_smul, add_zero, add_zero]
       simpa [Real.norm_eq_abs, hφ1, hφ0, sub_zero, mul_one] using hmv
-    have hJdiff_cd : ContDiffOn ℝ 8 (fun s => (Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 1, α), s) -
-        Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell2, 0, α), s)) -
-        (Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 1, α), s) -
-        Jfun D.S.V fctH (D.τ₁ ^ 2) ((ell1, 0, α), s))) Yint :=
+    have hJdiff_cd : ContDiffOn ℝ 8 (fun s => (Jfun S.V fctH (τ₁ ^ 2) ((ell2, 1, α), s) -
+        Jfun S.V fctH (τ₁ ^ 2) ((ell2, 0, α), s)) -
+        (Jfun S.V fctH (τ₁ ^ 2) ((ell1, 1, α), s) -
+        Jfun S.V fctH (τ₁ ^ 2) ((ell1, 0, α), s))) Yint :=
       (((D.hJcd (ell2, 1, α) hp21_mem).of_le (by norm_num)).sub
         ((D.hJcd (ell2, 0, α) hp20_mem).of_le (by norm_num))).sub
       (((D.hJcd (ell1, 1, α) hp11_mem).of_le (by norm_num)).sub
@@ -588,11 +586,11 @@ theorem win_J1_sub_J0_and_diff {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ S
     have hcomp := win_dJ_comp_Y_sym (m := 3) hc100
       (mul_nonneg (mul_nonneg (sub_nonneg.mpr h12) (pow_nonneg D.hτ₁_pos.le 3)) hCJuMax_nn)
       hMA8 (by norm_num) hJdiff_cd hJdiff_bd
-    have hB_le : (Nat.factorial 8 : ℝ) * 16 ^ 8 * M_A ^ 4 * 100 ^ 8 * ((ell2 - ell1) * D.τ₁ ^ 3 * CJuMax) * c ^ (-((3 : ℝ) / 6)) ≤
+    have hB_le : (Nat.factorial 8 : ℝ) * 16 ^ 8 * M_A ^ 4 * 100 ^ 8 * ((ell2 - ell1) * τ₁ ^ 3 * CJuMax) * c ^ (-((3 : ℝ) / 6)) ≤
         C_tot * c ^ (-(5 / 4 : ℝ)) * (ell2 - ell1) := by
       have hc_pow : c ^ (-(3 / 4 : ℝ)) * c ^ (-((3 : ℝ) / 6)) = c ^ (-(5 / 4 : ℝ)) := by
         rw [← Real.rpow_add hc0]; congr 1; norm_num
-      have h1 : (Nat.factorial 8 : ℝ) * 16 ^ 8 * M_A ^ 4 * 100 ^ 8 * ((ell2 - ell1) * D.τ₁ ^ 3 * CJuMax) * c ^ (-((3 : ℝ) / 6)) =
+      have h1 : (Nat.factorial 8 : ℝ) * 16 ^ 8 * M_A ^ 4 * 100 ^ 8 * ((ell2 - ell1) * τ₁ ^ 3 * CJuMax) * c ^ (-((3 : ℝ) / 6)) =
           C2 * c ^ (-(5 / 4 : ℝ)) * (ell2 - ell1) := by
         dsimp only [C2]; rw [D.hτ₁_3]
         calc (Nat.factorial 8 : ℝ) * 16 ^ 8 * M_A ^ 4 * 100 ^ 8 * ((ell2 - ell1) * c ^ (-(3 / 4 : ℝ)) * CJuMax) * c ^ (-((3 : ℝ) / 6))
