@@ -269,11 +269,9 @@ structure AiryActiveHeight (D : ShellHBData) : Prop where
       ∫ u : ℝ, (H (u : ℂ)).re / (u - z) < 0
 
 /-- Inputs of `thm:ce-canonical-iff` for the Hermite–Biehler configuration `D` with zero enumeration `_t`
-(`m = D.S.card`; `_t` is retained for signature stability of `thm_ce_canonical_iff`). Each field is an open result of
-the paper (the label is in its docstring). -/
+(`m = D.S.card`; `_t` is retained for signature stability). Every former field is now proved
+unconditionally (`shell_reduction` by `shellReduction_proved` in `CeShellReductionProved.lean`),
+so this structure has no open fields. -/
 structure CeCanonicalInputs (D : ShellHBData) (_t : ℕ → ℝ) : Prop where
-  /-- `thm:ce-shell-reduction` (open for `m ≥ 2`, M8; it follows from the lower half of `u1cl:multilevel`,
-  `thm:intro-hb`): bounded offsets give `R²/2 ≥ d/(2π²) - (t_m/β₁)(d/2)^{1/3} - O(1)`. -/
-  shell_reduction : ShellReduction D
 
 end FormalResearch.SignUncertainty

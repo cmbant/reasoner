@@ -675,6 +675,13 @@ public import FormalResearch.SignUncertainty.CeHbDualPrep
 public import FormalResearch.SignUncertainty.CeHbPreEdge
 public import FormalResearch.SignUncertainty.CeHbDualPair
 public import FormalResearch.SignUncertainty.CeHbLift
+public import FormalResearch.SignUncertainty.HankelBootBandGen
+public import FormalResearch.SignUncertainty.HankelBootLineGen
+public import FormalResearch.SignUncertainty.HankelQuantC1Multilevel
+public import FormalResearch.SignUncertainty.HankelBootMultilevelNodes
+public import FormalResearch.SignUncertainty.HankelBootMultilevelArc
+public import FormalResearch.SignUncertainty.HankelBootMultilevel
+public import FormalResearch.SignUncertainty.CeShellReductionProved
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -988,7 +995,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.CeHbSeedGen`, `CeHbSeedMass`, `CeHbDualPrep`, `CeHbPreEdge`, `CeHbDualPair`,
   `CeHbLift`: all-level `CeHbLift D` proof `ce_hb_lift_proved` (`thm:ce-hb-lift`, M6), discharging the former
   `ce_hb_lift` field of `CeCanonicalInputs` and `ce_hb_lift_m1` field of `RadiiInputs`.
-* `FormalResearch.SignUncertainty.HbMultilevelDefs`, `CeCanonicalDefs` (M0 skeleton, statement objects and input structures of `thm_intro_hb` and `thm_ce_canonical_iff`; `CeCanonicalInputs` now carries only `shell_reduction : ShellReduction D`).
+* `FormalResearch.SignUncertainty.HbMultilevelDefs`, `CeCanonicalDefs` (M0 skeleton, statement objects and input structures of `thm_intro_hb` and `thm_ce_canonical_iff`; `CeCanonicalInputs` now carries no open fields, `shell_reduction` proved by `CeShellReductionProved.shellReduction_proved` via `HankelBootMultilevel.hbMultilevelLower_proved`).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`, `thm_intro_hb`
   (`u1cl:multilevel`) and `thm_ce_canonical_iff` (`thm:intro-gap`, `thm:ce-canonical-iff`) of Paper I, each proved
   from one input structure whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5), and the

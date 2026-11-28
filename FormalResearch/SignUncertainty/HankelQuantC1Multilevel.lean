@@ -438,7 +438,7 @@ structure QuantC1MultilevelB2Holds (D : ShellHBData) (δ_star κ_star C1 η_cap 
 /-- **Multilevel `TE.0'` (`teb:quant_c1_hb`, type-(I) envelope)** for `D : ShellHBData`, fixed
 site-offset bound `D_1 ≥ 0`, and any upper cap `η_cap > 0` on `u_T - D.tm`. -/
 theorem hankel_quant_c1_multilevel_typeI (D : ShellHBData) {C_0 D_1 η_cap : ℝ}
-    (hC0 : 0 < C_0) (hD1 : 0 ≤ D_1) (hη : 0 < η_cap)
+    (hC0 : 0 < C_0) (_hD1 : 0 ≤ D_1) (hη : 0 < η_cap)
     (R_dom δ_lobe : ℝ → ℝ)
     (hR_lim : Tendsto R_dom atTop atTop)
     (hδ_nn : ∀ᶠ c in atTop, 0 ≤ δ_lobe c)

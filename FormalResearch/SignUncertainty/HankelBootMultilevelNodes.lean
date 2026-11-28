@@ -5,9 +5,7 @@ public import FormalResearch.SignUncertainty.HankelBootLineGen
 public import FormalResearch.SignUncertainty.HankelQuantC1Multilevel
 public import FormalResearch.SignUncertainty.CeTerminalDeflation
 public import FormalResearch.SignUncertainty.HankelThresholds
-public import FormalResearch.Special.AiryPolyCircle
 public import FormalResearch.Special.AiryPolyQuad
-public import FormalResearch.ModularBootstrap.ConcreteBootstrap.ClarkDiscBounds
 
 /-!
 # Multilevel `(P, Q)` Nodes, Weights, Quadrature/Arc Bound, and `Q = 0` Base Case (`R2c`)
@@ -398,7 +396,7 @@ lemma hb_node_pow_ge_half {R x : ℝ} (k : ℕ) (hR : 2 * ((k : ℝ) + 1) * (-x)
     calc -(((k : ℝ) + 1) * (x / R)) = ((k : ℝ) + 1) * (-x) / R := by ring
       _ ≤ 1 / 2 := (div_le_iff₀ hR_pos).mpr (by linarith)
   have ha : -1 ≤ x / R := by
-    have hk1 : (1 : ℝ) ≤ (k : ℝ) + 1 := by linarith [Nat.cast_nonneg k]
+    have hk1 : (1 : ℝ) ≤ (k : ℝ) + 1 := by linarith [(Nat.cast_nonneg k : (0 : ℝ) ≤ (k : ℝ))]
     have hdiv_np : x / R ≤ 0 := div_nonpos_of_nonpos_of_nonneg hx.le hR_pos.le
     nlinarith
   have hber := hb_one_add_mul_le_pow (k + 1) ha
@@ -411,6 +409,69 @@ lemma hb_psiR_mv_sub {c ε : ℝ} {f : ℝ → ℝ} (hc0 : 0 < c) (hf : IsHankel
     (hder : ∀ x ∈ Icc a b, ‖deriv (hankelPsi c f) (x : ℂ)‖ ≤ C1) :
     |(hankelPsi c f (b : ℂ)).re - (hankelPsi c f (a : ℂ)).re| ≤ C1 * (b - a) :=
   hankelBoot_psi_mv_sub (analyticOnNhd_hankelPsi hc0 hf) hab ha hb C1 hder
+
+private lemma hb_zeros_re_abs_le (D : ShellHBData) {R : ℝ} {z : ℂ}
+    (hz0 : airyPQN D.P D.Q z = 0) (hzR : ‖z‖ ≤ R) : |z.re| ≤ R := by
+  have hzr := airyPQ_zero_eq_ofReal D.hHB hz0
+  calc |z.re| = ‖(z.re : ℂ)‖ := by rw [Complex.norm_real, Real.norm_eq_abs]
+    _ = ‖z‖ := by rw [← hzr]
+    _ ≤ R := hzR
+
+private lemma hb_node_upper_site_re_lb (D : ShellHBData) {c ε R D_1 ℓ s u_s : ℝ}
+    {f : ℝ → ℝ} (hc0 : 0 < c) (hfe : IsHankelEigenfn c ε f) (hD1 : D_1 * c ^ (-(1 / 3 : ℝ)) ≤ 1 / 4)
+    (hℓ0 : 0 ≤ ℓ) (hℓ_lb : D_1 * c ^ (-(1 / 3 : ℝ)) ≤ ℓ) (hℓ_half : ℓ ≤ 1 / 2)
+    (hR_S : D.S.sup' D.S_nonempty (fun x => |x|) + 1 ≤ R) (hRA : R + 1 ≤ langerRadius c)
+    (hsS : s ∈ D.S)
+    (hu_diff : |u_s - s| ≤ D_1 * c ^ (-(1 / 3 : ℝ)))
+    (hu_A : |u_s| ≤ langerRadius c)
+    (hu_sign : -hankelRinf c ≤ hankelPsiR c f u_s)
+    {C1_q : ℝ} (hder : ∀ x ∈ Icc (s - 1 / 2) (s + 1 / 2), ‖deriv (hankelPsi c f) (x : ℂ)‖ ≤ C1_q) :
+    -(hankelRinf c + 2 * C1_q * ℓ) ≤ hankelPsiR c f (s + ℓ) := by
+  have hC1_nn : 0 ≤ C1_q := (norm_nonneg _).trans (hder s ⟨by linarith, by linarith⟩)
+  have hs_M : |s| ≤ D.S.sup' D.S_nonempty (fun x => |x|) := Finset.le_sup' (fun x => |x|) hsS
+  let a' : ℝ := min u_s (s + ℓ)
+  let b' : ℝ := max u_s (s + ℓ)
+  have hsℓ_A : |s + ℓ| ≤ langerRadius c := by
+    rw [abs_le]
+    have hs_abs := abs_le.mp hs_M
+    exact ⟨by linarith only [hs_abs.1, hℓ0, hR_S, hRA], by linarith only [hs_abs.2, hℓ_half, hR_S, hRA]⟩
+  have h_lo : -langerRadius c ≤ a' := le_min (abs_le.mp hu_A).1 (abs_le.mp hsℓ_A).1
+  have h_hi : b' ≤ langerRadius c := max_le (abs_le.mp hu_A).2 (abs_le.mp hsℓ_A).2
+  have h_in_half : ∀ x ∈ Icc a' b', x ∈ Icc (s - 1 / 2) (s + 1 / 2) := fun x hx => by
+    have hda : |u_s - s| ≤ 1 / 2 := hu_diff.trans (by linarith only [hD1])
+    have ha1 : s - 1 / 2 ≤ a' := le_min (by linarith only [(abs_le.mp hda).1]) (by linarith only [hℓ0])
+    have hb1 : b' ≤ s + 1 / 2 := max_le (by linarith only [(abs_le.mp hda).2]) (by linarith only [hℓ_half])
+    exact ⟨ha1.trans hx.1, hx.2.trans hb1⟩
+  have hmv := hb_psiR_mv_sub hc0 hfe (le_trans (min_le_left _ _) (le_max_left _ _)) h_lo h_hi
+    (fun x hx => hder x (h_in_half x hx))
+  have hgap : |s + ℓ - u_s| ≤ 2 * ℓ := by
+    have h1 : |s + ℓ - u_s| ≤ ℓ + D_1 * c ^ (-(1 / 3 : ℝ)) := by
+      calc |s + ℓ - u_s| = |ℓ + (s - u_s)| := by ring_nf
+        _ ≤ |ℓ| + |s - u_s| := abs_add_le _ _
+        _ = ℓ + |u_s - s| := by rw [abs_of_nonneg hℓ0, abs_sub_comm]
+        _ ≤ ℓ + D_1 * c ^ (-(1 / 3 : ℝ)) := by linarith only [hu_diff]
+    linarith only [h1, hℓ_lb]
+  have hlen : b' - a' ≤ 2 * ℓ := by
+    have hmax_min : b' - a' = |s + ℓ - u_s| := by
+      dsimp [a', b']; rw [max_sub_min_eq_abs, abs_sub_comm]
+    linarith only [hmax_min, hgap]
+  have hdiff_mv : |(hankelPsi c f ((s + ℓ : ℝ) : ℂ)).re - (hankelPsi c f (u_s : ℂ)).re| ≤
+      2 * C1_q * ℓ := by
+    have hmul : C1_q * (b' - a') ≤ 2 * C1_q * ℓ := by
+      have := mul_le_mul_of_nonneg_left hlen hC1_nn
+      linarith only [this]
+    rcases le_total u_s (s + ℓ) with h | h
+    · dsimp [a', b'] at hmul
+      rw [min_eq_left h, max_eq_right h] at hmv hmul
+      exact hmv.trans hmul
+    · dsimp [a', b'] at hmul
+      rw [min_eq_right h, max_eq_left h] at hmv hmul
+      rw [abs_sub_comm] at hmv
+      exact hmv.trans hmul
+  have hlo := (abs_le.mp hdiff_mv).1
+  change -hankelRinf c ≤ (hankelPsi c f (u_s : ℂ)).re at hu_sign
+  show -(hankelRinf c + 2 * C1_q * ℓ) ≤ (hankelPsi c f ((s + ℓ : ℝ) : ℂ)).re
+  linarith only [hlo, hu_sign]
 
 /-- Lower bound for `hankelBootMultilevelNodes` (`(B2_HB)` for general `D : ShellHBData` with `D.Q ≠ 0`). -/
 theorem hankelBootMultilevel_nodes_lb (D : ShellHBData) (hQ : D.Q ≠ 0) {c ε T u_T R D_1 : ℝ}
@@ -469,105 +530,72 @@ theorem hankelBootMultilevel_nodes_lb (D : ShellHBData) (hQ : D.Q ≠ 0) {c ε T
     obtain ⟨hz0, hzR⟩ := (mem_hbZerosInDisc D).mp hz
     have hzr := airyPQ_zero_eq_ofReal D.hHB hz0
     have hzw : 0 ≤ hbWeight D z := hbWeight_nonneg_of_zero D hz0
-    have hz_abs : |z.re| ≤ R := by simpa [hzr, Complex.norm_real, Real.norm_eq_abs] using hzR
+    have hz_abs : |z.re| ≤ R := hb_zeros_re_abs_le D hz0 hzR
     have hz_M : z.re ≤ M_S := by
       by_cases hzS : z.re ∈ D.S
       · exact (abs_le.mp (Finset.le_sup' (fun s => |s|) hzS)).2
       · have hlt := D.S_top z.re (hzr ▸ hz0) hzS D.tm D.tm_mem
-        linarith [le_abs_self D.tm, Finset.le_sup' (fun s => |s|) D.tm_mem]
+        linarith only [hlt, le_abs_self D.tm, Finset.le_sup' (fun s => |s|) D.tm_mem]
     have hpow_bd := hb_node_pow_upper hM_S_nn hR5 (abs_le.mp hz_abs).1 hz_M hkR
     rw [hb_node_term_eq D f k hz0]
     by_cases hzS : z.re ∈ D.S
-    · rw [if_pos hzS]
-      have hz_M' : |z.re| ≤ M_S := Finset.le_sup' (fun s => |s|) hzS
+    · simp only [hzS, reduceIte]
       have hre_psi : -(hankelRinf c + 2 * C1_q * ℓ) ≤ hankelPsiR c f (z.re + ℓ) := by
         by_cases hztm : z.re = D.tm
         · rw [hztm]
-          have htm_A : |D.tm| ≤ langerRadius c := by
-            have : |D.tm| ≤ M_S := Finset.le_sup' (fun s => |s|) D.tm_mem
-            linarith [(le_max_left _ (10 : ℝ)).trans hR_S]
+          have htm_M : |D.tm| ≤ M_S := Finset.le_sup' (fun s => |s|) D.tm_mem
+          have htm_A : |D.tm| ≤ langerRadius c := by linarith only [htm_M, (le_max_left _ (10 : ℝ)).trans hR_S, hRA]
+          have htmℓ_A : D.tm + ℓ ≤ langerRadius c := by
+            linarith only [(abs_le.mp htm_M).2, (le_max_left _ (10 : ℝ)).trans hR_S, hRA, hℓ_q]
           have hsign : -hankelRinf c ≤ hankelPsiR c f D.tm :=
-            hankelBoot_psi_ge_gen hc hf hε hM hT huA (by linarith) (abs_le.mp htm_A).1 htm_uT.le
+            hankelBoot_psi_ge_gen hc hf hε hM hT huA (by linarith only [hRA]) (abs_le.mp htm_A).1 htm_uT.le
           have hder : ∀ x ∈ Icc D.tm (D.tm + ℓ), ‖deriv (hankelPsi c f) (x : ℂ)‖ ≤ C1_q := fun x hx =>
-            hB2.deriv_norm_le D.tm D.tm_mem x ⟨by linarith [hx.1], by linarith [hx.2]⟩
-          have hmv := hb_psiR_mv_sub hc0 hfe (by linarith : D.tm ≤ D.tm + ℓ)
-            (by linarith [(abs_le.mp htm_A).1]) (by linarith [(abs_le.mp htm_A).2]) hder
+            hB2.deriv_norm_le D.tm D.tm_mem x ⟨by linarith only [hx.1, hℓ0], by linarith only [hx.2, hℓ_q]⟩
+          have hmv := hb_psiR_mv_sub hc0 hfe (by linarith only [hℓ0] : D.tm ≤ D.tm + ℓ)
+            (abs_le.mp htm_A).1 htmℓ_A hder
           have hlo := (abs_le.mp hmv).1
           change -hankelRinf c ≤ (hankelPsi c f (D.tm : ℂ)).re at hsign
           show _ ≤ (hankelPsi c f ((D.tm + ℓ : ℝ) : ℂ)).re
           have hnn : 0 ≤ C1_q * ℓ := mul_nonneg hC1_pos.le hℓ0
-          linarith
+          linarith only [hlo, hsign, hnn]
         · have hz_erase : z.re ∈ D.S.erase D.tm := Finset.mem_erase.mpr ⟨hztm, hzS⟩
           obtain ⟨hu_diff, hu_A, hu_sign⟩ := hsites z.re hz_erase
-          let a' := min (u_site z.re) (z.re + ℓ)
-          let b' := max (u_site z.re) (z.re + ℓ)
-          have hz_half_lo : -langerRadius c ≤ a' := by
-            have h2 : |z.re + ℓ| ≤ langerRadius c := by
-              rw [abs_le]; constructor <;> linarith [(abs_le.mp hz_M').1, (abs_le.mp hz_M').2,
-                (le_max_left _ (10 : ℝ)).trans hR_S]
-            exact le_min (abs_le.mp hu_A).1 (abs_le.mp h2).1
-          have hz_half_hi : b' ≤ langerRadius c := by
-            have h2 : |z.re + ℓ| ≤ langerRadius c := by
-              rw [abs_le]; constructor <;> linarith [(abs_le.mp hz_M').1, (abs_le.mp hz_M').2,
-                (le_max_left _ (10 : ℝ)).trans hR_S]
-            exact max_le (abs_le.mp hu_A).2 (abs_le.mp h2).2
-          have h_in_half : ∀ x ∈ Icc a' b', x ∈ Icc (z.re - 1 / 2) (z.re + 1 / 2) := fun x hx => by
-            have hda : |u_site z.re - z.re| ≤ 1 / 2 := hu_diff.trans (by linarith)
-            have hdb : |ℓ| ≤ 1 / 2 := by rw [abs_of_nonneg hℓ0]; linarith
-            have ha1 : z.re - 1 / 2 ≤ a' := le_min (by linarith [(abs_le.mp hda).1]) (by linarith)
-            have hb1 : b' ≤ z.re + 1 / 2 := max_le (by linarith [(abs_le.mp hda).2]) (by linarith)
-            exact ⟨ha1.trans hx.1, hx.2.trans hb1⟩
-          have hmv := hb_psiR_mv_sub hc0 hfe (min_le_max _ _) hz_half_lo hz_half_hi
-            (fun x hx => hB2.deriv_norm_le z.re hzS x (h_in_half x hx))
-          have hlen : b' - a' ≤ 2 * ℓ := by
-            have hgap : |z.re + ℓ - u_site z.re| ≤ ℓ + D_1 * c ^ (-(1 / 3 : ℝ)) := by
-              calc |z.re + ℓ - u_site z.re| = |ℓ + (z.re - u_site z.re)| := by ring_nf
-                _ ≤ |ℓ| + |z.re - u_site z.re| := abs_add_le _ _
-                _ = ℓ + |u_site z.re - z.re| := by rw [abs_of_nonneg hℓ0, abs_sub_comm]
-                _ ≤ ℓ + D_1 * c ^ (-(1 / 3 : ℝ)) := by linarith [hu_diff]
-            have hmax_min : b' - a' = |z.re + ℓ - u_site z.re| := by
-              rw [abs_sub_comm]; dsimp [a', b']; exact (max_sub_min_eq_abs _ _).symm
-            linarith
-          have hdiff_mv : |(hankelPsi c f ((z.re + ℓ : ℝ) : ℂ)).re - (hankelPsi c f ((u_site z.re : ℝ) : ℂ)).re| ≤
-              2 * C1_q * ℓ := by
-            rcases le_total (u_site z.re) (z.re + ℓ) with h | h
-            · have ha' : a' = u_site z.re := min_eq_left h
-              have hb' : b' = z.re + ℓ := max_eq_right h
-              rw [ha', hb'] at hmv; exact hmv.trans (by nlinarith)
-            · have ha' : a' = z.re + ℓ := min_eq_right h
-              have hb' : b' = u_site z.re := max_eq_left h
-              rw [ha', hb', abs_sub_comm] at hmv; exact hmv.trans (by nlinarith)
-          have hlo := (abs_le.mp hdiff_mv).1
-          change -hankelRinf c ≤ (hankelPsi c f (u_site z.re : ℂ)).re at hu_sign
-          show _ ≤ (hankelPsi c f ((z.re + ℓ : ℝ) : ℂ)).re
-          linarith
+          exact hb_node_upper_site_re_lb D hc0 hfe hD1_small hℓ0 hℓ_lb (by linarith only [hℓ_q])
+            ((le_max_left _ (10 : ℝ)).trans hR_S) hRA hzS hu_diff hu_A hu_sign
+            (fun x hx => hB2.deriv_norm_le z.re hzS x hx)
       have h_mul1' : -(M_pow * (hankelRinf c + 2 * C1_q * ℓ)) ≤
           (1 + z.re / R) ^ (k + 1) * hankelPsiR c f (z.re + ℓ) := by
+        have hpos_b : 0 ≤ hankelRinf c + 2 * C1_q * ℓ := by positivity
         have h1 : -(M_pow * (hankelRinf c + 2 * C1_q * ℓ)) ≤
             -((1 + z.re / R) ^ (k + 1) * (hankelRinf c + 2 * C1_q * ℓ)) := by
-          linarith [mul_le_mul_of_nonneg_right hpow_bd.2 (by positivity : 0 ≤ hankelRinf c + 2 * C1_q * ℓ)]
+          have := mul_le_mul_of_nonneg_right hpow_bd.2 hpos_b
+          linarith only [this]
         have h2 : -((1 + z.re / R) ^ (k + 1) * (hankelRinf c + 2 * C1_q * ℓ)) ≤
             (1 + z.re / R) ^ (k + 1) * hankelPsiR c f (z.re + ℓ) := by
           rw [← mul_neg]; exact mul_le_mul_of_nonneg_left hre_psi hpow_bd.1
-        linarith
-      linarith [mul_le_mul_of_nonneg_right h_mul1' hzw]
-    · rw [if_neg hzS, sub_zero]
+        linarith only [h1, h2]
+      have h_fin := mul_le_mul_of_nonneg_right h_mul1' hzw
+      linarith only [h_fin]
+    · simp only [hzS, reduceIte, neg_zero, zero_sub]
       have hz_lt : z.re < D.tm := D.S_top z.re (hzr ▸ hz0) hzS D.tm D.tm_mem
       have hgap := hbZeroGapBelow_spec D (hzr ▸ hz0) hz_lt
-      have hzℓ_le : z.re + ℓ ≤ u_T := by linarith
+      have hzℓ_le : z.re + ℓ ≤ u_T := by linarith only [hgap, hℓ_gap, htm_uT]
       have hzℓ_A : |z.re + ℓ| ≤ langerRadius c := by
         have hℓ1 : ℓ ≤ 1 := hℓ_ub.trans ((min_le_right _ _).trans (min_le_right _ _))
-        rw [abs_le]; constructor <;> linarith [(abs_le.mp hz_abs).1, (abs_le.mp hz_abs).2]
+        rw [abs_le]
+        exact ⟨by linarith only [(abs_le.mp hz_abs).1, hℓ0, hRA], by linarith only [(abs_le.mp hz_abs).2, hℓ1, hRA]⟩
       have hsign : -hankelRinf c ≤ hankelPsiR c f (z.re + ℓ) :=
-        hankelBoot_psi_ge_gen hc hf hε hM hT huA (by linarith) (abs_le.mp hzℓ_A).1 hzℓ_le
+        hankelBoot_psi_ge_gen hc hf hε hM hT huA (by linarith only [hRA]) (abs_le.mp hzℓ_A).1 hzℓ_le
       have h1 : -(M_pow * hankelRinf c) ≤ (1 + z.re / R) ^ (k + 1) * hankelPsiR c f (z.re + ℓ) := by
         have ha1 : -(M_pow * hankelRinf c) ≤ -((1 + z.re / R) ^ (k + 1) * hankelRinf c) := by
-          linarith [mul_le_mul_of_nonneg_right hpow_bd.2 hr]
+          have := mul_le_mul_of_nonneg_right hpow_bd.2 hr
+          linarith only [this]
         have ha2 : -((1 + z.re / R) ^ (k + 1) * hankelRinf c) ≤
             (1 + z.re / R) ^ (k + 1) * hankelPsiR c f (z.re + ℓ) := by
           rw [← mul_neg]; exact mul_le_mul_of_nonneg_left hsign hpow_bd.1
-        linarith
-      linarith [mul_le_mul_of_nonneg_right h1 hzw]
+        linarith only [ha1, ha2]
+      have h_fin := mul_le_mul_of_nonneg_right h1 hzw
+      linarith only [h_fin]
   have hsum_lb := Finset.sum_le_sum hterm_lb
   rw [Finset.sum_sub_distrib] at hsum_lb
   have h_ell_sum : ∑ z ∈ hbZerosInDisc D R,
@@ -598,7 +626,7 @@ theorem hankelBootMultilevel_nodes_lb (D : ShellHBData) (hQ : D.Q ≠ 0) {c ε T
       exact (Finset.add_sum_erase D.S (fun t => hbWeight D (t : ℂ)) D.tm_mem).symm
     calc ∑ t ∈ D.S, 2 * (M_pow * C1_q) * hbWeight D (t : ℂ) * ℓ
         = 2 * (M_pow * C1_q) * (∑ t ∈ D.S, hbWeight D (t : ℂ)) * ℓ := by
-          rw [Finset.mul_sum, Finset.sum_mul]; refine Finset.sum_congr rfl fun _ _ => by ring
+          rw [Finset.mul_sum, Finset.sum_mul]
       _ = _ := by rw [hsum_w]
   have h_rinf_sum : ∑ z ∈ hbZerosInDisc D R, M_pow * hbWeight D z * hankelRinf c ≤
       M_pow * hbWeightSumConst D * R ^ (3 / 2 : ℝ) * hankelRinf c := by
@@ -616,7 +644,8 @@ theorem hankelBootMultilevel_nodes_lb (D : ShellHBData) (hQ : D.Q ≠ 0) {c ε T
           mul_le_mul_of_nonneg_left (hbWeightSumConst_spec D hQ hR_ge1) (mul_nonneg (by linarith) hr)
       _ = M_pow * hbWeightSumConst D * R ^ (3 / 2 : ℝ) * hankelRinf c := by ring
   unfold hankelBootMultilevelNodes
-  linarith only [hsum_lb, h_ell_sum, h_rinf_sum]
+  rw [Finset.sum_neg_distrib, h_ell_sum] at hsum_lb
+  linarith only [hsum_lb, h_rinf_sum]
 
 /-- Theta-secant bound (`P_theta_bound` precursor) at fixed `k_0` for `D : ShellHBData` with `D.Q ≠ 0`. -/
 theorem hankelBootMultilevel_nodes_theta (D : ShellHBData) (hQ : D.Q ≠ 0) {c ε T u_T R D_1 θ : ℝ}
@@ -769,93 +798,56 @@ theorem hankelBootMultilevel_nodes_theta (D : ShellHBData) (hQ : D.Q ≠ 0) {c �
     obtain ⟨hz0, hzR⟩ := (mem_hbZerosInDisc D).mp hz_in
     have hzr := airyPQ_zero_eq_ofReal D.hHB hz0
     have hzw : 0 ≤ hbWeight D z := hbWeight_nonneg_of_zero D hz0
-    have hz_abs : |z.re| ≤ R := by simpa [hzr, Complex.norm_real, Real.norm_eq_abs] using hzR
+    have hz_abs : |z.re| ≤ R := hb_zeros_re_abs_le D hz0 hzR
     have hz_re_ne : z.re ≠ D.tm := fun h => hz_ne_tm (by rw [hzr, h])
     have hz_M : z.re ≤ M_S := by
       by_cases hzS : z.re ∈ D.S
       · exact (abs_le.mp (Finset.le_sup' (fun s => |s|) hzS)).2
       · have hlt := D.S_top z.re (hzr ▸ hz0) hzS D.tm D.tm_mem
-        linarith [le_abs_self D.tm, Finset.le_sup' (fun s => |s|) D.tm_mem]
+        linarith only [hlt, le_abs_self D.tm, Finset.le_sup' (fun s => |s|) D.tm_mem]
     have hpow_bd := hb_node_pow_upper hM_S_nn hR5 (abs_le.mp hz_abs).1 hz_M hk0R
     rw [hb_node_term_eq D f k₀ hz0]
     by_cases hzS : z.re ∈ D.S.erase D.tm
-    · rw [if_pos hzS]
+    · simp only [hzS, reduceIte]
       have hzS' : z.re ∈ D.S := (Finset.mem_erase.mp hzS).2
-      have hz_M' : |z.re| ≤ M_S := Finset.le_sup' (fun s => |s|) hzS'
       obtain ⟨hu_diff, hu_A, hu_sign⟩ := hsites z.re hzS
-      let a' := min (u_site z.re) (z.re + ℓ)
-      let b' := max (u_site z.re) (z.re + ℓ)
-      have hz_half_lo : -langerRadius c ≤ a' := by
-        have h2 : |z.re + ℓ| ≤ langerRadius c := by
-          have hℓ1 : ℓ ≤ 1 := hℓ_ub.trans ((min_le_right _ _).trans (min_le_right _ _))
-          rw [abs_le]; constructor <;> linarith [(abs_le.mp hz_M').1, (abs_le.mp hz_M').2,
-            (le_max_left _ (10 : ℝ)).trans hR_S]
-        exact le_min (abs_le.mp hu_A).1 (abs_le.mp h2).1
-      have hz_half_hi : b' ≤ langerRadius c := by
-        have h2 : |z.re + ℓ| ≤ langerRadius c := by
-          have hℓ1 : ℓ ≤ 1 := hℓ_ub.trans ((min_le_right _ _).trans (min_le_right _ _))
-          rw [abs_le]; constructor <;> linarith [(abs_le.mp hz_M').1, (abs_le.mp hz_M').2,
-            (le_max_left _ (10 : ℝ)).trans hR_S]
-        exact max_le (abs_le.mp hu_A).2 (abs_le.mp h2).2
-      have h_in_half : ∀ x ∈ Icc a' b', x ∈ Icc (z.re - 1 / 2) (z.re + 1 / 2) := fun x hx => by
-        have hda : |u_site z.re - z.re| ≤ 1 / 2 := hu_diff.trans (by linarith)
-        have hdb : |ℓ| ≤ 1 / 2 := by
-          rw [abs_of_nonneg hℓ0]; exact (hℓ_delta.trans hδ_le_q).trans (by norm_num)
-        have ha1 : z.re - 1 / 2 ≤ a' := le_min (by linarith [(abs_le.mp hda).1]) (by linarith)
-        have hb1 : b' ≤ z.re + 1 / 2 := max_le (by linarith [(abs_le.mp hda).2]) (by linarith)
-        exact ⟨ha1.trans hx.1, hx.2.trans hb1⟩
-      have hmv := hb_psiR_mv_sub hc0 hfe (min_le_max _ _) hz_half_lo hz_half_hi
-        (fun x hx => hB2.deriv_norm_le z.re hzS' x (h_in_half x hx))
-      have hlen : b' - a' ≤ 2 * ℓ := by
-        have hgap : |z.re + ℓ - u_site z.re| ≤ ℓ + D_1 * c ^ (-(1 / 3 : ℝ)) := by
-          calc |z.re + ℓ - u_site z.re| = |ℓ + (z.re - u_site z.re)| := by ring_nf
-            _ ≤ |ℓ| + |z.re - u_site z.re| := abs_add_le _ _
-            _ = ℓ + |u_site z.re - z.re| := by rw [abs_of_nonneg hℓ0, abs_sub_comm]
-            _ ≤ ℓ + D_1 * c ^ (-(1 / 3 : ℝ)) := by linarith [hu_diff]
-        have hmax_min : b' - a' = |z.re + ℓ - u_site z.re| := by
-          rw [abs_sub_comm]; dsimp [a', b']; exact (max_sub_min_eq_abs _ _).symm
-        linarith
-      have hdiff_mv : |(hankelPsi c f ((z.re + ℓ : ℝ) : ℂ)).re - (hankelPsi c f ((u_site z.re : ℝ) : ℂ)).re| ≤
-          2 * C1_q * ℓ := by
-        rcases le_total (u_site z.re) (z.re + ℓ) with h | h
-        · have ha' : a' = u_site z.re := min_eq_left h
-          have hb' : b' = z.re + ℓ := max_eq_right h
-          rw [ha', hb'] at hmv; exact hmv.trans (by nlinarith)
-        · have ha' : a' = z.re + ℓ := min_eq_right h
-          have hb' : b' = u_site z.re := max_eq_left h
-          rw [ha', hb', abs_sub_comm] at hmv; exact hmv.trans (by nlinarith)
-      have hlo := (abs_le.mp hdiff_mv).1
-      change -hankelRinf c ≤ (hankelPsi c f (u_site z.re : ℂ)).re at hu_sign
-      have hre_psi : -(hankelRinf c + 2 * C1_q * ℓ) ≤ hankelPsiR c f (z.re + ℓ) := by
-        show _ ≤ (hankelPsi c f ((z.re + ℓ : ℝ) : ℂ)).re; linarith
+      have hre_psi := hb_node_upper_site_re_lb D hc0 hfe hD1_small hℓ0 hℓ_lb
+        (by linarith only [hℓ_delta, hδ_le_q]) ((le_max_left _ (10 : ℝ)).trans hR_S) hRA hzS'
+        hu_diff hu_A hu_sign (fun x hx => hB2.deriv_norm_le z.re hzS' x hx)
       have h_mul1 : -(M_pow * (hankelRinf c + 2 * C1_q * ℓ)) ≤
           (1 + z.re / R) ^ (k₀ + 1) * hankelPsiR c f (z.re + ℓ) := by
+        have hpos_b : 0 ≤ hankelRinf c + 2 * C1_q * ℓ := by positivity
         have h1 : -(M_pow * (hankelRinf c + 2 * C1_q * ℓ)) ≤
             -((1 + z.re / R) ^ (k₀ + 1) * (hankelRinf c + 2 * C1_q * ℓ)) := by
-          linarith [mul_le_mul_of_nonneg_right hpow_bd.2 (by positivity : 0 ≤ hankelRinf c + 2 * C1_q * ℓ)]
+          have := mul_le_mul_of_nonneg_right hpow_bd.2 hpos_b
+          linarith only [this]
         have h2 : -((1 + z.re / R) ^ (k₀ + 1) * (hankelRinf c + 2 * C1_q * ℓ)) ≤
             (1 + z.re / R) ^ (k₀ + 1) * hankelPsiR c f (z.re + ℓ) := by
           rw [← mul_neg]; exact mul_le_mul_of_nonneg_left hre_psi hpow_bd.1
-        linarith
-      linarith [mul_le_mul_of_nonneg_right h_mul1 hzw]
-    · rw [if_neg hzS, sub_zero]
+        linarith only [h1, h2]
+      have h_fin := mul_le_mul_of_nonneg_right h_mul1 hzw
+      linarith only [h_fin]
+    · simp only [hzS, reduceIte, neg_zero, zero_sub]
       have hz_not_S : z.re ∉ D.S := fun h => hzS (Finset.mem_erase.mpr ⟨hz_re_ne, h⟩)
       have hz_lt : z.re < D.tm := D.S_top z.re (hzr ▸ hz0) hz_not_S D.tm D.tm_mem
       have hgap := hbZeroGapBelow_spec D (hzr ▸ hz0) hz_lt
-      have hzℓ_le : z.re + ℓ ≤ u_T := by linarith
+      have hzℓ_le : z.re + ℓ ≤ u_T := by linarith only [hgap, hℓ_gap, htm_uT]
       have hzℓ_A : |z.re + ℓ| ≤ langerRadius c := by
         have hℓ1 : ℓ ≤ 1 := hℓ_ub.trans ((min_le_right _ _).trans (min_le_right _ _))
-        rw [abs_le]; constructor <;> linarith [(abs_le.mp hz_abs).1, (abs_le.mp hz_abs).2]
+        rw [abs_le]
+        exact ⟨by linarith only [(abs_le.mp hz_abs).1, hℓ0, hRA], by linarith only [(abs_le.mp hz_abs).2, hℓ1, hRA]⟩
       have hsign : -hankelRinf c ≤ hankelPsiR c f (z.re + ℓ) :=
-        hankelBoot_psi_ge_gen hc hf hε hM hT huA (by linarith) (abs_le.mp hzℓ_A).1 hzℓ_le
+        hankelBoot_psi_ge_gen hc hf hε hM hT huA (by linarith only [hRA]) (abs_le.mp hzℓ_A).1 hzℓ_le
       have h1 : -(M_pow * hankelRinf c) ≤ (1 + z.re / R) ^ (k₀ + 1) * hankelPsiR c f (z.re + ℓ) := by
         have ha1 : -(M_pow * hankelRinf c) ≤ -((1 + z.re / R) ^ (k₀ + 1) * hankelRinf c) := by
-          linarith [mul_le_mul_of_nonneg_right hpow_bd.2 hr]
+          have := mul_le_mul_of_nonneg_right hpow_bd.2 hr
+          linarith only [this]
         have ha2 : -((1 + z.re / R) ^ (k₀ + 1) * hankelRinf c) ≤
             (1 + z.re / R) ^ (k₀ + 1) * hankelPsiR c f (z.re + ℓ) := by
           rw [← mul_neg]; exact mul_le_mul_of_nonneg_left hsign hpow_bd.1
-        linarith
-      linarith [mul_le_mul_of_nonneg_right h1 hzw]
+        linarith only [ha1, ha2]
+      have h_fin := mul_le_mul_of_nonneg_right h1 hzw
+      linarith only [h_fin]
   have htm_mem_disc : (D.tm : ℂ) ∈ hbZerosInDisc D R := hS_sub (Finset.mem_image.mpr ⟨D.tm, D.tm_mem, rfl⟩)
   have hsplit : hankelBootMultilevelNodes D c f R ℓ k₀ =
       (hankelBootShifted c f R ℓ k₀ (D.tm : ℂ) *
@@ -885,27 +877,25 @@ theorem hankelBootMultilevel_nodes_theta (D : ShellHBData) (hQ : D.Q ≠ 0) {c �
         · intro ht; rw [Finset.mem_image] at ht; obtain ⟨t, htS, htz⟩ := ht
           have heq : t = z.re := by simpa using congrArg Complex.re htz
           rwa [← heq]
-      simp [hiff]
+      exact if_congr hiff rfl rfl
     rw [Finset.sum_congr rfl hsub, ← Finset.sum_filter]
     have hfilt : ((hbZerosInDisc D R).erase (D.tm : ℂ)).filter
           (fun z => z ∈ (D.S.erase D.tm).image (fun t : ℝ => (t : ℂ))) =
         (D.S.erase D.tm).image (fun t : ℝ => (t : ℂ)) := by
       ext z; simp only [Finset.mem_filter, and_iff_right_iff_imp, Finset.mem_erase, Finset.mem_image]
       rintro ⟨t, ht, rfl⟩
-      have htm_ne := (Finset.mem_erase.mp ht).1
-      exact ⟨fun h => htm_ne (Complex.ofReal_injective h),
-        hS_sub (Finset.mem_image.mpr ⟨t, (Finset.mem_erase.mp ht).2, rfl⟩)⟩
+      exact ⟨fun h => ht.1 (Complex.ofReal_injective h),
+        hS_sub (Finset.mem_image.mpr ⟨t, ht.2, rfl⟩)⟩
     rw [hfilt, Finset.sum_image hinj]
     unfold hbTopWeights
     rw [Finset.mul_sum, Finset.sum_mul]
-    refine Finset.sum_congr rfl fun _ _ => by ring
   have h_rinf_all : M_pow * hbWeight D (D.tm : ℂ) * hankelRinf c +
       ∑ z ∈ (hbZerosInDisc D R).erase (D.tm : ℂ), M_pow * hbWeight D z * hankelRinf c ≤
       M_pow * hbWeightSumConst D * R ^ (3 / 2 : ℝ) * hankelRinf c := by
     have h_add : M_pow * hbWeight D (D.tm : ℂ) * hankelRinf c +
         ∑ z ∈ (hbZerosInDisc D R).erase (D.tm : ℂ), M_pow * hbWeight D z * hankelRinf c =
         ∑ z ∈ hbZerosInDisc D R, M_pow * hbWeight D z * hankelRinf c :=
-      Finset.add_sum_erase (hbZerosInDisc D R) _ htm_mem_disc
+      Finset.add_sum_erase (hbZerosInDisc D R) (fun z => M_pow * hbWeight D z * hankelRinf c) htm_mem_disc
     rw [h_add]
     have hweq : ∀ z ∈ hbZerosInDisc D R, hbWeight D z =
         ‖airyPQD D.P D.Q z / airyPQN' D.P D.Q z ^ 2‖ := fun z hz => by
@@ -923,248 +913,8 @@ theorem hankelBootMultilevel_nodes_theta (D : ShellHBData) (hQ : D.Q ≠ 0) {c �
   have h_ell_mul : 2 * (M_pow * C1_q) * hbTopWeights D * ℓ =
       (2 * (M_pow * C1_q) * hbTopWeights D * θ) * (u_T - D.tm) := by
     dsimp [ℓ]; ring
-  linarith
-
-/-- `(P, Q)` quadrature and arc estimate (`hP_le`, `hArc_cov`, `hArc_unc`) for `D : ShellHBData`
-with `D.Q ≠ 0`, `k ≥ 9`: `(28 / 5)` scaling of `virasoroArcCov` and `hankelArcUncConst`. -/
-theorem hankelBootMultilevel_arc (D : ShellHBData) (hQ : D.Q ≠ 0) {c ε R L' ℓ : ℝ} {f : ℝ → ℝ}
-    (hc : 3e6 ≤ c) (hf : IsHankelEigenfn c ε f) (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1)
-    (hc12 : (3 * π) ^ (12 : ℕ) ≤ c) (hR10 : 10 ≤ R) (hRA : R + 1 ≤ langerRadius c)
-    (hRc : R ≤ c ^ (2 / 3 : ℝ)) (hL' : 0 ≤ L') (hℓ0 : 0 ≤ ℓ) (hℓ1 : ℓ ≤ 1 / 2)
-    (hYV : YVEnvBound (hankelPsi c f) c R L')
-    (hR_low : ∀ u : ℂ, ‖u‖ = R → 0 < airyPQW D.P D.Q u ∧
-      airyPQW D.P D.Q u ^ 2 * airyEnv u / (64 * π * √R) ≤ ‖airyPQN D.P D.Q u‖ ^ 2 ∧
-      (0 ≤ u.im → ‖airyPQM D.P D.Q u / airyPQN D.P D.Q u - I‖ * airyEnv u ≤ 168 * √π) ∧
-      (u.im ≤ 0 → ‖airyPQM D.P D.Q u / airyPQN D.P D.Q u + I‖ * airyEnv u ≤ 168 * √π))
-    {k : ℕ} (hk9 : 9 ≤ k) :
-    hankelBootMultilevelNodes D c f R ℓ k ≤
-      (∫ x in (-R)..R, (hankelBootShifted c f R ℓ k (x : ℂ)).re) +
-        (28 / 5 : ℝ) * virasoroArcCov c R 0 L' ℓ (fun _ => 0) k +
-        ((28 / 5 : ℝ) * hankelArcUncConst) * c ^ (-(3 / 8 : ℝ)) := by
-  have hc0 : 0 < c := by linarith
-  have hR_pos : 0 < R := by linarith
-  have hk5 : 5 ≤ k := by omega
-  have hR_pow := hankelBoot_R_pow_le hc0 hR_pos hRc
-  set F : ℂ → ℂ := hankelBootShifted c f R ℓ k with hF_def
-  set δ₀ : ℝ := 3 * π * c ^ (-(1 / 12 : ℝ)) with hδ₀_def
-  have hδ₀_pos : 0 < δ₀ := by rw [hδ₀_def]; positivity
-  have hδ₀_le_1 : δ₀ ≤ 1 := by
-    have h_rpow : 3 * π ≤ c ^ (1 / 12 : ℝ) := by
-      have h3pi_nn : 0 ≤ 3 * π := by positivity
-      calc 3 * π = ((3 * π) ^ (12 : ℕ)) ^ (1 / 12 : ℝ) := by
-            rw [← Real.rpow_natCast (3 * π) 12, ← Real.rpow_mul h3pi_nn]; norm_num
-        _ ≤ c ^ (1 / 12 : ℝ) := Real.rpow_le_rpow (by positivity) hc12 (by positivity)
-    calc δ₀ = 3 * π * (c ^ (1 / 12 : ℝ))⁻¹ := by
-          rw [hδ₀_def, Real.rpow_neg hc0.le, mul_assoc]
-      _ = 3 * π / c ^ (1 / 12 : ℝ) := (div_eq_mul_inv _ _).symm
-      _ ≤ 1 := (div_le_one (Real.rpow_pos_of_pos hc0 _)).mpr h_rpow
-  have hδ_pow : δ₀ * δ₀ ^ ((k : ℝ) + 1 / 2) ≤ (3 * π) ^ (21 / 2 : ℝ) * c ^ (-(7 / 8 : ℝ)) := by
-    have hx : δ₀ * δ₀ ^ ((k : ℝ) + 1 / 2) = δ₀ ^ ((1 : ℝ) + ((k : ℝ) + 1 / 2)) := by
-      rw [Real.rpow_add hδ₀_pos (1 : ℝ) ((k : ℝ) + 1 / 2), Real.rpow_one]
-    have hk' : (21 / 2 : ℝ) ≤ 1 + ((k : ℝ) + 1 / 2) := by
-      have : (9 : ℝ) ≤ k := by exact_mod_cast hk9
-      linarith
-    have h1 : δ₀ ^ ((1 : ℝ) + ((k : ℝ) + 1 / 2)) ≤ δ₀ ^ (21 / 2 : ℝ) :=
-      Real.rpow_le_rpow_of_exponent_ge hδ₀_pos hδ₀_le_1 hk'
-    have h2 : δ₀ ^ (21 / 2 : ℝ) = (3 * π) ^ (21 / 2 : ℝ) * c ^ (-(7 / 8 : ℝ)) := by
-      rw [hδ₀_def, Real.mul_rpow (by positivity) (Real.rpow_nonneg hc0.le _),
-        ← Real.rpow_mul hc0.le]
-      norm_num
-    rw [hx]; exact h1.trans h2.le
-  have hf_diff : DifferentiableOn ℂ F (ball (0 : ℂ) (R + 1 / 3)) := by
-    intro u hu
-    have hu_shift : u + (ℓ : ℂ) ∈ closedBall (0 : ℂ) (langerRadius c) := by
-      rw [mem_closedBall_zero_iff]; rw [mem_ball_zero_iff] at hu
-      calc ‖u + (ℓ : ℂ)‖ ≤ ‖u‖ + ‖(ℓ : ℂ)‖ := norm_add_le _ _
-        _ ≤ (R + 1 / 3) + ℓ := by rw [Complex.norm_real, Real.norm_of_nonneg hℓ0]; linarith
-        _ ≤ R + 1 := by linarith
-        _ ≤ langerRadius c := hRA
-    have hPsi_at : AnalyticAt ℂ (hankelPsi c f) (u + (ℓ : ℂ)) :=
-      analyticOnNhd_hankelPsi hc0 hf _ hu_shift
-    have h1 : DifferentiableAt ℂ (fun z : ℂ => hankelPsi c f (z + (ℓ : ℂ))) u :=
-      DifferentiableAt.comp (g := hankelPsi c f) (f := fun z : ℂ => z + (ℓ : ℂ)) u
-        hPsi_at.differentiableAt (by fun_prop)
-    have h2 : DifferentiableAt ℂ (fun z : ℂ => (1 + z / (R : ℂ)) ^ (k + 1)) u :=
-      ((differentiableAt_const _).add (differentiableAt_id.div_const _)).pow _
-    exact (h1.mul h2).differentiableWithinAt
-  set a : ℝ := √R with ha_def
-  have ha_pos : 0 < a := Real.sqrt_pos.mpr hR_pos
-  set M_c : ℝ := 2 ^ (3 / 4 : ℝ) * L' * a ^ (-(3 : ℤ)) * (2 : ℝ) ^ (k + 1) with hM_c_def
-  have hM_c_nn : 0 ≤ M_c := by rw [hM_c_def]; positivity
-  let B_cov : ℝ → ℝ := fun θ =>
-    M_c * ((π - |θ|) / 2) ^ ((k : ℝ) - 1 / 2) * Real.exp (-(4 * ℓ * a / π) * ((π - |θ|) / 2))
-  set M_unc : ℝ := 60 * (2 : ℝ) ^ (k + 1) * a ^ (-(1 / 2 : ℝ)) * (δ₀ / 2) ^ ((k : ℝ) + 1 / 2)
-    with hM_unc_def
-  have hM_unc_nn : 0 ≤ M_unc := by
-    rw [hM_unc_def]
-    exact mul_nonneg (mul_nonneg (by positivity) (Real.rpow_nonneg ha_pos.le _))
-      (Real.rpow_nonneg (by linarith) _)
-  let W_unc : Set ℝ := {θ : ℝ | π - δ₀ < |θ|}
-  have hW_meas : MeasurableSet W_unc := measurableSet_lt measurable_const continuous_abs.measurable
-  let B_unc : ℝ → ℝ := W_unc.indicator (fun _ => M_unc)
-  let B : ℝ → ℝ := fun θ => B_cov θ + B_unc θ
-  have hk_half_pos : (0 : ℝ) < (k : ℝ) - 1 / 2 := by
-    have : (5 : ℝ) ≤ k := by exact_mod_cast hk5
-    linarith
-  have hB_cov_cont : ContinuousOn B_cov (Icc (-π) π) := fun θ _ =>
-    Continuous.continuousWithinAt <|
-      (continuous_const.mul ((Continuous.rpow_const ((continuous_const.sub continuous_abs).div_const 2)
-        (fun _ => Or.inr hk_half_pos.le)))).mul
-      (Real.continuous_exp.comp (continuous_const.mul ((continuous_const.sub continuous_abs).div_const 2)))
-  have hB_cov_int : IntervalIntegrable B_cov volume (-π) π :=
-    hB_cov_cont.intervalIntegrable_of_Icc (by linarith [Real.pi_pos])
-  have hB_unc_int : IntervalIntegrable B_unc volume (-π) π := by
-    rw [intervalIntegral_iff_integrableOn_Ioc_of_le (by linarith [Real.pi_pos])]
-    exact ((continuousOn_const (c := M_unc)).integrableOn_Icc.mono_set Ioc_subset_Icc_self).indicator hW_meas
-  have hB_int : IntervalIntegrable B volume (-π) π := hB_cov_int.add hB_unc_int
-  have hB_bd : ∀ θ ∈ Icc (-π) π, ‖F (circleMap 0 R θ)‖ / airyEnv (circleMap 0 R θ) ≤ B θ := by
-    intro θ hθ
-    have hB_cov_nn : 0 ≤ B_cov θ := by
-      dsimp [B_cov]
-      exact mul_nonneg (mul_nonneg hM_c_nn (Real.rpow_nonneg (by linarith [abs_le.mpr hθ]) _))
-        (Real.exp_pos _).le
-    have hB_unc_nn : 0 ≤ B_unc θ := by
-      dsimp [B_unc]; by_cases h : θ ∈ W_unc <;> simp [h, hM_unc_nn]
-    have he_pos : 0 < airyEnv (circleMap 0 R θ) := airyEnv_pos _
-    rw [div_le_iff₀ he_pos]
-    have h1w : ‖1 + circleMap 0 R θ / (R : ℂ)‖ = 2 * Real.cos (θ / 2) :=
-      norm_one_add_circleMap_div hR_pos hθ
-    by_cases hpi : |θ| = π
-    · have hcos0 : Real.cos (θ / 2) = 0 := by
-        rcases abs_eq Real.pi_pos.le |>.mp hpi with rfl | rfl
-        · simp [Real.cos_pi_div_two]
-        · simp [neg_div, Real.cos_neg, Real.cos_pi_div_two]
-      have hpow0 : ‖(1 + circleMap 0 R θ / (R : ℂ)) ^ (k + 1)‖ = 0 := by
-        rw [norm_pow, h1w, hcos0, mul_zero, zero_pow (Nat.succ_ne_zero k)]
-      have hf0 : ‖F (circleMap 0 R θ)‖ = 0 := by
-        dsimp only [F, hankelBootShifted]; rw [norm_mul, hpow0, mul_zero]
-      rw [hf0]
-      exact mul_nonneg (add_nonneg hB_cov_nn hB_unc_nn) he_pos.le
-    · have h_abs_lt : |θ| < π := lt_of_le_of_ne (abs_le.mpr hθ) hpi
-      by_cases hcov : |θ| ≤ π - δ₀
-      · have h_pt := hankelBoot_cov_pt hc0 hf hR10 hRA hL' hℓ0 hℓ1 hYV hk5 hθ h_abs_lt
-          (by rw [hδ₀_def] at hcov; exact hcov)
-        have h1 : B_cov θ * airyEnv (circleMap 0 R θ) ≤ B θ * airyEnv (circleMap 0 R θ) :=
-          mul_le_mul_of_nonneg_right (le_add_of_nonneg_right hB_unc_nn) he_pos.le
-        exact h_pt.trans h1
-      · push Not at hcov
-        have hB_unc_eq : B_unc θ = M_unc := Set.indicator_of_mem (show θ ∈ W_unc from hcov) _
-        have h_pt := hankelBoot_unc_pt hc hf hε hM hR10 hRA hℓ0 hℓ1 k hθ h_abs_lt
-          (by rw [hδ₀_def] at hcov; exact hcov)
-        have h1 : M_unc * airyEnv (circleMap 0 R θ) ≤ B θ * airyEnv (circleMap 0 R θ) := by
-          rw [← hB_unc_eq]
-          exact mul_le_mul_of_nonneg_right (le_add_of_nonneg_left hB_cov_nn) he_pos.le
-        exact h_pt.trans h1
-  have hN_sphere : ∀ u : ℂ, ‖u‖ = R → airyPQN D.P D.Q u ≠ 0 := fun u hu h0 => by
-    obtain ⟨hWpos, hWlow, _, _⟩ := hR_low u hu
-    rw [h0, norm_zero, sq, mul_zero] at hWlow
-    have hpos : 0 < airyPQW D.P D.Q u ^ 2 * airyEnv u / (64 * π * √R) :=
-      div_pos (mul_pos (sq_pos_of_pos hWpos) (airyEnv_pos u)) (mul_pos (by positivity) ha_pos)
-    linarith
-  have hin : ∀ z ∈ hbZerosInDisc D R, ‖z‖ < R := fun z hz => by
-    obtain ⟨h0, h1⟩ := (mem_hbZerosInDisc D).mp hz
-    exact lt_of_le_of_ne h1 fun heq => hN_sphere z heq h0
-  have hder : ∀ z ∈ hbZerosInDisc D R, deriv (airyPQN D.P D.Q) z ≠ 0 := fun z hz => by
-    obtain ⟨h0, _⟩ := (mem_hbZerosInDisc D).mp hz
-    have hzr := airyPQ_zero_eq_ofReal D.hHB h0
-    rw [deriv_airyPQN, hzr]
-    exact (airyPQ_zero_weight_pos D.hHB hQ (hzr ▸ h0)).2
-  obtain ⟨c_seq, s_fin, hCircle, hsum_eq⟩ := cft2_circleData_of_finset
-    (differentiable_airyPQN D.P D.Q) hR_pos (hbZerosInDisc D R) hin
-    (fun z hz => ((mem_hbZerosInDisc D).mp hz).1) hder
-    (fun w hw h0 => (mem_hbZerosInDisc D).mpr ⟨h0, hw⟩)
-  have h_def := cft2_defect_ball_split hCircle (differentiable_airyPQM D.P D.Q)
-    (by linarith : R < R + 1 / 3) hf_diff airyEnv_pos
-    (fun w hw him => (hR_low w hw).2.2.1 him) (fun w hw him => (hR_low w hw).2.2.2 him)
-    hB_int hB_bd
-  have hsum_pq : (-(π : ℂ)) * (∑ i ∈ s_fin, F (c_seq i) * airyPQM D.P D.Q (c_seq i) /
-        deriv (airyPQN D.P D.Q) (c_seq i)) =
-      ∑ z ∈ hbZerosInDisc D R, F z * (airyPQD D.P D.Q z / airyPQN' D.P D.Q z ^ 2) := by
-    rw [hsum_eq (fun z => F z * airyPQM D.P D.Q z / deriv (airyPQN D.P D.Q) z), Finset.mul_sum]
-    refine Finset.sum_congr rfl fun z hz => ?_
-    obtain ⟨hz0, _⟩ := (mem_hbZerosInDisc D).mp hz
-    have hd := hder z hz
-    rw [deriv_airyPQN] at hd ⊢
-    rw [← airyPQ_weight_eq D.P D.Q hz0 hd]
-    ring
-  have h_nodes_re : (∑ z ∈ hbZerosInDisc D R,
-      F z * (airyPQD D.P D.Q z / airyPQN' D.P D.Q z ^ 2)).re =
-      hankelBootMultilevelNodes D c f R ℓ k := by
-    unfold hankelBootMultilevelNodes; exact Complex.re_sum _ _
-  have h_int_eq : (∫ x in (-R)..R, F (x : ℂ)).re = ∫ x in (-R)..R, (F (x : ℂ)).re := by
-    have hf_cont_R : ContinuousOn (fun x : ℝ => F (x : ℂ)) (Icc (-R) R) := by
-      refine hf_diff.continuousOn.comp continuous_ofReal.continuousOn fun x hx => ?_
-      rw [mem_ball_zero_iff, Complex.norm_real, Real.norm_eq_abs]
-      exact (abs_le.mpr hx).trans_lt (by linarith)
-    exact (Complex.reCLM.intervalIntegral_comp_comm (hf_cont_R.intervalIntegrable_of_Icc (by linarith))).symm
-  rw [hsum_pq] at h_def
-  have h_quad_re : hankelBootMultilevelNodes D c f R ℓ k - (∫ x in (-R)..R, (F (x : ℂ)).re) ≤
-      (84 * √π * R) * ∫ θ in (-π)..π, B θ := by
-    have hre := (Complex.abs_re_le_norm _).trans h_def
-    rw [Complex.sub_re, h_nodes_re, h_int_eq] at hre
-    have h84 : 168 * √π / 2 * R = 84 * √π * R := by ring
-    linarith [(abs_le.mp hre).2, h84]
-  have h_unc_int : (84 * √π * R) * ∫ θ in (-π)..π, B_unc θ ≤
-      ((28 / 5 : ℝ) * hankelArcUncConst) * c ^ (-(3 / 8 : ℝ)) := by
-    have h_meas_le : ∫ θ in (-π)..π, B_unc θ ≤ 4 * δ₀ * M_unc := by
-      let J₁ := Icc (-π) (-(π - δ₀))
-      let J₂ := Icc (π - δ₀) π
-      have h_sub_W : W_unc ∩ Ioc (-π) π ⊆ J₁ ∪ J₂ := by
-        intro θ ⟨hW, hIoc⟩
-        rcases le_total θ 0 with h0 | h0
-        · left; refine ⟨hIoc.1.le, ?_⟩
-          have : |θ| = -θ := abs_of_nonpos h0
-          rw [Set.mem_ofPred_eq, this] at hW; linarith
-        · right; refine ⟨?_, hIoc.2⟩
-          have : |θ| = θ := abs_of_nonneg h0
-          rw [Set.mem_ofPred_eq, this] at hW; linarith
-      rw [intervalIntegral.integral_of_le (by linarith [Real.pi_pos])]
-      have h_ind_eq : ∫ θ in Ioc (-π) π, B_unc θ = M_unc * (volume (W_unc ∩ Ioc (-π) π)).toReal := by
-        dsimp [B_unc]
-        rw [setIntegral_indicator hW_meas, setIntegral_const, smul_eq_mul, Measure.real_def, Set.inter_comm]
-        ring
-      have h_vol : (volume (W_unc ∩ Ioc (-π) π)).toReal ≤ 4 * δ₀ := by
-        have hm1 : volume (W_unc ∩ Ioc (-π) π) ≤ volume (J₁ ∪ J₂) := measure_mono h_sub_W
-        have hm2 : volume (J₁ ∪ J₂) ≤ volume J₁ + volume J₂ := measure_union_le J₁ J₂
-        have hJ1 : volume J₁ = ENNReal.ofReal δ₀ := by dsimp [J₁]; rw [Real.volume_Icc]; congr 1; ring
-        have hJ2 : volume J₂ = ENNReal.ofReal δ₀ := by dsimp [J₂]; rw [Real.volume_Icc]; congr 1; ring
-        have hlt : volume (W_unc ∩ Ioc (-π) π) ≤ ENNReal.ofReal (4 * δ₀) := by
-          calc volume (W_unc ∩ Ioc (-π) π) ≤ ENNReal.ofReal δ₀ + ENNReal.ofReal δ₀ := by
-                exact hm1.trans (hm2.trans_eq (by rw [hJ1, hJ2]))
-            _ = ENNReal.ofReal (2 * δ₀) := by
-                rw [← ENNReal.ofReal_add hδ₀_pos.le hδ₀_pos.le, two_mul]
-            _ ≤ ENNReal.ofReal (4 * δ₀) := ENNReal.ofReal_le_ofReal (by linarith)
-        exact ENNReal.toReal_le_of_le_ofReal (by positivity) hlt
-      rw [h_ind_eq]
-      nlinarith [mul_le_mul_of_nonneg_left h_vol hM_unc_nn]
-    have hC_nn : 0 ≤ 84 * √π * 4 * 60 * √2 := by positivity
-    have hpos84 : 0 ≤ 84 * √π * R := by positivity
-    have hM_eq : M_unc = 60 * a ^ (-(1 / 2 : ℝ)) * (√2 * δ₀ ^ ((k : ℝ) + 1 / 2)) := by
-      rw [hM_unc_def, ← hankelBoot_two_pow_half δ₀ hδ₀_pos k]; ring
-    calc (84 * √π * R) * ∫ θ in (-π)..π, B_unc θ
-        ≤ (84 * √π * R) * (4 * δ₀ * M_unc) := mul_le_mul_of_nonneg_left h_meas_le hpos84
-      _ = (84 * √π * 4 * 60 * √2) * (R * a ^ (-(1 / 2 : ℝ))) * (δ₀ * δ₀ ^ ((k : ℝ) + 1 / 2)) := by
-          rw [hM_eq]; ring
-      _ ≤ (84 * √π * 4 * 60 * √2) * c ^ (1 / 2 : ℝ) * ((3 * π) ^ (21 / 2 : ℝ) * c ^ (-(7 / 8 : ℝ))) :=
-          mul_le_mul (mul_le_mul_of_nonneg_left hR_pow hC_nn) hδ_pow
-            (mul_nonneg hδ₀_pos.le (Real.rpow_nonneg hδ₀_pos.le _))
-            (mul_nonneg hC_nn (Real.rpow_nonneg hc0.le _))
-      _ = ((28 / 5 : ℝ) * hankelArcUncConst) * c ^ (-(3 / 8 : ℝ)) := by
-          have hc_exp : c ^ (1 / 2 : ℝ) * c ^ (-(7 / 8 : ℝ)) = c ^ (-(3 / 8 : ℝ)) := by
-            rw [← Real.rpow_add hc0]; norm_num
-          unfold hankelArcUncConst
-          rw [← hc_exp]; ring
-  have hB_split : ∫ θ in (-π)..π, B θ =
-      (∫ θ in (-π)..π, B_cov θ) + ∫ θ in (-π)..π, B_unc θ :=
-    intervalIntegral.integral_add hB_cov_int hB_unc_int
-  have h_cov_eq : (84 * √π * R) * ∫ θ in (-π)..π, B_cov θ =
-      (28 / 5 : ℝ) * virasoroArcCov c R 0 L' ℓ (fun _ => 0) k := by
-    unfold virasoroArcCov
-    dsimp only
-    ring_nf
-    rfl
-  rw [hB_split, mul_add] at h_quad_re
-  linarith only [h_quad_re, h_cov_eq, h_unc_int]
+  rw [Finset.sum_neg_distrib, h_top_sum] at hsum_other
+  linarith only [hsplit, htm_term_lb, hsum_other, h_rinf_all, h_ell_mul]
 
 /-- info: 'FormalResearch.SignUncertainty.hbMultilevelLower_Q_eq_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -1177,9 +927,5 @@ theorem hankelBootMultilevel_arc (D : ShellHBData) (hQ : D.Q ≠ 0) {c ε R L' �
 /-- info: 'FormalResearch.SignUncertainty.hankelBootMultilevel_nodes_theta' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms hankelBootMultilevel_nodes_theta
-
-/-- info: 'FormalResearch.SignUncertainty.hankelBootMultilevel_arc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms hankelBootMultilevel_arc
 
 end FormalResearch.SignUncertainty
