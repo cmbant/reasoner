@@ -50,17 +50,13 @@ private lemma sinh_complexArsinh {w : ℂ} (hw : w ∈ arsinhDomain) :
   have hw0 : w ^ 2 + 1 ≠ 0 := slitPlane_ne_zero hw
   have hs_sq : s ^ 2 = w ^ 2 + 1 := by
     dsimp [s]
-    rw [Complex.cpow_def_of_ne_zero hw0, ← Complex.exp_nat_mul]
-    have hmul : (2 : ℕ) * (Complex.log (w ^ 2 + 1) * (1 / 2 : ℂ)) = Complex.log (w ^ 2 + 1) := by
-      push_cast; ring
-    rw [pow_two, ← sq, Complex.cpow_def_of_ne_zero hw0]
-    rw [← Complex.exp_add]
+    rw [pow_two, Complex.cpow_def_of_ne_zero hw0, ← Complex.exp_add]
     have hadd : Complex.log (w ^ 2 + 1) * (1 / 2 : ℂ) + Complex.log (w ^ 2 + 1) * (1 / 2 : ℂ) =
         Complex.log (w ^ 2 + 1) := by ring
     rw [hadd, Complex.exp_log hw0]
   have hprod : (w + s) * (s - w) = 1 := by linear_combination hs_sq
   have hinv : (w + s)⁻¹ = s - w := inv_eq_of_mul_eq_one_right hprod
-  rw [Complex.sinh_eq_div, Complex.exp_clog hne, Complex.exp_neg, Complex.exp_clog hne, hinv]
+  rw [Complex.sinh, Complex.exp_log hne, Complex.exp_neg, Complex.exp_log hne, hinv]
   ring
 
 private lemma sinh_pi_mul_pMap {b : ℂ} (hb : b ∈ slitStrip) :
@@ -94,11 +90,15 @@ private lemma sinh_pi_pMap_re_sq_lower {x t : ℝ} (hx : xiStar < x) (ht0 : 0 < 
         ((Real.cosh (π * α) * Real.sin (π * β) : ℝ) : ℂ) * Complex.I := by
     rw [hsplit_p, Complex.sinh_add, Complex.sinh_mul_I, Complex.cosh_mul_I,
       ← Complex.ofReal_sinh, ← Complex.ofReal_cosh, ← Complex.ofReal_sin, ← Complex.ofReal_cos]
-    apply Complex.ext <;> simp [Complex.mul_re, Complex.mul_im] <;> ring
+    apply Complex.ext <;> simp <;> ring
   have hL_re : (Complex.sinh ((π : ℂ) * p)).re = Real.sinh (π * α) * Real.cos (π * β) := by
-    rw [hsinh_exp]; simp
+    rw [hsinh_exp]
+    simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.ofReal_im,
+      Complex.I_re, Complex.I_im, mul_zero, sub_zero, zero_mul, add_zero]
   have hL_im : (Complex.sinh ((π : ℂ) * p)).im = Real.cosh (π * α) * Real.sin (π * β) := by
-    rw [hsinh_exp]; simp
+    rw [hsinh_exp]
+    simp only [Complex.add_im, Complex.ofReal_im, Complex.mul_im, Complex.ofReal_re,
+      Complex.I_re, Complex.I_im, mul_one, zero_mul, add_zero, zero_add]
   obtain ⟨hR_re, hR_im⟩ := neg_I_mul_sinh_pi_re_im b
   rw [hb_re, hb_im] at hR_re hR_im
   have hre_id : Real.sinh (π * α) * Real.cos (π * β) = Real.cosh (π * x) * Real.sin (π * t) := by
@@ -131,23 +131,22 @@ private lemma sinh_pi_pMap_re_sq_lower {x t : ℝ} (hx : xiStar < x) (ht0 : 0 < 
     rw [mul_pow, hcosh_x, neg_sq, mul_pow, hcos_t]
     ring
   have hpoly : S ^ 2 - D * S - A ^ 2 = 0 := by
-    have h1' : S - A ^ 2 = S * Real.sin (π * β) ^ 2 := by linarith
-    have h2' : (1 + S) * Real.sin (π * β) ^ 2 = B ^ 2 := h2
+    have h1' : S - A ^ 2 = S * Real.sin (π * β) ^ 2 := by linarith only [h1]
     have hmul : (1 + S) * (S - A ^ 2) = S * B ^ 2 := by
       calc (1 + S) * (S - A ^ 2) = (1 + S) * (S * Real.sin (π * β) ^ 2) := by rw [h1']
         _ = S * ((1 + S) * Real.sin (π * β) ^ 2) := by ring
-        _ = S * B ^ 2 := by rw [h2']
+        _ = S * B ^ 2 := by rw [h2]
     have hD_eq : D = A ^ 2 + B ^ 2 - 1 := by rw [hAB]; dsimp [D]; ring
     rw [hD_eq]
-    linarith
+    linarith only [hmul]
   have hD_pos : 0 < D := by
     have hpi := Real.pi_pos
     have hsh : 1 < Real.sinh (π * x) := by
       rw [← sinh_pi_mul_xiStar]
       exact Real.sinh_strictMono (mul_lt_mul_of_pos_left hx hpi)
-    have hs1 : 1 < Real.sinh (π * x) ^ 2 := by nlinarith
+    have hs1 : 1 < Real.sinh (π * x) ^ 2 := by nlinarith only [hsh]
     have hsin2 : 0 ≤ Real.sin (π * t) ^ 2 := sq_nonneg _
-    dsimp [D]; linarith
+    dsimp [D]; linarith only [hs1, hsin2]
   have hA_pos : 0 < A := by
     have hpi := Real.pi_pos
     exact mul_pos (Real.cosh_pos _) (Real.sin_pos_of_pos_of_lt_pi (mul_pos hpi ht0) (by nlinarith))
@@ -155,22 +154,22 @@ private lemma sinh_pi_pMap_re_sq_lower {x t : ℝ} (hx : xiStar < x) (ht0 : 0 < 
     by_contra h0
     have hS0 : S = 0 := le_antisymm (not_lt.mp h0) hS_nn
     rw [hS0] at hpoly
-    nlinarith [sq_pos_of_pos hA_pos]
+    nlinarith only [sq_pos_of_pos hA_pos, hpoly]
   have hS_ge_D : D ≤ S := by
-    have hDS : D * S ≤ S * S := by linarith [sq_pos_of_pos hA_pos, hpoly]
+    have hDS : D * S ≤ S * S := by linarith only [sq_pos_of_pos hA_pos, hpoly]
     exact le_of_mul_le_mul_right hDS hS_pos
   have hS_ge_A : A ≤ S := by
-    have hSS : A ^ 2 ≤ S ^ 2 := by nlinarith [hD_pos, hS_nn, hpoly]
-    exact le_of_sq_le_sq hS_nn (by nlinarith)
+    have hSS : A ^ 2 ≤ S ^ 2 := by nlinarith only [hD_pos, hS_nn, hpoly]
+    exact (abs_le_of_sq_le_sq' hSS hS_nn).2
   change (D + A) / 2 ≤ S
-  linarith
+  linarith only [hS_ge_D, hS_ge_A]
 
 lemma sin_pi_t_ge_two_mul {t : ℝ} (ht0 : 0 ≤ t) (ht1 : t ≤ 1 / 2) :
     2 * t ≤ Real.sin (π * t) := by
   have hpi := Real.pi_pos
   have h1 := Real.mul_le_sin (x := π * t) (mul_nonneg hpi.le ht0) (by nlinarith)
-  rw [div_mul_cancel₀ _ hpi.ne'] at h1
-  exact h1
+  have h2 : 2 / π * (π * t) = 2 * t := by field_simp [hpi.ne']
+  linarith only [h1, h2]
 
 private lemma sinh_pi_x_ge_of_one_le {x : ℝ} (hx : 1 ≤ x) :
     (Real.exp (π * x) / 3) ^ 2 ≤ Real.sinh (π * x) ^ 2 - 1 := by
@@ -243,9 +242,8 @@ private lemma pMap_re_ge_of_one_le {x t : ℝ} (hx : 1 ≤ x) (ht0 : 0 < t) (ht1
       rw [Real.exp_neg]; exact inv_anti₀ (by norm_num) (by linarith [Real.exp_one_gt_d9])
     have hrt2 : √2 ≤ 3 / 2 := by rw [Real.sqrt_le_left (by norm_num)]; norm_num
     have hcmp : (2.7 : ℝ)⁻¹ ≤ 2 / (3 * √2) := by
-      rw [inv_le_iff_one_le_mul₀ (by positivity)]
-      rw [div_mul_comm, ← div_eq_mul_inv, one_le_div (by positivity)]
-      nlinarith
+      rw [inv_eq_one_div, div_le_div_iff₀ (by norm_num) (by positivity)]
+      nlinarith [hrt2]
     linarith
   have hpi := Real.pi_gt_three
   have : π * ((1 + x) / 4) ≤ π * α := by nlinarith [hlog, hlog_ge, hpi]
@@ -263,13 +261,16 @@ private lemma sinh_pi_le_of_le_two {u : ℝ} (hu0 : 0 ≤ u) (hu2 : u ≤ 2) :
         (((Real.hasDerivAt_sinh _).comp s (by simpa using (hasDerivAt_id s).const_mul π)))).differentiableAt.differentiableWithinAt)
       fun s hs => ?_
     rw [interior_Icc] at hs
-    have hd : HasDerivAt φ (1000 - Real.cosh (π * s) * π) s :=
-      ((hasDerivAt_id s).const_mul 1000).sub
-        (((Real.hasDerivAt_sinh _).comp s (by simpa using (hasDerivAt_id s).const_mul π)))
+    have hd1 : HasDerivAt (fun r : ℝ => 1000 * r) 1000 s := by
+      simpa using (hasDerivAt_id s).const_mul 1000
+    have hd2 : HasDerivAt (fun r : ℝ => Real.sinh (π * r)) (Real.cosh (π * s) * π) s :=
+      (Real.hasDerivAt_sinh _).comp s (by simpa using (hasDerivAt_id s).const_mul π)
+    have hd : HasDerivAt φ (1000 - Real.cosh (π * s) * π) s := hd1.sub hd2
     rw [hd.deriv]
     have hch : Real.cosh (π * s) ≤ 301 := by
       have h1 : Real.cosh (π * s) ≤ Real.cosh (2 * π) := by
-        rw [Real.cosh_le_cosh, abs_of_nonneg (by positivity), abs_of_nonneg (by positivity)]
+        rw [Real.cosh_le_cosh, abs_of_nonneg (mul_nonneg hpi.le hs.1.le),
+          abs_of_nonneg (by positivity)]
         nlinarith [hs.2]
       have h2 : Real.cosh (2 * π) ≤ 301 := by
         rw [Real.cosh_eq]
@@ -310,9 +311,11 @@ private lemma pMap_re_ge_of_le_one {x t : ℝ} (hx : xiStar < x) (hx1 : x ≤ 1)
           (fun s _ => (((Real.hasDerivAt_sinh _).comp s (by simpa using (hasDerivAt_id s).const_mul π)).sub
             ((hasDerivAt_id s).const_mul π)).differentiableAt.differentiableWithinAt)
           fun s _ => ?_
-        have hd : HasDerivAt φ (Real.cosh (π * s) * π - π) s :=
-          ((Real.hasDerivAt_sinh _).comp s (by simpa using (hasDerivAt_id s).const_mul π)).sub
-            ((hasDerivAt_id s).const_mul π)
+        have hd1 : HasDerivAt (fun r : ℝ => Real.sinh (π * r)) (Real.cosh (π * s) * π) s :=
+          (Real.hasDerivAt_sinh _).comp s (by simpa using (hasDerivAt_id s).const_mul π)
+        have hd2 : HasDerivAt (fun r : ℝ => π * r) π s := by
+          simpa using (hasDerivAt_id s).const_mul π
+        have hd : HasDerivAt φ (Real.cosh (π * s) * π - π) s := hd1.sub hd2
         rw [hd.deriv]
         have hch : 1 ≤ Real.cosh (π * s) := Real.one_le_cosh _
         nlinarith [Real.pi_pos]
@@ -364,7 +367,8 @@ theorem zetaRight_im_abs_le {c' : ℝ} (hc' : 0 < c') {b : ℂ} (hb : b ∈ lowe
     rcases le_or_gt 0 b.im with him | him
     · have h1 : 0 ≤ (zetaRight c' b).im := by
         rcases him.eq_or_lt with h0 | hgt
-        · rw [Complex.ext rfl h0.symm, zetaRight_ofReal hb.1]; simp
+        · have hbr : b = (b.re : ℂ) := Complex.ext rfl h0.symm
+          rw [hbr, zetaRight_ofReal hb.1]; simp
         · exact (zetaRight_im_pos_of_im_pos hc' hb hgt).le
       rw [abs_of_nonneg h1, abs_of_nonneg him]
       exact hpos hb him
@@ -397,15 +401,19 @@ theorem zetaRight_im_abs_le {c' : ℝ} (hc' : 0 < c') {b : ℂ} (hb : b ∈ lowe
       rw [interior_Icc] at hs
       have hms := hmem s ⟨hs.1.le, hs.2.le⟩
       exact (((hasDerivAt_id s).const_mul ((2 * c' / 3) * (w.re + 1))).sub
-        (hasDerivAt_zetaRight_vert_im hms)).differentiableAt.differentiableWithinAt
+        (hasDerivAt_zetaRight_vert_im (c' := c') hms)).differentiableAt.differentiableWithinAt
     · intro s hs
       rw [interior_Icc] at hs
       have hms := hmem s ⟨hs.1.le, hs.2.le⟩
       have hs_pos : 0 < ((w.re : ℂ) + (s : ℂ) * Complex.I).im := by simpa using hs.1
       have hbs : (w.re : ℂ) + (s : ℂ) * Complex.I ∈ slitStrip :=
         mem_slitStrip_of_im_ne_zero hms.2 hs_pos.ne'
-      have hdφ := ((hasDerivAt_id s).const_mul ((2 * c' / 3) * (w.re + 1))).sub
-        (hasDerivAt_zetaRight_vert_im hms)
+      have hd_lin : HasDerivAt (fun r : ℝ => (2 * c' / 3) * (w.re + 1) * r)
+          ((2 * c' / 3) * (w.re + 1)) s := by
+        simpa using (hasDerivAt_id s).const_mul ((2 * c' / 3) * (w.re + 1))
+      have hdφ : HasDerivAt φ ((2 * c' / 3) * (w.re + 1) -
+          (deriv (zetaRight c') ((w.re : ℂ) + (s : ℂ) * Complex.I)).re) s :=
+        hd_lin.sub (hasDerivAt_zetaRight_vert_im (c' := c') hms)
       rw [hdφ.deriv]
       have hzeta_eq : zetaRight c' =ᶠ[𝓝 ((w.re : ℂ) + (s : ℂ) * Complex.I)] zetaPlus c' := by
         filter_upwards [(isOpen_lt continuous_const Complex.continuous_im).mem_nhds hs_pos] with z hz
@@ -427,12 +435,15 @@ theorem zetaRight_im_abs_le {c' : ℝ} (hc' : 0 < c') {b : ℂ} (hb : b ∈ lowe
   have hres := hmono (left_mem_Icc.mpr hw_im) (right_mem_Icc.mpr hw_im) hw_im
   have hφ0 : φ 0 = 0 := by
     dsimp [φ]
-    have h0 : (w.re : ℂ) + ((0 : ℝ) : ℂ) * Complex.I = (w.re : ℂ) := by simp
+    have h0 : (w.re : ℂ) + (0 : ℂ) * Complex.I = (w.re : ℂ) := by simp
     rw [h0, zetaRight_ofReal hw.1]; simp
   have hφw : (w.re : ℂ) + (w.im : ℂ) * Complex.I = w := Complex.ext (by simp) (by simp)
-  dsimp [φ] at hres
+  dsimp [φ] at hres hφ0
   rw [hφw] at hres
-  linarith [hφ0]
+  have h0_eq : (w.re : ℂ) + (0 : ℂ) * Complex.I = (w.re : ℂ) := by simp
+  rw [h0_eq, zetaRight_ofReal hw.1] at hres
+  simp only [mul_zero, Complex.ofReal_im, sub_self] at hres
+  linarith
 
 /-- Lower bound `(c' / 6000) * |Im b| * √(‖b - ξ_*‖ * (1 + Re b)) ≤ |Im(zetaRight c' b)|`
 on `lowerBoasRightDom`. -/
@@ -443,7 +454,8 @@ theorem zetaRight_im_abs_ge {c' : ℝ} (hc' : 0 < c') {b : ℂ} (hb : b ∈ lowe
     rcases le_or_gt 0 b.im with him | him
     · have h1 : 0 ≤ (zetaRight c' b).im := by
         rcases him.eq_or_lt with h0 | hgt
-        · rw [Complex.ext rfl h0.symm, zetaRight_ofReal hb.1]; simp
+        · have hbr : b = (b.re : ℂ) := Complex.ext rfl h0.symm
+          rw [hbr, zetaRight_ofReal hb.1]; simp
         · exact (zetaRight_im_pos_of_im_pos hc' hb hgt).le
       rw [abs_of_nonneg h1, abs_of_nonneg him]
       exact hpos hb him
@@ -464,7 +476,9 @@ theorem zetaRight_im_abs_ge {c' : ℝ} (hc' : 0 < c') {b : ℂ} (hb : b ∈ lowe
       linarith
   intro w hw hw_im
   rcases eq_or_lt_of_le hw_im with hw0 | hw_pos
-  · rw [← hw0]; simp [zetaRight_ofReal hw.1]
+  · have hwr : w = (w.re : ℂ) := Complex.ext rfl hw0.symm
+    rw [hwr, zetaRight_ofReal hw.1]
+    simp only [Complex.ofReal_im, mul_zero, zero_mul, le_refl]
   have hw_lt : w.im < 1 / 2 := (abs_lt.mp hw.2).2
   let k : ℝ := if 1 ≤ w.re then (1 + w.re) / 4 else (1 / 1000 : ℝ) * Real.sqrt (w.re - xiStar + w.im / 2)
   have hk_lb : ∀ s ∈ Ioo (w.im / 2) w.im,
@@ -509,8 +523,12 @@ theorem zetaRight_im_abs_ge {c' : ℝ} (hc' : 0 < c') {b : ℂ} (hb : b ∈ lowe
     · intro s hs
       rw [interior_Icc] at hs
       have hms := hmem s ⟨hs.1.le, hs.2.le⟩
-      rw [((hasDerivAt_zetaRight_vert_im hms).sub
-        ((hasDerivAt_id s).const_mul ((2 * c' / 3) * k))).deriv]
+      have hd_lin : HasDerivAt (fun r : ℝ => (2 * c' / 3) * k * r) ((2 * c' / 3) * k) s := by
+        simpa using (hasDerivAt_id s).const_mul ((2 * c' / 3) * k)
+      have hdψ : HasDerivAt ψ ((deriv (zetaRight c') ((w.re : ℂ) + (s : ℂ) * Complex.I)).re -
+          (2 * c' / 3) * k) s :=
+        (hasDerivAt_zetaRight_vert_im (c' := c') hms).sub hd_lin
+      rw [hdψ.deriv]
       linarith [hk_lb s hs]
   have hstep := hmono (left_mem_Icc.mpr (by linarith)) (right_mem_Icc.mpr (by linarith)) (by linarith)
   have hmid_mem : (w.re : ℂ) + ((w.im / 2 : ℝ) : ℂ) * Complex.I ∈ lowerBoasRightDom :=
@@ -531,7 +549,7 @@ theorem zetaRight_im_abs_ge {c' : ℝ} (hc' : 0 < c') {b : ℂ} (hb : b ∈ lowe
         _ = (w.re - xiStar) + w.im := by
             rw [hre, him, abs_of_pos (sub_pos.mpr hw.1), abs_of_pos hw_pos]
     by_cases hx1 : 1 ≤ w.re
-    · have hk_eq : k = (1 + w.re) / 4 := if_pos hx1
+    · have hk_eq : k = (1 + w.re) / 4 := by simp only [k, hx1, ↓reduceIte]
       rw [hk_eq]
       have h1 : ‖w - (xiStar : ℂ)‖ ≤ 1 + w.re := by linarith [xiStar_pos, hw_lt]
       have h2 : ‖w - (xiStar : ℂ)‖ * (1 + w.re) ≤ (1 + w.re) ^ 2 := by
@@ -540,11 +558,12 @@ theorem zetaRight_im_abs_ge {c' : ℝ} (hc' : 0 < c') {b : ℂ} (hb : b ∈ lowe
             Real.sqrt_le_sqrt h2
         _ = 1 + w.re := Real.sqrt_sq (by linarith)
         _ ≤ 2000 * ((1 + w.re) / 4) := by linarith
-    · have hk_eq : k = (1 / 1000 : ℝ) * Real.sqrt (w.re - xiStar + w.im / 2) := if_neg hx1
+    · have hk_eq : k = (1 / 1000 : ℝ) * Real.sqrt (w.re - xiStar + w.im / 2) := by
+        simp only [k, hx1, ↓reduceIte]
       rw [hk_eq]
       have hx_lt : w.re < 1 := not_le.mp hx1
       have h2 : ‖w - (xiStar : ℂ)‖ * (1 + w.re) ≤ 4 * (w.re - xiStar + w.im / 2) := by
-        have : ‖w - (xiStar : ℂ)‖ ≤ 2 * (w.re - xiStar + w.im / 2) := by linarith
+        have : ‖w - (xiStar : ℂ)‖ ≤ 2 * (w.re - xiStar + w.im / 2) := by linarith [hw.1]
         nlinarith [norm_nonneg (w - (xiStar : ℂ))]
       calc Real.sqrt (‖w - (xiStar : ℂ)‖ * (1 + w.re))
           ≤ Real.sqrt (4 * (w.re - xiStar + w.im / 2)) := Real.sqrt_le_sqrt h2
