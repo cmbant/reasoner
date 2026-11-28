@@ -784,7 +784,7 @@ theorem concretePhaseBox_exist :
         let τ₁ := c ^ (-(1 / 4 : ℝ))
         τ₁ ≤ τ_lim_box → K4 * τ₁ ^ 2 ≤ 1 →
         ∃ (T : CfuTheta) (B d : ℝ × ℝ × ℝ → ℝ) (R Z : (ℝ × ℝ × ℝ) × ℝ → ℝ) (S : ChartSetup (ℝ × ℝ × ℝ)),
-          T.M = M_cfu ∧
+          T.M = M_cfu ∧ T.mt = concreteMt ∧ T.θt = concreteThetaT ε ∧
           S.Ω = OmT τ₁ ∧ S.ℓ = (fun p : ℝ × ℝ × ℝ => p.1) ∧ S.r = T.r τ₁ K4 ∧
           S.ε = C0 * τ₁ ^ 2 ∧ S.cV = cV ∧
           S.B = B ∧ S.d = d ∧ S.R = R ∧ S.Z = Z ∧
@@ -853,9 +853,9 @@ theorem concretePhaseBox_exist :
     have hpos : (0 : ℝ) < 10 * (D1 + 1) := by positivity
     calc D1 * τ₁ ≤ (D1 + 1) * τ_D1 := mul_le_mul (by linarith) hτ₁_D1 hτ₁_pos.le (by positivity)
       _ = 1 / 10 := by simp only [τ_D1]; field_simp [hpos.ne']
-  obtain ⟨T, hTM, hT_id, B, d, R, Z, S, hSΩ, hSℓ, hSr, hSε, hcBs, hcds, hcRs, hcDs, hcZs, hcVs,
+  obtain ⟨T, hTM, hTmt, hTθt, hT_id, B, d, R, Z, S, hSΩ, hSℓ, hSr, hSε, hcBs, hcds, hcRs, hcDs, hcZs, hcVs,
     hSB, hSd, hSR, hSZ, hout⟩ := hcfu hK4 hε hc hτ₁_cfu hK4t
-  refine ⟨T, B, d, R, Z, S, hTM, hSΩ, hSℓ, hSr, hSε, hcVs, hSB, hSd, hSR, hSZ, hT_id, ?_⟩
+  refine ⟨T, B, d, R, Z, S, hTM, hTmt, hTθt, hSΩ, hSℓ, hSr, hSε, hcVs, hSB, hSd, hSR, hSZ, hT_id, ?_⟩
   -- Shared geometric facts for `p ∈ concretePhaseDom ellMin ε c`
   have hp_facts : ∀ p ∈ concretePhaseDom ellMin ε c,
       let q := (concreteEll1 ε c p.1, (1 : ℝ), p.2)

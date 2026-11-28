@@ -487,7 +487,7 @@ theorem concrete_cfu_exist :
       ∀ {K4 ε c : ℝ}, 1 ≤ K4 → (ε = 1 ∨ ε = -1) → 0 < c →
         let τ₁ := c ^ (-(1 / 4 : ℝ))
         τ₁ ≤ τ_lim → K4 * τ₁ ^ 2 ≤ 1 →
-        ∃ T : CfuTheta, T.M = M_cfu ∧
+        ∃ T : CfuTheta, T.M = M_cfu ∧ T.mt = concreteMt ∧ T.θt = concreteThetaT ε ∧
           (∀ {lam L1 α x : ℝ}, 0 ≤ x → x ≤ 2.4 →
             τ₁ ^ 3 * (x * ((L1 - ctTheta1 ε / c) / τ₁ ^ 2 - π ^ 2 / 36 * x ^ 2 +
               T.r τ₁ K4 (((L1 - ctTheta1 ε / c) / τ₁ ^ 2, lam, α), x ^ 2))) =
@@ -605,7 +605,7 @@ theorem concrete_cfu_exist :
       jc_Θ1b := hv1b_s.2.mono hB1b_le
       jc_Θ1m := hv1m_s.2.mono hB1m_le
       jc_Θα := hvα_s.2.mono hBα_le }
-  refine ⟨T, rfl, ?_, ?_⟩
+  refine ⟨T, rfl, rfl, rfl, ?_, ?_⟩
   · -- Exact polynomial-phase matching identity on `0 ≤ x ≤ 2.4`
     intro lam L1 α x hx0 hx24
     have ht2x2_30 : |τ₁ ^ 2 * x ^ 2| ≤ 1 / 30 := by
