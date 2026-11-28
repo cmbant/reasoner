@@ -7,18 +7,14 @@ module
 public import FormalResearch.SignUncertainty.FctWarpWinDiff
 
 /-!
-# Window `E`, `K`, `J`, `winMuMix`, and `chi` symbol & difference bounds (`fct:warp-win`)
+# Window `E`, `K`, and `chi` symbol & difference bounds (`fct:warp-win`)
 
 Leaf module establishing the exact symbol bounds on `[0, fctUc c]` for `L_lo ≤ L_hi` in the
 Airy window `0 ≤ concreteEll1 ε c L_lo`, `concreteEll1 ε c L_hi ≤ Sw_ell * c^{-1/6}`:
-* `win_E_diff_and_bounds`: `exp(E_2) - exp(E_1) ∈ 𝒮^8_4 (C c^{-5/6} (L_hi - L_lo))`,
-  `exp(E) ∈ 𝒮^8_0 C`, and (for `|α| ≤ Cα c^{-2/3}`) `exp(E) - 1 ∈ 𝒮^8_8 (C c^{-4/3})`;
-* `win_K_diff_and_bounds`: `K_2 - K_1 ∈ 𝒮^8_7 (C c^{-4/3} (L_hi - L_lo))`, `K ∈ 𝒮^8_0 C`, `K - 1 ∈ 𝒮^8_6 (C c^{-4/3})`;
-* `win_J_diff_and_bounds`: `J_2 - J_1 ∈ 𝒮^8_{10} (C c^{-2/3} (L_hi - L_lo))`, `J - 1 ∈ 𝒮^8_{10} (C c^{-4/3})`,
-  and `J ∈ 𝒮^8_0 C`;
-* `win_muMix_diff_and_bounds`: `winMuMix(L_hi) - winMuMix(L_lo) ∈ 𝒮^8_{10} (C c^{-2/3} (L_hi - L_lo))`,
-  `winMuMix(L) ∈ 𝒮^8_0 C`, and (for `|α| ≤ Cα c^{-2/3}`) `winMuMix(L) - 1 ∈ 𝒮^8_{10} (C c^{-4/3})`;
-* `win_chi_diff_sym`: `χ_2 - χ_1 ∈ 𝒮^8_1 (C c^{-1/12} (L_hi - L_lo))`, vanishing on `[0, fctUstar c]`.
+* `win_chi_deriv_jc`: `JC 8 (-3, 3)` bound on `(outerChiIn)'`;
+* `win_E_diff_and_bounds`: `exp(E_2) - exp(E_1) ∈ 𝒮^8_4 (C c^{-5/6} (L_hi - L_lo))` and
+  `exp(E) ∈ 𝒮^8_0 C`;
+* `win_K_diff_and_bounds`: `K_2 - K_1 ∈ 𝒮^8_7 (C c^{-4/3} (L_hi - L_lo))` and `K ∈ 𝒮^8_0 C`.
 
 Class: proved.
 -/
@@ -177,7 +173,7 @@ private lemma win_nfun_inv_jc :
         rw [← sq_abs t]; exact pow_lt_pow_left₀ (abs_lt.mpr ht) (abs_nonneg t) (by norm_num)
       exact ⟨by linarith [sq_nonneg t, rr_pos], htsq.trans hRn_sq⟩
     have hn10 : ContDiffOn ℝ 10 nfun (Ioo (-rr) rr) := contDiffOn_nfun.of_le (by simp)
-    have hcomp := (Complex.ofRealCLM.contDiff.comp_contDiffOn hn10).comp contDiff_pow.contDiffOn hmap
+    have hcomp := (Complex.ofRealCLM.contDiff.comp_contDiffOn hn10).comp (contDiff_id.pow 2).contDiffOn hmap
     exact hcomp.inv fun t ht => Complex.ofReal_ne_zero.mpr (hn_pos t ⟨ht.1.le, ht.2.le⟩)
   obtain ⟨C_n, hCn0, hJC⟩ := win_jc_deriv_of_contDiffOn (half_pos hRn0) (half_lt_self hRn0) hcd
   obtain ⟨C_0, hC00, hJC0⟩ := win_jc_all_of_contDiffOn (half_pos hRn0) (half_lt_self hRn0) (hcd.of_le (by norm_num))
@@ -245,8 +241,15 @@ theorem win_E_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw
       (fun u => ((fctInnerT c (concreteInnerV K4 ε c L_hi α) u -
         fctInnerT c (concreteInnerV K4 ε c L_lo α) u : ℝ) : ℂ)) :=
     hdiff_V.2.congr hDu fun u hu => by
-      dsimp only [fctInnerT]
-      rw [hvp.heq_hi _ (fctInnerY_mem_35 hc1 hu), hvp.heq_lo _ (fctInnerY_mem_35 hc1 hu)]
+      have hy := fctInnerY_mem_35 hc1 hu
+      unfold fctInnerT
+      change ((2 ^ (-(2 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * u * concreteInnerV K4 ε c L_hi α (fctInnerY c u) -
+          2 ^ (-(2 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * u * concreteInnerV K4 ε c L_lo α (fctInnerY c u) : ℝ) : ℂ) =
+        ((2 ^ (-(2 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * u *
+            (concreteBoxS K4 ε c).V ((concreteEll1 ε c L_hi, 1, α), fctInnerY c u) -
+          2 ^ (-(2 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * u *
+            (concreteBoxS K4 ε c).V ((concreteEll1 ε c L_lo, 1, α), fctInnerY c u) : ℝ) : ℂ)
+      rw [hvp.heq_hi _ hy, hvp.heq_lo _ hy]
   have hT_diff_c : FctSymClsOn (Icc 0 (fctUc c)) 8 1 (C_V * (L_hi - L_lo) * c ^ (-(1 / 3 : ℝ)))
       (fun u => ((fctInnerT c (concreteInnerV K4 ε c L_hi α) u -
         fctInnerT c (concreteInnerV K4 ε c L_lo α) u : ℝ) : ℂ)) :=
@@ -264,13 +267,13 @@ theorem win_E_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw
     have h12_p := hT_diff.mul Icc_subset_Ici_self hDu hsum1
     have h1234 := (h12_p.mul Icc_subset_Ici_self hDu hsum2).const_mul hDu ((-K4 : ℝ) : ℂ)
     have hnormK : ‖((-K4 : ℝ) : ℂ)‖ = K4 := by
-      rw [Complex.norm_real, Real.norm_neg, Real.norm_of_nonneg (by linarith)]
-    refine ((h1234.mono_B Icc_subset_Ici_self ?_).mono_p Icc_subset_Ici_self (by positivity)
+      rw [Complex.norm_real, norm_neg, Real.norm_of_nonneg (by linarith)]
+    refine ((h1234.mono_B Icc_subset_Ici_self (le_of_eq ?_)).mono_p Icc_subset_Ici_self (by positivity)
       (by norm_num : (1 + 1 + (1 + 1) : ℝ) ≤ 4)).congr hDu fun u _ => by push_cast; ring
     rw [hnormK]
     have hc_p : c ^ (-(1 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * (c ^ (-(1 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ))) =
         c ^ (-(4 / 3 : ℝ)) := by
-      rw [← Real.rpow_add hc0, ← Real.rpow_add hc0, ← Real.rpow_add hc0]; congr 1; norm_num
+      rw [mul_assoc, ← Real.rpow_add hc0, ← Real.rpow_add hc0, ← Real.rpow_add hc0]; congr 1; norm_num
     calc K4 * (2 ^ 8 * (2 ^ 8 * (C_V * c ^ (-(1 / 3 : ℝ)) * (L_hi - L_lo)) *
           (B_T * c ^ (-(1 / 3 : ℝ)) + B_T * c ^ (-(1 / 3 : ℝ)))) *
           (2 ^ 8 * (B_T * c ^ (-(1 / 3 : ℝ))) * (B_T * c ^ (-(1 / 3 : ℝ))) +
@@ -297,58 +300,56 @@ theorem win_E_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw
     have hτ₁_sq : τ₁ ^ 2 = c ^ (-(1 / 2 : ℝ)) := by
       dsimp only [τ₁]; rw [← Real.rpow_natCast, ← Real.rpow_mul hc0.le]; norm_num
     have hα_τ₁ : |α| ≤ τ₁ ^ 2 := by rw [hτ₁_sq]; exact hα
-    obtain ⟨hcd_v, _, _, _, _, _, _, hderiv_all, _⟩ := hDmain hK4 hc0 hτ₁_pos hτ₁_le hcτ hα_τ₁
+    obtain ⟨hcd_v, _, _, _, _, _, hderiv_all, _⟩ := hDmain hK4 hc0 hτ₁_pos hτ₁_le hcτ hα_τ₁
     let g_v1 : ℝ → ℂ := fun y => ((v1 StripKernelChoice.star K4 c τ₁ (τ₁ * y) : ℝ) : ℂ)
-    have hv1_cd : ContDiff ℝ ⊤ (v1 StripKernelChoice.star K4 c τ₁) := by
-      change ContDiff ℝ ⊤ (fun t => v1Base StripKernelChoice.star c τ₁ t + K4 * v1Marg c τ₁ t)
+    have hv1_cd : ContDiff ℝ (⊤ : ℕ∞) (v1 StripKernelChoice.star K4 c τ₁) := by
+      change ContDiff ℝ (⊤ : ℕ∞) (fun t => v1Base StripKernelChoice.star c τ₁ t + K4 * v1Marg c τ₁ t)
       exact hcd_v.2.2.2.1.add (contDiff_const.mul hcd_v.2.2.2.2.1)
+    have hcomp_d : ∀ (n : ℕ) (y : ℝ),
+        iteratedDeriv n (fun s => v1 StripKernelChoice.star K4 c τ₁ (τ₁ * s)) y =
+          τ₁ ^ n * iteratedDeriv n (v1 StripKernelChoice.star K4 c τ₁) (τ₁ * y) := by
+      intro n y
+      induction n generalizing y with
+      | zero => simp
+      | succ m ihm =>
+        have hfn : iteratedDeriv m (fun s => v1 StripKernelChoice.star K4 c τ₁ (τ₁ * s)) =
+            fun s => τ₁ ^ m * iteratedDeriv m (v1 StripKernelChoice.star K4 c τ₁) (τ₁ * s) :=
+          funext ihm
+        rw [iteratedDeriv_succ, hfn]
+        have hd := ((hv1_cd.differentiable_iteratedDeriv m (by exact_mod_cast ENat.natCast_lt_top m)).differentiableAt.hasDerivAt
+          (x := τ₁ * y)).comp y ((hasDerivAt_id y).const_mul τ₁)
+        have hd2 := hd.const_mul (τ₁ ^ m)
+        have hd3 : deriv (fun s => τ₁ ^ m * iteratedDeriv m (v1 StripKernelChoice.star K4 c τ₁) (τ₁ * s)) y =
+            τ₁ ^ m * (iteratedDeriv (m + 1) (v1 StripKernelChoice.star K4 c τ₁) (τ₁ * y) * τ₁) := by
+          simpa [Function.comp, iteratedDeriv_succ] using hd2.deriv
+        rw [hd3, pow_succ]; ring
     have hg_cd : ContDiffOn ℝ 10 g_v1 (Ioo (-3 : ℝ) 3) :=
-      (Complex.ofRealCLM.contDiff.comp (hv1_cd.comp (contDiff_const.mul contDiff_id))).of_le le_top |>.contDiffOn
+      ((Complex.ofRealCLM.contDiff.of_le (by norm_num : (10 : WithTop ℕ∞) ≤ ⊤)).comp
+        ((hv1_cd.comp (contDiff_const.mul contDiff_id)).of_le
+          (by norm_num : (10 : WithTop ℕ∞) ≤ (⊤ : ℕ∞)))).contDiffOn
     have hdg_jc : JC 8 (Ioo (-3 : ℝ) 3) (deriv g_v1) (C_v1_jc * K4 * c ^ (-(3 / 4 : ℝ))) := by
       have hg' : ContDiffOn ℝ 9 (deriv g_v1) (Ioo (-3 : ℝ) 3) := by
         have h0 := hg_cd.derivWithin isOpen_Ioo.uniqueDiffOn (by norm_num : ((9 : WithTop ℕ∞) + 1 ≤ 10))
         exact h0.congr fun x hx => (derivWithin_of_isOpen isOpen_Ioo hx).symm
-      refine ⟨hg', fun k hk y hy => ?_⟩
+      refine ⟨hg'.of_le (by norm_num), fun k hk y hy => ?_⟩
       rw [norm_iteratedFDerivWithin_eq_norm_iteratedDerivWithin, iteratedDerivWithin_of_isOpen isOpen_Ioo hy,
         ← iteratedDeriv_succ']
+      have hreal_cd : ContDiffOn ℝ (k + 1 : ℕ) (fun s => v1 StripKernelChoice.star K4 c τ₁ (τ₁ * s)) univ :=
+        ((hv1_cd.comp (contDiff_const.mul contDiff_id)).of_le (by simp)).contDiffOn
       have hreal : iteratedDeriv (k + 1) g_v1 y =
           ((iteratedDeriv (k + 1) (fun s => v1 StripKernelChoice.star K4 c τ₁ (τ₁ * s)) y : ℝ) : ℂ) := by
         dsimp only [g_v1]
-        rw [← iteratedDerivWithin_univ, iteratedDerivWithin_ofReal_cast uniqueDiffOn_univ
-          ((hv1_cd.comp (contDiff_const.mul contDiff_id)).of_le le_top).contDiffOn (by omega) y (mem_univ y),
-          iteratedDerivWithin_univ]
-      rw [hreal, Complex.norm_real, Real.norm_eq_abs]
-      have hcomp_d : iteratedDeriv (k + 1) (fun s => v1 StripKernelChoice.star K4 c τ₁ (τ₁ * s)) y =
-          τ₁ ^ (k + 1) * iteratedDeriv (k + 1) (v1 StripKernelChoice.star K4 c τ₁) (τ₁ * y) := by
-        induction k generalizing y with
-        | zero =>
-          simp only [zero_add, pow_one, iteratedDeriv_one]
-          have hd := ((hv1_cd.differentiable (by simp)).hasDerivAt (x := τ₁ * y)).comp y
-            ((hasDerivAt_id y).const_mul τ₁)
-          simpa [Function.comp] using hd.deriv
-        | succ m ihm =>
-          have hfn : iteratedDeriv (m + 1) (fun s => v1 StripKernelChoice.star K4 c τ₁ (τ₁ * s)) =
-              fun s => τ₁ ^ (m + 1) * iteratedDeriv (m + 1) (v1 StripKernelChoice.star K4 c τ₁) (τ₁ * s) :=
-            funext ihm
-          rw [iteratedDeriv_succ, hfn]
-          have hd := (((hv1_cd.contDiffAt.iteratedDeriv (by simp)).differentiableAt (by simp)).hasDerivAt
-            (x := τ₁ * y)).comp y ((hasDerivAt_id y).const_mul τ₁)
-          have hd2 := hd.const_mul (τ₁ ^ (m + 1))
-          have hd3 : deriv (fun s => τ₁ ^ (m + 1) * iteratedDeriv (m + 1) (v1 StripKernelChoice.star K4 c τ₁) (τ₁ * s)) y =
-              τ₁ ^ (m + 2) * iteratedDeriv (m + 2) (v1 StripKernelChoice.star K4 c τ₁) (τ₁ * y) := by
-            rw [show deriv (fun s => τ₁ ^ (m + 1) * iteratedDeriv (m + 1) (v1 StripKernelChoice.star K4 c τ₁) (τ₁ * s)) y =
-                τ₁ ^ (m + 1) * (iteratedDeriv (m + 2) (v1 StripKernelChoice.star K4 c τ₁) (τ₁ * y) * τ₁) by
-              simpa [Function.comp, iteratedDeriv_succ] using hd2.deriv]
-            rw [pow_succ]; ring
-          exact hd3
-      rw [hcomp_d, abs_mul, abs_of_pos (pow_pos hτ₁_pos (k + 1))]
+        rw [← iteratedDerivWithin_univ, iteratedDerivWithin_ofReal_cast uniqueDiffOn_univ hreal_cd
+          (by omega) y (mem_univ y), iteratedDerivWithin_univ]
+      rw [hreal, Complex.norm_real, Real.norm_eq_abs, hcomp_d (k + 1) y, abs_mul,
+        abs_of_pos (pow_pos hτ₁_pos (k + 1))]
       have hv_sum : iteratedDeriv (k + 1) (v1 StripKernelChoice.star K4 c τ₁) (τ₁ * y) =
           iteratedDeriv (k + 1) (v1Base StripKernelChoice.star c τ₁) (τ₁ * y) +
             K4 * iteratedDeriv (k + 1) (v1Marg c τ₁) (τ₁ * y) := by
         have hc1' : ContDiffAt ℝ (k + 1 : ℕ) (v1Base StripKernelChoice.star c τ₁) (τ₁ * y) :=
-          hcd_v.2.2.2.1.contDiffAt.of_le le_top
+          hcd_v.2.2.2.1.contDiffAt.of_le (by simp)
         have hc2' : ContDiffAt ℝ (k + 1 : ℕ) (fun s => K4 * v1Marg c τ₁ s) (τ₁ * y) :=
-          (contDiff_const.mul hcd_v.2.2.2.2.1).contDiffAt.of_le le_top
+          ((contDiff_const.mul hcd_v.2.2.2.2.1).contDiffAt).of_le (by simp)
         have hfun : v1 StripKernelChoice.star K4 c τ₁ =
             v1Base StripKernelChoice.star c τ₁ + fun s => K4 * v1Marg c τ₁ s := funext fun s => rfl
         rw [hfun, iteratedDeriv_add hc1' hc2', iteratedDeriv_const_mul_field]
@@ -371,7 +372,9 @@ theorem win_E_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw
           ≤ τ₁ ^ (k + 1) * (|iteratedDeriv (k + 1) (v1Base StripKernelChoice.star c τ₁) (τ₁ * y)| +
               K4 * |iteratedDeriv (k + 1) (v1Marg c τ₁) (τ₁ * y)|) := by
             gcongr; rw [hv_sum]
-            simpa only [abs_mul, abs_of_pos (by linarith only [hK4] : 0 < K4)] using abs_add_le _ _
+            simpa only [abs_mul, abs_of_pos (by linarith only [hK4] : 0 < K4)] using
+              abs_add_le (iteratedDeriv (k + 1) (v1Base StripKernelChoice.star c τ₁) (τ₁ * y))
+                (K4 * iteratedDeriv (k + 1) (v1Marg c τ₁) (τ₁ * y))
         _ ≤ τ₁ ^ (k + 1) * (C_v1b (k + 1) * c⁻¹ * τ₁ ^ ((-1 : ℤ) - (k + 1 : ℕ)) +
               K4 * (C_v1m (k + 1) * c⁻¹ * τ₁ ^ ((1 : ℤ) - (k + 1 : ℕ)))) := by
             gcongr; exact hbd_all.2.2.2.1; exact hbd_all.2.2.2.2
@@ -391,8 +394,9 @@ theorem win_E_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw
       have hp : c ^ (1 / 4 : ℝ) * fctTau1 c = 1 := by
         unfold fctTau1; rw [← Real.rpow_add hc0]; norm_num
       linarith only [hp]
-    have hcomp := hsc hvp.hc10000 hvp.hKV_small (Real.rpow_pos_of_pos hc0 _) le_rfl hR3
-      (by positivity) (mul_nonneg (sub_nonneg.mpr h12) (by have := pbcV_nonneg; have := pbC0_nonneg; positivity))
+    have hcomp := hsc (B_g := C_v1_jc * K4 * c ^ (-(3 / 4 : ℝ))) (D := C_V * (L_hi - L_lo))
+      hvp.hc10000 hvp.hKV_small (Real.rpow_pos_of_pos hc0 _) le_rfl hR3
+      (by positivity) (mul_nonneg hCV0 (sub_nonneg.mpr h12))
       hvp.hcd_lo hvp.hcd_hi hvp.hjets_lo hvp.hjets_hi hvp.hbd_lo hvp.hbd_hi hT_diff_c hg_cd hdg_jc
     have hprod_c : c ^ (-(3 / 4 : ℝ)) * c ^ (1 / 4 : ℝ) * c ^ (-(1 / 3 : ℝ)) = c ^ (-(5 / 6 : ℝ)) := by
       rw [← Real.rpow_add hc0, ← Real.rpow_add hc0]; congr 1; norm_num
@@ -407,11 +411,11 @@ theorem win_E_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw
   have hdα : FctSymClsOn (Icc 0 (fctUc c)) 8 2 (C_dα * c ^ (-(7 / 6 : ℝ)) * (L_hi - L_lo))
       (fun u => ((α * (fctInnerT c (concreteInnerV K4 ε c L_hi α) u) ^ 2 : ℝ) : ℂ) -
         ((α * (fctInnerT c (concreteInnerV K4 ε c L_lo α) u) ^ 2 : ℝ) : ℂ)) := by
-    have h12 := ((hT_diff.mul Icc_subset_Ici_self hDu (hT2_sym.add hDu hT1_sym)).const_mul hDu (α : ℂ)).congr hDu
-      fun u _ => by push_cast; ring
+    have hprod_α := ((hT_diff.mul Icc_subset_Ici_self hDu (hT2_sym.add hDu hT1_sym)).const_mul hDu
+      (α : ℂ)).mono_p Icc_subset_Ici_self (by positivity) (by norm_num : (1 : ℝ) + 1 ≤ 2)
     have hc_p : c ^ (-(1 / 2 : ℝ)) * (c ^ (-(1 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ))) = c ^ (-(7 / 6 : ℝ)) := by
       rw [← Real.rpow_add hc0, ← Real.rpow_add hc0]; congr 1; norm_num
-    refine h12.mono_B Icc_subset_Ici_self ?_
+    refine (hprod_α.mono_B Icc_subset_Ici_self ?_).congr hDu fun u _ => by push_cast; ring
     rw [Complex.norm_real, Real.norm_eq_abs]
     have hc13_nn : 0 ≤ c ^ (-(1 / 3 : ℝ)) := by positivity
     have hL0 : 0 ≤ L_hi - L_lo := sub_nonneg.mpr h12
@@ -432,10 +436,9 @@ theorem win_E_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw
       ((contDiff_binetImag' hc0).of_le le_top).contDiffOn
     have hgb_jc : JC 8 (Ioo (-(3 * fctTau1 c)) (3 * fctTau1 c)) (deriv g_bin) (C_bin_jc * c⁻¹) := by
       have hg' : ContDiffOn ℝ 9 (deriv g_bin) (Ioo (-(3 * fctTau1 c)) (3 * fctTau1 c)) := by
-        have h0 := ((contDiff_binetImag' hc0).of_le le_top).contDiffOn.derivWithin
-          isOpen_Ioo.uniqueDiffOn (by norm_num : ((9 : WithTop ℕ∞) + 1 ≤ 10))
+        have h0 := hgb_cd.derivWithin isOpen_Ioo.uniqueDiffOn (by norm_num : ((9 : WithTop ℕ∞) + 1 ≤ 10))
         exact h0.congr fun x hx => (derivWithin_of_isOpen isOpen_Ioo hx).symm
-      refine ⟨hg', fun k hk t ht => ?_⟩
+      refine ⟨hg'.of_le (by norm_num), fun k hk t ht => ?_⟩
       rw [norm_iteratedFDerivWithin_eq_norm_iteratedDerivWithin, iteratedDerivWithin_of_isOpen isOpen_Ioo ht,
         ← iteratedDeriv_succ', show iteratedDeriv (k + 1) g_bin t = _ from iteratedDeriv_binetImag' hc0 (k + 1) t,
         norm_mul, norm_pow, Complex.norm_I, one_pow, one_mul]
@@ -444,8 +447,9 @@ theorem win_E_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw
       have hfac : ((k + 1).factorial : ℝ) ≤ Nat.factorial 9 := by exact_mod_cast Nat.factorial_le (by omega : k + 1 ≤ 9)
       calc ((k + 1).factorial : ℝ) / (12 * c) ≤ (Nat.factorial 9 : ℝ) / (12 * c) := by gcongr
         _ = C_bin_jc * c⁻¹ := by dsimp only [C_bin_jc]; ring
-    have hcomp := hsc hvp.hc10000 hvp.hKV_small one_pos (Real.one_le_rpow hc1 (by norm_num)) (by ring_nf; rfl)
-      (by positivity) (mul_nonneg (sub_nonneg.mpr h12) (by have := pbcV_nonneg; have := pbC0_nonneg; positivity))
+    have hcomp := hsc (B_g := C_bin_jc * c⁻¹) (D := C_V * (L_hi - L_lo))
+      hvp.hc10000 hvp.hKV_small one_pos (Real.one_le_rpow hc1 (by norm_num)) (by simp [mul_one])
+      (by positivity) (mul_nonneg hCV0 (sub_nonneg.mpr h12))
       hvp.hcd_lo hvp.hcd_hi hvp.hjets_lo hvp.hjets_hi hvp.hbd_lo hvp.hbd_hi hT_diff_c hgb_cd hgb_jc
     have hc43 : c⁻¹ * c ^ (-(1 / 3 : ℝ)) = c ^ (-(4 / 3 : ℝ)) := by
       rw [← Real.rpow_neg_one, ← Real.rpow_add hc0]; congr 1; norm_num
@@ -503,26 +507,38 @@ theorem win_E_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw
       ((le_max_right 10000 c₀).trans hc)
     have hTV := (hBT hc1 hvp.hKV_small hVj).2.2.2
     have h1 := (hT4 hK4 hc1 hvp.hKV_small hVj).mono_p Icc_subset_Ici_self (by positivity) (by norm_num : (4 : ℝ) ≤ 10)
-    have h2 := ((hv1 hK4 hcv1' hK4c hvp.hKV_small hα hVj).mono_p Icc_subset_Ici_self (by positivity)
-      (by norm_num : (8 : ℝ) ≤ 10)).mono_B Icc_subset_Ici_self
-      (mul_le_mul_of_nonneg_left (Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)) hCv10)
+    have h2 : FctSymClsOn (Icc 0 (fctUc c)) 8 10 (C_v1 * c ^ (-(4 / 3 : ℝ)))
+        (fun u => ((v1 StripKernelChoice.star K4 c τ₁ (fctInnerT c V u) : ℝ) : ℂ)) :=
+      ((hv1 hK4 hcv1' hK4c hvp.hKV_small hα hVj).mono_p Icc_subset_Ici_self (by positivity)
+        (by norm_num : (8 : ℝ) ≤ 10)).mono_B Icc_subset_Ici_self
+        (mul_le_mul_of_nonneg_left (Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)) hCv10)
     have h3 := (hbin hc1 hvp.hKV_small hVj).mono_p Icc_subset_Ici_self (by positivity) (by norm_num : (1 : ℝ) ≤ 10)
     have h123_0 : FctSymClsOn (Icc 0 (fctUc c)) 8 0 (4 ^ 10 * (C_T4 * K4 + C_v1 + C_bin) * c ^ (-(1 / 2 : ℝ)))
         (fun u => -((K4 * (fctInnerT c V u) ^ 4 : ℝ) : ℂ) +
           ((v1 StripKernelChoice.star K4 c τ₁ (fctInnerT c V u) : ℝ) : ℂ) +
           FormalResearch.Asymptotics.binetDiff c (Complex.I * ((fctInnerT c V u : ℝ) : ℂ))) := by
-      have hsum10 := ((h1.add hDu h2).add hDu h3).mono_B Icc_subset_Ici_self (le_of_eq (by ring))
+      have hsum10 : FctSymClsOn (Icc 0 (fctUc c)) 8 10 ((C_T4 * K4 + C_v1 + C_bin) * c ^ (-(4 / 3 : ℝ)))
+          (fun u => ((-(K4 * (fctInnerT c V u) ^ 4) : ℝ) : ℂ) +
+            ((v1 StripKernelChoice.star K4 c τ₁ (fctInnerT c V u) : ℝ) : ℂ) +
+            FormalResearch.Asymptotics.binetDiff c (Complex.I * ((fctInnerT c V u : ℝ) : ℂ))) :=
+        ((h1.add hDu h2).add hDu h3).mono_B Icc_subset_Ici_self
+          (show C_T4 * K4 * c ^ (-(4 / 3 : ℝ)) + C_v1 * c ^ (-(4 / 3 : ℝ)) + C_bin * c ^ (-(4 / 3 : ℝ)) ≤
+              (C_T4 * K4 + C_v1 + C_bin) * c ^ (-(4 / 3 : ℝ)) from le_of_eq (by ring))
       have hsh := hsum10.shrink_p hUc0.le (by positivity) (by norm_num : (0 : ℝ) ≤ 10)
       have hUc10 := one_add_Uc_rpow_le hc1 10 (by norm_num)
       have hc_p : c ^ (-(4 / 3 : ℝ)) * c ^ ((10 : ℝ) / 12) = c ^ (-(1 / 2 : ℝ)) := by
         rw [← Real.rpow_add hc0]; congr 1; norm_num
-      refine (hsh.mono_B Icc_subset_Ici_self ?_).congr hDu fun u _ => by ring
+      refine (hsh.mono_B Icc_subset_Ici_self ?_).congr hDu fun u _ => by push_cast; ring
       calc (C_T4 * K4 + C_v1 + C_bin) * c ^ (-(4 / 3 : ℝ)) * (1 + fctUc c) ^ (10 - 0 : ℝ)
           = (C_T4 * K4 + C_v1 + C_bin) * c ^ (-(4 / 3 : ℝ)) * (1 + fctUc c) ^ (10 : ℝ) := by norm_num
         _ ≤ (C_T4 * K4 + C_v1 + C_bin) * c ^ (-(4 / 3 : ℝ)) * ((4 : ℝ) ^ (10 : ℝ) * c ^ ((10 : ℝ) / 12)) := by gcongr
         _ = 4 ^ 10 * (C_T4 * K4 + C_v1 + C_bin) * (c ^ (-(4 / 3 : ℝ)) * c ^ ((10 : ℝ) / 12)) := by norm_num; ring
         _ = 4 ^ 10 * (C_T4 * K4 + C_v1 + C_bin) * c ^ (-(1 / 2 : ℝ)) := by rw [hc_p]
-    have hT2 := ((hTV.mul Icc_subset_Ici_self hDu hTV).const_mul hDu (α : ℂ)).congr hDu fun u _ => by push_cast; ring
+    have hT2 : FctSymClsOn (Icc 0 (fctUc c)) 8 2
+        (‖(α : ℂ)‖ * (2 ^ 8 * (B_T * c ^ (-(1 / 3 : ℝ))) * (B_T * c ^ (-(1 / 3 : ℝ)))))
+        (fun u => ((α * (fctInnerT c V u) ^ 2 : ℝ) : ℂ)) :=
+      (((hTV.mul Icc_subset_Ici_self hDu hTV).const_mul hDu (α : ℂ)).mono_p
+        Icc_subset_Ici_self (by positivity) (by norm_num : (1 : ℝ) + 1 ≤ 2)).congr hDu fun u _ => by push_cast; ring
     have hα_0 : FctSymClsOn (Icc 0 (fctUc c)) 8 0 (4 ^ 2 * 2 ^ 8 * B_T ^ 2 * c ^ (-(1 / 2 : ℝ)))
         (fun u => ((α * (fctInnerT c V u) ^ 2 : ℝ) : ℂ)) := by
       have hsh := (hT2.shrink_p hUc0.le (by positivity) (by norm_num : (0 : ℝ) ≤ 2))
@@ -558,7 +574,7 @@ theorem win_E_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw
           ≤ 3 * (Nat.factorial 8 : ℝ) * 1 := by gcongr; simpa using hBU0
         _ = 3 * (Nat.factorial 8 : ℝ) := by ring)
     have hone := (one_symCls 8).mono_set Icc_subset_Ici_self hDu (uniqueDiffOn_Ici 0)
-    exact ((hone.add hDu hexp_sub).mono_B Icc_subset_Ici_self (le_of_eq (by dsimp only [C_Efin]; ring))).congr hDu
+    exact ((hone.add hDu hexp_sub).mono_B Icc_subset_Ici_self le_rfl).congr hDu
       fun u _ => by ring
   have hexp1 := hexp_pt hvp.hjets_lo
   have hexp2 := hexp_pt hvp.hjets_hi
@@ -576,7 +592,9 @@ theorem win_E_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw
       (div_le_iff₀ hτ2).mp hdiff_ell
     have hp : c ^ (-(1 / 6 : ℝ)) * (c ^ (-(1 / 4 : ℝ))) ^ 2 = c ^ (-(2 / 3 : ℝ)) := by
       rw [← Real.rpow_natCast (c ^ _), ← Real.rpow_mul hc0.le, ← Real.rpow_add hc0]; congr 1; norm_num
-    linarith only [h1, hp]
+    calc L_hi - L_lo ≤ Sw_ell * c ^ (-(1 / 6 : ℝ)) * (c ^ (-(1 / 4 : ℝ))) ^ 2 := h1
+      _ = Sw_ell * (c ^ (-(1 / 6 : ℝ)) * (c ^ (-(1 / 4 : ℝ))) ^ 2) := by ring
+      _ = Sw_ell * c ^ (-(2 / 3 : ℝ)) := by rw [hp]
   have hBU_diff : C_Ediff * c ^ (-(5 / 6 : ℝ)) * (L_hi - L_lo) * (1 + fctUc c) ^ (4 : ℝ) ≤ 1 := by
     have hUc4 := one_add_Uc_rpow_le hc1 4 (by norm_num)
     have hc_p : c ^ (-(5 / 6 : ℝ)) * c ^ (-(2 / 3 : ℝ)) * c ^ ((4 : ℝ) / 12) = c ^ (-(7 / 6 : ℝ)) := by
@@ -603,7 +621,7 @@ theorem win_E_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw
     (by have := pbcV_nonneg; have := pbC0_nonneg; have := sub_nonneg.mpr h12; positivity)
     (by norm_num : (0 : ℝ) + 4 ≤ 4)
   refine ⟨(hprod.mono_B Icc_subset_Ici_self (le_of_eq (by dsimp only [C_dfin]; ring))).congr hDu
-    fun u _ => by rw [← Complex.exp_add]; ring_nf, hexp1, hexp2⟩
+    fun u _ => by dsimp only; rw [mul_sub, mul_one, ← Complex.exp_add, add_sub_cancel], hexp1, hexp2⟩
 
 /-! ### 3. `K(L) = 1 - L1 * phiKillDivM(a, T_L)` window difference and bounds -/
 
@@ -663,8 +681,15 @@ lemma win_K_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_e
       (fun u => ((fctInnerT c (concreteInnerV K4 ε c L_hi α) u -
         fctInnerT c (concreteInnerV K4 ε c L_lo α) u : ℝ) : ℂ)) :=
     (hV_diff hε hcvd hτ_lim hK4t hα hell1 h12 hell2).2.congr hDu fun u hu => by
-      dsimp only [fctInnerT]
-      rw [hvp.heq_hi _ (fctInnerY_mem_35 hc1 hu), hvp.heq_lo _ (fctInnerY_mem_35 hc1 hu)]
+      have hy := fctInnerY_mem_35 hc1 hu
+      unfold fctInnerT
+      change ((2 ^ (-(2 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * u * concreteInnerV K4 ε c L_hi α (fctInnerY c u) -
+          2 ^ (-(2 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * u * concreteInnerV K4 ε c L_lo α (fctInnerY c u) : ℝ) : ℂ) =
+        ((2 ^ (-(2 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * u *
+            (concreteBoxS K4 ε c).V ((concreteEll1 ε c L_hi, 1, α), fctInnerY c u) -
+          2 ^ (-(2 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * u *
+            (concreteBoxS K4 ε c).V ((concreteEll1 ε c L_lo, 1, α), fctInnerY c u) : ℝ) : ℂ)
+      rw [hvp.heq_hi _ hy, hvp.heq_lo _ hy]
   have hT_diff_c : FctSymClsOn (Icc 0 (fctUc c)) 8 1 (C_V * (L_hi - L_lo) * c ^ (-(1 / 3 : ℝ))) _ :=
     hT_diff.mono_B Icc_subset_Ici_self (le_of_eq (by ring))
   have hT1_sym := (hBT hc1 hvp.hKV_small hvp.hjets_lo).2.2.2
@@ -694,13 +719,17 @@ lemma win_K_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_e
       0 ≤ fctInnerT c V u ∧ fctInnerT c V u < R_n / 2 ∧ fctInnerT c V u / a < 1 / 2 := by
     intro V hVj u hu
     have h0 := (hBT hc1 hvp.hKV_small hVj).2.1 u hu
-    have h2tau : fctInnerT c V u ≤ 2 * fctTau1 c := fctInnerT_le_two_tau1 pbKV_nonneg hc1 hvp.hKV_small hVj hu
+    have h2tau : fctInnerT c V u ≤ 2 * fctTau1 c := (fctInnerT_le_two_tau1 pbKV_nonneg hc1 hvp.hKV_small hVj hu).2
     have h1n : fctInnerT c V u < R_n / 2 := by
       have : 0 < fctTau1 c := Real.rpow_pos_of_pos hc0 _; linarith only [h2tau, hR_n, this]
     have h2a : fctInnerT c V u / a < 1 / 2 := by
-      rw [div_eq_mul_inv, show a⁻¹ = c ^ (1 / 12 : ℝ) by dsimp only [a]; rw [Real.rpow_neg hc0.le, inv_inv]]
-      have : 0 < c ^ (1 / 12 : ℝ) * fctTau1 c := by positivity
-      nlinarith only [h2tau, hR_pk, this]
+      have ha_inv : a⁻¹ = c ^ (1 / 12 : ℝ) := by dsimp only [a]; rw [Real.rpow_neg hc0.le, inv_inv]
+      have h120 : 0 < c ^ (1 / 12 : ℝ) := Real.rpow_pos_of_pos hc0 _
+      have hτ0 : 0 < fctTau1 c := Real.rpow_pos_of_pos hc0 _
+      calc fctInnerT c V u / a = c ^ (1 / 12 : ℝ) * fctInnerT c V u := by rw [div_eq_mul_inv, ha_inv, mul_comm]
+        _ ≤ c ^ (1 / 12 : ℝ) * (2 * fctTau1 c) := mul_le_mul_of_nonneg_left h2tau h120.le
+        _ < 3 * (c ^ (1 / 12 : ℝ) * fctTau1 c) := by nlinarith only [h120, hτ0]
+        _ ≤ 1 / 2 := by linarith only [hR_pk]
     exact ⟨h0.1, h1n, h2a⟩
   have hpk_eq : ∀ {V : ℝ → ℝ}, FctVJets pbKV c V → EqOn (fun u => phiKillDivM a (fctInnerT c V u))
       (fun u => ((fctInnerT c V u ^ 6 * a ^ (-8 : ℤ) : ℝ) : ℂ) *
@@ -711,9 +740,11 @@ lemma win_K_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_e
       have h1 : fctInnerT c V u ^ 2 ≤ (R_n / 2) ^ 2 := pow_le_pow_left₀ hs.1 hs.2.1.le 2
       have h2 : (R_n / 2) ^ 2 < R_n ^ 2 := by nlinarith only [hRn0]
       exact (h1.trans_lt h2).trans hRn_sq
-    rw [phiKillDivM_eq ha0 hs.1 hsq_rr, div_eq_mul_inv, div_eq_mul_inv]
-    have ha_inv : a⁻¹ = c ^ (1 / 12 : ℝ) := by dsimp only [a]; rw [Real.rpow_neg hc0.le, inv_inv]
-    rw [ha_inv]; push_cast; ring
+    dsimp only
+    rw [phiKillDivM_eq ha0 hs.1 hsq_rr]
+    have ha_div : fctInnerT c V u / a = c ^ (1 / 12 : ℝ) * fctInnerT c V u := by
+      dsimp only [a]; rw [div_eq_mul_inv, Real.rpow_neg hc0.le, inv_inv, mul_comm]
+    rw [ha_div, div_eq_mul_inv]
   have ha8 : a ^ (-8 : ℤ) = c ^ (2 / 3 : ℝ) := by
     dsimp only [a]; rw [← Real.rpow_intCast, ← Real.rpow_mul hc0.le]; congr 1; norm_num
   have hA_of : ∀ {V : ℝ → ℝ},
@@ -722,14 +753,15 @@ lemma win_K_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_e
         (fun u => ((fctInnerT c V u ^ 6 * a ^ (-8 : ℤ) : ℝ) : ℂ)) := fun hTs => by
     have hp1 := hTs.mul Icc_subset_Ici_self hDu hTs
     have hp3 := hp1.mul Icc_subset_Ici_self hDu hTs
-    have hp6 := (hp3.mul Icc_subset_Ici_self hDu hp3).const_mul hDu ((a ^ (-8 : ℤ) : ℝ) : ℂ)
-    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos (zpow_pos ha0 _), ha8] at hp6
+    have hp6 := ((hp3.mul Icc_subset_Ici_self hDu hp3).const_mul hDu ((a ^ (-8 : ℤ) : ℝ) : ℂ)).mono_p
+      Icc_subset_Ici_self (by positivity) (by norm_num : (1 + 1 + 1 + (1 + 1 + 1) : ℝ) ≤ 6)
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos (zpow_pos ha0 _)] at hp6
     have hc_p : c ^ (2 / 3 : ℝ) * (c ^ (-(1 / 3 : ℝ))) ^ 6 = c ^ (-(4 / 3 : ℝ)) := by
       rw [← Real.rpow_natCast (c ^ _), ← Real.rpow_mul hc0.le, ← Real.rpow_add hc0]; congr 1; norm_num
     refine (hp6.mono_B Icc_subset_Ici_self (le_of_eq ?_)).congr hDu fun u _ => by push_cast; ring
     have h6 : (c ^ (-(1 / 3 : ℝ))) ^ 6 = c ^ (-(1 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) *
         (c ^ (-(1 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ))) := by ring
-    dsimp only [C_A1]; rw [← hc_p, h6]; ring
+    dsimp only [C_A1]; rw [ha8, ← hc_p, h6]; ring
   have hA1 := hA_of hT1_sym
   have hA2 := hA_of hT2_sym
   have hdA : FctSymClsOn (Icc 0 (fctUc c)) 8 6 (C_T6d * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo))
@@ -741,25 +773,30 @@ lemma win_K_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_e
     have hq2 := (hsq2.add hDu hp12).add hDu hsq1
     have hc3_1 := hT1_sym.mul Icc_subset_Ici_self hDu hsq1
     have hc3_2 := hT2_sym.mul Icc_subset_Ici_self hDu hsq2
-    have hprod := (((hT_diff.mul Icc_subset_Ici_self hDu hq2).mul Icc_subset_Ici_self hDu
-      (hc3_2.add hDu hc3_1)).const_mul hDu ((a ^ (-8 : ℤ) : ℝ) : ℂ))
-    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos (zpow_pos ha0 _), ha8] at hprod
+    have hL0 : 0 ≤ L_hi - L_lo := sub_nonneg.mpr h12
+    have hprod := ((((hT_diff.mul Icc_subset_Ici_self hDu hq2).mul Icc_subset_Ici_self hDu
+      (hc3_2.add hDu hc3_1)).const_mul hDu ((a ^ (-8 : ℤ) : ℝ) : ℂ)).mono_p
+      Icc_subset_Ici_self (by positivity) (by norm_num : (1 + (1 + 1) + (1 + (1 + 1)) : ℝ) ≤ 6))
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos (zpow_pos ha0 _)] at hprod
     have hc_p : c ^ (2 / 3 : ℝ) * (c ^ (-(1 / 3 : ℝ))) ^ 6 = c ^ (-(4 / 3 : ℝ)) := by
       rw [← Real.rpow_natCast (c ^ _), ← Real.rpow_mul hc0.le, ← Real.rpow_add hc0]; congr 1; norm_num
     refine (hprod.mono_B Icc_subset_Ici_self (le_of_eq ?_)).congr hDu fun u _ => by push_cast; ring
     have h6 : (c ^ (-(1 / 3 : ℝ))) ^ 6 = c ^ (-(1 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) *
         (c ^ (-(1 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ))) := by ring
-    dsimp only [C_T6d]; rw [← hc_p, h6]; ring
+    dsimp only [C_T6d]; rw [ha8, ← hc_p, h6]; ring
   have hB1 : FctSymClsOn (Icc 0 (fctUc c)) 8 0 C_B
       (fun u => phiKillR (((c ^ (1 / 12 : ℝ) * fctInnerT c (concreteInnerV K4 ε c L_lo α) u : ℝ) : ℂ) * Complex.I)) := by
     obtain ⟨hTcd, _, hTd, _⟩ := hBT hc1 hvp.hKV_small hvp.hjets_lo
     have hmaps : MapsTo (fun u => c ^ (1 / 12 : ℝ) * fctInnerT c (concreteInnerV K4 ε c L_lo α) u)
-        (Icc 0 (fctUc c)) (Ioo (-1 / 2 : ℝ) (1 / 2)) := fun u hu => by
+        (Icc 0 (fctUc c)) (Ioo (-(1 / 2) : ℝ) (1 / 2)) := fun u hu => by
       have hs := hT_small hvp.hjets_lo u hu
       have hc120 : 0 ≤ c ^ (1 / 12 : ℝ) := by positivity
-      have ha_inv : a⁻¹ = c ^ (1 / 12 : ℝ) := by dsimp only [a]; rw [Real.rpow_neg hc0.le, inv_inv]
-      rw [div_eq_mul_inv, ha_inv, mul_comm] at hs
-      exact ⟨by linarith only [mul_nonneg hc120 hs.1], by linarith only [hs.2.2]⟩
+      have ha_div : c ^ (1 / 12 : ℝ) * fctInnerT c (concreteInnerV K4 ε c L_lo α) u =
+          fctInnerT c (concreteInnerV K4 ε c L_lo α) u / a := by
+        dsimp only [a]; rw [Real.rpow_neg hc0.le, div_inv_eq_mul, mul_comm]
+      dsimp only
+      rw [ha_div]
+      exact ⟨by linarith only [hs.1, ha0, div_nonneg hs.1 ha0.le], by linarith only [hs.2.2]⟩
     have hBfM : c ^ (1 / 12 : ℝ) * B_T * c ^ (-(1 / 3 : ℝ)) * (1 + fctUc c) ≤ M_m := by
       have h1 := one_add_fctUc_le hc1
       have hc14 : c ^ (1 / 12 : ℝ) * c ^ (-(1 / 3 : ℝ)) * c ^ ((1 : ℝ) / 12) = c ^ (-(1 / 6 : ℝ)) := by
@@ -777,7 +814,7 @@ lemma win_K_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_e
         have := hCR0_jc.2 i hi t ht; rwa [norm_iteratedFDerivWithin_eq_norm_iteratedDerivWithin] at this)
       (contDiffOn_const.mul hTcd) hmaps (by positivity) hBfM
       (fun j hj1 hj8 u hu => by
-        have hTj := (hTcd.of_le (by exact_mod_cast hj8)).contDiffWithinAt hu
+        have hTj := hTcd.contDiffWithinAt hu |>.of_le (by exact_mod_cast (hj8 : j ≤ 8) : ((j : ℕ) : WithTop ℕ∞) ≤ 8)
         rw [iteratedDerivWithin_const_mul (n := j) (c := c ^ (1 / 12 : ℝ)) hu hDu hTj,
           abs_mul, abs_of_pos hc12pos]
         exact (mul_le_mul_of_nonneg_left (hTd j hj1 hj8 u hu) hc12pos.le).trans_eq (by ring))
@@ -787,8 +824,9 @@ lemma win_K_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_e
       (fun u => phiKillR (((c ^ (1 / 12 : ℝ) * fctInnerT c (concreteInnerV K4 ε c L_hi α) u : ℝ) : ℂ) * Complex.I) -
         phiKillR (((c ^ (1 / 12 : ℝ) * fctInnerT c (concreteInnerV K4 ε c L_lo α) u : ℝ) : ℂ) * Complex.I)) := by
     have hsc14 : c ^ (1 / 12 : ℝ) ≤ c ^ (1 / 4 : ℝ) := Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
-    have hcomp := hsc hvp.hc10000 hvp.hKV_small (Real.rpow_pos_of_pos hc0 _) hsc14 hR_pk hCR0
-      (mul_nonneg (sub_nonneg.mpr h12) (by have := pbcV_nonneg; have := pbC0_nonneg; positivity))
+    have hcomp := hsc (B_g := CR) (D := C_V * (L_hi - L_lo))
+      hvp.hc10000 hvp.hKV_small (Real.rpow_pos_of_pos hc0 _) hsc14 hR_pk hCR0
+      (mul_nonneg hCV0 (sub_nonneg.mpr h12))
       hvp.hcd_lo hvp.hcd_hi hvp.hjets_lo hvp.hjets_hi hvp.hbd_lo hvp.hbd_hi hT_diff_c
       (contDiff_phiKillR_imag10.contDiffOn) hCR
     have hc14 : c ^ (1 / 12 : ℝ) * c ^ (-(1 / 3 : ℝ)) = c ^ (-(1 / 4 : ℝ)) := by
@@ -801,7 +839,7 @@ lemma win_K_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_e
       (fun u => ((nfun (fctInnerT c (concreteInnerV K4 ε c L_hi α) u ^ 2) : ℝ) : ℂ)⁻¹) := by
     obtain ⟨hTcd, _, hTd, _⟩ := hBT hc1 hvp.hKV_small hvp.hjets_hi
     have hmaps : MapsTo (fctInnerT c (concreteInnerV K4 ε c L_hi α))
-        (Icc 0 (fctUc c)) (Ioo (-R_n / 2) (R_n / 2)) := fun u hu => by
+        (Icc 0 (fctUc c)) (Ioo (-(R_n / 2)) (R_n / 2)) := fun u hu => by
       have hs := hT_small hvp.hjets_hi u hu
       exact ⟨by linarith only [hs.1, hRn0], by linarith only [hs.2.1]⟩
     have hBfM : B_T * c ^ (-(1 / 3 : ℝ)) * (1 + fctUc c) ≤ M_m := by
@@ -824,8 +862,9 @@ lemma win_K_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_e
   have hdC : FctSymClsOn (Icc 0 (fctUc c)) 8 1 (C_ninv * c ^ (-(1 / 3 : ℝ)) * (L_hi - L_lo))
       (fun u => ((nfun (fctInnerT c (concreteInnerV K4 ε c L_hi α) u ^ 2) : ℝ) : ℂ)⁻¹ -
         ((nfun (fctInnerT c (concreteInnerV K4 ε c L_lo α) u ^ 2) : ℝ) : ℂ)⁻¹) := by
-    have hcomp := hsc hvp.hc10000 hvp.hKV_small one_pos (Real.one_le_rpow hc1 (by norm_num)) hR_n hCn0
-      (mul_nonneg (sub_nonneg.mpr h12) (by have := pbcV_nonneg; have := pbC0_nonneg; positivity))
+    have hcomp := hsc (B_g := C_n) (D := C_V * (L_hi - L_lo))
+      hvp.hc10000 hvp.hKV_small one_pos (Real.one_le_rpow hc1 (by norm_num)) hR_n hCn0
+      (mul_nonneg hCV0 (sub_nonneg.mpr h12))
       hvp.hcd_lo hvp.hcd_hi hvp.hjets_lo hvp.hjets_hi hvp.hbd_lo hvp.hbd_hi hT_diff_c
       (hn_cd.mono (Ioo_subset_Ioo (by linarith only [hRn0]) (by linarith only [hRn0]))) hn_jc
     refine (hcomp.mono_B Icc_subset_Ici_self (le_of_eq (by dsimp only [C_ninv]; ring))).congr hDu
@@ -838,18 +877,20 @@ lemma win_K_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_e
         ((fctInnerT c (concreteInnerV K4 ε c L_lo α) u ^ 6 * a ^ (-8 : ℤ) : ℝ) : ℂ) *
           phiKillR (((c ^ (1 / 12 : ℝ) * fctInnerT c (concreteInnerV K4 ε c L_lo α) u : ℝ) : ℂ) * Complex.I)) := by
     have hL0 : 0 ≤ L_hi - L_lo := sub_nonneg.mpr h12
-    have h1 := ((hdA.mul Icc_subset_Ici_self hDu hB1).mono_p Icc_subset_Ici_self
-      (by have := pbcV_nonneg; have := pbC0_nonneg; positivity) (by norm_num : (6 : ℝ) + 0 ≤ 7)).mono_B
-      Icc_subset_Ici_self (le_of_eq (by ring))
-    have h2 := (hA2.mul Icc_subset_Ici_self hDu hdB).mono_B Icc_subset_Ici_self (by
-      have hc_le : c ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 4 : ℝ)) ≤ c ^ (-(4 / 3 : ℝ)) := by
-        calc c ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 4 : ℝ)) ≤ c ^ (-(4 / 3 : ℝ)) * 1 := by
-              gcongr; exact Real.rpow_le_one_of_one_le_of_nonpos hc1 (by norm_num)
-          _ = c ^ (-(4 / 3 : ℝ)) := mul_one _
-      have := pbcV_nonneg; have := pbC0_nonneg
-      calc 2 ^ 8 * (C_A1 * c ^ (-(4 / 3 : ℝ))) * (C_pkR * c ^ (-(1 / 4 : ℝ)) * (L_hi - L_lo))
-          = 2 ^ 8 * (C_A1 * C_pkR) * (c ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 4 : ℝ))) * (L_hi - L_lo) := by ring
-        _ ≤ 2 ^ 8 * (C_A1 * C_pkR) * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo) := by gcongr)
+    have h1 : FctSymClsOn (Icc 0 (fctUc c)) 8 7 (2 ^ 8 * (C_T6d * C_B) * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo)) _ :=
+      ((hdA.mul Icc_subset_Ici_self hDu hB1).mono_p Icc_subset_Ici_self
+        (by positivity) (by norm_num : (6 : ℝ) + 0 ≤ 7)).mono_B
+        Icc_subset_Ici_self (le_of_eq (by ring))
+    have h2 : FctSymClsOn (Icc 0 (fctUc c)) 8 7 (2 ^ 8 * (C_A1 * C_pkR) * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo)) _ :=
+      ((hA2.mul Icc_subset_Ici_self hDu hdB).mono_p Icc_subset_Ici_self (by positivity)
+        (by norm_num : (6 : ℝ) + 1 ≤ 7)).mono_B Icc_subset_Ici_self (by
+        have hc_le : c ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 4 : ℝ)) ≤ c ^ (-(4 / 3 : ℝ)) := by
+          calc c ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 4 : ℝ)) ≤ c ^ (-(4 / 3 : ℝ)) * 1 := by
+                gcongr; exact Real.rpow_le_one_of_one_le_of_nonpos hc1 (by norm_num)
+            _ = c ^ (-(4 / 3 : ℝ)) := mul_one _
+        calc 2 ^ 8 * (C_A1 * c ^ (-(4 / 3 : ℝ))) * (C_pkR * c ^ (-(1 / 4 : ℝ)) * (L_hi - L_lo))
+            = 2 ^ 8 * (C_A1 * C_pkR) * (c ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 4 : ℝ))) * (L_hi - L_lo) := by ring
+          _ ≤ 2 ^ 8 * (C_A1 * C_pkR) * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo) := by gcongr)
     exact ((h1.add hDu h2).mono_B Icc_subset_Ici_self (le_of_eq (by ring))).congr hDu fun u _ => by ring
   have hd_pk : FctSymClsOn (Icc 0 (fctUc c)) 8 7 (C_dfin * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo))
       (fun u => phiKillDivM a (fctInnerT c (concreteInnerV K4 ε c L_hi α) u) -
@@ -857,27 +898,31 @@ lemma win_K_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_e
     have hL0 : 0 ≤ L_hi - L_lo := sub_nonneg.mpr h12
     have hpart1 := hdAB.mul Icc_subset_Ici_self hDu hC2
     have hAB1 := hA1.mul Icc_subset_Ici_self hDu hB1
-    have hpart2 := (hAB1.mul Icc_subset_Ici_self hDu hdC).mono_B Icc_subset_Ici_self (by
+    have hpart2 := ((hAB1.mul Icc_subset_Ici_self hDu hdC).mono_p Icc_subset_Ici_self
+      (by positivity) (by norm_num : (6 + 0 + 1 : ℝ) ≤ 7 + 0)).mono_B Icc_subset_Ici_self (by
       have hc_le : c ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) ≤ c ^ (-(4 / 3 : ℝ)) := by
         calc c ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ)) ≤ c ^ (-(4 / 3 : ℝ)) * 1 := by
               gcongr; exact Real.rpow_le_one_of_one_le_of_nonpos hc1 (by norm_num)
           _ = c ^ (-(4 / 3 : ℝ)) := mul_one _
-      have := pbcV_nonneg; have := pbC0_nonneg
       calc 2 ^ 8 * (2 ^ 8 * (C_A1 * c ^ (-(4 / 3 : ℝ))) * C_B) * (C_ninv * c ^ (-(1 / 3 : ℝ)) * (L_hi - L_lo))
           = 2 ^ 8 * (2 ^ 8 * C_A1 * C_B) * C_ninv * (c ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 3 : ℝ))) * (L_hi - L_lo) := by ring
         _ ≤ 2 ^ 8 * (2 ^ 8 * C_A1 * C_B) * C_ninv * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo) := by gcongr)
-    have htot := ((hpart1.add hDu hpart2).mono_p Icc_subset_Ici_self
-      (by have := pbcV_nonneg; have := pbC0_nonneg; positivity) (by norm_num : (7 : ℝ) + 0 ≤ 7)).mono_B
-      Icc_subset_Ici_self (le_of_eq (by dsimp only [C_dfin]; ring))
+    have htot : FctSymClsOn (Icc 0 (fctUc c)) 8 7 (C_dfin * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo)) _ :=
+      ((hpart1.add hDu hpart2).mono_p Icc_subset_Ici_self
+        (by positivity) (by norm_num : (7 : ℝ) + 0 ≤ 7)).mono_B
+        Icc_subset_Ici_self (le_of_eq (by dsimp only [C_dfin]; ring))
     exact htot.congr hDu fun u hu => by
-      rw [hpk_eq hvp.hjets_hi hu, hpk_eq hvp.hjets_lo hu]; ring
+      have h1' := hpk_eq hvp.hjets_hi hu
+      have h2' := hpk_eq hvp.hjets_lo hu
+      dsimp only at h1' h2' ⊢
+      rw [h1', h2']; ring
   have hK_diff : FctSymClsOn (Icc 0 (fctUc c)) 8 7 (C_dfin * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo))
       (fun u => (1 - (L1 : ℂ) * phiKillDivM a (fctInnerT c (concreteInnerV K4 ε c L_hi α) u)) -
         (1 - (L1 : ℂ) * phiKillDivM a (fctInnerT c (concreteInnerV K4 ε c L_lo α) u))) := by
     have hsm := hd_pk.const_mul hDu (-(L1 : ℂ))
     rw [norm_neg, Complex.norm_real, Real.norm_eq_abs] at hsm
     have hbd : |L1| * (C_dfin * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo)) ≤ C_dfin * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo) := by
-      have := pbcV_nonneg; have := pbC0_nonneg; have := sub_nonneg.mpr h12
+      have := sub_nonneg.mpr h12
       calc |L1| * (C_dfin * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo))
           ≤ 1 * (C_dfin * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo)) := by gcongr
         _ = C_dfin * c ^ (-(4 / 3 : ℝ)) * (L_hi - L_lo) := one_mul _
@@ -901,7 +946,7 @@ lemma win_K_diff_and_bounds {K4 Sw_ell : ℝ} (hK4 : 1 ≤ K4) (hSw : 1 ≤ Sw_e
           _ ≤ 4 ^ 6 * C_pk * 1 := by gcongr
           _ = 4 ^ 6 * C_pk := mul_one _)
     have hone := (one_symCls 8).mono_set Icc_subset_Ici_self hDu (uniqueDiffOn_Ici 0)
-    exact ((hone.add hDu hs0).mono_B Icc_subset_Ici_self (le_of_eq (by dsimp only [C_Kfin]; ring))).congr hDu
+    exact ((hone.add hDu hs0).mono_B Icc_subset_Ici_self le_rfl).congr hDu
       fun u _ => by ring
   exact ⟨hK_diff, hK_pt hvp.hjets_lo, hK_pt hvp.hjets_hi⟩
 
