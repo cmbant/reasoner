@@ -291,7 +291,7 @@ private lemma continuous_sum' {α ι E : Type*} [TopologicalSpace α]
 private lemma poly_continuous_eval' (p : ℝ[X]) : Continuous (fun x : ℝ => p.eval x) := by
   have heq : (fun x : ℝ => p.eval x) =
       fun x : ℝ => ∑ k ∈ Finset.range (p.natDegree + 1), p.coeff k * x ^ k :=
-    funext fun x => Polynomial.eval_eq_sum_range p x
+    funext fun x => @Polynomial.eval_eq_sum_range ℝ _ p x
   rw [heq]
   exact continuous_sum' _ fun k _ => continuous_const.mul (continuous_id.pow k)
 
@@ -419,7 +419,7 @@ lemma airyAi'_contDiff_omega : ContDiff ℝ ω airyAi' := by
 private lemma poly_eval_contDiff_omega (p : ℝ[X]) : ContDiff ℝ ω (fun x : ℝ => p.eval x) := by
   have heq : (fun x : ℝ => p.eval x) =
       fun x : ℝ => ∑ k ∈ Finset.range (p.natDegree + 1), p.coeff k * x ^ k :=
-    funext fun x => Polynomial.eval_eq_sum_range p x
+    funext fun x => @Polynomial.eval_eq_sum_range ℝ _ p x
   rw [heq]
   exact ContDiff.sum fun k _ => contDiff_const.mul (contDiff_id.pow k)
 
@@ -651,14 +651,14 @@ lemma hbPair_open_hb {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (hQ₀ :
         rw [hp] at hre
         have hsatQ := hsat.2.2
         change (if m % 2 = 1 then _ else (hbPairQ P₀ Q₀ θ).coeff ((m - 2) / 2) = Q₀.coeff ((m - 2) / 2)) at hsatQ
-        rw [if_neg (by omega)] at hsatQ
+        simp only [Nat.mod_two_ne_one.mpr he, ↓reduceIte] at hsatQ
         rw [hsatQ] at hre
         exact (heven₀ he).2 hre
       · have hp : p_deg = (m - 1) / 2 := by dsimp [p_deg]; simp [ho]
         rw [hp] at him
         have hsatP := hsat.2.2
         change (if m % 2 = 1 then (hbPairP P₀ Q₀ θ).coeff ((m - 1) / 2) = P₀.coeff ((m - 1) / 2) else _) at hsatP
-        rw [if_pos ho] at hsatP
+        simp only [ho, ↓reduceIte] at hsatP
         rw [hsatP] at him
         exact (hodd₀ ho).2 him
     exact le_antisymm h_le (Polynomial.le_natDegree_of_ne_zero h_ne_p)
@@ -677,7 +677,7 @@ lemma hbPair_open_hb {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (hQ₀ :
       have hp : p_deg = (m - 2) / 2 := by dsimp [p_deg]; simp [he]
       have hsatQ := hsat.2.2
       change (if m % 2 = 1 then _ else (hbPairQ P₀ Q₀ θ).coeff ((m - 2) / 2) = Q₀.coeff ((m - 2) / 2)) at hsatQ
-      rw [if_neg (by omega)] at hsatQ
+      simp only [Nat.mod_two_ne_one.mpr he, ↓reduceIte] at hsatQ
       rw [hc_eq, hp, ← hsatQ]
       simpa using Complex.abs_re_le_norm
         ((((hbPairQ P₀ Q₀ θ).coeff ((m - 2) / 2) : ℝ) : ℂ) +
@@ -686,7 +686,7 @@ lemma hbPair_open_hb {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (hQ₀ :
       have hp : p_deg = (m - 1) / 2 := by dsimp [p_deg]; simp [ho]
       have hsatP := hsat.2.2
       change (if m % 2 = 1 then (hbPairP P₀ Q₀ θ).coeff ((m - 1) / 2) = P₀.coeff ((m - 1) / 2) else _) at hsatP
-      rw [if_pos ho] at hsatP
+      simp only [ho, ↓reduceIte] at hsatP
       rw [hc_eq, hp, ← hsatP]
       simpa using Complex.abs_im_le_norm
         ((((hbPairQ P₀ Q₀ θ).coeff ((m - 1) / 2) : ℝ) : ℂ) +
@@ -765,9 +765,8 @@ lemma hbPair_open_hb {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (hQ₀ :
       exact le_of_mul_le_mul_right h1 hp_pow_pos
     have hR2 : 2 * ((p_deg : ℝ) + 1) * C_c / c_lead < ‖z‖ :=
       lt_of_le_of_lt (by linarith [le_max_right 1 (2 * ((p_deg : ℝ) + 1) * C_c / c_lead)]) hgt
-    have h2 : 2 * ((p_deg : ℝ) + 1) * C_c < c_lead * ‖z‖ := by
-      rw [mul_comm]
-      exact (div_lt_iff₀ hc_lead_pos).mp hR2
+    have h2 : 2 * ((p_deg : ℝ) + 1) * C_c < c_lead * ‖z‖ :=
+      by linarith [(div_lt_iff₀ hc_lead_pos).mp hR2]
     nlinarith
   have h_open_hb : ∃ η₁ : ℝ, 0 < η₁ ∧ ∀ θ : HbParam P₀ Q₀, ‖θ‖ < η₁ →
       AiryPQHB (hbPairP P₀ Q₀ θ) (hbPairQ P₀ Q₀ θ) := by
@@ -855,15 +854,15 @@ lemma hbPair_open_hb {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (hQ₀ :
     · refine ⟨1, one_pos, fun θ _ => ?_⟩
       have hsatQ := (hbPair_normalized hQ₀ θ).2.2
       change (if m % 2 = 1 then _ else (hbPairQ P₀ Q₀ θ).coeff ((m - 2) / 2) = Q₀.coeff ((m - 2) / 2)) at hsatQ
-      rw [if_neg (by omega)] at hsatQ
-        have hQ_ne : hbPairQ P₀ Q₀ θ ≠ 0 := fun h0 => by
-          rw [h0, Polynomial.coeff_zero] at hsatQ; exact (heven₀ he).2 hsatQ.symm
-        have hQ_deg : (hbPairQ P₀ Q₀ θ).natDegree = (m - 2) / 2 :=
-          le_antisymm (hbPairQ_natDegree_le hQ₀ θ)
-            (Polynomial.le_natDegree_of_ne_zero (by rw [hsatQ]; exact (heven₀ he).2))
-        have hP_deg := hbPairP_natDegree_le hQ₀ θ
-        refine ⟨hQ_ne, ?_⟩
-        unfold at47_m; omega
+      simp only [Nat.mod_two_ne_one.mpr he, ↓reduceIte] at hsatQ
+      have hQ_ne : hbPairQ P₀ Q₀ θ ≠ 0 := fun h0 => by
+        rw [h0, Polynomial.coeff_zero] at hsatQ; exact (heven₀ he).2 hsatQ.symm
+      have hQ_deg : (hbPairQ P₀ Q₀ θ).natDegree = (m - 2) / 2 :=
+        le_antisymm (hbPairQ_natDegree_le hQ₀ θ)
+          (Polynomial.le_natDegree_of_ne_zero (by rw [hsatQ]; exact (heven₀ he).2))
+      have hP_deg := hbPairP_natDegree_le hQ₀ θ
+      refine ⟨hQ_ne, ?_⟩
+      unfold at47_m; omega
     · let k₀ := Q₀.natDegree
       have hQ0_k₀ : Q₀.coeff k₀ ≠ 0 := Polynomial.leadingCoeff_ne_zero.mpr hQ₀
       refine ⟨|Q₀.coeff k₀|, abs_pos.mpr hQ0_k₀, fun θ hθ => ?_⟩
@@ -889,7 +888,7 @@ lemma hbPair_open_hb {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (hQ₀ :
         exact lt_irrefl _ hθ_bd
       have hsatP := (hbPair_normalized hQ₀ θ).2.2
       change (if m % 2 = 1 then (hbPairP P₀ Q₀ θ).coeff ((m - 1) / 2) = P₀.coeff ((m - 1) / 2) else _) at hsatP
-      rw [if_pos ho] at hsatP
+      simp only [ho, ↓reduceIte] at hsatP
       have hP_deg : (hbPairP P₀ Q₀ θ).natDegree = (m - 1) / 2 :=
         le_antisymm (hbPairP_natDegree_le hQ₀ θ)
           (Polynomial.le_natDegree_of_ne_zero (by rw [hsatP]; exact (hodd₀ ho).2))
@@ -948,7 +947,7 @@ lemma hbPair_tail_no_zero {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (hQ
     have hQ_deg : (hbPairQ P₀ Q₀ θ).natDegree ≤ p := hbPairQ_natDegree_le hQ₀ θ
     have hsatQ := (hbPair_normalized hQ₀ θ).2.2
     change (if m % 2 = 1 then _ else (hbPairQ P₀ Q₀ θ).coeff ((m - 2) / 2) = Q₀.coeff ((m - 2) / 2)) at hsatQ
-    rw [if_neg (by omega)] at hsatQ
+    simp only [Nat.mod_two_ne_one.mpr he, ↓reduceIte] at hsatQ
     have hQ_low := poly_lower_of_lead (hbPairQ P₀ Q₀ θ) hQ_deg hQc hx1
     rw [hsatQ] at hQ_low
     have h_sqrt_gt : 4 * (((p : ℝ) + 1) * C_c) / c₀ < √x := by
@@ -964,7 +963,8 @@ lemma hbPair_tail_no_zero {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (hQ
         rwa [Real.sqrt_sq hx0.le] at h
       have h_div : (p : ℝ) * C_c / x ≤ c₀ / 2 := by
         rw [div_le_iff₀ hx0]
-        have h1 : 4 * (((p : ℝ) + 1) * C_c) < c₀ * √x := (div_lt_iff₀ hc₀).mp h_sqrt_gt
+        have h1 : 4 * (((p : ℝ) + 1) * C_c) < c₀ * √x :=
+          by linarith [(div_lt_iff₀ hc₀).mp h_sqrt_gt]
         nlinarith [hC_pos.le]
       linarith
     have hQ_ge : (c₀ / 2) * x ^ p ≤ |(hbPairQ P₀ Q₀ θ).eval x| :=
@@ -1016,7 +1016,7 @@ lemma hbPair_tail_no_zero {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (hQ
     have hP_deg : (hbPairP P₀ Q₀ θ).natDegree ≤ p := hbPairP_natDegree_le hQ₀ θ
     have hsatP := (hbPair_normalized hQ₀ θ).2.2
     change (if m % 2 = 1 then (hbPairP P₀ Q₀ θ).coeff ((m - 1) / 2) = P₀.coeff ((m - 1) / 2) else _) at hsatP
-    rw [if_pos ho] at hsatP
+    simp only [ho, ↓reduceIte] at hsatP
     have hP_low := poly_lower_of_lead (hbPairP P₀ Q₀ θ) hP_deg hPc hx1
     rw [hsatP] at hP_low
     have hQ_deg : (hbPairQ P₀ Q₀ θ).natDegree ≤ p - 1 := by
@@ -1038,7 +1038,8 @@ lemma hbPair_tail_no_zero {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (hQ
         rwa [Real.sqrt_sq hx0.le] at h
       have h_div : (p : ℝ) * C_c / x ≤ c₀ / 2 := by
         rw [div_le_iff₀ hx0]
-        have h1 : 4 * (p : ℝ) * C_c < c₀ * √x := (div_lt_iff₀ hc₀).mp h_sqrt_gt
+        have h1 : 4 * (p : ℝ) * C_c < c₀ * √x :=
+          by linarith [(div_lt_iff₀ hc₀).mp h_sqrt_gt]
         nlinarith [hC_pos.le]
       linarith
     have hP_ge : (c₀ / 2) * x ^ p ≤ |(hbPairP P₀ Q₀ θ).eval x| :=
@@ -1158,9 +1159,11 @@ private lemma hbPair_N_diff_bound (P₀ Q₀ : ℝ[X]) {a b : ℝ} (_hab : a ≤
               ((d_max : ℝ) * M_x ^ d_max * (max M_Ai 0 + max M_Ai' 0)) * ‖θ‖ := by ring
           rw [hle]
           refine mul_le_mul_of_nonneg_right ?_ (norm_nonneg _)
-          have h_main : (d_max : ℝ) * M_x ^ d_max * (max M_Ai 0 + max M_Ai' 0) ≤
-              ((d_max : ℝ) + 1) * M_x ^ d_max * (max M_Ai 0 + max M_Ai' 0 + 1) := by
-            gcongr <;> linarith [show 0 ≤ max M_Ai 0 + max M_Ai' 0 by positivity]
+          have h_d : (d_max : ℝ) * M_x ^ d_max ≤ ((d_max : ℝ) + 1) * M_x ^ d_max :=
+            mul_le_mul_of_nonneg_right (by linarith) (by positivity)
+          have h_main : ((d_max : ℝ) * M_x ^ d_max) * (max M_Ai 0 + max M_Ai' 0) ≤
+              (((d_max : ℝ) + 1) * M_x ^ d_max) * (max M_Ai 0 + max M_Ai' 0 + 1) :=
+            mul_le_mul h_d (by linarith) (by positivity) (by positivity)
           exact h_main.trans (by dsimp [C_d]; linarith)
 
 /-- Near `0 : HbParam P₀ Q₀`, any family of `m` zeros `(Z_m y, y i)` close to `(tm₀, i.1)` IS
@@ -1241,7 +1244,6 @@ lemma hbPair_nodes_identify {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (
             Polynomial.eval_mul, Polynomial.eval_C, Polynomial.eval_X_pow]
           congr 1
           refine Finset.sum_congr rfl fun j _ => ?_
-          simp only [Polynomial.eval_natCast]
           ring
         rw [this]
         exact ((poly_continuous_eval' P₀.derivative).comp continuous_fst).add
@@ -1258,7 +1260,6 @@ lemma hbPair_nodes_identify {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (
             Polynomial.eval_mul, Polynomial.eval_C, Polynomial.eval_X_pow]
           congr 1
           refine Finset.sum_congr rfl fun k _ => ?_
-          simp only [Polynomial.eval_natCast]
           ring
         rw [this]
         exact ((poly_continuous_eval' Q₀.derivative).comp continuous_fst).add
@@ -1352,9 +1353,10 @@ lemma hbPair_nodes_identify {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (
     intro t ht
     simpa [ht] using hr_pos t ht
   have hr_unif_le_r₀ : r_unif ≤ r₀ := by
-    have := Finset.inf'_le (f := fun t => if ht : t ∈ S₀ then r_t t ht else 1) hs₀.2.2.2.1
-    simp only [hs₀.2.2.2.1, ↓reduceDIte] at this
-    exact this.trans (hr_le tm₀ hs₀.2.2.2.1)
+    have h1 := Finset.inf'_le (f := fun t => if ht : t ∈ S₀ then r_t t ht else 1) hs₀.2.2.2.1
+    split_ifs at h1
+    · exact h1.trans (hr_le _ _)
+    · exact absurd hs₀.2.2.2.1 (by assumption)
   let r : ℝ := r_unif / 2
   have hr_pos' : 0 < r := half_pos hr_unif_pos
   have hr_lt_r₀ : r < r₀ := by dsimp [r]; linarith [hr_unif_pos, hr_unif_le_r₀]
@@ -1401,6 +1403,7 @@ lemma hbPair_nodes_identify {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (
       exact Complex.ofReal_eq_zero.mpr h0
     have hx_notin : x ∉ S₀ := fun hmem => by
       have hge := (Set.mem_iInter₂.mp hx.2 x hmem)
+      change r ≤ |x - x| at hge
       rw [sub_self, abs_zero] at hge
       linarith
     have h_le_sub := h_sub x hxN hx_notin
@@ -1532,7 +1535,7 @@ lemma hbPair_nodes_identify {P₀ Q₀ : ℝ[X]} (hHB₀ : AiryPQHB P₀ Q₀) (
         have := h_zm_lt_yi i
         linarith [abs_lt.mp hzm, h_gap_r.2.1]
     linarith
-  have h_eq_ST : S_θ = T_y := (Finset.eq_of_subset_of_card_le h_sub_ST hS_θ_card.ge).symm
+  have h_eq_ST : S_θ = T_y := (Finset.eq_of_subset_of_card_le h_sub_ST hS_θ_card.le).symm
   refine ⟨h_zm_lt_yi, h_eq_ST, ?_⟩
   have hzm_in_S : zm ∈ S_θ := h_eq_ST ▸ Finset.mem_insert_self _ _
   have h_zm_le : ∀ w ∈ S_θ, zm ≤ w := fun w hw => by
@@ -1774,21 +1777,23 @@ noncomputable def hbBoundaryChart : HbBoundaryChart hHB₀ hQ₀ := by
     intro i
     have hcont_i : ContinuousAt (fun y : Y₀ → ℝ => |y i - i.1|) y₀ :=
       ((continuous_apply i).sub continuous_const).abs.continuousAt
-    exact (hcont_i.tendsto).eventually (by
-      have := gt_mem_nhds hr_pos
-      simpa [y₀])
+    have h_nhds : {x : ℝ | x < r} ∈ 𝓝 |y₀ i - i.1| := by
+      dsimp [y₀]; rw [sub_self, abs_zero]; exact Iio_mem_nhds hr_pos
+    exact hcont_i.tendsto.eventually h_nhds
   filter_upwards [hθ_ev, hzm_ev, h_ev_θ_norm, h_ev_zm_dist, h_ev_y_dist] with
     y hyθ hyzm hθn hzmd hyd
   obtain ⟨hHB_y, hQ_y, hm_y, h_nid⟩ := h_id (θ_fn y) hθn
   have hzm_zero : airyPQN (hbPairP P₀ Q₀ (θ_fn y)) (hbPairQ P₀ Q₀ (θ_fn y)) (zm_fn y : ℂ) = 0 := by
     rw [airyPQN_ofReal]
     have h1 : Ψ (y, zm_fn y) = 0 := hyzm.trans hΨ_0
-    simpa [Ψ] using h1
+    dsimp [Ψ] at h1
+    exact Complex.ofReal_eq_zero.mpr h1
   have hy_zero : ∀ i : Y₀, airyPQN (hbPairP P₀ Q₀ (θ_fn y)) (hbPairQ P₀ Q₀ (θ_fn y)) (y i : ℂ) = 0 := by
     intro i
     rw [airyPQN_ofReal]
     have h1 : Φ (y, θ_fn y) i = 0 := by rw [hyθ, hΦ_0]; simp
-    simpa [Φ] using h1
+    dsimp [Φ] at h1
+    exact Complex.ofReal_eq_zero.mpr h1
   exact ⟨hHB_y, hQ_y, hm_y, h_nid y (zm_fn y) hzmd hyd hzm_zero hy_zero⟩
 
 end ImplicitBoundary
@@ -1933,7 +1938,7 @@ theorem hb_local_boundary_signs (C : HbBoundaryChart hHB₀ hQ₀) :
       if t.1 = hbMinZero hHB_y hQ_y then δ₀ else 0
     have hh_norm : ‖h_vec‖ = |δ₀| := by
       have h_le : ‖h_vec‖ ≤ |δ₀| := (pi_norm_le_iff_of_nonneg (abs_nonneg _)).mpr fun t => by
-        dsimp [h_vec]; split_ifs <;> simp [Real.norm_eq_abs]
+        dsimp [h_vec]; split_ifs <;> simp
       have h_ge : |δ₀| ≤ ‖h_vec‖ := by
         have := norm_le_pi_norm h_vec (hbMinNode hHB_y hQ_y)
         simpa [h_vec, hbMinNode] using this
@@ -2005,15 +2010,26 @@ theorem hb_boundary_diff (C : HbBoundaryChart hHB₀ hQ₀)
   let h_s : ℝ → ↥S₀ → ℝ := fun s t =>
     if ht : t.1 = tm₀ then C.zm (y₀ + s • e_i) - tm₀
     else (y₀ + s • e_i) ⟨t.1, Finset.mem_erase.mpr ⟨ht, t.2⟩⟩ - t.1
+  have hzm0 : C.zm y₀ = tm₀ := C.zm_at_ref
   have h_hs_eq : ∀ s : ℝ, ∀ t : ↥S₀,
       h_s s t = if t.1 = tm₀ then C.zm (y₀ + s • e_i) - tm₀
         else if t.1 = i.1 then s else 0 := fun s t => by
     dsimp [h_s]
-    split_ifs with h1
+    split_ifs with h1 h2
     · rfl
-    · by_cases hti : t.1 = i.1
-      · simp [y₀, e_i, Pi.add_apply, Pi.smul_apply, smul_eq_mul, Pi.single_apply, Subtype.ext_iff, hti]
-      · simp [y₀, e_i, Pi.add_apply, Pi.smul_apply, smul_eq_mul, Pi.single_apply, Subtype.ext_iff, hti]
+    · let j : Y₀ := ⟨t.1, Finset.mem_erase.mpr ⟨h1, t.2⟩⟩
+      have heq : j = i := Subtype.ext h2
+      change y₀ j + s * (Pi.single (M := fun _ : Y₀ => ℝ) i 1) j - t.1 = s
+      rw [heq, Pi.single_eq_same]
+      have hyj : y₀ i = i.1 := rfl
+      linarith
+    · let j : Y₀ := ⟨t.1, Finset.mem_erase.mpr ⟨h1, t.2⟩⟩
+      have hne : j ≠ i := fun h => h2 (congrArg Subtype.val h)
+      change y₀ j + s * (Pi.single (M := fun _ : Y₀ => ℝ) i 1) j - t.1 = 0
+      rw [Pi.single_eq_of_ne hne]
+      have hyj : y₀ j = t.1 := rfl
+      rw [hyj]
+      ring
   have h_hs_tend : Tendsto h_s (𝓝 (0 : ℝ)) (𝓝 0) := by
     rw [tendsto_pi_nhds]
     intro t
@@ -2025,17 +2041,18 @@ theorem hb_boundary_diff (C : HbBoundaryChart hHB₀ hQ₀)
       exact hzm_l
     · have h_cont_t : Continuous (fun s : ℝ =>
           (y₀ + s • e_i) ⟨t.1, Finset.mem_erase.mpr ⟨h1, t.2⟩⟩ - t.1) :=
-        ((continuous_apply ⟨t.1, Finset.mem_erase.mpr ⟨h1, t.2⟩⟩).comp
-          (continuous_const.add (continuous_id.smul continuous_const))).sub continuous_const
+        ((continuous_apply (⟨t.1, Finset.mem_erase.mpr ⟨h1, t.2⟩⟩ : Y₀)).comp
+          ((continuous_const (y := y₀)).add
+            (continuous_id.smul (continuous_const (y := e_i))))).sub continuous_const
       have hct : ContinuousAt (fun s : ℝ =>
           (y₀ + s • e_i) ⟨t.1, Finset.mem_erase.mpr ⟨h1, t.2⟩⟩ - t.1) 0 := h_cont_t.continuousAt
       simpa [y₀] using hct.tendsto
   -- `h_s s` is `O(|s|)` near `0`
   have h_hs_bigO : h_s =O[𝓝 (0 : ℝ)] id := by
     have h_zm_o : (fun s : ℝ => C.zm (y₀ + s • e_i) - tm₀) =O[𝓝 (0 : ℝ)] id := by
-      change (fun s : ℝ => C.zm (y₀ + s • e_i) - tm₀) =O[𝓝 (0 : ℝ)] (fun s : ℝ => s)
-      dsimp [y₀, tm₀]
-      simpa [C.zm_at_ref] using h_deriv_line.isBigO_sub
+      have h1 := h_deriv_line.isBigO_sub
+      simp only [zero_smul, add_zero, sub_zero, hzm0] at h1
+      exact h1
     rw [Asymptotics.isBigO_iff] at h_zm_o ⊢
     obtain ⟨C₁, hC₁⟩ := h_zm_o
     refine ⟨max C₁ 1, hC₁.mono fun s hs => ?_⟩
@@ -2048,7 +2065,9 @@ theorem hb_boundary_diff (C : HbBoundaryChart hHB₀ hQ₀)
     · simp only [norm_zero]; exact mul_nonneg (by positivity) (norm_nonneg s)
   -- `hbMultiI hHB₀ hQ₀ (h_s s) = 0` for `s` near `0`
   have h_line_tend : Tendsto (fun s : ℝ => y₀ + s • e_i) (𝓝 (0 : ℝ)) (𝓝 y₀) := by
-    simpa using (tendsto_const_nhds (x := y₀)).add (tendsto_id.smul (tendsto_const_nhds (x := e_i)))
+    have h1 := (tendsto_const_nhds (f := 𝓝 (0 : ℝ)) (x := y₀)).add
+      (tendsto_id.smul (tendsto_const_nhds (x := e_i)))
+    simpa using h1
   have h_ev_I0 : ∀ᶠ s in 𝓝 (0 : ℝ), hbMultiI hHB₀ hQ₀ (h_s s) = 0 := by
     filter_upwards [h_line_tend (hb_local_boundary_signs hHB₀ hQ₀ C),
       h_line_tend C.local_spec] with s ⟨hI0, _, _⟩ ⟨_, _, _, _, _, _⟩
@@ -2062,20 +2081,20 @@ theorem hb_boundary_diff (C : HbBoundaryChart hHB₀ hQ₀)
           have hj_ne : j.1 ≠ tm₀ := (Finset.mem_erase.mp j.2).1
           have hj_mem : j.1 ∈ S₀ := (Finset.mem_erase.mp j.2).2
           have hnj := hnodes ⟨j.1, hj_mem⟩ hj_ne
-          simp only [h_s, S₀, tm₀, hj_ne, ↓reduceDIte, ↓reduceIte] at hnj
+          simp only [h_s, S₀, tm₀, hj_ne, ↓reduceDIte] at hnj
           simpa [add_sub_cancel] using hnj
         · have hx' : x ≤ hbMinZero hHB₀ hQ₀ + h_s s (hbMinNode hHB₀ hQ₀) := by
-            simp only [h_s, hbMinNode, tm₀, ↓reduceDIte, ↓reduceIte]
+            simp only [h_s, hbMinNode, tm₀, ↓reduceDIte]
             linarith
           exact hhalf x hx'
       · rintro ⟨f, hf, hnz, hy, hhalf, hr⟩
         refine ⟨f, hf, hnz, ?_, fun x hx => ?_, hr⟩
         · intro t ht
           have hyt := hy ⟨t.1, Finset.mem_erase.mpr ⟨ht, t.2⟩⟩
-          simp only [h_s, S₀, tm₀, ht, ↓reduceDIte, ↓reduceIte]
+          simp only [h_s, S₀, tm₀, ht, ↓reduceDIte]
           simpa [add_sub_cancel] using hyt
         · have hx' : x ≤ C.zm (y₀ + s • e_i) := by
-            simp only [h_s, hbMinNode, tm₀, ↓reduceDIte, ↓reduceIte] at hx
+            simp only [h_s, hbMinNode, tm₀, ↓reduceDIte] at hx
             linarith
           exact hhalf x hx'
     unfold hbMultiI
@@ -2110,9 +2129,9 @@ theorem hb_boundary_diff (C : HbBoundaryChart hHB₀ hQ₀)
     rw [hti_val, htm_val]
     rfl
   have h_zm_o2 : (fun s : ℝ => (C.zm (y₀ + s • e_i) - tm₀) - s * d_i) =o[𝓝 (0 : ℝ)] id := by
-    change (fun s : ℝ => (C.zm (y₀ + s • e_i) - tm₀) - s * d_i) =o[𝓝 (0 : ℝ)] (fun s : ℝ => s)
-    dsimp [y₀, tm₀]
-    simpa [sub_zero, smul_eq_mul, C.zm_at_ref] using hasDerivAt_iff_isLittleO.mp h_deriv_line
+    have h1 := hasDerivAt_iff_isLittleO.mp h_deriv_line
+    simp only [zero_smul, add_zero, sub_zero, smul_eq_mul, hzm0] at h1
+    exact h1
   have h_comb_o : (fun s : ℝ =>
       -(hbNodeCoeff hHB₀ hQ₀ i.1 + hbNodeCoeff hHB₀ hQ₀ tm₀ * d_i) * s) =o[𝓝 (0 : ℝ)] id := by
     have h1 := h_o_s.congr' (h_ev_I0.mono fun s hs => by simp only; rw [hs, h_lin_s s])
