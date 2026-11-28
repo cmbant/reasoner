@@ -9,10 +9,11 @@ public import FormalResearch.SignUncertainty.FctRSymbol
 public import FormalResearch.SignUncertainty.FctDcomp
 public import FormalResearch.SignUncertainty.FctWarpAdmiss
 public import FormalResearch.SignUncertainty.FctWarpZero
+public import FormalResearch.SignUncertainty.FctWarpSolve
 public import FormalResearch.SignUncertainty.FctSplittingDescent
 public import FormalResearch.SignUncertainty.FctDescentOfRay
 public import FormalResearch.SignUncertainty.FctSplittingSegment
-public import FormalResearch.SignUncertainty.FctSplittingRest
+public import FormalResearch.SignUncertainty.FctSplittingLogLog
 
 /-!
 # `fct:main-hankel`: the five-term upper bound for the Hankel thresholds (F2a skeleton)
@@ -50,10 +51,11 @@ with it because the limit is `0`.)
 `K4 ≥ 1` (`fct:comp-D`).  The physical bump `Bphys` is **not** data: `fctBphys` is the definition `(fct:B-physical)` with `H₀ = H_*`, `n_c = 1/N_c`
 (`(fct:B-five-def)`).  Likewise the compensator `D_{τ₁}` is the definition `fctDcomp K4 alpha` (`FctDcomp.lean`).
 
-**Conditional on the fields of `FctMainHankelInputs`** (`splitting_rest`, `descent_ray`, `warp_solve`, `physical_positive`): each is
+**Conditional on the fields of `FctMainHankelInputs`** (`warp_solve`, `physical_positive`): each is
 the output of the named TeX lemma(s), stated about the concrete multipliers and these data.  The former fields `bump_profile` and `physical_budget` are
-**proved** for `fctBphys` (`fctBphys_bumpProfile`, `fctBphys_physicalBudget`, from `fctMainHankel_bump_fields_concrete_of_factors`), and the former field `warp_admissible` is
-**proved** (`fctWarp_admissible`, `FctWarpAdmiss.lean`: Step 1 of `fct:s4-proof` for the warp summand, from `fct:comp-D`, `uct:outer-growth` and the field `splitting`).  Proved lemmas
+**proved** for `fctBphys` (`fctBphys_bumpProfile`, `fctBphys_physicalBudget`, from `fctMainHankel_bump_fields_concrete_of_factors`), the former field `warp_admissible` is
+**proved** (`fctWarp_admissible`, `FctWarpAdmiss.lean`: Step 1 of `fct:s4-proof` for the warp summand, from `fct:comp-D`, `uct:outer-growth` and `splitting`), and the former fields
+`descent_ray` (`fctRayStmt_uncond` in `FctRayShift.lean`) and `splitting_rest` (`fctSplittingRest_uncond` in `FctSplittingLogLog.lean`) are **proved** unconditionally from `FctWarpSolveStmt K4` (`fctDescent_uncond`, `fctSplitting_uncond`).  Proved lemmas
 (`uct:admiss` = `uct_admiss_full`, `mat:T7`, `hb_thresholds_lower`, `uct:airy-trans`, `uct:pos-floor`, `uct:outer-growth`,
 `fct:bump-5`, `uct:seed-asymp` (1), `fct:moment-solver`, `fct:phikill`, `fct:edge-ibp`, `fct:bump-sym-check`, `fct:physical-budget`) are used directly or enter through the
 discharge of a field, not as fields.
@@ -78,7 +80,17 @@ namespace FormalResearch.SignUncertainty
 
 /-! ### The physical bump -/
 
-/-- **The physical bump `B_c^ε`** (`(fct:B-physical)` with `H₀ = H_*` and `n_c = 1/N_c`, `(fct:B-five-def)`): `physBump` with the cutoff `χ`, `K₄`, the
+/-- Canonical smooth cutoff `χ(s) = Real.smoothTransition (2s - 1)` (`0` on `s ≤ 1/2`, `1` on `s ≥ 1`). -/
+noncomputable def fctChi (s : ℝ) : ℝ := Real.smoothTransition (2 * s - 1)
+
+/-- `fctChi` satisfies `IsCutoff`. -/
+theorem fctChi_isCutoff : IsCutoff fctChi where
+  smooth := Real.smoothTransition.contDiff.comp ((contDiff_const.mul contDiff_id).sub contDiff_const)
+  zero _ hs := Real.smoothTransition.zero_of_nonpos (by linarith)
+  one _ hs := Real.smoothTransition.one_of_one_le (by linarith)
+  mem _ := ⟨Real.smoothTransition.nonneg _, Real.smoothTransition.le_one _⟩
+
+/-- **The physical bump `B_c^ε`** (`(fct:B-physical)` with `H₀ = H_*` and `n_c = 1/N_c`, `(fct:B-five-def)`): `physBump` with `fctChi`, `K₄`, the
 warp datum `O = I_osc^{warp}` built from `(T₁, α)` (`physOscDatum`, `fct:warp-asymp` (3)), `F = (L̃/(L-L₁)) I_fl(L̃)` (`physF`), `T₄ = τ₀⁴ I_fl`.  The
 argument order is `(ε, c, K₁)`. -/
 noncomputable def fctBphys (χ : ℝ → ℝ) (K4 : ℝ) (T1 alpha Nc : ℝ → ℝ → ℝ) : ℝ → ℝ → ℝ → ℝ → ℝ :=
@@ -107,60 +119,43 @@ theorem fctBphys_physicalBudget {χ : ℝ → ℝ} (hχ : IsCutoff χ) {K4 : ℝ
   class (`I_ε(L₁, α) = 0`, `FctWarpZero.lean`), and `T₁ = (c/π²)e^{L₁}`, `α` are the chosen pair (`FctMainHankelInputs.T1`, `.alpha`); the IBP identity
   `(fct:exact-ibp)` is not stated;
 * `Nc = fctNc warp_solve`, the normalisation `N_c = Φ^warp_c(1) = 1 - F₊(1)` of `fct:splitting` (`(fct:Phihat-def)`), likewise a definition; the physical bump uses `n_c = 1/N_c`;
-* the deliberate parameters `chi` (the cutoff of `(fct:B-physical)`, `IsCutoff chi`: smooth, `1` near `0`, supported in a bounded interval; the
-  paper fixes no particular one) and `K4 ≥ 1` (the absolute constant of `fct:comp-D`).
+* the deliberate parameter `K4 ≥ 1` (the absolute constant of `fct:comp-D`; `chi := fctChi` is now fixed concretely via `fctChi_isCutoff`).
 
 The fields are the TeX statements about these (the order of constants `K_* → K₄ → K₀ → K₁ → K_d → c₀` is built into the
 quantifiers). -/
 structure FctMainHankelInputs where
-  /-- The cutoff `χ` of `(fct:B-physical)` (a deliberate parameter). -/
-  chi : ℝ → ℝ
-  /-- `χ` is a cutoff (`IsCutoff`). -/
-  chi_cutoff : IsCutoff chi
   /-- The absolute constant `K₄ ≥ 1` (`fct:comp-D`; a deliberate parameter). -/
   K4 : ℝ
   /-- `K₄ ≥ 1`. -/
   K4_ge_one : 1 ≤ K4
-  /-- `fct:warp-asymp` (1) (`FctWarpSolveStmt`): exact complex zero solve, a unique `(L₁, α)` with `I_ε(L₁, α) = 0`, `|T₁ - Δ₅^ε(c)| ≤ C c⁻¹`,
-  `|α| ≤ C c^{-2/3}`. -/
-  warp_solve : FctWarpSolveStmt K4
-  /-- `fct:splitting` (1)-(2) for `Φ̂_c`, the clauses not yet proved (`FctSplittingRestStmt`): `C²` left edge trace, the `log log` growth
-  on `S̄` and the edge-trace derivative bounds.  Holomorphy on `Re ζ > 0`, real symmetry, continuity on `S̄` and `Φ̂_c = O(ζ³)` at `0` are proved from `descent` (`fctPhiHat_differentiableOn`, `fctPhiHat_conj`, `fctPhiHat_cont_cubic`), so
-  `FctSplittingStmt (fctPhiHat ·)` is the theorem `FctMainHankelInputs.splitting` (`fctSplitting_of_rest`).  With the proved `fct:comp-D` (`fctDcomp_compData`) and `H_*/G_ε`
-  (`uct:outer-growth`) it gives Step 1 of `fct:s4-proof` for the warp summand (`fctWarp_admissible`) and the corner behaviour that makes `ctWwarp → 0` at `ζ = 0`
-  (`ctWwarp_tendsto_zero`; the singularity `ζ^{-5/2}` of `H_*/G_ε` is cancelled). -/
-  splitting_rest : FctSplittingRestStmt (fctPhiHat warp_solve)
-  /-- `fct:splitting` (1), proof steps (a)-(e): the interior-strip estimates along the vertical ray `ζ + i[0,∞)` (`FctRayStmt`: ray representation of `Ψ_c`,
-  `Im g_tan ≥ 0`, `|Φ'| ≳ log(2+y)`, `|Φ''| ≤ C`, `|W^{(j)}| ≲ |A₀(ζ)| e^{-3s}`, `W(ζ)/A₀(ζ) = 1 + O(c⁻¹/log)`).  From it `(fct:F-38-bnd)`, `|F(σ+iy)| ≤ C c⁻¹/log(2+|y|)` on
-  `5/16 ≤ σ ≤ 7/16` (`FctDescentStmt`), is the theorem `FctMainHankelInputs.descent` (`fctDescent_of_ray`: the two integrations by parts).  `N_c = 1 + O(c⁻¹)`
-  (`fct:splitting` (2), the former field `splitting_norm`) is the theorem `FctMainHankelInputs.splitting_norm`; the integrability of the integrals defining `Ψ_c` and `F_±`
-  (the former field `splitting_int`) is `FctMainHankelInputs.splitting_int`. -/
-  descent_ray : FctRayStmt warp_solve
   /-- `fct:physical-positive` (iii)-(iv) with its inputs `fct:warp-asymp` (2)-(3), `fct:splitting`, `fct:unscaled-cusp`,
   `fct:cusp-edge`, `uct:seed-asymp` (1)-(2) (`(fct:hg1-win)`-`(fct:hg1-mac)`), `fct:bump-5`, `fct:bump-sym-check`,
   `uct:pos-floor` (`Kfl = K_* ≥ 1`): `K₀, K₁` can be chosen independently of `K_d` so that the density of `W̃_c^ε` is positive on
   `L ≥ L_T`, i.e. `f ≥ 0` on `Δ ≥ T₁ + (2K_d/β₁) c^{-3/4}`. -/
   physical_positive : ∃ Kfl K0 K1 : ℝ, 1 ≤ Kfl ∧ 0 < K0 ∧ 0 < K1 ∧ ∀ Kd : ℝ, 0 < Kd → ∃ c₀ : ℝ,
     ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
-      ∀ Δ : ℝ, fctWarpT1 warp_solve ε c + 2 * Kd / hankelBeta1 * c ^ (-(3 / 4 : ℝ)) ≤ Δ →
-        0 ≤ admissF c (ctWtot (fctPhiHat warp_solve) (fctDcomp K4 (fctWarpAlpha warp_solve))
-          (fctBphys chi K4 (fctWarpT1 warp_solve) (fctWarpAlpha warp_solve) (fctNc warp_solve)) ε c Kfl K0 K1 Kd) Δ
+      ∀ Δ : ℝ, fctWarpT1 (fctWarpSolve_uncond K4_ge_one) ε c + 2 * Kd / hankelBeta1 * c ^ (-(3 / 4 : ℝ)) ≤ Δ →
+        0 ≤ admissF c (ctWtot (fctPhiHat (fctWarpSolve_uncond K4_ge_one))
+          (fctDcomp K4 (fctWarpAlpha (fctWarpSolve_uncond K4_ge_one)))
+          (fctBphys fctChi K4 (fctWarpT1 (fctWarpSolve_uncond K4_ge_one))
+            (fctWarpAlpha (fctWarpSolve_uncond K4_ge_one)) (fctNc (fctWarpSolve_uncond K4_ge_one))) ε c Kfl K0 K1 Kd) Δ
 
 /-- `Φ̂_c` of the inputs (`fct:splitting`, `(fct:Phihat-def)`): the definition `fctPhiHat`. -/
-noncomputable abbrev FctMainHankelInputs.PhiHat (I : FctMainHankelInputs) : ℝ → ℝ → ℂ → ℂ := fctPhiHat I.warp_solve
+noncomputable abbrev FctMainHankelInputs.PhiHat (I : FctMainHankelInputs) : ℝ → ℝ → ℂ → ℂ :=
+  fctPhiHat (fctWarpSolve_uncond I.K4_ge_one)
 
 /-- `N_c` of the inputs (`fct:splitting`, `(fct:Phihat-def)`): the definition `fctNc`. -/
-noncomputable abbrev FctMainHankelInputs.Nc (I : FctMainHankelInputs) : ℝ → ℝ → ℝ := fctNc I.warp_solve
+noncomputable abbrev FctMainHankelInputs.Nc (I : FctMainHankelInputs) : ℝ → ℝ → ℝ :=
+  fctNc (fctWarpSolve_uncond I.K4_ge_one)
 
-/-- **`(fct:F-38-bnd)`** (`fct:splitting` (1), the former field `descent`): `|F(σ+iy)| ≤ C c⁻¹/log(2+|y|)` on `5/16 ≤ σ ≤ 7/16`, from the ray estimates `descent_ray`
-(`fctDescent_of_ray`). -/
-theorem FctMainHankelInputs.descent (I : FctMainHankelInputs) : FctDescentStmt I.warp_solve :=
-  fctDescent_of_ray I.K4_ge_one I.descent_ray
+/-- **`(fct:F-38-bnd)`** (`fct:splitting` (1), former field `descent`/`descent_ray`): `|F(σ+iy)| ≤ C c⁻¹/log(2+|y|)` on `5/16 ≤ σ ≤ 7/16` (`fctDescent_uncond`). -/
+theorem FctMainHankelInputs.descent (I : FctMainHankelInputs) :
+    FctDescentStmt (fctWarpSolve_uncond I.K4_ge_one) :=
+  fctDescent_uncond I.K4_ge_one (fctWarpSolve_uncond I.K4_ge_one)
 
-/-- `fct:splitting` (1)-(2) for `Φ̂_c` (`FctSplittingStmt`; the former field `splitting`): holomorphy and real symmetry from `descent`, the rest from `splitting_rest`
-(`fctSplitting_of_rest`). -/
+/-- `fct:splitting` (1)-(2) for `Φ̂_c` (`FctSplittingStmt`; former fields `splitting`/`splitting_rest`), proved unconditionally (`fctSplitting_uncond`). -/
 theorem FctMainHankelInputs.splitting (I : FctMainHankelInputs) : FctSplittingStmt I.PhiHat :=
-  fctSplitting_of_rest I.K4_ge_one I.descent I.splitting_rest
+  fctSplitting_uncond I.K4_ge_one (fctWarpSolve_uncond I.K4_ge_one)
 
 /-- `fct:splitting` (2): `N_c = 1 + O_{K₄}(c⁻¹)` (the former field `splitting_norm`), from `descent` (`fctSplittingNorm_of_descent`). -/
 theorem FctMainHankelInputs.splitting_norm (I : FctMainHankelInputs) : FctSplittingNormStmt I.Nc :=
@@ -168,18 +163,21 @@ theorem FctMainHankelInputs.splitting_norm (I : FctMainHankelInputs) : FctSplitt
 
 /-- Integrability of the integrals defining `Ψ_c` and the Cauchy splitting `F_±` (`FctSplittingIntStmt`; the former field `splitting_int`), from `descent`
 (`fctSplittingInt_of_descent`): no Bochner junk value enters `fctPhiHat`, `fctNc`. -/
-theorem FctMainHankelInputs.splitting_int (I : FctMainHankelInputs) : FctSplittingIntStmt I.warp_solve :=
+theorem FctMainHankelInputs.splitting_int (I : FctMainHankelInputs) :
+    FctSplittingIntStmt (fctWarpSolve_uncond I.K4_ge_one) :=
   fctSplittingInt_of_descent I.K4_ge_one I.descent
 
-/-- `T₁ = (c/π²) e^{L₁}` of the zero pair of `warp_solve` (`fct:warp-asymp` (1)). -/
-noncomputable abbrev FctMainHankelInputs.T1 (I : FctMainHankelInputs) : ℝ → ℝ → ℝ := fctWarpT1 I.warp_solve
+/-- `T₁ = (c/π²) e^{L₁}` of the zero pair of `fctWarpSolve_uncond` (`fct:warp-asymp` (1)). -/
+noncomputable abbrev FctMainHankelInputs.T1 (I : FctMainHankelInputs) : ℝ → ℝ → ℝ :=
+  fctWarpT1 (fctWarpSolve_uncond I.K4_ge_one)
 
-/-- `α` of the zero pair of `warp_solve` (`fct:warp-asymp` (1)). -/
-noncomputable abbrev FctMainHankelInputs.alpha (I : FctMainHankelInputs) : ℝ → ℝ → ℝ := fctWarpAlpha I.warp_solve
+/-- `α` of the zero pair of `fctWarpSolve_uncond` (`fct:warp-asymp` (1)). -/
+noncomputable abbrev FctMainHankelInputs.alpha (I : FctMainHankelInputs) : ℝ → ℝ → ℝ :=
+  fctWarpAlpha (fctWarpSolve_uncond I.K4_ge_one)
 
-/-- The size bounds of `fct:warp-asymp` (1) for the chosen pair (the former field `warp_zero`), from `warp_solve`. -/
+/-- The size bounds of `fct:warp-asymp` (1) for the chosen pair (the former field `warp_zero`), from `fctWarpSolve_uncond`. -/
 theorem FctMainHankelInputs.warp_zero (I : FctMainHankelInputs) : FctWarpZeroStmt I.T1 I.alpha :=
-  fctWarpZero_of_solve I.warp_solve
+  fctWarpZero_of_solve (fctWarpSolve_uncond I.K4_ge_one)
 
 /-- `D_{τ₁}` of the inputs (`fct:comp-D`). -/
 noncomputable abbrev FctMainHankelInputs.Dcomp (I : FctMainHankelInputs) : ℝ → ℝ → ℂ → ℂ :=
@@ -187,15 +185,15 @@ noncomputable abbrev FctMainHankelInputs.Dcomp (I : FctMainHankelInputs) : ℝ �
 
 /-- The physical bump `B_c^ε` of the inputs (`(fct:B-five-def)`). -/
 noncomputable abbrev FctMainHankelInputs.Bphys (I : FctMainHankelInputs) : ℝ → ℝ → ℝ → ℝ → ℝ :=
-  fctBphys I.chi I.K4 I.T1 I.alpha I.Nc
+  fctBphys fctChi I.K4 I.T1 I.alpha I.Nc
 
 /-- `bump_profile` (former field), proved. -/
 theorem FctMainHankelInputs.bump_profile (I : FctMainHankelInputs) : FctBumpProfileStmt I.Bphys :=
-  fctBphys_bumpProfile I.chi_cutoff I.K4_ge_one I.warp_zero I.splitting_norm
+  fctBphys_bumpProfile fctChi_isCutoff I.K4_ge_one I.warp_zero I.splitting_norm
 
 /-- `physical_budget` (former field), proved. -/
 theorem FctMainHankelInputs.physical_budget (I : FctMainHankelInputs) : FctPhysicalBudgetStmt I.Bphys :=
-  fctBphys_physicalBudget I.chi_cutoff I.K4_ge_one I.warp_zero I.splitting_norm
+  fctBphys_physicalBudget fctChi_isCutoff I.K4_ge_one I.warp_zero I.splitting_norm
 
 /-! ### The assembly -/
 
@@ -220,7 +218,9 @@ theorem fct_main_hankel (I : FctMainHankelInputs) :
   obtain ⟨cb, hcb⟩ := hbud K1 hK1
   obtain ⟨cp, hcp⟩ := hpos Kd hKdpos
   obtain ⟨cbp, hcbp⟩ := I.bump_profile K1 hK1
-  obtain ⟨cwa, hcwa⟩ := fctWarp_admissible I.K4_ge_one (alpha := I.alpha) ⟨C1, cw, fun ε c hε hc => (hwarp ε c hε hc).2⟩ I.splitting
+  obtain ⟨cwa, hcwa⟩ := fctWarp_admissible I.K4_ge_one (alpha := I.alpha)
+    ⟨C1, cw, fun ε c hε hc => (hwarp ε c hε hc).2⟩ I.splitting
+    (fctWarp_far_of_rest I.K4_ge_one I.descent)
   obtain ⟨cs, hcs⟩ := I.splitting
   obtain ⟨CD, cD, hD⟩ := fctDcomp_bound I.K4_ge_one (alpha := I.alpha) ⟨C1, cw, fun ε c hε hc => (hwarp ε c hε hc).2⟩
   have hβ := hankelBeta1_pos

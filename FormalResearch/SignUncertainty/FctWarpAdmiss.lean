@@ -323,9 +323,9 @@ structure SplittingData (Φ : ℂ → ℂ) : Prop where
     -- `Φ̂_c = O(ζ³)` at `ζ = 0` (`fct:splitting` (1))
     (∀ ζ ∈ closedStrip, ‖ζ‖ ≤ 1 → ‖Φ ζ‖ ≤ M * ‖ζ‖ ^ 3) ∧
     -- left edge derivative bounds (`(fct:Fminus-edge)`, `j = 1, 2`)
-    (∀ τ : ℝ, τ ≠ 0 →
-      ‖deriv (fun t : ℝ => Φ ((t : ℂ) * Complex.I)) τ‖ ≤ M * min 1 (|τ| ^ 2) ∧
-      ‖deriv (deriv (fun t : ℝ => Φ ((t : ℂ) * Complex.I))) τ‖ ≤ M * min 1 |τ|) ∧
+    (∀ τ : ℝ, τ ≠ 0 → |τ| ≤ 1 →
+      ‖deriv (fun t : ℝ => Φ ((t : ℂ) * Complex.I)) τ‖ ≤ M * |τ| ^ 2 ∧
+      ‖deriv (deriv (fun t : ℝ => Φ ((t : ℂ) * Complex.I))) τ‖ ≤ M * |τ|) ∧
     -- right edge derivative bounds (`(fct:Eminus-edge)`, `j = 1, 2`)
     (∀ τ : ℝ, ‖deriv (fun t : ℝ => Φ (1 - (t : ℂ) * Complex.I)) τ‖ ≤ M ∧
       ‖deriv (deriv (fun t : ℝ => Φ (1 - (t : ℂ) * Complex.I))) τ‖ ≤ M)
@@ -544,39 +544,28 @@ lemma ejW_three_two (τ : ℝ) : ejW 3 1 0 2 τ = |τ| * (1 + |τ|) ^ 3 := by
 lemma ejW_zero_zero (τ : ℝ) : ejW 0 1 0 0 τ = 1 + |τ| := by
   unfold ejW; simp
 
-lemma splitting_left_EJ (hΦ : SplittingData Φ) :
-    ∃ M' : ℝ, EJ (fun t : ℝ => Φ ((t : ℂ) * Complex.I)) 3 1 0 M' := by
-  obtain ⟨M, hM, hll, hcube, hL, -⟩ := hΦ.bounds
-  refine ⟨4 * M, ⟨by positivity, hΦ.left_c2, fun τ hτ => ?_, fun τ hτ => ?_, fun τ hτ => ?_⟩⟩
+lemma splitting_left_EJOn (hΦ : SplittingData Φ) :
+    ∃ M' : ℝ, EJOn {τ : ℝ | τ ≠ 0 ∧ |τ| ≤ 1} (fun t : ℝ => Φ ((t : ℂ) * Complex.I)) 3 1 0 M' := by
+  obtain ⟨M, hM, _, hcube, hL, -⟩ := hΦ.bounds
+  refine ⟨M, ⟨hM, hΦ.left_c2, fun τ hmem hτ => ?_, fun τ hmem hτ => ?_, fun τ hmem hτ => ?_⟩⟩
   · rw [ejW_three_zero]
     have hcl : ((τ : ℂ) * Complex.I) ∈ closedStrip := ⟨by simp, by simp⟩
     have hn : ‖(τ : ℂ) * Complex.I‖ = |τ| := by simp
     have h0 : 0 ≤ |τ| := abs_nonneg _
-    rcases le_or_gt |τ| 1 with h | h
-    · have := hcube _ hcl (by rw [hn]; exact h)
-      rw [hn] at this
-      have h3 : 0 ≤ M * |τ| ^ 3 := by positivity
-      nlinarith [mul_nonneg h3 h0]
-    · have := splitting_norm_le hM hll hcl
-      have him : |((τ : ℂ) * Complex.I).im| = |τ| := by simp
-      rw [him] at this
-      have h3 : 1 ≤ |τ| ^ 3 := one_le_pow₀ h.le
-      have : 0 ≤ M * (1 + |τ|) := by positivity
-      nlinarith [mul_nonneg this (sub_nonneg.mpr h3)]
+    have hc := hcube _ hcl (by rw [hn]; exact hmem.2)
+    rw [hn] at hc
+    have h3 : 0 ≤ M * |τ| ^ 3 := by positivity
+    nlinarith [mul_nonneg h3 h0]
   · rw [ejW_three_one]
     have h0 : 0 ≤ |τ| := abs_nonneg _
-    have := (hL τ hτ).1
-    have h3 : M * min 1 (|τ| ^ 2) ≤ M * |τ| ^ 2 := mul_le_mul_of_nonneg_left (min_le_right _ _) hM
     have h4 : 1 ≤ (1 + |τ|) ^ 2 := one_le_pow₀ (by linarith)
     have h5 : 0 ≤ M * |τ| ^ 2 := by positivity
-    nlinarith [mul_nonneg h5 (sub_nonneg.mpr h4)]
+    nlinarith [(hL τ hτ hmem.2).1, mul_nonneg h5 (sub_nonneg.mpr h4)]
   · rw [ejW_three_two]
     have h0 : 0 ≤ |τ| := abs_nonneg _
-    have := (hL τ hτ).2
-    have h3 : M * min 1 |τ| ≤ M * |τ| := mul_le_mul_of_nonneg_left (min_le_right _ _) hM
     have h4 : 1 ≤ (1 + |τ|) ^ 3 := one_le_pow₀ (by linarith)
     have h5 : 0 ≤ M * |τ| := by positivity
-    nlinarith [mul_nonneg h5 (sub_nonneg.mpr h4)]
+    nlinarith [(hL τ hτ hmem.2).2, mul_nonneg h5 (sub_nonneg.mpr h4)]
 
 lemma splitting_right_c2 (hΦ : SplittingData Φ) :
     ContDiffOn ℝ 2 (fun t : ℝ => Φ (1 - (t : ℂ) * Complex.I)) {τ : ℝ | τ ≠ 0} := by
@@ -640,25 +629,59 @@ lemma ejZE (ε : ℝ) : ∃ M : ℝ, EJ (fun τ : ℝ => uctSeedZ ε ((τ : ℂ)
     simp
   exact ⟨_, (h1.mul h2).cast (by norm_num) (by norm_num)⟩
 
-theorem warpMul_stripEdge0 (hΦ : SplittingData Φ) (hD : CompData Dd) :
+/-- Far-edge trace decay for `Φ(iτ) D(iτ) (H_*/G_ε)(iτ)` on `|τ| ≥ 1/2` (`fct:s4-proof` Step 1, via `fct:splitting` (3)). -/
+def WarpLeftFar (ε : ℝ) (Φ Dd : ℂ → ℂ) : Prop :=
+  let g := fun τ : ℝ => Φ ((τ : ℂ) * Complex.I) * Dd ((τ : ℂ) * Complex.I) * ctHG ε ((τ : ℂ) * Complex.I)
+  ∃ (N : ℕ) (M : ℝ), 0 ≤ M ∧ ∀ τ : ℝ, 1 / 2 ≤ |τ| →
+    ‖g τ‖ ≤ M * (1 + |τ|) ^ N * Real.exp (-(π * |τ|)) ∧
+    ‖deriv g τ‖ ≤ M * (1 + |τ|) ^ N * Real.exp (-(π * |τ|)) ∧
+    ‖deriv (deriv g) τ‖ ≤ M * (1 + |τ|) ^ N * Real.exp (-(π * |τ|))
+
+theorem warpMul_stripEdge0 (hΦ : SplittingData Φ) (hD : CompData Dd) (hfar : WarpLeftFar ε Φ Dd) :
     StripEdge0 (1 / 2 : ℝ) (warpMul Cc ε Φ Dd) := by
-  obtain ⟨MA, hA⟩ := splitting_left_EJ hΦ
+  obtain ⟨MA, hA⟩ := splitting_left_EJOn hΦ
   obtain ⟨MB, hB⟩ := splitting_right_EJ hΦ
   obtain ⟨P, hP0, hE⟩ := hD.env
   obtain ⟨MZ, hZE⟩ := ejZE ε
   have hDe : EJ (fun τ : ℝ => Dd ((τ : ℂ) * Complex.I)) 0 0 0 P :=
     EJ.of_env2 hE hP0 0 (fun τ => by simp)
-  have hbig := ((((hA.mul hB).mul hDe).mul hZE).mul edgeR_EJ).const_mul (Cc : ℂ) |>.mul edgeS_EJ
-  have hcast := hbig.cast (a' := 1 / 2) (b' := 1) (by norm_num) (by norm_num)
-  refine edge0_of_EJ hcast (fun τ hτ => ?_) warpMul_zero
-  show warpMul Cc ε Φ Dd ((τ : ℂ) * Complex.I) = _
-  unfold warpMul
-  rw [ctHG_edge]
-  ring
+  have hnear_base := ((((hA.mul hB.to_on).mul hDe.to_on).mul hZE.to_on).mul edgeR_EJ.to_on).const_mul (Cc : ℂ) |>.mul edgeS_EJ.to_on
+  have hnear := hnear_base.cast (a' := 1 / 2) (b' := 1) (by norm_num) (by norm_num)
+  obtain ⟨Nf, Mf, hMf0, hfb⟩ := hfar
+  set gL : ℝ → ℂ := fun τ => Φ ((τ : ℂ) * Complex.I) * Dd ((τ : ℂ) * Complex.I) * ctHG ε ((τ : ℂ) * Complex.I)
+  have hgL_c2 : ContDiffOn ℝ 2 gL {τ : ℝ | τ ≠ 0} := by
+    have hg_raw : ContDiffOn ℝ 2
+        (fun τ : ℝ => Φ ((τ : ℂ) * Complex.I) * Dd ((τ : ℂ) * Complex.I) *
+          ((uctSeedZ ε ((τ : ℂ) * Complex.I) * Complex.exp (-outerHbar ((τ : ℂ) * Complex.I))) * edgeR τ * edgeS τ))
+        {τ : ℝ | τ ≠ 0} :=
+      (((hΦ.left_c2.mul hDe.c2).mul ((hZE.c2.mul edgeR_EJ.c2).mul edgeS_EJ.c2)))
+    refine hg_raw.congr fun τ _ => ?_
+    dsimp only [gL]
+    rw [ctHG_edge]
+  have hfar_g : EJOn {τ : ℝ | 1 / 2 ≤ |τ|} gL 0 Nf 1 Mf :=
+    EJOn.of_far_poly_exp hMf0 hgL_c2 hfb
+  have hfar_all := (hB.const_mul (Cc : ℂ)).to_on (S := {τ : ℝ | 1 / 2 ≤ |τ|}) |>.mul hfar_g
+  have hfar_cast := hfar_all.cast (a' := 0) (b' := 1) (by norm_num) (by norm_num)
+  have hc2 : ContDiffOn ℝ 2 (stripEdge0 (warpMul Cc ε Φ Dd)) {τ : ℝ | τ ≠ 0} := by
+    refine hnear.c2.congr fun τ hτ => ?_
+    show warpMul Cc ε Φ Dd ((τ : ℂ) * Complex.I) = _
+    unfold warpMul
+    rw [ctHG_edge]
+    ring
+  refine edge0_of_EJOn_near_far hnear hfar_cast hc2 (fun τ _ => ?_) (fun τ _ => ?_) warpMul_zero
+  · show warpMul Cc ε Φ Dd ((τ : ℂ) * Complex.I) = _
+    unfold warpMul
+    rw [ctHG_edge]
+    ring
+  · show warpMul Cc ε Φ Dd ((τ : ℂ) * Complex.I) = _
+    dsimp only [gL]
+    unfold warpMul
+    ring
 
-theorem warpMul_stripEdge1 (hε : ε = 1 ∨ ε = -1) (hΦ : SplittingData Φ) (hD : CompData Dd) :
+theorem warpMul_stripEdge1 (hε : ε = 1 ∨ ε = -1) (hΦ : SplittingData Φ) (hD : CompData Dd)
+    (hfar : WarpLeftFar ε Φ Dd) :
     StripEdge1 (1 / 2 : ℝ) (warpMul Cc ε Φ Dd) := by
-  have h0 := (warpMul_stripEdge0 (Cc := Cc) (ε := ε) hΦ hD).const_mul (ε : ℂ)
+  have h0 := (warpMul_stripEdge0 (Cc := Cc) (ε := ε) hΦ hD hfar).const_mul (ε : ℂ)
   unfold StripEdge1
   have hfun : stripEdge0 (fun ζ : ℂ => warpMul Cc ε Φ Dd (1 - ζ)) =
       stripEdge0 (fun ζ : ℂ => (ε : ℂ) * warpMul Cc ε Φ Dd ζ) := by
@@ -671,9 +694,10 @@ theorem warpMul_stripEdge1 (hε : ε = 1 ∨ ε = -1) (hΦ : SplittingData Φ) (
   · rw [hfun]; exact b
   · rw [hfun]; exact d
 
-/-- **The warp summand is admissible** (Step 1 of `fct:s4-proof`, for fixed `(ε, c)`): from `SplittingData Φ̂_c` and `CompData D_{τ₁}`,
-`(M1)`-`(M3)` at `α = 1/2` and `W(1 - ζ) = ε W(ζ)`. -/
+/-- **The warp summand is admissible** (Step 1 of `fct:s4-proof`, for fixed `(ε, c)`): from `SplittingData Φ̂_c`,
+the far-edge trace bound `WarpLeftFar`, and `CompData D_{τ₁}`, `(M1)`-`(M3)` at `α = 1/2` and `W(1 - ζ) = ε W(ζ)`. -/
 theorem warpMul_admissible (hε : ε = 1 ∨ ε = -1) (hΦ : SplittingData Φ) (hD : CompData Dd)
+    (hfar : WarpLeftFar ε Φ Dd)
     (htend : Tendsto (warpMul Cc ε Φ Dd) (𝓝[closedStrip \ {0}] 0) (𝓝 0)) :
     StripAdmissFullData (1 / 2 : ℝ) (warpMul Cc ε Φ Dd) ∧
       ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → warpMul Cc ε Φ Dd (1 - ζ) = (ε : ℂ) * warpMul Cc ε Φ Dd ζ := by
@@ -685,9 +709,9 @@ theorem warpMul_admissible (hε : ε = 1 ∨ ε = -1) (hΦ : SplittingData Φ) (
       real := fun ζ h0 h1 => warpMul_conj hΦ hD ⟨h0, h1⟩
       bound := warpMul_bound hΦ hD hcont
       holder1 := warpMul_holder1 hε hΦ hD
-      edge0 := warpMul_stripEdge0 hΦ hD
+      edge0 := warpMul_stripEdge0 hΦ hD hfar
       holder0 := warpMul_holder0 hΦ hD
-      edge1 := warpMul_stripEdge1 hε hΦ hD }
+      edge1 := warpMul_stripEdge1 hε hΦ hD hfar }
 
 end Warp
 
@@ -745,16 +769,20 @@ theorem fctDcomp_compData {K4 : ℝ} (hK4 : 1 ≤ K4) {alpha : ℝ → ℝ → �
 `FctSplittingStmt` (`fct:splitting` (1)-(2)). -/
 theorem fctWarp_admissible {K4 : ℝ} (hK4 : 1 ≤ K4) {alpha : ℝ → ℝ → ℝ}
     (hα : ∃ Kα c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |alpha ε c| ≤ Kα * c ^ (-(2 / 3 : ℝ)))
-    {PhiHat : ℝ → ℝ → ℂ → ℂ} (hS : FctSplittingStmt PhiHat) :
+    {PhiHat : ℝ → ℝ → ℂ → ℂ} (hS : FctSplittingStmt PhiHat)
+    (hfar : ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
+      WarpLeftFar ε (PhiHat ε c) (fctDcomp K4 alpha ε c)) :
     ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
       StripAdmissFullData (1 / 2) (ctWwarp PhiHat (fctDcomp K4 alpha) ε c) ∧
         ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 →
           ctWwarp PhiHat (fctDcomp K4 alpha) ε c (1 - ζ) = (ε : ℂ) * ctWwarp PhiHat (fctDcomp K4 alpha) ε c ζ := by
   obtain ⟨cD, hcD⟩ := fctDcomp_compData hK4 hα
   obtain ⟨cS, hcS⟩ := hS
-  refine ⟨max cD cS, fun ε c hε hc => ?_⟩
+  obtain ⟨cF, hcF⟩ := hfar
+  refine ⟨max cD (max cS cF), fun ε c hε hc => ?_⟩
   have hD := hcD ε c hε ((le_max_left _ _).trans hc)
-  have hΦ := hcS ε c hε ((le_max_right _ _).trans hc)
+  have hΦ := hcS ε c hε (((le_max_left _ _).trans (le_max_right _ _)).trans hc)
+  have hF := hcF ε c hε (((le_max_right _ _).trans (le_max_right _ _)).trans hc)
   obtain ⟨C, hC⟩ := hΦ.corner
   obtain ⟨BD, hBD⟩ := hD.bd
   have htend : Tendsto (ctWwarp PhiHat (fctDcomp K4 alpha) ε c) (𝓝[closedStrip \ {0}] 0) (𝓝 0) :=
@@ -762,7 +790,7 @@ theorem fctWarp_admissible {K4 : ℝ} (hK4 : 1 ≤ K4) {alpha : ℝ → ℝ → 
       ⟨max C BD, 1, one_pos, fun ζ h0 h1 hb =>
         ⟨(hC ζ h0 h1 hb).1.trans (mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity)),
           (hC ζ h0 h1 hb).2.trans (le_max_left _ _), (hBD ζ ⟨h0, h1⟩).trans (le_max_right _ _)⟩⟩
-  exact warpMul_admissible hε hΦ hD htend
+  exact warpMul_admissible hε hΦ hD hF htend
 
 /-- info: 'FormalResearch.SignUncertainty.fctWarp_admissible' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -63,7 +63,7 @@ private lemma hankelBoot_circleMap_mem_slitPlane {R θ : ℝ} (hR : 0 < R) (hθ 
       · exact (Real.sin_pos_of_pos_of_lt_pi hlt hθ.2).ne'
     exact mul_ne_zero hR.ne' hsin_ne
 
-private lemma hankelBoot_two_pow_half (δ : ℝ) (hδ : 0 < δ) (k : ℕ) :
+lemma hankelBoot_two_pow_half (δ : ℝ) (hδ : 0 < δ) (k : ℕ) :
     (2 : ℝ) ^ (k + 1) * (δ / 2) ^ ((k : ℝ) + 1 / 2) = √2 * δ ^ ((k : ℝ) + 1 / 2) := by
   have hp : (2 : ℝ) ^ (k + 1) = (2 : ℝ) ^ ((k : ℝ) + 1) := by
     rw [show (k : ℝ) + 1 = ((k + 1 : ℕ) : ℝ) by push_cast; ring, Real.rpow_natCast]
@@ -73,7 +73,7 @@ private lemma hankelBoot_two_pow_half (δ : ℝ) (hδ : 0 < δ) (k : ℕ) :
   rw [hp, Real.div_rpow hδ.le (by norm_num : (0 : ℝ) ≤ 2), ← h2]
   ring
 
-private lemma hankelBoot_R_pow_le {c R : ℝ} (hc0 : 0 < c) (hR : 0 < R) (hRc : R ≤ c ^ (2 / 3 : ℝ)) :
+lemma hankelBoot_R_pow_le {c R : ℝ} (hc0 : 0 < c) (hR : 0 < R) (hRc : R ≤ c ^ (2 / 3 : ℝ)) :
     R * (√R) ^ (-(1 / 2 : ℝ)) ≤ c ^ (1 / 2 : ℝ) := by
   have hR_eq : R * (√R) ^ (-(1 / 2 : ℝ)) = R ^ (3 / 4 : ℝ) := by
     rw [Real.sqrt_eq_rpow, ← Real.rpow_mul hR.le]
@@ -136,7 +136,7 @@ lemma hankelBoot_psi_conj {c ε : ℝ} (hc0 : 0 < c) {f : ℝ → ℝ} (hf : IsH
     _ = star (hankelPsi c f u) := by rw [heq]
 
 /-- Covered-arc pointwise bound (copy of `quad_cov_ptW` with `Ψ̃ = hankelPsi c f`). -/
-private lemma hankelBoot_cov_pt {c ε R ℓ θ L' : ℝ} {f : ℝ → ℝ} (hc0 : 0 < c)
+lemma hankelBoot_cov_pt {c ε R ℓ θ L' : ℝ} {f : ℝ → ℝ} (hc0 : 0 < c)
     (hf : IsHankelEigenfn c ε f)
     (hR_10 : 10 ≤ R) (hR_ub : R + 1 ≤ langerRadius c)
     (hL'_nn : 0 ≤ L') (hℓ_nn : 0 ≤ ℓ) (hℓ_half : ℓ ≤ 1 / 2)
@@ -359,7 +359,7 @@ private lemma hankelBoot_cov_pt {c ε R ℓ θ L' : ℝ} {f : ℝ → ℝ} (hc0 
           Real.exp (-(4 * ℓ * a / π) * ((π - |θ|) / 2))) * airyEnv (circleMap 0 R θ) := by ring
 
 /-- Uncovered-wedge pointwise bound from the Hankel envelope `hankelPsi_envelope`. -/
-private lemma hankelBoot_unc_pt {c ε R ℓ θ : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c)
+lemma hankelBoot_unc_pt {c ε R ℓ θ : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c)
     (hf : IsHankelEigenfn c ε f) (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1)
     (hR10 : 10 ≤ R) (hRA : R + 1 ≤ langerRadius c) (hℓ0 : 0 ≤ ℓ) (hℓ1 : ℓ ≤ 1 / 2) (k : ℕ)
     (hθ : θ ∈ Set.Icc (-π) π) (hθlt : |θ| < π)
