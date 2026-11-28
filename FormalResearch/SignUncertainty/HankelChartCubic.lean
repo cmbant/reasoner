@@ -436,7 +436,7 @@ set_option maxHeartbeats 800000 in
 for `|x| ≤ 3` (`x = ũ = -v`), `c ≥ 3·10⁶`.  **Not a duplicate of `CtCfu.langer_inv`:** that statement is about the
 function `Ξ(a) = exp(m(τ₀(a)))/π²` of the CE/edge-phase construction, this one about the series-built Hankel chart
 `hankelXi` (`chartYinv etaC`); the two are the same chart in the paper, but their identification is not proved in Lean,
-and `ctChartGap` only needs this one. -/
+and `ctChartGap_sharp` only need this one. -/
 theorem hankelXi_expansion : ∃ C : ℝ, ∀ c : ℝ, 3e6 ≤ c → ∀ x : ℝ, |x| ≤ 3 →
     |c * hankelXi c x - (c / π ^ 2 - x * c ^ (1 / 3 : ℝ) / hankelBeta1 +
       9 * π ^ 2 / 25 * (x / hankelBeta1) ^ 2 * c ^ (-(1 / 3) : ℝ))| ≤ C * c⁻¹ := by

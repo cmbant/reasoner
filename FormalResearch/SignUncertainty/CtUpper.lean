@@ -125,29 +125,6 @@ lemma signWitness_radius_nonneg {d : ℕ} {ε R : ℝ} {f : Euc d → ℝ} (hε 
 
 /-! ### Elementary estimates -/
 
-lemma log_div_nonneg {c : ℝ} (hc : 1 ≤ c) : 0 ≤ c⁻¹ * Real.log c :=
-  mul_nonneg (inv_nonneg.2 (by linarith)) (Real.log_nonneg hc)
-
-lemma log_div_le_one {c : ℝ} (hc : 1 ≤ c) : c⁻¹ * Real.log c ≤ 1 := by
-  have hc0 : 0 < c := by linarith
-  have := Real.log_le_sub_one_of_pos hc0
-  calc c⁻¹ * Real.log c ≤ c⁻¹ * c := mul_le_mul_of_nonneg_left (by linarith) (inv_nonneg.2 hc0.le)
-    _ = 1 := inv_mul_cancel₀ hc0.ne'
-
-/-- `c⁻¹ log c ≤ 4 c^{-3/4}` for `c ≥ 1`. -/
-lemma log_div_le_rpow {c : ℝ} (hc : 1 ≤ c) : c⁻¹ * Real.log c ≤ 4 * c ^ (-(3 / 4 : ℝ)) := by
-  have hc0 : 0 < c := by linarith
-  have h1 : Real.log c = 4 * Real.log (c ^ (1 / 4 : ℝ)) := by
-    rw [Real.log_rpow hc0]; ring
-  have h2 : Real.log (c ^ (1 / 4 : ℝ)) ≤ c ^ (1 / 4 : ℝ) := by
-    have := Real.log_le_sub_one_of_pos (Real.rpow_pos_of_pos hc0 (1 / 4)); linarith
-  have h3 : c⁻¹ * c ^ (1 / 4 : ℝ) = c ^ (-(3 / 4 : ℝ)) := by
-    rw [← Real.rpow_neg_one, ← Real.rpow_add hc0]; norm_num
-  calc c⁻¹ * Real.log c = c⁻¹ * (4 * Real.log (c ^ (1 / 4 : ℝ))) := by rw [← h1]
-    _ ≤ c⁻¹ * (4 * c ^ (1 / 4 : ℝ)) :=
-        mul_le_mul_of_nonneg_left (by linarith) (inv_nonneg.2 hc0.le)
-    _ = 4 * c ^ (-(3 / 4 : ℝ)) := by rw [← h3]; ring
-
 /-- `(d/2)^{-a} = 2^a d^{-a}`. -/
 lemma half_rpow_neg {d : ℝ} (hd : 0 < d) {a : ℝ} :
     (d / 2) ^ (-a) = 2 ^ a * d ^ (-a) := by
@@ -157,32 +134,6 @@ lemma half_rpow_neg {d : ℝ} (hd : 0 < d) {a : ℝ} :
 
 lemma two_rpow_le {a b : ℝ} (hab : a ≤ b) : (2 : ℝ) ^ a ≤ 2 ^ b :=
   Real.rpow_le_rpow_of_exponent_le (by norm_num) hab
-
-/-- A linear lower bound for `Δ₅^ε(c) - C c⁻¹ log c`. -/
-lemma delta5_lin_lower {c : ℝ} (hc : 1 ≤ c) (ε C : ℝ) :
-    c / π ^ 2 - (|ctKappa ε| + |ctD2star ε| + |C|) ≤ ctDelta5 ε c - C * (c⁻¹ * Real.log c) := by
-  have hc0 : 0 < c := by linarith
-  have hA : 0 ≤ airyOrderCoeff * c ^ (1 / 3 : ℝ) :=
-    mul_nonneg airyOrderCoeff_pos.le (Real.rpow_nonneg hc0.le _)
-  have hC1 : 0 ≤ ctC1Langer * c ^ (-(1 / 3) : ℝ) :=
-    mul_nonneg (by unfold ctC1Langer; positivity) (Real.rpow_nonneg hc0.le _)
-  have hp0 : 0 ≤ c ^ (-(2 / 3) : ℝ) := Real.rpow_nonneg hc0.le _
-  have hp1 : c ^ (-(2 / 3) : ℝ) ≤ 1 :=
-    Real.rpow_le_one_of_one_le_of_nonpos hc (by norm_num)
-  have hd2 : -|ctD2star ε| ≤ ctD2star ε * c ^ (-(2 / 3) : ℝ) := by
-    have : |ctD2star ε * c ^ (-(2 / 3) : ℝ)| ≤ |ctD2star ε| := by
-      rw [abs_mul, abs_of_nonneg hp0]
-      exact mul_le_of_le_one_right (abs_nonneg _) hp1
-    linarith [neg_abs_le (ctD2star ε * c ^ (-(2 / 3) : ℝ))]
-  have hCl : C * (c⁻¹ * Real.log c) ≤ |C| := by
-    have h0 := log_div_nonneg hc
-    have h1 := log_div_le_one hc
-    calc C * (c⁻¹ * Real.log c) ≤ |C| * (c⁻¹ * Real.log c) :=
-          mul_le_mul_of_nonneg_right (le_abs_self C) h0
-      _ ≤ |C| * 1 := mul_le_mul_of_nonneg_left h1 (abs_nonneg C)
-      _ = |C| := mul_one _
-  unfold ctDelta5
-  linarith [neg_abs_le (ctKappa ε), abs_nonneg (ctKappa ε), abs_nonneg (ctD2star ε), abs_nonneg C]
 
 /-- A linear lower bound for `Δ₅^ε(c) - C c⁻¹`. -/
 lemma delta5_lin_lower_sharp {c : ℝ} (hc : 1 ≤ c) (ε C : ℝ) :

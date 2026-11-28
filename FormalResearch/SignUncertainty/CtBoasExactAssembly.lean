@@ -6,7 +6,6 @@ module
 
 public import Mathlib
 public import FormalResearch.SignUncertainty.CtBoasHarmonics
-public import FormalResearch.SignUncertainty.CtBoasEventual
 public import FormalResearch.SignUncertainty.CtFejer
 
 /-!

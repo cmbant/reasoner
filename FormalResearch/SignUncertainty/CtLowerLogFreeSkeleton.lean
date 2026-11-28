@@ -9,16 +9,18 @@ public import FormalResearch.SignUncertainty.CtRoscBookProof
 public import FormalResearch.SignUncertainty.HankelThresholds
 
 /-!
-# Log-free `thm:ct-lower` skeleton (`eq:ct-lower` left half, `constant_terms_lower.tex`)
+# Log-free `thm:ct-lower` assembly skeleton (`eq:ct-lower` left half, `constant_terms_lower.tex`)
 
-Proves the log-free statement `CtLowerLogFreeStatement`: `Δ₅^ε(c) - C c⁻¹ ≤ T` for every
-`IsHankelFeasible c ε T f` (`c ≥ c₀`, `ε = ±1`), from **two named inputs** (`CtLowerLogFreeInputs`):
-1. `window_signed`: log-free `(ct:K-signed)` + `(ct:H2-orth)` window bound
-   `CtDyadicBoundSharp c₁ (fun R ε c f => ctKin R ε c f + ctOscS1 R ε c f)`;
-2. `boas_sharp`: log-free `(ct:boas)` bound `CtBoasSharpStatement c₁`.
+Defines the log-free predicates `CtDyadicBoundSharp`, `CtDyadicCombinedSharpStatement`,
+`CtBoasSharpStatement`, `CtPassLogFreeStatement` (`CtLowerLogFreeStatement := CtLowerStatement`),
+and proves unconditionally:
+- the four already log-free pieces of `ct:dyadic` (4) (`rosc`, `trunc`, `outer`, `trans`);
+- `ct_dyadicCombined_sharp_of_bounds`;
+- log-free chart inversion `ctChartGap_eps_sharp` and `ctChartGap_sharp`;
+- `ct_pass_logfree`, `ct_lower_of_pass_node_logfree`, and `ct_lower_of_boas_logfree`.
 
-The other four pieces of `ct:dyadic` (4) (`rosc`, `trunc`, `outer`, `trans`), log-free `ctChartGap_sharp`,
-and `ct_node_lower` (already log-free) are proved unconditionally here.
+`CtLowerFinal.ct_lower` instantiates `ct_lower_of_boas_logfree` with `window_signed_proved`
+(`CtWindowSigned`) and `boas_sharp_proved` (`CtBoasExactAssembly`).
 -/
 
 @[expose] public section
@@ -33,7 +35,7 @@ open FormalResearch.CohnElkies
 
 /-! ### Log-free predicates and two-input structure -/
 
-/-- Log-free `CtDyadicBound`: `|Q| ≤ C (c⁻¹ η_R + c^{-4/3})`. -/
+/-- Log-free taper-band bound: `|Q| ≤ C (c⁻¹ η_R + c^{-4/3})`. -/
 def CtDyadicBoundSharp (c₁ : ℝ) (Q : ℝ → ℝ → ℝ → (ℝ → ℝ) → ℝ) : Prop :=
   ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
     ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
@@ -55,7 +57,7 @@ def CtBoasSharpStatement (c₁ : ℝ) : Prop :=
         -(C * c ^ (-(4 / 3) : ℝ)) ≤
           ∫ L in Ici (ctLv0 c), ctTaper ε c R L * (hankelHL c f L * boasKernel (boasX c ε) L)
 
-/-- Log-free **`ct_pass`**: `ctBudget R ε c f ≤ C₀ c^{-4/3}` at some `R ∈ [c₁² c^{2/3}, 4 c₁² c^{2/3}]`. -/
+/-- Log-free **`ct:pass`** predicate: `ctBudget R ε c f ≤ C₀ c^{-4/3}` at some `R ∈ [c₁² c^{2/3}, 4 c₁² c^{2/3}]`. -/
 def CtPassLogFreeStatement (c₁ : ℝ) : Prop :=
   ∃ C₀ c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
     ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
@@ -68,7 +70,7 @@ abbrev CtLowerLogFreeStatement : Prop := CtLowerStatement
 
 /-! ### Log-free assembly of `(ct:combined)` -/
 
-/-- Log-free analogue of `ct_dyadicCombined_of_bounds`: sums the five log-free pieces of
+/-- Log-free assembly of `(ct:combined)`: sums the five log-free pieces of
 `ctKernel_split` together with `ctKin + ctKout = 0`. -/
 theorem ct_dyadicCombined_sharp_of_bounds :
     ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ →
@@ -143,7 +145,7 @@ private lemma rosc_arith_sharp {q d a Cb B x cn : ℝ} (hq : |q| ≤ d + a) (hd 
   have h2 : B * x ≤ B * (x + cn) := mul_le_mul_of_nonneg_left (by linarith) hB
   nlinarith [abs_nonneg Cb]
 
-/-- Log-free **`rosc`** (`(ct:rosc)`): `ct_combined_rosc` without multiplying `c^{-4/3}` by `log c`. -/
+/-- Log-free **`rosc`** (`(ct:rosc)`): `|budget + M_all + 2(s₁ - s₂)| ≤ C (c⁻¹ η_R + c^{-4/3})` at good radii. -/
 theorem ct_combined_rosc_sharp :
     ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ → CtRoscBook c₁ →
       CtDyadicBoundSharp c₁ fun R ε c f => ctBudget R ε c f + ctMall R ε c f + 2 * (ctOscS1 R ε c f - ctOscS2 R ε c f) := by
@@ -224,7 +226,7 @@ theorem ct_combined_rosc_sharp :
   have hcη : 0 ≤ c⁻¹ * ctEta c₁ ε c f R := mul_nonneg (inv_nonneg.2 hc0.le) hη
   exact rosc_arith_sharp h1 hbk (hair.trans h2) hcneg hpos1 hcη
 
-/-- Log-free **`trunc`**: `ct_combined_trunc` without the final `log c` factor. -/
+/-- Log-free **`trunc`**: `|M_all - M_tr| ≤ C (c⁻¹ η_R + c^{-4/3})`. -/
 theorem ct_combined_trunc_sharp : ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ →
     CtDyadicBoundSharp c₁ fun R ε c f => ctMall R ε c f - ctMtr R ε c f := by
   obtain ⟨K, cM, hK0, hmom⟩ := ct_boas_moments_top
@@ -279,7 +281,7 @@ theorem ct_combined_trunc_sharp : ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c
     _ ≤ 2 ^ 12 * (K + 1) / c₁ ^ 24 * (c⁻¹ * ctEta c₁ ε c f R + c ^ (-(4 / 3) : ℝ)) :=
         mul_le_mul_of_nonneg_left (by linarith) hC0
 
-/-- Log-free **`outer`**: `ct_combined_outer` without the final `log c` factor. -/
+/-- Log-free **`outer`**: `|K_out + S_out| ≤ C (c⁻¹ η_R + c^{-4/3})`. -/
 theorem ct_combined_outer_sharp : ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ →
     CtDyadicBoundSharp c₁ fun R ε c f => ctKout R ε c f + ctSout R ε c f := by
   obtain ⟨M, K', hM, hK', Hp⟩ := ct_outer_pointwise
@@ -387,7 +389,7 @@ theorem ct_combined_outer_sharp : ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c
     _ ≤ K' / μ₀ * (2 * K / c₁ ^ 2 + K) * (c⁻¹ * ctEta c₁ ε c f R + c ^ (-(4 / 3) : ℝ)) :=
         mul_le_mul_of_nonneg_left (by linarith) hCnn
 
-/-- Log-free **`trans`**: `ct_combined_trans` without the final `log c` factor. -/
+/-- Log-free **`trans`**: `|S_tr - s₂ - S_out| ≤ C (c⁻¹ η_R + c^{-4/3})`. -/
 theorem ct_combined_trans_sharp : ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ →
     CtDyadicBoundSharp c₁ fun R ε c f => ctStr R ε c f - ctOscS2 R ε c f - ctSout R ε c f := by
   obtain ⟨K, cM, hK0, hmom⟩ := ct_boas_moments_top
@@ -616,7 +618,7 @@ theorem ctChartGap_sharp (hκ : ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ctKappa �
 
 /-! ### Log-free reduction from `(window_signed, boas_sharp)` to `CtLowerLogFreeStatement` -/
 
-/-- Log-free `ct_pass`: combines `ct_dyadic_radius_proved`, `CtDyadicCombinedSharpStatement`,
+/-- Log-free pass bound (`ct_pass_logfree`): combines `ct_dyadic_radius_proved`, `CtDyadicCombinedSharpStatement`,
 and `CtBoasSharpStatement` to get `ctBudget R ε c f ≤ C₀ c^{-4/3}` at some good radius `R`. -/
 theorem ct_pass_logfree {c₁ : ℝ} (hr : CtDyadicRadiusStatement c₁)
     (hd : CtDyadicCombinedSharpStatement c₁) (hb : CtBoasSharpStatement c₁) :
