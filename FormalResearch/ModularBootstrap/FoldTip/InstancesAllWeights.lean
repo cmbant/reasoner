@@ -12,8 +12,10 @@ Source: Paper I `fold_tip_universality.tex` (Theorem FT, hypotheses H3, H4a, H4b
 
 With Property (P), `Σ` at every weight (`Upper/Assembly/BumpedDesignWindow.lean`):
 
-* `fwH4bW`: `H4b` for every fixed-weight problem (the `w = 1` hypothesis of `fwH4b` is removed);
-  `H4a` is `fwH4a` (every weight already);
+* `fwH4bW`: `H4b` at Airy level (`ShellHBData.airy`, from `FoldTip.FixedWeightDualDesigns`) for every
+  fixed-weight problem (the `w = 1` hypothesis of `fwH4b` is removed); `H4a` is `fwH4a` (every weight already);
+* `ft_C5c_fixedWeight`: `ft:C5c` (`DualMeasures.ft_C5c`) instantiated unconditionally at Airy level for every
+  fixed-weight problem;
 * `ftSigma_probW`: `FTSigma prob` for every fixed-weight problem;
 * `ft_fixedWeight_modH3`: the bundle `FTLower ∧ FTLiminf ∧ FTRigidity ∧ FTAiryLaw ∧ FTSigma` at every weight, with the
   single hypothesis `TheoremC15UpperInput prob` (the `O(1)` upper bound, `H3`; a theorem for `prob.w = 1`,
@@ -40,62 +42,24 @@ open FormalResearch.ModularBootstrap FormalResearch.ModularBootstrap.Crossing
 
 universe u
 
-/-- **`H4b` for every fixed-weight problem, at every weight** (the weight-`w` form of `fwH4b`, from
-Property (P) for the bumped designs and displaced designs `designPropertyP_probW`, `displacedPropertyP_probW`, the
-omitted family and `Σ`, for every sequence of extremal crossing measures). -/
-theorem fwH4bW (prob : FixedWeightProblem) :
-    FTH4b (FoldTipSetting.ofFixedWeight prob) (fwCrossingData prob) := by
-  refine ⟨⟨0, fun c _ ν hν g hg => ?_⟩, fun cs ν hcs hν => ?_⟩
-  · obtain ⟨meas, hmeas, hc, hshift, -, -, -⟩ := hν
-    obtain ⟨hgt, C, hC, hdecay⟩ := hg
-    obtain ⟨hint, heq⟩ := sumRule_of_comb_decay prob hshift hc meas hgt hC hdecay
-    have hae : ∀ᵐ x ∂meas.ν, x ∈ Ici (0 : ℝ) := by
-      rw [ae_iff]
-      have : {a : ℝ | ¬ a ∈ Ici (0 : ℝ)} = Iio 0 := by ext a; simp
-      rw [this]
-      exact meas.supp_nonneg
-    have hres : meas.ν.restrict (Ici (0 : ℝ)) = meas.ν := Measure.restrict_eq_self_of_ae_mem hae
-    subst hmeas
-    refine ⟨?_, ?_⟩
-    · have := hint
-      unfold IntegrableOn at this
-      rwa [hres] at this
-    · rw [hres] at heq
-      exact heq
-  · choose meas hmeas using fun j => hν j
-    let S : CrossingSequence prob :=
-      { c := cs
-        τ := fun j => prob.T_V (cs j)
-        meas := meas
-        tendsto_c := hcs
-        c_pos := fun j => (hmeas j).2.1
-        shift_le := fun j => by have := (hmeas j).2.2.1; linarith
-        τ_pos := fun j => (hmeas j).2.2.2.1
-        atGap := fun j => (hmeas j).2.2.2.2.1 }
-    have hμ : (fun j => (fwCrossingData prob).window (cs j) (ν j)) = S.μS := by
-      funext j
-      show spectralMeasure prob (cs j) (ν j) = spectralMeasure prob (cs j) (meas j).ν
-      rw [(hmeas j).1]
-    have key : ∀ μ : ℕ → Measure ℝ, μ = S.μS →
-        LocallyBounded μ ∧
-        (∀ (D : Window) (T : DesignTest μ D) (ε : ℝ), 0 < ε →
-          ∃ R₀ : ℝ, ∀ R : ℝ, R₀ ≤ R → ∀ᶠ j in atTop, ∫ u in Iio (-R), T.Ψ j u ∂(μ j) ≤ ε) ∧
-        ∃ 𝒟 : Set Window, DesignPropertyP μ 𝒟 ∧
-          Nonempty (SameSiteFamily 𝒟) ∧ Nonempty (DisplacedFamily 𝒟) ∧ Nonempty (OmittedFamily 𝒟) := by
-      intro μ hμ'
-      subst hμ'
-      have hLo := fixedWeightLowerBoundInput_of_problem prob
-      have hSig : SigmaConclusion S.μS :=
-        sigma_of_threshold_probW prob hLo S (fun j => le_rfl) (𝒟x := displacedClassX)
-          (displacedPropertyP_probW prob S) sameSiteFamily_designClass_exists.some
-          (DisplacedFamily.mono (displacedClass_subset.trans Set.subset_union_right) displacedFamily)
-          farFamily
-      refine ⟨hSig.1, hSig.2.2.2.2, designClass ∪ displacedClassX, ?_, ?_, ?_, ?_⟩
-      · exact designPropertyP_union (designPropertyP_probW prob S) (displacedPropertyP_probW prob S)
-      · exact ⟨SameSiteFamily.mono Set.subset_union_left sameSiteFamily_designClass_exists.some⟩
-      · exact ⟨DisplacedFamily.mono (displacedClass_subset.trans Set.subset_union_right) displacedFamily⟩
-      · exact ⟨farFamily⟩
-    exact key _ hμ
+/-- **Conclusion `ft:C5c` at Airy level (`ShellHBData.airy`) for every fixed-weight problem, unconditionally**:
+vague convergence of `spectralMeasure prob (cs j) (ν j)` to `hbQuadMeasure ShellHBData.airy` (`= airyQuadMeasure`),
+with local boundedness and no-escape along any design matching the Airy quadrature integral. -/
+theorem ft_C5c_fixedWeight (prob : FixedWeightProblem)
+    (cs : ℕ → ℝ) (ν : ℕ → Measure ℝ) (hcs : Tendsto cs atTop atTop)
+    (hν : ∀ j, ν j ∈ (fwCrossingData prob).extremal (cs j)) :
+    let μ : ℕ → Measure ℝ := fun j => (fwCrossingData prob).window (cs j) (ν j)
+    ∃ j₀ : ℕ, (∀ j, j₀ ≤ j → IsLocallyFiniteMeasure (μ j)) ∧
+      (∀ (μ' : ℕ → Measure ℝ), (∀ j, μ' j = μ (j + j₀)) →
+        LocallyBounded μ' ∧
+        IsVagueLimit atTop μ' (hbQuadMeasure SignUncertainty.ShellHBData.airy) ∧
+        ∀ {W : ℝ → ℝ}, FTDesign (fwCrossingData prob) W →
+          (Integrable W (hbQuadMeasure SignUncertainty.ShellHBData.airy) ∧
+            ∫ u, W u ∂(hbQuadMeasure SignUncertainty.ShellHBData.airy) = ∫ u, W u) →
+          ∀ (des : SeqDesign μ'), des.W = W →
+            ∀ {ε : ℝ}, 0 < ε → ∃ R₀ : ℝ, ∀ R : ℝ, R₀ ≤ R →
+              ∀ᶠ j in atTop, ∫ u in Iio (-R), des.U j u ∂(μ' j) ≤ ε) :=
+  ft_C5c SignUncertainty.ShellHBData.airy (fwCrossingData prob) (fwH4bW prob) cs ν hcs hν
 
 /-- **Extremal measures (C5c, Airy level) at every weight**: `FTSigma prob` for every fixed-weight problem. -/
 theorem ftSigma_probW (prob : FixedWeightProblem) : FTSigma prob :=
@@ -114,7 +78,7 @@ theorem ft_fixedWeight_modH3 (prob : FixedWeightProblem) (hHi : TheoremC15UpperI
 every fixed-weight problem; `H3` is `fwH3 prob hHi` from the `O(1)` upper bound. -/
 theorem fw_foldTip_hypotheses_modH3 (prob : FixedWeightProblem) (hHi : TheoremC15UpperInput prob) :
     FTH1 (FoldTipSetting.ofFixedWeight prob) ∧ FTH3 (FoldTipSetting.ofFixedWeight prob) ∧
-      FTH4b (FoldTipSetting.ofFixedWeight prob) (fwCrossingData prob) ∧
+      FTH4b SignUncertainty.ShellHBData.airy (fwCrossingData prob) ∧
       ∃ (c0 a0 : ℝ) (ς : ℝ → ℝ) (δ : ℝ → ℝ → ℝ),
         FTH2 (FoldTipSetting.ofFixedWeight prob) fwChart c0 a0 0 2 ς δ ∧
         FTH2hol (FoldTipSetting.ofFixedWeight prob) fwChart c0 a0 0 2 ς δ ∧
@@ -123,9 +87,9 @@ theorem fw_foldTip_hypotheses_modH3 (prob : FixedWeightProblem) (hHi : TheoremC1
   obtain ⟨c0, a0, ς, δ, h, h2, h4⟩ := fw_hypotheses prob
   exact ⟨fwH1 prob, fwH3 prob hHi, fwH4bW prob, c0, a0, ς, δ, h.toFTH2, h, h2, h4⟩
 
-/-- info: 'FormalResearch.ModularBootstrap.FoldTip.fwH4bW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.FoldTip.ft_C5c_fixedWeight' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms fwH4bW
+#print axioms ft_C5c_fixedWeight
 
 /-- info: 'FormalResearch.ModularBootstrap.FoldTip.ft_fixedWeight_modH3' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

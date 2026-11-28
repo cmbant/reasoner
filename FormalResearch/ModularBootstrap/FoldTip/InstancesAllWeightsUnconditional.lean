@@ -39,7 +39,7 @@ theorem ft_fixedWeight_all (prob : FixedWeightProblem) :
 /-- **The hypotheses of Theorem FT at every weight, unconditionally.** -/
 theorem fw_foldTip_hypotheses_all (prob : FixedWeightProblem) :
     FTH1 (FoldTipSetting.ofFixedWeight prob) ∧ FTH3 (FoldTipSetting.ofFixedWeight prob) ∧
-      FTH4b (FoldTipSetting.ofFixedWeight prob) (fwCrossingData prob) ∧
+      FTH4b SignUncertainty.ShellHBData.airy (fwCrossingData prob) ∧
       ∃ (c0 a0 : ℝ) (ς : ℝ → ℝ) (δ : ℝ → ℝ → ℝ),
         FTH2 (FoldTipSetting.ofFixedWeight prob) fwChart c0 a0 0 2 ς δ ∧
         FTH2hol (FoldTipSetting.ofFixedWeight prob) fwChart c0 a0 0 2 ς δ ∧

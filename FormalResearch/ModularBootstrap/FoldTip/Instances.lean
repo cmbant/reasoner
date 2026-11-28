@@ -1,10 +1,8 @@
 module
 
-public import FormalResearch.ModularBootstrap.FoldTip.Hypotheses
-public import FormalResearch.ModularBootstrap.FixedWeightTip.PropositionP
+public import FormalResearch.ModularBootstrap.FoldTip.FixedWeightDualDesigns
 public import FormalResearch.ModularBootstrap.FixedWeight.OptimalMeasure
 public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWInterface
-public import FormalResearch.ModularBootstrap.Upper.Assembly.FarFirstSite
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFinal
 
 /-!
@@ -29,13 +27,12 @@ Proposition P (`ft:PP`, `FixedWeightTip/PropositionP.lean`).
 * `fwH2plus`: `H2+`.
 * `fwH4a`: `H4a`, from `propP_H4a_eventually_ne_zero` and the holomorphy of `ψ̃`.
 * `fwH3`: `H3` from `TheoremC15UpperInput prob`, so unconditional for `prob.w = 1` (`fwH3_w1`).
-* `fwH4b`: `H4b` for `prob.w = 1`, from `sigma_of_threshold_prob` and the design, displaced and omitted
-  families of `sigma_unconditional_prob`, for every sequence of extremal crossing measures.  The window
-  coordinate of `FTCrossingData` is the tip variable `uAiry` of `Upper.Rigidity.Dictionary`, not the Langer chart
-  `u_c` of `FTChart`; the structure does not relate the two (their difference is `o(1)` locally uniformly, not
-  formalised).
+* `fwH4b`: `H4b` at Airy level (`ShellHBData.airy`, `FoldTip.fwH4bW` via `FoldTip/FixedWeightDualDesigns.lean`) for
+  every fixed-weight problem, for every sequence of extremal crossing measures. The window coordinate of
+  `FTCrossingData` is the tip variable `uAiry` of `Upper.Rigidity.Dictionary`.
 * `fw_foldTip_hypotheses_w1`: all of the above for a weight-one problem; the non-vacuity of
-  `FoldTip/Hypotheses.lean`.  `H3` and `H4b` are open for `w > 1` (designs and the `O(1)` upper bound).
+  `FoldTip/Hypotheses.lean`.  `H3` is open for `w > 1` without `Upper.Ramped.theoremC15UpperInput_probW`
+  (`InstancesAllWeightsUnconditional.lean` discharges it unconditionally at every weight).
 -/
 
 @[expose] public section
@@ -49,101 +46,7 @@ open FormalResearch.Special FormalResearch.ModularBootstrap FormalResearch.Modul
   FormalResearch.ModularBootstrap.FixedWeight FormalResearch.ModularBootstrap.FixedWeightTip
   FormalResearch.ModularBootstrap.ConcreteBootstrap FormalResearch.ModularBootstrap.WeightAxioms
   FormalResearch.ModularBootstrap.Duality FormalResearch.ModularBootstrap.FixedWeightBand
-  FormalResearch.ModularBootstrap.Upper.Rigidity FormalResearch.ModularBootstrap.Upper.Assembly
-
-/-! ### The scale and the chart -/
-
-/-- The fold constants of the Virasoro-type tip: `ξ_* = ξ̄`, `β = 1/c_*`. -/
-noncomputable def fwScale : FoldTipScale where
-  slope := xiBar
-  beta := 1 / cStar
-  slope_pos := by unfold xiBar; have := xiStar_pos; positivity
-  beta_pos := one_div_pos.mpr cStar_pos
-
-/-- `A = |a₁|/β = A_opt`. -/
-theorem fwScale_A : fwScale.A = Aopt := by
-  unfold FoldTipScale.A fwScale Aopt
-  have := cStar_pos
-  simp only [div_div_eq_mul_div, div_one]
-  ring
-
-/-- `K_ξ = (4/3)β^{3/2}` for the fixed-weight tip, equal to `(3/(2 b_*))^{3/2} K_tip`. -/
-theorem fwScale_K : fwScale.K = (3 / (2 * xiStar)) ^ (3 / 2 : ℝ) * KTip := by
-  unfold FoldTipScale.K
-  show 4 / 3 * (1 / cStar) ^ (3 / 2 : ℝ) = _
-  have hbt := betaTip_pos
-  have hxi := xiStar_pos
-  have hc : (1 / cStar : ℝ) = 3 / (2 * xiStar) * betaTip := by
-    unfold cStar; field_simp
-  rw [hc, Real.mul_rpow (by positivity) hbt.le, ← four_thirds_betaTip_rpow]
-  ring
-
-/-- The Langer chart of the fixed-weight tip as a fold-tip chart. -/
-noncomputable def fwChart : FTChart fwScale where
-  r0 := virasoroRXiInf
-  uInf := virasoroUInf
-  r0_pos := virasoroRXiInf_pos
-  analytic := virasoroUInf_an
-  injOn := langerCore.huInf_inj
-  real_on_real := fun x hx => by
-    refine virasoroUInf_ofReal_im' ?_
-    rwa [mem_ball, dist_eq_norm, ← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs] at hx
-  tip := by
-    refine Asymptotics.IsBigO.of_bound chartParams.M_u ?_
-    have hmem : closedBall (xiBar : ℂ) chartParams.r_xi0 ∈ 𝓝 (xiBar : ℂ) :=
-      closedBall_mem_nhds _ chartParams.hr_xi0_pos
-    filter_upwards [hmem] with ξ hξ
-    have h := chartParams.hu_err ξ hξ
-    have heq : virasoroUInf ξ - ((fwScale.beta : ℝ) : ℂ) * ((fwScale.slope : ℂ) - ξ) =
-        virasoroUInf ξ - (1 / (cStar : ℂ)) * ((xiBar : ℂ) - ξ) := by
-      simp [fwScale]
-    rw [heq, norm_pow]
-    exact h
-
-/-! ### The setting -/
-
-/-- The uniform Proposition P data used throughout (chosen from `proposition_P_of_problem`). -/
-noncomputable def fwD (prob : FixedWeightProblem) : UniformPropositionPData prob :=
-  (proposition_P_of_problem prob).choose
-
-theorem fw_cMin_exists (prob : FixedWeightProblem) :
-    ∃ cM : ℝ, 1 ≤ cM ∧ (fwD prob).c₀ ≤ cM ∧
-      (∀ c, cM ≤ c → ∀ x : ℝ, 0 < x → 0 < prob.cardyV (c / 12) x) ∧
-      (∀ c, cM ≤ c → ∀ (T : ℝ) (g : ℝ → ℝ), prob.IsWeaklyFeasible (c / 12) T g →
-        0 < prob.cardyNorm (c / 12) g) := by
-  obtain ⟨c_gap, C_gap, κ_gap, hcg, -, -, hgap⟩ := deltaLobe_gap_general (fwD prob)
-  have h1 := (fwD prob).hc₀_ge1
-  refine ⟨max c_gap (fwD prob).c₀, h1.trans (le_max_right _ _), le_max_right _ _,
-    fun c hc x hx => (fwD prob).p1_pos ((le_max_right _ _).trans hc) hx,
-    fun c hc T g hg => (hgap.2 ((le_max_left _ _).trans hc) hg).1⟩
-
-/-- The threshold from which the weight is positive and feasible competitors have positive norm. -/
-noncomputable def fwCMin (prob : FixedWeightProblem) : ℝ := (fw_cMin_exists prob).choose
-
-theorem fwCMin_spec (prob : FixedWeightProblem) :
-    1 ≤ fwCMin prob ∧ (fwD prob).c₀ ≤ fwCMin prob ∧
-      (∀ c, fwCMin prob ≤ c → ∀ x : ℝ, 0 < x → 0 < prob.cardyV (c / 12) x) ∧
-      (∀ c, fwCMin prob ≤ c → ∀ (T : ℝ) (g : ℝ → ℝ), prob.IsWeaklyFeasible (c / 12) T g →
-        0 < prob.cardyNorm (c / 12) g) :=
-  (fw_cMin_exists prob).choose_spec
-
-/-- **The fixed-weight modular bootstrap as a fold-tip setting**: competitors are real functions, the weight is
-the Cardy weight `V = cardyV (c/12)` (with its entire continuation `cardyVC`), feasible at `T` means weakly
-feasible at `a = c/12` with gap `T` (`IsWeaklyFeasible`). -/
-noncomputable def FoldTipSetting.ofFixedWeight (prob : FixedWeightProblem) : FoldTipSetting where
-  scale := fwScale
-  Comp := ℝ → ℝ
-  ev := fun g => g
-  rho := fun c x => prob.cardyV (c / 12) x
-  rhoC := fun c z => cardyVC prob (c / 12) z
-  feasible := fun c T g => prob.IsWeaklyFeasible (c / 12) T g
-  cMin := fwCMin prob
-  rho_pos := fun c hc x hx => (fwCMin_spec prob).2.2.1 c hc x hx
-  rhoC_ofReal := fun c _ x _ => cardyVC_ofReal prob (c / 12) x
-  feasible_mono := fun _ _ _ _ hT hf =>
-    ⟨hf.1, hf.2.1, hf.2.2.1, fun t ht => hf.2.2.2 t (hT.trans ht)⟩
-  feasible_nonneg := fun _ _ _ hf x hx => hf.2.2.2 x hx
-  normPos := fun c hc T g hf => (fwCMin_spec prob).2.2.2 c hc T g hf
+  FormalResearch.ModularBootstrap.Upper.Rigidity
 
 /-! ### `H3` -/
 
@@ -652,81 +555,10 @@ theorem fw_hypotheses (prob : FixedWeightProblem) :
 
 /-! ### `H4b` for weight-one problems -/
 
-/-- The extremal crossing measures at scale `c`: admissible crossing measures at gap exactly `T_V(c)`
-(supported on `[T_V(c), ∞)`, charging every `[T_V(c), T_V(c) + ε)`), for `c` in the range where `T_V(c) > 0`
-and `c ≥ 12 S`. -/
-def fwExtremal (prob : FixedWeightProblem) (c : ℝ) : Set (Measure ℝ) :=
-  {ν | ∃ meas : AdmissibleCrossingMeasure prob (c / 12), meas.ν = ν ∧ 0 < c ∧
-    12 * prob.totalShift ≤ c ∧ 0 < prob.T_V c ∧ IsAtGap meas (prob.T_V c) ∧
-    ∀ ε : ℝ, 0 < ε → 0 < ν (Iio (prob.T_V c + ε))}
-
-/-- The crossing data of a fixed-weight problem: extremal measures, the window measure `μ_S`
-(`spectralMeasure`, in the tip variable of `Upper.Rigidity.Dictionary`), the comb-decay tests of Property (P1)
-and `v[g] = g_vac`. -/
-noncomputable def fwCrossingData (prob : FixedWeightProblem) :
-    FTCrossingData (FoldTipSetting.ofFixedWeight prob) where
-  extremal := fwExtremal prob
-  window := fun c ν => spectralMeasure prob c ν
-  tests := fun c => {g : ℝ → ℝ | TestClass prob (c / 12) g ∧ ∃ C : ℝ, 0 ≤ C ∧ ∀ t : ℝ, 0 ≤ t →
-    |g t| ≤ C * Real.exp (-4 * π * Real.sqrt ((c / 12) * t) - π * Real.sqrt (3 * t / c))}
-  vac := fun c g => prob.gVac (c / 12) g
-
-/-- **`H4b` for every weight-one fixed-weight problem**, from Property (P) for the designs and displaced
-designs, the omitted family and `Σ` (`sigma_of_threshold_prob`, the ingredients of
-`sigma_unconditional_prob`), for every sequence of extremal crossing measures. -/
-theorem fwH4b (prob : FixedWeightProblem) (hw : prob.w = 1) :
-    FTH4b (FoldTipSetting.ofFixedWeight prob) (fwCrossingData prob) := by
-  refine ⟨⟨0, fun c _ ν hν g hg => ?_⟩, fun cs ν hcs hν => ?_⟩
-  · obtain ⟨meas, hmeas, hc, hshift, -, -, -⟩ := hν
-    obtain ⟨hgt, C, hC, hdecay⟩ := hg
-    obtain ⟨hint, heq⟩ := sumRule_of_comb_decay prob hshift hc meas hgt hC hdecay
-    have hae : ∀ᵐ x ∂meas.ν, x ∈ Ici (0 : ℝ) := by
-      rw [ae_iff]
-      have : {a : ℝ | ¬ a ∈ Ici (0 : ℝ)} = Iio 0 := by ext a; simp
-      rw [this]
-      exact meas.supp_nonneg
-    have hres : meas.ν.restrict (Ici (0 : ℝ)) = meas.ν := Measure.restrict_eq_self_of_ae_mem hae
-    subst hmeas
-    refine ⟨?_, ?_⟩
-    · have := hint
-      unfold IntegrableOn at this
-      rwa [hres] at this
-    · rw [hres] at heq
-      exact heq
-  · choose meas hmeas using fun j => hν j
-    let S : CrossingSequence prob :=
-      { c := cs
-        τ := fun j => prob.T_V (cs j)
-        meas := meas
-        tendsto_c := hcs
-        c_pos := fun j => (hmeas j).2.1
-        shift_le := fun j => by have := (hmeas j).2.2.1; linarith
-        τ_pos := fun j => (hmeas j).2.2.2.1
-        atGap := fun j => (hmeas j).2.2.2.2.1 }
-    have hμ : (fun j => (fwCrossingData prob).window (cs j) (ν j)) = S.μS := by
-      funext j
-      show spectralMeasure prob (cs j) (ν j) = spectralMeasure prob (cs j) (meas j).ν
-      rw [(hmeas j).1]
-    have key : ∀ μ : ℕ → Measure ℝ, μ = S.μS →
-        LocallyBounded μ ∧
-        (∀ (D : Window) (T : DesignTest μ D) (ε : ℝ), 0 < ε →
-          ∃ R₀ : ℝ, ∀ R : ℝ, R₀ ≤ R → ∀ᶠ j in atTop, ∫ u in Iio (-R), T.Ψ j u ∂(μ j) ≤ ε) ∧
-        ∃ 𝒟 : Set Window, DesignPropertyP μ 𝒟 ∧
-          Nonempty (SameSiteFamily 𝒟) ∧ Nonempty (DisplacedFamily 𝒟) ∧ Nonempty (OmittedFamily 𝒟) := by
-      intro μ hμ'
-      subst hμ'
-      have hLo := fixedWeightLowerBoundInput_of_problem prob
-      have hSig : SigmaConclusion S.μS :=
-        sigma_of_threshold_prob prob hw hLo S (fun j => le_rfl) (𝒟x := displacedClassX)
-          (displacedPropertyP_prob prob hw S) sameSiteFamily_designClass_exists.some
-          (DisplacedFamily.mono (displacedClass_subset.trans Set.subset_union_right) displacedFamily)
-          farFamily
-      refine ⟨hSig.1, hSig.2.2.2.2, designClass ∪ displacedClassX, ?_, ?_, ?_, ?_⟩
-      · exact designPropertyP_union (designPropertyP_prob prob hw S) (displacedPropertyP_prob prob hw S)
-      · exact ⟨SameSiteFamily.mono Set.subset_union_left sameSiteFamily_designClass_exists.some⟩
-      · exact ⟨DisplacedFamily.mono (displacedClass_subset.trans Set.subset_union_right) displacedFamily⟩
-      · exact ⟨farFamily⟩
-    exact key _ hμ
+/-- **`H4b` at Airy level (`ShellHBData.airy`) for every weight-one fixed-weight problem** (`fwH4bW`). -/
+theorem fwH4b (prob : FixedWeightProblem) (_hw : prob.w = 1) :
+    FTH4b SignUncertainty.ShellHBData.airy (fwCrossingData prob) :=
+  fwH4bW prob
 
 /-! ### Named instances and the weight-one bundle -/
 
@@ -765,7 +597,7 @@ theorem fwH3_w1 (prob : FixedWeightProblem) (hw : prob.w = 1) :
 These instances are the non-vacuity of the structures of `FoldTip/Hypotheses.lean`. -/
 theorem fw_foldTip_hypotheses_w1 (prob : FixedWeightProblem) (hw : prob.w = 1) :
     FTH1 (FoldTipSetting.ofFixedWeight prob) ∧ FTH3 (FoldTipSetting.ofFixedWeight prob) ∧
-      FTH4b (FoldTipSetting.ofFixedWeight prob) (fwCrossingData prob) ∧
+      FTH4b SignUncertainty.ShellHBData.airy (fwCrossingData prob) ∧
       ∃ (c0 a0 : ℝ) (ς : ℝ → ℝ) (δ : ℝ → ℝ → ℝ),
         FTH2 (FoldTipSetting.ofFixedWeight prob) fwChart c0 a0 0 2 ς δ ∧
         FTH2hol (FoldTipSetting.ofFixedWeight prob) fwChart c0 a0 0 2 ς δ ∧
