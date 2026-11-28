@@ -171,8 +171,9 @@ private lemma warp_integrands_integrable {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWar
       (c : ℂ) * fctPsi K4 ε c L1 α ((τ : ℂ) * Complex.I) / Nc =
         (fctPhiHat h ε c ((τ : ℂ) * Complex.I) - fctLeftTail K4 ε c L1 α τ) *
           (fctDcompAt K4 c α ((τ : ℂ) * Complex.I) * ctHG ε ((τ : ℂ) * Complex.I)) := fun τ hτ => by
-    have hden : fctDcompAt K4 c α ((τ : ℂ) * Complex.I) * ctHG ε ((τ : ℂ) * Complex.I) ≠ 0 :=
-      mul_ne_zero (fctDcompAt_ne_zero _) (ctHG_ne_zero_of_closed_band ε (by simp) (by simp) (by simp [hτ]))
+    have hd1 : fctDcompAt K4 c α ((τ : ℂ) * Complex.I) ≠ 0 := fctDcompAt_ne_zero _
+    have hd2 : ctHG ε ((τ : ℂ) * Complex.I) ≠ 0 :=
+      ctHG_ne_zero_of_closed_band ε (by simp) (by simp) (by simp [hτ])
     have hspl : fctPhiHat h ε c ((τ : ℂ) * Complex.I) - fctLeftTail K4 ε c L1 α τ =
         fctPhiC K4 ε c L1 α ((τ : ℂ) * Complex.I) / Nc := by
       show fctPhiHatAt K4 ε c L1 α ((τ : ℂ) * Complex.I) - _ = _
@@ -180,7 +181,7 @@ private lemma warp_integrands_integrable {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWar
     rw [hspl]
     unfold fctPhiC
     have hNc0 : Nc ≠ 0 := hNc_ne
-    field_simp [hden, hNc0]; ring
+    field_simp [hd1, hd2, hNc0]
   set r := c ^ (-(1 / 3 : ℝ))
   have hr_pos : 0 < r := Real.rpow_pos_of_pos hcpos _
   have hr_le1 : r ≤ 1 := Real.rpow_le_one_of_one_le_of_nonpos (by linarith) (by norm_num)
@@ -189,9 +190,11 @@ private lemma warp_integrands_integrable {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWar
     have hcont : ContinuousOn (fun τ : ℝ => mellinK0 c ((τ : ℂ) * Complex.I) ξ *
         ((c : ℂ) * fctPsi K4 ε c L1 α ((τ : ℂ) * Complex.I) / Nc * fctPhiHat h ε c (1 - (τ : ℂ) * Complex.I)))
         {τ : ℝ | τ ≠ 0} := by
-      refine (hm_cont.continuousOn.mul ((ContinuousOn.mul ?_ hPR_cont.continuousOn))).congr (fun τ hτ => ?_)
-      · exact (hPhiL_cont.sub hLT_cd.continuous.continuousOn).mul hDHG_cont
-      · rw [hMain_eq τ hτ]; ring
+      refine ContinuousOn.congr
+        (hm_cont.continuousOn.mul
+          (((hPhiL_cont.sub hLT_cd.continuous.continuousOn).mul hDHG_cont).mul hPR_cont.continuousOn))
+        fun τ hτ => ?_
+      simp only [Pi.mul_apply, Pi.sub_apply]; rw [hMain_eq τ hτ]
     set M := max (4 * Ms * c + 2 * Mlg * 2 ^ 10 * (r ^ (-(5 / 2 : ℝ)))) (2 * Mlg * (max r⁻¹ 1) ^ (5 / 2 : ℝ))
     have hM0 : 0 ≤ M := by positivity
     refine integrand_integrable_piece_near hM0 (r := r) hr_pos hcont (fun τ hτ hτr => ?_) (fun τ hτr => ?_)
@@ -244,7 +247,7 @@ private lemma warp_integrands_integrable {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWar
         (fctLeftTail K4 ε c L1 α τ * fctPhiHat h ε c (1 - (τ : ℂ) * Complex.I) *
           fctDcompAt K4 c α ((τ : ℂ) * Complex.I) * ctHG ε ((τ : ℂ) * Complex.I))) {τ : ℝ | τ ≠ 0} := by
       refine (hm_cont.continuousOn.mul ((hLT_cd.continuous.continuousOn.mul hPR_cont.continuousOn).mul hDHG_cont)).congr
-        fun τ _ => by dsimp only; ring
+        fun τ _ => by simp only [Pi.mul_apply]; ring
     set M := max (ML * 2 * (2 ^ 10 * MD)) (ML * 2 * (8 ^ (5 / 2 : ℝ) * MD))
     have hM0 : 0 ≤ M := by positivity
     refine integrand_integrable_piece_near hM0 (r := (1 / 8 : ℝ)) (by norm_num) hcont (fun τ hτ hτ8 => ?_) (fun τ hτ8 => ?_)
@@ -321,9 +324,11 @@ private lemma warp_integrands_integrable {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWar
       ((c : ℂ) * fctPsi K4 ε c L1 α ((τ : ℂ) * Complex.I) / Nc * fctRightTail h ε c τ)) := by
     have hcont : ContinuousOn (fun τ : ℝ => mellinK0 c ((τ : ℂ) * Complex.I) ξ *
         ((c : ℂ) * fctPsi K4 ε c L1 α ((τ : ℂ) * Complex.I) / Nc * fctRightTail h ε c τ)) {τ : ℝ | τ ≠ 0} := by
-      refine (hm_cont.continuousOn.mul ((ContinuousOn.mul ?_ hRT_cd.continuous.continuousOn))).congr (fun τ hτ => ?_)
-      · exact (hPhiL_cont.sub hLT_cd.continuous.continuousOn).mul hDHG_cont
-      · rw [hMain_eq τ hτ]; ring
+      refine ContinuousOn.congr
+        (hm_cont.continuousOn.mul
+          (((hPhiL_cont.sub hLT_cd.continuous.continuousOn).mul hDHG_cont).mul hRT_cd.continuous.continuousOn))
+        fun τ hτ => ?_
+      simp only [Pi.mul_apply, Pi.sub_apply]; rw [hMain_eq τ hτ]
     set M := max (2 * Ms * c * CR * c⁻¹ + 2 * Mlg * CR * c⁻¹) (2 * Mlg * CR * c⁻¹ * (max r⁻¹ 1) ^ (5 / 2 : ℝ))
     have hM0 : 0 ≤ M := by positivity
     refine integrand_integrable_piece_near hM0 (r := r) hr_pos hcont (fun τ hτ hτr => ?_) (fun τ hτr => ?_)
@@ -510,31 +515,31 @@ theorem warpRightTailDensity_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolve
   set A1 : ℝ := 2 * Ms * CR
   set A2 : ℝ := 2 * Mlg * CR
   set f1 : ℝ → ℝ := fun τ => (Icc (-r) r).indicator (fun t => |t| ^ (3 / 2 : ℝ)) τ
-  set f2 : ℝ → ℝ := fun τ => (Ioc (-1) (-r) ∪ Ioc r 1).indicator (fun t => |t| ^ (-(3 / 2 : ℝ))) τ
+  set f2 : ℝ → ℝ := fun τ => (Icc (-1) (-r) ∪ Icc r 1).indicator (fun t => |t| ^ (-(3 / 2 : ℝ))) τ
   set f3 : ℝ → ℝ := fun τ => (1 + |τ|) ^ 12 * Real.exp (-(π * |τ|))
   have hf1_int : Integrable f1 := by
     have hcont : ContinuousOn (fun t : ℝ => |t| ^ (3 / 2 : ℝ)) (Icc (-r) r) :=
       (continuous_abs.rpow_const (fun _ => Or.inr (by norm_num : (0 : ℝ) ≤ 3 / 2))).continuousOn
     exact (hcont.integrableOn_Icc).integrable_indicator measurableSet_Icc
   have hf2_neg : IntegrableOn (fun t : ℝ => |t| ^ (-(3 / 2 : ℝ))) (Icc (-1) (-r)) := by
-    refine ContinuousOn.integrableOn_Icc ((continuousOn_id.abs).rpow_const fun t ht => Or.inl ?_)
+    refine ContinuousOn.integrableOn_Icc (continuous_abs.continuousOn.rpow_const fun t ht => Or.inl ?_)
     have hle : t ≤ -r := (mem_Icc.mp ht).2
-    exact abs_pos.mpr (by linarith)
+    exact (abs_pos.mpr (by linarith [hr_pos])).ne'
   have hf2_pos : IntegrableOn (fun t : ℝ => |t| ^ (-(3 / 2 : ℝ))) (Icc r 1) := by
-    refine ContinuousOn.integrableOn_Icc ((continuousOn_id.abs).rpow_const fun t ht => Or.inl ?_)
+    refine ContinuousOn.integrableOn_Icc (continuous_abs.continuousOn.rpow_const fun t ht => Or.inl ?_)
     have hge : r ≤ t := (mem_Icc.mp ht).1
-    exact abs_pos.mpr (by linarith)
+    exact (abs_pos.mpr (by linarith [hr_pos])).ne'
   have hf2_int : Integrable f2 := by
-    have hdisj : Disjoint (Ioc (-1 : ℝ) (-r)) (Ioc r 1) := by
+    have hdisj : Disjoint (Icc (-1 : ℝ) (-r)) (Icc r 1) := by
       rw [Set.disjoint_iff_forall_ne]
       intro x hx y hy hxy
       subst hxy
       linarith [hx.2, hy.1, hr_pos]
-    have h1 : Integrable ((Ioc (-1 : ℝ) (-r)).indicator (fun t => |t| ^ (-(3 / 2 : ℝ)))) :=
-      (hf2_neg.mono_set Ioc_subset_Icc_self).integrable_indicator measurableSet_Ioc
-    have h2 : Integrable ((Ioc r 1).indicator (fun t => |t| ^ (-(3 / 2 : ℝ)))) :=
-      (hf2_pos.mono_set Ioc_subset_Icc_self).integrable_indicator measurableSet_Ioc
-    exact (h1.add h2).congr (ae_of_all _ fun t => (Set.indicator_union_of_disjoint hdisj _ t).symm)
+    have h1 : Integrable ((Icc (-1 : ℝ) (-r)).indicator (fun t => |t| ^ (-(3 / 2 : ℝ)))) :=
+      hf2_neg.integrable_indicator measurableSet_Icc
+    have h2 : Integrable ((Icc r 1).indicator (fun t => |t| ^ (-(3 / 2 : ℝ)))) :=
+      hf2_pos.integrable_indicator measurableSet_Icc
+    exact (h1.add h2).congr (ae_of_all _ fun t => (congrFun (Set.indicator_union_of_disjoint hdisj _) t).symm)
   have hf3_int : Integrable f3 := integrable_pow_mul_exp_neg_pi 12
   have hf1_val : ∫ τ : ℝ, f1 τ = (4 / 5 : ℝ) * c ^ (-(5 / 6 : ℝ)) := by
     rw [MeasureTheory.integral_indicator measurableSet_Icc, MeasureTheory.integral_Icc_eq_integral_Ioc,
@@ -542,7 +547,7 @@ theorem warpRightTailDensity_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolve
     have hc_fn : Continuous (fun x : ℝ => |x| ^ (3 / 2 : ℝ)) :=
       continuous_abs.rpow_const (fun _ => Or.inr (by norm_num : (0 : ℝ) ≤ 3 / 2))
     have hsplit := intervalIntegral.integral_add_adjacent_intervals
-      (hc_fn.intervalIntegrable (-r) 0) (hc_fn.intervalIntegrable 0 r)
+      (hc_fn.intervalIntegrable (-r) 0 (μ := volume)) (hc_fn.intervalIntegrable 0 r (μ := volume))
     rw [← hsplit]
     have hneg : ∫ x in (-r)..0, |x| ^ (3 / 2 : ℝ) = ∫ x in (0 : ℝ)..r, x ^ (3 / 2 : ℝ) := by
       have hc := intervalIntegral.integral_comp_neg (fun x : ℝ => |x| ^ (3 / 2 : ℝ)) (a := 0) (b := r)
@@ -561,14 +566,14 @@ theorem warpRightTailDensity_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolve
       rw [hz, sub_zero, hr5]; ring
     rw [hneg, hpos, hev]; ring
   have hf2_val : ∫ τ : ℝ, f2 τ ≤ 4 * c ^ (1 / 6 : ℝ) := by
-    have hdisj : Disjoint (Ioc (-1 : ℝ) (-r)) (Ioc r 1) := by
+    have hdisj : Disjoint (Icc (-1 : ℝ) (-r)) (Icc r 1) := by
       rw [Set.disjoint_iff_forall_ne]
       intro x hx y hy hxy
       subst hxy
       linarith [hx.2, hy.1, hr_pos]
-    rw [MeasureTheory.integral_indicator (measurableSet_Ioc.union measurableSet_Ioc),
-      setIntegral_union hdisj measurableSet_Ioc (hf2_neg.mono_set Ioc_subset_Icc_self)
-        (hf2_pos.mono_set Ioc_subset_Icc_self),
+    rw [MeasureTheory.integral_indicator (measurableSet_Icc.union measurableSet_Icc),
+      setIntegral_union hdisj measurableSet_Icc hf2_neg hf2_pos,
+      MeasureTheory.integral_Icc_eq_integral_Ioc, MeasureTheory.integral_Icc_eq_integral_Ioc,
       ← intervalIntegral.integral_of_le (by linarith : (-1 : ℝ) ≤ -r),
       ← intervalIntegral.integral_of_le hr_le1]
     have hneg : ∫ x in (-1 : ℝ)..(-r), |x| ^ (-(3 / 2 : ℝ)) = ∫ x in r..1, x ^ (-(3 / 2 : ℝ)) := by
@@ -600,22 +605,25 @@ theorem warpRightTailDensity_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolve
       (fctNc h ε c : ℂ) * fctRightTail h ε c τ)
   have hpt : ∀ τ : ℝ, τ ≠ 0 → ‖g_right τ‖ ≤ A1 * f1 τ + (2 ^ 10 * A2 * c⁻¹) * f2 τ + (A2 * c⁻¹) * f3 τ := by
     intro τ hτ
-    have hf1_nn : 0 ≤ A1 * f1 τ := mul_nonneg (by positivity) (Set.indicator_nonneg fun _ _ => by positivity)
-    have hf2_nn : 0 ≤ (2 ^ 10 * A2 * c⁻¹) * f2 τ := mul_nonneg (by positivity) (Set.indicator_nonneg fun _ _ => by positivity)
+    have hf1_nn : 0 ≤ A1 * f1 τ := by
+      dsimp only [f1]; exact mul_nonneg (by positivity) (Set.indicator_nonneg (fun _ _ => by positivity) τ)
+    have hf2_nn : 0 ≤ (2 ^ 10 * A2 * c⁻¹) * f2 τ := by
+      dsimp only [f2]; exact mul_nonneg (by positivity) (Set.indicator_nonneg (fun _ _ => by positivity) τ)
     have hf3_nn : 0 ≤ (A2 * c⁻¹) * f3 τ := by positivity
     have hRT_t := (hRT_bd τ).1
     have hnorm_eq : ‖g_right τ‖ =
         ‖mellinK0 c ((τ : ℂ) * Complex.I) ξ *
           ((c : ℂ) * fctPsi K4 ε c (fctWarpL1 h ε c) (fctWarpAlpha h ε c) ((τ : ℂ) * Complex.I))‖ *
-          (‖((fctNc h ε c : ℝ) : ℂ)⁻¹‖ * ‖fctRightTail h ε c τ‖) := by
+          (‖(fctNc h ε c : ℂ)⁻¹‖ * ‖fctRightTail h ε c τ‖) := by
       dsimp only [g_right]
-      rw [div_eq_mul_inv, mul_comm (_ * _) _, ← mul_assoc, norm_mul, norm_mul, mul_assoc]
+      simp only [div_eq_mul_inv, norm_mul]; ring
     rw [hnorm_eq]
     rcases le_or_gt |τ| r with hτr | hτr
     · have hm : τ ∈ Icc (-r) r := abs_le.mp hτr
       have hf1_eq : f1 τ = |τ| ^ (3 / 2 : ℝ) := Set.indicator_of_mem hm _
       have hpow : |τ| ^ (1 / 2 : ℝ) * |τ| = |τ| ^ (3 / 2 : ℝ) := by
-        rw [show |τ| = |τ| ^ (1 : ℝ) by simp, ← Real.rpow_add (abs_pos.mpr hτ)]
+        nth_rw 2 [← Real.rpow_one |τ|]
+        rw [← Real.rpow_add (abs_pos.mpr hτ)]
         congr 1; norm_num
       have h1 : ‖g_right τ‖ ≤ A1 * f1 τ := by
         rw [hnorm_eq, hf1_eq]
@@ -627,14 +635,14 @@ theorem warpRightTailDensity_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolve
           _ = A1 * |τ| ^ (3 / 2 : ℝ) := by ring
       rw [← hnorm_eq]; linarith
     · rcases le_or_gt |τ| 1 with hτ1 | hτ1
-      · have hmem2 : τ ∈ Ioc (-1 : ℝ) (-r) ∪ Ioc r 1 := by
+      · have hmem2 : τ ∈ Icc (-1 : ℝ) (-r) ∪ Icc r 1 := by
           rcases lt_or_gt_of_ne hτ with hneg | hpos
-          · exact Or.inl ⟨by linarith [abs_of_neg hneg, (abs_le.mp hτ1).1],
-              by linarith [abs_of_neg hneg]⟩
-          · exact Or.inr ⟨by linarith [abs_of_pos hpos], by linarith [abs_of_pos hpos, (abs_le.mp hτ1).2]⟩
+          · exact Or.inl ⟨by linarith [(abs_le.mp hτ1).1], by linarith [abs_of_neg hneg, hτr]⟩
+          · exact Or.inr ⟨by linarith [abs_of_pos hpos, hτr], by linarith [(abs_le.mp hτ1).2]⟩
         have hf2_eq : f2 τ = |τ| ^ (-(3 / 2 : ℝ)) := Set.indicator_of_mem hmem2 _
         have hpow : |τ| ^ (-(5 / 2 : ℝ)) * |τ| = |τ| ^ (-(3 / 2 : ℝ)) := by
-          rw [show |τ| = |τ| ^ (1 : ℝ) by simp, ← Real.rpow_add (abs_pos.mpr hτ)]
+          nth_rw 2 [← Real.rpow_one |τ|]
+          rw [← Real.rpow_add (abs_pos.mpr hτ)]
           congr 1; norm_num
         have hp1 : (1 + |τ|) ^ 10 ≤ 2 ^ 10 := pow_le_pow_left₀ (by positivity) (by linarith) 10
         have hexp1 : Real.exp (-(π * |τ|)) ≤ 1 :=
@@ -673,25 +681,33 @@ theorem warpRightTailDensity_bound {K4 : ℝ} (hK4 : 1 ≤ K4) (h : FctWarpSolve
   have hint_le : ‖∫ τ : ℝ, g_right τ‖ ≤ K_int * c ^ (-(5 / 6 : ℝ)) := by
     have hae0 : ∀ᵐ τ : ℝ ∂volume, τ ≠ 0 := by rw [ae_iff]; simp
     have h1 := norm_integral_le_of_norm_le hdom_int (by filter_upwards [hae0] with τ hτ; exact hpt τ hτ)
-    have hint_sum : ∫ τ : ℝ, (A1 * f1 τ + (2 ^ 10 * A2 * c⁻¹) * f2 τ + (A2 * c⁻¹) * f3 τ) =
-        A1 * ∫ τ : ℝ, f1 τ + (2 ^ 10 * A2 * c⁻¹) * ∫ τ : ℝ, f2 τ + (A2 * c⁻¹) * ∫ τ : ℝ, f3 τ := by
-      rw [integral_add ((hf1_int.const_mul A1).add (hf2_int.const_mul _)) (hf3_int.const_mul _),
-        integral_add (hf1_int.const_mul A1) (hf2_int.const_mul _),
-        integral_const_mul, integral_const_mul, integral_const_mul]
+    have hint_sum : (∫ τ : ℝ, A1 * f1 τ + (2 ^ 10 * A2 * c⁻¹) * f2 τ + (A2 * c⁻¹) * f3 τ) =
+        A1 * (∫ τ : ℝ, f1 τ) + (2 ^ 10 * A2 * c⁻¹) * (∫ τ : ℝ, f2 τ) + (A2 * c⁻¹) * (∫ τ : ℝ, f3 τ) := by
+      have ha1 : (∫ τ : ℝ, (A1 * f1 τ + (2 ^ 10 * A2 * c⁻¹) * f2 τ) + (A2 * c⁻¹) * f3 τ) =
+          (∫ τ : ℝ, A1 * f1 τ + (2 ^ 10 * A2 * c⁻¹) * f2 τ) + (∫ τ : ℝ, (A2 * c⁻¹) * f3 τ) :=
+        MeasureTheory.integral_add ((hf1_int.const_mul A1).add (hf2_int.const_mul _)) (hf3_int.const_mul _)
+      have ha2 : (∫ τ : ℝ, A1 * f1 τ + (2 ^ 10 * A2 * c⁻¹) * f2 τ) =
+          (∫ τ : ℝ, A1 * f1 τ) + (∫ τ : ℝ, (2 ^ 10 * A2 * c⁻¹) * f2 τ) :=
+        MeasureTheory.integral_add (hf1_int.const_mul A1) (hf2_int.const_mul _)
+      have hm1 : (∫ τ : ℝ, A1 * f1 τ) = A1 * (∫ τ : ℝ, f1 τ) := integral_const_mul _ _
+      have hm2 : (∫ τ : ℝ, (2 ^ 10 * A2 * c⁻¹) * f2 τ) = (2 ^ 10 * A2 * c⁻¹) * (∫ τ : ℝ, f2 τ) :=
+        integral_const_mul _ _
+      have hm3 : (∫ τ : ℝ, (A2 * c⁻¹) * f3 τ) = (A2 * c⁻¹) * (∫ τ : ℝ, f3 τ) := integral_const_mul _ _
+      rw [ha1, ha2, hm1, hm2, hm3]
     rw [hint_sum] at h1
-    have hterm1 : A1 * ∫ τ : ℝ, f1 τ = (4 / 5 : ℝ) * A1 * c ^ (-(5 / 6 : ℝ)) := by rw [hf1_val]; ring
-    have hterm2 : (2 ^ 10 * A2 * c⁻¹) * ∫ τ : ℝ, f2 τ ≤ 4 * 2 ^ 10 * A2 * c ^ (-(5 / 6 : ℝ)) := by
+    have hterm1 : A1 * (∫ τ : ℝ, f1 τ) = (4 / 5 : ℝ) * A1 * c ^ (-(5 / 6 : ℝ)) := by rw [hf1_val]; ring
+    have hterm2 : (2 ^ 10 * A2 * c⁻¹) * (∫ τ : ℝ, f2 τ) ≤ 4 * 2 ^ 10 * A2 * c ^ (-(5 / 6 : ℝ)) := by
       have hmul : c⁻¹ * c ^ (1 / 6 : ℝ) = c ^ (-(5 / 6 : ℝ)) := by
         rw [← Real.rpow_neg_one, ← Real.rpow_add hcpos]; congr 1; norm_num
-      calc (2 ^ 10 * A2 * c⁻¹) * ∫ τ : ℝ, f2 τ ≤ (2 ^ 10 * A2 * c⁻¹) * (4 * c ^ (1 / 6 : ℝ)) :=
+      calc (2 ^ 10 * A2 * c⁻¹) * (∫ τ : ℝ, f2 τ) ≤ (2 ^ 10 * A2 * c⁻¹) * (4 * c ^ (1 / 6 : ℝ)) :=
             mul_le_mul_of_nonneg_left hf2_val (by positivity)
         _ = 4 * 2 ^ 10 * A2 * (c⁻¹ * c ^ (1 / 6 : ℝ)) := by ring
         _ = 4 * 2 ^ 10 * A2 * c ^ (-(5 / 6 : ℝ)) := by rw [hmul]
-    have hterm3 : (A2 * c⁻¹) * ∫ τ : ℝ, f3 τ ≤ A2 * I12 * c ^ (-(5 / 6 : ℝ)) := by
-      calc (A2 * c⁻¹) * I12 = (A2 * I12) * c⁻¹ := by ring
+    have hterm3 : (A2 * c⁻¹) * (∫ τ : ℝ, f3 τ) ≤ A2 * I12 * c ^ (-(5 / 6 : ℝ)) := by
+      calc (A2 * c⁻¹) * (∫ τ : ℝ, f3 τ) = (A2 * I12) * c⁻¹ := by show _ = _; ring
         _ ≤ (A2 * I12) * c ^ (-(5 / 6 : ℝ)) := mul_le_mul_of_nonneg_left hc_56 (by positivity)
     calc ‖∫ τ : ℝ, g_right τ‖
-        ≤ A1 * ∫ τ : ℝ, f1 τ + (2 ^ 10 * A2 * c⁻¹) * ∫ τ : ℝ, f2 τ + (A2 * c⁻¹) * I12 := h1
+        ≤ A1 * (∫ τ : ℝ, f1 τ) + (2 ^ 10 * A2 * c⁻¹) * (∫ τ : ℝ, f2 τ) + (A2 * c⁻¹) * (∫ τ : ℝ, f3 τ) := h1
       _ ≤ (4 / 5 : ℝ) * A1 * c ^ (-(5 / 6 : ℝ)) + 4 * 2 ^ 10 * A2 * c ^ (-(5 / 6 : ℝ)) +
             A2 * I12 * c ^ (-(5 / 6 : ℝ)) := add_le_add (add_le_add hterm1.le hterm2) hterm3
       _ = K_int * c ^ (-(5 / 6 : ℝ)) := by simp only [K_int, A1, A2]; ring
