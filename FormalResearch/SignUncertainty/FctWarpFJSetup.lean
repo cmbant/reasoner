@@ -436,14 +436,14 @@ structure FctWarpChartData (K4 ε c : ℝ) where
   hL_eq : L_ctr = z_ctr * nfun z_ctr
   hL_scale : 1 * c ^ (-(2 / 3 : ℝ)) ≤ L_ctr ∧ L_ctr ≤ 12 * c ^ (-(2 / 3 : ℝ))
   hT_ctr : |c / π ^ 2 * Real.exp L_ctr - ctDelta5 ε c| ≤ C_ctr * c⁻¹
-  h_rect_sub : Ioo (L_ctr / 2) (2 * L_ctr) ×ˢ Ioo (-(c ^ (-(1 / 2 : ℝ)))) (c ^ (-(1 / 2 : ℝ))) ⊆
+  h_rect_sub : Ioo (L_ctr / 2) (2 * L_ctr) ×ˢ Ioo (-(3 / 2 * c ^ (-(1 / 2 : ℝ)))) (3 / 2 * c ^ (-(1 / 2 : ℝ))) ⊆
     concretePhaseDom ellMin ε c
   h_ctr_mem : L_ctr ∈ Ioo (L_ctr / 2) (2 * L_ctr)
   h_u_ctr : |-fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) (L_ctr, 0) - airyZero 1| ≤
     C_ctr * c ^ (-(4 / 3 : ℝ))
   h_surj : closedBall (airyZero 1, (0 : ℝ)) (c ^ (-(7 / 6 : ℝ))) ⊆
-    fctChart (fctKappa c) (c ^ (2 / 3 : ℝ)) (concretePhiTilde K4 ε c) (concreteTau0 ε c S) ''
-      (Ioo (L_ctr / 2) (2 * L_ctr) ×ˢ Ioo (-(c ^ (-(1 / 2 : ℝ)))) (c ^ (-(1 / 2 : ℝ))))
+    fctChart (fctKappa c) (c ^ (-(2 / 3 : ℝ))) (concretePhiTilde K4 ε c) (concreteTau0 ε c S) ''
+      (Ioo (L_ctr / 2) (2 * L_ctr) ×ˢ Ioo (-(3 / 2 * c ^ (-(1 / 2 : ℝ)))) (3 / 2 * c ^ (-(1 / 2 : ℝ))))
 
 /-- Uniform `uAlpha` bound on `concretePhaseDom ellMin ε c` via `S.V = τ₀ / √ã` cancellation. -/
 lemma fctChart_uAlpha_bound :
@@ -710,7 +710,7 @@ lemma center_rect_sub_phaseDom {ellMin ε c L_ctr : ℝ} (hc0 : 0 < c) (hL_lo : 
     (hL_hi : L_ctr ≤ 12 * c ^ (-(2 / 3 : ℝ)))
     (hell_bd : (ellMin + |ctTheta1 ε| + 1) * c ^ (-(1 / 3 : ℝ)) < 0.05)
     (h255_bd : 24 * c ^ (-(1 / 6 : ℝ)) + |ctTheta1 ε| * c ^ (-(1 / 2 : ℝ)) < 2.55) :
-    Ioo (L_ctr / 2) (2 * L_ctr) ×ˢ Ioo (-(c ^ (-(1 / 2 : ℝ)))) (c ^ (-(1 / 2 : ℝ))) ⊆
+    Ioo (L_ctr / 2) (2 * L_ctr) ×ˢ Ioo (-(3 / 2 * c ^ (-(1 / 2 : ℝ)))) (3 / 2 * c ^ (-(1 / 2 : ℝ))) ⊆
       concretePhaseDom ellMin ε c := by
   rintro ⟨L1, α⟩ ⟨⟨hL1_lo, hL1_hi⟩, ⟨hα_lo, hα_hi⟩⟩
   have hτ₁_sq : (c ^ (-(1 / 4 : ℝ))) ^ 2 = c ^ (-(1 / 2 : ℝ)) := rpow_neg_quarter_sq hc0
@@ -743,7 +743,7 @@ lemma center_rect_sub_phaseDom {ellMin ε c L_ctr : ℝ} (hc0 : 0 < c) (hL_lo : 
       rw [add_mul, mul_assoc, ha, mul_assoc, hb] at hmul; exact hmul
     linarith
   have hα_abs : |α| < 2 * c ^ (-(1 / 2 : ℝ)) := by
-    have : |α| < c ^ (-(1 / 2 : ℝ)) := abs_lt.mpr ⟨hα_lo, hα_hi⟩
+    have : |α| < 3 / 2 * c ^ (-(1 / 2 : ℝ)) := abs_lt.mpr ⟨hα_lo, hα_hi⟩
     linarith [Real.rpow_pos_of_pos hc0 (-(1 / 2 : ℝ))]
   exact ⟨h_low, h_high, hα_abs⟩
 

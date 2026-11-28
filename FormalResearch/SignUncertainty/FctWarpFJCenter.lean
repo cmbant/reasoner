@@ -130,7 +130,7 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
       C_comp0 * c ^ (-(17 / 12 : ℝ)) ≤ 0.01 ∧
       C_ctr * c ^ (-(4 / 3 : ℝ)) ≤ 0.05 ∧
       c ^ (-(7 / 6 : ℝ)) ≤ 0.05 ∧
-      Cα * c ^ (-(29 / 12 : ℝ)) ≤ 0.05 := by
+      Cα * c ^ (-(13 / 12 : ℝ)) ≤ 0.05 := by
     have hc1 : ∀ {f : ℝ → ℝ} {a b : ℝ}, Tendsto f atTop (𝓝 0) → 0 < b → ∀ᶠ c in atTop, a * f c ≤ b :=
       fun h hb => by simpa [mul_zero] using (h.const_mul _).eventually (ge_mem_nhds (by simpa using hb))
     have hc2 : ∀ {f : ℝ → ℝ} {a b : ℝ}, Tendsto f atTop (𝓝 0) → 0 < b → ∀ᶠ c in atTop, a * f c < b :=
@@ -155,7 +155,7 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
     refine Eventually.and (hc1 (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 17 / 12)) (by norm_num)) ?_
     refine Eventually.and (hc1 (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 4 / 3)) (by norm_num)) ?_
     refine Eventually.and ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 7 / 6)).eventually (ge_mem_nhds (by norm_num))) ?_
-    exact hc1 (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 29 / 12)) (by norm_num)
+    exact hc1 (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 13 / 12)) (by norm_num)
   obtain ⟨c₀, hc₀⟩ := Filter.eventually_atTop.mp hc_ev
   refine ⟨C_ctr, max c₀ 3e6, hCctr_nn, le_max_right _ _, fun {c} hc => ?_⟩
   obtain ⟨hc_35, hτ₁_bd, hK4t, h4τ, hcs₀, hKz_c, hρ_bd, hedge_bd, hell_bd, h255_bd, hBH_bd, hv1_bd, hv2_bd, hcomp_bd, hu_bd, hr_bd, hα_bd⟩ :=
@@ -231,7 +231,7 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
       rw [hmul, Real.mul_rpow (pow_nonneg hτ0_pos.le 3) (by positivity)]
       have ht3 : (τ_Ph ^ 3) ^ (2 / 3 : ℝ) = z_ctr := by
         rw [← Real.rpow_natCast τ_Ph 3, ← Real.rpow_mul hτ0_pos.le,
-          show ((3 : ℕ) : ℝ) * (2 / 3 : ℝ) = 2 by norm_num, Real.rpow_two]; rfl
+          show ((3 : ℕ) : ℝ) * (2 / 3 : ℝ) = 2 by norm_num, Real.rpow_two]
       have hd2 : dF z_ctr ^ 2 = ((3 / 2 : ℝ) * fF z_ctr) ^ (2 / 3 : ℝ) := by
         unfold dF; rw [← Real.rpow_natCast _ 2, ← Real.rpow_mul (by positivity)]; norm_num
       rw [ht3, hd2]
@@ -263,7 +263,7 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
       hΞ0 hΞ1 hΞ2 (hCC a_node (by rw [abs_of_neg (by linarith [hneg_a_lo, Real.rpow_pos_of_pos hc0 (-(2 / 3 : ℝ))])]; linarith)).2
     exact h1.trans (mul_le_mul_of_nonneg_right (le_max_left _ _) (inv_nonneg.mpr hc0.le))
   let I : Set ℝ := Ioo (L_ctr / 2) (2 * L_ctr)
-  let J : Set ℝ := Ioo (-(c ^ (-(1 / 2 : ℝ)))) (c ^ (-(1 / 2 : ℝ)))
+  let J : Set ℝ := Ioo (-(3 / 2 * c ^ (-(1 / 2 : ℝ)))) (3 / 2 * c ^ (-(1 / 2 : ℝ)))
   have h_rect_sub : I ×ˢ J ⊆ concretePhaseDom ellMin ε c :=
     center_rect_sub_phaseDom hc0 hL_scale.1 hL_scale.2 hell_bd h255_bd
   have hS_V_bounds : ∀ p ∈ concretePhaseDom ellMin ε c,
@@ -279,7 +279,7 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
   have h_u_ctr : |-fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) (L_ctr, 0) - airyZero 1| ≤
       C_ctr * c ^ (-(4 / 3 : ℝ)) := by
     have hL_mem_dom : (L_ctr, (0 : ℝ)) ∈ concretePhaseDom ellMin ε c :=
-      h_rect_sub ⟨⟨by linarith, by linarith⟩, ⟨by linarith [Real.rpow_pos_of_pos hc0 (-(1 / 2 : ℝ))], Real.rpow_pos_of_pos hc0 _⟩⟩
+      h_rect_sub ⟨⟨by linarith, by linarith⟩, ⟨by linarith [Real.rpow_pos_of_pos hc0 (-(1 / 2 : ℝ))], by positivity⟩⟩
     have hKz_L : c⁻¹ ≤ Kz * z_ctr := by
       have hc13 : c⁻¹ = c ^ (-(1 / 3 : ℝ)) * c ^ (-(2 / 3 : ℝ)) := by
         rw [← Real.rpow_add hc0]; norm_num [Real.rpow_neg_one]
@@ -362,7 +362,10 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
           _ ≤ Real.pi ^ 2 / 48 := by linarith only [hpi2_bds.1]
       have habs := abs_le.mp (show |c⁻¹ * (fjH1 θt z + z * deriv (fjH1 θt) z)| ≤ Real.pi ^ 2 / 48 by
         rwa [abs_mul, abs_of_pos (inv_pos.mpr hc0)])
-      linarith [hzm4'.2.2.2.1, habs.1]
+      have hsum_eq : (nfun + fun y => c⁻¹ * fjH1 θt y) z + z * (deriv nfun z + c⁻¹ * deriv (fjH1 θt) z) =
+          (nfun z + z * deriv nfun z) + c⁻¹ * (fjH1 θt z + z * deriv (fjH1 θt) z) := by
+        simp only [Pi.add_apply]; ring
+      linarith only [hsum_eq, hzm4'.2.2.2.1, habs.1]
     -- Show `τ_1^2 ∈ [z_ctr / 4, 4 * z_ctr]` directly from `box.crit (L_ctr, 0)`
     set v01 := vTotal StripKernelChoice.star K4 c 0 τ₁
     have hv01_cd := (hthD_bd hK4 hc0 hτ₁_τD).2
@@ -384,8 +387,10 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
         linarith only [h14, hgt]
       have hd0 := concretePhi0_hasDerivAt (K4 := K4) (ε := ε) (c := c) (L1 := L_ctr) hε hτp hm4.1 hτ_le2
       have hdD := ((hv01_cd.differentiable (by simp)).differentiableAt.hasDerivAt (x := τ)).const_mul c⁻¹
-      have hd1 := (hd0.add hdD).congr_of_eventuallyEq (Eventually.of_forall fun t => by
-        unfold concretePhiTilde concretePhiLambda v01; simp only [Pi.add_apply]; ring)
+      have hd1 : HasDerivAt (fun t => concretePhiTilde K4 ε c t (L_ctr, 0))
+          (((L_ctr - c⁻¹ * ctTheta1 ε) - fjFcrit nfun θt c⁻¹ (τ ^ 2)) + c⁻¹ * deriv (fctThetaD v01) τ) τ := by
+        refine (hd0.add hdD).congr_of_eventuallyEq (Eventually.of_forall fun t => ?_)
+        simp only [Pi.add_apply]; unfold concretePhiTilde concretePhiLambda; dsimp only [v01]; ring
       have hph : HasDerivAt (fun t => fctPh (concretePhiTilde K4 ε c) (t, (L_ctr, (0 : ℝ))))
           (fctPhTau (concretePhiTilde K4 ε c) τ (L_ctr, 0)) τ := by
         have hf : DifferentiableAt ℝ (fctPh (concretePhiTilde K4 ε c)) (τ, (L_ctr, (0 : ℝ))) :=
@@ -488,7 +493,7 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
         _ = 8 * c ^ (-(1 / 12 : ℝ)) := by rw [← rpow_third_mul_neg_quarter hc0]; ring
     -- `Φ₀ τ_1 ≤ Φ₀ τ_0`
     have hFcrit_diff : ∀ z ∈ Icc (z_ctr / 4) (4 * z_ctr), DifferentiableAt ℝ (fjFcrit nfun θt c⁻¹) z := fun z hz => by
-      have hm4 := hδsm_4 (by linarith only [hz.1, hz_pos]) (by linarith only [hz.2, hz_lt_δsm])
+      have hm4 := hδsm_4 (z := z) (by linarith only [hz.1, hz_pos]) (by linarith only [hz.2, hz_lt_δsm])
       have hzr0 : z ∈ Icc (-r₀) r₀ := ⟨by linarith only [hz.1, hz_pos, hr₀_pos], hm4.2.1⟩
       have hnd := (contDiffOn_nfun.contDiffAt (isOpen_Ioo.mem_nhds (hK_Ioo hzr0))).differentiableAt (by norm_num)
       have hθd := (hθ_jc.1.contDiffAt (isOpen_Ioo.mem_nhds (hK_Yint hzr0))).differentiableAt (by norm_num)
@@ -510,22 +515,28 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
       max_at_crit_of_antitone (lo := τ_lo) (hi := τ_hi) (ctr := τ_0)
         (fun τ hτ => by
           have hsub := hIcc_sq hτ
-          exact concretePhi0_hasDerivAt hε hsub.2.1 (hδsm_4 (sq_nonneg _) hsub.2.2.1).1
-            (by
-              have hle4 : τ ^ 2 ≤ 4 := by linarith only [(hδsm_4 (sq_nonneg _) hsub.2.2.1).2.1, hr₀_14]
-              by_contra hlt; have : (4 : ℝ) < τ ^ 2 := by nlinarith only [not_le.mp hlt]; linarith only [hle4, this]))
+          have h4_τ : τ ^ 2 ≤ 4 := by linarith only [(hδsm_4 (z := τ ^ 2) (sq_nonneg _) hsub.2.2.1).2.1, hr₀_14]
+          have hτ_2 : τ ≤ 2 := by
+            by_contra hlt
+            have : (4 : ℝ) < τ ^ 2 := by nlinarith only [not_le.mp hlt]
+            linarith only [h4_τ, this]
+          exact concretePhi0_hasDerivAt (K4 := K4) hε hsub.2.1 (hδsm_4 (z := τ ^ 2) (sq_nonneg _) hsub.2.2.1).1 hτ_2)
         hFcrit_anti_tau hPhi0_crit hτ0_in hτ1_in
     -- `Φ₁ τ_0 ≤ Φ₁ τ_1` via strict concavity of `Φ₁` on `[τ_lo, τ_hi]`
-    have hv01_cd1 : ContDiff ℝ (⊤ : ℕ∞) (deriv (fctThetaD v01)) := (contDiff_top_iff_deriv.mp hv01_cd).2
+    have hv01_cd1 : ContDiff ℝ (⊤ : ℕ∞) (deriv (fctThetaD v01)) := (contDiff_infty_iff_deriv.mp hv01_cd).2
     let rhs1 : ℝ → ℝ := fun t => (L_ctr - c⁻¹ * ctTheta1 ε) - fjFcrit nfun θt c⁻¹ (t ^ 2) + c⁻¹ * deriv (fctThetaD v01) t
     have hPhi1_tau_anti : AntitoneOn rhs1 (Icc τ_lo τ_hi) := by
       refine antitoneOn_of_deriv_nonpos (convex_Icc _ _) ?_ ?_ ?_
       · intro τ hτ; have hsub := hIcc_sq hτ
-        have hdF := (hFcrit_diff (τ ^ 2) hsub.1).continuousAt.comp (continuousAt_pow 2)
+        have hsq_da : DifferentiableAt ℝ (fun t : ℝ => t ^ 2) τ := by fun_prop
+        have hdF : ContinuousAt (fun t : ℝ => fjFcrit nfun θt c⁻¹ (t ^ 2)) τ :=
+          ((hFcrit_diff (τ ^ 2) hsub.1).comp (f := fun t : ℝ => t ^ 2) τ hsq_da).continuousAt
         have hdV := hv01_cd1.continuous.continuousAt (x := τ)
         exact ((continuousAt_const.sub hdF).add (continuousAt_const.mul hdV)).continuousWithinAt
       · intro τ hτ; rw [interior_Icc] at hτ; have hsub := hIcc_sq (Ioo_subset_Icc_self hτ)
-        have hFc := (hFcrit_diff (τ ^ 2) hsub.1).comp τ (differentiableAt_pow 2)
+        have hsq_da : DifferentiableAt ℝ (fun t : ℝ => t ^ 2) τ := by fun_prop
+        have hFc : DifferentiableAt ℝ (fun t : ℝ => fjFcrit nfun θt c⁻¹ (t ^ 2)) τ :=
+          (hFcrit_diff (τ ^ 2) hsub.1).comp (f := fun t : ℝ => t ^ 2) τ hsq_da
         have hv1 := hv01_cd1.differentiable (by simp) τ
         exact ((differentiableAt_const _).sub hFc).add (hv1.const_mul c⁻¹) |>.differentiableWithinAt
       · intro τ hτ; rw [interior_Icc] at hτ
@@ -533,10 +544,10 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
         have hfd : DifferentiableAt ℝ (fjFcrit nfun θt c⁻¹) (τ ^ 2) := hFcrit_diff (τ ^ 2) hsub.1
         have hsq : HasDerivAt (fun t : ℝ => t ^ 2) (2 * τ) τ := by simpa using hasDerivAt_pow 2 τ
         have hFc_d : HasDerivAt (fun t : ℝ => fjFcrit nfun θt c⁻¹ (t ^ 2)) (deriv (fjFcrit nfun θt c⁻¹) (τ ^ 2) * (2 * τ)) τ :=
-          hfd.hasDerivAt.comp τ hsq
+          HasDerivAt.comp (h := fun t : ℝ => t ^ 2) τ hfd.hasDerivAt hsq
         have hv1d : HasDerivAt (deriv (fctThetaD v01)) (iteratedDeriv 2 (fctThetaD v01) τ) τ := by
           have hd := (hv01_cd1.differentiable (by simp) τ).hasDerivAt
-          rwa [← iteratedDeriv_one, ← iteratedDeriv_succ'] at hd
+          rwa [iteratedDeriv_succ, iteratedDeriv_one]
         have htot_d : HasDerivAt rhs1 (-(deriv (fjFcrit nfun θt c⁻¹) (τ ^ 2) * (2 * τ)) + c⁻¹ * iteratedDeriv 2 (fctThetaD v01) τ) τ := by
           change HasDerivAt (fun t => (L_ctr - c⁻¹ * ctTheta1 ε) - fjFcrit nfun θt c⁻¹ (t ^ 2) + c⁻¹ * deriv (fctThetaD v01) t) _ τ
           exact (((hasDerivAt_const τ (L_ctr - c⁻¹ * ctTheta1 ε)).sub hFc_d).add (hv1d.const_mul c⁻¹)).congr_deriv (by ring)
@@ -550,7 +561,8 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
             pow_lt_pow_left₀ (not_le.mp hlt) hsub.2.1.le (by norm_num)
           linarith only [h2, this]
         have hmain_pos : 1.4 * (Real.pi ^ 2 / 48) * c ^ (-(1 / 3 : ℝ)) ≤ deriv (fjFcrit nfun θt c⁻¹) (τ ^ 2) * (2 * τ) := by
-          have hm := mul_le_mul hDcrit (show 1.4 * c ^ (-(1 / 3 : ℝ)) ≤ 2 * τ by linarith only [hτ_min]) (by positivity) (by positivity)
+          have hm := mul_le_mul hDcrit (show 1.4 * c ^ (-(1 / 3 : ℝ)) ≤ 2 * τ by linarith only [hτ_min]) (by positivity)
+            (by linarith only [hDcrit, sq_pos_of_pos Real.pi_pos])
           linarith only [hm]
         have hv2 := (hthD_bd hK4 hc0 hτ₁_τD).1 τ hsub.2.2.2 |>.2.2.1
         have hrat_le : |τ| / τ₁ ≤ 8 * c ^ (-(1 / 12 : ℝ)) := hτ_rat (Ioo_subset_Icc_self hτ)
@@ -576,7 +588,7 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
       max_at_crit_of_antitone (lo := τ_lo) (hi := τ_hi) (ctr := τ_1)
         (fun τ hτ => (hPhi1_deriv_eq τ (hIcc_sq hτ).2.1 (hIcc_sq hτ).2.2.1).1)
         hPhi1_tau_anti (by
-          dsimp only [rhs1]
+          change (L_ctr - c⁻¹ * ctTheta1 ε) - fjFcrit nfun θt c⁻¹ (τ_1 ^ 2) + c⁻¹ * deriv (fctThetaD v01) τ_1 = 0
           rw [← (hPhi1_deriv_eq τ_1 hτ1_pos hτ1_4_lt).2]
           exact hPB.crit (L_ctr, 0) hL_mem_dom)
         hτ1_in hτ0_in
@@ -607,7 +619,7 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
       rw [abs_le]; constructor <;> linarith [hPhi0_max, hPhi1_max, e0, e1, h0b.1, h1b.2]
     -- Apply `(3/2 * y)^(2/3)` MVT around `Φ₀(τ_0) ~ c⁻¹`
     have hQ_ge : 0.2 ≤ fjQ fF θt c⁻¹ z_s := by
-      have hm4 := hδsm_4 (by linarith only [hzs_mem.1, hz_pos]) (by linarith only [hzs_mem.2, hz_lt_δsm])
+      have hm4 := hδsm_4 (z := z_s) (by linarith only [hzs_mem.1, hz_pos]) (by linarith only [hzs_mem.2, hz_lt_δsm])
       have hzr0 : z_s ∈ Icc (-r₀) r₀ := ⟨by linarith only [hzs_mem.1, hz_pos, hr₀_pos], hm4.2.1⟩
       have hH0 : |fjH1 θt z_s| ≤ |BH10| := by simpa [Real.norm_eq_abs, fjH1] using le_trans (hBH10 z_s hzr0) (le_abs_self _)
       have hθ0 : |θt z_s| ≤ Mθ := by simpa [Real.norm_eq_abs] using hθ_jc.2 0 (by simp) z_s (hK_Yint hzr0)
@@ -615,11 +627,16 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
       have hQb : |c⁻¹ * (2 * θt z_s + 2 * z_s * deriv θt z_s)| ≤ 0.05 := by
         rw [hQ_eq, abs_mul, abs_of_pos (inv_pos.mpr hc0)]
         have : |fjH1 θt z_s - θt z_s| ≤ |BH10| + r₀ * |BH11| + Mθ + 1 := by
-          have := abs_sub_le (fjH1 θt z_s) 0 (θt z_s); nlinarith only [this, hH0, hθ0, hr₀_pos, abs_nonneg BH11]
+          have hab := abs_sub_le (fjH1 θt z_s) 0 (θt z_s)
+          simp only [sub_zero, zero_sub, abs_neg] at hab
+          have hr01 : 0 ≤ r₀ * |BH11| := mul_nonneg hr₀_pos.le (abs_nonneg BH11)
+          linarith only [hab, hH0, hθ0, hr01]
+        rw [mul_comm] at hBH_bd
         exact (mul_le_mul_of_nonneg_left this (inv_nonneg.mpr hc0.le)).trans hBH_bd
+      unfold fjQ
       linarith only [(abs_le.mp hQb).1, hm4.2.2.2.2.2.2.1, hpi2_bds.1]
     have hPhi0_eq_fj : concretePhiLambda K4 ε c 0 τ_0 L_ctr 0 = (2 / 3 : ℝ) * (fjAfold fF θt c⁻¹ z_s) ^ ((3 : ℝ) / 2) := by
-      have hm4 := hδsm_4 (by linarith only [hzs_mem.1, hz_pos]) (by linarith only [hzs_mem.2, hz_lt_δsm])
+      have hm4 := hδsm_4 (z := z_s) (by linarith only [hzs_mem.1, hz_pos]) (by linarith only [hzs_mem.2, hz_lt_δsm])
       have hτ0_sq : τ_0 ^ 2 = z_s := Real.sq_sqrt hzs_pos.le
       rw [concretePhi0_eq hε hτ0_s_pos.le (by rw [hτ0_sq]; exact hm4.1), hτ0_sq, hzs_eq, sub_self, zero_mul, add_zero]
       have hfja_pos : 0 ≤ fjAfold fF θt c⁻¹ z_s := by unfold fjAfold; positivity
@@ -661,7 +678,7 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
     have hPhi1_lo : 0.03 * c⁻¹ ≤ concretePhiTilde K4 ε c τ_1 (L_ctr, 0) := by linarith [hPhi0_lo, (abs_le.mp hPhi_diff).1, hcomp_01]
     have h_lo_y : 0.045 * c⁻¹ ≤ (3 / 2 : ℝ) * concretePhiLambda K4 ε c 0 τ_0 L_ctr 0 ∧
         0.045 * c⁻¹ ≤ (3 / 2 : ℝ) * concretePhiTilde K4 ε c τ_1 (L_ctr, 0) :=
-      ⟨by linarith only [hPhi0_lo], by linarith only [hPhi1_lo]⟩
+      ⟨by linarith only [hPhi0_lo, inv_nonneg.mpr hc0.le], by linarith only [hPhi1_lo, inv_nonneg.mpr hc0.le]⟩
     have hã_eq : fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) (L_ctr, 0) =
         ((3 / 2 : ℝ) * concretePhiTilde K4 ε c τ_1 (L_ctr, 0)) ^ (2 / 3 : ℝ) := rfl
     have hfj_eq : fjAfold fF θt c⁻¹ z_s = ((3 / 2 : ℝ) * concretePhiLambda K4 ε c 0 τ_0 L_ctr 0) ^ (2 / 3 : ℝ) := by
@@ -714,7 +731,7 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
             have h1 : C_pinch * c ^ (-(25 / 12 : ℝ)) ≤ C_pinch * c ^ (-(2 : ℝ)) :=
               mul_le_mul_of_nonneg_left hc_25 (by dsimp only [C_pinch]; positivity)
             rw [hc_2] at hfj_bd
-            linarith only [h1, hfj_bd]
+            linarith only [hã_diff, h1, hfj_bd]
       _ = (C_pinch + Cfj) * (c ^ (2 / 3 : ℝ) * c ^ (-(2 : ℝ))) := by ring
       _ ≤ C_ctr * c ^ (-(4 / 3 : ℝ)) := by
             rw [hc_43]
@@ -722,20 +739,20 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
             exact mul_le_mul_of_nonneg_right (hle.trans (le_max_right _ _)) (Real.rpow_nonneg hc0.le _)
   -- Surjectivity onto `closedBall (airyZero 1, 0) (c ^ (-(7/6)))`
   have h_surj : closedBall (airyZero 1, (0 : ℝ)) (c ^ (-(7 / 6 : ℝ))) ⊆
-      fctChart (fctKappa c) (c ^ (2 / 3 : ℝ)) (concretePhiTilde K4 ε c) (concreteTau0 ε c S) '' (I ×ˢ J) := by
+      fctChart (fctKappa c) (c ^ (-(2 / 3 : ℝ))) (concretePhiTilde K4 ε c) (concreteTau0 ε c S) '' (I ×ˢ J) := by
     intro y hy
     rw [mem_closedBall, Prod.dist_eq, Real.dist_eq, Real.dist_eq, sub_zero] at hy
     have hy1 : |y.1 - airyZero 1| ≤ c ^ (-(7 / 6 : ℝ)) := (le_max_left _ _).trans hy
     have hy2 : |y.2| ≤ c ^ (-(7 / 6 : ℝ)) := (le_max_right _ _).trans hy
-    have hα_mem : y.2 / c ^ (2 / 3 : ℝ) ∈ J := by
-      have hdiv : |y.2 / c ^ (2 / 3 : ℝ)| ≤ c ^ (-(11 / 6 : ℝ)) := by
-        rw [abs_div, abs_of_pos (Real.rpow_pos_of_pos hc0 (2 / 3 : ℝ)), div_le_iff₀ (Real.rpow_pos_of_pos hc0 _)]
-        calc |y.2| ≤ c ^ (-(7 / 6 : ℝ)) := hy2
-          _ = c ^ (-(11 / 6 : ℝ)) * c ^ (2 / 3 : ℝ) := by rw [← Real.rpow_add hc0]; norm_num
-      have hlt : c ^ (-(11 / 6 : ℝ)) < c ^ (-(1 / 2 : ℝ)) :=
-        Real.rpow_lt_rpow_of_exponent_lt (by linarith only [hc100]) (by norm_num : -(11 / 6 : ℝ) < -(1 / 2))
-      exact abs_lt.mp (lt_of_le_of_lt hdiv hlt)
-    set α : ℝ := y.2 / c ^ (2 / 3 : ℝ)
+    have hα_bd2 : |y.2 / c ^ (-(2 / 3 : ℝ))| ≤ c ^ (-(1 / 2 : ℝ)) := by
+      rw [abs_div, abs_of_pos (Real.rpow_pos_of_pos hc0 (-(2 / 3 : ℝ))), div_le_iff₀ (Real.rpow_pos_of_pos hc0 _)]
+      calc |y.2| ≤ c ^ (-(7 / 6 : ℝ)) := hy2
+        _ = c ^ (-(1 / 2 : ℝ)) * c ^ (-(2 / 3 : ℝ)) := by rw [← Real.rpow_add hc0]; norm_num
+    have hα_mem : y.2 / c ^ (-(2 / 3 : ℝ)) ∈ J := by
+      have hlt : c ^ (-(1 / 2 : ℝ)) < 3 / 2 * c ^ (-(1 / 2 : ℝ)) := by
+        linarith [Real.rpow_pos_of_pos hc0 (-(1 / 2 : ℝ))]
+      exact abs_lt.mp (lt_of_le_of_lt hα_bd2 hlt)
+    set α : ℝ := y.2 / c ^ (-(2 / 3 : ℝ))
     set Llo : ℝ := 3 / 4 * L_ctr
     set Lhi : ℝ := 3 / 2 * L_ctr
     have hL_pos : 0 < L_ctr := by linarith [hL_scale.1, Real.rpow_pos_of_pos hc0 (-(2 / 3 : ℝ))]
@@ -744,7 +761,8 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
     have hhiI : Lhi ∈ I := by dsimp only [I, Lhi]; exact ⟨by linarith only [hL_pos], by linarith only [hL_pos]⟩
     have hα_shift : |fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) (L_ctr, α) -
         fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) (L_ctr, 0)| ≤ Cα * c ^ (-(5 / 4 : ℝ)) * |α| :=
-      fctAtil_alpha_mvt hPB hCα_nn (Real.rpow_pos_of_pos hc0 _) (fun t ht => h_rect_sub ⟨hctrI, ht⟩)
+      fctAtil_alpha_mvt hPB (L := L_ctr) (rJ := 3 / 2 * c ^ (-(1 / 2 : ℝ))) (M := Cα * c ^ (-(5 / 4 : ℝ)))
+        (by positivity) (by positivity) (fun t ht => h_rect_sub ⟨hctrI, ht⟩)
         (fun t ht => hCα_bd hK4 hc100 hτ₁_τD (fun p hp => (hdom_extra p hp).1)
           (fun p hp => (hdom_extra p hp).2.2.2.2) hS_V_bounds hV_eq (fun p hp => hPB.atil_pos hp)
           (L_ctr, t) (h_rect_sub ⟨hctrI, ht⟩)) hα_mem
@@ -754,16 +772,12 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
         unfold fctKappa
         have hle : (2 : ℝ) ^ (-(2 / 3 : ℝ)) ≤ 1 := Real.rpow_le_one_of_one_le_of_nonpos (by norm_num) (by norm_num)
         nlinarith only [hle, Real.rpow_pos_of_pos hc0 (2 / 3 : ℝ)]
-      have hα_bd2 : |α| ≤ c ^ (-(11 / 6 : ℝ)) := by
-        rw [abs_div, abs_of_pos (Real.rpow_pos_of_pos hc0 (2 / 3 : ℝ)), div_le_iff₀ (Real.rpow_pos_of_pos hc0 _)]
-        calc |y.2| ≤ c ^ (-(7 / 6 : ℝ)) := hy2
-          _ = c ^ (-(11 / 6 : ℝ)) * c ^ (2 / 3 : ℝ) := by rw [← Real.rpow_add hc0]; norm_num
-      have h512 : c ^ (2 / 3 : ℝ) * c ^ (-(5 / 4 : ℝ)) * c ^ (-(11 / 6 : ℝ)) = c ^ (-(29 / 12 : ℝ)) := by
+      have h512 : c ^ (2 / 3 : ℝ) * c ^ (-(5 / 4 : ℝ)) * c ^ (-(1 / 2 : ℝ)) = c ^ (-(13 / 12 : ℝ)) := by
         rw [← Real.rpow_add hc0, ← Real.rpow_add hc0]; norm_num
       have hCα_err : fctKappa c * (Cα * c ^ (-(5 / 4 : ℝ)) * |α|) ≤ 0.05 := by
         calc fctKappa c * (Cα * c ^ (-(5 / 4 : ℝ)) * |α|)
-            ≤ c ^ (2 / 3 : ℝ) * (Cα * c ^ (-(5 / 4 : ℝ)) * c ^ (-(11 / 6 : ℝ))) := by gcongr
-          _ = Cα * c ^ (-(29 / 12 : ℝ)) := by rw [← h512]; ring
+            ≤ c ^ (2 / 3 : ℝ) * (Cα * c ^ (-(5 / 4 : ℝ)) * c ^ (-(1 / 2 : ℝ))) := by gcongr
+          _ = Cα * c ^ (-(13 / 12 : ℝ)) := by rw [← h512]; ring
           _ ≤ 0.05 := hα_bd
       have hsub : -fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) (L_ctr, α) - airyZero 1 =
           (-fctKappa c * (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) (L_ctr, α) -
@@ -813,11 +827,11 @@ private lemma fctWarpFJ_center_eps {K4 ε : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 
                 (1 / 1.6 : ℝ) * (100 / 95 : ℝ) * (1 / 2 : ℝ) * (c ^ (2 / 3 : ℝ) * c ^ (-(2 / 3 : ℝ))) by ring, hc_prod]; ring
           _ ≤ fctKappa c * ((100 / 95 : ℝ) * (3 / 2 * L_ctr - L_ctr)) := mul_le_mul hκ_ge (by gcongr; linarith only [hL_scale.1]) (by positivity) hκ_pos.le
       linarith [mul_le_mul_of_nonneg_left hLhi_ge hκ_pos.le]
-    have hy1_le : y.1 ≤ -fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) (Llo, y.2 / c ^ (2 / 3 : ℝ)) := by
+    have hy1_le : y.1 ≤ -fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) (Llo, y.2 / c ^ (-(2 / 3 : ℝ))) := by
       linarith [(abs_le.mp hy1).2, (abs_le.mp h_u_α).1, hr_bd]
-    have hhi_le_y1 : -fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) (Lhi, y.2 / c ^ (2 / 3 : ℝ)) ≤ y.1 := by
+    have hhi_le_y1 : -fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) (Lhi, y.2 / c ^ (-(2 / 3 : ℝ))) ≤ y.1 := by
       linarith [(abs_le.mp hy1).1, (abs_le.mp h_u_α).2, hr_bd]
-    exact hPB.fctChart_surj_of_bracket (I := I) (J := J) (Real.rpow_pos_of_pos hc0 (2 / 3 : ℝ)).ne'
+    exact hPB.fctChart_surj_of_bracket (I := I) (J := J) (Real.rpow_pos_of_pos hc0 (-(2 / 3 : ℝ))).ne'
       ordConnected_Ioo h_rect_sub hα_mem hloI hhiI (by dsimp only [Llo, Lhi]; linarith only [hL_pos]) hy1_le hhi_le_y1
   refine ⟨⟨ellMin, S, hPB, L_ctr, z_ctr, C_ctr, hellMin_pos,
     fun p hp => (hdom_extra p hp).1,
