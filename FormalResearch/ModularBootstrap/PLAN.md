@@ -507,6 +507,9 @@ INT-2, its corollaries wait for FIVE-W and PA2.
 
 ### 2.4 Staffing and practice (owner decisions)
 
+- 2026-11-28 (owner): SPIN-Z may keep the computer-assisted enclosures as the named input `SpinZEnclosures` for now; kernel-checked
+  certificates are not on the completion path. `int:repair` / `int:sonine` at integer weights `w >= 1` are acceptable, since the
+  main results use only integer weights; move to real `w` only if the change is easy (do not open a real-weight route for it).
 - No time boxes; a stalled route is a ledger row, not a stop. At most three runs at once; launch only with at least 1.5 GB disk free.
 - Since 2026-11-26 (owner): no new Sonnet agents; agy `gemini-4-neon-medium` for the hardest L steps, agy
   `gemini-4-hydrogen-medium` for bounded steps, Haiku for docs and `THEOREM_MAP.md` rows. Agy drafts are checked against the
