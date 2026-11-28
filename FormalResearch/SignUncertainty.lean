@@ -693,6 +693,17 @@ public import FormalResearch.SignUncertainty.CeHbDualPrep
 public import FormalResearch.SignUncertainty.CeHbPreEdge
 public import FormalResearch.SignUncertainty.CeHbDualPair
 public import FormalResearch.SignUncertainty.CeHbLift
+public import FormalResearch.SignUncertainty.HankelBootBandGen
+public import FormalResearch.SignUncertainty.HankelBootLineGen
+public import FormalResearch.SignUncertainty.HankelQuantC1Multilevel
+public import FormalResearch.SignUncertainty.HankelBootMultilevelNodes
+public import FormalResearch.SignUncertainty.HankelBootMultilevelArc
+public import FormalResearch.SignUncertainty.HankelBootMultilevel
+public import FormalResearch.SignUncertainty.CeShellReductionProved
+public import FormalResearch.SignUncertainty.HankelExactOrigin
+public import FormalResearch.SignUncertainty.HankelAttainment
+public import FormalResearch.SignUncertainty.HbConstructionSeed
+public import FormalResearch.SignUncertainty.HbConstruction
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -1006,11 +1017,14 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.CeHbSeedGen`, `CeHbSeedMass`, `CeHbDualPrep`, `CeHbPreEdge`, `CeHbDualPair`,
   `CeHbLift`: all-level `CeHbLift D` proof `ce_hb_lift_proved` (`thm:ce-hb-lift`, M6), discharging the former
   `ce_hb_lift` field of `CeCanonicalInputs` and `ce_hb_lift_m1` field of `RadiiInputs`.
-* `FormalResearch.SignUncertainty.HbMultilevelDefs`, `CeCanonicalDefs` (M0 skeleton, statement objects and input structures of `thm_intro_hb` and `thm_ce_canonical_iff`; `CeCanonicalInputs` now carries only `shell_reduction : ShellReduction D`).
+* `FormalResearch.SignUncertainty.HbMultilevelDefs`, `CeCanonicalDefs` (M0 skeleton, statement objects and input structures;
+  `CeCanonicalInputs` carries no open fields — `shell_reduction` proved by `CeShellReductionProved.shellReduction_proved`
+  via `HankelBootMultilevel.hbMultilevelLower_proved` — and `HbMultilevelInputs` is deleted, all four fields proved
+  by `HankelBootMultilevel.hbMultilevelLower_proved`, `HbConstruction.hbConstruction_proved`,
+  `HankelAttainment.hankelAttainment_proved`, and `HankelExactOrigin.hankelExactOrigin_proved`).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`, `thm_intro_hb`
-  (`u1cl:multilevel`) and `thm_ce_canonical_iff` (`thm:intro-gap`, `thm:ce-canonical-iff`) of Paper I, each proved
-  from one input structure whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5), and the
-  proved `thm_ce_shell_gap`, `thm_ce_shell_gap_even`, `thm_ce_shell_gap_full`.
+  (`u1cl:multilevel`, now unconditional) and `thm_ce_canonical_iff` (`thm:intro-gap`, `thm:ce-canonical-iff`,
+  now unconditional), and the proved `thm_ce_shell_gap`, `thm_ce_shell_gap_even`, `thm_ce_shell_gap_full`.
 * `FormalResearch.SignUncertainty.ShellGapOriginFloor` (`eq:ce-origin-floor`, `cor:ce-projection-mass`; proved,
   unconditional): `airyLaplace_re_le_l1` (`gt:3.1`: `ℒ_y(F) ≤ ‖F‖₁` for `F ∈ 𝒢`), `integral_le_add_of_locunif`
   (Fatou) and `hankelOriginFloor_proved : HankelOriginFloor D` (`sup_{y>0} ℒ_y(2Q_∞) ≤ liminf h_k(0)/M[f_k]` along the
