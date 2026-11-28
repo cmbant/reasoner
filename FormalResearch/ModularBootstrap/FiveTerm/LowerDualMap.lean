@@ -122,9 +122,11 @@ private lemma sqrt_quadrant_of_pos_re_im {w r : ℂ} (hw_re : 0 < w.re) (hw_im :
     conv_lhs => rw [hr_def, Complex.cpow_def_of_ne_zero hne]
     rw [hr_norm]
     have hsplit : Complex.log (w ^ 2 - 1) * (1 / 2 : ℂ) =
-        ((1 / 2 * Real.log ‖w ^ 2 - 1‖ : ℝ) : ℂ) +
+        ((Real.log ‖w ^ 2 - 1‖ * (1 / 2) : ℝ) : ℂ) +
           ((Complex.arg (w ^ 2 - 1) / 2 : ℝ) : ℂ) * Complex.I := by
-      apply Complex.ext <;> simp [Complex.mul_re, Complex.mul_im, Complex.log_re, Complex.log_im] <;> ring
+      apply Complex.ext
+      · simp [Complex.mul_re, Complex.log_re]
+      · simp [Complex.mul_im, Complex.log_im]; ring
     rw [hsplit, Complex.exp_add, ← Complex.ofReal_exp, ← Real.rpow_def_of_pos (norm_pos_iff.mpr hne),
       ← Real.sqrt_eq_rpow]
   have hr_norm_pos : 0 < ‖r‖ := by rw [hr_norm]; exact Real.sqrt_pos.mpr (norm_pos_iff.mpr hne)
@@ -214,7 +216,7 @@ lemma differentiableOn_dualBStrip : DifferentiableOn ℂ dualBStrip unitStripMin
     (hw_d.add hr_d).clog hsum_slit
   exact (hlog.div_const (π : ℂ)).differentiableWithinAt
 
-lemma dualBStrip_re_le {s : ℂ} (hs : s ∈ unitStripMinusCl) :
+lemma dualBStrip_re_le {s : ℂ} (_hs : s ∈ unitStripMinusCl) :
     (dualBStrip s).re ≤ |s.im| / 2 + 1 := by
   have hpi := Real.pi_pos
   have hpi3 : (3 : ℝ) < π := Real.pi_gt_three
@@ -226,10 +228,10 @@ lemma dualBStrip_re_le {s : ℂ} (hs : s ∈ unitStripMinusCl) :
       · rw [h]
       · rw [h, show π * -s.im / 2 = -(π * s.im / 2) by ring, Real.cosh_neg]
     have hsh : |Real.sinh (π * s.im / 2)| = Real.sinh (π * |s.im| / 2) := by
-      rcases abs_cases s.im with ⟨h, _⟩ | ⟨h, _⟩
+      rcases abs_cases s.im with ⟨h, _⟩ | ⟨h, hle⟩
       · rw [h, abs_of_nonneg (Real.sinh_nonneg_iff.mpr (by positivity))]
       · rw [h, show π * -s.im / 2 = -(π * s.im / 2) by ring, Real.sinh_neg, abs_of_nonpos]
-        exact Real.sinh_nonpos_iff.mpr (by nlinarith [hs.2.2])
+        exact Real.sinh_nonpos_iff.mpr (by nlinarith [Real.pi_pos])
     rw [← Real.sqrt_sq (norm_nonneg _), Complex.sq_norm, Complex.normSq_apply, hr, hi]
     apply Real.sqrt_le_iff.mpr
     refine ⟨by positivity, ?_⟩
@@ -274,6 +276,7 @@ lemma dualBStrip_re_le {s : ℂ} (hs : s ∈ unitStripMinusCl) :
     by_cases h0 : w ^ 2 - 1 = 0
     · simp [r, h0]; positivity
     · have hnorm_r : ‖r‖ = √‖w ^ 2 - 1‖ := by
+        dsimp [r]
         rw [Complex.cpow_def_of_ne_zero h0, Complex.norm_exp]
         have hre : (Complex.log (w ^ 2 - 1) * (1 / 2 : ℂ)).re = 1 / 2 * Real.log ‖w ^ 2 - 1‖ := by
           simp [Complex.mul_re, Complex.log_re]; ring
@@ -297,8 +300,8 @@ lemma dualBStrip_re_le {s : ℂ} (hs : s ∈ unitStripMinusCl) :
             Complex.log (w ^ 2 - 1) := by ring
         rw [this, Complex.exp_log h0]
     have hprod : (w + r) * (w - r) = 1 := by linear_combination -hr_sq
+    rw [norm_pos_iff]
     intro h0
-    rw [norm_eq_zero] at h0
     rw [h0, zero_mul] at hprod
     exact zero_ne_one hprod
   unfold dualBStrip
@@ -322,7 +325,7 @@ lemma dualWStrip_imag_neg (τ : ℝ) :
     push_cast; ring, Complex.cos_mul_I, ← Complex.ofReal_cosh, Real.cosh_neg]
   push_cast; ring
 
-lemma dualBStrip_imag_neg {τ : ℝ} (hτ : 0 < τ) :
+lemma dualBStrip_imag_neg {τ : ℝ} (_hτ : 0 < τ) :
     dualBStrip (-((τ : ℂ) * Complex.I)) = (xT τ : ℂ) := by
   unfold dualBStrip
   rw [dualWStrip_imag_neg τ]
@@ -370,7 +373,7 @@ lemma dualBStrip_one_add_imag_neg {τ : ℝ} (hτ : 0 < τ) :
       ((-Real.cosh (π * τ) : ℝ) : ℂ) := by
     rw [mul_pow, Complex.I_sq, ← Complex.ofReal_pow, mul_pow, Real.sq_sqrt (by norm_num)]
     have hch := cosh_eq_one_add_two_sinh_sq τ
-    exact_mod_cast (by linarith : -(2 * Real.sinh (π * τ / 2) ^ 2) - 1 = -Real.cosh (π * τ))
+    exact_mod_cast (by linarith : 2 * Real.sinh (π * τ / 2) ^ 2 * (-1) - 1 = -Real.cosh (π * τ))
   have hch_pos : 0 < Real.cosh (π * τ) := Real.cosh_pos _
   have hsqrt_neg : ((-Real.cosh (π * τ) : ℝ) : ℂ) ^ (1 / 2 : ℂ) =
       ((√(Real.cosh (π * τ)) : ℝ) : ℂ) * Complex.I := by
@@ -429,8 +432,10 @@ private lemma cpow_half_of_im_nonneg_re_neg {u : ℂ} (him : 0 ≤ u.im) (hre : 
   have hlog : Complex.log u * (1 / 2 : ℂ) = Complex.log (-u) * (1 / 2 : ℂ) + ((π / 2 : ℝ) : ℂ) * Complex.I := by
     apply Complex.ext
     · simp only [Complex.mul_re, Complex.log_re, hnorm, Complex.add_re, Complex.ofReal_re,
-        Complex.I_re, Complex.ofReal_im, Complex.I_im, mul_zero, sub_zero, add_zero]
-      simp [Complex.log_im]
+        Complex.I_re, Complex.ofReal_im, Complex.I_im, mul_zero, sub_zero,
+        Complex.log_im, Complex.re_ofNat, Complex.im_ofNat, one_div, Complex.inv_re,
+        Complex.normSq_ofNat, Complex.inv_im, neg_zero, zero_div]
+      ring
     · simp only [Complex.mul_im, Complex.log_im, Complex.add_im, Complex.ofReal_re,
         Complex.I_re, Complex.ofReal_im, Complex.I_im]
       norm_num
@@ -444,20 +449,21 @@ lemma continuousOn_cpow_half_im_nonneg :
   intro u hu
   by_cases hre_pos : 0 < u.re
   · have hslit : u ∈ Complex.slitPlane := Complex.mem_slitPlane_iff.mpr (Or.inl hre_pos)
-    exact ((continuousAt_id.cpow_const hslit)).continuousWithinAt
+    exact (differentiableAt_id.cpow_const hslit).continuousAt.continuousWithinAt
   · by_cases him_pos : 0 < u.im
     · have hslit : u ∈ Complex.slitPlane := Complex.mem_slitPlane_iff.mpr (Or.inr him_pos.ne')
-      exact ((continuousAt_id.cpow_const hslit)).continuousWithinAt
+      exact (differentiableAt_id.cpow_const hslit).continuousAt.continuousWithinAt
     · have him0 : u.im = 0 := le_antisymm (not_lt.mp him_pos) hu
       rcases (not_lt.mp hre_pos).eq_or_lt with hre0 | hre_neg
       · have hu0 : u = 0 := Complex.ext hre0 him0
-        rw [hu0]
-        rw [ContinuousWithinAt, Complex.zero_cpow (by norm_num), Metric.tendsto_nhdsWithin_nhds]
+        rw [hu0, ContinuousWithinAt, Complex.zero_cpow (by norm_num), Metric.tendsto_nhdsWithin_nhds]
         intro ε hε
         refine ⟨ε ^ 2, by positivity, fun z _ hz => ?_⟩
         rw [dist_zero_right] at hz ⊢
         by_cases hz0 : z = 0
-        · simpa [hz0, Complex.zero_cpow (by norm_num)] using hε
+        · subst hz0
+          rw [Complex.zero_cpow (by norm_num), norm_zero]
+          exact hε
         · have hzn : ‖z ^ (1 / 2 : ℂ)‖ = √‖z‖ := by
             rw [Complex.cpow_def_of_ne_zero hz0, Complex.norm_exp]
             have h1 : (Complex.log z * (1 / 2 : ℂ)).re = 1 / 2 * Real.log ‖z‖ := by
@@ -473,9 +479,10 @@ lemma continuousOn_cpow_half_im_nonneg :
           exact cpow_half_of_im_nonneg_re_neg hz1 hz2
         have hc : ContinuousAt (fun z : ℂ => Complex.I * (-z) ^ (1 / 2 : ℂ)) u := by
           have hslit : -u ∈ Complex.slitPlane := Complex.mem_slitPlane_iff.mpr (Or.inl (by simp [hre_neg]))
-          exact continuousAt_const.mul ((continuousAt_neg).cpow_const hslit)
+          exact continuousAt_const.mul ((differentiableAt_id.neg.cpow_const hslit).continuousAt)
         have h1 := hc.continuousWithinAt.tendsto.congr' (hev.mono fun _ h => h.symm)
-        rwa [cpow_half_of_im_nonneg_re_neg hu hre_neg]
+        rw [ContinuousWithinAt, cpow_half_of_im_nonneg_re_neg hu hre_neg]
+        exact h1
 
 lemma dualWStrip_nonneg_cl {s : ℂ} (hs : s ∈ unitStripMinusCl) :
     0 ≤ (dualWStrip s).re ∧ 0 ≤ (dualWStrip s).im := by
@@ -488,7 +495,8 @@ lemma dualWStrip_nonneg_cl {s : ℂ} (hs : s ∈ unitStripMinusCl) :
   have hsh : Real.sinh (π * s.im / 2) ≤ 0 := Real.sinh_nonpos_iff.mpr (by nlinarith [hs.2.2])
   have hs2 : (0 : ℝ) ≤ √2 := Real.sqrt_nonneg _
   have hch : 0 ≤ Real.cosh (π * s.im / 2) := (Real.cosh_pos _).le
-  exact ⟨by rw [hre]; positivity, by rw [him]; nlinarith⟩
+  exact ⟨by rw [hre]; positivity,
+    by rw [him]; nlinarith [mul_nonpos_of_nonneg_of_nonpos (mul_nonneg hs2 hsin) hsh]⟩
 
 lemma continuousOn_dualBStrip : ContinuousOn dualBStrip unitStripMinusCl := by
   have hw_cont : Continuous dualWStrip := by unfold dualWStrip; fun_prop
@@ -565,8 +573,14 @@ lemma continuousOn_dualBStrip : ContinuousOn dualBStrip unitStripMinusCl := by
   unfold dualBStrip
   refine ContinuousOn.div_const ?_ _
   intro s hs
-  exact (Complex.continuousAt_clog (hsum_slit s hs)).comp_continuousWithinAt
-    ((hw_cont.continuousOn.add hr_cont) s hs)
+  have hsum_cw : ContinuousWithinAt
+      (fun u : ℂ => dualWStrip u + (dualWStrip u ^ 2 - 1) ^ (1 / 2 : ℂ))
+      unitStripMinusCl s :=
+    (hw_cont.continuousOn s hs).add (hr_cont s hs)
+  exact ContinuousAt.comp_continuousWithinAt
+    (g := Complex.log)
+    (f := fun u : ℂ => dualWStrip u + (dualWStrip u ^ 2 - 1) ^ (1 / 2 : ℂ))
+    (differentiableAt_id.clog (hsum_slit s hs)).continuousAt hsum_cw
 
 /-! ### 2. The potential `dualPhi0 b = -I * majorantHolomorphic b` -/
 
@@ -628,48 +642,50 @@ lemma dualPhi0_ofReal_im_zero {x : ℝ} (hx : |x| < xiStar) :
 lemma dualPhi0_eq_edgePhi0Blaschke {b : ℂ} (h1 : 1 / 4 < b.im) (h2 : b.im < 1 / 2) :
     dualPhi0 b = edgePhi0Blaschke b := by
   set S : Set ℂ := {z : ℂ | 1 / 4 < z.im ∧ z.im < 1 / 2}
-  have hS_open : IsOpen S := isOpen_Ioo.preimage Complex.continuous_im
-  have hS_conn : IsPreconnected S := by
-    have hconv : Convex ℝ S := by
-      intro x hx y hy u v hu hv huv
-      change 1 / 4 < (u • x + v • y).im ∧ (u • x + v • y).im < 1 / 2
-      simp only [Complex.add_im, Complex.real_smul, Complex.ofReal_im, Complex.ofReal_re,
-        mul_im, zero_mul, add_zero]
-      rcases eq_or_lt_of_le hu with rfl | hu'
-      · have hv1 : v = 1 := by linarith
-        subst hv1; simpa using hy
-      · rcases eq_or_lt_of_le hv with rfl | hv'
-        · have hu1 : u = 1 := by linarith
-          subst hu1; simpa using hx
-        · constructor
-          · nlinarith [hx.1, hy.1]
-          · nlinarith [hx.2, hy.2]
-    exact hconv.isPreconnected
-  have hdiff : DifferentiableOn ℂ (fun z => edgePhi0Blaschke z - dualPhi0 z) S := by
-    intro z hz
+  set z₀ : ℂ := ((3 / 8 : ℝ) : ℂ) * Complex.I
+  set diff : ℂ → ℂ := fun z => edgePhi0Blaschke z - dualPhi0 z
+  have hz₀_S : z₀ ∈ S := by simp [S, z₀]; norm_num
+  have hdiff_deriv : ∀ z ∈ S, HasDerivAt diff 0 z := fun z hz => by
     have h1' : HasDerivAt edgePhi0Blaschke (-Complex.I * ((4 * π / 3 : ℝ) : ℂ) * pMap z) z :=
       hasDerivAt_edgePhi0Blaschke_lower hz.1 hz.2
     have hzm : z ∈ slitStrip := ⟨abs_lt.mpr ⟨by linarith [hz.1], hz.2⟩, fun ⟨him, _⟩ => by linarith [hz.1]⟩
-    have h2' : HasDerivAt dualPhi0 (-Complex.I * ((4 * π / 3 : ℝ) : ℂ) * pMap z) z := by
-      have hm := hasDerivAt_majorantHolomorphic hzm
-      exact ((hm.const_mul (-Complex.I)).congr_deriv (by ring))
-    exact (h1'.sub h2').differentiableAt.differentiableWithinAt
-  have hderiv0 : ∀ z ∈ S, deriv (fun w => edgePhi0Blaschke w - dualPhi0 w) z = 0 := by
-    intro z hz
-    have h1' := hasDerivAt_edgePhi0Blaschke_lower hz.1 hz.2
-    have hzm : z ∈ slitStrip := ⟨abs_lt.mpr ⟨by linarith [hz.1], hz.2⟩, fun ⟨him, _⟩ => by linarith [hz.1]⟩
     have h2' : HasDerivAt dualPhi0 (-Complex.I * ((4 * π / 3 : ℝ) : ℂ) * pMap z) z :=
       (hasDerivAt_majorantHolomorphic hzm).const_mul (-Complex.I) |>.congr_deriv (by ring)
-    rw [(h1'.sub h2').deriv, sub_self]
-  have hconst := hS_conn.eqOn_const_of_deriv_eq_zero hS_open hdiff hderiv0
-  have hbS : b ∈ S := ⟨h1, h2⟩
-  have h38S : ((3 / 8 : ℝ) : ℂ) * Complex.I ∈ S := by simp [S]; norm_num
-  have h_eq_38 := hconst hbS h38S
-  -- At `z₀ = (3/8) I`, both `edgePhi0Blaschke` and `dualPhi0` are real! Wait: check `edgePhi0Blaschke (I * y)` on `(1/4, 1/2]`!
+    exact (h1'.sub h2').congr_deriv (sub_self _)
+  have hmem_seg : ∀ t ∈ Icc (0 : ℝ) 1, z₀ + (t : ℂ) * (b - z₀) ∈ S := fun t ht => by
+    change 1 / 4 < (z₀ + (t : ℂ) * (b - z₀)).im ∧ (z₀ + (t : ℂ) * (b - z₀)).im < 1 / 2
+    simp only [Complex.add_im, Complex.mul_im, Complex.ofReal_re, Complex.ofReal_im, Complex.sub_im,
+      zero_mul, add_zero, z₀, Complex.I_im, mul_one, mul_zero, Complex.I_re]
+    constructor <;> nlinarith [ht.1, ht.2, h1, h2]
+  have hseg_d : ∀ t ∈ Icc (0 : ℝ) 1, HasDerivAt (fun s : ℝ => diff (z₀ + (s : ℂ) * (b - z₀))) 0 t :=
+    fun t ht => by
+      have hline : HasDerivAt (fun s : ℝ => z₀ + (s : ℂ) * (b - z₀)) (b - z₀) t := by
+        simpa using ((hasDerivAt_id t).ofReal_comp.mul_const (b - z₀)).const_add z₀
+      convert ((hdiff_deriv _ (hmem_seg t ht)).scomp t hline).congr_deriv (smul_zero _)
+      rfl
+  have hseg_cont : ContinuousOn (fun s : ℝ => diff (z₀ + (s : ℂ) * (b - z₀))) (Icc 0 1) :=
+    fun t ht => (hseg_d t ht).continuousAt.continuousWithinAt
+  have h_eq_38 : diff b = diff z₀ := by
+    have hre_0 : (diff b).re = (diff z₀).re := by
+      have hconst := exists_hasDerivAt_eq_slope (fun s : ℝ => (diff (z₀ + (s : ℂ) * (b - z₀))).re)
+        (fun _ => 0) zero_lt_one (Complex.continuous_re.comp_continuousOn hseg_cont)
+        (fun t ht => (Complex.reCLM.hasFDerivAt.comp_hasDerivAt t (hseg_d t (Ioo_subset_Icc_self ht))).congr_deriv
+          (by simp [Complex.reCLM_apply]))
+      obtain ⟨c, _, hc⟩ := hconst
+      simp only [Complex.ofReal_one, one_mul, add_sub_cancel, Complex.ofReal_zero, zero_mul, add_zero] at hc
+      linarith
+    have him_0 : (diff b).im = (diff z₀).im := by
+      have hconst := exists_hasDerivAt_eq_slope (fun s : ℝ => (diff (z₀ + (s : ℂ) * (b - z₀))).im)
+        (fun _ => 0) zero_lt_one (Complex.continuous_im.comp_continuousOn hseg_cont)
+        (fun t ht => (Complex.imCLM.hasFDerivAt.comp_hasDerivAt t (hseg_d t (Ioo_subset_Icc_self ht))).congr_deriv
+          (by simp [Complex.imCLM_apply]))
+      obtain ⟨c, _, hc⟩ := hconst
+      simp only [Complex.ofReal_one, one_mul, add_sub_cancel, Complex.ofReal_zero, zero_mul, add_zero] at hc
+      linarith
+    exact Complex.ext hre_0 him_0
+  -- At `z₀ = (3/8) I`, both `edgePhi0Blaschke` and `dualPhi0` are real!
   have him_zero_on_I : ∀ y ∈ Ioo (1 / 4 : ℝ) (1 / 2),
       (edgePhi0Blaschke ((y : ℂ) * Complex.I)).im = 0 := by
-    -- `∂_y Im Φ₀(I * y) = Re Φ₀'(I * y) = Re(-I * (4π/3) pMap(I * y)) = (4π/3) Im(pMap(I * y)) = 0`!
-    -- Even simpler: `edgePhi0Blaschke (I * (1/2)) = 0` (`phiZeta_half_I`) and `I * y ↦ edgePhi0Blaschke (I * y)` is continuous on `[3/8, 1/2]` with `.im` derivative `0`!
     intro y hy
     have hφ_cont : ContinuousOn (fun t : ℝ => (edgePhi0Blaschke ((t : ℂ) * Complex.I)).im) (Icc y (1 / 2)) := by
       have hc1 : ContinuousOn (fun t : ℝ => edgePhi0Blaschke ((t : ℂ) * Complex.I)) (Icc y (1 / 2)) := by
@@ -685,7 +701,7 @@ lemma dualPhi0_eq_edgePhi0Blaschke {b : ℂ} (h1 : 1 / 4 < b.im) (h2 : b.im < 1 
         (by simpa using ht.1.trans' hy.1) (by simpa using ht.2)
       have hc : HasDerivAt (fun s : ℝ => (s : ℂ) * Complex.I) Complex.I t := by
         simpa using (Complex.ofRealCLM.hasDerivAt (x := t)).mul_const Complex.I
-      have hcomp := (hd.hasFDerivAt.restrictScalars ℝ).comp_hasDerivAt t hc
+      have hcomp := hd.scomp t hc
       have him := Complex.imCLM.hasFDerivAt.comp_hasDerivAt t hcomp
       refine him.congr_deriv ?_
       have hp_im : (pMap ((t : ℂ) * Complex.I)).im = 0 := by
@@ -700,11 +716,7 @@ lemma dualPhi0_eq_edgePhi0Blaschke {b : ℂ} (h1 : 1 / 4 < b.im) (h2 : b.im < 1 
         have him_p := congrArg Complex.im hc_p
         simp only [Complex.neg_im, Complex.conj_im] at him_p
         linarith
-      simp only [Complex.imCLM_apply, smul_eq_mul]
-      rw [show (-Complex.I * ((4 * π / 3 : ℝ) : ℂ) * pMap ((t : ℂ) * Complex.I)) * Complex.I =
-          ((4 * π / 3 : ℝ) : ℂ) * pMap ((t : ℂ) * Complex.I) by
-        linear_combination (4 * π / 3 : ℂ) * pMap ((t : ℂ) * Complex.I) * Complex.I_sq]
-      simp [hp_im]
+      simp [Complex.imCLM_apply, Complex.mul_im, hp_im]
     obtain ⟨c, hc, hc'⟩ := exists_hasDerivAt_eq_slope
       (fun t : ℝ => (edgePhi0Blaschke ((t : ℂ) * Complex.I)).im) (fun _ => 0) hy.2 hφ_cont hφ_deriv
     have hhalf : edgePhi0Blaschke (((1 / 2 : ℝ) : ℂ) * Complex.I) = 0 := by
@@ -712,9 +724,8 @@ lemma dualPhi0_eq_edgePhi0Blaschke {b : ℂ} (h1 : 1 / 4 < b.im) (h2 : b.im < 1 
       unfold edgePhi0Blaschke; simp [phiZeta_half_I]
     simp only [hhalf, Complex.zero_im, zero_sub] at hc'
     have hne : 1 / 2 - y ≠ 0 := by linarith [hy.2]
-    have hq : (0 - (edgePhi0Blaschke ((y : ℂ) * Complex.I)).im) = 0 := by
-      have := congrArg (· * (1 / 2 - y)) hc'
-      simpa [div_mul_cancel₀ _ hne] using this
+    have hq : -(edgePhi0Blaschke ((y : ℂ) * Complex.I)).im = 0 :=
+      (div_eq_zero_iff.mp hc'.symm).resolve_right hne
     linarith
   have him_diff : (edgePhi0Blaschke (((3 / 8 : ℝ) : ℂ) * Complex.I) -
       dualPhi0 (((3 / 8 : ℝ) : ℂ) * Complex.I)).im = 0 := by
@@ -728,57 +739,36 @@ lemma dualPhi0_eq_edgePhi0Blaschke {b : ℂ} (h1 : 1 / 4 < b.im) (h2 : b.im < 1 
   have h0_38 : edgePhi0Blaschke (((3 / 8 : ℝ) : ℂ) * Complex.I) -
       dualPhi0 (((3 / 8 : ℝ) : ℂ) * Complex.I) = 0 :=
     Complex.ext hre_diff him_diff
-  rw [h0_38] at h_eq_38
-  exact (sub_eq_zero.mp h_eq_38).symm
+  dsimp [diff] at h_eq_38
+  rw [h0_38, sub_eq_zero] at h_eq_38
+  exact h_eq_38.symm
 
 lemma re_dualPhi0_ge {b : ℂ} (hre : 0 ≤ b.re) (him0 : 0 < b.im) (him1 : b.im < 1 / 2) :
-    -(2 * π / 3) * b.re ≤ (dualPhi0 b).re := by
+    majorantU0 - (2 * π / 3) * b.re ≤ (dualPhi0 b).re := by
   have him_eq : (dualPhi0 b).re = (majorantHolomorphic b).im := by
     unfold dualPhi0; simp
   rw [him_eq]
-  change -(2 * π / 3) * b.re ≤ majorant2D b
-  have h0 : 0 ≤ (zetaPlus 1 ((0 : ℂ) + (b.im : ℂ) * Complex.I)).im := by
-    have hcont : ContinuousOn (fun t : ℝ => pMap ((t : ℂ) * ((b.im : ℂ) * Complex.I)) * ((b.im : ℂ) * Complex.I)) (Icc 0 1) := by
-      have hm : (b.im : ℂ) * Complex.I ∈ slitStrip :=
-        ⟨by simpa [abs_of_pos him0] using him1, fun ⟨him, _⟩ => by simp at him; exact him0.ne' him⟩
-      exact (differentiableOn_pMap_slitStrip.continuousOn.comp
-        (Complex.continuous_ofReal.mul continuous_const).continuousOn fun t ht =>
-          smul_mem_slitStrip hm ht.1 ht.2).mul continuousOn_const
-    have hm_im : 0 ≤ (majorantHolomorphic ((b.im : ℂ) * Complex.I)).im := by
-      unfold majorantHolomorphic
-      have hint_im : (∫ t in (0 : ℝ)..1, (pMap ((t : ℂ) * ((b.im : ℂ) * Complex.I)) *
-            ((b.im : ℂ) * Complex.I))).im =
-          ∫ t in (0 : ℝ)..1, (pMap ((t : ℂ) * ((b.im : ℂ) * Complex.I)) * ((b.im : ℂ) * Complex.I)).im :=
-        (Complex.imCLM.intervalIntegral_comp_comm (hcont.intervalIntegrable_of_Icc zero_le_one)).symm
-      rw [hint_im]
-      refine intervalIntegral.integral_nonneg zero_le_one fun t ht => ?_
-      have harg : -Complex.I * Complex.sinh ((π : ℂ) * ((t : ℂ) * ((b.im : ℂ) * Complex.I))) =
-          ((Real.sin (π * (t * b.im)) : ℝ) : ℂ) := by
-        rw [show (π : ℂ) * ((t : ℂ) * ((b.im : ℂ) * Complex.I)) =
-            ((π * (t * b.im) : ℝ) : ℂ) * Complex.I by push_cast; ring, Complex.sinh_mul_I,
-          ← Complex.ofReal_sin]
-        linear_combination (-((Real.sin (π * (t * b.im)) : ℝ) : ℂ)) * Complex.I_sq
-      have hp_re : 0 ≤ (pMap ((t : ℂ) * ((b.im : ℂ) * Complex.I))).re := by
-        unfold pMap complexArsinh
-        rw [harg]
-        set s := Real.sin (π * (t * b.im))
-        have hs_nn : 0 ≤ s := Real.sin_nonneg_of_nonneg_of_le_pi (by positivity) (by nlinarith [Real.pi_pos, ht.2, him1])
-        have hsq_pos : 0 < s ^ 2 + 1 := by positivity
-        rw [show (s : ℂ) ^ 2 + 1 = ((s ^ 2 + 1 : ℝ) : ℂ) by push_cast; ring,
-          show (1 / 2 : ℂ) = ((1 / 2 : ℝ) : ℂ) by push_cast; ring,
-          ← Complex.ofReal_cpow hsq_pos.le, ← Real.sqrt_eq_rpow, ← Complex.ofReal_add,
-          ← Complex.ofReal_log (by positivity), ← Complex.ofReal_div, Complex.ofReal_re]
-        exact div_nonneg (Real.log_nonneg (by nlinarith [Real.one_le_sqrt.mpr (by nlinarith : 1 ≤ s ^ 2 + 1)])) Real.pi_pos.le
-      simp only [Complex.mul_im, Complex.ofReal_re, Complex.I_re, Complex.ofReal_im, Complex.I_im,
-        mul_zero, zero_mul, sub_zero, add_zero, mul_one]
-      exact mul_nonneg hp_re him0.le
-    unfold zetaPlus
-    rw [zero_add]
-    simp only [Complex.mul_im, Complex.ofReal_re, Complex.ofReal_im, Complex.add_im, Complex.I_re,
-      Complex.I_im, zero_mul, mul_zero, add_zero, zero_add]
-    exact mul_nonneg (by positivity) hm_im
+  change majorantU0 - (2 * π / 3) * b.re ≤ majorant2D b
+  have hm0 : majorantU0 ≤ majorant2D ((b.im : ℂ) * Complex.I) := by
+    rw [majorant2D_I_mul (by rw [abs_of_pos him0]; exact him1), majorantImag_eq]
+    have hint_nn : 0 ≤ ∫ t in (0 : ℝ)..b.im, Real.arsinh (Real.sin (π * t)) := by
+      refine intervalIntegral.integral_nonneg him0.le fun t ht => ?_
+      exact Real.arsinh_nonneg_iff.mpr (Real.sin_nonneg_of_nonneg_of_le_pi
+        (mul_nonneg Real.pi_pos.le ht.1)
+        (by nlinarith [Real.pi_pos, ht.2, him1]))
+    linarith
+  have h0 : majorantU0 / (2 * π) ≤ (zetaPlus 1 ((0 : ℂ) + (b.im : ℂ) * Complex.I)).im := by
+    have heq0 : (zetaPlus 1 ((0 : ℂ) + (b.im : ℂ) * Complex.I)).im =
+        majorant2D ((b.im : ℂ) * Complex.I) / (2 * π) := by
+      unfold zetaPlus majorant2D
+      rw [zero_add]
+      simp only [Complex.mul_im, Complex.ofReal_re, Complex.ofReal_im, Complex.add_im, Complex.I_re,
+        Complex.I_im, mul_zero, zero_mul, add_zero, zero_add, one_mul, Complex.mul_re, sub_zero]
+      ring
+    rw [heq0]
+    exact div_le_div_of_nonneg_right hm0 (by positivity)
   have hmono : MonotoneOn (fun t : ℝ => (zetaPlus 1 ((t : ℂ) + (b.im : ℂ) * Complex.I)).im) (Ici 0) := by
-    refine monotoneOn_of_deriv_nonneg (convex_Ici 0) ?_ ?_
+    refine monotoneOn_of_deriv_nonneg (convex_Ici 0) ?_ ?_ ?_
     · intro t _
       have hmem : (t : ℂ) + (b.im : ℂ) * Complex.I ∈ slitStrip :=
         ⟨by simpa [abs_of_pos him0] using him1, fun ⟨him, _⟩ => by simp at him; exact him0.ne' him⟩
@@ -790,16 +780,27 @@ lemma re_dualPhi0_ge {b : ℂ} (hre : 0 ≤ b.re) (him0 : 0 < b.im) (him1 : b.im
       have hmem : (t : ℂ) + (b.im : ℂ) * Complex.I ∈ slitStrip :=
         ⟨by simpa [abs_of_pos him0] using him1, fun ⟨him, _⟩ => by simp at him; exact him0.ne' him⟩
       have hc : HasDerivAt (fun s : ℝ => (s : ℂ) + (b.im : ℂ) * Complex.I) 1 t := by
-        simpa using (Complex.ofRealCLM.hasDerivAt (x := t)).add_const _
+        simpa using (Complex.ofRealCLM.hasDerivAt (x := t)).add_const ((b.im : ℂ) * Complex.I)
       have hz := ((hasDerivAt_zetaPlus (c' := 1) hmem).hasFDerivAt.restrictScalars ℝ).comp_hasDerivAt t hc
-      have him_d := Complex.imCLM.hasFDerivAt.comp_hasDerivAt t hz
-      rw [him_d.deriv]
+      exact (Complex.imCLM.hasFDerivAt.comp_hasDerivAt t hz).differentiableAt.differentiableWithinAt
+    · intro t ht
+      rw [interior_Ici] at ht
+      have hmem : (t : ℂ) + (b.im : ℂ) * Complex.I ∈ slitStrip :=
+        ⟨by simpa [abs_of_pos him0] using him1, fun ⟨him, _⟩ => by simp at him; exact him0.ne' him⟩
+      have hc : HasDerivAt (fun s : ℝ => (s : ℂ) + (b.im : ℂ) * Complex.I) 1 t := by
+        simpa using (Complex.ofRealCLM.hasDerivAt (x := t)).add_const ((b.im : ℂ) * Complex.I)
+      have hz := (hasDerivAt_zetaPlus (c' := 1) hmem).scomp t hc
+      have him_d' : HasDerivAt (fun t : ℝ => (zetaPlus 1 ((t : ℂ) + (b.im : ℂ) * Complex.I)).im)
+          ((2 / 3 : ℝ) * ((pMap ((t : ℂ) + (b.im : ℂ) * Complex.I)).im + 1 / 2)) t := by
+        convert Complex.imCLM.hasFDerivAt.comp_hasDerivAt t hz
+        simp [Complex.imCLM_apply]
+        norm_num
+      rw [him_d'.deriv]
       have hp := pMap_pos_re_neg_im hmem (by simpa using ht) (by simpa using him0)
-      simp only [Complex.imCLM_apply, smul_eq_mul, one_mul, Complex.mul_im, Complex.ofReal_re,
-        Complex.ofReal_im, Complex.add_im, Complex.div_ofNat_im, Complex.I_im, zero_mul, add_zero]
-      nlinarith [hp.2.2]
-  have hval := h0.trans (hmono (left_mem_Ici) hre hre)
+      linarith [hp.2.2]
+  have hval := h0.trans (hmono (Set.mem_Ici.mpr le_rfl) hre hre)
   have hbe : (b.re : ℂ) + (b.im : ℂ) * Complex.I = b := by apply Complex.ext <;> simp
+  change majorantU0 / (2 * π) ≤ (zetaPlus 1 ((b.re : ℂ) + (b.im : ℂ) * Complex.I)).im at hval
   rw [hbe] at hval
   have heq : (zetaPlus 1 b).im = (1 / (2 * π)) * (majorant2D b + (2 * π / 3) * b.re) := by
     unfold zetaPlus majorant2D
@@ -807,23 +808,33 @@ lemma re_dualPhi0_ge {b : ℂ} (hre : 0 ≤ b.re) (him0 : 0 < b.im) (him1 : b.im
       Complex.I_im, mul_zero, zero_mul, add_zero, zero_add, one_mul, Complex.mul_re, sub_zero]
   rw [heq] at hval
   have hpi := Real.pi_pos
-  have hnn : 0 ≤ majorant2D b + (2 * π / 3) * b.re := by nlinarith
+  have hm2 : majorantU0 ≤ majorant2D b + (2 * π / 3) * b.re := by
+    have := mul_le_mul_of_nonneg_left hval (by positivity : 0 ≤ 2 * π)
+    field_simp [hpi.ne'] at this
+    linarith
   linarith
 
 lemma tendsto_dualPhi0_slit {x₀ : ℝ} (hx₀ : xiStar < x₀) :
     Tendsto dualPhi0 (𝓝[{b : ℂ | 0 < b.im}] (x₀ : ℂ))
       (𝓝 (-(((2 * π / 3 * x₀ : ℝ) : ℂ)) - Complex.I * ((2 * π * cumulN x₀ : ℝ) : ℂ))) := by
   have ht := tendsto_zetaPlus_slit_right (c' := 1) hx₀
-  have h_eq : ∀ b : ℂ, dualPhi0 b =
-      -Complex.I * ((2 * π : ℂ) * zetaPlus 1 b) - ((2 * π / 3 : ℝ) : ℂ) * b := fun b => by
+  have h_eq : dualPhi0 = fun b : ℂ =>
+      -Complex.I * ((2 * π : ℂ) * zetaPlus 1 b) - ((2 * π / 3 : ℝ) : ℂ) * b := by
+    ext b
     unfold dualPhi0 zetaPlus
     have hpi : (π : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_pos.ne'
     push_cast
-    field_simp [hpi]
-    ring
-  simp_rw [h_eq]
+    have h1 : -Complex.I * ((2 * (π : ℂ)) * ((1 / (2 * (π : ℂ))) * (majorantHolomorphic b +
+        Complex.I * (2 * (π : ℂ) / 3) * b))) =
+        -Complex.I * majorantHolomorphic b + ((2 * (π : ℂ) / 3)) * b := by
+      field_simp [hpi]
+      apply Complex.ext
+      · simp
+      · simp; ring
+    rw [h1]; ring
+  rw [h_eq]
   have hid : Tendsto (fun b : ℂ => b) (𝓝[{b : ℂ | 0 < b.im}] (x₀ : ℂ)) (𝓝 (x₀ : ℂ)) :=
-    nhdsWithin_le_nhds
+    continuous_id.continuousAt.tendsto.mono_left nhdsWithin_le_nhds
   have hlim := ((tendsto_const_nhds (x := -Complex.I)).mul
     ((tendsto_const_nhds (x := (2 * π : ℂ))).mul ht)).sub
       ((tendsto_const_nhds (x := ((2 * π / 3 : ℝ) : ℂ))).mul hid)
@@ -851,7 +862,7 @@ private lemma re_halfDisc_S_nonneg {z : ℂ} (hz : z ∈ closure halfDisc) :
       rw [Complex.sq_norm, Complex.normSq_apply]; simp; ring
     have hnorm2 : ‖z‖ ^ 2 ≤ 1 := by nlinarith [norm_nonneg z]
     rw [← add_div, hnum]
-    exact div_nonneg (by linarith) hn
+    exact div_nonneg (by linarith) hn.le
   rw [hS_eq, Complex.add_re]
   exact ⟨add_nonneg hre hsig_re, h1z_norm⟩
 
@@ -861,9 +872,9 @@ lemma norm_lowerMt_le {ε : ℝ} (hε : 0 ≤ ε) {z : ℂ} (hz : z ∈ closure 
   have h1z_ne : 1 + z ≠ 0 := fun h => by rw [h, norm_zero] at h1z_norm; linarith
   set S := (1 + z ^ 2) / (1 + z)
   have hden_eq : 1 + z ^ 2 + (ε : ℂ) * (1 + z) = (1 + z) * (S + (ε : ℂ)) := by
-    dsimp [S]; field_simp [h1z_ne]; ring
+    dsimp [S]; field_simp [h1z_ne]
   have hnum_eq : (1 + (ε : ℂ)) * (1 + z ^ 2) = (1 + z) * ((1 + (ε : ℂ)) * S) := by
-    dsimp [S]; field_simp [h1z_ne]; ring
+    dsimp [S]; field_simp [h1z_ne]
   unfold lowerMt
   rw [hnum_eq, hden_eq, mul_div_mul_left _ _ h1z_ne, norm_div, norm_mul]
   have hS_le : ‖S‖ ≤ ‖S + (ε : ℂ)‖ := by
@@ -895,9 +906,9 @@ lemma norm_lowerMt_decay {η : ℝ} (hη : 0 < η) {z : ℂ} (hz : z ∈ closure
   have h1e : ‖(1 : ℂ) + (η : ℂ)‖ = 1 + η := by
     rw [← Complex.ofReal_one, ← Complex.ofReal_add, Complex.norm_real, Real.norm_of_nonneg (by linarith)]
   have hden_eq : 1 + z ^ 2 + (η : ℂ) * (1 + z) = (1 + z) * (S + (η : ℂ)) := by
-    dsimp [S]; field_simp [h1z_ne]; ring
+    dsimp [S]; field_simp [h1z_ne]
   have hnum_eq : (1 + (η : ℂ)) * (1 + z ^ 2) = (1 + z) * ((1 + (η : ℂ)) * S) := by
-    dsimp [S]; field_simp [h1z_ne]; ring
+    dsimp [S]; field_simp [h1z_ne]
   unfold lowerMt
   rw [hnum_eq, hden_eq, mul_div_mul_left _ _ h1z_ne, norm_div, norm_mul, h1e]
   calc (1 + η) * ‖S‖ / ‖S + (η : ℂ)‖
@@ -906,7 +917,8 @@ lemma norm_lowerMt_decay {η : ℝ} (hη : 0 < η) {z : ℂ} (hz : z ∈ closure
 
 lemma lowerMt_sigma (ε : ℝ) {z : ℂ} (hz : z ∈ closure halfDisc) :
     lowerMt ε (sigmaHD z) = lowerMt ε z := by
-  have h1z : 1 + z ≠ 0 := one_add_ne_zero' hz
+  have h1z_norm := (re_halfDisc_S_nonneg hz).2
+  have h1z : 1 + z ≠ 0 := fun h => by rw [h, norm_zero] at h1z_norm; linarith
   have hsig : 1 + sigmaHD z = 2 / (1 + z) := by
     unfold sigmaHD; field_simp [h1z]; ring
   have hsig2 : 1 + sigmaHD z ^ 2 = 2 * (1 + z ^ 2) / (1 + z) ^ 2 := by
@@ -914,7 +926,6 @@ lemma lowerMt_sigma (ε : ℝ) {z : ℂ} (hz : z ∈ closure halfDisc) :
   unfold lowerMt
   rw [hsig, hsig2]
   field_simp [h1z]
-  ring
 
 lemma lowerMt_conj (ε : ℝ) (z : ℂ) :
     lowerMt ε (starRingEnd ℂ z) = starRingEnd ℂ (lowerMt ε z) := by
@@ -931,10 +942,15 @@ lemma differentiableOn_lowerMt {ε : ℝ} (hε : 0 < ε) :
     have hS : ((1 + z ^ 2) / (1 + z) + (ε : ℂ)).re ≥ ε := by simp; linarith
     have hSne : (1 + z ^ 2) / (1 + z) + (ε : ℂ) ≠ 0 := fun h => by rw [h] at hS; simp at hS; linarith
     rw [show 1 + z ^ 2 + (ε : ℂ) * (1 + z) = (1 + z) * ((1 + z ^ 2) / (1 + z) + (ε : ℂ)) by
-      field_simp [h1z]; ring]
+      field_simp [h1z]]
     exact mul_ne_zero h1z hSne
   unfold lowerMt
-  exact (DifferentiableAt.div (by fun_prop) (by fun_prop) hden).differentiableWithinAt
+  have hnum_d : DifferentiableAt ℂ (fun w : ℂ => (1 + (ε : ℂ)) * (1 + w ^ 2)) z :=
+    ((differentiableAt_const _).add (differentiableAt_id.pow 2)).const_mul _
+  have hden_d : DifferentiableAt ℂ (fun w : ℂ => 1 + w ^ 2 + (ε : ℂ) * (1 + w)) z :=
+    ((differentiableAt_const _).add (differentiableAt_id.pow 2)).add
+      (((differentiableAt_const _).add differentiableAt_id).const_mul _)
+  exact (hnum_d.div hden_d hden).differentiableWithinAt
 
 lemma continuousOn_lowerMt {ε : ℝ} (hε : 0 < ε) :
     ContinuousOn (lowerMt ε) (closure halfDisc) := by
@@ -945,10 +961,15 @@ lemma continuousOn_lowerMt {ε : ℝ} (hε : 0 < ε) :
     have hS : ((1 + z ^ 2) / (1 + z) + (ε : ℂ)).re ≥ ε := by simp; linarith
     have hSne : (1 + z ^ 2) / (1 + z) + (ε : ℂ) ≠ 0 := fun h => by rw [h] at hS; simp at hS; linarith
     rw [show 1 + z ^ 2 + (ε : ℂ) * (1 + z) = (1 + z) * ((1 + z ^ 2) / (1 + z) + (ε : ℂ)) by
-      field_simp [h1z]; ring]
+      field_simp [h1z]]
     exact mul_ne_zero h1z hSne
   unfold lowerMt
-  exact (ContinuousAt.div (by fun_prop) (by fun_prop) hden).continuousWithinAt
+  have hnum_c : ContinuousAt (fun w : ℂ => (1 + (ε : ℂ)) * (1 + w ^ 2)) z :=
+    (continuousAt_const.add (continuousAt_id.pow 2)).const_mul _
+  have hden_c : ContinuousAt (fun w : ℂ => 1 + w ^ 2 + (ε : ℂ) * (1 + w)) z :=
+    (continuousAt_const.add (continuousAt_id.pow 2)).add
+      ((continuousAt_const.add continuousAt_id).const_mul _)
+  exact (hnum_c.div hden_c hden).continuousWithinAt
 
 lemma tendsto_lowerMt_eta_zero {z : ℂ} (hz_pm : 1 + z ^ 2 ≠ 0) :
     Tendsto (fun η : ℝ => lowerMt η z) (𝓝[>] 0) (𝓝 1) := by
@@ -1005,11 +1026,11 @@ lemma dualBStrip_ofReal_prop {x : ℝ} (hx0 : 0 < x) (hx1 : x < 1) :
         unfold xiStar Real.arsinh
         rw [mul_div_cancel₀ _ hpi.ne', Real.exp_log (by positivity)]
         norm_num [add_comm]
-      rw [div_lt_iff₀ hpi, mul_comm, ← Real.log_lt_iff_lt_exp (by positivity) |>.mpr]
+      rw [div_lt_iff₀ hpi, mul_comm]
       have hlog : Real.log (w₀ + √(w₀ ^ 2 - 1)) < Real.log (√2 + 1) :=
         Real.log_lt_log (by positivity) hsum_lt
       rw [← hexp, Real.log_exp] at hlog
-      linarith
+      exact hlog
     have hmem : dualBStrip (x : ℂ) ∈ slitStrip := by
       rw [hb_eq]
       exact ⟨by simp, fun ⟨_, hre⟩ => by
@@ -1021,19 +1042,26 @@ lemma dualBStrip_ofReal_prop {x : ℝ} (hx0 : 0 < x) (hx1 : x < 1) :
     exact hre_lt
   · have hneg : 0 < 1 - w₀ ^ 2 := by nlinarith
     have hc_eq : ((w₀ : ℂ) ^ 2 - 1) ^ (1 / 2 : ℂ) = ((√(1 - w₀ ^ 2) : ℝ) : ℂ) * Complex.I := by
-      rw [show ((w₀ : ℂ) ^ 2 - 1) = ((-(1 - w₀ ^ 2) : ℝ) : ℂ) by push_cast; ring,
-        cpow_half_of_im_nonneg_re_neg (by simp) (by simp; linarith),
-        show -(((-(1 - w₀ ^ 2) : ℝ) : ℂ)) = ((1 - w₀ ^ 2 : ℝ) : ℂ) by push_cast; ring,
+      have him0 : (((w₀ : ℂ) ^ 2 - 1)).im = 0 := by
+        rw [← Complex.ofReal_pow, ← Complex.ofReal_one, ← Complex.ofReal_sub, Complex.ofReal_im]
+      have hre_neg : (((w₀ : ℂ) ^ 2 - 1)).re < 0 := by
+        rw [← Complex.ofReal_pow, ← Complex.ofReal_one, ← Complex.ofReal_sub, Complex.ofReal_re]
+        linarith
+      rw [cpow_half_of_im_nonneg_re_neg him0.ge hre_neg,
+        show -(((w₀ : ℂ) ^ 2 - 1)) = ((1 - w₀ ^ 2 : ℝ) : ℂ) by push_cast; ring,
         show (1 / 2 : ℂ) = ((1 / 2 : ℝ) : ℂ) by push_cast; ring,
         ← Complex.ofReal_cpow hneg.le, ← Real.sqrt_eq_rpow]
       ring
     set z₀ : ℂ := (w₀ : ℂ) + ((√(1 - w₀ ^ 2) : ℝ) : ℂ) * Complex.I
     have hz0_norm : ‖z₀‖ = 1 := by
-      rw [← sq_eq_one_iff₀ (norm_nonneg z₀), Complex.sq_norm, Complex.normSq_apply]
-      dsimp [z₀]; simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.I_re,
-        mul_zero, Complex.I_im, Complex.ofReal_im, mul_one, sub_zero, add_zero, Complex.add_im,
-        Complex.mul_im, zero_add]
-      rw [Real.sq_sqrt hneg.le]; ring
+      have hsq : ‖z₀‖ ^ 2 = 1 := by
+        rw [Complex.sq_norm, Complex.normSq_apply]
+        dsimp [z₀]; simp only [Complex.ofReal_re, Complex.mul_re, Complex.I_re,
+          mul_zero, Complex.I_im, Complex.ofReal_im, mul_one, sub_zero, add_zero,
+          Complex.mul_im, zero_add]
+        rw [show √(1 - w₀ ^ 2) * √(1 - w₀ ^ 2) = √(1 - w₀ ^ 2) ^ 2 by ring, Real.sq_sqrt hneg.le]
+        ring
+      nlinarith [norm_nonneg z₀]
     have hz0_re : 0 < z₀.re := by dsimp [z₀]; simp [hw0_pos]
     have hz0_im : 0 < z₀.im := by dsimp [z₀]; simp [Real.sqrt_pos.mpr hneg]
     have hb_eq : dualBStrip (x : ℂ) = ((Complex.arg z₀ / π : ℝ) : ℂ) * Complex.I := by
@@ -1046,7 +1074,12 @@ lemma dualBStrip_ofReal_prop {x : ℝ} (hx0 : 0 < x) (hx1 : x < 1) :
         simp
       rw [hlog]
       push_cast; ring
-    have harg_pos : 0 < Complex.arg z₀ := Complex.arg_pos_iff.mpr hz0_im
+    have harg_pos : 0 < Complex.arg z₀ := by
+      have hnn := Complex.arg_nonneg_iff.mpr hz0_im.le
+      refine lt_of_le_of_ne hnn ?_
+      intro h0
+      have := (Complex.arg_eq_zero_iff.mp h0.symm).2
+      linarith
     have harg_lt : Complex.arg z₀ < π / 2 :=
       (Complex.abs_arg_lt_pi_div_two_iff.mpr (Or.inl hz0_re)).trans_le' (le_abs_self _)
     have him_pos : 0 < (dualBStrip (x : ℂ)).im := by
@@ -1071,7 +1104,9 @@ lemma dualBStrip_ofReal_phi0_im_zero {x : ℝ} (hx0 : 0 < x) (hx1 : x < 1) :
   · have hb_eq : dualBStrip (x : ℂ) = (((dualBStrip (x : ℂ)).im : ℝ) : ℂ) * Complex.I :=
       Complex.ext (by simp [hre0]) (by simp)
     rw [hb_eq]
-    exact dualPhi0_imag_im_zero (by simpa [hb_eq] using him_abs)
+    refine dualPhi0_imag_im_zero ?_
+    have him_b : ((dualBStrip (x : ℂ)).im : ℝ) = ((dualBStrip (x : ℂ))).im := rfl
+    exact him_abs
 
 end
 
