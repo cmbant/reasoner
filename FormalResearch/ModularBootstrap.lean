@@ -170,6 +170,16 @@ public import FormalResearch.ModularBootstrap.Mixtures.RampedSource
 public import FormalResearch.ModularBootstrap.Mixtures.RampedUpper
 public import FormalResearch.ModularBootstrap.Mixtures.O1Lower
 public import FormalResearch.ModularBootstrap.Mixtures.O1
+public import FormalResearch.ModularBootstrap.Mixtures.SourceBandBound
+public import FormalResearch.ModularBootstrap.Mixtures.SourceLemmaQBase
+public import FormalResearch.ModularBootstrap.Mixtures.SourceLemmaQGap
+public import FormalResearch.ModularBootstrap.Mixtures.SourceLemmaQ
+public import FormalResearch.ModularBootstrap.Mixtures.SourceLemmaZ
+public import FormalResearch.ModularBootstrap.Mixtures.SourceQuadBase
+public import FormalResearch.ModularBootstrap.Mixtures.SourceQuadLine
+public import FormalResearch.ModularBootstrap.Mixtures.SourceArc
+public import FormalResearch.ModularBootstrap.Mixtures.SourceNodes
+public import FormalResearch.ModularBootstrap.Mixtures.SourceO1Lower
 public import FormalResearch.ModularBootstrap.Mixtures.Punif
 public import FormalResearch.ModularBootstrap.Mixtures.Ramped
 public import FormalResearch.ModularBootstrap.Mixtures.VacCompare
