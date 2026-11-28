@@ -67,7 +67,7 @@ lemma dualWStrip_re_im (s : ℂ) :
   rw [cos_eq_re_im', hre, him]
   simp only [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, Complex.sub_re,
     Complex.I_re, Complex.I_im, mul_zero, sub_zero, zero_mul, add_zero, Complex.sub_im,
-    Complex.mul_im, mul_one, zero_sub, zero_add]
+    Complex.mul_im, mul_one, zero_sub]
   constructor <;> ring
 
 lemma dualWStrip_quadrant {s : ℂ} (hs : s ∈ unitStripMinusOpen) :
@@ -81,7 +81,7 @@ lemma dualWStrip_quadrant {s : ℂ} (hs : s ∈ unitStripMinusOpen) :
   have hsh : Real.sinh (π * s.im / 2) < 0 := Real.sinh_neg_iff.mpr (by nlinarith [hs.2.2])
   have hs2 : (0 : ℝ) < √2 := Real.sqrt_pos.mpr (by norm_num)
   have hch : 0 < Real.cosh (π * s.im / 2) := Real.cosh_pos _
-  exact ⟨by rw [hre]; positivity, by rw [him]; nlinarith⟩
+  exact ⟨by rw [hre]; positivity, by rw [him]; nlinarith [mul_neg_of_pos_of_neg (mul_pos hs2 hsin) hsh]⟩
 
 lemma dualWStrip_sq_sub_one_mem_slitPlane {s : ℂ} (hs : s ∈ unitStripMinusOpen) :
     dualWStrip s ^ 2 - 1 ∈ Complex.slitPlane := by
@@ -105,7 +105,12 @@ private lemma sqrt_quadrant_of_pos_re_im {w r : ℂ} (hw_re : 0 < w.re) (hw_im :
   have hw2_im : 0 < (w ^ 2 - 1).im := by
     have : (w ^ 2 - 1).im = 2 * w.re * w.im := by simp [sq]; ring
     linarith [mul_pos hw_re hw_im]
-  have harg_pos : 0 < Complex.arg (w ^ 2 - 1) := Complex.arg_pos_iff.mpr hw2_im
+  have harg_pos : 0 < Complex.arg (w ^ 2 - 1) := by
+    have hnn := Complex.arg_nonneg_iff.mpr hw2_im.le
+    refine lt_of_le_of_ne hnn ?_
+    intro h0
+    have := (Complex.arg_eq_zero_iff.mp h0.symm).2
+    linarith
   have harg_lt : Complex.arg (w ^ 2 - 1) < π := Complex.arg_lt_pi_iff.mpr (Or.inr hw2_im.ne')
   have hr_norm : ‖r‖ = √‖w ^ 2 - 1‖ := by
     rw [hr_def, Complex.cpow_def_of_ne_zero hne, Complex.norm_exp]
@@ -114,19 +119,14 @@ private lemma sqrt_quadrant_of_pos_re_im {w r : ℂ} (hw_re : 0 < w.re) (hw_im :
     rw [hre, Real.sqrt_eq_rpow, Real.rpow_def_of_pos (norm_pos_iff.mpr hne)]
     congr 1; ring
   have hr_eq : r = (‖r‖ : ℂ) * Complex.exp (((Complex.arg (w ^ 2 - 1) / 2 : ℝ) : ℂ) * Complex.I) := by
-    rw [hr_def, Complex.cpow_def_of_ne_zero hne, hr_norm, hr_def]
+    conv_lhs => rw [hr_def, Complex.cpow_def_of_ne_zero hne]
+    rw [hr_norm]
     have hsplit : Complex.log (w ^ 2 - 1) * (1 / 2 : ℂ) =
         ((1 / 2 * Real.log ‖w ^ 2 - 1‖ : ℝ) : ℂ) +
           ((Complex.arg (w ^ 2 - 1) / 2 : ℝ) : ℂ) * Complex.I := by
       apply Complex.ext <;> simp [Complex.mul_re, Complex.mul_im, Complex.log_re, Complex.log_im] <;> ring
     rw [hsplit, Complex.exp_add, ← Complex.ofReal_exp, ← Real.rpow_def_of_pos (norm_pos_iff.mpr hne),
       ← Real.sqrt_eq_rpow]
-    congr 2
-    rw [Complex.norm_exp]
-    have hre : (Complex.log (w ^ 2 - 1) * (1 / 2 : ℂ)).re = 1 / 2 * Real.log ‖w ^ 2 - 1‖ := by
-      simp [Complex.mul_re, Complex.log_re]; ring
-    rw [hre, Real.rpow_def_of_pos (norm_pos_iff.mpr hne)]
-    congr 1; ring
   have hr_norm_pos : 0 < ‖r‖ := by rw [hr_norm]; exact Real.sqrt_pos.mpr (norm_pos_iff.mpr hne)
   have hcos : 0 < Real.cos (Complex.arg (w ^ 2 - 1) / 2) :=
     Real.cos_pos_of_mem_Ioo ⟨by linarith, by linarith⟩
@@ -134,10 +134,14 @@ private lemma sqrt_quadrant_of_pos_re_im {w r : ℂ} (hw_re : 0 < w.re) (hw_im :
     Real.sin_pos_of_pos_of_lt_pi (by linarith) (by linarith)
   have hr_re : 0 < r.re := by
     rw [hr_eq, Complex.exp_mul_I, ← Complex.ofReal_cos, ← Complex.ofReal_sin]
-    simp [Complex.mul_re]; exact mul_pos hr_norm_pos hcos
+    simp only [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, Complex.add_re,
+      Complex.I_re, Complex.I_im, mul_zero, zero_mul, sub_zero, add_zero, mul_one]
+    exact mul_pos hr_norm_pos hcos
   have hr_im : 0 < r.im := by
     rw [hr_eq, Complex.exp_mul_I, ← Complex.ofReal_cos, ← Complex.ofReal_sin]
-    simp [Complex.mul_im]; exact mul_pos hr_norm_pos hsin
+    simp only [Complex.mul_im, Complex.ofReal_re, Complex.ofReal_im, Complex.add_im,
+      Complex.I_re, Complex.I_im, mul_zero, zero_mul, add_zero, mul_one, zero_add]
+    exact mul_pos hr_norm_pos hsin
   have hr_sq : r ^ 2 = w ^ 2 - 1 := by
     rw [hr_def, Complex.cpow_def_of_ne_zero hne, sq, ← Complex.exp_add]
     have h : Complex.log (w ^ 2 - 1) * (1 / 2 : ℂ) + Complex.log (w ^ 2 - 1) * (1 / 2 : ℂ) =
@@ -172,7 +176,12 @@ lemma dualBStrip_mem_slitStrip {s : ℂ} (hs : s ∈ unitStripMinusOpen) :
     change 0 < (Complex.log (w + r) / (π : ℂ)).re
     rw [div_ofReal_re, Complex.log_re]
     exact div_pos (Real.log_pos hnorm_gt) hpi
-  have harg_pos : 0 < Complex.arg (w + r) := Complex.arg_pos_iff.mpr hsum_im
+  have harg_pos : 0 < Complex.arg (w + r) := by
+    have hnn := Complex.arg_nonneg_iff.mpr hsum_im.le
+    refine lt_of_le_of_ne hnn ?_
+    intro h0
+    have := (Complex.arg_eq_zero_iff.mp h0.symm).2
+    linarith
   have harg_lt : Complex.arg (w + r) < π / 2 :=
     (Complex.abs_arg_lt_pi_div_two_iff.mpr (Or.inl hsum_re)).trans_le' (le_abs_self _)
   have hbim_pos : 0 < (dualBStrip s).im := by
@@ -213,7 +222,9 @@ lemma dualBStrip_re_le {s : ℂ} (hs : s ∈ unitStripMinusCl) :
   have hw_norm : ‖dualWStrip s‖ ≤ √2 * Real.cosh (π * |s.im| / 2) := by
     obtain ⟨hr, hi⟩ := dualWStrip_re_im s
     have hch : Real.cosh (π * s.im / 2) = Real.cosh (π * |s.im| / 2) := by
-      rcases abs_cases s.im with ⟨h, _⟩ | ⟨h, _⟩ <;> simp [h]
+      rcases abs_cases s.im with ⟨h, _⟩ | ⟨h, _⟩
+      · rw [h]
+      · rw [h, show π * -s.im / 2 = -(π * s.im / 2) by ring, Real.cosh_neg]
     have hsh : |Real.sinh (π * s.im / 2)| = Real.sinh (π * |s.im| / 2) := by
       rcases abs_cases s.im with ⟨h, _⟩ | ⟨h, _⟩
       · rw [h, abs_of_nonneg (Real.sinh_nonneg_iff.mpr (by positivity))]
@@ -229,12 +240,18 @@ lemma dualBStrip_re_le {s : ℂ} (hs : s ∈ unitStripMinusCl) :
         Real.cosh_sq_sub_sinh_sq _
       rw [← hsh, sq_abs] at hsq
       linarith
-    calc (√2 * Real.cos (π * s.re / 2) * Real.cosh (π * s.im / 2)) ^ 2 +
-          (-(√2 * Real.sin (π * s.re / 2) * Real.sinh (π * s.im / 2))) ^ 2
-        = 2 * (Real.cos (π * s.re / 2) ^ 2 * Real.cosh (π * |s.im| / 2) ^ 2 +
+    have hnormSq_eq :
+        √2 * Real.cos (π * s.re / 2) * Real.cosh (π * s.im / 2) *
+            (√2 * Real.cos (π * s.re / 2) * Real.cosh (π * s.im / 2)) +
+          -(√2 * Real.sin (π * s.re / 2) * Real.sinh (π * s.im / 2)) *
+            -(√2 * Real.sin (π * s.re / 2) * Real.sinh (π * s.im / 2)) =
+        2 * (Real.cos (π * s.re / 2) ^ 2 * Real.cosh (π * |s.im| / 2) ^ 2 +
             Real.sin (π * s.re / 2) ^ 2 * Real.sinh (π * s.im / 2) ^ 2) := by
-          rw [hch]; ring_nf; rw [Real.sq_sqrt (by norm_num)]; ring
-      _ ≤ 2 * (Real.cos (π * s.re / 2) ^ 2 * Real.cosh (π * |s.im| / 2) ^ 2 +
+      rw [hch]; ring_nf; rw [Real.sq_sqrt (by norm_num)]; ring
+    rw [hnormSq_eq]
+    calc 2 * (Real.cos (π * s.re / 2) ^ 2 * Real.cosh (π * |s.im| / 2) ^ 2 +
+            Real.sin (π * s.re / 2) ^ 2 * Real.sinh (π * s.im / 2) ^ 2)
+        ≤ 2 * (Real.cos (π * s.re / 2) ^ 2 * Real.cosh (π * |s.im| / 2) ^ 2 +
             Real.sin (π * s.re / 2) ^ 2 * Real.cosh (π * |s.im| / 2) ^ 2) := by
           gcongr
       _ = (√2 * Real.cosh (π * |s.im| / 2)) ^ 2 := by
@@ -243,8 +260,10 @@ lemma dualBStrip_re_le {s : ℂ} (hs : s ∈ unitStripMinusCl) :
             (Real.cos (π * s.re / 2) ^ 2 + Real.sin (π * s.re / 2) ^ 2) *
               Real.cosh (π * |s.im| / 2) ^ 2 := by ring
           rw [this, hsc, one_mul, mul_pow, Real.sq_sqrt (by norm_num)]
-  have hw_exp : ‖dualWStrip s‖ ≤ 2 * Real.exp (π * |s.im| / 2) :=
-    hw_norm.trans (mul_le_mul hs2 (cosh_le_exp_abs _) (Real.cosh_pos _).le (by norm_num))
+  have hw_exp : ‖dualWStrip s‖ ≤ 2 * Real.exp (π * |s.im| / 2) := by
+    have hcosh_exp : Real.cosh (π * |s.im| / 2) ≤ Real.exp (π * |s.im| / 2) :=
+      (cosh_le_exp_abs (π * |s.im| / 2)).trans_eq (by rw [abs_of_nonneg (by positivity)])
+    exact hw_norm.trans (mul_le_mul hs2 hcosh_exp (Real.cosh_pos _).le (by norm_num))
   set w := dualWStrip s
   set r := (w ^ 2 - 1) ^ (1 / 2 : ℂ)
   have hr_norm : ‖r‖ ≤ ‖w‖ + 1 := by
@@ -296,7 +315,7 @@ lemma dualBStrip_re_le {s : ℂ} (hs : s ∈ unitStripMinusCl) :
     exact Real.log_le_iff_le_exp (by norm_num) |>.mpr this
   linarith
 
-lemma dualWStrip_imag_neg {τ : ℝ} (hτ : 0 < τ) :
+lemma dualWStrip_imag_neg (τ : ℝ) :
     dualWStrip (-((τ : ℂ) * Complex.I)) = ((√2 * Real.cosh (π * τ / 2) : ℝ) : ℂ) := by
   unfold dualWStrip
   rw [show (π : ℂ) * -((τ : ℂ) * Complex.I) / 2 = ((-(π * τ / 2) : ℝ) : ℂ) * Complex.I by
@@ -306,7 +325,7 @@ lemma dualWStrip_imag_neg {τ : ℝ} (hτ : 0 < τ) :
 lemma dualBStrip_imag_neg {τ : ℝ} (hτ : 0 < τ) :
     dualBStrip (-((τ : ℂ) * Complex.I)) = (xT τ : ℂ) := by
   unfold dualBStrip
-  rw [dualWStrip_imag_neg hτ]
+  rw [dualWStrip_imag_neg τ]
   have hch : 1 < √2 * Real.cosh (π * τ / 2) := by
     have : 1 ≤ Real.cosh (π * τ / 2) := Real.one_le_cosh _
     have : 1 < √2 := Real.lt_sqrt_of_sq_lt (by norm_num)
@@ -317,7 +336,7 @@ lemma dualBStrip_imag_neg {τ : ℝ} (hτ : 0 < τ) :
     rw [show (((√2 * Real.cosh (π * τ / 2) : ℝ) : ℂ) ^ 2 - 1) =
         (((√2 * Real.cosh (π * τ / 2)) ^ 2 - 1 : ℝ) : ℂ) by push_cast; ring,
       show (1 / 2 : ℂ) = ((1 / 2 : ℝ) : ℂ) by push_cast; ring,
-      ← Complex.ofReal_cpow hsq_pos.le, Real.sqrt_eq_rpow]
+      ← Complex.ofReal_cpow hsq_pos.le, ← Real.sqrt_eq_rpow]
   rw [hc_eq]
   have hval_pos : 0 < √2 * Real.cosh (π * τ / 2) + √((√2 * Real.cosh (π * τ / 2)) ^ 2 - 1) := by
     positivity
@@ -328,10 +347,10 @@ lemma dualBStrip_imag_neg {τ : ℝ} (hτ : 0 < τ) :
       have h1 := one_add_cosh_eq τ
       linarith
     rw [heq, add_comm]
-  rw [← Complex.ofReal_add, ← Complex.ofReal_log hval_pos.le, hsum_eq, ← xT_eq_log,
-    ← Complex.ofReal_div]
+  rw [← Complex.ofReal_add, ← Complex.ofReal_log hval_pos.le, hsum_eq, ← Complex.ofReal_div,
+    ← xT_eq_log]
 
-lemma dualWStrip_one_add_imag_neg {τ : ℝ} (hτ : 0 < τ) :
+lemma dualWStrip_one_add_imag_neg (τ : ℝ) :
     dualWStrip (1 - (τ : ℂ) * Complex.I) = ((√2 * Real.sinh (π * τ / 2) : ℝ) : ℂ) * Complex.I := by
   unfold dualWStrip
   rw [show (π : ℂ) * (1 - (τ : ℂ) * Complex.I) / 2 = ((π / 2 : ℝ) : ℂ) + ((-(π * τ / 2) : ℝ) : ℂ) * Complex.I by
@@ -343,15 +362,15 @@ lemma dualWStrip_one_add_imag_neg {τ : ℝ} (hτ : 0 < τ) :
 lemma dualBStrip_one_add_imag_neg {τ : ℝ} (hτ : 0 < τ) :
     dualBStrip (1 - (τ : ℂ) * Complex.I) = (vT τ : ℂ) + Complex.I / 2 := by
   unfold dualBStrip
-  rw [dualWStrip_one_add_imag_neg hτ]
+  rw [dualWStrip_one_add_imag_neg τ]
   have hsh : 0 < √2 * Real.sinh (π * τ / 2) := by
     have : 0 < Real.sinh (π * τ / 2) := Real.sinh_pos_iff.mpr (by positivity)
     positivity
   have hsq_eq : (((√2 * Real.sinh (π * τ / 2) : ℝ) : ℂ) * Complex.I) ^ 2 - 1 =
       ((-Real.cosh (π * τ) : ℝ) : ℂ) := by
     rw [mul_pow, Complex.I_sq, ← Complex.ofReal_pow, mul_pow, Real.sq_sqrt (by norm_num)]
-    have := cosh_eq_one_add_two_sinh_sq τ
-    push_cast; linear_combination -((1 : ℂ) * (this : ℝ))
+    have hch := cosh_eq_one_add_two_sinh_sq τ
+    exact_mod_cast (by linarith : -(2 * Real.sinh (π * τ / 2) ^ 2) - 1 = -Real.cosh (π * τ))
   have hch_pos : 0 < Real.cosh (π * τ) := Real.cosh_pos _
   have hsqrt_neg : ((-Real.cosh (π * τ) : ℝ) : ℂ) ^ (1 / 2 : ℂ) =
       ((√(Real.cosh (π * τ)) : ℝ) : ℂ) * Complex.I := by
@@ -363,8 +382,8 @@ lemma dualBStrip_one_add_imag_neg {τ : ℝ} (hτ : 0 < τ) :
       Complex.arg_ofReal_of_neg (by linarith)
     rw [hnorm, harg]
     have hlog : (((Real.log (Real.cosh (π * τ)) : ℝ) : ℂ) + (π : ℂ) * Complex.I) * (1 / 2 : ℂ) =
-        ((1 / 2 * Real.log (Real.cosh (π * τ)) : ℝ) : ℂ) + ((π / 2 : ℝ) : ℂ) * Complex.I := by
-      ring
+        ((Real.log (Real.cosh (π * τ)) * (1 / 2) : ℝ) : ℂ) + ((π / 2 : ℝ) : ℂ) * Complex.I := by
+      push_cast; ring
     rw [hlog, Complex.exp_add, ← Complex.ofReal_exp, ← Real.rpow_def_of_pos hch_pos,
       ← Real.sqrt_eq_rpow, Complex.exp_mul_I, ← Complex.ofReal_cos, ← Complex.ofReal_sin,
       Real.cos_pi_div_two, Real.sin_pi_div_two]
@@ -377,7 +396,6 @@ lemma dualBStrip_one_add_imag_neg {τ : ℝ} (hτ : 0 < τ) :
     rw [vT_eq_log, mul_div_cancel₀ _ Real.pi_pos.ne', Real.exp_log hval_pos]
     push_cast; ring
   rw [hsum_eq]
-  have he_pos : 0 < Real.exp (π * vT τ) := Real.exp_pos _
   have hexp_eq : ((Real.exp (π * vT τ) : ℝ) : ℂ) * Complex.I =
       Complex.exp (((π * vT τ : ℝ) : ℂ) + ((π / 2 : ℝ) : ℂ) * Complex.I) := by
     rw [Complex.exp_add, Complex.ofReal_exp, Complex.exp_mul_I, ← Complex.ofReal_cos,
@@ -391,7 +409,6 @@ lemma dualBStrip_one_add_imag_neg {τ : ℝ} (hτ : 0 < τ) :
   rw [hexp_eq, Complex.log_exp him_lt him_le]
   push_cast
   field_simp [hpi.ne']
-  ring
 
 private lemma cpow_half_of_im_nonneg_re_neg {u : ℂ} (him : 0 ≤ u.im) (hre : u.re < 0) :
     u ^ (1 / 2 : ℂ) = Complex.I * (-u) ^ (1 / 2 : ℂ) := by
