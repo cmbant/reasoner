@@ -50,11 +50,294 @@ lemma rpow_third_mul_neg_quarter {c : ℝ} (hc : 0 < c) :
     c ^ (-(1 / 3 : ℝ)) / c ^ (-(1 / 4 : ℝ)) = c ^ (-(1 / 12 : ℝ)) := by
   rw [div_eq_mul_inv, ← Real.rpow_neg hc.le, ← Real.rpow_add hc]; norm_num
 
+private lemma thetaD_center_decomp {K4 c τ₁ : ℝ} (hK4 : 1 ≤ K4) (hc : 0 < c) (hτ₁ : 0 < τ₁)
+    (hτ₁_le : τ₁ ≤ (fct_comp_D_part1 StripKernelChoice.star).choose) (hcτ : τ₁ ^ 4 * c = 1)
+    (hcd_v : ContDiff ℝ (⊤ : ℕ∞) (v0Base StripKernelChoice.star τ₁) ∧ ContDiff ℝ (⊤ : ℕ∞) (v0Marg τ₁) ∧
+      ContDiff ℝ (⊤ : ℕ∞) (vAlpha 0 τ₁) ∧ ContDiff ℝ (⊤ : ℕ∞) (v1Base StripKernelChoice.star c τ₁) ∧
+      ContDiff ℝ (⊤ : ℕ∞) (v1Marg c τ₁) ∧ ContDiff ℝ (⊤ : ℕ∞) (vTotal StripKernelChoice.star K4 c 0 τ₁))
+    (hcs_v : HasCompactSupport (v0Base StripKernelChoice.star τ₁) ∧ HasCompactSupport (v0Marg τ₁) ∧
+      HasCompactSupport (vAlpha 0 τ₁) ∧
+      HasCompactSupport (v1Base StripKernelChoice.star c τ₁) ∧ HasCompactSupport (v1Marg c τ₁) ∧
+      HasCompactSupport (v0 StripKernelChoice.star K4 τ₁) ∧ HasCompactSupport (v1 StripKernelChoice.star K4 c τ₁)) :
+    ContDiff ℝ (⊤ : ℕ∞) (fctThetaD (vTotal StripKernelChoice.star K4 c 0 τ₁)) ∧
+    ∀ (r : ℕ) (t : ℝ), iteratedDeriv r (fctThetaD (vTotal StripKernelChoice.star K4 c 0 τ₁)) t =
+      iteratedDeriv r (fctThetaD (v0Base StripKernelChoice.star τ₁)) t +
+        K4 * iteratedDeriv r (fctThetaD (v0Marg τ₁)) t +
+        iteratedDeriv r (fctThetaD (v1Base StripKernelChoice.star c τ₁)) t +
+        K4 * iteratedDeriv r (fctThetaD (v1Marg c τ₁)) t := by
+  obtain ⟨hv0b_cs, hv0m_cs, hva0_cs, hv1b_cs, hv1m_cs, hv0_cs, hv1_cs⟩ := hcs_v
+  have hva_info := fctThetaD_vAlpha_eq hK4 hc hτ₁ hτ₁_le hcτ 0
+  have hv0_cd : ContDiff ℝ (⊤ : ℕ∞) (v0 StripKernelChoice.star K4 τ₁) := hcd_v.1.add (contDiff_const.mul hcd_v.2.1)
+  have hv1_cd : ContDiff ℝ (⊤ : ℕ∞) (v1 StripKernelChoice.star K4 c τ₁) := hcd_v.2.2.2.1.add (contDiff_const.mul hcd_v.2.2.2.2.1)
+  have hsum_fn : fctThetaD (vTotal StripKernelChoice.star K4 c 0 τ₁) =
+      fun t => fctThetaD (v0Base StripKernelChoice.star τ₁) t + K4 * fctThetaD (v0Marg τ₁) t +
+        fctThetaD (v1Base StripKernelChoice.star c τ₁) t + K4 * fctThetaD (v1Marg c τ₁) t := by
+    ext s
+    have h1 := fctThetaD_linear hv0_cd hv0_cs hv1_cd hv1_cs 1 1 s
+    have h2 := fctThetaD_linear (hv0_cd.add hv1_cd) (hv0_cs.add hv1_cs) hcd_v.2.2.1 hva0_cs 1 1 s
+    have h0 := fctThetaD_linear hcd_v.1 hv0b_cs hcd_v.2.1 hv0m_cs 1 K4 s
+    have h1' := fctThetaD_linear hcd_v.2.2.2.1 hv1b_cs hcd_v.2.2.2.2.1 hv1m_cs 1 K4 s
+    have ha0 : fctThetaD (vAlpha 0 τ₁) s = 0 := by simpa using (hva_info s).1
+    simp only [one_mul] at h1 h2 h0 h1'
+    change fctThetaD (fun u => (v0 StripKernelChoice.star K4 τ₁ u +
+      v1 StripKernelChoice.star K4 c τ₁ u) + vAlpha 0 τ₁ u) s = _
+    rw [h2, ha0, add_zero, h1,
+      show v0 StripKernelChoice.star K4 τ₁ = fun s => v0Base StripKernelChoice.star τ₁ s + K4 * v0Marg τ₁ s from rfl,
+      show v1 StripKernelChoice.star K4 c τ₁ = fun s => v1Base StripKernelChoice.star c τ₁ s + K4 * v1Marg c τ₁ s from rfl,
+      h0, h1']; ring
+  have hcd_b0 := contDiff_fctThetaD hcd_v.1 hv0b_cs
+  have hcd_m0 := contDiff_fctThetaD hcd_v.2.1 hv0m_cs
+  have hcd_b1 := contDiff_fctThetaD hcd_v.2.2.2.1 hv1b_cs
+  have hcd_m1 := contDiff_fctThetaD hcd_v.2.2.2.2.1 hv1m_cs
+  refine ⟨by rw [hsum_fn]; exact ((hcd_b0.add (contDiff_const.mul hcd_m0)).add hcd_b1).add (contDiff_const.mul hcd_m1),
+    fun r t => by
+      rw [hsum_fn]
+      have hb0a : ContDiffAt ℝ r (fctThetaD (v0Base StripKernelChoice.star τ₁)) t :=
+        hcd_b0.contDiffAt.of_le (WithTop.coe_le_coe.mpr le_top)
+      have hm0a : ContDiffAt ℝ r (fctThetaD (v0Marg τ₁)) t :=
+        hcd_m0.contDiffAt.of_le (WithTop.coe_le_coe.mpr le_top)
+      have hb1a : ContDiffAt ℝ r (fctThetaD (v1Base StripKernelChoice.star c τ₁)) t :=
+        hcd_b1.contDiffAt.of_le (WithTop.coe_le_coe.mpr le_top)
+      have hm1a : ContDiffAt ℝ r (fctThetaD (v1Marg c τ₁)) t :=
+        hcd_m1.contDiffAt.of_le (WithTop.coe_le_coe.mpr le_top)
+      have hm0k : ContDiffAt ℝ r (fun x => K4 * fctThetaD (v0Marg τ₁) x) t := contDiffAt_const.mul hm0a
+      have hm1k : ContDiffAt ℝ r (fun x => K4 * fctThetaD (v1Marg c τ₁) x) t := contDiffAt_const.mul hm1a
+      have d1 : iteratedDeriv r (fun x => (fctThetaD (v0Base StripKernelChoice.star τ₁) x +
+          K4 * fctThetaD (v0Marg τ₁) x + fctThetaD (v1Base StripKernelChoice.star c τ₁) x) +
+          K4 * fctThetaD (v1Marg c τ₁) x) t =
+          iteratedDeriv r (fun x => fctThetaD (v0Base StripKernelChoice.star τ₁) x +
+            K4 * fctThetaD (v0Marg τ₁) x + fctThetaD (v1Base StripKernelChoice.star c τ₁) x) t +
+          iteratedDeriv r (fun x => K4 * fctThetaD (v1Marg c τ₁) x) t := by
+        simpa only [Pi.add_def] using iteratedDeriv_add ((hb0a.add hm0k).add hb1a) hm1k
+      have d2 : iteratedDeriv r (fun x => (fctThetaD (v0Base StripKernelChoice.star τ₁) x +
+          K4 * fctThetaD (v0Marg τ₁) x) + fctThetaD (v1Base StripKernelChoice.star c τ₁) x) t =
+          iteratedDeriv r (fun x => fctThetaD (v0Base StripKernelChoice.star τ₁) x +
+            K4 * fctThetaD (v0Marg τ₁) x) t +
+          iteratedDeriv r (fctThetaD (v1Base StripKernelChoice.star c τ₁)) t := by
+        simpa only [Pi.add_def] using iteratedDeriv_add (hb0a.add hm0k) hb1a
+      have d3 : iteratedDeriv r (fun x => fctThetaD (v0Base StripKernelChoice.star τ₁) x +
+          K4 * fctThetaD (v0Marg τ₁) x) t =
+          iteratedDeriv r (fctThetaD (v0Base StripKernelChoice.star τ₁)) t +
+          iteratedDeriv r (fun x => K4 * fctThetaD (v0Marg τ₁) x) t := by
+        simpa only [Pi.add_def] using iteratedDeriv_add hb0a hm0k
+      rw [d1, d2, d3]
+      simp only [iteratedDeriv_const_mul_field]⟩
+
+private lemma abs_add4_le_linear {a b c d A B C D K4 M : ℝ} (hK4 : 1 ≤ K4) (hM : 0 ≤ M)
+    (ha : |a| ≤ A * M) (hb : |b| ≤ B * M) (hc : |c| ≤ C * M) (hd : |d| ≤ D * M)
+    (hA : 0 ≤ A) (hC : 0 ≤ C) :
+    |a + K4 * b + c + K4 * d| ≤ (A + B + C + D + 1) * K4 * M := by
+  have hK4_pos : 0 < K4 := lt_of_lt_of_le zero_lt_one hK4
+  have ha' : |a| ≤ K4 * (A * M) := ha.trans (le_mul_of_one_le_left (mul_nonneg hA hM) hK4)
+  have hc' : |c| ≤ K4 * (C * M) := hc.trans (le_mul_of_one_le_left (mul_nonneg hC hM) hK4)
+  have hb' : |K4 * b| ≤ K4 * (B * M) := by
+    rw [abs_mul, abs_of_pos hK4_pos]; exact mul_le_mul_of_nonneg_left hb hK4_pos.le
+  have hd' : |K4 * d| ≤ K4 * (D * M) := by
+    rw [abs_mul, abs_of_pos hK4_pos]; exact mul_le_mul_of_nonneg_left hd hK4_pos.le
+  have htri : |a + K4 * b + c + K4 * d| ≤ |a| + |K4 * b| + |c| + |K4 * d| := by
+    have h1 := abs_add_le (a + K4 * b + c) (K4 * d)
+    have h2 := abs_add_le (a + K4 * b) c
+    have h3 := abs_add_le a (K4 * b)
+    linarith
+  have hbound : |a| + |K4 * b| + |c| + |K4 * d| ≤ (A + B + C + D) * K4 * M := by
+    calc |a| + |K4 * b| + |c| + |K4 * d|
+        ≤ K4 * (A * M) + K4 * (B * M) + K4 * (C * M) + K4 * (D * M) := by linarith
+      _ = (A + B + C + D) * K4 * M := by ring
+  exact htri.trans (hbound.trans (mul_le_mul_of_nonneg_right
+    (mul_le_mul_of_nonneg_right (by linarith) hK4_pos.le) hM))
+
+private lemma thetaD_center_step
+    {C_th0b C_th0m C_tha C_th1b C_th1m : ℕ → ℝ}
+    (h0n : 0 ≤ C_th0b 0 ∧ 0 ≤ C_th0m 0 ∧ 0 ≤ C_tha 0 ∧ 0 ≤ C_th1b 0 ∧ 0 ≤ C_th1m 0)
+    (h1n : 0 ≤ C_th0b 1 ∧ 0 ≤ C_th0m 1 ∧ 0 ≤ C_tha 1 ∧ 0 ≤ C_th1b 1 ∧ 0 ≤ C_th1m 1)
+    (h2n : 0 ≤ C_th0b 2 ∧ 0 ≤ C_th0m 2 ∧ 0 ≤ C_tha 2 ∧ 0 ≤ C_th1b 2 ∧ 0 ≤ C_th1m 2)
+    {K4 c τ₁ : ℝ} (hK4 : 1 ≤ K4) (hc : 0 < c) (hτ₁ : 0 < τ₁) (hτ₁_1 : τ₁ ≤ 1)
+    (hcτ : τ₁ ^ 4 * c = 1) (hiter_eq : ∀ (r : ℕ) (t : ℝ),
+      iteratedDeriv r (fctThetaD (vTotal StripKernelChoice.star K4 c 0 τ₁)) t =
+        iteratedDeriv r (fctThetaD (v0Base StripKernelChoice.star τ₁)) t +
+          K4 * iteratedDeriv r (fctThetaD (v0Marg τ₁)) t +
+          iteratedDeriv r (fctThetaD (v1Base StripKernelChoice.star c τ₁)) t +
+          K4 * iteratedDeriv r (fctThetaD (v1Marg c τ₁)) t)
+    (hth_in : ∀ (r : ℕ) (t : ℝ), |t| ≤ 12 * τ₁ →
+      |iteratedDeriv r (fctThetaD (v0Base StripKernelChoice.star τ₁)) t| ≤ C_th0b r * τ₁ ^ ((2 : ℤ) - r) * min 1 ((|t| / τ₁) ^ (11 - r)) ∧
+      |iteratedDeriv r (fctThetaD (v0Marg τ₁)) t| ≤ C_th0m r * τ₁ ^ ((4 : ℤ) - r) * min 1 ((|t| / τ₁) ^ (11 - r)) ∧
+      |iteratedDeriv r (fctThetaD (vAlpha 0 τ₁)) t| ≤ C_tha r * |0| * τ₁ ^ ((2 : ℤ) - r) * min 1 ((|t| / τ₁) ^ (11 - r)) ∧
+      |iteratedDeriv r (fctThetaD (v1Base StripKernelChoice.star c τ₁)) t| ≤ C_th1b r * c⁻¹ * τ₁ ^ ((-1 : ℤ) - r) * min 1 ((|t| / τ₁) ^ (11 - r)) ∧
+      |iteratedDeriv r (fctThetaD (v1Marg c τ₁)) t| ≤ C_th1m r * c⁻¹ * τ₁ ^ ((1 : ℤ) - r) * min 1 ((|t| / τ₁) ^ (11 - r)))
+    (hth_inA : ∀ (r : ℕ) (t : ℝ), |t| ≤ 12 * τ₁ →
+      |iteratedDeriv r (fctThetaD (v0Base StripKernelChoice.star τ₁)) t| ≤ C_th0b r * τ₁ ^ ((2 : ℤ) - r) * min 1 ((|t| / τ₁) ^ (11 - r)) ∧
+      |iteratedDeriv r (fctThetaD (v0Marg τ₁)) t| ≤ C_th0m r * τ₁ ^ ((4 : ℤ) - r) * min 1 ((|t| / τ₁) ^ (11 - r)) ∧
+      |iteratedDeriv r (fctThetaD (vAlpha (τ₁ ^ 2) τ₁)) t| ≤ C_tha r * |τ₁ ^ 2| * τ₁ ^ ((2 : ℤ) - r) * min 1 ((|t| / τ₁) ^ (11 - r)) ∧
+      |iteratedDeriv r (fctThetaD (v1Base StripKernelChoice.star c τ₁)) t| ≤ C_th1b r * c⁻¹ * τ₁ ^ ((-1 : ℤ) - r) * min 1 ((|t| / τ₁) ^ (11 - r)) ∧
+      |iteratedDeriv r (fctThetaD (v1Marg c τ₁)) t| ≤ C_th1m r * c⁻¹ * τ₁ ^ ((1 : ℤ) - r) * min 1 ((|t| / τ₁) ^ (11 - r)))
+    (hAe_fn : ∀ τ, fctThetaD (vAlpha (τ₁ ^ 2) τ₁) τ = τ₁ ^ 2 * fctThetaD (vAlpha 1 τ₁) τ) :
+    ∀ τ : ℝ, |τ| ≤ 12 * τ₁ →
+      |fctThetaD (vTotal StripKernelChoice.star K4 c 0 τ₁) τ| ≤
+        (C_th0b 0 + C_th0m 0 + C_th1b 0 + C_th1m 0 + 1) * K4 * τ₁ ^ 2 * (|τ| / τ₁) ^ 11 ∧
+      |deriv (fctThetaD (vTotal StripKernelChoice.star K4 c 0 τ₁)) τ| ≤
+        (C_th0b 1 + C_th0m 1 + C_th1b 1 + C_th1m 1 + 1) * K4 * τ₁ ∧
+      |iteratedDeriv 2 (fctThetaD (vTotal StripKernelChoice.star K4 c 0 τ₁)) τ| ≤
+        (C_th0b 2 + C_th0m 2 + C_th1b 2 + C_th1m 2 + 1) * K4 * (|τ| / τ₁) ^ 9 ∧
+      |fctThetaD (vAlpha 1 τ₁) τ| ≤ (C_tha 0 + 1) * τ₁ ^ 2 * (|τ| / τ₁) ^ 11 := by
+  intro τ hτ
+  have hcinv : c⁻¹ = τ₁ ^ 4 := inv_eq_of_mul_eq_one_right (by rw [mul_comm]; exact hcτ)
+  have hm0 := hth_in 0 τ hτ; have hm1 := hth_in 1 τ hτ; have hm2 := hth_in 2 τ hτ
+  have hrat_nn : 0 ≤ |τ| / τ₁ := div_nonneg (abs_nonneg τ) hτ₁.le
+  have hr11_nn : 0 ≤ (|τ| / τ₁) ^ 11 := pow_nonneg hrat_nn 11
+  have hr9_nn : 0 ≤ (|τ| / τ₁) ^ 9 := pow_nonneg hrat_nn 9
+  have hτ2_le : τ₁ ^ 2 ≤ 1 := pow_le_one₀ hτ₁.le hτ₁_1
+  have hτ3_le : τ₁ ^ 3 ≤ 1 := pow_le_one₀ hτ₁.le hτ₁_1
+  have hτ42 : τ₁ ^ 4 ≤ τ₁ ^ 2 := by
+    rw [show τ₁ ^ 4 = τ₁ ^ 2 * τ₁ ^ 2 by ring]; exact mul_le_of_le_one_right (sq_nonneg _) hτ2_le
+  have hτ32 : τ₁ ^ 3 ≤ τ₁ ^ 2 := by
+    rw [show τ₁ ^ 3 = τ₁ ^ 2 * τ₁ by ring]; exact mul_le_of_le_one_right (sq_nonneg _) hτ₁_1
+  have hτ52 : τ₁ ^ 5 ≤ τ₁ ^ 2 := by
+    rw [show τ₁ ^ 5 = τ₁ ^ 2 * τ₁ ^ 3 by ring]; exact mul_le_of_le_one_right (sq_nonneg _) hτ3_le
+  have hτ21 : τ₁ ^ 2 ≤ τ₁ := by
+    rw [_root_.sq]; exact mul_le_of_le_one_right hτ₁.le hτ₁_1
+  have hτ31 : τ₁ ^ 3 ≤ τ₁ := by
+    rw [show τ₁ ^ 3 = τ₁ * τ₁ ^ 2 by ring]; exact mul_le_of_le_one_right hτ₁.le hτ2_le
+  have hτ41 : τ₁ ^ 4 ≤ τ₁ := by
+    rw [show τ₁ ^ 4 = τ₁ * τ₁ ^ 3 by ring]; exact mul_le_of_le_one_right hτ₁.le hτ3_le
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · have e0 := hiter_eq 0 τ
+    simp only [iteratedDeriv_zero, Nat.cast_zero, sub_zero, Nat.sub_zero] at e0 hm0
+    have hz2 : τ₁ ^ (2 : ℤ) = τ₁ ^ 2 := by rw [show (2 : ℤ) = (2 : ℕ) by rfl, zpow_natCast]
+    have hz4 : τ₁ ^ (4 : ℤ) = τ₁ ^ 4 := by rw [show (4 : ℤ) = (4 : ℕ) by rfl, zpow_natCast]
+    have hz1 : τ₁ ^ (1 : ℤ) = τ₁ := zpow_one τ₁
+    rw [hz2, hz4, hz1] at hm0
+    have hb0 : |fctThetaD (v0Base StripKernelChoice.star τ₁) τ| ≤ C_th0b 0 * (τ₁ ^ 2 * (|τ| / τ₁) ^ 11) := by
+      simpa [mul_assoc] using hm0.1.trans
+        (mul_le_mul_of_nonneg_left (min_le_right _ _) (mul_nonneg h0n.1 (sq_nonneg τ₁)))
+    have hm0' : |fctThetaD (v0Marg τ₁) τ| ≤ C_th0m 0 * (τ₁ ^ 2 * (|τ| / τ₁) ^ 11) := by
+      have h := hm0.2.1.trans (mul_le_mul_of_nonneg_left (min_le_right _ _)
+        (mul_nonneg h0n.2.1 (pow_nonneg hτ₁.le 4)))
+      calc |fctThetaD (v0Marg τ₁) τ| ≤ C_th0m 0 * τ₁ ^ 4 * (|τ| / τ₁) ^ 11 := h
+        _ ≤ C_th0m 0 * τ₁ ^ 2 * (|τ| / τ₁) ^ 11 :=
+            mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hτ42 h0n.2.1) hr11_nn
+        _ = C_th0m 0 * (τ₁ ^ 2 * (|τ| / τ₁) ^ 11) := by ring
+    have hb1 : |fctThetaD (v1Base StripKernelChoice.star c τ₁) τ| ≤ C_th1b 0 * (τ₁ ^ 2 * (|τ| / τ₁) ^ 11) := by
+      have hcτ1 : c⁻¹ * τ₁ ^ (-1 : ℤ) = τ₁ ^ 3 := by
+        rw [hcinv, zpow_neg_one, show τ₁ ^ 4 * τ₁⁻¹ = τ₁ ^ 3 * (τ₁ * τ₁⁻¹) by ring,
+          mul_inv_cancel₀ hτ₁.ne', mul_one]
+      have h1 := hm0.2.2.2.1.trans (mul_le_mul_of_nonneg_left (min_le_right _ _)
+        (mul_nonneg (mul_nonneg h0n.2.2.2.1 (inv_nonneg.mpr hc.le)) (zpow_nonneg hτ₁.le _)))
+      have h1' : C_th1b 0 * c⁻¹ * τ₁ ^ (-1 : ℤ) * (|τ| / τ₁) ^ 11 = C_th1b 0 * τ₁ ^ 3 * (|τ| / τ₁) ^ 11 := by
+        calc C_th1b 0 * c⁻¹ * τ₁ ^ (-1 : ℤ) * (|τ| / τ₁) ^ 11
+            = C_th1b 0 * (c⁻¹ * τ₁ ^ (-1 : ℤ)) * (|τ| / τ₁) ^ 11 := by ring
+          _ = C_th1b 0 * τ₁ ^ 3 * (|τ| / τ₁) ^ 11 := by rw [hcτ1]
+      calc |fctThetaD (v1Base StripKernelChoice.star c τ₁) τ| ≤ C_th1b 0 * c⁻¹ * τ₁ ^ (-1 : ℤ) * (|τ| / τ₁) ^ 11 := by
+              simpa [mul_assoc] using h1
+        _ = C_th1b 0 * τ₁ ^ 3 * (|τ| / τ₁) ^ 11 := h1'
+        _ ≤ C_th1b 0 * τ₁ ^ 2 * (|τ| / τ₁) ^ 11 :=
+            mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hτ32 h0n.2.2.2.1) hr11_nn
+        _ = C_th1b 0 * (τ₁ ^ 2 * (|τ| / τ₁) ^ 11) := by ring
+    have hm1' : |fctThetaD (v1Marg c τ₁) τ| ≤ C_th1m 0 * (τ₁ ^ 2 * (|τ| / τ₁) ^ 11) := by
+      have hcτ1 : c⁻¹ * τ₁ = τ₁ ^ 5 := by rw [hcinv]; ring
+      have h1 := hm0.2.2.2.2.trans (mul_le_mul_of_nonneg_left (min_le_right _ _)
+        (mul_nonneg (mul_nonneg h0n.2.2.2.2 (inv_nonneg.mpr hc.le)) hτ₁.le))
+      have h1' : C_th1m 0 * c⁻¹ * τ₁ * (|τ| / τ₁) ^ 11 = C_th1m 0 * τ₁ ^ 5 * (|τ| / τ₁) ^ 11 := by
+        calc C_th1m 0 * c⁻¹ * τ₁ * (|τ| / τ₁) ^ 11 = C_th1m 0 * (c⁻¹ * τ₁) * (|τ| / τ₁) ^ 11 := by ring
+          _ = C_th1m 0 * τ₁ ^ 5 * (|τ| / τ₁) ^ 11 := by rw [hcτ1]
+      calc |fctThetaD (v1Marg c τ₁) τ| ≤ C_th1m 0 * c⁻¹ * τ₁ * (|τ| / τ₁) ^ 11 := by
+              simpa [mul_assoc] using h1
+        _ = C_th1m 0 * τ₁ ^ 5 * (|τ| / τ₁) ^ 11 := h1'
+        _ ≤ C_th1m 0 * τ₁ ^ 2 * (|τ| / τ₁) ^ 11 :=
+            mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hτ52 h0n.2.2.2.2) hr11_nn
+        _ = C_th1m 0 * (τ₁ ^ 2 * (|τ| / τ₁) ^ 11) := by ring
+    rw [e0]
+    have hM := mul_nonneg (sq_nonneg τ₁) hr11_nn
+    simpa [mul_assoc] using abs_add4_le_linear hK4 hM hb0 hm0' hb1 hm1' h0n.1 h0n.2.2.2.1
+  · have e1 := hiter_eq 1 τ
+    simp only [iteratedDeriv_one, Nat.cast_one] at e1 hm1
+    have h21 : (2 : ℤ) - 1 = 1 := by norm_num
+    have h41 : (4 : ℤ) - 1 = 3 := by norm_num
+    have hn11 : (-1 : ℤ) - 1 = -2 := by norm_num
+    rw [h21, h41, hn11, sub_self, zpow_one, zpow_zero, mul_one] at hm1
+    have hb0 : |deriv (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ| ≤ C_th0b 1 * τ₁ := by
+      simpa only [mul_one] using hm1.1.trans (mul_le_mul_of_nonneg_left (min_le_left _ _) (mul_nonneg h1n.1 hτ₁.le))
+    have hm0' : |deriv (fctThetaD (v0Marg τ₁)) τ| ≤ C_th0m 1 * τ₁ := by
+      rw [show τ₁ ^ (3 : ℤ) = τ₁ ^ 3 by rw [show (3 : ℤ) = (3 : ℕ) by rfl, zpow_natCast]] at hm1
+      have h := hm1.2.1.trans (mul_le_mul_of_nonneg_left (min_le_left _ _) (mul_nonneg h1n.2.1 (pow_nonneg hτ₁.le 3)))
+      rw [mul_one] at h; exact h.trans (mul_le_mul_of_nonneg_left hτ31 h1n.2.1)
+    have hb1 : |deriv (fctThetaD (v1Base StripKernelChoice.star c τ₁)) τ| ≤ C_th1b 1 * τ₁ := by
+      have hcτ2 : c⁻¹ * τ₁ ^ (-2 : ℤ) = τ₁ ^ 2 := by
+        rw [hcinv, zpow_neg, show (2 : ℤ) = (2 : ℕ) by rfl, zpow_natCast,
+          show τ₁ ^ 4 * (τ₁ ^ 2)⁻¹ = τ₁ ^ 2 * (τ₁ ^ 2 * (τ₁ ^ 2)⁻¹) by ring,
+          mul_inv_cancel₀ (pow_ne_zero 2 hτ₁.ne'), mul_one]
+      have h := hm1.2.2.2.1.trans (mul_le_mul_of_nonneg_left (min_le_left _ _)
+        (mul_nonneg (mul_nonneg h1n.2.2.2.1 (inv_nonneg.mpr hc.le)) (zpow_nonneg hτ₁.le _)))
+      rw [mul_one, mul_assoc (C_th1b 1) c⁻¹ _, hcτ2] at h; exact h.trans (mul_le_mul_of_nonneg_left hτ21 h1n.2.2.2.1)
+    have hm1' : |deriv (fctThetaD (v1Marg c τ₁)) τ| ≤ C_th1m 1 * τ₁ := by
+      have h := hm1.2.2.2.2.trans (mul_le_mul_of_nonneg_left (min_le_left _ _)
+        (mul_nonneg h1n.2.2.2.2 (inv_nonneg.mpr hc.le)))
+      rw [mul_one, hcinv] at h; exact h.trans (mul_le_mul_of_nonneg_left hτ41 h1n.2.2.2.2)
+    rw [e1]
+    exact abs_add4_le_linear hK4 hτ₁.le hb0 hm0' hb1 hm1' h1n.1 h1n.2.2.2.1
+  · have e2 := hiter_eq 2 τ
+    simp only [Nat.cast_ofNat, sub_self, zpow_zero, mul_one, show (11 : ℕ) - 2 = 9 by rfl] at hm2
+    have hb0 : |iteratedDeriv 2 (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ| ≤ C_th0b 2 * (|τ| / τ₁) ^ 9 :=
+      hm2.1.trans (mul_le_mul_of_nonneg_left (min_le_right _ _) h2n.1)
+    have hm0' : |iteratedDeriv 2 (fctThetaD (v0Marg τ₁)) τ| ≤ C_th0m 2 * (|τ| / τ₁) ^ 9 := by
+      have h := hm2.2.1.trans (mul_le_mul_of_nonneg_left (min_le_right _ _) (mul_nonneg h2n.2.1 (zpow_nonneg hτ₁.le _)))
+      rw [show (4 : ℤ) - 2 = 2 by norm_num, show (2 : ℤ) = (2 : ℕ) by rfl, zpow_natCast] at h
+      calc |iteratedDeriv 2 (fctThetaD (v0Marg τ₁)) τ| ≤ C_th0m 2 * τ₁ ^ 2 * (|τ| / τ₁) ^ 9 := h
+        _ ≤ C_th0m 2 * 1 * (|τ| / τ₁) ^ 9 := mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hτ2_le h2n.2.1) hr9_nn
+        _ = C_th0m 2 * (|τ| / τ₁) ^ 9 := by ring
+    have hb1 : |iteratedDeriv 2 (fctThetaD (v1Base StripKernelChoice.star c τ₁)) τ| ≤ C_th1b 2 * (|τ| / τ₁) ^ 9 := by
+      have hcτ3 : c⁻¹ * τ₁ ^ (-3 : ℤ) = τ₁ := by
+        rw [hcinv, zpow_neg, show (3 : ℤ) = (3 : ℕ) by rfl, zpow_natCast,
+          show τ₁ ^ 4 * (τ₁ ^ 3)⁻¹ = τ₁ * (τ₁ ^ 3 * (τ₁ ^ 3)⁻¹) by ring,
+          mul_inv_cancel₀ (pow_ne_zero 3 hτ₁.ne'), mul_one]
+      have h := hm2.2.2.2.1.trans (mul_le_mul_of_nonneg_left (min_le_right _ _)
+        (mul_nonneg (mul_nonneg h2n.2.2.2.1 (inv_nonneg.mpr hc.le)) (zpow_nonneg hτ₁.le _)))
+      have h' : C_th1b 2 * c⁻¹ * τ₁ ^ (-1 - 2 : ℤ) * (|τ| / τ₁) ^ 9 = C_th1b 2 * τ₁ * (|τ| / τ₁) ^ 9 := by
+        rw [show (-1 - 2 : ℤ) = -3 by rfl]
+        calc C_th1b 2 * c⁻¹ * τ₁ ^ (-3 : ℤ) * (|τ| / τ₁) ^ 9
+            = C_th1b 2 * (c⁻¹ * τ₁ ^ (-3 : ℤ)) * (|τ| / τ₁) ^ 9 := by ring
+          _ = C_th1b 2 * τ₁ * (|τ| / τ₁) ^ 9 := by rw [hcτ3]
+      calc |iteratedDeriv 2 (fctThetaD (v1Base StripKernelChoice.star c τ₁)) τ|
+            ≤ C_th1b 2 * c⁻¹ * τ₁ ^ (-1 - 2 : ℤ) * (|τ| / τ₁) ^ 9 := by simpa [mul_assoc] using h
+        _ = C_th1b 2 * τ₁ * (|τ| / τ₁) ^ 9 := h'
+        _ ≤ C_th1b 2 * 1 * (|τ| / τ₁) ^ 9 := mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hτ₁_1 h2n.2.2.2.1) hr9_nn
+        _ = C_th1b 2 * (|τ| / τ₁) ^ 9 := by ring
+    have hm1' : |iteratedDeriv 2 (fctThetaD (v1Marg c τ₁)) τ| ≤ C_th1m 2 * (|τ| / τ₁) ^ 9 := by
+      have hcτ1 : c⁻¹ * τ₁ ^ (-1 : ℤ) = τ₁ ^ 3 := by
+        rw [hcinv, zpow_neg_one, show τ₁ ^ 4 * τ₁⁻¹ = τ₁ ^ 3 * (τ₁ * τ₁⁻¹) by ring,
+          mul_inv_cancel₀ hτ₁.ne', mul_one]
+      have h := hm2.2.2.2.2.trans (mul_le_mul_of_nonneg_left (min_le_right _ _)
+        (mul_nonneg (mul_nonneg h2n.2.2.2.2 (inv_nonneg.mpr hc.le)) (zpow_nonneg hτ₁.le _)))
+      have h' : C_th1m 2 * c⁻¹ * τ₁ ^ (1 - 2 : ℤ) * (|τ| / τ₁) ^ 9 = C_th1m 2 * τ₁ ^ 3 * (|τ| / τ₁) ^ 9 := by
+        rw [show (1 - 2 : ℤ) = -1 by rfl]
+        calc C_th1m 2 * c⁻¹ * τ₁ ^ (-1 : ℤ) * (|τ| / τ₁) ^ 9
+            = C_th1m 2 * (c⁻¹ * τ₁ ^ (-1 : ℤ)) * (|τ| / τ₁) ^ 9 := by ring
+          _ = C_th1m 2 * τ₁ ^ 3 * (|τ| / τ₁) ^ 9 := by rw [hcτ1]
+      calc |iteratedDeriv 2 (fctThetaD (v1Marg c τ₁)) τ|
+            ≤ C_th1m 2 * c⁻¹ * τ₁ ^ (1 - 2 : ℤ) * (|τ| / τ₁) ^ 9 := by simpa [mul_assoc] using h
+        _ = C_th1m 2 * τ₁ ^ 3 * (|τ| / τ₁) ^ 9 := h'
+        _ ≤ C_th1m 2 * 1 * (|τ| / τ₁) ^ 9 := mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hτ3_le h2n.2.2.2.2) hr9_nn
+        _ = C_th1m 2 * (|τ| / τ₁) ^ 9 := by ring
+    rw [e2]
+    exact abs_add4_le_linear hK4 hr9_nn hb0 hm0' hb1 hm1' h2n.1 h2n.2.2.2.1
+  · have hA := (hth_inA 0 τ hτ).2.2.1
+    simp only [iteratedDeriv_zero, Nat.cast_zero, sub_zero, Nat.sub_zero, abs_sq] at hA
+    rw [show τ₁ ^ (2 : ℤ) = τ₁ ^ 2 by rw [show (2 : ℤ) = (2 : ℕ) by rfl, zpow_natCast]] at hA
+    rw [hAe_fn τ, abs_mul, abs_of_pos (sq_pos_of_pos hτ₁)] at hA
+    have hA' : τ₁ ^ 2 * |fctThetaD (vAlpha 1 τ₁) τ| ≤ τ₁ ^ 2 * (C_tha 0 * τ₁ ^ 2 * (|τ| / τ₁) ^ 11) := by
+      calc τ₁ ^ 2 * |fctThetaD (vAlpha 1 τ₁) τ|
+          ≤ C_tha 0 * τ₁ ^ 2 * τ₁ ^ 2 * min 1 ((|τ| / τ₁) ^ 11) := hA
+        _ ≤ C_tha 0 * τ₁ ^ 2 * τ₁ ^ 2 * (|τ| / τ₁) ^ 11 :=
+            mul_le_mul_of_nonneg_left (min_le_right _ _) (mul_nonneg (mul_nonneg h0n.2.2.1 (sq_nonneg τ₁)) (sq_nonneg τ₁))
+        _ = τ₁ ^ 2 * (C_tha 0 * τ₁ ^ 2 * (|τ| / τ₁) ^ 11) := by ring
+    exact (le_of_mul_le_mul_left hA' (sq_pos_of_pos hτ₁)).trans
+      (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (by linarith [h0n.2.2.1]) (sq_nonneg τ₁)) hr11_nn)
+
+set_option maxHeartbeats 400000 in
 /-- Uniform compensator derivative bounds (`r = 0, 1, 2` at `α = 0` and `r = 0` for `vAlpha 1`). -/
 lemma thetaD_center_bounds :
-    ∃ (τD Cv0 Cv1 Cv2 Cα0 : ℝ), 0 < τD ∧ τD ≤ 1 / 20 ∧ 0 ≤ Cv0 ∧ 0 ≤ Cv1 ∧ 0 ≤ Cv2 ∧ 0 ≤ Cα0 ∧
+    ∃ (Cv0 Cv1 Cv2 Cα0 : ℝ), 0 ≤ Cv0 ∧ 0 ≤ Cv1 ∧ 0 ≤ Cv2 ∧ 0 ≤ Cα0 ∧
       ∀ {K4 c : ℝ}, 1 ≤ K4 → 0 < c →
-        c ^ (-(1 / 4 : ℝ)) ≤ τD →
+        c ^ (-(1 / 4 : ℝ)) ≤ (fct_comp_D_part1 StripKernelChoice.star).choose →
         (∀ τ : ℝ, |τ| ≤ 12 * c ^ (-(1 / 4 : ℝ)) →
           |fctThetaD (vTotal StripKernelChoice.star K4 c 0 (c ^ (-(1 / 4 : ℝ)))) τ| ≤
             Cv0 * K4 * (c ^ (-(1 / 4 : ℝ))) ^ 2 * (|τ| / c ^ (-(1 / 4 : ℝ))) ^ 11 ∧
@@ -64,187 +347,30 @@ lemma thetaD_center_bounds :
             Cv2 * K4 * (|τ| / c ^ (-(1 / 4 : ℝ))) ^ 9 ∧
           |fctThetaD (vAlpha 1 (c ^ (-(1 / 4 : ℝ)))) τ| ≤
             Cα0 * (c ^ (-(1 / 4 : ℝ))) ^ 2 * (|τ| / c ^ (-(1 / 4 : ℝ))) ^ 11) ∧
-        ContDiff ℝ (⊤ : ℕ∞) (fctThetaD (vTotal StripKernelChoice.star K4 c 0 (c ^ (-(1 / 4 : ℝ)))) ) := by
-  let τD := (fct_comp_D_part1 StripKernelChoice.star).choose
-  obtain ⟨hτD_pos, hτD_le, _, C_th0b, C_th0m, C_tha, C_th1b, C_th1m, _, _, _, _,
-    _, hCth_nn, _, _, hmain⟩ := (fct_comp_D_part1 StripKernelChoice.star).choose_spec
-  let Cv0 := C_th0b 0 + C_th0m 0 + C_th1b 0 + C_th1m 0 + 1
-  let Cv1 := C_th0b 1 + C_th0m 1 + C_th1b 1 + C_th1m 1 + 1
-  let Cv2 := C_th0b 2 + C_th0m 2 + C_th1b 2 + C_th1m 2 + 1
-  let Cα0 := C_tha 0 + 1
+        ContDiff ℝ (⊤ : ℕ∞) (fctThetaD (vTotal StripKernelChoice.star K4 c 0 (c ^ (-(1 / 4 : ℝ))))) := by
+  obtain ⟨_, hτD_le, _, _, _, _, _, C_th0b, C_th0m, C_tha, C_th1b, C_th1m,
+    _, _, _, _, _, _, _, _, hCth_nn, _, _, hmain⟩ := (fct_comp_D_part1 StripKernelChoice.star).choose_spec
   have h0n := hCth_nn 0; have h1n := hCth_nn 1; have h2n := hCth_nn 2
-  refine ⟨τD, Cv0, Cv1, Cv2, Cα0, hτD_pos, hτD_le, by positivity, by positivity, by positivity, by positivity, ?_⟩
+  refine ⟨C_th0b 0 + C_th0m 0 + C_th1b 0 + C_th1m 0 + 1, C_th0b 1 + C_th0m 1 + C_th1b 1 + C_th1m 1 + 1,
+    C_th0b 2 + C_th0m 2 + C_th1b 2 + C_th1m 2 + 1, C_tha 0 + 1,
+    by linarith [h0n.1, h0n.2.1, h0n.2.2.2.1, h0n.2.2.2.2],
+    by linarith [h1n.1, h1n.2.1, h1n.2.2.2.1, h1n.2.2.2.2],
+    by linarith [h2n.1, h2n.2.1, h2n.2.2.2.1, h2n.2.2.2.2],
+    by linarith [h0n.2.2.1], ?_⟩
   intro K4 c hK4 hc hτ₁_le
   set τ₁ : ℝ := c ^ (-(1 / 4 : ℝ))
   have hτ₁ : 0 < τ₁ := Real.rpow_pos_of_pos hc _
-  have hτ₁_1 : τ₁ ≤ 1 := hτ₁_le.trans (by linarith)
-  have hcτ : τ₁ ^ 4 * c = 1 := by rw [rpow_neg_quarter_pow4 hc]; field_simp [hc.ne']
-  have hcinv : c⁻¹ = τ₁ ^ 4 := (rpow_neg_quarter_pow4 hc).symm
-  obtain ⟨hcd_v, _, _, hcs_v, _, _, _, _, _, hth_in, _, _, _, _⟩ :=
-    hmain hK4 hc hτ₁ hτ₁_le hcτ (show |(0 : ℝ)| ≤ τ₁ ^ 2 by rw [abs_zero]; positivity)
-  obtain ⟨_, _, _, _, _, _, _, _, _, hth_inA, _, _, _, _⟩ :=
+  have hτ₁_1 : τ₁ ≤ 1 := hτ₁_le.trans (hτD_le.trans (by norm_num))
+  have hcτ : τ₁ ^ 4 * c = 1 := by rw [rpow_neg_quarter_pow4 hc, inv_mul_cancel₀ hc.ne']
+  obtain ⟨hcd_v, _, _, hcs_v, _, _, _, _, hth_in, _⟩ :=
+    hmain hK4 hc hτ₁ hτ₁_le hcτ (show |(0 : ℝ)| ≤ τ₁ ^ 2 by rw [abs_zero]; exact sq_nonneg τ₁)
+  obtain ⟨_, _, _, _, _, _, _, _, hth_inA, _⟩ :=
     hmain hK4 hc hτ₁ hτ₁_le hcτ (show |τ₁ ^ 2| ≤ τ₁ ^ 2 by rw [abs_of_nonneg (sq_nonneg _)])
-  rcases hcs_v with ⟨_, _, _, _, _, _, hv0b_cs, hv0m_cs, _, hv1b_cs, hv1m_cs, hv0_cs, hv1_cs, _, _, _⟩
-  have hva_info := fctThetaD_vAlpha_eq hK4 hc hτ₁ hτ₁_le hcτ 0
-  have hv0_cd : ContDiff ℝ (⊤ : ℕ∞) (v0 StripKernelChoice.star K4 τ₁) :=
-    hcd_v.1.add (contDiff_const.mul hcd_v.2.1)
-  have hv1_cd : ContDiff ℝ (⊤ : ℕ∞) (v1 StripKernelChoice.star K4 c τ₁) :=
-    hcd_v.2.2.2.1.add (contDiff_const.mul hcd_v.2.2.2.2.1)
-  have hsum_fn : fctThetaD (vTotal StripKernelChoice.star K4 c 0 τ₁) =
-      fun t => fctThetaD (v0Base StripKernelChoice.star τ₁) t + K4 * fctThetaD (v0Marg τ₁) t +
-        fctThetaD (v1Base StripKernelChoice.star c τ₁) t + K4 * fctThetaD (v1Marg c τ₁) t := by
-    ext s
-    have h1 := fctThetaD_linear hv0_cd hv0_cs hv1_cd hv1_cs 1 1 s
-    have h2 := fctThetaD_linear (hv0_cd.add hv1_cd) (hv0_cs.add hv1_cs) hva_info.2.1 hva_info.2.2 1 0 s
-    have h0 := fctThetaD_linear hcd_v.1 hv0b_cs hcd_v.2.1 hv0m_cs 1 K4 s
-    have h1' := fctThetaD_linear hcd_v.2.2.2.1 hv1b_cs hcd_v.2.2.2.2.1 hv1m_cs 1 K4 s
-    simp only [one_mul, zero_mul, add_zero] at h1 h2 h0 h1'
-    change fctThetaD (fun u => (v0 StripKernelChoice.star K4 τ₁ u +
-      v1 StripKernelChoice.star K4 c τ₁ u) + vAlpha 0 τ₁ u) s = _
-    rw [h2, h1]; exact congrArg₂ (· + ·) h0 h1'
-  have hcd_b0 := contDiff_fctThetaD hcd_v.1 hv0b_cs
-  have hcd_m0 := contDiff_fctThetaD hcd_v.2.1 hv0m_cs
-  have hcd_b1 := contDiff_fctThetaD hcd_v.2.2.2.1 hv1b_cs
-  have hcd_m1 := contDiff_fctThetaD hcd_v.2.2.2.2.1 hv1m_cs
-  have hv_cd : ContDiff ℝ (⊤ : ℕ∞) (fctThetaD (vTotal StripKernelChoice.star K4 c 0 τ₁)) := by
-    rw [hsum_fn]
-    exact ((hcd_b0.add (contDiff_const.mul hcd_m0)).add hcd_b1).add (contDiff_const.mul hcd_m1)
-  have hiter_eq : ∀ (r : ℕ) (t : ℝ), iteratedDeriv r (fctThetaD (vTotal StripKernelChoice.star K4 c 0 τ₁)) t =
-      iteratedDeriv r (fctThetaD (v0Base StripKernelChoice.star τ₁)) t +
-        K4 * iteratedDeriv r (fctThetaD (v0Marg τ₁)) t +
-        iteratedDeriv r (fctThetaD (v1Base StripKernelChoice.star c τ₁)) t +
-        K4 * iteratedDeriv r (fctThetaD (v1Marg c τ₁)) t := fun r t => by
-    have hr : (r : WithTop ℕ∞) ≤ (⊤ : ℕ∞) := le_top
-    rw [hsum_fn]
-    have hb0a := hcd_b0.contDiffAt.of_le hr; have hm0a := hcd_m0.contDiffAt.of_le hr
-    have hb1a := hcd_b1.contDiffAt.of_le hr; have hm1a := hcd_m1.contDiffAt.of_le hr
-    have ha1' := hb0a.add (contDiffAt_const.mul hm0a)
-    have ha12' := ha1'.add hb1a
-    rw [show (fun t => fctThetaD (v0Base StripKernelChoice.star τ₁) t + K4 * fctThetaD (v0Marg τ₁) t +
-        fctThetaD (v1Base StripKernelChoice.star c τ₁) t + K4 * fctThetaD (v1Marg c τ₁) t) =
-        ((fun x => fctThetaD (v0Base StripKernelChoice.star τ₁) x + K4 * fctThetaD (v0Marg τ₁) x +
-          fctThetaD (v1Base StripKernelChoice.star c τ₁) x) + fun x => K4 * fctThetaD (v1Marg c τ₁) x) from rfl]
-    rw [iteratedDeriv_add ha12' (contDiffAt_const.mul hm1a)]
-    rw [show (fun x => fctThetaD (v0Base StripKernelChoice.star τ₁) x + K4 * fctThetaD (v0Marg τ₁) x +
-        fctThetaD (v1Base StripKernelChoice.star c τ₁) x) =
-        ((fun x => fctThetaD (v0Base StripKernelChoice.star τ₁) x + K4 * fctThetaD (v0Marg τ₁) x) +
-          fctThetaD (v1Base StripKernelChoice.star c τ₁)) from rfl]
-    rw [iteratedDeriv_add ha1' hb1a]
-    rw [show (fun x => fctThetaD (v0Base StripKernelChoice.star τ₁) x + K4 * fctThetaD (v0Marg τ₁) x) =
-        (fctThetaD (v0Base StripKernelChoice.star τ₁) + fun x => K4 * fctThetaD (v0Marg τ₁) x) from rfl]
-    rw [iteratedDeriv_add hb0a hm0a.const_mul']
-    simp only [iteratedDeriv_const_mul_field]
-  refine ⟨fun τ hτ => ?_, hv_cd⟩
-  have hm0 := hth_in 0 τ hτ; have hm1 := hth_in 1 τ hτ; have hm2 := hth_in 2 τ hτ
-  have hrat_nn : 0 ≤ |τ| / τ₁ := by positivity
-  refine ⟨?_, ?_, ?_, ?_⟩
-  · have e0 := hiter_eq 0 τ; simp only [iteratedDeriv_zero, zpow_zero, mul_one, zpow_two] at e0 hm0
-    have hb0 : |fctThetaD (v0Base StripKernelChoice.star τ₁) τ| ≤ C_th0b 0 * τ₁ ^ 2 * (|τ| / τ₁) ^ 11 :=
-      hm0.1.trans (mul_le_mul_of_nonneg_left (min_le_right _ _) (by positivity))
-    have hm0' : |fctThetaD (v0Marg τ₁) τ| ≤ C_th0m 0 * τ₁ ^ 2 * (|τ| / τ₁) ^ 11 := by
-      have hτ42 : τ₁ ^ (4 : ℤ) ≤ τ₁ ^ 2 := by rw [show (4 : ℤ) = (4 : ℕ) by rfl, zpow_natCast]; nlinarith [sq_nonneg τ₁]
-      exact hm0.2.1.trans (mul_le_mul (mul_le_mul_of_nonneg_left hτ42 h0n.2.1) (min_le_right _ _) (by positivity) (by positivity))
-    have hb1 : |fctThetaD (v1Base StripKernelChoice.star c τ₁) τ| ≤ C_th1b 0 * τ₁ ^ 2 * (|τ| / τ₁) ^ 11 := by
-      have hcτ1 : c⁻¹ * τ₁ ^ (-1 : ℤ) = τ₁ ^ 3 := by rw [hcinv, zpow_neg_one]; field_simp [hτ₁.ne']
-      have hτ32 : τ₁ ^ 3 ≤ τ₁ ^ 2 := by nlinarith [sq_nonneg τ₁]
-      have h1 := hm0.2.2.2.1.trans (mul_le_mul_of_nonneg_left (min_le_right _ _) (by positivity))
-      rw [mul_assoc _ (τ₁ ^ (-1 : ℤ)), hcτ1] at h1
-      exact h1.trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hτ32 h0n.2.2.2.1) (by positivity))
-    have hm1' : |fctThetaD (v1Marg c τ₁) τ| ≤ C_th1m 0 * τ₁ ^ 2 * (|τ| / τ₁) ^ 11 := by
-      have hcτ1 : c⁻¹ * τ₁ ^ (1 : ℤ) = τ₁ ^ 5 := by rw [hcinv, zpow_one]; ring
-      have hτ52 : τ₁ ^ 5 ≤ τ₁ ^ 2 := by have : τ₁ ^ 3 ≤ 1 := pow_le_one₀ hτ₁.le hτ₁_1; nlinarith [sq_nonneg τ₁]
-      have h1 := hm0.2.2.2.2.trans (mul_le_mul_of_nonneg_left (min_le_right _ _) (by positivity))
-      rw [mul_assoc _ (τ₁ ^ (1 : ℤ)), hcτ1] at h1
-      exact h1.trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hτ52 h0n.2.2.2.2) (by positivity))
-    rw [e0]
-    have htri : |fctThetaD (v0Base StripKernelChoice.star τ₁) τ + K4 * fctThetaD (v0Marg τ₁) τ +
-          fctThetaD (v1Base StripKernelChoice.star c τ₁) τ + K4 * fctThetaD (v1Marg c τ₁) τ| ≤
-        |fctThetaD (v0Base StripKernelChoice.star τ₁) τ| + K4 * |fctThetaD (v0Marg τ₁) τ| +
-          |fctThetaD (v1Base StripKernelChoice.star c τ₁) τ| + K4 * |fctThetaD (v1Marg c τ₁) τ| := by
-      have := abs_add_le (fctThetaD (v0Base StripKernelChoice.star τ₁) τ + K4 * fctThetaD (v0Marg τ₁) τ +
-        fctThetaD (v1Base StripKernelChoice.star c τ₁) τ) (K4 * fctThetaD (v1Marg c τ₁) τ)
-      have := abs_add_le (fctThetaD (v0Base StripKernelChoice.star τ₁) τ + K4 * fctThetaD (v0Marg τ₁) τ)
-        (fctThetaD (v1Base StripKernelChoice.star c τ₁) τ)
-      have := abs_add_le (fctThetaD (v0Base StripKernelChoice.star τ₁) τ) (K4 * fctThetaD (v0Marg τ₁) τ)
-      rw [abs_mul, abs_of_pos (by linarith : 0 < K4)] at *; linarith
-    have := mul_le_mul_of_nonneg_right hK4 h0n.1
-    have := mul_le_mul_of_nonneg_right hK4 h0n.2.2.2.1
-    calc _ ≤ (C_th0b 0 + K4 * C_th0m 0 + C_th1b 0 + K4 * C_th1m 0) * (τ₁ ^ 2 * (|τ| / τ₁) ^ 11) := by nlinarith
-      _ ≤ (Cv0 * K4) * (τ₁ ^ 2 * (|τ| / τ₁) ^ 11) :=
-          mul_le_mul_of_nonneg_right (by dsimp only [Cv0]; linarith) (by positivity)
-      _ = Cv0 * K4 * τ₁ ^ 2 * (|τ| / τ₁) ^ 11 := by ring
-  · have e1 := hiter_eq 1 τ; simp only [iteratedDeriv_one] at e1 hm1
-    have hb0 : |deriv (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ| ≤ C_th0b 1 * τ₁ := by
-      simpa [mul_one, zpow_one] using hm1.1.trans (mul_le_mul_of_nonneg_left (min_le_left _ _) (by positivity))
-    have hm0' : |deriv (fctThetaD (v0Marg τ₁)) τ| ≤ C_th0m 1 * τ₁ := by
-      have hτ31 : τ₁ ^ (3 : ℤ) ≤ τ₁ := by rw [show (3 : ℤ) = (3 : ℕ) by rfl, zpow_natCast]; nlinarith [sq_nonneg τ₁]
-      have h := hm1.2.1.trans (mul_le_mul_of_nonneg_left (min_le_left _ _) (by positivity))
-      rw [mul_one] at h; exact h.trans (mul_le_mul_of_nonneg_left hτ31 h1n.2.1)
-    have hb1 : |deriv (fctThetaD (v1Base StripKernelChoice.star c τ₁)) τ| ≤ C_th1b 1 * τ₁ := by
-      have hcτ2 : c⁻¹ * τ₁ ^ (-2 : ℤ) = τ₁ ^ 2 := by rw [hcinv, zpow_neg, show (2 : ℤ) = (2 : ℕ) by rfl, zpow_natCast]; field_simp [hτ₁.ne']
-      have hτ21 : τ₁ ^ 2 ≤ τ₁ := by nlinarith
-      have h := hm1.2.2.2.1.trans (mul_le_mul_of_nonneg_left (min_le_left _ _) (by positivity))
-      rw [mul_one, mul_assoc _ (τ₁ ^ (-2 : ℤ)), hcτ2] at h; exact h.trans (mul_le_mul_of_nonneg_left hτ21 h1n.2.2.2.1)
-    have hm1' : |deriv (fctThetaD (v1Marg c τ₁)) τ| ≤ C_th1m 1 * τ₁ := by
-      have hcτ0 : c⁻¹ * τ₁ ^ (0 : ℤ) = τ₁ ^ 4 := by rw [hcinv, zpow_zero, mul_one]
-      have hτ41 : τ₁ ^ 4 ≤ τ₁ := by have : τ₁ ^ 3 ≤ 1 := pow_le_one₀ hτ₁.le hτ₁_1; nlinarith [sq_nonneg τ₁]
-      have h := hm1.2.2.2.2.trans (mul_le_mul_of_nonneg_left (min_le_left _ _) (by positivity))
-      rw [mul_one, mul_assoc _ (τ₁ ^ (0 : ℤ)), hcτ0] at h; exact h.trans (mul_le_mul_of_nonneg_left hτ41 h1n.2.2.2.2)
-    rw [e1]
-    have htri : |deriv (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ + K4 * deriv (fctThetaD (v0Marg τ₁)) τ +
-          deriv (fctThetaD (v1Base StripKernelChoice.star c τ₁)) τ + K4 * deriv (fctThetaD (v1Marg c τ₁)) τ| ≤
-        |deriv (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ| + K4 * |deriv (fctThetaD (v0Marg τ₁)) τ| +
-          |deriv (fctThetaD (v1Base StripKernelChoice.star c τ₁)) τ| + K4 * |deriv (fctThetaD (v1Marg c τ₁)) τ| := by
-      have := abs_add_le (deriv (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ + K4 * deriv (fctThetaD (v0Marg τ₁)) τ +
-        deriv (fctThetaD (v1Base StripKernelChoice.star c τ₁)) τ) (K4 * deriv (fctThetaD (v1Marg c τ₁)) τ)
-      have := abs_add_le (deriv (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ + K4 * deriv (fctThetaD (v0Marg τ₁)) τ)
-        (deriv (fctThetaD (v1Base StripKernelChoice.star c τ₁)) τ)
-      have := abs_add_le (deriv (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ) (K4 * deriv (fctThetaD (v0Marg τ₁)) τ)
-      rw [abs_mul, abs_of_pos (by linarith : 0 < K4)] at *; linarith
-    have := mul_le_mul_of_nonneg_right hK4 h1n.1
-    have := mul_le_mul_of_nonneg_right hK4 h1n.2.2.2.1
-    calc _ ≤ (C_th0b 1 + K4 * C_th0m 1 + C_th1b 1 + K4 * C_th1m 1) * τ₁ := by nlinarith
-      _ ≤ Cv1 * K4 * τ₁ := mul_le_mul_of_nonneg_right (by dsimp only [Cv1]; linarith) hτ₁.le
-  · have e2 := hiter_eq 2 τ
-    have hb0 : |iteratedDeriv 2 (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ| ≤ C_th0b 2 * (|τ| / τ₁) ^ 9 := by
-      simpa using hm2.1.trans (mul_le_mul_of_nonneg_left (min_le_right _ _) (by positivity))
-    have hm0' : |iteratedDeriv 2 (fctThetaD (v0Marg τ₁)) τ| ≤ C_th0m 2 * (|τ| / τ₁) ^ 9 := by
-      have hτ21 : τ₁ ^ (2 : ℤ) ≤ 1 := by rw [zpow_two]; nlinarith [hτ₁.le]
-      have h := hm2.2.1.trans (mul_le_mul_of_nonneg_left (min_le_right _ _) (by positivity))
-      exact h.trans (mul_le_mul_of_nonneg_right (by simpa using mul_le_mul_of_nonneg_left hτ21 h2n.2.1) (pow_nonneg hrat_nn 9))
-    have hb1 : |iteratedDeriv 2 (fctThetaD (v1Base StripKernelChoice.star c τ₁)) τ| ≤ C_th1b 2 * (|τ| / τ₁) ^ 9 := by
-      have hcτ3 : c⁻¹ * τ₁ ^ (-3 : ℤ) = τ₁ := by rw [hcinv, zpow_neg, show (3 : ℤ) = (3 : ℕ) by rfl, zpow_natCast]; field_simp [hτ₁.ne']
-      have h := hm2.2.2.2.1.trans (mul_le_mul_of_nonneg_left (min_le_right _ _) (by positivity))
-      rw [mul_assoc _ (τ₁ ^ (-3 : ℤ)), hcτ3] at h
-      exact h.trans (mul_le_mul_of_nonneg_right (by simpa using mul_le_mul_of_nonneg_left hτ₁_1 h2n.2.2.2.1) (pow_nonneg hrat_nn 9))
-    have hm1' : |iteratedDeriv 2 (fctThetaD (v1Marg c τ₁)) τ| ≤ C_th1m 2 * (|τ| / τ₁) ^ 9 := by
-      have hcτ1 : c⁻¹ * τ₁ ^ (-1 : ℤ) = τ₁ ^ 3 := by rw [hcinv, zpow_neg_one]; field_simp [hτ₁.ne']
-      have hτ31 : τ₁ ^ 3 ≤ 1 := pow_le_one₀ hτ₁.le hτ₁_1
-      have h := hm2.2.2.2.2.trans (mul_le_mul_of_nonneg_left (min_le_right _ _) (by positivity))
-      rw [mul_assoc _ (τ₁ ^ (-1 : ℤ)), hcτ1] at h
-      exact h.trans (mul_le_mul_of_nonneg_right (by simpa using mul_le_mul_of_nonneg_left hτ31 h2n.2.2.2.2) (pow_nonneg hrat_nn 9))
-    rw [e2]
-    have htri : |iteratedDeriv 2 (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ + K4 * iteratedDeriv 2 (fctThetaD (v0Marg τ₁)) τ +
-          iteratedDeriv 2 (fctThetaD (v1Base StripKernelChoice.star c τ₁)) τ + K4 * iteratedDeriv 2 (fctThetaD (v1Marg c τ₁)) τ| ≤
-        |iteratedDeriv 2 (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ| + K4 * |iteratedDeriv 2 (fctThetaD (v0Marg τ₁)) τ| +
-          |iteratedDeriv 2 (fctThetaD (v1Base StripKernelChoice.star c τ₁)) τ| + K4 * |iteratedDeriv 2 (fctThetaD (v1Marg c τ₁)) τ| := by
-      have := abs_add_le (iteratedDeriv 2 (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ + K4 * iteratedDeriv 2 (fctThetaD (v0Marg τ₁)) τ +
-        iteratedDeriv 2 (fctThetaD (v1Base StripKernelChoice.star c τ₁)) τ) (K4 * iteratedDeriv 2 (fctThetaD (v1Marg c τ₁)) τ)
-      have := abs_add_le (iteratedDeriv 2 (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ + K4 * iteratedDeriv 2 (fctThetaD (v0Marg τ₁)) τ)
-        (iteratedDeriv 2 (fctThetaD (v1Base StripKernelChoice.star c τ₁)) τ)
-      have := abs_add_le (iteratedDeriv 2 (fctThetaD (v0Base StripKernelChoice.star τ₁)) τ) (K4 * iteratedDeriv 2 (fctThetaD (v0Marg τ₁)) τ)
-      rw [abs_mul, abs_of_pos (by linarith : 0 < K4)] at *; linarith
-    have := mul_le_mul_of_nonneg_right hK4 h2n.1
-    have := mul_le_mul_of_nonneg_right hK4 h2n.2.2.2.1
-    calc _ ≤ (C_th0b 2 + K4 * C_th0m 2 + C_th1b 2 + K4 * C_th1m 2) * (|τ| / τ₁) ^ 9 := by nlinarith
-      _ ≤ Cv2 * K4 * (|τ| / τ₁) ^ 9 := mul_le_mul_of_nonneg_right (by dsimp only [Cv2]; linarith) (pow_nonneg hrat_nn 9)
-  · have hA := (hth_inA 0 τ hτ).2.2.1
-    simp only [iteratedDeriv_zero, zpow_two, abs_sq] at hA
-    have hAe : fctThetaD (vAlpha (τ₁ ^ 2) τ₁) τ = τ₁ ^ 2 * fctThetaD (vAlpha 1 τ₁) τ :=
-      (fctThetaD_vAlpha_eq hK4 hc hτ₁ hτ₁_le hcτ (τ₁ ^ 2) τ).1
-    rw [hAe, abs_mul, abs_of_pos (sq_pos_of_pos hτ₁)] at hA
-    have hA1 := le_of_mul_le_mul_left (hA.trans (mul_le_mul_of_nonneg_left (min_le_right _ _) (by positivity))) (sq_pos_of_pos hτ₁)
-    exact hA1.trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (by dsimp only [Cα0]; linarith) (sq_nonneg τ₁)) (pow_nonneg hrat_nn 11))
+  rcases hcs_v with ⟨_, _, _, _, _, _, _, _, _, _, _, _, _, _, hv0b_cs, hv0m_cs, hva0_cs, hv1b_cs, hv1m_cs, hv0_cs, hv1_cs, _⟩
+  obtain ⟨hv_cd, hiter_eq⟩ := thetaD_center_decomp hK4 hc hτ₁ hτ₁_le hcτ hcd_v
+    ⟨hv0b_cs, hv0m_cs, hva0_cs, hv1b_cs, hv1m_cs, hv0_cs, hv1_cs⟩
+  exact ⟨thetaD_center_step h0n h1n h2n hK4 hc hτ₁ hτ₁_1 hcτ hiter_eq hth_in hth_inA
+    (fun τ => (fctThetaD_vAlpha_eq hK4 hc hτ₁ hτ₁_le hcτ (τ₁ ^ 2) τ).1), hv_cd⟩
 
 lemma concretePhi0_eq {K4 ε c τ L1 : ℝ} (hε : ε = 1 ∨ ε = -1) (hτ0 : 0 ≤ τ) (hτ2 : τ ^ 2 < rr) :
     concretePhiLambda K4 ε c 0 τ L1 0 =
@@ -341,8 +467,8 @@ lemma fctChart_uAlpha_bound :
       ∀ p ∈ concretePhaseDom ellMin ε c,
         |fderiv ℝ (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S)) p (0, 1)| ≤
           Cα * c ^ (-(5 / 4 : ℝ)) := by
-  obtain ⟨τD, _, _, _, Cα0, _, _, _, _, _, hCα0, hth_bd, _⟩ := thetaD_center_bounds
-  refine ⟨Cα0 * (100 / 92) * 2 ^ 10, by positivity, ?_⟩
+  obtain ⟨_, _, _, Cα0, _, _, _, hCα0, hth_bd⟩ := thetaD_center_bounds
+  refine ⟨Cα0 * (100 / 92) * 2 ^ 10, by linarith [hCα0], ?_⟩
   intro K4 ε c ellMin S hK4 hc hτD hτ_lt2 h_dA h_S_V h_V_eq h_atil_pos p hp
   have hc0 : 0 < c := by linarith
   have hτ₁ : 0 < c ^ (-(1 / 4 : ℝ)) := Real.rpow_pos_of_pos hc0 _
@@ -353,7 +479,7 @@ lemma fctChart_uAlpha_bound :
     exact mul_pos (Real.sqrt_pos.mpr hã_pos) (by linarith [(h_S_V p hp).1])
   have hτ0_le12 : |concreteTau0 ε c S p| ≤ 12 * c ^ (-(1 / 4 : ℝ)) := by
     rw [abs_of_pos hτ0_pos]; linarith
-  have hth := (hth_bd hK4 hc0 hτD _ hτ0_le12).2.2.2
+  have hth := ((hth_bd hK4 hc0 hτD).1 _ hτ0_le12).2.2.2
   rw [abs_of_pos hτ0_pos] at hth
   have hV_le : (concreteTau0 ε c S p) / Real.sqrt (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) p) ≤ 100 / 92 := by
     rw [h_V_eq p hp, mul_div_cancel_left₀ _ (Real.sqrt_pos.mpr hã_pos).ne']
@@ -361,7 +487,7 @@ lemma fctChart_uAlpha_bound :
   have hrat10 : (concreteTau0 ε c S p / c ^ (-(1 / 4 : ℝ))) ^ 10 ≤ (2 : ℝ) ^ 10 :=
     pow_le_pow_left₀ (by positivity) ((div_le_iff₀ hτ₁).mpr hτ0_2.le) 10
   have hcinv_eq : c⁻¹ * c ^ (-(1 / 4 : ℝ)) = c ^ (-(5 / 4 : ℝ)) := by
-    rw [← Real.rpow_neg_one hc0.le, ← Real.rpow_add hc0]; norm_num
+    rw [← Real.rpow_neg_one c, ← Real.rpow_add hc0]; norm_num
   rw [h_dA p hp, abs_div, abs_mul, abs_of_pos (inv_pos.mpr hc0), abs_of_pos (Real.sqrt_pos.mpr hã_pos)]
   calc c⁻¹ * |fctThetaD (vAlpha 1 (c ^ (-(1 / 4 : ℝ)))) (concreteTau0 ε c S p)| /
         Real.sqrt (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) p)
@@ -370,7 +496,7 @@ lemma fctChart_uAlpha_bound :
     _ = Cα0 * (c⁻¹ * c ^ (-(1 / 4 : ℝ))) *
           (concreteTau0 ε c S p / Real.sqrt (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) p)) *
           (concreteTau0 ε c S p / c ^ (-(1 / 4 : ℝ))) ^ 10 := by
-            field_simp [hτ₁.ne']; ring
+            field_simp [hτ₁.ne']
     _ ≤ Cα0 * c ^ (-(5 / 4 : ℝ)) * (100 / 92) * (2 : ℝ) ^ 10 := by rw [hcinv_eq]; gcongr
     _ = (Cα0 * (100 / 92) * 2 ^ 10) * c ^ (-(5 / 4 : ℝ)) := by ring
 
@@ -396,6 +522,21 @@ lemma one_sub_half_rpow_23 :
     have hlt := pow_lt_pow_left₀ hc (by norm_num) (by norm_num : 3 ≠ 0)
     rw [hc3] at hlt; nlinarith
 
+private lemma exp_sub_ge_abs_nonneg {L₁ L₂ : ℝ} (hL₁ : 0 < L₁) (hL₂ : 0 < L₂) :
+    |L₁ - L₂| ≤ |Real.exp L₁ - Real.exp L₂| := by
+  wlog hle : L₂ ≤ L₁ generalizing L₁ L₂
+  · rw [abs_sub_comm L₁, abs_sub_comm (Real.exp L₁)]
+    exact this hL₂ hL₁ (le_of_not_ge hle)
+  rcases hle.eq_or_lt with rfl | hlt
+  · simp
+  · obtain ⟨ξ, hξm, hξe⟩ := exists_hasDerivAt_eq_slope Real.exp Real.exp hlt
+      Real.continuous_exp.continuousOn fun w _ => Real.hasDerivAt_exp w
+    have hpos : 0 < L₁ - L₂ := sub_pos.mpr hlt
+    have he1 : 1 ≤ Real.exp ξ := Real.one_le_exp (by linarith [hL₂, hξm.1])
+    have hfe : Real.exp L₁ - Real.exp L₂ = Real.exp ξ * (L₁ - L₂) := by rw [hξe, div_mul_cancel₀ _ hpos.ne']
+    rw [abs_of_pos hpos, abs_of_pos (sub_pos.mpr (Real.exp_lt_exp.mpr hlt)), hfe]
+    exact le_mul_of_one_le_left hpos.le he1
+
 lemma l1_sub_ctr_of_exp_close {c Δ5 L₁ L₂ C₁ C₂ : ℝ} (hc : 100 ≤ c)
     (hL₁ : 0 < L₁) (hL₂ : 0 < L₂)
     (h1 : |c / Real.pi ^ 2 * Real.exp L₁ - Δ5| ≤ C₁ * c⁻¹)
@@ -408,25 +549,16 @@ lemma l1_sub_ctr_of_exp_close {c Δ5 L₁ L₂ C₁ C₂ : ℝ} (hc : 100 ≤ c)
       have hsub : c / Real.pi ^ 2 * Real.exp L₁ - c / Real.pi ^ 2 * Real.exp L₂ =
           (c / Real.pi ^ 2 * Real.exp L₁ - Δ5) - (c / Real.pi ^ 2 * Real.exp L₂ - Δ5) := by ring
       rw [hsub]
-      exact (abs_sub_le _ Δ5 _).trans (add_le_add h1 h2)
+      exact (abs_sub_le (c / Real.pi ^ 2 * Real.exp L₁ - Δ5) 0 (c / Real.pi ^ 2 * Real.exp L₂ - Δ5)).trans
+        (by simpa only [sub_zero, zero_sub, abs_neg] using add_le_add h1 h2)
     have hmul : c / Real.pi ^ 2 * |Real.exp L₁ - Real.exp L₂| =
         |c / Real.pi ^ 2 * Real.exp L₁ - c / Real.pi ^ 2 * Real.exp L₂| := by
-      rw [← abs_of_pos (div_pos hc0 hpi2), ← abs_mul, mul_sub]
+      conv_lhs => rw [← abs_of_pos (div_pos hc0 hpi2), ← abs_mul, mul_sub]
     rw [hmul]
-    exact htri.trans (mul_le_mul_of_nonneg_right (add_le_add (le_abs_self _) (le_abs_self _)) (inv_nonneg.mpr hc0.le))
-  have hmvt : |L₁ - L₂| ≤ |Real.exp L₁ - Real.exp L₂| := by
-    wlog hle : L₂ ≤ L₁ generalizing L₁ L₂
-    · rw [abs_sub_comm L₁, abs_sub_comm (Real.exp L₁)]
-      exact this hL₂ hL₁ h2 h1 (le_of_not_ge hle)
-    rcases hle.eq_or_lt with rfl | hlt
-    · simp
-    · obtain ⟨ξ, hξm, hξe⟩ := exists_hasDerivAt_eq_slope Real.exp Real.exp hlt
-        Real.continuous_exp.continuousOn fun w _ => Real.hasDerivAt_exp w
-      have hpos : 0 < L₁ - L₂ := sub_pos.mpr hlt
-      have he1 : 1 ≤ Real.exp ξ := Real.one_le_exp (by linarith [hL₂, hξm.1])
-      have hfe : Real.exp L₁ - Real.exp L₂ = Real.exp ξ * (L₁ - L₂) := by rw [hξe, div_mul_cancel₀ _ hpos.ne']
-      rw [abs_of_pos hpos, abs_of_pos (sub_pos.mpr (Real.exp_lt_exp.mpr hlt)), hfe]
-      exact le_mul_of_one_le_left hpos.le he1
+    exact htri.trans (by
+      rw [← add_mul]
+      exact mul_le_mul_of_nonneg_right (add_le_add (le_abs_self C₁) (le_abs_self C₂)) (inv_nonneg.mpr hc0.le))
+  have hmvt : |L₁ - L₂| ≤ |Real.exp L₁ - Real.exp L₂| := exp_sub_ge_abs_nonneg hL₁ hL₂
   have hpi_inv : (c / Real.pi ^ 2)⁻¹ = Real.pi ^ 2 * c⁻¹ := by field_simp [hpi2.ne', hc0.ne']
   have hc2 : c⁻¹ * c⁻¹ = c ^ (-(2 : ℝ)) := by
     rw [← Real.rpow_neg_one c, ← Real.rpow_add hc0]; norm_num
@@ -609,8 +741,7 @@ lemma center_rect_sub_phaseDom {ellMin ε c L_ctr : ℝ} (hc0 : 0 < c) (hL_lo : 
       have hb : c ^ (-(1 / 2 : ℝ)) * c ^ (-(1 / 2 : ℝ)) = c⁻¹ := by
         rw [← Real.rpow_add hc0]; norm_num [Real.rpow_neg_one]
       rw [add_mul, mul_assoc, ha, mul_assoc, hb] at hmul; exact hmul
-    linarith [mul_pos (abs_nonneg (ctTheta1 ε) |>.trans_lt (by norm_num : (0 : ℝ) < |ctTheta1 ε| + 1)) (inv_pos.mpr hc0) |>.le,
-      mul_nonneg (abs_nonneg (ctTheta1 ε)) (inv_nonneg.mpr hc0.le)]
+    linarith
   have hα_abs : |α| < 2 * c ^ (-(1 / 2 : ℝ)) := by
     have : |α| < c ^ (-(1 / 2 : ℝ)) := abs_lt.mpr ⟨hα_lo, hα_hi⟩
     linarith [Real.rpow_pos_of_pos hc0 (-(1 / 2 : ℝ))]
@@ -640,20 +771,21 @@ lemma max_at_crit_of_antitone {f f' : ℝ → ℝ} {lo ctr hi x : ℝ}
     exact ha ⟨le_rfl, hctr.2⟩ ⟨hle, hx.2⟩ hle
 
 lemma fctAtil_alpha_mvt {Φ : ℝ → ℝ × ℝ → ℝ} {Ω : Set (ℝ × ℝ)} {τ0 : ℝ × ℝ → ℝ}
-    (hPB : FctPhaseBox Φ Ω τ0) {L rJ M : ℝ} (hM : 0 ≤ M) (hrJ : 0 < rJ)
+    (hPB : FctPhaseBox Φ Ω τ0) {L rJ M : ℝ} (_hM : 0 ≤ M) (hrJ : 0 < rJ)
     (hsub : ∀ t ∈ Ioo (-rJ) rJ, (L, t) ∈ Ω)
     (hbd : ∀ t ∈ Ioo (-rJ) rJ, |fderiv ℝ (fctAtil Φ τ0) (L, t) (0, 1)| ≤ M)
     {α : ℝ} (hα : α ∈ Ioo (-rJ) rJ) :
     |fctAtil Φ τ0 (L, α) - fctAtil Φ τ0 (L, 0)| ≤ M * |α| := by
   have hcont : ContinuousOn (fun t => fctAtil Φ τ0 (L, t)) (Icc (min 0 α) (max 0 α)) := fun t ht =>
-    ((hPB.atil_contDiffAt (hsub t ⟨lt_of_lt_of_le (lt_min (neg_lt_zero.mpr hrJ) hα.1) ht.1,
-      lt_of_le_of_lt ht.2 (max_lt hrJ hα.2)⟩)).differentiableAt (by simp)).continuousAt.continuousWithinAt
+    (((hPB.atil_contDiffAt (hsub t ⟨lt_of_lt_of_le (lt_min (neg_lt_zero.mpr hrJ) hα.1) ht.1,
+      lt_of_le_of_lt ht.2 (max_lt hrJ hα.2)⟩)).differentiableAt (by simp)).continuousAt.comp
+      ((continuous_const.prodMk continuous_id).continuousAt)).continuousWithinAt
   have hdiff : ∀ t ∈ Ioo (min 0 α) (max 0 α),
       HasDerivAt (fun s => fctAtil Φ τ0 (L, s)) (fderiv ℝ (fctAtil Φ τ0) (L, t) (0, 1)) t := fun t ht => by
     have htJ : t ∈ Ioo (-rJ) rJ := ⟨lt_of_lt_of_le (lt_min (neg_lt_zero.mpr hrJ) hα.1) ht.1.le,
       lt_of_le_of_lt ht.2.le (max_lt hrJ hα.2)⟩
     exact (((hPB.atil_contDiffAt (hsub t htJ)).differentiableAt (by simp)).hasFDerivAt).comp_hasDerivAt t
-      ((hasDerivAt_const t L).prodMk (hasDerivAt_id' t))
+      ((hasDerivAt_const t L).prodMk (hasDerivAt_id t))
   rcases le_total 0 α with hα0 | hα0
   · rcases hα0.eq_or_lt with rfl | hlt
     · simp
@@ -671,7 +803,7 @@ lemma fctAtil_alpha_mvt {Φ : ℝ → ℝ × ℝ → ℝ} {Ω : Set (ℝ × ℝ)
       have hfe : fctAtil Φ τ0 (L, 0) - fctAtil Φ τ0 (L, α) = fderiv ℝ (fctAtil Φ τ0) (L, ξ) (0, 1) * (-α) := by
         rw [hξe, zero_sub, div_mul_cancel₀ _ hpos.ne']
       rw [abs_sub_comm, hfe, abs_mul, abs_of_pos hpos, (abs_of_neg hlt).symm]
-      exact mul_le_mul_of_nonneg_right (hbd ξ ⟨lt_trans hα.1 hξm.1, lt_trans hξm.2 hrJ⟩) hpos.le
+      exact mul_le_mul_of_nonneg_right (hbd ξ ⟨lt_trans hα.1 hξm.1, lt_trans hξm.2 hrJ⟩) (abs_nonneg α)
 
 lemma fctAtil_L_mvt_ge {Φ : ℝ → ℝ × ℝ → ℝ} {Ω : Set (ℝ × ℝ)} {τ0 : ℝ × ℝ → ℝ}
     (hPB : FctPhaseBox Φ Ω τ0) {α L₁ L₂ mV : ℝ} (hle : L₁ ≤ L₂)
@@ -681,10 +813,13 @@ lemma fctAtil_L_mvt_ge {Φ : ℝ → ℝ × ℝ → ℝ} {Ω : Set (ℝ × ℝ)}
   rcases hle.eq_or_lt with rfl | hlt
   · simp
   · have hcont : ContinuousOn (fun L => fctAtil Φ τ0 (L, α)) (Icc L₁ L₂) := fun L hL =>
-      ((hPB.atil_contDiffAt (hsub L hL)).differentiableAt (by simp)).continuousAt.continuousWithinAt
+      (((hPB.atil_contDiffAt (hsub L hL)).differentiableAt (by simp)).continuousAt.comp_of_eq
+        ((continuous_id.prodMk continuous_const).continuousAt (x := L)) rfl).continuousWithinAt
     have hdiff : ∀ L ∈ Ioo L₁ L₂, HasDerivAt (fun s => fctAtil Φ τ0 (s, α)) (fderiv ℝ (fctAtil Φ τ0) (L, α) (1, 0)) L :=
-      fun L hL => (((hPB.atil_contDiffAt (hsub L (Ioo_subset_Icc_self hL))).differentiableAt (by simp)).hasFDerivAt).comp_hasDerivAt L
-        ((hasDerivAt_id' L).prodMk (hasDerivAt_const L α))
+      fun L hL => by
+        change HasDerivAt (fctAtil Φ τ0 ∘ fun s : ℝ => (s, α)) _ L
+        exact (((hPB.atil_contDiffAt (hsub L (Ioo_subset_Icc_self hL))).differentiableAt (by simp)).hasFDerivAt).comp_hasDerivAt L
+          ((hasDerivAt_id' L).prodMk (hasDerivAt_const L α))
     obtain ⟨ξ, hξm, hξe⟩ := exists_hasDerivAt_eq_slope _ _ hlt hcont hdiff
     have hpos : 0 < L₂ - L₁ := sub_pos.mpr hlt
     rw [show fctAtil Φ τ0 (L₂, α) - fctAtil Φ τ0 (L₁, α) = fderiv ℝ (fctAtil Φ τ0) (ξ, α) (1, 0) * (L₂ - L₁) by
@@ -692,19 +827,22 @@ lemma fctAtil_L_mvt_ge {Φ : ℝ → ℝ × ℝ → ℝ} {Ω : Set (ℝ × ℝ)}
     exact mul_le_mul_of_nonneg_right (hbd ξ hξm) hpos.le
 
 lemma fctWarp_S_V_bounds {ε c ellMin : ℝ} {S : ChartSetup (ℝ × ℝ × ℝ)}
-    (hc0 : 0 < c) (hellMin_nn : 0 ≤ ellMin) (hSΩ : S.Ω = OmT)
+    (hc0 : 0 < c) (hellMin_nn : 0 ≤ ellMin) (hSΩ : S.Ω = OmT (c ^ (-(1 / 4 : ℝ))))
     {p : ℝ × ℝ} (hp : p ∈ concretePhaseDom ellMin ε c) :
     100 / 95 ≤ S.V ((concreteEll1 ε c p.1, 1, p.2), S.A (concreteEll1 ε c p.1, 1, p.2)) ∧
     S.V ((concreteEll1 ε c p.1, 1, p.2), S.A (concreteEll1 ε c p.1, 1, p.2)) ≤ 100 / 92 := by
   have hq : (concreteEll1 ε c p.1, (1 : ℝ), p.2) ∈ S.Ω := by
     rw [hSΩ]; exact concreteEll1_mem_OmT hc0 hellMin_nn hp
-  have hAm := S.A_mem hq
-  have hDb := S.D_bounds ⟨hq, S.Z_mem ⟨hq, hAm⟩⟩
-  simp only [ChartSetup.V]
-  constructor <;> [rw [le_inv_iff₀ (by linarith)]; rw [inv_le_iff₀ (by linarith)]] <;> linarith
+  have hAm : S.A (concreteEll1 ε c p.1, (1 : ℝ), p.2) ∈ Yint := S.A_mem hq
+  have hZm : S.Z ((concreteEll1 ε c p.1, (1 : ℝ), p.2), S.A (concreteEll1 ε c p.1, (1 : ℝ), p.2)) ∈ Ioo (-1 : ℝ) 6 :=
+    S.Z_mem ⟨hq, hAm⟩
+  have hDb := S.D_bounds (q := ((concreteEll1 ε c p.1, (1 : ℝ), p.2),
+    S.Z ((concreteEll1 ε c p.1, (1 : ℝ), p.2), S.A (concreteEll1 ε c p.1, (1 : ℝ), p.2)))) ⟨hq, hZm⟩
+  simp only [ChartSetup.V, inv_eq_one_div]
+  constructor <;> [rw [le_div_iff₀ (by linarith)]; rw [div_le_iff₀ (by linarith)]] <;> linarith
 
 lemma fctWarp_V_eq {K4 ε c ellMin : ℝ} {S : ChartSetup (ℝ × ℝ × ℝ)}
-    (hc0 : 0 < c) (hellMin_nn : 0 ≤ ellMin) (hSΩ : S.Ω = OmT)
+    (hc0 : 0 < c) (hellMin_nn : 0 ≤ ellMin) (hSΩ : S.Ω = OmT (c ^ (-(1 / 4 : ℝ))))
     {p : ℝ × ℝ} (hp : p ∈ concretePhaseDom ellMin ε c)
     (hA_pos : 0 < S.A (concreteEll1 ε c p.1, 1, p.2))
     (hã_eq : fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) p =
@@ -713,12 +851,13 @@ lemma fctWarp_V_eq {K4 ε c ellMin : ℝ} {S : ChartSetup (ℝ × ℝ × ℝ)}
       S.V ((concreteEll1 ε c p.1, 1, p.2), S.A (concreteEll1 ε c p.1, 1, p.2)) := by
   have hq : (concreteEll1 ε c p.1, (1 : ℝ), p.2) ∈ S.Ω := by
     rw [hSΩ]; exact concreteEll1_mem_OmT hc0 hellMin_nn hp
-  have hAm := S.A_mem hq
+  have hAm : S.A (concreteEll1 ε c p.1, (1 : ℝ), p.2) ∈ Yint := S.A_mem hq
   have hV_pos : 0 < S.V ((concreteEll1 ε c p.1, 1, p.2), S.A (concreteEll1 ε c p.1, 1, p.2)) := by
     linarith [(fctWarp_S_V_bounds hc0 hellMin_nn hSΩ hp).1]
   have hVe := S.V_eq (y := ((concreteEll1 ε c p.1, (1 : ℝ), p.2), S.A (concreteEll1 ε c p.1, (1 : ℝ), p.2))) ⟨hq, hAm⟩
+  rw [hã_eq]
   unfold concreteTau0
-  rw [← hVe, Real.sqrt_mul hA_pos.le, Real.sqrt_sq hV_pos.le, hã_eq, Real.sqrt_mul (Real.rpow_nonneg hc0.le _)]
+  rw [← hVe, Real.sqrt_mul hA_pos.le, Real.sqrt_sq hV_pos.le, Real.sqrt_mul (Real.rpow_nonneg hc0.le _)]
   have hsqτ : Real.sqrt (c ^ (-(1 / 2 : ℝ))) = c ^ (-(1 / 4 : ℝ)) := by
     rw [← rpow_neg_quarter_sq hc0, Real.sqrt_sq (Real.rpow_nonneg hc0.le _)]
   rw [hsqτ]; ring
