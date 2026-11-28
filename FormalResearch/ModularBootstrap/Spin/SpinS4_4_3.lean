@@ -347,7 +347,8 @@ private lemma spinS4_4_3_montel_contra
     exact le_of_tendsto hre_tend (Eventually.of_forall fun m => hk_neg (τ m))
   have hHu₀_ne0 : H_lim (u₀ : ℂ) ≠ 0 := fun h0 => by
     have : (0 : ℝ) ≤ -(1 / (256 * R)) := by simpa [h0] using hHu₀_val
-    linarith [hR_pos]
+    have hneg : -(1 / (256 * R)) < 0 := neg_neg_of_pos (one_div_pos.mpr (by linarith only [hR_pos]))
+    linarith only [this, hneg]
   have hJ_int_zero : ∫ u in Icc aJ bJ, ‖H_lim (u : ℂ)‖ = 0 := by
     have hunif_J : TendstoUniformlyOn (fun m (u : ℝ) => ‖HSeq (τ m) (u : ℂ)‖)
         (fun u : ℝ => ‖H_lim (u : ℂ)‖) atTop (Icc aJ bJ) := by
@@ -380,8 +381,27 @@ private lemma spinS4_4_3_montel_contra
           linarith [abs_le.mpr huM]).norm
       exact hcont_m.intervalIntegrable_of_Icc hab.le
     have hlim_int : Tendsto (fun m => ∫ u in aJ..bJ, ‖HSeq (τ m) (u : ℂ)‖) atTop
-        (𝓝 (∫ u in aJ..bJ, ‖H_lim (u : ℂ)‖)) :=
-      intervalIntegral_tendsto_of_tendstoUniformlyOn hab.le hunif_J hint_ev hcont_lim
+        (𝓝 (∫ u in aJ..bJ, ‖H_lim (u : ℂ)‖)) := by
+      rw [Metric.tendsto_nhds]
+      intro ε' hε'
+      have hlen_pos : 0 < bJ - aJ := sub_pos.mpr hab
+      have hδ_pos : 0 < ε' / (2 * (bJ - aJ)) := by positivity
+      have hunif_δ := (Metric.tendstoUniformlyOn_iff.mp hunif_J) (ε' / (2 * (bJ - aJ))) hδ_pos
+      filter_upwards [hunif_δ, hint_ev] with m hm hint_m
+      have hint_g : IntervalIntegrable (fun u : ℝ => ‖H_lim (u : ℂ)‖) volume aJ bJ :=
+        hcont_lim.intervalIntegrable_of_Icc hab.le
+      rw [Real.dist_eq, ← intervalIntegral.integral_sub hint_m hint_g]
+      have hbd : ∀ u ∈ Set.uIoc aJ bJ,
+          ‖‖HSeq (τ m) (u : ℂ)‖ - ‖H_lim (u : ℂ)‖‖ ≤ ε' / (2 * (bJ - aJ)) := fun u hu => by
+        rw [Set.uIoc_of_le hab.le] at hu
+        rw [Real.norm_eq_abs, abs_sub_comm]
+        exact (Real.dist_eq _ _ ▸ hm u (Set.Ioc_subset_Icc_self hu)).le
+      calc |∫ u in aJ..bJ, (‖HSeq (τ m) (u : ℂ)‖ - ‖H_lim (u : ℂ)‖)|
+          = ‖∫ u in aJ..bJ, (‖HSeq (τ m) (u : ℂ)‖ - ‖H_lim (u : ℂ)‖)‖ := (Real.norm_eq_abs _).symm
+        _ ≤ (ε' / (2 * (bJ - aJ))) * |bJ - aJ| :=
+            intervalIntegral.norm_integral_le_of_norm_le_const hbd
+        _ = ε' / 2 := by rw [abs_of_pos hlen_pos]; field_simp [hlen_pos.ne']
+        _ < ε' := half_lt_self hε'
     have h_ub_tend : Tendsto (fun m =>
         (4 * spinCalF xiStar ^ 2 * h₀)⁻¹ * (1 / ((τ m : ℝ) + 1)) +
           (2 * cFc)⁻¹ * C_r * ((Nat.ceil (Real.log (cSeq (τ m) - 1)) : ℝ) + 1) *
@@ -391,7 +411,9 @@ private lemma spinS4_4_3_montel_contra
           atTop (𝓝 0) := by
         have ht : Tendsto (fun m : ℕ => ((τ m : ℝ) + 1)⁻¹) atTop (𝓝 0) :=
           tendsto_inv_atTop_zero.comp ((tendsto_natCast_atTop_atTop.comp hτ_mono.tendsto_atTop).atTop_add tendsto_const_nhds)
-        simpa using ht.const_mul (4 * spinCalF xiStar ^ 2 * h₀)⁻¹
+        have hcm := ht.const_mul (4 * spinCalF xiStar ^ 2 * h₀)⁻¹
+        rw [mul_zero] at hcm
+        refine hcm.congr fun m => by rw [one_div]
       have h2 : Tendsto (fun m : ℕ => (2 * cFc)⁻¹ * C_r * ((Nat.ceil (Real.log (cSeq (τ m) - 1)) : ℝ) + 1) *
             Real.exp (-4 * π * (xiStar / 4) * (Nat.ceil (Real.log (cSeq (τ m) - 1)) : ℝ)))
           atTop (𝓝 0) := by
@@ -399,7 +421,7 @@ private lemma spinS4_4_3_montel_contra
           tendsto_atTop_mono (fun m => hcSeq_ge (τ m))
             ((tendsto_natCast_atTop_atTop.comp hτ_mono.tendsto_atTop).atTop_add tendsto_const_nhds)
         exact h_err_lim.comp hc_tend
-      simpa using h1.add h2
+      simpa only [add_zero] using h1.add h2
     have hle_zero : ∫ u in aJ..bJ, ‖H_lim (u : ℂ)‖ ≤ 0 :=
       le_of_tendsto_of_tendsto hlim_int h_ub_tend (Eventually.of_forall fun m => by
         dsimp only

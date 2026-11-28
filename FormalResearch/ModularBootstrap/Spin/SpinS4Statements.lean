@@ -330,8 +330,8 @@ def SpinS4_5_2 : Prop :=
         ∀ {Φ : ℝ × ℝ → ℝ}, SpinSlackHyp c x₁ Φ →
           κ ≤ spinCalNorm c Φ →
           let I_b := Icc (xiStar - r₀) (xiStar + r₀)
-          let u_hi := virasoroUChart n (xiStar - r₀)
-          let u_lo := virasoroUChart n (xiStar + r₀)
+          let u_hi := virasoroUChart n ((xiStar - r₀) ^ 2 / 3)
+          let u_lo := virasoroUChart n ((xiStar + r₀) ^ 2 / 3)
           (∫ u in Icc u_lo u_hi, (spinPtilde c Φ (u : ℂ)).re) =
             (spinCalNorm c Φ)⁻¹ *
               ∫ b in I_b, a * Real.exp (n * spinL b) * (spinGcal a Φ (b : ℂ)).re ∧
