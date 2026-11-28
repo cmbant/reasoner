@@ -496,7 +496,8 @@ lemma hb_paired_test_props (D : ShellHBData) {k : ℕ} (hk : D.S.card ≤ k) (b 
 
 /-! ### 3. Lemma WR (`ft:WR` / `sr:WR`) and `ft:C5c` -/
 
-/-- **Lemma WR (`ft:WR` / `sr:WR`)** at any Hermite–Biehler level `D : ShellHBData`:
+/-- **Lemma WR (`ft:WR` / `sr:WR`)** at any Hermite–Biehler level `D : ShellHBData` (the paper's general real-entire
+`N` form is not stated; integrability of the tests against `ν` is an explicit hypothesis):
 a positive Radon measure `ν` carried by `S_N = D.S ∪ (-∞, D.tm]` obeying `∫ R G_N dν ≤ ∫ R G_N du`
 for every `R ∈ ℛ_N` coincides with the Hermite–Biehler quadrature measure `hbQuadMeasure D`. -/
 theorem lemma_WR (D : ShellHBData) {ν : Measure ℝ} [IsLocallyFiniteMeasure ν]

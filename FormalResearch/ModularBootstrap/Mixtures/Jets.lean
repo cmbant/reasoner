@@ -20,16 +20,11 @@ Proposition PM.13 identifies the exact boundary minimum `j(w, A) = inf 𝒥_{w,A
 * `pmix_jensen`: the Jensen comparison.  For a mixture with `A = ∑ d_i A_i`, `A_i(x) = e^{-4π r_i x} Q_i(e^{-4πx})`,
   `p_i = d_i A_i(ξ_*)/A(ξ_*)`, `F_A(t) = log(A(x(t))/A(ξ_*))`, `F_i(t) = log(A_i(x(t))/A_i(ξ_*))`:
   `∑ p_i ∫₀^∞ F_i/t² dt ≤ ∫₀^∞ F_A/t² dt`, with equality iff the normalised component amplitudes coincide on `[ξ_*, ∞)`.
-  (`∫ F/t² dt` is the integrated-by-parts form of `I₁(A) = ∫ ℓ`; the integrability of the six integrands is a named hypothesis,
-  discharged in the paper by `F = O(t²)` at `0` and the growth bounds at `∞`.)
+  (`∫ F/t² dt` is the integrated-by-parts form of `I₁(A) = ∫ ℓ`; here the integrability of the six integrands is a hypothesis; `pmix_jensen_full` discharges it.)
 
-**What is not formalised (genuine gap).**  The identification of `∫ F/t²` with `j(w, A)`: `j(w,A) = α_tip g₁(w,A)`,
-`g₁(w,A) = 2w - 3 - 2/π + 8 I₁(A)/π` (`ctu:g13A`), the defect identity, equality criterion and regularisation estimate
-`ctu:J-quad` for the amplitude `A`, and the constants `c_0^*(w, Q_i)` of a product (`ctu:g13`, via `τ₁(μ)`) are the
-content of `ctu:jets`/`ctu:common-functional` for a *general* amplitude: they require the outer function
-`G_{A,4} = exp L_f(P(z))` (Poisson integral, boundary regularity, jets).  FIVE-0 has `OuterDatum` (and the minimum of `𝒥`,
-`comb_minimum`) only as an interface and has it proved for the Virasoro data alone.  Hence the inequality `pmix:jensen`
-for `j(w, A)` itself is not reached; `pmix_jensen` is its exact analytic core.
+**General amplitude.** The identification of `∫ F/t²` with `j(w, A)` and `ctu:jets`/`ctu:common-functional` at a general
+amplitude are proved in `Mixtures/{JetsAmp,JetsOuter,JetsAmpIntegrals,JetsG1,JetsG3}`; `pmix:jets` and `pmix:jensen` for
+`j(w, A)` itself are `PmixJets.pmix_jets_common` and `PmixJets.pmix_jensen_full`.
 -/
 
 @[expose] public section

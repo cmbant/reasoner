@@ -10,7 +10,7 @@ public import Mathlib.Analysis.Analytic.OfScalars
 /-!
 # General-amplitude outer function `G_outer^{(w, A)}` (`ctu:jets`, `ctu:common-functional`)
 
-`constant_term_universality.tex`, Lemma ctu.1 (`ctu:jets`) and Lemma ctu.2 (`ctu:common-functional`);
+`constant_term_universality.tex`, Lemma ctu.2 (`ctu:jets`) and Lemma ctu.2a (`ctu:common-functional`);
 `positive_mixtures.tex`, Proposition PM.13 (`pmix:jets`):
 
 For any weight `w ≥ 1` and any positive real-analytic bounded amplitude `A : ℝ → ℝ` (`JetAmplitude A`),
@@ -21,7 +21,7 @@ slit weight `WslitWA w A`, and the edge kernel `KedgeW w`, and proves:
 * `GA4`: the isolated amplitude factor `G_{A,4}(z) = exp h̄_{a_Rel A}(s(z))` (bounded, bounded away
   from zero on `closure Ω`, real-symmetric, `σ`-invariant, holomorphic across `0` and `1`).
 
-All results are proved unconditionally.
+All results are proved unconditionally. Scope: `ctu:jets` (a) with `G_{A,4}` defined by the strip transform; its identification with the Poisson form `exp L_f(P(z))` and the `z²` coefficient `−8ℓ(0)` are not stated. `ctu:J-quad` gives the regularisation bound only (for `ε ∈ (0,1)`); the two-sided `D_ε` estimates and smoothness across `z = 1` are not formalised.
 -/
 
 @[expose] public section

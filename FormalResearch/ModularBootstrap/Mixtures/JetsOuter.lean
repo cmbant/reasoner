@@ -18,7 +18,7 @@ public import FormalResearch.ModularBootstrap.FiveTerm.VirasoroG1Jet
 * `GA4` properties (`ctu:jets` (a)): boundedness above and below away from `{±i}`, real symmetry, `σ`-invariance,
   local holomorphy and non-vanishing across `z = 0` and `z = 1`, and boundary moduli `A(x(y))/A(ξ_*)`.
 
-All results are proved unconditionally.
+All results are proved unconditionally (scope as in `JetsAmp`: strip-transform definition of `G_{A,4}`; regularisation bound only).
 -/
 
 @[expose] public section

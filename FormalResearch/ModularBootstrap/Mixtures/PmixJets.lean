@@ -140,7 +140,8 @@ lemma jMinWA_eq (w : ℕ) (hw : 1 ≤ w) {A : ℝ → ℝ} (hA : JetAmplitude A)
 /-- **`pmix:jets` (first half, Proposition PM.13)** for any `CommonSource` with `w ≥ 1`:
 the exact boundary minimum of `𝒥_{w,A}` equals `j(w, A) = α_tip g₁(w, A)` (`ctu:g13A`),
 and `ctu:common-functional` (defect identity, minimum, equality criterion, regularisation estimate)
-and `g₃(w, A)` all hold for `A = C.src.ampl`. -/
+and `g₃(w, A)` all hold for `A = C.src.ampl` (regularisation: the `ctu:J-quad` bound only; the two-sided `D_ε` estimates
+and smoothness at `z = 1` are not formalised). -/
 theorem pmix_jets_common (C : CommonSource) (hw : 1 ≤ C.src.w) :
     let hA := (pmix_jets_hyp C).1
     IsLeast
