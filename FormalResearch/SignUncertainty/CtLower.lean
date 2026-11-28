@@ -42,11 +42,28 @@ open Filter Topology
 namespace FormalResearch.SignUncertainty
 
 /-- **`thm:ct-lower` (`eq:ct-lower`, left half), the statement:** non-effective `c₀, C` such that for real `c ≥ c₀` and
-`ε = ±1`, every feasible threshold is at least `Δ₅^ε(c) - C c⁻¹ log c` (equivalently, `Δ₅^ε(c) - C c⁻¹ log c ≤ T_c^ε`
+`ε = ±1`, every feasible threshold is at least `Δ₅^ε(c) - C c⁻¹` (equivalently, `Δ₅^ε(c) - C c⁻¹ ≤ T_c^ε`
 when a feasible threshold exists). -/
 def CtLowerStatement : Prop :=
   ∃ c₀ C : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ∀ (T : ℝ) (f : ℝ → ℝ),
+    IsHankelFeasible c ε T f → ctDelta5 ε c - C * c⁻¹ ≤ T
+
+/-- Older `c⁻¹ log c` form of `CtLowerStatement`, retained as a one-line corollary (`ct_lower_log_of_sharp`). -/
+def CtLowerLogStatement : Prop :=
+  ∃ c₀ C : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ∀ (T : ℝ) (f : ℝ → ℝ),
     IsHankelFeasible c ε T f → ctDelta5 ε c - C * (c⁻¹ * Real.log c) ≤ T
+
+/-- One-line corollary: the log-free lower bound `CtLowerStatement` implies `CtLowerLogStatement`. -/
+theorem ct_lower_log_of_sharp (h : CtLowerStatement) : CtLowerLogStatement := by
+  obtain ⟨c₀, C, hC⟩ := h
+  refine ⟨max c₀ (Real.exp 1), |C|, fun c hc ε hε T f hf => ?_⟩
+  have hc0 : 0 < c := lt_of_lt_of_le (Real.exp_pos 1) (le_trans (le_max_right _ _) hc)
+  have hlog1 : 1 ≤ Real.log c := by
+    rw [← Real.log_exp 1]
+    exact Real.log_le_log (Real.exp_pos 1) (le_trans (le_max_right _ _) hc)
+  have hinv0 : 0 ≤ c⁻¹ := inv_nonneg.2 hc0.le
+  have h1 := hC c (le_trans (le_max_left _ _) hc) ε hε T f hf
+  nlinarith [le_abs_self C, mul_le_mul_of_nonneg_left (le_mul_of_one_le_right hinv0 hlog1) (abs_nonneg C)]
 
 /-- **`ct:boas`** (`ct:boas-ineq`) in the concrete setting, for the window of `c₁`: at every good radius `R ∈ [c₁²c^{2/3}, 4c₁²c^{2/3}]`
 (hypotheses of `ct:dyadic`: feasible `f`, `M[f] = 1`, violator `T < cξ(a₁)`, `ũ₁ > φ_c(a₁)`), the Boas integral with the taper `w̃_R`
@@ -125,8 +142,8 @@ theorem ct_pass {c₁ : ℝ} (hr : CtDyadicRadiusStatement c₁) (hd : CtDyadicC
 /-- **`thm:ct-lower`, left half of `eq:ct-lower`, from the pass and the node lower bound at one window** (the contradiction of the proof: with
 `K = 2(max(C₀,0)+1)/(κβ₁)` the budget is at least `(max(C₀,0)+1) c^{-4/3}log c - C' e^{-κ'c}` and at most
 `C₀ c^{-4/3}log c`, impossible for large `c`). -/
-theorem ct_lower_of_pass_node {c₁ : ℝ} (hP : CtPassStatement c₁) (hN : CtNodeLowerStatement c₁) :
-    CtLowerStatement := by
+theorem ct_lower_of_pass_node_log {c₁ : ℝ} (hP : CtPassStatement c₁) (hN : CtNodeLowerStatement c₁) :
+    CtLowerLogStatement := by
   obtain ⟨C₀, c₂, h2⟩ := hP
   obtain ⟨κ, κ', C', c₃, hκ, hκ', h3⟩ := hN
   set M : ℝ := max C₀ 0 + 1 with hM
@@ -204,9 +221,9 @@ theorem ct_lower_of_pass_node {c₁ : ℝ} (hP : CtPassStatement c₁) (hN : CtN
 
 /-- **`thm:ct-lower` from `ct:dyadic` (4) and `ct:boas`**: take `c₁` below the thresholds of `D`, `B`, `ct_node_lower`, and
 `ct_dyadic_radius_proved`.  (`CtLowerFinal.ct_lower` instantiates both unconditionally.) -/
-theorem ct_lower_of_boas
+theorem ct_lower_of_boas_log
     (D : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtDyadicCombinedStatement c₁)
-    (B : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtBoasStatement c₁) : CtLowerStatement := by
+    (B : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtBoasStatement c₁) : CtLowerLogStatement := by
   obtain ⟨a₁, ha₁, hd⟩ := D
   obtain ⟨a₂, ha₂, hb⟩ := B
   obtain ⟨a₃, ha₃, hn⟩ := ct_node_lower
@@ -217,14 +234,14 @@ theorem ct_lower_of_boas
   have l2 : c₁ ≤ a₂ := (min_le_right _ _).trans (min_le_left _ _)
   have l3 : c₁ ≤ a₃ := (min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _))
   have l4 : c₁ ≤ a₄ := (min_le_right _ _).trans ((min_le_right _ _).trans (min_le_right _ _))
-  exact ct_lower_of_pass_node (ct_pass (hr c₁ hpos l4) (hd c₁ hpos l1) (hb c₁ hpos l2)) (hn c₁ hpos l3)
+  exact ct_lower_of_pass_node_log (ct_pass (hr c₁ hpos l4) (hd c₁ hpos l1) (hb c₁ hpos l2)) (hn c₁ hpos l3)
 
-/-- Corollary in the paper's form: `Δ₅^ε(c) - C c⁻¹ log c ≤ T_c^ε` once a feasible threshold exists for the given
+/-- Corollary in the paper's log-free form: `Δ₅^ε(c) - C c⁻¹ ≤ T_c^ε` once a feasible threshold exists for the given
 `c` (for large `c` this is `HbThresholdsUpper`, `u1co:O9p`). -/
 theorem ct_lower_hankelT (h : CtLowerStatement) :
     ∃ c₀ C : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
       (∃ T f, IsHankelFeasible c ε T f) →
-        ctDelta5 ε c - C * (c⁻¹ * Real.log c) ≤ hankelT ε c := by
+        ctDelta5 ε c - C * c⁻¹ ≤ hankelT ε c := by
   obtain ⟨c₀, C, hC⟩ := h
   refine ⟨c₀, C, fun c hc ε hε hne => ?_⟩
   exact le_csInf (by obtain ⟨T, f, hf⟩ := hne; exact ⟨T, f, hf⟩)
@@ -234,16 +251,20 @@ theorem ct_lower_hankelT (h : CtLowerStatement) :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.SignUncertainty.ct_pass
 
-/-- info: 'FormalResearch.SignUncertainty.ct_lower_of_pass_node' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.SignUncertainty.ct_lower_of_pass_node_log' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.SignUncertainty.ct_lower_of_pass_node
+#print axioms FormalResearch.SignUncertainty.ct_lower_of_pass_node_log
 
-/-- info: 'FormalResearch.SignUncertainty.ct_lower_of_boas' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.SignUncertainty.ct_lower_of_boas_log' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.SignUncertainty.ct_lower_of_boas
+#print axioms FormalResearch.SignUncertainty.ct_lower_of_boas_log
 
 /-- info: 'FormalResearch.SignUncertainty.ct_lower_hankelT' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.SignUncertainty.ct_lower_hankelT
+
+/-- info: 'FormalResearch.SignUncertainty.ct_lower_log_of_sharp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.ct_lower_log_of_sharp
 
 end FormalResearch.SignUncertainty

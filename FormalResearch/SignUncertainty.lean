@@ -377,7 +377,31 @@ public import FormalResearch.SignUncertainty.CtLowerDefs
 public import FormalResearch.SignUncertainty.CtLowerChartGap
 public import FormalResearch.SignUncertainty.CtKappaNeg
 public import FormalResearch.SignUncertainty.CtNodeLower
+public import FormalResearch.SignUncertainty.FineOrderSignedCore
+public import FormalResearch.SignUncertainty.FineOrderSignedDiv
+public import FormalResearch.SignUncertainty.FineOrderSignedOps
+public import FormalResearch.SignUncertainty.FineOrderSignedCascade
+public import FormalResearch.SignUncertainty.FineOrderSignedMain
+public import FormalResearch.SignUncertainty.FineOrderSigned
 public import FormalResearch.SignUncertainty.CtLower
+public import FormalResearch.SignUncertainty.CtLowerLogFreeSkeleton
+public import FormalResearch.SignUncertainty.CtWindowSignedSplit
+public import FormalResearch.SignUncertainty.CtWindowSignedCfu
+public import FormalResearch.SignUncertainty.CtWindowSignedAux
+public import FormalResearch.SignUncertainty.CtWindowSignedPairing
+public import FormalResearch.SignUncertainty.CtWindowSigned
+public import FormalResearch.SignUncertainty.CtBoasMollify
+public import FormalResearch.SignUncertainty.CtBoasPartition
+public import FormalResearch.SignUncertainty.CtBoasSfSmooth
+public import FormalResearch.SignUncertainty.CtBoasSmoothTaper
+public import FormalResearch.SignUncertainty.CtBoasSmoothWeights
+public import FormalResearch.SignUncertainty.CtBoasSmoothBlock
+public import FormalResearch.SignUncertainty.CtBoasPhaseReg
+public import FormalResearch.SignUncertainty.CtBoasOscIbp
+public import FormalResearch.SignUncertainty.CtBoasContour
+public import FormalResearch.SignUncertainty.CtBoasHarmonicBounds
+public import FormalResearch.SignUncertainty.CtBoasHarmonics
+public import FormalResearch.SignUncertainty.CtBoasExactAssembly
 public import FormalResearch.SignUncertainty.HankelLangerIdentity
 public import FormalResearch.SignUncertainty.HankelWtConj
 public import FormalResearch.SignUncertainty.EuclidSplit
@@ -806,8 +830,8 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.CtPhaseFar` (F1, `ct:phase-far-lem`; proved, unconditional): `integral_div_sinh` (`∫_0^∞ y/sinh y dy = π²/4`, via `y/sinh y = 2∑ y e^{-(2k+1)y}` and `∑(2k+1)^{-2} = π²/8`), `sj_tail` (`0 ≤ π²/4 - ∫_0^T y/sinh y ≤ 3(T+2)e^{-T}`), `edgePhi_at_crit` (`Φ_Ph(τ;m(τ)) = τ - π⁻¹∫_0^{πτ} y/sinh y dy`), `ct_phase_far` (for `x = Δ/c ≥ 1`, `m(τ₀) = log(π²x)`, `τ₀ > 0`: `|τ₀ - 2πx| ≤ K x e^{-2π²x}`, `|Φ_Ph(τ₀;L) - (2πx - π/4)| ≤ K x e^{-2π²x}`, `K = 16π e²`) and its `Δ, c` form `ct_phase_far_Delta` (`|cΦ_Ph - (2πΔ - πc/4)| ≤ KΔe^{-2π²Δ/c}`).
 * `FormalResearch.SignUncertainty.HankelModular` (F1, `ct:boas` Step 1 and the Gaussian identity of `gt:7.9a`; proved, unconditional): `hankel_laplace_complex` (`∫_0^∞ e^{-ps}ρ₀(s)φ_c(Δs) ds = (2π/p)^c e^{-4π²Δ/p}` for `c > 1/2`, `Δ ≥ 0`, `Re p > 0`, principal power; the identity-theorem continuation of the real-`p` `hankel_laplace`, i.e. `ĝ_b = b^{-c}g_{1/b}` for complex `b`), `kernelB` (`∫ K^{(c)}(Δ,s)e^{2πizs}ρ₀(s)ds = (-iz)^{-c}e^{2πi(-1/z)Δ}`), `hankelF_modular` (`F(z) = ε(-iz)^{-c}F(-1/z)` on `Im z > 0` for `f ∈ 𝒜_c^ε`, `ε² = 1`, `F(z) = ∫_0^∞ fρ₀ e^{2πizs}ds`), `continuousOn_hankelF` (continuity on `Im z ≥ 0`), `hankelF_modular_real` (boundary form on `ℝ∖{0}`) and `hankelF_bound` (`|F(x)| ≤ M[f]|x|^{-c}`).
 * `FormalResearch.SignUncertainty.CtAiryHplus` and `CtHalfDiscPoisson` (F1, `ct:dyadic` Parts (3) and (2), kernel inputs only; proved, unconditional): `hplus_sq_asymp`, `hplus_sq_deriv_asymp`, `calD_bound` (`h₊ = Ai + iBi`, for `Im u ≥ 0`, `‖u‖ = R ≥ 1`: `‖h₊² + π⁻¹u^{-1/2}e^{(4/3)u^{3/2}}‖ ≤ 4R^{-3/2}·π⁻¹R^{-1/2}e^{(4/3)Re u^{3/2}}`, `‖(h₊²)' + 2π⁻¹e^{(4/3)u^{3/2}}‖ ≤ 11R^{-3/2}·2π⁻¹e^{(4/3)Re u^{3/2}}`, `‖𝒟₊‖ ≤ 11R^{-3/2}e^{(4/3)Re u^{3/2}}`, from DLMF 9.7.5/9.7.6 at `s = 1/2` and `Bi - iAi = 2ε̄Ai(ω²·)`); the explicit half-disc Poisson kernel on the diameter and arc (`pDiam`, `pArc`, `ct:Pdiam`, `ct:Parc`): `pDiam_eq`, `pDiam_le` (`0 ≤ P ≤ y/(π|z-t|²) ≤ 1/(π|z-t|)`), `pArc_le` (`A·P ≤ 3(y/A)sin θ` for `|z| ≤ A/4`); `CtHalfDiscArea` (P2a, `ct:dyadic` Part (2)): `pDiam_area` (`∫_{N₊} P(z,t) dA ≤ 7r` for `|t| ≤ r/4`, `A = 4r`, TeX constant `6`) and `pDiam_lipschitz` (`|P(z,t) - P(z,0)| ≤ 400|t|/r²`, TeX `123`). `hplus_real`, `hplus_sq_im` (`Im h₊(x)² = 2Ai(x)Bi(x)`), `calD_im_real` (`Im 𝒟₊(x) = -π(Ai'Bi + AiBi') + 1_{x<0} sin((4/3)(-x)^{3/2})`). `ct:dyadic` itself is NOT formalised; see PLAN.md.
-* `FormalResearch.SignUncertainty.CtLower`, `CtLowerFinal` (`thm:ct-lower`, `eq:ct-lower` left half, **proved, unconditional**; objects in `CtLowerDefs`): `CtLowerStatement`, `ct_lower : CtLowerStatement` (`Δ₅^ε(c) - C c⁻¹ log c ≤ T` for every feasible threshold `T`, `c ≥ c₀`, `ε = ±1`, with `ctDelta5`), `ct_lower_hankelT`, from `ct_combined` (`ct:dyadic` (4), assembled from `ct_combined_rosc`, `ct_combined_trunc`, `ct_combined_window`, `ct_combined_outer`, `ct_combined_trans`), `ct_boas_concrete` (`ct:boas`), `ct_dyadic_radius_proved` (`ct:dyadic` (2)), `ct_node_lower`, and `ctChartGap`. `CtWindowAssembly.ct_combined_window` combines `ct_window_of_half_moment` (`CtWindowOrth` `ct:H2-orth`, `CtWindowSub` sub-chart tail & positive half-moment, `CtWindowCfu` `ct:cfu` (1), `CtWindowTransport`) with `hankel_neg_half_moment_le` (`CtHalfMoment` via scale-`r` bootstrap `CtScaleBand`/`CtScaleWindow`/`CtScaleArc`/`CtScaleBoot`).
-* `FormalResearch.SignUncertainty.CtBoasMoments`, `CtBoasMeasurable`, `CtBoasLmin`, `CtBoasRates`, `CtBoasConcrete`, `CtBoasTotal`, `CtBoasFinal`, `CtBoasEventual`, `CtLowerFinal` (`ct:boas`; proved, unconditional): `ct_boas_concrete : ∃ c₁₀ > 0, ∀ c₁ ∈ (0, c₁₀], CtBoasStatement c₁` from `boas_ineq_tent` with the concrete `BoasInputs` (`boas_concrete_core`), and `ct_lower : CtLowerInputs → CtLowerStatement` (one field, `dyadic`).
+* `FormalResearch.SignUncertainty.CtLower`, `CtLowerLogFreeSkeleton`, `CtLowerFinal` (`thm:ct-lower`, `eq:ct-lower` left half, **proved, unconditional**; objects in `CtLowerDefs`): `CtLowerStatement`, `ct_lower : CtLowerStatement` (`Δ₅^ε(c) - C c⁻¹ ≤ T` for every feasible threshold `T`, `c ≥ c₀`, `ε = ±1`, with `ctDelta5`), `ct_lower_log : CtLowerLogStatement` (one-line log corollary), `ct_lower_hankelT`, from `ct_combined_sharp` (`ct:dyadic` (4), assembled from `ct_combined_rosc_sharp`, `ct_combined_trunc_sharp`, `window_signed_proved`, `ct_combined_outer_sharp`, `ct_combined_trans_sharp`), `boas_sharp_proved` (`ct:boas`), `ct_dyadic_radius_proved` (`ct:dyadic` (2)), `ct_node_lower`, and `ctChartGap_sharp`. `CtWindowSigned` (`CtWindowSignedSplit`/`Cfu`/`Aux`/`Pairing`, using phase-free `FineOrderSigned*` Lemma `fj:lemma` / `fs:half-cubic` + `CtWindowOrth` `ct:H2-orth` + `CtWindowSub`) proves the signed `O(c⁻¹ η_R + c^{-4/3})` window bound `window_signed_proved` (`ct:K-signed`).
+* `FormalResearch.SignUncertainty.CtBoasMollify`, `CtBoasPartition`, `CtBoasSfSmooth`, `CtBoasSmoothTaper`, `CtBoasSmoothWeights`, `CtBoasSmoothBlock`, `CtBoasPhaseReg`, `CtBoasOscIbp`, `CtBoasContour`, `CtBoasHarmonicBounds`, `CtBoasHarmonics`, `CtBoasExactAssembly` (`ct:boas` Steps 3–5, exact-phase Fejér; proved, unconditional): `exists_near_weights`, `boas_harmonic_bound`, `boas_sharp_proved : ∃ c₁₀ > 0, ∀ c₁ ∈ (0, c₁₀], CtBoasSharpStatement c₁` (using `ct_boas_moments_top` and `boas_far_field_hankel`). Older Gaussian-window `CtBoasTotal`/`Final`/`Eventual` (`ct_boas_concrete`) and `CtWindowAssembly` retain the superseded `c⁻¹ log c` route cleanly via `ct_combined`/`ct_lower_log_of_sharp`.
 * `FormalResearch.SignUncertainty.CtBoasStrip` (`ct:boas` Step 2; proved): `S0_ineq` (`ct:S0-ineq`: `Re S̃₀(σ+iτ) + σ m(τ₀) ≤ -(4/5)σ(m(|τ|) - m(τ₀))` for `|τ| ≥ 3τ₀/2`, `0 < σ ≤ min(τ₀/4,1/4)`), with `re_stripG_eq`, `re_stripG_diff_le`, `re_stripG_imag`, `sigma_le_delta32`.
 * `FormalResearch.SignUncertainty.CtBoasShift` (`ct:boas` Step 4, phase-free core; proved, unconditional): `windowCoeff_gauss_eq` (`ĝ(ν) = ∫ e^{-2π²W²ω²-2πiωx₀} Fh h(ω-ν) dω`), `windowCoeff_gauss_shift` (contour shift to `Im ω = a` for `H` holomorphic on the strip extending `Fh h`), `windowCoeff_gauss_shift_bound`.
 * `FormalResearch.SignUncertainty.CtBoasHhatHol` (`ct:boas` Step 4 inputs; proved, unconditional): `fh_hankelHL_eq` (`Fh h z = ĥ(-2πiz/c)`), `integrable_hankelHL`, `hankelHhat_continuousOn_strip`, `hankelHhat_differentiableOn_strip`, `re_stripS0Tilde_le_cubic` (`Re S̃₀(σ+iτ) ≤ π²σ³/20`), `hankelHcoord_continuousOn`, `hankelHcoord_differentiableOn`, `hankelHcoord_bound`.

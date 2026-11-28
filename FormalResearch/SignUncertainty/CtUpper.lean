@@ -184,6 +184,31 @@ lemma delta5_lin_lower {c : ℝ} (hc : 1 ≤ c) (ε C : ℝ) :
   unfold ctDelta5
   linarith [neg_abs_le (ctKappa ε), abs_nonneg (ctKappa ε), abs_nonneg (ctD2star ε), abs_nonneg C]
 
+/-- A linear lower bound for `Δ₅^ε(c) - C c⁻¹`. -/
+lemma delta5_lin_lower_sharp {c : ℝ} (hc : 1 ≤ c) (ε C : ℝ) :
+    c / π ^ 2 - (|ctKappa ε| + |ctD2star ε| + |C|) ≤ ctDelta5 ε c - C * c⁻¹ := by
+  have hc0 : 0 < c := by linarith
+  have hA : 0 ≤ airyOrderCoeff * c ^ (1 / 3 : ℝ) :=
+    mul_nonneg airyOrderCoeff_pos.le (Real.rpow_nonneg hc0.le _)
+  have hC1 : 0 ≤ ctC1Langer * c ^ (-(1 / 3) : ℝ) :=
+    mul_nonneg (by unfold ctC1Langer; positivity) (Real.rpow_nonneg hc0.le _)
+  have hp0 : 0 ≤ c ^ (-(2 / 3) : ℝ) := Real.rpow_nonneg hc0.le _
+  have hp1 : c ^ (-(2 / 3) : ℝ) ≤ 1 :=
+    Real.rpow_le_one_of_one_le_of_nonpos hc (by norm_num)
+  have hd2 : -|ctD2star ε| ≤ ctD2star ε * c ^ (-(2 / 3) : ℝ) := by
+    have : |ctD2star ε * c ^ (-(2 / 3) : ℝ)| ≤ |ctD2star ε| := by
+      rw [abs_mul, abs_of_nonneg hp0]
+      exact mul_le_of_le_one_right (abs_nonneg _) hp1
+    linarith [neg_abs_le (ctD2star ε * c ^ (-(2 / 3) : ℝ))]
+  have hinv0 : 0 ≤ c⁻¹ := inv_nonneg.2 hc0.le
+  have hinv1 : c⁻¹ ≤ 1 := inv_le_one_of_one_le₀ hc
+  have hCl : C * c⁻¹ ≤ |C| := by
+    calc C * c⁻¹ ≤ |C| * c⁻¹ := mul_le_mul_of_nonneg_right (le_abs_self C) hinv0
+      _ ≤ |C| * 1 := mul_le_mul_of_nonneg_left hinv1 (abs_nonneg C)
+      _ = |C| := mul_one _
+  unfold ctDelta5
+  linarith [neg_abs_le (ctKappa ε), abs_nonneg (ctKappa ε), abs_nonneg (ctD2star ε), abs_nonneg C]
+
 /-- `Δ₅^{+}(c) - Δ₅^{-}(c) = -1/π + π A c^{-2/3}`. -/
 lemma ctDelta5_pos_sub_neg (c : ℝ) :
     ctDelta5 1 c - ctDelta5 (-1) c = -(1 / π) + π * airyOrderCoeff * c ^ (-(2 / 3) : ℝ) := by
@@ -214,9 +239,9 @@ structure CtUpperCEInputs : Prop where
 theorem ct_upper_real (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
     ∃ c₀ S : ℝ, 1 ≤ c₀ ∧ 0 ≤ S ∧ ∀ c : ℝ, c₀ ≤ c →
       (∀ ε : ℝ, (ε = 1 ∨ ε = -1) → (∃ T f, IsHankelFeasible c ε T f) ∧
-        ctDelta5 ε c - S * (c⁻¹ * Real.log c) ≤ hankelT ε c ∧
+        ctDelta5 ε c - S * c⁻¹ ≤ hankelT ε c ∧
           hankelT ε c ≤ ctDelta5 ε c + S * c ^ (-(3 / 4 : ℝ))) ∧
-      ctDelta5 (-1) c - S * (c⁻¹ * Real.log c) ≤ hankelTCE c ∧
+      ctDelta5 (-1) c - S * c⁻¹ ≤ hankelTCE c ∧
         hankelTCE c ≤ ctDelta5 (-1) c + S * c ^ (-(3 / 4 : ℝ)) ∧
       hankelT (-1) c ≤ hankelTCE c ∧ hankelTCE c - hankelT (-1) c ≤ S * c ^ (-(3 / 4 : ℝ)) ∧
       c / (4 * π) < hankelT (-1) c := by
@@ -242,18 +267,19 @@ theorem ct_upper_real (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
   have hcB : B0 / ((4 - π) / (4 * π ^ 2)) + 1 ≤ c :=
     le_trans (le_trans (le_max_right 1 _) (le_max_right _ _)) hc
   have hc0 : 0 < c := by linarith
-  have hlog0 := log_div_nonneg hc1
-  have hlog4 := log_div_le_rpow hc1
+  have hinv0 : 0 ≤ c⁻¹ := inv_nonneg.2 hc0.le
+  have hinv34 : c⁻¹ ≤ c ^ (-(3 / 4 : ℝ)) := by
+    rw [← Real.rpow_neg_one]; exact Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
   have hp0 : 0 ≤ c ^ (-(3 / 4 : ℝ)) := Real.rpow_nonneg hc0.le _
   have hSCL : |CL| ≤ S := by rw [hS]; linarith [abs_nonneg Cp, abs_nonneg CE, abs_nonneg CL]
   have hne : ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ∃ T f, IsHankelFeasible c ε T f := fun ε hε => by
     obtain ⟨T, f, hf, -⟩ := hH c hcH ε hε; exact ⟨T, f, hf⟩
   have hlow : ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ∀ T f, IsHankelFeasible c ε T f →
-      ctDelta5 ε c - S * (c⁻¹ * Real.log c) ≤ T := fun ε hε T f hf => by
+      ctDelta5 ε c - S * c⁻¹ ≤ T := fun ε hε T f hf => by
     have := hL c hcL ε hε T f hf
-    nlinarith [mul_le_mul_of_nonneg_right (le_trans (le_abs_self CL) hSCL) hlog0]
+    nlinarith [mul_le_mul_of_nonneg_right (le_trans (le_abs_self CL) hSCL) hinv0]
   have hlowT : ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
-      ctDelta5 ε c - S * (c⁻¹ * Real.log c) ≤ hankelT ε c := fun ε hε =>
+      ctDelta5 ε c - S * c⁻¹ ≤ hankelT ε c := fun ε hε =>
     le_csInf (by obtain ⟨T, f, hf⟩ := hne ε hε; exact ⟨T, f, hf⟩)
       fun T ⟨f, hf⟩ => hlow ε hε T f hf
   have hbdd : BddBelow {T : ℝ | ∃ f, IsHankelFeasible c (-1) T f} :=
@@ -264,7 +290,7 @@ theorem ct_upper_real (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
   have hhalf : 1 / 2 < c := by linarith
   have hCEfeas : ∀ T h g, IsHankelCEFeasible c T h g → IsHankelFeasible c (-1) T (fun s => (g s + -h s) / 2) :=
     fun T h g H => ceFeasible_negProj_feasible hhalf H (E.ce_nonzero_neg hhalf H)
-  have hCElow : ctDelta5 (-1) c - S * (c⁻¹ * Real.log c) ≤ hankelTCE c :=
+  have hCElow : ctDelta5 (-1) c - S * c⁻¹ ≤ hankelTCE c :=
     le_csInf hCEne' fun T ⟨h, g, H⟩ => hlow (-1) (Or.inr rfl) T _ (hCEfeas T h g H)
   have hTle : hankelT (-1) c ≤ hankelTCE c :=
     csInf_le_csInf hbdd hCEne' fun T ⟨h, g, H⟩ => ⟨_, hCEfeas T h g H⟩
@@ -279,7 +305,7 @@ theorem ct_upper_real (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
       mul_le_mul_of_nonneg_right (by rw [hS]; linarith [le_abs_self Cp, abs_nonneg CE, abs_nonneg CL]) hp0
     linarith
   -- `T_c^- > c/(4π)`
-  have hlin := delta5_lin_lower hc1 (-1) S
+  have hlin := delta5_lin_lower_sharp hc1 (-1) S
   have hS' : |ctKappa (-1)| + |ctD2star (-1)| + |S| ≤ B0 := by
     rw [hB0, abs_of_nonneg hS0]
     linarith [abs_nonneg (ctKappa 1), abs_nonneg (ctD2star 1)]
@@ -294,14 +320,13 @@ theorem ct_upper_real (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
   refine ⟨fun ε hε => ⟨hne ε hε, hlowT ε hε, hT1 ε hε⟩, hCElow, hCEup', hTle, ?_, hTgt⟩
   have := hlowT (-1) (Or.inr rfl)
   have := hT1 (-1) (Or.inr rfl)
-  have hlowCL : ctDelta5 (-1) c - CL * (c⁻¹ * Real.log c) ≤ hankelT (-1) c :=
+  have hlowCL : ctDelta5 (-1) c - CL * c⁻¹ ≤ hankelT (-1) c :=
     le_csInf (by obtain ⟨T, f, hf⟩ := hne (-1) (Or.inr rfl); exact ⟨T, f, hf⟩)
       fun T ⟨f, hf⟩ => hL c hcL (-1) (Or.inr rfl) T f hf
-  have h4 : CL * (c⁻¹ * Real.log c) ≤ 4 * |CL| * c ^ (-(3 / 4 : ℝ)) := by
-    calc CL * (c⁻¹ * Real.log c) ≤ |CL| * (c⁻¹ * Real.log c) :=
-          mul_le_mul_of_nonneg_right (le_abs_self CL) hlog0
-      _ ≤ |CL| * (4 * c ^ (-(3 / 4 : ℝ))) := mul_le_mul_of_nonneg_left hlog4 (abs_nonneg CL)
-      _ = 4 * |CL| * c ^ (-(3 / 4 : ℝ)) := by ring
+  have h4 : CL * c⁻¹ ≤ 4 * |CL| * c ^ (-(3 / 4 : ℝ)) := by
+    calc CL * c⁻¹ ≤ |CL| * c⁻¹ := mul_le_mul_of_nonneg_right (le_abs_self CL) hinv0
+      _ ≤ |CL| * c ^ (-(3 / 4 : ℝ)) := mul_le_mul_of_nonneg_left hinv34 (abs_nonneg CL)
+      _ ≤ 4 * |CL| * c ^ (-(3 / 4 : ℝ)) := by nlinarith [abs_nonneg CL, hp0]
   have h5 : (|CE| + 4 * |CL|) * c ^ (-(3 / 4 : ℝ)) ≤ S * c ^ (-(3 / 4 : ℝ)) :=
     mul_le_mul_of_nonneg_right (by rw [hS]; linarith [abs_nonneg Cp]) hp0
   have h6 : CE * c ^ (-(3 / 4 : ℝ)) ≤ |CE| * c ^ (-(3 / 4 : ℝ)) :=
@@ -316,7 +341,7 @@ set_option maxHeartbeats 1000000 in
 `gt:7.12`, `thm:ce-radius`, parts (i), (ii)), proved from unconditional `ct_lower`, under the explicit hypotheses
 `FctMainHankelInputs` (`fct_main_hankel`) and `CtUpperCEInputs` (`fct:main-ce` and the two reductions).
 
-(i) For `ε = ±1` and real `c ≥ c₀`: `Δ₅^ε(c) - C c⁻¹ log c ≤ T_c^ε ≤ Δ₅^ε(c) + C c^{-3/4}`, the same for `T_c^CE` with `ε = -1`,
+(i) For `ε = ±1` and real `c ≥ c₀`: `Δ₅^ε(c) - C c⁻¹ ≤ T_c^ε ≤ Δ₅^ε(c) + C c^{-3/4}`, the same for `T_c^CE` with `ε = -1`,
 `0 ≤ T_c^CE - T_c^- ≤ C c^{-3/4}`, and `T_c^{+1} - T_c^{-1} = -1/π + π A c^{-2/3} + O(c^{-3/4})`.
 (ii) For integer `d ≥ 2c₀`, `c = d/2`: `½ A_sign^ε(d)² = Δ₅^ε(c) + O(d^{-3/4})`, `½ r_CE(d)² = Δ₅^-(c) + O(d^{-3/4})`,
 `0 ≤ r_CE(d)² - A_sign^-(d)² = O(d^{-3/4})`, `0 ≤ r_CE(d) - A_sign^-(d) = O(d^{-5/4})`; the Schwartz radius is
@@ -325,9 +350,9 @@ theorem ct_upper (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
     ∃ c₀ C : ℝ, 1 ≤ c₀ ∧ 0 < C ∧
     (∀ c : ℝ, c₀ ≤ c →
       (∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
-        ctDelta5 ε c - C * (c⁻¹ * Real.log c) ≤ hankelT ε c ∧
+        ctDelta5 ε c - C * c⁻¹ ≤ hankelT ε c ∧
           hankelT ε c ≤ ctDelta5 ε c + C * c ^ (-(3 / 4 : ℝ))) ∧
-      (ctDelta5 (-1) c - C * (c⁻¹ * Real.log c) ≤ hankelTCE c ∧
+      (ctDelta5 (-1) c - C * c⁻¹ ≤ hankelTCE c ∧
         hankelTCE c ≤ ctDelta5 (-1) c + C * c ^ (-(3 / 4 : ℝ))) ∧
       (0 ≤ hankelTCE c - hankelT (-1) c ∧ hankelTCE c - hankelT (-1) c ≤ C * c ^ (-(3 / 4 : ℝ))) ∧
       |hankelT 1 c - hankelT (-1) c - (-(1 / π) + π * airyOrderCoeff * c ^ (-(2 / 3 : ℝ)))|
@@ -345,20 +370,22 @@ theorem ct_upper (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
   refine ⟨c₀, 13 * S + 1, hc₀, by linarith, fun c hc => ?_, fun d hd => ?_⟩
   · obtain ⟨hT, hCl, hCu, hle, hdiff, -⟩ := hcore c hc
     have hc1 : 1 ≤ c := le_trans hc₀ hc
-    have hlog0 := log_div_nonneg hc1
-    have hlog4 := log_div_le_rpow hc1
-    have hp0 : 0 ≤ c ^ (-(3 / 4 : ℝ)) := Real.rpow_nonneg (by linarith) _
-    have hlogC : S * (c⁻¹ * Real.log c) ≤ (13 * S + 1) * (c⁻¹ * Real.log c) :=
-      mul_le_mul_right' hlog0 (by linarith)
+    have hc0 : 0 < c := by linarith
+    have hinv0 : 0 ≤ c⁻¹ := inv_nonneg.2 hc0.le
+    have hinv34 : c⁻¹ ≤ c ^ (-(3 / 4 : ℝ)) := by
+      rw [← Real.rpow_neg_one]; exact Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
+    have hp0 : 0 ≤ c ^ (-(3 / 4 : ℝ)) := Real.rpow_nonneg hc0.le _
+    have hinvC : S * c⁻¹ ≤ (13 * S + 1) * c⁻¹ :=
+      mul_le_mul_right' hinv0 (by linarith)
     have hCp : S * c ^ (-(3 / 4 : ℝ)) ≤ (13 * S + 1) * c ^ (-(3 / 4 : ℝ)) :=
       mul_le_mul_right' hp0 (by linarith)
     have h8 : 8 * S * c ^ (-(3 / 4 : ℝ)) ≤ (13 * S + 1) * c ^ (-(3 / 4 : ℝ)) :=
       mul_le_mul_right' hp0 (by linarith)
     obtain ⟨-, h1l, h1u⟩ := hT 1 (Or.inl rfl)
     obtain ⟨-, h2l, h2u⟩ := hT (-1) (Or.inr rfl)
-    have hlogS : S * (c⁻¹ * Real.log c) ≤ 4 * S * c ^ (-(3 / 4 : ℝ)) := by
-      calc S * (c⁻¹ * Real.log c) ≤ S * (4 * c ^ (-(3 / 4 : ℝ))) := mul_le_mul_of_nonneg_left hlog4 hS
-        _ = 4 * S * c ^ (-(3 / 4 : ℝ)) := by ring
+    have hinvS : S * c⁻¹ ≤ 4 * S * c ^ (-(3 / 4 : ℝ)) := by
+      calc S * c⁻¹ ≤ S * c ^ (-(3 / 4 : ℝ)) := mul_le_mul_of_nonneg_left hinv34 hS
+        _ ≤ 4 * S * c ^ (-(3 / 4 : ℝ)) := by nlinarith [hS, hp0]
     refine ⟨fun ε hε => ⟨?_, ?_⟩, ⟨?_, ?_⟩, ⟨by linarith, by linarith⟩, ?_⟩
     · linarith [(hT ε hε).2.1]
     · linarith [(hT ε hε).2.2]
@@ -375,11 +402,12 @@ theorem ct_upper (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
     have hc : c₀ ≤ c := by rw [hcdef]; linarith
     obtain ⟨hT, hCl, hCu, hle, hdiff, hgt⟩ := hcore c hc
     have hc0 : 0 < c := by linarith
-    have hlog4 := log_div_le_rpow hc1
+    have hinv34 : c⁻¹ ≤ c ^ (-(3 / 4 : ℝ)) := by
+      rw [← Real.rpow_neg_one]; exact Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
     have hp0 : 0 ≤ c ^ (-(3 / 4 : ℝ)) := Real.rpow_nonneg hc0.le _
-    have hlogS : S * (c⁻¹ * Real.log c) ≤ 4 * S * c ^ (-(3 / 4 : ℝ)) := by
-      calc S * (c⁻¹ * Real.log c) ≤ S * (4 * c ^ (-(3 / 4 : ℝ))) := mul_le_mul_of_nonneg_left hlog4 hS
-        _ = 4 * S * c ^ (-(3 / 4 : ℝ)) := by ring
+    have hinvS : S * c⁻¹ ≤ 4 * S * c ^ (-(3 / 4 : ℝ)) := by
+      calc S * c⁻¹ ≤ S * c ^ (-(3 / 4 : ℝ)) := mul_le_mul_of_nonneg_left hinv34 hS
+        _ ≤ 4 * S * c ^ (-(3 / 4 : ℝ)) := by nlinarith [hS, hp0]
     -- conversion `c^{-a} = 2^a d^{-a}`
     have hc34 : c ^ (-(3 / 4 : ℝ)) ≤ 2 * (d : ℝ) ^ (-(3 / 4 : ℝ)) := by
       rw [hcdef, half_rpow_neg hd0]
@@ -402,7 +430,7 @@ theorem ct_upper (U : FctMainHankelInputs) (E : CtUpperCEInputs) :
     rw [← hcdef] at hp hn hrad
     rw [hT0] at hn
     -- abs bounds
-    have habs : ∀ x D : ℝ, D - S * (c⁻¹ * Real.log c) ≤ x → x ≤ D + S * c ^ (-(3 / 4 : ℝ)) →
+    have habs : ∀ x D : ℝ, D - S * c⁻¹ ≤ x → x ≤ D + S * c ^ (-(3 / 4 : ℝ)) →
         |x - D| ≤ (13 * S + 1) * (d : ℝ) ^ (-(3 / 4 : ℝ)) := by
       intro x D h1 h2
       have : 8 * S * (d : ℝ) ^ (-(3 / 4 : ℝ)) ≤ (13 * S + 1) * (d : ℝ) ^ (-(3 / 4 : ℝ)) :=

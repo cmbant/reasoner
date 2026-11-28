@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.SignUncertainty.CtWindowSignedPairing
+public import FormalResearch.SignUncertainty.CtWindowSub
 
 /-!
 # Log-free `window` bound (`ct:dyadic` (4), `window` bullet)
@@ -14,7 +15,7 @@ Combines:
 * `window_signed_cfu_pairing` (`O(c⁻¹ η_R + c^{-4/3})`),
 * `CtWindowOrth.ct_h2_orth_bounds` cancelling `ctOscS1 + ∫ Re(f_c) fsK = ∫ Re(f_c) Im D`,
 
-discharging `CtLowerLogFreeInputs.window_signed` (`window_signed_proved`).
+discharging the signed window piece for `CtLowerFinal.ct_combined_sharp` (`window_signed_proved`).
 -/
 
 @[expose] public section
@@ -307,7 +308,7 @@ private lemma window_signed_one_sign {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
             gcongr; exact le_max_left _ _; exact le_max_right _ _
     _ = C_tot * (c⁻¹ * ctEta c₁ ε c f R + c ^ (-(4 / 3 : ℝ))) := by ring
 
-/-- **Discharges `CtLowerLogFreeInputs.window_signed`** (`constant_terms_lower.tex`, Lemma `ct:dyadic` (4),
+/-- **Signed window bound for `CtLowerFinal.ct_combined_sharp`** (`constant_terms_lower.tex`, Lemma `ct:dyadic` (4),
 `window` bullet + Lemma `ct:K-signed`): for `c₁ > 0` sufficiently small,
 `|ctKin R ε c f + ctOscS1 R ε c f| ≤ C (c⁻¹ η_R + c^{-4/3})` uniformly over `ε ∈ {±1}`, feasible `f`
 with `M[f] = 1`, and good radii `R ∈ [c₁² c^{2/3}, 4 c₁² c^{2/3}]`. **Proved.** -/

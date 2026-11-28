@@ -2,10 +2,10 @@ module
 
 public import Mathlib
 public import FormalResearch.SignUncertainty.CtLower
-public import FormalResearch.SignUncertainty.CtLowerFinal
 public import FormalResearch.SignUncertainty.CtRoscAssembly
 public import FormalResearch.SignUncertainty.CtCombinedTop
 public import FormalResearch.SignUncertainty.CtTransBand
+public import FormalResearch.SignUncertainty.CtRoscBookProof
 public import FormalResearch.SignUncertainty.HankelThresholds
 
 /-!
@@ -63,16 +63,8 @@ def CtPassLogFreeStatement (c₁ : ℝ) : Prop :=
       ∃ R : ℝ, R ∈ Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧
         ctBudget R ε c f ≤ C₀ * c ^ (-(4 / 3) : ℝ)
 
-/-- Log-free **`thm:ct-lower` (`eq:ct-lower`, left half)**: `Δ₅^ε(c) - C c⁻¹ ≤ T`. -/
-def CtLowerLogFreeStatement : Prop :=
-  ∃ c₀ C : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ∀ (T : ℝ) (f : ℝ → ℝ),
-    IsHankelFeasible c ε T f → ctDelta5 ε c - C * c⁻¹ ≤ T
-
-/-- The two remaining analytical inputs for the log-free lower bound. -/
-structure CtLowerLogFreeInputs where
-  window_signed : ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ →
-    CtDyadicBoundSharp c₁ fun R ε c f => ctKin R ε c f + ctOscS1 R ε c f
-  boas_sharp : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ c₁₀ → CtBoasSharpStatement c₁
+/-- Log-free **`thm:ct-lower` (`eq:ct-lower`, left half)**: `Δ₅^ε(c) - C c⁻¹ ≤ T` (`= CtLowerStatement`). -/
+abbrev CtLowerLogFreeStatement : Prop := CtLowerStatement
 
 /-! ### Log-free assembly of `(ct:combined)` -/
 
@@ -772,38 +764,12 @@ theorem ct_lower_of_boas_logfree
       (hb c₁ hpos (le_trans (min_le_right _ _) (min_le_left _ _))))
     (hn c₁ hpos (le_trans (min_le_right _ _) (le_trans (min_le_right _ _) (min_le_left _ _))))
 
-/-- **Log-free `thm:ct-lower` modulo `(window_signed, boas_sharp)`**: unconditionally assembles
-the four log-free pieces (`rosc`, `trunc`, `outer`, `trans`), log-free `ctChartGap_sharp`,
-`ct_dyadic_radius_proved`, and `ct_node_lower` into `CtLowerLogFreeStatement`. -/
-theorem ct_lower_logfree (h : CtLowerLogFreeInputs) : CtLowerLogFreeStatement := by
-  obtain ⟨γ_d, hγ_d, hd⟩ := ct_dyadicCombined_sharp_of_bounds
-  obtain ⟨γ_r, hγ_r, hr⟩ := ct_combined_rosc_sharp
-  obtain ⟨γ_t, hγ_t, ht⟩ := ct_combined_trunc_sharp
-  obtain ⟨γ_w, hγ_w, hw⟩ := h.window_signed
-  obtain ⟨γ_o, hγ_o, ho⟩ := ct_combined_outer_sharp
-  obtain ⟨γ_tr, hγ_tr, htr⟩ := ct_combined_trans_sharp
-  refine ct_lower_of_boas_logfree ?_ h.boas_sharp
-  refine ⟨min γ_d (min γ_r (min γ_t (min γ_w (min γ_o (min γ_tr ctChartC1))))),
-    lt_min hγ_d (lt_min hγ_r (lt_min hγ_t (lt_min hγ_w (lt_min hγ_o (lt_min hγ_tr ctChartC1_pos))))),
-    fun c₁ hc₁ hle => ?_⟩
-  exact hd c₁ hc₁ (hle.trans (min_le_left _ _))
-    (hr c₁ hc₁ (hle.trans ((min_le_right _ _).trans (min_le_left _ _)))
-      (ct_rosc_book hc₁ (hle.trans ((min_le_right _ _).trans ((min_le_right _ _).trans
-        ((min_le_right _ _).trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_right _ _)))))))))
-    (ht c₁ hc₁ (hle.trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _)))))
-    (hw c₁ hc₁ (hle.trans ((min_le_right _ _).trans ((min_le_right _ _).trans
-      ((min_le_right _ _).trans (min_le_left _ _))))))
-    (ho c₁ hc₁ (hle.trans ((min_le_right _ _).trans ((min_le_right _ _).trans
-      ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _)))))))
-    (htr c₁ hc₁ (hle.trans ((min_le_right _ _).trans ((min_le_right _ _).trans
-      ((min_le_right _ _).trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _))))))))
-
 /-- info: 'FormalResearch.SignUncertainty.ctChartGap_sharp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ctChartGap_sharp
 
-/-- info: 'FormalResearch.SignUncertainty.ct_lower_logfree' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.SignUncertainty.ct_lower_of_boas_logfree' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms ct_lower_logfree
+#print axioms ct_lower_of_boas_logfree
 
 end FormalResearch.SignUncertainty
