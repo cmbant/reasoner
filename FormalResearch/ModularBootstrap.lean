@@ -731,6 +731,10 @@ public import FormalResearch.ModularBootstrap.Integrality.IntegerObstruction
 public import FormalResearch.ModularBootstrap.Integrality.AtomBounds
 public import FormalResearch.ModularBootstrap.Integrality.AtomCell
 public import FormalResearch.ModularBootstrap.Integrality.Atom
+public import FormalResearch.ModularBootstrap.Integrality.ReserveCore
+public import FormalResearch.ModularBootstrap.Integrality.ReserveMeasure
+public import FormalResearch.ModularBootstrap.Integrality.ReserveSharpHelpers
+public import FormalResearch.ModularBootstrap.Integrality.ReserveSharp
 
 /-!
 # Modular Bootstrap at Large Central Charge
