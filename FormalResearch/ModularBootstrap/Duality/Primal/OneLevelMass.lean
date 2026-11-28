@@ -917,7 +917,7 @@ private lemma one_level_d1_exact (prob : FixedWeightProblem) {r γ : ℝ}
       _ ≤ _ := abs_add_le _ _
   rw [hsub_int] at h_tri
   change |(meas.ν W_op).toReal / ρJ B - w₀| < ε
-  linarith only [h_tri, hdiff_int_le, hεp_mu_lt, hεp1_exp_lt, hμ_err]
+  linarith only [h_tri, hdiff_int_le, hεp_mu_lt, hεp1_exp_lt, hμ_err, hε]
 
 /-- **First-cluster total mass for exponentially near-optimal spectra** (`dsl:near-opt-mass`,
 `dual_spectrum_limit.tex`, Proposition `E'-M`, and `dsl:D1-exact` + `dsl:d1-asym`):
