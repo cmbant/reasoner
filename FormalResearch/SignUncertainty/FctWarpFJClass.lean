@@ -24,11 +24,24 @@ Connects `FctWarpClass C ε c L₁ α` (`FctWarpZero.lean`) with the centered La
 
 open Set Filter Topology Metric
 open scoped Real
+open FormalResearch.Special FormalResearch.SignUncertainty.FctCompD FormalResearch.SignUncertainty.FctMoment
 
 namespace FormalResearch.SignUncertainty
 
+private lemma ev_mul_rpow_le (a : ℝ) {p : ℝ} (hp : 0 < p) {b : ℝ} (hb : 0 < b) :
+    ∀ᶠ c : ℝ in atTop, a * c ^ (-p) ≤ b := by
+  have ht : Tendsto (fun c : ℝ => a * c ^ (-p)) atTop (𝓝 0) := by
+    simpa [mul_zero] using (tendsto_rpow_neg_atTop hp).const_mul a
+  exact ht.eventually (ge_mem_nhds hb)
+
+private lemma ev_mul_rpow_lt (a : ℝ) {p : ℝ} (hp : 0 < p) {b : ℝ} (hb : 0 < b) :
+    ∀ᶠ c : ℝ in atTop, a * c ^ (-p) < b := by
+  have ht : Tendsto (fun c : ℝ => a * c ^ (-p)) atTop (𝓝 0) := by
+    simpa [mul_zero] using (tendsto_rpow_neg_atTop hp).const_mul a
+  exact ht.eventually (gt_mem_nhds hb)
+
 lemma fctAtil_L_mvt_abs_le {Φ : ℝ → ℝ × ℝ → ℝ} {Ω : Set (ℝ × ℝ)} {τ0 : ℝ × ℝ → ℝ}
-    (hPB : FctPhaseBox Φ Ω τ0) {α L₁ L₂ MV : ℝ} (hMV : 0 ≤ MV)
+    (hPB : FctPhaseBox Φ Ω τ0) {α L₁ L₂ MV : ℝ} (_hMV : 0 ≤ MV)
     (hsub : ∀ L ∈ Icc (min L₁ L₂) (max L₁ L₂), (L, α) ∈ Ω)
     (hbd : ∀ L ∈ Ioo (min L₁ L₂) (max L₁ L₂), |fderiv ℝ (fctAtil Φ τ0) (L, α) (1, 0)| ≤ MV) :
     |fctAtil Φ τ0 (L₂, α) - fctAtil Φ τ0 (L₁, α)| ≤ MV * |L₂ - L₁| := by
@@ -86,7 +99,7 @@ lemma fctWarpChart_mem_adm {K4 ε c : ℝ} (hK4 : 1 ≤ K4) (hε : ε = 1 ∨ ε
   have hα : |p.2| ≤ c ^ (-(1 / 2 : ℝ)) := by
     have hc23 : 0 < c ^ (-(2 / 3 : ℝ)) := Real.rpow_pos_of_pos hc0 _
     rw [abs_mul, abs_of_pos hc23] at hy2
-    rw [← mul_le_mul_left hc23]
+    rw [← mul_le_mul_iff_of_pos_left hc23]
     calc c ^ (-(2 / 3 : ℝ)) * |p.2| ≤ c ^ (-(7 / 6 : ℝ)) := hy2
       _ = c ^ (-(2 / 3 : ℝ)) * c ^ (-(1 / 2 : ℝ)) := by rw [← Real.rpow_add hc0]; norm_num
   exact ⟨hvalid, hpDom, hy1, hα⟩
@@ -115,38 +128,29 @@ theorem fctWarpFJ_of_class {K4 : ℝ} (hK4 : 1 ≤ K4) (C : ℝ) :
       (100 / 92 : ℝ) * (Real.pi ^ 2 * (|C| + C_ctr)) * c ^ (-(4 / 3 : ℝ)) +
         Cα * |C| * c ^ (-(5 / 4 : ℝ)) + C_ctr * c ^ (-(4 / 3 : ℝ)) ≤ c ^ (-(7 / 6 : ℝ)) ∧
       |C| * c ^ (-(4 / 3 : ℝ)) ≤ c ^ (-(7 / 6 : ℝ)) := by
-    have hc_le : ∀ {a b : ℝ}, b > 0 → ∀ᶠ c : ℝ in atTop, a * c ^ (-b) ≤ (1 / 3 : ℝ) := fun hb => by
-      simpa [mul_zero] using ((tendsto_rpow_neg_atTop hb).const_mul a).eventually (ge_mem_nhds (by norm_num))
     refine Eventually.and (eventually_ge_atTop c₀) ?_
     refine Eventually.and ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 4)).eventually (ge_mem_nhds hτD_pos)) ?_
     refine Eventually.and (by
-      have hm : ∀ᶠ c : ℝ in atTop, Real.pi ^ 2 * (|C| + C_ctr) * c ^ (-(4 / 3 : ℝ)) < 1 / 2 := by
-        simpa [mul_zero] using ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 4 / 3)).const_mul _).eventually
-          (gt_mem_nhds (by norm_num : (0 : ℝ) < 1 / 2))
-      filter_upwards [eventually_gt_atTop 0, hm] with c hc0 hlt
+      filter_upwards [eventually_gt_atTop 0,
+        ev_mul_rpow_lt (Real.pi ^ 2 * (|C| + C_ctr)) (by norm_num : (0 : ℝ) < 4 / 3) (by norm_num : (0 : ℝ) < 1 / 2)] with c hc0 hlt
       have h23 : 0 < c ^ (-(2 / 3 : ℝ)) := Real.rpow_pos_of_pos hc0 _
       have he : c ^ (-(2 : ℝ)) = c ^ (-(4 / 3 : ℝ)) * c ^ (-(2 / 3 : ℝ)) := by
         rw [← Real.rpow_add hc0]; norm_num
       rw [he, ← mul_assoc]
       exact mul_lt_mul_of_pos_right hlt h23) ?_
     refine Eventually.and (by
-      have hm : ∀ᶠ c : ℝ in atTop, |C| * c ^ (-(1 / 6 : ℝ)) < 3 / 2 := by
-        simpa [mul_zero] using ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 6)).const_mul _).eventually
-          (gt_mem_nhds (by norm_num : (0 : ℝ) < 3 / 2))
-      filter_upwards [eventually_gt_atTop 0, hm] with c hc0 hlt
+      filter_upwards [eventually_gt_atTop 0,
+        ev_mul_rpow_lt |C| (by norm_num : (0 : ℝ) < 1 / 6) (by norm_num : (0 : ℝ) < 3 / 2)] with c hc0 hlt
       have h12 : 0 < c ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hc0 _
       have he : c ^ (-(2 / 3 : ℝ)) = c ^ (-(1 / 6 : ℝ)) * c ^ (-(1 / 2 : ℝ)) := by
         rw [← Real.rpow_add hc0]; norm_num
       rw [he, ← mul_assoc]
       exact mul_lt_mul_of_pos_right hlt h12) ?_
     refine Eventually.and (by
-      have h1 : ∀ᶠ c : ℝ in atTop, ((100 / 92 : ℝ) * (Real.pi ^ 2 * (|C| + C_ctr)) + C_ctr) * c ^ (-(1 / 6 : ℝ)) ≤ 1 / 2 := by
-        simpa [mul_zero] using ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 6)).const_mul _).eventually
-          (ge_mem_nhds (by norm_num : (0 : ℝ) < 1 / 2))
-      have h2 : ∀ᶠ c : ℝ in atTop, Cα * |C| * c ^ (-(1 / 12 : ℝ)) ≤ 1 / 2 := by
-        simpa [mul_zero] using ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 12)).const_mul _).eventually
-          (ge_mem_nhds (by norm_num : (0 : ℝ) < 1 / 2))
-      filter_upwards [eventually_gt_atTop 0, h1, h2] with c hc0 ha hb
+      filter_upwards [eventually_gt_atTop 0,
+        ev_mul_rpow_le ((100 / 92 : ℝ) * (Real.pi ^ 2 * (|C| + C_ctr)) + C_ctr)
+          (by norm_num : (0 : ℝ) < 1 / 6) (by norm_num : (0 : ℝ) < 1 / 2),
+        ev_mul_rpow_le (Cα * |C|) (by norm_num : (0 : ℝ) < 1 / 12) (by norm_num : (0 : ℝ) < 1 / 2)] with c hc0 ha hb
       have h76 : 0 < c ^ (-(7 / 6 : ℝ)) := Real.rpow_pos_of_pos hc0 _
       have e43 : c ^ (-(4 / 3 : ℝ)) = c ^ (-(1 / 6 : ℝ)) * c ^ (-(7 / 6 : ℝ)) := by
         rw [← Real.rpow_add hc0]; norm_num
@@ -155,13 +159,12 @@ theorem fctWarpFJ_of_class {K4 : ℝ} (hK4 : 1 ≤ K4) (C : ℝ) :
       rw [e43, e54]
       nlinarith only [ha, hb, h76]) ?_
     filter_upwards [eventually_gt_atTop 0,
-      ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 6)).const_mul |C|).eventually
-        (ge_mem_nhds (by norm_num : (0 : ℝ) ≤ 1))] with c hc0 ha
+      ev_mul_rpow_le |C| (by norm_num : (0 : ℝ) < 1 / 6) zero_lt_one] with c hc0 ha
     have h76 : 0 < c ^ (-(7 / 6 : ℝ)) := Real.rpow_pos_of_pos hc0 _
     have e43 : c ^ (-(4 / 3 : ℝ)) = c ^ (-(1 / 6 : ℝ)) * c ^ (-(7 / 6 : ℝ)) := by
       rw [← Real.rpow_add hc0]; norm_num
     rw [e43, ← mul_assoc]
-    calc |C| * c ^ (-(1 / 6 : ℝ)) * c ^ (-(7 / 6 : ℝ)) ≤ 1 * c ^ (-(7 / 6 : ℝ)) := by gcongr; simpa using ha
+    calc |C| * c ^ (-(1 / 6 : ℝ)) * c ^ (-(7 / 6 : ℝ)) ≤ 1 * c ^ (-(7 / 6 : ℝ)) := by gcongr
       _ = _ := one_mul _
   obtain ⟨cₐ, hcₐ⟩ := Filter.eventually_atTop.mp hcev
   refine ⟨C_ctr, max c₀ (max 3e6 cₐ), hCctr_nn, le_trans (le_max_left _ _) (le_max_right _ _), fun {ε c} hε hc => ?_⟩
@@ -191,7 +194,9 @@ theorem fctWarpFJ_of_class {K4 : ℝ} (hK4 : 1 ≤ K4) (C : ℝ) :
   refine ⟨hL_mem, hα_mem, ?_⟩
   rw [mem_closedBall, Prod.dist_eq, Real.dist_eq, Real.dist_eq, sub_zero]
   refine max_le ?_ ?_
-  · have h_rect := fun (L : ℝ) (hL : L ∈ Icc (min W.L_ctr L1) (max W.L_ctr L1)) =>
+  · have h12_pos : 0 < c ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hc0 _
+    have h_rect : ∀ L ∈ Icc (min W.L_ctr L1) (max W.L_ctr L1),
+        (L, (0 : ℝ)) ∈ concretePhaseDom W.ellMin ε c := fun L hL =>
       W.h_rect_sub ⟨⟨by
         rcases le_total W.L_ctr L1 with hle | hle
         · rw [min_eq_left hle] at hL; linarith only [hL.1, hL_ctr_pos]
@@ -200,7 +205,7 @@ theorem fctWarpFJ_of_class {K4 : ℝ} (hK4 : 1 ≤ K4) (C : ℝ) :
         rcases le_total W.L_ctr L1 with hle | hle
         · rw [max_eq_right hle] at hL; linarith only [hL.2, hL_mem.2]
         · rw [max_eq_left hle] at hL; linarith only [hL.2, hL_ctr_pos]⟩,
-        ⟨by linarith [Real.rpow_pos_of_pos hc0 (-(1 / 2 : ℝ))], by linarith [Real.rpow_pos_of_pos hc0 (-(1 / 2 : ℝ))]⟩⟩
+        ⟨by linarith only [h12_pos], by linarith only [h12_pos]⟩⟩
     have hMV : |fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, 0) -
         fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (W.L_ctr, 0)| ≤
         (100 / 92 : ℝ) * |L1 - W.L_ctr| := by
@@ -260,7 +265,7 @@ theorem fctWarpFJ_of_class {K4 : ℝ} (hK4 : 1 ≤ K4) (C : ℝ) :
         (-fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (W.L_ctr, 0) - airyZero 1)) := by ring
     rw [hsplit]
     refine (abs_add_le _ _).trans ?_
-    refine (add_le_add_left (abs_add_le _ _) _).trans ?_
+    refine (add_le_add le_rfl (abs_add_le _ _)).trans ?_
     rw [abs_mul, abs_neg, abs_mul, abs_neg, abs_of_pos hκ_pos]
     linarith only [h1, h2, h3, hball1]
   · change |c ^ (-(2 / 3 : ℝ)) * α| ≤ c ^ (-(7 / 6 : ℝ))
@@ -276,7 +281,7 @@ theorem fctWarpFJ_of_class {K4 : ℝ} (hK4 : 1 ≤ K4) (C : ℝ) :
 
 /-- Converse map (`fct:warp-asymp` (1)): any `(L₁, α) ∈ I ×ˢ J` whose chart image lies in
 `closedBall (airyZero 1, 0) (Cρ * c ^ (-(4 / 3 : ℝ)))` belongs to `FctWarpClass C_cls ε c`. -/
-theorem fctWarpClass_of_chart {K4 : ℝ} (hK4 : 1 ≤ K4) {C_ctr Cρ : ℝ} (hCctr : 0 ≤ C_ctr) (hCρ : 0 ≤ Cρ) :
+theorem fctWarpClass_of_chart {K4 : ℝ} (hK4 : 1 ≤ K4) {C_ctr Cρ : ℝ} (_hCctr : 0 ≤ C_ctr) (hCρ : 0 ≤ Cρ) :
     ∃ C_cls c₁ : ℝ, 0 ≤ C_cls ∧ 3e6 ≤ c₁ ∧
       ∀ {ε c : ℝ}, (ε = 1 ∨ ε = -1) → c₁ ≤ c →
         ∀ (W : FctWarpChartData K4 ε c), W.C_ctr ≤ C_ctr →
@@ -305,45 +310,37 @@ theorem fctWarpClass_of_chart {K4 : ℝ} (hK4 : 1 ≤ K4) {C_ctr Cρ : ℝ} (hCc
       3 * c ^ (-(1 / 3 : ℝ)) ≤ 12 * c ^ (-(1 / 4 : ℝ)) ∧
       C_α * Cρ * c ^ (-(25 / 12 : ℝ)) ≤ c ^ (-(4 / 3 : ℝ)) := by
     refine Eventually.and ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 4)).eventually (ge_mem_nhds hτD_pos)) ?_
-    refine Eventually.and (by
-      simpa [mul_zero] using ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 2 / 3)).const_mul 12).eventually
-        (ge_mem_nhds zero_lt_one)) ?_
-    refine Eventually.and (by
-      simpa [mul_zero] using ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 2)).const_mul C_L).eventually
-        (ge_mem_nhds zero_lt_one)) ?_
+    refine Eventually.and (ev_mul_rpow_le 12 (by norm_num : (0 : ℝ) < 2 / 3) zero_lt_one) ?_
+    refine Eventually.and (ev_mul_rpow_le C_L (by norm_num : (0 : ℝ) < 2) zero_lt_one) ?_
     refine Eventually.and (by
       filter_upwards [eventually_gt_atTop 0,
-        ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 6)).const_mul Cρ).eventually
-          (ge_mem_nhds (by norm_num : (0 : ℝ) < 1 / 2))] with c hc0 hlt
+        ev_mul_rpow_le Cρ (by norm_num : (0 : ℝ) < 1 / 6) (by norm_num : (0 : ℝ) < 1 / 2)] with c hc0 hlt
       have e43 : c ^ (-(4 / 3 : ℝ)) = c ^ (-(1 / 6 : ℝ)) * c ^ (-(7 / 6 : ℝ)) := by
         rw [← Real.rpow_add hc0]; norm_num
       have h76 : 0 ≤ c ^ (-(7 / 6 : ℝ)) := Real.rpow_nonneg hc0.le _
       rw [e43, ← mul_assoc]
-      calc Cρ * c ^ (-(1 / 6 : ℝ)) * c ^ (-(7 / 6 : ℝ)) ≤ (1 / 2 : ℝ) * c ^ (-(7 / 6 : ℝ)) := by
-            gcongr; simpa [mul_zero] using hlt) ?_
+      calc Cρ * c ^ (-(1 / 6 : ℝ)) * c ^ (-(7 / 6 : ℝ)) ≤ (1 / 2 : ℝ) * c ^ (-(7 / 6 : ℝ)) := by gcongr) ?_
     refine Eventually.and (by
       filter_upwards [eventually_gt_atTop 0,
-        ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 12)).const_mul (2 * Cα * Cρ)).eventually
-          (ge_mem_nhds (by norm_num : (0 : ℝ) < 1 / 2))] with c hc0 hlt
+        ev_mul_rpow_le (2 * Cα * Cρ) (by norm_num : (0 : ℝ) < 1 / 12) (by norm_num : (0 : ℝ) < 1 / 2)] with c hc0 hlt
       have e54 : c ^ (-(5 / 4 : ℝ)) = c ^ (-(1 / 12 : ℝ)) * c ^ (-(7 / 6 : ℝ)) := by
         rw [← Real.rpow_add hc0]; norm_num
       have h76 : 0 ≤ c ^ (-(7 / 6 : ℝ)) := Real.rpow_nonneg hc0.le _
       rw [e54, ← mul_assoc]
-      calc 2 * Cα * Cρ * c ^ (-(1 / 12 : ℝ)) * c ^ (-(7 / 6 : ℝ)) ≤ (1 / 2 : ℝ) * c ^ (-(7 / 6 : ℝ)) := by
-            gcongr; simpa [mul_zero] using hlt) ?_
+      calc 2 * Cα * Cρ * c ^ (-(1 / 12 : ℝ)) * c ^ (-(7 / 6 : ℝ)) ≤ (1 / 2 : ℝ) * c ^ (-(7 / 6 : ℝ)) := by gcongr) ?_
     refine Eventually.and (by
       filter_upwards [eventually_ge_atTop (1 : ℝ)] with c hc1
+      have hc0 : 0 ≤ c := by linarith only [hc1]
       have hle : c ^ (-(1 / 3 : ℝ)) ≤ c ^ (-(1 / 4 : ℝ)) := Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
-      linarith only [hle]) ?_
+      have hnn : 0 ≤ c ^ (-(1 / 3 : ℝ)) := Real.rpow_nonneg hc0 _
+      linarith only [hle, hnn]) ?_
     filter_upwards [eventually_gt_atTop 0,
-      ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 3 / 4)).const_mul (C_α * Cρ)).eventually
-        (ge_mem_nhds zero_lt_one)] with c hc0 hlt
+      ev_mul_rpow_le (C_α * Cρ) (by norm_num : (0 : ℝ) < 3 / 4) zero_lt_one] with c hc0 hlt
     have e25 : c ^ (-(25 / 12 : ℝ)) = c ^ (-(3 / 4 : ℝ)) * c ^ (-(4 / 3 : ℝ)) := by
       rw [← Real.rpow_add hc0]; norm_num
     have h43 : 0 ≤ c ^ (-(4 / 3 : ℝ)) := Real.rpow_nonneg hc0.le _
     rw [e25, ← mul_assoc]
-    calc C_α * Cρ * c ^ (-(3 / 4 : ℝ)) * c ^ (-(4 / 3 : ℝ)) ≤ 1 * c ^ (-(4 / 3 : ℝ)) := by
-          gcongr; simpa [mul_zero] using hlt
+    calc C_α * Cρ * c ^ (-(3 / 4 : ℝ)) * c ^ (-(4 / 3 : ℝ)) ≤ 1 * c ^ (-(4 / 3 : ℝ)) := by gcongr
       _ = _ := one_mul _
   obtain ⟨cₐ, hcₐ⟩ := Filter.eventually_atTop.mp hcev
   refine ⟨C_cls, max 3e6 cₐ, hCcls_nn, le_max_left _ _, fun {ε c} _ hc W hW_C {L1 α} hL1 hα hy => ?_⟩
@@ -360,7 +357,7 @@ theorem fctWarpClass_of_chart {K4 : ℝ} (hK4 : 1 ≤ K4) {C_ctr Cρ : ℝ} (hCc
   have hα_cls : |α| ≤ Cρ * c ^ (-(2 / 3 : ℝ)) := by
     have hc23 : 0 < c ^ (-(2 / 3 : ℝ)) := Real.rpow_pos_of_pos hc0 _
     rw [abs_mul, abs_of_pos hc23] at hy2
-    rw [← mul_le_mul_left hc23]
+    rw [← mul_le_mul_iff_of_pos_left hc23]
     calc c ^ (-(2 / 3 : ℝ)) * |α| ≤ Cρ * c ^ (-(4 / 3 : ℝ)) := hy2
       _ = c ^ (-(2 / 3 : ℝ)) * (Cρ * c ^ (-(2 / 3 : ℝ))) := by
           have : c ^ (-(4 / 3 : ℝ)) = c ^ (-(2 / 3 : ℝ)) * c ^ (-(2 / 3 : ℝ)) := by
@@ -414,8 +411,11 @@ theorem fctWarpClass_of_chart {K4 : ℝ} (hK4 : 1 ≤ K4) {C_ctr Cρ : ℝ} (hCc
         have htri : |fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, t) -
             fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, α)| ≤
             2 * Cα * Cρ * c ^ (-(5 / 4 : ℝ)) * c ^ (-(2 / 3 : ℝ)) := by
+          have h0α' : |fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, 0) -
+              fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, α)| ≤
+              Cα * c ^ (-(5 / 4 : ℝ)) * |α| := by rw [abs_sub_comm]; exact h0α
           have hadd := (abs_sub_le _ (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, 0)) _).trans
-            (add_le_add h0t (by rw [abs_sub_comm]; exact h0α))
+            (add_le_add h0t h0α')
           refine hadd.trans ?_
           have h1 : Cα * c ^ (-(5 / 4 : ℝ)) * |t| ≤ Cα * c ^ (-(5 / 4 : ℝ)) * (Cρ * c ^ (-(2 / 3 : ℝ))) :=
             mul_le_mul_of_nonneg_left ht_abs (by positivity)
@@ -456,26 +456,31 @@ theorem fctWarpClass_of_chart {K4 : ℝ} (hK4 : 1 ≤ K4) {C_ctr Cρ : ℝ} (hCc
             ≤ (2 * c ^ (-(1 / 3 : ℝ))) * (100 / 92 : ℝ) :=
               mul_le_mul hsq hVb.2 (by linarith only [hVb.1]) (by positivity)
           _ ≤ 3 * c ^ (-(1 / 3 : ℝ)) := by nlinarith only [Real.rpow_pos_of_pos hc0 (-(1 / 3 : ℝ))]
-      have htau_pos : 0 < concreteTau0 ε c W.S (L1, t) := W.box.pos hp
+      have htau_pos : 0 < concreteTau0 ε c W.S (L1, t) := W.box.pos (L1, t) hp
       have htau12 : |concreteTau0 ε c W.S (L1, t)| ≤ 12 * c ^ (-(1 / 4 : ℝ)) := by
         rw [abs_of_pos htau_pos]; exact htau_le.trans h3_12
-      have hth_t := (hth_bd hK4 hc0 hτD (concreteTau0 ε c W.S (L1, t)) htau12).2.2.2
+      have hth_t := ((hth_bd hK4 hc0 hτD).1 (concreteTau0 ε c W.S (L1, t)) htau12).2.2.2
       have hrat : (|concreteTau0 ε c W.S (L1, t)| / c ^ (-(1 / 4 : ℝ))) ^ 11 ≤
           (3 : ℝ) ^ 11 * c ^ (-(11 / 12 : ℝ)) := by
         have hc12 : c ^ (-(1 / 3 : ℝ)) / c ^ (-(1 / 4 : ℝ)) = c ^ (-(1 / 12 : ℝ)) := by
           rw [div_eq_mul_inv, ← Real.rpow_neg hc0.le]; rw [← Real.rpow_add hc0]; norm_num
+        have htau_abs_le : |concreteTau0 ε c W.S (L1, t)| ≤ 3 * c ^ (-(1 / 3 : ℝ)) := by
+          rw [abs_of_pos htau_pos]
+          exact htau_le
         have h1 : |concreteTau0 ε c W.S (L1, t)| / c ^ (-(1 / 4 : ℝ)) ≤ 3 * c ^ (-(1 / 12 : ℝ)) := by
-          rw [← hc12]
-          exact div_le_div_of_nonneg_right (by rwa [abs_of_pos htau_pos]) (Real.rpow_nonneg hc0.le _)
+          rw [← hc12, ← mul_div_assoc]
+          exact div_le_div_of_nonneg_right htau_abs_le (Real.rpow_nonneg hc0.le _)
         calc (|concreteTau0 ε c W.S (L1, t)| / c ^ (-(1 / 4 : ℝ))) ^ 11 ≤ (3 * c ^ (-(1 / 12 : ℝ))) ^ 11 :=
               pow_le_pow_left₀ (by positivity) h1 11
           _ = (3 : ℝ) ^ 11 * c ^ (-(11 / 12 : ℝ)) := by
-              rw [mul_pow, ← Real.rpow_natCast _ 11, ← Real.rpow_mul hc0.le]; norm_num
+              rw [mul_pow]; congr 1
+              rw [← Real.rpow_natCast (c ^ (-(1 / 12 : ℝ))) 11, ← Real.rpow_mul hc0.le]; norm_num
       have hsqrt_ge : Real.sqrt 3 * c ^ (-(1 / 3 : ℝ)) ≤
           Real.sqrt (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, t)) := by
         have hs := Real.sqrt_le_sqrt hsize.1
         have h3eq : Real.sqrt (3 * c ^ (-(2 / 3 : ℝ))) = Real.sqrt 3 * c ^ (-(1 / 3 : ℝ)) := by
-          rw [Real.sqrt_mul (by norm_num), Real.sqrt_eq_rpow, ← Real.rpow_mul hc0.le]; norm_num
+          rw [Real.sqrt_mul (by norm_num)]; congr 1
+          rw [Real.sqrt_eq_rpow, ← Real.rpow_mul hc0.le]; norm_num
         linarith only [hs, h3eq]
       rw [W.h_dA (L1, t) hp, abs_div, abs_mul, abs_of_pos (inv_pos.mpr hc0),
         abs_of_pos (Real.sqrt_pos.mpr (W.box.atil_pos hp))]
@@ -536,7 +541,7 @@ theorem fctWarpClass_of_chart {K4 : ℝ} (hK4 : 1 ≤ K4) {C_ctr Cρ : ℝ} (hCc
               (fderiv ℝ (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S)) (L1, t) (0, 1)) t := fun t ht => by
             have ht' : t ∈ Ioo (-(3 / 2 * c ^ (-(1 / 2 : ℝ)))) (3 / 2 * c ^ (-(1 / 2 : ℝ))) :=
               ⟨by linarith only [ht.1, hrJ_pos], by linarith only [ht.2, hα.2]⟩
-            have hf := ((W.box.atil_contDiffAt (W.h_rect_sub ⟨hL1, ht'⟩)).differentiableAt (by simp)).hasFDerivAt
+            have hf := ((W.box.atil_contDiffAt (p := (L1, t)) (W.h_rect_sub ⟨hL1, ht'⟩)).differentiableAt (by simp)).hasFDerivAt
             exact hf.comp_hasDerivAt t ((hasDerivAt_const t L1).prodMk (hasDerivAt_id' t))
           obtain ⟨ξ, hξ, hslope⟩ := exists_hasDerivAt_eq_slope
             (fun s => fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, s)) _ hlt hcont hder
@@ -556,7 +561,7 @@ theorem fctWarpClass_of_chart {K4 : ℝ} (hK4 : 1 ≤ K4) {C_ctr Cρ : ℝ} (hCc
               (fderiv ℝ (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S)) (L1, t) (0, 1)) t := fun t ht => by
             have ht' : t ∈ Ioo (-(3 / 2 * c ^ (-(1 / 2 : ℝ)))) (3 / 2 * c ^ (-(1 / 2 : ℝ))) :=
               ⟨by linarith only [ht.1, hα.1], by linarith only [ht.2, hrJ_pos]⟩
-            have hf := ((W.box.atil_contDiffAt (W.h_rect_sub ⟨hL1, ht'⟩)).differentiableAt (by simp)).hasFDerivAt
+            have hf := ((W.box.atil_contDiffAt (p := (L1, t)) (W.h_rect_sub ⟨hL1, ht'⟩)).differentiableAt (by simp)).hasFDerivAt
             exact hf.comp_hasDerivAt t ((hasDerivAt_const t L1).prodMk (hasDerivAt_id' t))
           obtain ⟨ξ, hξ, hslope⟩ := exists_hasDerivAt_eq_slope
             (fun s => fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, s)) _ hlt hcont hder
@@ -565,8 +570,9 @@ theorem fctWarpClass_of_chart {K4 : ℝ} (hK4 : 1 ≤ K4) {C_ctr Cρ : ℝ} (hCc
           have hξ_bd := h_seg_bd ξ hξ_mem (by rw [hmin, hmax]; exact Ioo_subset_Icc_self hξ)
           have hsub_pos : 0 < 0 - α := sub_pos.mpr hlt
           rw [eq_div_iff hsub_pos.ne'] at hslope
-          rw [abs_sub_comm, ← hslope, sub_zero, abs_mul, abs_of_pos hsub_pos, abs_of_neg hlt]
-          refine mul_le_mul_of_nonneg_right ((le_div_iff₀ hκ_pos).mpr (by rw [mul_comm]; exact hξ_bd)) (neg_nonneg.mpr hle)
+          rw [abs_sub_comm, ← hslope, abs_mul, abs_of_pos hsub_pos, show 0 - α = |α| from by
+            rw [abs_of_neg hlt]; ring]
+          refine mul_le_mul_of_nonneg_right ((le_div_iff₀ hκ_pos).mpr (by rw [mul_comm]; exact hξ_bd)) (abs_nonneg α)
     have hc25' : c ^ (-(17 / 12 : ℝ)) * c ^ (-(2 / 3 : ℝ)) = c ^ (-(25 / 12 : ℝ)) := by
       rw [← Real.rpow_add hc0]; norm_num
     calc fctKappa c * |fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, α) -
@@ -574,7 +580,7 @@ theorem fctWarpClass_of_chart {K4 : ℝ} (hK4 : 1 ≤ K4) {C_ctr Cρ : ℝ} (hCc
         ≤ fctKappa c * ((C_α * c ^ (-(17 / 12 : ℝ)) / fctKappa c) * (Cρ * c ^ (-(2 / 3 : ℝ)))) :=
           mul_le_mul_of_nonneg_left (hMVT_α.trans (mul_le_mul_of_nonneg_left hα_cls (by positivity))) hκ_pos.le
       _ = C_α * Cρ * (c ^ (-(17 / 12 : ℝ)) * c ^ (-(2 / 3 : ℝ))) := by
-          have := hκ_pos.ne'; field_simp; ring
+          have := hκ_pos.ne'; field_simp
       _ = C_α * Cρ * c ^ (-(25 / 12 : ℝ)) := by rw [hc25']
       _ ≤ c ^ (-(4 / 3 : ℝ)) := hα25
   -- Now compare `L1` and `W.L_ctr` using MVT lower bound `(100/95)` in `L`
@@ -593,11 +599,21 @@ theorem fctWarpClass_of_chart {K4 : ℝ} (hK4 : 1 ≤ K4) {C_ctr Cρ : ℝ} (hCc
     have h1 := congrArg abs hsp
     rw [abs_mul, abs_neg, abs_of_pos hκ_pos] at h1
     rw [h1]
-    have htri := (abs_add_le _ _).trans (add_le_add_right (abs_sub_le _ 0 _) _)
-    simp only [sub_zero, zero_sub, abs_neg, abs_mul, abs_of_pos hκ_pos] at htri
-    refine htri.trans ?_
+    have t1 := abs_add_le
+      ((-fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, α) - airyZero 1) -
+        (-fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (W.L_ctr, 0) - airyZero 1))
+      (fctKappa c * (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, α) -
+        fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, 0)))
+    have t2 := abs_sub
+      (-fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, α) - airyZero 1)
+      (-fctKappa c * fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (W.L_ctr, 0) - airyZero 1)
+    have t3 : |fctKappa c * (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, α) -
+        fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, 0))| =
+        fctKappa c * |fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, α) -
+        fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, 0)| := by
+      rw [abs_mul, abs_of_pos hκ_pos]
     dsimp only [C_u_tot]
-    linarith only [hy1, h_u_ctr, hα_shift]
+    linarith only [t1, t2, t3, hy1, h_u_ctr, hα_shift]
   have hMV_lo : (100 / 95 : ℝ) * |L1 - W.L_ctr| ≤
       |fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (L1, 0) -
         fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c W.S) (W.L_ctr, 0)| := by
