@@ -406,7 +406,7 @@ lemma besselAs_sub_besselV_bound {c' x : ℝ} (hc' : 10000 ≤ c') (hx : xiStar 
 
 /-! ### 4. Left-edge reduction (`s = -i τ`) -/
 
-private lemma lowerDualPsi_left_re_eq {c' ε : ℝ} (hc' : 0 < c') (hε : 0 ≤ ε)
+private lemma lowerDualPsi_left_re_eq {c' ε : ℝ} (hc' : 0 < c')
     {g : ℝ → ℝ} (hg : TestClass virasoroProblem (c' / 12) g) {τ : ℝ} (hτ : 0 < τ) :
     (lowerDualPsi c' ε 0 g (-((τ : ℂ) * Complex.I))).re =
       -virasoroDualPref c' * g (c' * xT τ ^ 2 / 3) *
@@ -855,7 +855,7 @@ lemma lowerDualPsi_left_integral_eq {c' ε : ℝ} (hc' : 10000 ≤ c')
       rw [← Integration.virasoro_cardyV_eq_besselV ha (by positivity)]
       exact virasoroProblem.cardyV_nonneg hshift (by positivity)
     have hxD_nn : 0 ≤ 2 * c' * xT τ / 3 * xD τ := by positivity [(xT_pos τ).le, (xD_pos τ hτ_pos).le]
-    rw [Real.norm_eq_abs, lowerDualPsi_left_re_eq hc0 hε.le hg hτ_pos]
+    rw [Real.norm_eq_abs, lowerDualPsi_left_re_eq hc0 hg hτ_pos]
     simp only [abs_mul, abs_neg]
     rw [abs_of_pos hC₀, abs_of_pos (Bessel.besselAs_pos (by unfold Bessel.besselL; positivity [xT_pos τ])),
       abs_of_nonneg (sq_nonneg (1 - Real.exp (-4 * π * xT τ))), abs_of_nonneg hW.1,
@@ -901,7 +901,7 @@ lemma lowerDualPsi_left_integral_eq {c' ε : ℝ} (hc' : 10000 ≤ c')
             Real.sin (lowerThetaEps Gout ε (lowerY (xT τ)) - 2 * π * c' * cumulN (xT τ)) *
             (2 * c' * xT τ / 3 * xD τ) := by
         dsimp [h_err, h_main]
-        rw [lowerDualPsi_left_re_eq hc0 hε.le hg hτ_pos, hF_eq (xT τ) hx_gt]
+        rw [lowerDualPsi_left_re_eq hc0 hg hτ_pos, hF_eq (xT τ) hx_gt]
         field_simp [hC₀.ne']
       rw [Real.norm_eq_abs, h_eq, abs_mul, abs_mul, abs_mul, abs_mul,
         abs_of_nonneg hW.1, abs_of_nonneg hxD_nn]
@@ -985,7 +985,6 @@ lemma lowerDualPsi_left_integral_eq {c' ε : ℝ} (hc' : 10000 ≤ c')
       ∫ τ in Ioi (0 : ℝ), (lowerDualPsi c' ε 0 g (-(Complex.I * (τ : ℂ)))).re :=
     setIntegral_congr_fun measurableSet_Ioi fun τ _ => by rw [mul_comm (τ : ℂ) Complex.I]
   field_simp [hC₀.ne']
-  try ring
   exact heq_I
 
 end
