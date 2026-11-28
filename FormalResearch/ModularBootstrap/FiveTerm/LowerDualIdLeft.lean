@@ -636,13 +636,17 @@ lemma change_of_vars_Ioi_xT {c' : ℝ} (hc' : 0 < c') (ha : 2 ≤ c' / 12)
     have hd : ∀ τ ∈ uIcc (0 : ℝ) R, HasDerivAt φ (φ' τ) τ := fun τ _ => by
       dsimp [φ, φ']; exact ((((hasDerivAt_xT τ).pow 2).const_mul c').div_const 3).congr_deriv (by ring)
     have hφ'_cont : ContinuousOn φ' (uIcc 0 R) := by
-      dsimp [φ']; unfold xD
-      exact ((((continuous_iff_continuousAt.mpr fun t => (hasDerivAt_xT t).continuousAt).const_mul (2 * c')).div_const 3).mul
-        ((Real.continuous_sinh.comp (continuous_const.mul continuous_id)).div
-          (continuous_const.mul ((Real.continuous_sqrt.comp (Real.continuous_cosh.comp
-            (continuous_const.mul continuous_id))).mul (Real.continuous_sqrt.comp (continuous_const.add
-              (Real.continuous_cosh.comp (continuous_const.mul continuous_id))))))
-          fun τ => ne_of_gt (by positivity [Real.cosh_pos (π * τ)]))).continuousOn
+      dsimp [φ']
+      have hxt_c : Continuous xT := continuous_iff_continuousAt.mpr fun t => (hasDerivAt_xT t).continuousAt
+      have hxD_c : Continuous xD := by
+        unfold xD
+        refine (Real.continuous_sinh.comp (by fun_prop)).div
+          (continuous_const.mul ((Real.continuous_sqrt.comp (Real.continuous_cosh.comp (by fun_prop))).mul
+            (Real.continuous_sqrt.comp (continuous_const.add (Real.continuous_cosh.comp (by fun_prop))))))
+          fun τ => by
+            exact mul_ne_zero two_ne_zero (mul_ne_zero (Real.sqrt_pos.mpr (Real.cosh_pos _)).ne'
+              (Real.sqrt_pos.mpr (by linarith [Real.cosh_pos (π * τ)])).ne')
+      exact (((hxt_c.const_mul (2 * c')).div_const 3).mul hxD_c).continuousOn
     have hcont_t : ContinuousOn (fun t => H t * Bessel.besselV (c' / 12) t * F (√(3 * t / c'))) (φ '' uIcc 0 R) := by
       have himg : φ '' uIcc 0 R ⊆ Ici t₀ := by
         rintro t ⟨τ, hτ, rfl⟩
