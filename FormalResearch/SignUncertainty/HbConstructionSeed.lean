@@ -149,7 +149,7 @@ theorem hasGenRationalAiryCoeffs_shellHBData_G_even (D : ShellHBData) (hEven : E
           Polynomial.aeval z P11 * deriv airyAiC z ^ 2 := by field_simp [hQnz]
     rw [hsum]
     dsimp [P00, P01, P11]
-    simp only [airyPQN, map_pow, map_mul, aeval_C, Complex.coe_algebraMap, aeval_eq_airyPQc_even]
+    simp only [airyPQN, map_pow, map_mul, Polynomial.aeval_C, Complex.coe_algebraMap, aeval_eq_airyPQc_even]
     norm_num; ring
   · have hw0 : ‖w‖ ^ (-2 : ℝ) ≥ 0 := by positivity
     have hw03 : ‖w‖ ^ (-3 : ℝ) ≥ 0 := by positivity
@@ -272,7 +272,7 @@ theorem hasGenRationalAiryCoeffs_terminal_cardinal_even (D : ShellHBData) (hEven
           Polynomial.aeval z P11 * deriv airyAiC z ^ 2 := by field_simp [hQH_nz]
     rw [hsum]
     dsimp [P00, P01, P11]
-    simp only [airyPQN, map_neg, map_pow, map_mul, aeval_C, Complex.coe_algebraMap, aeval_eq_airyPQc_even]
+    simp only [airyPQN, map_neg, map_pow, map_mul, Polynomial.aeval_C, Complex.coe_algebraMap, aeval_eq_airyPQc_even]
     norm_num; ring
   · have hw0 : ‖w‖ ^ (-2 : ℝ) ≥ 0 := by positivity
     have hw03 : ‖w‖ ^ (-3 : ℝ) ≥ 0 := by positivity
@@ -350,7 +350,7 @@ lemma hb_osc_tail_of_even (D : ShellHBData) (hEven : Even D.S.card) :
   let C_r : ℝ := K_Q + K_P
   let r : ℝ → ℝ := fun y =>
     if y₁ ≤ y then (√π * y ^ (3 / 4 : ℝ) / sgn) * (at47_Nf D.P D.Q (-y) / √(∏ t ∈ D.S, (y + t))) - Real.cos (cohnTheta y) else 0
-  refine ⟨q_d ^ 2 / π, C_r, y₁, -(π / 4), div_pos (sq_pos_of_ne_zero hq_d) Real.pi_pos, by positivity, hy₁_25, r, fun y hy => ?_⟩
+  refine ⟨q_d ^ 2 / π, C_r, y₁, π / 4, div_pos (sq_pos_of_ne_zero hq_d) Real.pi_pos, by positivity, hy₁_25, r, fun y hy => ?_⟩
   have hy25 : 25 ≤ y := hy₁_25.trans hy
   have hy1 : 1 ≤ y := by linarith
   have hy0 : 0 < y := by linarith
@@ -370,7 +370,7 @@ lemma hb_osc_tail_of_even (D : ShellHBData) (hEven : Even D.S.card) :
       rw [Real.sqrt_mul (by positivity), show (1 / 2 : ℝ) ^ (2 * d + 2) = ((1 / 2 : ℝ) ^ (d + 1)) ^ 2 by ring,
         Real.sqrt_sq (by positivity), Real.sqrt_sq (pow_nonneg hy0.le _)]
     rw [← hsq_rt]; exact Real.sqrt_le_sqrt hsq_lb
-  have hcos_eq : Real.cos ((2 / 3 : ℝ) * y ^ (3 / 2 : ℝ) + -(π / 4)) = Real.cos (cohnTheta y) := by unfold cohnTheta; ring_nf
+  have hcos_eq : Real.cos ((2 / 3 : ℝ) * y ^ (3 / 2 : ℝ) + π / 4) = Real.cos (cohnTheta y) := by unfold cohnTheta; ring_nf
   have hr_def : r y = (√π * y ^ (3 / 4 : ℝ) / sgn) * (at47_Nf D.P D.Q (-y) / den) - Real.cos (cohnTheta y) := by
     simp only [r, hy, ↓reduceIte]; rfl
   have hyS : -y ∉ D.S := fun hmem => by have := (abs_le.mp (hB (-y) hmem)).1; linarith
@@ -380,7 +380,7 @@ lemma hb_osc_tail_of_even (D : ShellHBData) (hEven : Even D.S.card) :
     have hprod_neg : ∏ t ∈ D.S, (-y - t) = (-1 : ℝ) ^ D.S.card * ∏ t ∈ D.S, (y + t) := by
       have he : ∀ t ∈ D.S, -y - t = (-1 : ℝ) * (y + t) := fun t _ => by ring
       rw [Finset.prod_congr rfl he, Finset.prod_mul_distrib, Finset.prod_const]
-    rw [hprod_neg, Real.sq_sqrt hprod_pos.le, hEven.neg_one_pow, one_mul]
+    rw [hprod_neg, Real.sq_sqrt hprod_pos.le, hEven.neg_one_pow, one_mul, one_mul]
   refine ⟨?_, ?_⟩
   · let α : ℝ := (y ^ (d + 1 : ℕ) / ((-1 : ℝ) ^ d * q_d)) * (D.Q.eval (-y) / (den * y ^ d))
     let C_Ai' : ℝ := -(√π * y ^ (-(1 / 4 : ℝ)) * airyAi' (-y))
@@ -465,7 +465,8 @@ lemma hb_osc_tail_of_even (D : ShellHBData) (hEven : Even D.S.card) :
               dsimp [C_den']
               rw [div_eq_mul_inv, mul_inv, one_div, inv_pow, inv_inv, show y ^ (2 * d + 2) = y ^ (2 * d + 1) * y from pow_succ y (2 * d + 1), mul_inv]
               field_simp [pow_ne_zero (2 * d + 1) hy0.ne', hy0.ne']
-      have hu1_ge : 1 ≤ u + 1 := by have : 0 < u := by dsimp [u]; positivity; linarith
+      have hu0 : 0 < u := by dsimp [u]; positivity
+      have hu1_ge : 1 ≤ u + 1 := by linarith
       have hid_u : |u - 1| * (u + 1) = |u ^ 2 - 1| := by rw [← abs_of_pos (by linarith : 0 < u + 1), ← abs_mul]; congr 1; ring
       calc |u - 1| = |u ^ 2 - 1| / (u + 1) := eq_div_of_mul_eq (by linarith) hid_u
         _ ≤ |u ^ 2 - 1| / 1 := div_le_div_of_nonneg_left (abs_nonneg _) zero_lt_one hu1_ge
@@ -554,7 +555,7 @@ noncomputable def hbSeedSpec_of_shellHBData_even (D : ShellHBData) (hEven : Even
   obtain ⟨hH_inAiry, hdiv_int, hI_eq, hI_pos⟩ := terminal_cardinal_integral D
   let I_N : ℝ := ∫ u : ℝ, (-(D.G (u : ℂ)).re) / (u - D.tm)
   have hH_ae : (fun u : ℝ => (H_C (u : ℂ)).re) =ᵐ[MeasureTheory.volume] (fun u : ℝ => (-(D.G (u : ℂ)).re) / (u - D.tm)) := by
-    have hne_ae : ∀ᵐ u : ℝ ∂MeasureTheory.volume, u ≠ D.tm := ae_iff.mpr (by simpa using measure_singleton D.tm)
+    have hne_ae : ∀ᵐ u : ℝ ∂MeasureTheory.volume, u ≠ D.tm := ae_iff.mpr (by simp [measure_singleton])
     filter_upwards [hne_ae] with u hu
     have huc : (u : ℂ) ≠ (D.tm : ℂ) := fun h => hu (Complex.ofReal_injective h)
     have hd : H_C (u : ℂ) = (-D.G (u : ℂ)) / ((u : ℂ) - (D.tm : ℂ)) := by
@@ -674,13 +675,15 @@ theorem hbSeedSpec_of_shellHBData_all (D : ShellHBData) :
       shellNodes_last D, hrange, fun t htS htm => ?_, rfl, rfl,
       hasGenRationalAiryCoeffs_shellHBData_G_even D hEven,
       hasGenRationalAiryCoeffs_terminal_cardinal_even D hEven⟩
-    obtain ⟨j, hj⟩ := hrange ▸ htS
+    have hmem : t ∈ Set.range S.nodes := by rw [hrange]; exact htS
+    obtain ⟨j, hj⟩ := hmem
     refine ⟨j, ?_, hj⟩
     by_contra hge
     push Not at hge
     have hjlt : j.val < S.m₀ := j.isLt
+    have hm_eq : S.m₀ = D.S.card := rfl
     have hjeq : j = ⟨D.S.card - 1, Nat.sub_lt (Finset.card_pos.mpr D.S_nonempty) zero_lt_one⟩ :=
-      Fin.ext (by dsimp only [S, hbSeedSpec_of_shellHBData_even] at hjlt ⊢; omega)
+      Fin.ext (by dsimp only; omega)
     have hnd : S.nodes j = shellNodes D j := rfl
     rw [hnd, hjeq] at hj
     exact htm (hj.symm.trans (shellNodes_last D))

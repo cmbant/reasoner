@@ -3,7 +3,7 @@ module
 public import FormalResearch.SignUncertainty.HeadlineDefs
 
 /-!
-# Statement objects and input structure for `u1cl:multilevel` (= `thm:intro-hb`, `thm:hb-thresholds`)
+# Statement objects and target predicates for `u1cl:multilevel` (= `thm:intro-hb`, `thm:hb-thresholds`)
 
 Source: `CFT/sign_uncertainty/paper/u1c_o1_lower.tex` (Theorem L.2), `u1c_o1_upper.tex` (Theorem O.9'),
 `general_theorems.tex` (Propositions 7.9a, 7.9b), and the introduction paragraph "Fixed levels and the
@@ -11,10 +11,9 @@ Cohn--Elkies obstruction" of `sign_uncertainty_core.tex`.
 
 Concrete objects (no free data): the prescribed Hankel sites `T_{j,c} = c/π² - (t_j/β₁) c^{1/3} + r_{j,c}`
 (`hankelSites D r c`, `j < m`, offsets `r t c` bounded by `R_off`), the class `IsHankelPrescribed` (feasible at `T`
-with `f(T_{j,c}) ≥ 0`), `hankelTOpt` (`T^{opt,ε}_{m,c}`), `hankelTOpt0` (the same with `f(0) = 0` imposed) and
-`hbModel D c = c/π² - (t_m/β₁) c^{1/3}`.
-
-`HbMultilevelInputs D` is the input structure of `thm_intro_hb` (in `Headlines.lean`).
+with `f(T_{j,c}) ≥ 0`), `hankelTOpt` (`T^{opt,ε}_{m,c}`), `hankelTOpt0` (the same with `f(0) = 0` imposed),
+`hbModel D c = c/π² - (t_m/β₁) c^{1/3}`, and the proved target predicates `HbMultilevelLower`, `HbConstruction`,
+`HankelAttainment`, `HankelExactOrigin` used by `thm_intro_hb` (in `Headlines.lean`).
 -/
 
 @[expose] public section
@@ -90,24 +89,5 @@ precompactness of minimizing sequences are not restated). -/
 def HankelExactOrigin : Prop :=
   ∀ c : ℝ, 1 / 2 < c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ∀ sites : Finset ℝ, (∀ s ∈ sites, 0 < s) →
     ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelSiteMinimizer c ε sites T f → f 0 = 0
-
-/-- Inputs of `thm:intro-hb` for the Hermite–Biehler configuration `D` (open results of the paper). -/
-structure HbMultilevelInputs (D : ShellHBData) : Prop where
-  /-- Lower half of `u1cl:multilevel`. In the paper it is proved by invoking `fto1:thm` and `fto1:mellin` for the
-  normalized Hankel family, whose hypotheses are verified from `gt:7.7p` (a)–(d), `gt:7.7b`, `gt:7.7c`,
-  `u1cl:langer` (done at one level), the weighted-Mellin clause of `u1cl:rep` (`teb:MS1`–`MS3`),
-  `lem:radial-compactness` and `teb:quant_c1_hb` (TE.0', via `ChartCompactness`, for general `(P,Q)`). Those
-  fold-tip hypotheses (`ft:H1`, `ft:H2`, `teb:B1`, `teb:Q1`) are abstract statements about the bootstrap framework
-  and are not restated here; this field is their combined output, to be split when the framework is
-  instantiated for general `(P,Q)` (M8, packages A3, B1, B3, G). Proved at `(P,Q) = (1,0)`
-  (`hbMultilevelLower_airy`, from `hb_thresholds_lower`). -/
-  lower : HbMultilevelLower D
-  /-- `u1co:O9p`, all-level rational-Airy seeds (M8, package C2; `lem:hb-seed-mass`, `u1c:U1`–`U3`, `u1co:O3`–`O6`).
-  Only the one-level threshold form `hbThresholdsUpper` is proved. -/
-  construction : HbConstruction D
-  /-- `gt:7.9a` (3) with `lem:finite-hankel-compactness` (M8). -/
-  attainment : HankelAttainment
-  /-- `gt:7.9b` (M8). -/
-  exact_origin : HankelExactOrigin
 
 end FormalResearch.SignUncertainty

@@ -23,6 +23,10 @@ public import FormalResearch.SignUncertainty.AiryNodeSign
 public import FormalResearch.SignUncertainty.AiryRationalDensity
 public import FormalResearch.SignUncertainty.CeHbLift
 public import FormalResearch.SignUncertainty.CeShellReductionProved
+public import FormalResearch.SignUncertainty.HankelBootMultilevel
+public import FormalResearch.SignUncertainty.HankelExactOrigin
+public import FormalResearch.SignUncertainty.HankelAttainment
+public import FormalResearch.SignUncertainty.HbConstruction
 
 /-!
 # Paper I headline theorems from one input structure each (M0 skeleton)
@@ -54,10 +58,10 @@ Headlines and their inputs (open fields in bold):
   unconditional. Proved here from these and from `hb_thresholds_lower`, `shell_reduction_m1_proved`: the gluing
   `ce_radius_airy_order_of_bounds`, the origin option `constrained_threshold_eq_unconstrained`, the density expansion
   `ce_volume_expansion`.
-* `thm_intro_hb` (`thm:intro-hb` = `u1cl:multilevel` = `thm:hb-thresholds`, all Hermite–Biehler levels), from
-  `HbMultilevelInputs D` (`HbMultilevelDefs.lean`): **`lower`** (lower half; `fto1:thm`, `fto1:mellin`, `gt:7.7p`,
-  `u1cl:rep`, TE.0'; proved for `(P,Q) = (1,0)` as `hbMultilevelLower_airy`), **`construction`** (`u1co:O9p`, all-level
-  seeds), **`attainment`** (`gt:7.9a`, `lem:finite-hankel-compactness`), **`exact_origin`** (`gt:7.9b`).
+* `thm_intro_hb` (`thm:intro-hb` = `u1cl:multilevel` = `thm:hb-thresholds`, all Hermite–Biehler levels), unconditional:
+  `hbMultilevelLower_proved D` (`HankelBootMultilevel.lean`), `hbConstruction_proved D` (`HbConstruction.lean`),
+  `hankelAttainment_proved` (`HankelAttainment.lean`), and `hankelExactOrigin_proved` (`HankelExactOrigin.lean`)
+  discharge all fields of the former `HbMultilevelInputs D`.
 * `thm_ce_canonical_iff` (`thm:intro-gap` = `thm:ce-canonical-iff`, parts (1)-(4), with (i)-(iv); the zero enumeration `t` exists and is unique: `HbZeroEnum.lean`), unconditional (`CeCanonicalInputs D t` has no open fields;
   `shell_reduction` (`thm:ce-shell-reduction`) is proved as `shellReduction_proved` in `CeShellReductionProved.lean`);
   `ce_hb_lift` (`thm:ce-hb-lift`, weak positivity) is proved as `ce_hb_lift_proved` (`CeHbLift.lean`) and no longer a field,
@@ -400,9 +404,10 @@ lemma hankelSites_pos (D : ShellHBData) (R_off : ℝ) :
 either Fourier eigenvalue `ε`, real `c` large and prescribed levels `T_{j,c} = c/π² - (t_j/β₁) c^{1/3} + r_{j,c}`,
 `|r_{j,c}| ≤ R_off`, the infimum `T^{opt,ε}_{m,c}` over feasible `f ∈ 𝒜_c^ε` with `f(T_{j,c}) ≥ 0` equals
 `c/π² - (t_m/β₁) c^{1/3} + O(1)`; the infimum is attained (also by an `f` with `f(0) = 0`) and unchanged by the extra
-condition `f(0) = 0`; the constants `C`, `c₀` are uniform in the offsets. Conditional on `HbMultilevelInputs D`
-(open results, see `HbMultilevelDefs.lean`); not stated: the O-constant's dependence on `(P, Q)` (it is on `D`). -/
-theorem thm_intro_hb (D : ShellHBData) (I : HbMultilevelInputs D) :
+condition `f(0) = 0`; the constants `C`, `c₀` are uniform in the offsets. Unconditional (proved from
+`hbMultilevelLower_proved`, `hbConstruction_proved`, `hankelAttainment_proved`, `hankelExactOrigin_proved`);
+not stated: the O-constant's dependence on `(P, Q)` (it is on `D`). -/
+theorem thm_intro_hb (D : ShellHBData) :
     ∀ R_off : ℝ, 0 ≤ R_off → ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
       ∀ r : ℝ → ℝ → ℝ, (∀ t c', |r t c'| ≤ R_off) →
         |hankelTOpt D r ε c - hbModel D c| ≤ C ∧
@@ -410,8 +415,8 @@ theorem thm_intro_hb (D : ShellHBData) (I : HbMultilevelInputs D) :
         (∃ f : ℝ → ℝ, IsHankelPrescribed D r c ε (hankelTOpt D r ε c) f ∧ f 0 = 0) ∧
         hankelTOpt0 D r ε c = hankelTOpt D r ε c := by
   intro R_off hR
-  obtain ⟨C₁, c₁, hlow⟩ := I.lower R_off hR
-  obtain ⟨K, c₂, hKpos, hc₂, hcon⟩ := I.construction 4 le_rfl R_off hR
+  obtain ⟨C₁, c₁, hlow⟩ := hbMultilevelLower_proved D R_off hR
+  obtain ⟨K, c₂, hKpos, hc₂, hcon⟩ := hbConstruction_proved D 4 le_rfl R_off hR
   obtain ⟨c₃, hc₃, hpos⟩ := hankelSites_pos D R_off
   have htm : D.tm < 0 := lt_of_le_of_lt D.tm_le_airyZero_one (airyZero_neg 1)
   refine ⟨max C₁ K, max (max c₁ c₂) (max c₃ 1), fun c hc ε hε r hr => ?_⟩
@@ -440,7 +445,7 @@ theorem thm_intro_hb (D : ShellHBData) (I : HbMultilevelInputs D) :
         rw [this]; exact hr t c }
   -- attainment
   have hsitespos : ∀ s ∈ hankelSites D r c, 0 < s := hpos c hc₃' r hr
-  obtain ⟨Tm, fm, hmin⟩ := I.attainment c (by linarith) ε hε (hankelSites D r c) hsitespos
+  obtain ⟨Tm, fm, hmin⟩ := hankelAttainment_proved c (by linarith) ε hε (hankelSites D r c) hsitespos
     ⟨Tup, f₀, hfeas₀, hpres₀.sites_nonneg⟩
   have hmem : ∀ T f, IsHankelPrescribed D r c ε T f ↔
       IsHankelFeasible c ε T f ∧ ∀ s ∈ hankelSites D r c, 0 ≤ f s :=
@@ -449,7 +454,7 @@ theorem thm_intro_hb (D : ShellHBData) (I : HbMultilevelInputs D) :
   have hleast : IsLeast {T : ℝ | ∃ f, IsHankelPrescribed D r c ε T f} Tm :=
     ⟨⟨fm, hpresm⟩, fun T ⟨f, hf⟩ => hmin.least T f hf.toIsHankelFeasible hf.sites_nonneg⟩
   have hinf : hankelTOpt D r ε c = Tm := hleast.csInf_eq
-  have hf0 : fm 0 = 0 := I.exact_origin c (by linarith) ε hε _ hsitespos Tm fm hmin
+  have hf0 : fm 0 = 0 := hankelExactOrigin_proved c (by linarith) ε hε _ hsitespos Tm fm hmin
   have hleast0 : IsLeast {T : ℝ | ∃ f, IsHankelPrescribed D r c ε T f ∧ f 0 = 0} Tm :=
     ⟨⟨fm, hpresm, hf0⟩, fun T ⟨f, hf, _⟩ => hleast.2 ⟨f, hf⟩⟩
   have hbound1 := hlow c hc₁' ε hε r hr Tm fm hpresm
@@ -468,8 +473,8 @@ lemma hbModel_airy (c : ℝ) :
   show c / π ^ 2 - (airyZero 1 / hankelBeta1) * c ^ (1 / 3 : ℝ) = _
   ring
 
-/-- The lower half of `u1cl:multilevel` at `(P, Q) = (1, 0)`: the field `lower` of `HbMultilevelInputs` holds for
-the Airy configuration (from `hb_thresholds_lower`; the prescribed sites are empty there). -/
+/-- The lower half of `u1cl:multilevel` at `(P, Q) = (1, 0)` (from `hb_thresholds_lower`; the prescribed sites are
+empty there; superseded at all `D : ShellHBData` by `hbMultilevelLower_proved` in `HankelBootMultilevel.lean`). -/
 theorem hbMultilevelLower_airy : HbMultilevelLower ShellHBData.airy := by
   intro R_off _
   obtain ⟨C, c₀, h⟩ := hb_thresholds_lower
