@@ -52,7 +52,8 @@ private lemma bumpBc_combProfile_mid_le (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη
   set M := supSigma1 σs N hN
   set Sg0 := max (4 * max (phiQuantile ((N : ℝ) + 2)) M) (phiQuantile 5 + 1)
   have hPhi5 : 0 < phiQuantile 5 := by
-    simpa [show ((3 : ℕ) : ℝ) + 2 = 5 by norm_num] using phiQuantile_succ_succ_pos 3
+    rw [show (5 : ℝ) = ((3 : ℕ) : ℝ) + 2 by norm_num]
+    exact phiQuantile_succ_succ_pos 3
   have hSg0 : 0 < Sg0 := lt_of_lt_of_le (by linarith) (le_max_right _ _)
   obtain ⟨E, _, hwidth⟩ := designWidth1_bounds hη0 hη1
   obtain ⟨K, hK0, hnorm⟩ := designComb_norm_le_exp_ref 1 N le_rfl hN M E (η₀ := 1 / 4)
@@ -113,8 +114,13 @@ private lemma bumpBc_combProfile_mid_le (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη
     have h1 : ‖refComb c' 1 (1 / 4) (y : ℂ)‖ ≤
         (Cband * (4 * √2 * Real.cosh (π * 1 / 2) / (π * (y - xiStar))) ^ (2 * ((1 : ℝ) - 1 / 4))) *
           Real.exp (-c' * besselL y) := by
-      have hdiv := (le_div_iff₀ (Real.exp_pos (c' * besselL y))).mpr hrf'
-      rwa [div_eq_mul_inv, ← Real.exp_neg, ← neg_mul] at hdiv
+      calc ‖refComb c' 1 (1 / 4) (y : ℂ)‖
+          = (‖refComb c' 1 (1 / 4) (y : ℂ)‖ * Real.exp (c' * besselL y)) * Real.exp (-c' * besselL y) := by
+            rw [mul_assoc, ← Real.exp_add, show c' * besselL y + -c' * besselL y = 0 by ring,
+              Real.exp_zero, mul_one]
+        _ ≤ (Cband * (4 * √2 * Real.cosh (π * 1 / 2) / (π * (y - xiStar))) ^
+              (2 * ((1 : ℝ) - 1 / 4))) * Real.exp (-c' * besselL y) := by
+            simpa only [Nat.cast_one] using mul_le_mul_of_nonneg_right hrf' (Real.exp_pos _).le
     have h2 : (4 * √2 * Real.cosh (π * 1 / 2) / (π * (y - xiStar))) ^ (2 * ((1 : ℝ) - 1 / 4)) =
         (4 * √2 * Real.cosh (π * 1 / 2) / π) ^ (3 / 2 : ℝ) * (y - xiStar) ^ (-(3 / 2 : ℝ)) := by
       rw [show (2 * ((1 : ℝ) - 1 / 4) : ℝ) = 3 / 2 by norm_num]
@@ -127,7 +133,8 @@ private lemma bumpBc_combProfile_mid_le (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη
     linarith
   have hsech : ‖sechSqProfile (y : ℂ)‖ ≤ 4 := by
     have hs := norm_sechSqProfile_ofReal_le y
-    have hexp : Real.exp (-π * |y|) ≤ 1 := Real.exp_le_one_iff.mpr (by have := Real.pi_pos; positivity)
+    have hexp : Real.exp (-π * |y|) ≤ 1 :=
+      Real.exp_le_one_iff.mpr (by have := Real.pi_pos; nlinarith [abs_nonneg y])
     linarith
   have hprof_le : |combProfile c' (designComb c' 1 N (1 / 4) σs (designWidth1 c' η))
       (c' * y ^ 2 / 3)| ≤
@@ -193,8 +200,11 @@ private lemma bumpBc_hankel_mid_le (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0
           (kernelK 5 (c' / 12) (c' * y ^ 2 / 3) * (2 * c' * y / 3)) ≤ K₅ * c' := by
         have hw5'' : |hankelTransform 5 (combProfile c' (bumpBc d5 N η σs c')) (c' * y ^ 2 / 3) *
             (kernelK 5 (c' / 12) (c' * y ^ 2 / 3) * (2 * c' * y / 3))| ≤ K₅ * c' := by
+          change |hankelTransform spinMomentW5Prob.w (combProfile c' (bumpBc d5 N η σs c'))
+            (c' * y ^ 2 / 3) * (kernelK 5 (c' / 12) (c' * y ^ 2 / 3) * (2 * c' * y / 3))| ≤ K₅ * c'
           simpa only [mul_assoc] using hw5'
-        rwa [← abs_mul, abs_of_pos hK5_pos] at hw5''
+        rw [abs_mul, abs_of_pos hK5_pos] at hw5''
+        exact hw5''
       exact le_trans (mul_le_mul_of_nonneg_left hKl' (abs_nonneg _)) h1
     have hsqrt_le : √c' ≤ (y - xiStar) ^ (-(3 / 2 : ℝ)) := by
       have hyx : 0 < y - xiStar := sub_pos.mpr hy_gt
@@ -267,6 +277,102 @@ private lemma bumpBc_hankel_mid_le (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0
           gcongr
           linarith [le_max_right (K₅ / c_K) (2 * Cs)]
 
+/-- Mid-band pointwise exponential bound on `bumpG` for `w = 5`:
+`|g₅(c' y²/3)| ≤ C_g (y - ξ_*)^(-3/2) exp(-c' L(y))` on `ξ_* + λ Σ₀ ≤ y ≤ ξ_* + 1`. -/
+theorem bumpG_mid_exp_le (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4)
+    (σs : ℕ → ℝ) :
+    ∃ Sg0 C_g : ℝ, 0 < Sg0 ∧ 0 < C_g ∧ ∀ᶠ c' in atTop, ∀ y : ℝ,
+      xiStar + lambdaComb c' * Sg0 ≤ y → y ≤ xiStar + 1 →
+        |bumpG spinMomentW5Prob (rpParams 4).bumpData N η σs c' (c' * y ^ 2 / 3)| ≤
+          C_g * (y - xiStar) ^ (-(3 / 2 : ℝ)) * Real.exp (-c' * besselL y) := by
+  obtain ⟨Sg0, C_h, hSg0, hCh, hh⟩ := bumpBc_combProfile_mid_le N hN hη0 hη1 σs
+  obtain ⟨C_hh, hChh, hh'⟩ := bumpBc_hankel_mid_le N hN hη0 hη1 σs
+  refine ⟨Sg0, (C_h + C_hh) / 2, hSg0, by positivity, ?_⟩
+  filter_upwards [hh, hh', eventually_gt_atTop (0 : ℝ)] with c' hc1 hc2 hc' y hy_lo hy_hi
+  have hlam0 : 0 < lambdaComb c' := by unfold lambdaComb; have := kTip_pos; positivity
+  have hy_gt : xiStar < y := lt_of_lt_of_le (by linarith [mul_pos hlam0 hSg0]) hy_lo
+  unfold bumpG pairOdd
+  rw [abs_div, abs_of_pos (two_pos : (0 : ℝ) < 2)]
+  have hsum := add_le_add (hc1 y hy_lo hy_hi) (hc2 y hy_gt hy_hi)
+  calc |combProfile c' (bumpBc (rpParams 4).bumpData N η σs c') (c' * y ^ 2 / 3) -
+          hankelTransform 5 (combProfile c' (bumpBc (rpParams 4).bumpData N η σs c'))
+            (c' * y ^ 2 / 3)| / 2
+      ≤ (|combProfile c' (bumpBc (rpParams 4).bumpData N η σs c') (c' * y ^ 2 / 3)| +
+          |hankelTransform 5 (combProfile c' (bumpBc (rpParams 4).bumpData N η σs c'))
+            (c' * y ^ 2 / 3)|) / 2 :=
+        div_le_div_of_nonneg_right (abs_sub _ _) zero_le_two
+    _ ≤ (C_h * (y - xiStar) ^ (-(3 / 2 : ℝ)) * Real.exp (-c' * besselL y) +
+          C_hh * (y - xiStar) ^ (-(3 / 2 : ℝ)) * Real.exp (-c' * besselL y)) / 2 :=
+        div_le_div_of_nonneg_right hsum zero_le_two
+    _ = (C_h + C_hh) / 2 * (y - xiStar) ^ (-(3 / 2 : ℝ)) * Real.exp (-c' * besselL y) := by ring
+
+private lemma volterra_exp_dom (δ : ℝ) (hδ : 0 < δ) (r t : ℝ) (hr : 0 ≤ r) (ht : 0 ≤ t) :
+    (3 * r / 2 + t / 2) * Real.exp (-δ * √t) ≤
+      8 * (3 * r / 2 + 1 / 2) * max 1 (720 / δ ^ 6) * (1 + t) ^ (-2 : ℝ) := by
+  have hpow6 := Real.pow_div_factorial_le_exp (δ * √t) (by positivity) 6
+  have hfact6 : ((Nat.factorial 6 : ℕ) : ℝ) = 720 := by norm_num
+  rw [hfact6] at hpow6
+  have ht3 : t ^ 3 * Real.exp (-δ * √t) ≤ 720 / δ ^ 6 := by
+    have hpow_eq : (δ * √t) ^ 6 = δ ^ 6 * t ^ 3 := by
+      rw [mul_pow, show (√t) ^ 6 = (√t ^ 2) ^ 3 by ring, Real.sq_sqrt ht]
+    rw [hpow_eq] at hpow6
+    have hpow6' : δ ^ 6 * t ^ 3 ≤ 720 * Real.exp (δ * √t) := by
+      have := (div_le_iff₀ (by norm_num : (0 : ℝ) < 720)).mp hpow6
+      linarith
+    have h1 : δ ^ 6 * t ^ 3 * Real.exp (-δ * √t) ≤ 720 := by
+      calc δ ^ 6 * t ^ 3 * Real.exp (-δ * √t)
+          ≤ (720 * Real.exp (δ * √t)) * Real.exp (-δ * √t) := by gcongr
+        _ = 720 := by
+            rw [mul_assoc, ← Real.exp_add, show δ * √t + -δ * √t = 0 by ring, Real.exp_zero,
+              mul_one]
+    have hδ6 : 0 < δ ^ 6 := pow_pos hδ 6
+    calc t ^ 3 * Real.exp (-δ * √t) = (δ ^ 6 * t ^ 3 * Real.exp (-δ * √t)) / δ ^ 6 := by
+          field_simp
+      _ ≤ 720 / δ ^ 6 := div_le_div_of_nonneg_right h1 hδ6.le
+  have hexp_le1 : Real.exp (-δ * √t) ≤ 1 :=
+    Real.exp_le_one_iff.mpr (by have := mul_nonneg hδ.le (Real.sqrt_nonneg t); linarith)
+  have ht_bd : t ≤ 1 + t ^ 3 := by
+    by_cases ht1 : t ≤ 1
+    · linarith [pow_nonneg ht 3]
+    · have : 1 ≤ t := by linarith
+      have h12 : 1 ≤ t ^ 2 := by nlinarith
+      have hsq : t ≤ t ^ 3 := by nlinarith
+      linarith
+  have ht2_bd : t ^ 2 ≤ 1 + t ^ 3 := by
+    by_cases ht1 : t ≤ 1
+    · have : t ^ 2 ≤ 1 := by nlinarith
+      linarith [pow_nonneg ht 3]
+    · have : 1 ≤ t := by linarith
+      nlinarith
+  have hsub1 : (1 + t) ^ 2 * (3 * r / 2 + t / 2) ≤ 4 * (3 * r / 2 + 1 / 2) * (1 + t ^ 3) := by
+    have hp0 : 0 ≤ t ^ 3 := pow_nonneg ht 3
+    have hp1 : 1 + 2 * t + t ^ 2 ≤ 4 * (1 + t ^ 3) := by linarith
+    have hp2 : t + 2 * t ^ 2 + t ^ 3 ≤ 4 * (1 + t ^ 3) := by linarith
+    have hsum : (1 + t) ^ 2 * (3 * r / 2 + t / 2) =
+        3 * r / 2 * (1 + 2 * t + t ^ 2) + 1 / 2 * (t + 2 * t ^ 2 + t ^ 3) := by ring
+    rw [hsum]
+    nlinarith [mul_le_mul_of_nonneg_left hp1 (by positivity : 0 ≤ 3 * r / 2),
+      mul_le_mul_of_nonneg_left hp2 (by positivity : 0 ≤ (1 / 2 : ℝ))]
+  have hM1 : 1 ≤ max 1 (720 / δ ^ 6) := le_max_left _ _
+  have hM2 : 720 / δ ^ 6 ≤ max 1 (720 / δ ^ 6) := le_max_right _ _
+  have h1t3 : (1 + t) ^ 2 * ((3 * r / 2 + t / 2) * Real.exp (-δ * √t)) ≤
+      8 * (3 * r / 2 + 1 / 2) * max 1 (720 / δ ^ 6) := by
+    calc (1 + t) ^ 2 * ((3 * r / 2 + t / 2) * Real.exp (-δ * √t))
+        = ((1 + t) ^ 2 * (3 * r / 2 + t / 2)) * Real.exp (-δ * √t) := by ring
+      _ ≤ (4 * (3 * r / 2 + 1 / 2) * (1 + t ^ 3)) * Real.exp (-δ * √t) := by gcongr
+      _ = 4 * (3 * r / 2 + 1 / 2) * (Real.exp (-δ * √t) + t ^ 3 * Real.exp (-δ * √t)) := by ring
+      _ ≤ 4 * (3 * r / 2 + 1 / 2) * (1 + 720 / δ ^ 6) := by gcongr
+      _ ≤ 4 * (3 * r / 2 + 1 / 2) * (2 * max 1 (720 / δ ^ 6)) := by gcongr; linarith
+      _ = 8 * (3 * r / 2 + 1 / 2) * max 1 (720 / δ ^ 6) := by ring
+  have h1t_pos : 0 < (1 + t) ^ 2 := by positivity
+  rw [show (1 + t) ^ (-2 : ℝ) = ((1 + t) ^ 2)⁻¹ by
+    rw [show (-2 : ℝ) = -((2 : ℕ) : ℝ) by norm_num, Real.rpow_neg (by linarith),
+      Real.rpow_natCast]]
+  rw [← div_eq_mul_inv, le_div_iff₀ h1t_pos]
+  calc (3 * r / 2 + t / 2) * Real.exp (-δ * √t) * (1 + t) ^ 2
+      = (1 + t) ^ 2 * ((3 * r / 2 + t / 2) * Real.exp (-δ * √t)) := by ring
+    _ ≤ 8 * (3 * r / 2 + 1 / 2) * max 1 (720 / δ ^ 6) := h1t3
+
 private lemma spinVolterraAdjoint_mid_upper (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η)
     (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
     ∃ Sg0 C_V : ℝ, 0 < Sg0 ∧ 0 < C_V ∧ ∀ᶠ c' in atTop, ∀ x : ℝ,
@@ -302,9 +408,10 @@ private lemma spinVolterraAdjoint_mid_upper (N : ℕ) (hN : 1 ≤ N) {η : ℝ} 
     have hMd2 : 720 / δ ^ 6 ≤ M_d := le_max_right _ _
     set C_dom := 8 * C_b * (3 * r / 2 + 1 / 2) * M_d
     have hm_g : AEStronglyMeasurable (fun t => (3 * r - t) / 2 * g t) (volume.restrict (Ici r)) :=
-      (ContinuousOn.mul (Continuous.continuousOn (by continuity))
+      (ContinuousOn.mul
+        ((continuous_const.sub continuous_id).div_const 2).continuousOn
         (htest.cont.mono (Ici_subset_Ici.mpr hr0))).aestronglyMeasurable measurableSet_Ici
-    refine ((integrableOn_one_add_rpow_neg_two.const_mul C_dom).mono_set
+    refine (IntegrableOn.mono_set (integrableOn_one_add_rpow_neg_two.const_mul C_dom)
       (Ici_subset_Ici.mpr hr0)).mono' hm_g ?_
     filter_upwards [ae_restrict_mem measurableSet_Ici] with t ht
     have ht_r : r ≤ t := mem_Ici.mp ht
@@ -321,72 +428,22 @@ private lemma spinVolterraAdjoint_mid_upper (N : ℕ) (hN : 1 ≤ N) {η : ℝ} 
         linarith
       calc |g t| ≤ C_b * Real.exp (-4 * π * √(c' / 12 * t) - π * √(3 * t / c')) := hgt
         _ ≤ C_b * Real.exp (-δ * √t) := by gcongr
-    have hpow6 := Real.pow_div_factorial_le_exp (δ * √t) (by positivity) 6
-    have hfact6 : ((Nat.factorial 6 : ℕ) : ℝ) = 720 := by norm_num
-    rw [hfact6] at hpow6
-    have ht3 : t ^ 3 * Real.exp (-δ * √t) ≤ 720 / δ ^ 6 := by
-      have hpow_eq : (δ * √t) ^ 6 = δ ^ 6 * t ^ 3 := by
-        rw [mul_pow, show (√t) ^ 6 = (√t ^ 2) ^ 3 by ring, Real.sq_sqrt ht0]
-      rw [hpow_eq] at hpow6
-      have h1 : δ ^ 6 * t ^ 3 * Real.exp (-δ * √t) ≤ 720 := by
-        calc δ ^ 6 * t ^ 3 * Real.exp (-δ * √t)
-            ≤ (720 * Real.exp (δ * √t)) * Real.exp (-δ * √t) := by gcongr; linarith
-          _ = 720 := by
-              rw [mul_assoc, ← Real.exp_add, show δ * √t + -(δ * √t) = 0 by ring, Real.exp_zero,
-                mul_one]
-      have hδ6 : 0 < δ ^ 6 := pow_pos hδ 6
-      calc t ^ 3 * Real.exp (-δ * √t) = (δ ^ 6 * t ^ 3 * Real.exp (-δ * √t)) / δ ^ 6 := by
-            field_simp
-        _ ≤ 720 / δ ^ 6 := div_le_div_of_nonneg_right h1 hδ6.le
-    have hexp_le1 : Real.exp (-δ * √t) ≤ 1 :=
-      Real.exp_le_one_iff.mpr (neg_nonpos.mpr (mul_nonneg hδ.le (Real.sqrt_nonneg t)))
-    have h1t3 : (1 + t) ^ 2 * ((3 * r / 2 + t / 2) * Real.exp (-δ * √t)) ≤
-        8 * (3 * r / 2 + 1 / 2) * M_d := by
-      have ht_bd : t ≤ 1 + t ^ 3 := by
-        by_cases ht1 : t ≤ 1
-        · linarith [pow_nonneg ht0 3]
-        · have : 1 ≤ t := by linarith
-          have hsq : t ≤ t ^ 3 := by nlinarith
-          linarith
-      have ht2_bd : t ^ 2 ≤ 1 + t ^ 3 := by
-        by_cases ht1 : t ≤ 1
-        · have : t ^ 2 ≤ 1 := by nlinarith
-          linarith [pow_nonneg ht0 3]
-        · have : 1 ≤ t := by linarith
-          nlinarith
-      have hsub1 : (1 + t) ^ 2 * (3 * r / 2 + t / 2) ≤
-          4 * (3 * r / 2 + 1 / 2) * (1 + t ^ 3) := by
-        have hp1 : 1 + 2 * t + t ^ 2 ≤ 4 * (1 + t ^ 3) := by linarith
-        have hp2 : t + 2 * t ^ 2 + t ^ 3 ≤ 4 * (1 + t ^ 3) := by linarith
-        have hsum : (1 + t) ^ 2 * (3 * r / 2 + t / 2) =
-            3 * r / 2 * (1 + 2 * t + t ^ 2) + 1 / 2 * (t + 2 * t ^ 2 + t ^ 3) := by ring
-        rw [hsum]
-        nlinarith [mul_le_mul_of_nonneg_left hp1 (by positivity : 0 ≤ 3 * r / 2),
-          mul_le_mul_of_nonneg_left hp2 (by positivity : 0 ≤ (1 / 2 : ℝ))]
-      calc (1 + t) ^ 2 * ((3 * r / 2 + t / 2) * Real.exp (-δ * √t))
-          = ((1 + t) ^ 2 * (3 * r / 2 + t / 2)) * Real.exp (-δ * √t) := by ring
-        _ ≤ (4 * (3 * r / 2 + 1 / 2) * (1 + t ^ 3)) * Real.exp (-δ * √t) := by gcongr
-        _ = 4 * (3 * r / 2 + 1 / 2) * (Real.exp (-δ * √t) + t ^ 3 * Real.exp (-δ * √t)) := by ring
-        _ ≤ 4 * (3 * r / 2 + 1 / 2) * (1 + 720 / δ ^ 6) := by gcongr
-        _ ≤ 4 * (3 * r / 2 + 1 / 2) * (2 * M_d) := by gcongr; linarith
-        _ = 8 * (3 * r / 2 + 1 / 2) * M_d := by ring
+    have hpow6 := volterra_exp_dom δ hδ r t hr0 ht0
     have hdiff_le : |(3 * r - t) / 2| ≤ 3 * r / 2 + t / 2 :=
       abs_le.mpr ⟨by linarith, by linarith⟩
-    have h1t_pos : 0 < (1 + t) ^ 2 := by positivity
-    rw [Real.norm_eq_abs, abs_mul, show (1 + t) ^ (-2 : ℝ) = ((1 + t) ^ 2)⁻¹ by
-      rw [show (-2 : ℝ) = -((2 : ℕ) : ℝ) by norm_num, Real.rpow_neg (by linarith),
-        Real.rpow_natCast]]
-    rw [← mul_div_assoc', div_eq_mul_inv (a := C_dom), le_mul_inv_iff₀ h1t_pos]
-    calc |(3 * r - t) / 2| * |g t| * (1 + t) ^ 2
-        ≤ (3 * r / 2 + t / 2) * (C_b * Real.exp (-δ * √t)) * (1 + t) ^ 2 := by gcongr
-      _ = C_b * ((1 + t) ^ 2 * ((3 * r / 2 + t / 2) * Real.exp (-δ * √t))) := by ring
-      _ ≤ C_b * (8 * (3 * r / 2 + 1 / 2) * M_d) := by gcongr
-      _ = C_dom := by dsimp [C_dom]; ring
+    rw [Real.norm_eq_abs, abs_mul]
+    calc |(3 * r - t) / 2| * |g t|
+        ≤ (3 * r / 2 + t / 2) * (C_b * Real.exp (-δ * √t)) := by gcongr
+      _ = C_b * ((3 * r / 2 + t / 2) * Real.exp (-δ * √t)) := by ring
+      _ ≤ C_b * (8 * (3 * r / 2 + 1 / 2) * M_d * (1 + t) ^ (-2 : ℝ)) := by
+          gcongr
+      _ = C_dom * (1 + t) ^ (-2 : ℝ) := by dsimp [C_dom]; ring
   have hInt_abs : IntegrableOn (fun t => |(3 * r - t) / 2 * g t|) (Ici r) volume := hInt_all.norm
   have hsplit : ∫ t in Ici r, |(3 * r - t) / 2 * g t| =
       (∫ t in Ico r r₁, |(3 * r - t) / 2 * g t|) + ∫ t in Ici r₁, |(3 * r - t) / 2 * g t| := by
     rw [← Ico_union_Ici_eq_Ici hrr₁]
-    exact setIntegral_union (Set.disjoint_iff.mpr fun t ⟨ht1, ht2⟩ => by linarith [ht1.2, ht2])
+    exact setIntegral_union (Set.disjoint_iff.mpr fun t ⟨ht1, ht2⟩ => by
+        simp only [mem_Ico, mem_Ici] at ht1 ht2; linarith)
       measurableSet_Ici (hInt_abs.mono_set Ico_subset_Ici_self)
       (hInt_abs.mono_set (Ici_subset_Ici.mpr hrr₁))
   have htail := spinVolterra_tail_integral_bound hc1' hx1 hr0 hrr₁ hC₀.le
@@ -401,9 +458,15 @@ private lemma spinVolterraAdjoint_mid_upper (N : ℕ) (hN : 1 ≤ N) {η : ℝ} 
     have hexp_le : Real.exp (-c' * besselL (xiStar + 1) - π * (xiStar + 1)) ≤
         Real.exp (-c' * besselL x) := by
       apply Real.exp_le_exp.mpr
-      unfold besselL
-      have := Real.pi_pos
-      nlinarith [hx_hi, hc'.le, hx1.le]
+      have hsub : besselL x ≤ besselL (xiStar + 1) := by
+        unfold besselL
+        have := Real.pi_pos
+        exact div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left hx_hi (by positivity)) (by norm_num)
+      have hcL : c' * besselL x ≤ c' * besselL (xiStar + 1) :=
+        mul_le_mul_of_nonneg_left hsub hc'.le
+      have hpx : 0 ≤ π * (xiStar + 1) := by have := Real.pi_pos; have := xiStar_pos; positivity
+      rw [neg_mul, neg_mul]
+      linarith
     calc ∫ t in Ici r₁, |(3 * r - t) / 2 * g t|
         ≤ C₀ * (16 * (1 + (xiStar + 1)) ^ 3 * c') *
             Real.exp (-c' * besselL (xiStar + 1) - π * (xiStar + 1)) := htail
@@ -421,8 +484,8 @@ private lemma spinVolterraAdjoint_mid_upper (N : ℕ) (hN : 1 ≤ N) {η : ℝ} 
         Real.exp (-c' * besselL x) := by
     have h1 : ∫ t in Ico r r₁, |(3 * r - t) / 2 * g t| ≤
         ∫ t in Icc r r₁, |(3 * r - t) / 2 * g t| :=
-      setIntegral_mono_set (hInt_abs.mono_set (Ici_subset_Ici.mpr le_rfl |> fun _ =>
-        Icc_subset_Ici_self)) (Eventually.of_forall fun _ => abs_nonneg _)
+      setIntegral_mono_set (hInt_abs.mono_set Icc_subset_Ici_self)
+        (Eventually.of_forall fun _ => abs_nonneg _)
         (Eventually.of_forall fun _ ht => Ico_subset_Icc_self ht)
     rw [show r = c' * x ^ 2 / 3 from rfl, show r₁ = c' * (xiStar + 1) ^ 2 / 3 from rfl,
       integral_Icc_comp_sq hc' hx0 hx_hi (fun t => |(3 * r - t) / 2 * g t|)] at h1
@@ -479,7 +542,7 @@ private lemma spinVolterraAdjoint_mid_upper (N : ℕ) (hN : 1 ≤ N) {η : ℝ} 
           2 * c' * y / 3 * |(3 * r - c' * y ^ 2 / 3) / 2 * g (c' * y ^ 2 / 3)| ≤
         ∫ y in Icc x (xiStar + 1), K_c * Real.exp (-(q * y)) := by
       have hInt_K : IntegrableOn (fun y => K_c * Real.exp (-(q * y))) (Icc x (xiStar + 1)) volume :=
-        (Continuous.continuousOn (by continuity)).integrableOn_Icc
+        ((Continuous.rexp (continuous_const.mul continuous_id).neg).const_mul K_c).integrableOn_Icc
       refine integral_mono_of_nonneg ?_ hInt_K ?_
       · exact (ae_restrict_iff' measurableSet_Icc).mpr
           (Eventually.of_forall fun y hy => by have := hx0.le.trans hy.1; positivity)
@@ -500,7 +563,6 @@ private lemma spinVolterraAdjoint_mid_upper (N : ℕ) (hN : 1 ≤ N) {η : ℝ} 
       have hc0 : c' ≠ 0 := hc'.ne'
       have hpi : π ≠ 0 := Real.pi_ne_zero
       field_simp
-      ring
     exact (h1.trans (h2.trans h3)).trans_eq hsimpl
   unfold spinVolterraAdjoint
   calc |∫ t in Ici r, (3 * r - t) / 2 * g t|
@@ -637,19 +699,19 @@ private lemma virasoro_bumpG_mid_lower :
     have hprof_lo : cc * (2 / π) ^ (3 / 2 : ℝ) * (x - xiStar) ^ (-(3 / 2 : ℝ)) *
           Real.exp (-c' * besselL x) ≤
         (designProfile c' 1 1 (1 / 4) (designSigma1 0) (designWidth1 c' (1 / 4)) (x : ℂ)).re := by
-      have h1 : cc * (2 / (π * (x - xiStar))) ^ (3 / 2 : ℝ) * Real.exp (-(c' * edgeL x)) ≤
+      have h1 : cc * (2 / (π * (x - xiStar))) ^ (3 / 2 : ℝ) * Real.exp (-c' * edgeL x) ≤
           (designProfile c' 1 1 (1 / 4) (designSigma1 0) (designWidth1 c' (1 / 4)) (x : ℂ)).re := by
-        have := (div_le_iff₀ (Real.exp_pos (c' * edgeL x))).mp hov_pt
-        rw [div_eq_mul_inv, ← Real.exp_neg] at this
-        have h1' : cc * (2 / (π * (x - xiStar))) ^ (3 / 2 : ℝ) / Real.exp (c' * edgeL x) ≤
-            (designProfile c' 1 1 (1 / 4) (designSigma1 0) (designWidth1 c' (1 / 4)) (x : ℂ)).re := by
-          have := (div_le_iff₀ (Real.exp_pos (c' * edgeL x))).mpr hov_pt
-          linarith
-        simpa [div_eq_mul_inv, ← Real.exp_neg] using h1'
+        calc cc * (2 / (π * (x - xiStar))) ^ (3 / 2 : ℝ) * Real.exp (-c' * edgeL x)
+            ≤ ((designProfile c' 1 1 (1 / 4) (designSigma1 0) (designWidth1 c' (1 / 4)) (x : ℂ)).re *
+                Real.exp (c' * edgeL x)) * Real.exp (-c' * edgeL x) :=
+              mul_le_mul_of_nonneg_right hov_pt (Real.exp_pos _).le
+          _ = (designProfile c' 1 1 (1 / 4) (designSigma1 0) (designWidth1 c' (1 / 4)) (x : ℂ)).re := by
+              rw [mul_assoc, ← Real.exp_add, show c' * edgeL x + -c' * edgeL x = 0 by ring,
+                Real.exp_zero, mul_one]
       rw [hpow_split] at h1
       have hL : besselL x = edgeL x := rfl
       rw [hL]
-      simpa only [neg_mul] using h1
+      linarith
     have hprof_nn : 0 ≤ (designProfile c' 1 1 (1 / 4) (designSigma1 0) (designWidth1 c' (1 / 4))
         (x : ℂ)).re := by
       have hpos_lhs : 0 ≤ cc * (2 / π) ^ (3 / 2 : ℝ) * (x - xiStar) ^ (-(3 / 2 : ℝ)) *
@@ -749,7 +811,7 @@ private lemma virasoro_bumpG_mid_lower :
       have h1 : 0 < Real.sinh (π * (x - xiStar) / 2) :=
         Real.sinh_pos_iff.mpr (by have := Real.pi_pos; positivity)
       have h2 : 0 < Real.sinh (π * (x + xiStar) / 2) :=
-        Real.sinh_pos_iff.mpr (by have := Real.pi_pos; positivity)
+        Real.sinh_pos_iff.mpr (by have := Real.pi_pos; have := xiStar_pos; positivity)
       have h3 := Real.cosh_pos (π * (x - xiStar) / 2)
       have h4 := Real.cosh_pos (π * (x + xiStar) / 2)
       positivity
@@ -772,11 +834,8 @@ private lemma virasoro_bumpG_mid_lower :
       have h2 : ((π / 2) * (x - xiStar)) ^ (-(3 / 2 : ℝ)) =
           (2 / π) ^ (3 / 2 : ℝ) * (x - xiStar) ^ (-(3 / 2 : ℝ)) := by
         rw [Real.mul_rpow (by have := Real.pi_pos; positivity) hyx.le,
-          ← Real.rpow_neg (by have := Real.pi_pos; positivity),
-          ← Real.rpow_neg hyx.le]
-        congr 1
-        rw [Real.rpow_neg (by have := Real.pi_pos; positivity), ← Real.inv_rpow (by have := Real.pi_pos; positivity),
-          inv_div]
+          Real.rpow_neg (by have := Real.pi_pos; positivity),
+          ← Real.inv_rpow (by have := Real.pi_pos; positivity), inv_div]
       rw [h2n1] at h1 ⊢
       linarith
     have hexp_comb_lb : (tanhTipK8 x) ^ (-(3 / 2 : ℝ)) ≤
@@ -791,14 +850,14 @@ private lemma virasoro_bumpG_mid_lower :
     have hlev_lb : 4 * c_sech * (2 / π) ^ (3 / 2 : ℝ) * (x - xiStar) ^ (-(3 / 2 : ℝ)) *
           Real.exp (-c' * besselL x) ≤ levComb c' 1 x := by
       unfold levComb
-      rw [hslit, show -(c' * besselL x) + c' * combPf c' 1 x + jEndComb c' x 1 =
+      rw [hslit, show -c' * besselL x + c' * combPf c' 1 x + jEndComb c' x 1 =
           -(c' * besselL x) + (c' * combPf c' 1 x + jEndComb c' x 1) by ring, Real.exp_add]
       have hcsh0 : 0 ≤ c_sech := hc_sech.le
       have hexp_nn : 0 ≤ Real.exp (-(c' * besselL x)) := (Real.exp_pos _).le
-      calc 4 * c_sech * (2 / π) ^ (3 / 2 : ℝ) * (x - xiStar) ^ (-(3 / 2 : ℝ)) * Real.exp (-c' * besselL x)
+      rw [show (-c' * besselL x) = -(c' * besselL x) by ring]
+      calc 4 * c_sech * (2 / π) ^ (3 / 2 : ℝ) * (x - xiStar) ^ (-(3 / 2 : ℝ)) * Real.exp (-(c' * besselL x))
           = 4 * c_sech * Real.exp (-(c' * besselL x)) *
-              ((2 / π) ^ (3 / 2 : ℝ) * (x - xiStar) ^ (-(3 / 2 : ℝ))) := by
-            congr 1; ring
+              ((2 / π) ^ (3 / 2 : ℝ) * (x - xiStar) ^ (-(3 / 2 : ℝ))) := by ring
         _ ≤ 4 * (1 / Real.cosh (π * x / 2) ^ 2) * Real.exp (-(c' * besselL x)) *
               Real.exp (c' * combPf c' 1 x + jEndComb c' x 1) := by
             gcongr
