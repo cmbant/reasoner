@@ -525,7 +525,7 @@ private lemma virSaddle_head_seg_join (p : VirSaddlePack)
     (hBamp_d : ∀ {ε : ℝ}, ε ∈ Ioo 0 (1 / 2) → ∀ v : ℝ, 0 < v → DifferentiableAt ℝ (Bamp ε) v)
     {c' a : ℝ} (hc1 : 1 ≤ c') (hc2 : 2 ≤ c') (ha : |a| < p.a_cut)
     (ha_hc_mem : (a : ℂ) ∈ ball (0 : ℂ) d_hc.r_a)
-    {rr : ℝ} (hrr : 0 < rr) (hrr1 : 1 ≤ rr)
+    {rr : ℝ} (hrr : 0 < rr) (_hrr1 : 1 ≤ rr)
     (hlam_pos : 0 < c' ^ (-(1 / 3 : ℝ)))
     (hlam2 : (c' ^ (-(1 / 3 : ℝ))) ^ 2 = c' ^ (-(2 / 3 : ℝ)))
     (hlam3 : (c' ^ (-(1 / 3 : ℝ))) ^ 3 = c'⁻¹)
@@ -908,7 +908,10 @@ private lemma virSaddle_head_seg_join (p : VirSaddlePack)
     have hm : q.z0 + (t : ℂ) * q.d ∈ ball (0 : ℂ) (3 * p.s_cut / lam) := by
       have h1 : ‖q.z0 + (t : ℂ) * q.d‖ < 2 * rr ^ 2 := mem_ball_zero_iff.mp (hq.2.1 t ht).1
       have h2 : 2 * rr ^ 2 < 3 * p.s_cut / lam := by
-        rw [hrr2, div_mul_eq_mul_div, div_lt_div_iff_of_pos_right hlam_pos]; linarith only [p.hs_pos]
+        rw [hrr2]
+        change 2 * (p.s_cut / lam) < 3 * p.s_cut / lam
+        rw [← mul_div_assoc]
+        exact div_lt_div_of_pos_right (by linarith only [p.hs_pos]) hlam_pos
       exact mem_ball_zero_iff.mpr (h1.trans h2)
     have he := hexpU (q.z0 + (t : ℂ) * q.d) hm
     dsimp [gW]; rw [mul_assoc (csr _), he]; ring
@@ -962,12 +965,14 @@ private lemma virSaddle_head_seg_join (p : VirSaddlePack)
       have he : ‖e0‖ = Real.exp (-(PhU Ua z0).im) := norm_exp_I_mul _
       rw [he]
       have hRcut1' : 1 ≤ p.s_cut / lam := hRcut1
-      refine (Real.exp_le_exp.mpr ?_).trans
-        (by rw [hrr2]; exact exp_neg_Rcut_cube_div_four_le p.hs_pos hcpos hlam_pos hlc hRcut1')
-      have h1 : (rr ^ 2) ^ 3 / 4 ≤ rr ^ 2 / 2 * (29 * (rr ^ 2) ^ 2 / 48) * (1 - 0) := by
-        have : 0 ≤ (rr ^ 2) ^ 3 := by positivity
-        nlinarith only [this]
-      linarith only [h1, hIm]
+      have h_im_le : -(PhU Ua z0).im ≤ -((rr ^ 2) ^ 3 / 4) := by
+        have h1 : (rr ^ 2) ^ 3 / 4 ≤ rr ^ 2 / 2 * (29 * (rr ^ 2) ^ 2 / 48) * (1 - 0) := by
+          have : 0 ≤ (rr ^ 2) ^ 3 := by positivity
+          nlinarith only [this]
+        linarith only [h1, hIm]
+      have hexp_cut : Real.exp (-((rr ^ 2) ^ 3 / 4)) ≤ 32 / p.s_cut ^ (9 / 2 : ℝ) * c' ^ (-(3 / 2 : ℝ)) := by
+        rw [hrr2]; exact exp_neg_Rcut_cube_div_four_le p.hs_pos hcpos hlam_pos hlc hRcut1'
+      exact (Real.exp_le_exp.mpr h_im_le).trans hexp_cut
     have ht1 : ‖-(N1 * (P0 * e0))‖ ≤ (1 / √π) * ((16 * (2 * Cb) / p.s_cut ^ (3 / 2 : ℝ)) *
         (32 / p.s_cut ^ (9 / 2 : ℝ) * c' ^ (-(3 / 2 : ℝ)))) := by
       rw [norm_neg, norm_mul, hN1n, norm_mul]
@@ -975,20 +980,26 @@ private lemma virSaddle_head_seg_join (p : VirSaddlePack)
         calc ‖P0‖ ≤ 16 * (2 * Cb) / rr ^ 3 := hbd0.1
           _ = 16 * (2 * Cb) * (1 / rr ^ 3) := by ring
           _ ≤ 16 * (2 * Cb) * p.s_cut ^ (-(3 / 2 : ℝ)) := by gcongr
-          _ = 16 * (2 * Cb) / p.s_cut ^ (3 / 2 : ℝ) := by rw [Real.rpow_neg p.hs_pos.le, div_eq_mul_inv]
-      gcongr
+          _ = 16 * (2 * Cb) / p.s_cut ^ (3 / 2 : ℝ) := by rw [Real.rpow_neg p.hs_pos.le, ← div_eq_mul_inv]
+      have hP0_nn : 0 ≤ 16 * (2 * Cb) / p.s_cut ^ (3 / 2 : ℝ) :=
+        div_nonneg (mul_nonneg (by norm_num) hCg0) (Real.rpow_nonneg p.hs_pos.le _)
+      exact mul_le_mul_of_nonneg_left (mul_le_mul hP0' he0_exp (norm_nonneg _) hP0_nn) (by positivity)
     have ht2 : ‖N1 * (1 / Complex.I * (Hq0 * e0))‖ ≤ (1 / √π) * ((1024 * (2 * Cb) / p.s_cut ^ (9 / 2 : ℝ)) *
         (32 / p.s_cut ^ (9 / 2 : ℝ) * c' ^ (-(3 / 2 : ℝ)))) := by
       rw [norm_mul, hN1n, norm_mul, norm_mul, hI1, one_mul]
       have hHq0' : ‖Hq0‖ ≤ 1024 * (2 * Cb) / p.s_cut ^ (9 / 2 : ℝ) := by
         have hc_le : c' ^ (-(3 / 2 : ℝ)) ≤ 1 := Real.rpow_le_one_of_one_le_of_nonpos hc1 (by norm_num)
+        have h9nn : 0 ≤ p.s_cut ^ (-(9 / 2 : ℝ)) := Real.rpow_nonneg p.hs_pos.le _
         calc ‖Hq0‖ ≤ 1024 * (2 * Cb) / rr ^ 9 := hbd0.2
           _ = 1024 * (2 * Cb) * (1 / rr ^ 9) := by ring
           _ = 1024 * (2 * Cb) * (p.s_cut ^ (-(9 / 2 : ℝ)) * c' ^ (-(3 / 2 : ℝ))) := by rw [hRcut_pow9]
-          _ ≤ 1024 * (2 * Cb) * (p.s_cut ^ (-(9 / 2 : ℝ)) * 1) := by gcongr
+          _ ≤ 1024 * (2 * Cb) * (p.s_cut ^ (-(9 / 2 : ℝ)) * 1) :=
+              mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hc_le h9nn) (mul_nonneg (by norm_num) hCg0)
           _ = 1024 * (2 * Cb) / p.s_cut ^ (9 / 2 : ℝ) := by
-              rw [mul_one, Real.rpow_neg p.hs_pos.le, div_eq_mul_inv]
-      gcongr
+              rw [mul_one, Real.rpow_neg p.hs_pos.le, ← div_eq_mul_inv]
+      have hHq0_nn : 0 ≤ 1024 * (2 * Cb) / p.s_cut ^ (9 / 2 : ℝ) :=
+        div_nonneg (mul_nonneg (by norm_num) hCg0) (Real.rpow_nonneg p.hs_pos.le _)
+      exact mul_le_mul_of_nonneg_left (mul_le_mul hHq0' he0_exp (norm_nonneg _) hHq0_nn) (by positivity)
     have ht3 : ‖N1 * ((1 / Complex.I) ^ 2 * Qseg)‖ ≤
         (1 / √π) * (320000 * (2 * Cb) / p.s_cut ^ (9 / 2 : ℝ)) * c' ^ (-(3 / 2 : ℝ)) := by
       rw [norm_mul, hN1n, norm_mul, norm_pow, hI1, one_pow, one_mul]
