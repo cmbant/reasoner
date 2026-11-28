@@ -648,6 +648,7 @@ theorem cardyV_mul_jAiry_asymp (prob : FixedWeightProblem) {c t : ℕ → ℝ} {
       dsimp [amp]
       field_simp [hQ_pos.ne', xiStar_pos.ne', betaTip_pos.ne',
         (Real.sqrt_pos.mpr xiStar_pos).ne']
+      exact div_self (by rw [show -(4 * Real.pi * xiStar) = -4 * Real.pi * xiStar by ring]; exact hQ_pos.ne')
     rwa [heq1] at hprod
   have hexp_ratio : Tendsto (fun n => Real.exp (-(Real.pi / (3 * xiStar)) * (c n * (x n - xiStar) ^ 2)))
       atTop (𝓝 1) := by

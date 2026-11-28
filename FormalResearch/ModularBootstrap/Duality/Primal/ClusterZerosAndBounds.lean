@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.ModularBootstrap.Duality.Primal.ClusterCharts
+public import FormalResearch.SignUncertainty.RadialRigidity
 
 /-!
 # Window Cardy ratios, extremal zero orders, and exponential chord bounds for PA2
@@ -18,7 +19,7 @@ Companion to `ClusterCharts.lean`:
 @[expose] public section
 
 open Complex MeasureTheory Filter Topology Metric Set
-open scoped Real ENNReal
+open scoped Real ENNReal Polynomial
 
 namespace FormalResearch.ModularBootstrap.FixedWeight
 
@@ -30,9 +31,11 @@ open FormalResearch.ModularBootstrap FormalResearch.ModularBootstrap.Crossing
 
 /-! ### 1. Uniform Cardy-Jacobian ratio on fixed Airy windows -/
 
+private noncomputable def cardyVPref (prob : FixedWeightProblem) (y : ℝ) : ℝ :=
+  prob.nullPoly (Real.exp (-4 * Real.pi * y)) * (2 * y) ^ (prob.w - 1) * Real.sqrt y
+
 private lemma cardyV_pref_continuousAt (prob : FixedWeightProblem) :
-    ContinuousAt (fun y : ℝ =>
-      prob.nullPoly (Real.exp (-4 * Real.pi * y)) * (2 * y) ^ (prob.w - 1) * Real.sqrt y) xiStar := by
+    ContinuousAt (cardyVPref prob) xiStar := by
   have hQ : Continuous (fun y : ℝ => prob.nullPoly (Real.exp (-4 * Real.pi * y))) := by
     have heq : (fun y : ℝ => prob.nullPoly (Real.exp (-4 * Real.pi * y))) =
         fun y : ℝ => (nullPolyExpC prob (Complex.ofReal y)).re := by
@@ -40,13 +43,140 @@ private lemma cardyV_pref_continuousAt (prob : FixedWeightProblem) :
     rw [heq]
     exact Complex.continuous_re.comp ((nullPolyExpC_entire prob).continuous.comp Complex.continuous_ofReal)
   exact ((hQ.continuousAt.mul (((continuous_const.mul continuous_id).pow _).continuousAt)).mul
-    continuous_sqrt.continuousAt)
+    Real.continuous_sqrt.continuousAt)
+
+private lemma cardyV_mul_jAiry_pt_band (prob : FixedWeightProblem)
+    {C_V c y u η δ_f : ℝ}
+    (hcm : max 1 (24 * prob.totalShift) ≤ c) (hcpos : 0 < c)
+    (hV_as : ∀ {c' x : ℝ}, max 1 (24 * prob.totalShift) ≤ c' → xiStar / 2 ≤ x →
+      |prob.cardyV (c' / 12) (c' * x ^ 2 / 3) /
+          ((2 * x) ^ (prob.w - 1) * besselAs (c' * (2 * Real.pi * x / 3))) -
+        prob.nullPoly (Real.exp (-4 * Real.pi * x))| ≤ C_V / c')
+    (hq_bds : ∀ {x : ℝ}, xiStar / 2 ≤ x →
+      prob.nullPoly (Real.exp (-4 * Real.pi * (xiStar / 2))) ≤
+        prob.nullPoly (Real.exp (-4 * Real.pi * x)) ∧
+      prob.nullPoly (Real.exp (-4 * Real.pi * x)) ≤ 1)
+    (hCV : C_V / c ≤ prob.nullPoly (Real.exp (-4 * Real.pi * (xiStar / 2))) * η)
+    (hη_pos : 0 < η) (hη_lt : η ≤ 1 / 4)
+    (hδf : ∀ ⦃x : ℝ⦄, dist x xiStar < δ_f →
+      dist (cardyVPref prob x) (cardyVPref prob xiStar) < η * cardyVPref prob xiStar)
+    (hy : 0 < y) (hu_half : xiStar / 2 ≤ u) (hu_δ : |u - xiStar| < δ_f) (huy : u ^ 2 * c / 3 = y) :
+    (1 - η) * (1 - η) * (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+      c ^ ((1 : ℝ) / 3) * cardyVPref prob xiStar * Real.exp (c * (2 * Real.pi * u / 3))) ≤
+    prob.cardyV (c / 12) y * jAiry c y ∧
+    prob.cardyV (c / 12) y * jAiry c y ≤
+    (1 + η) * (1 + η) * (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+      c ^ ((1 : ℝ) / 3) * cardyVPref prob xiStar * Real.exp (c * (2 * Real.pi * u / 3))) := by
+  have hu_pos : 0 < u := lt_of_lt_of_le (half_pos xiStar_pos) hu_half
+  have hf_close : |cardyVPref prob u - cardyVPref prob xiStar| < η * cardyVPref prob xiStar := by
+    simpa only [Real.dist_eq] using hδf hu_δ
+  have hf_bounds : (1 - η) * cardyVPref prob xiStar ≤ cardyVPref prob u ∧
+      cardyVPref prob u ≤ (1 + η) * cardyVPref prob xiStar := by
+    have h := abs_lt.mp hf_close
+    constructor <;> nlinarith
+  have hV := hV_as hcm hu_half
+  rw [show c * u ^ 2 / 3 = y by linarith] at hV
+  have hq_u := (hq_bds hu_half).1
+  have hV_rel : (1 - η) * prob.nullPoly (Real.exp (-4 * Real.pi * u)) ≤
+      prob.cardyV (c / 12) y / ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3))) ∧
+      prob.cardyV (c / 12) y / ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3))) ≤
+      (1 + η) * prob.nullPoly (Real.exp (-4 * Real.pi * u)) := by
+    have hCV' : C_V / c ≤ η * prob.nullPoly (Real.exp (-4 * Real.pi * u)) :=
+      hCV.trans (by rw [mul_comm]; exact mul_le_mul_of_nonneg_left hq_u hη_pos.le)
+    have hlo : -(C_V / c) ≤
+        prob.cardyV (c / 12) y / ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3))) -
+          prob.nullPoly (Real.exp (-4 * Real.pi * u)) := (abs_le.mp hV).1
+    have hhi :
+        prob.cardyV (c / 12) y / ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3))) -
+          prob.nullPoly (Real.exp (-4 * Real.pi * u)) ≤ C_V / c := (abs_le.mp hV).2
+    refine ⟨?_, ?_⟩
+    · have h1 := (neg_le_neg hCV').trans hlo; linarith only [h1]
+    · have h2 := hhi.trans hCV'; linarith only [h2]
+  have hbessel : besselAs (c * (2 * Real.pi * u / 3)) =
+      Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3)) := by
+    unfold besselAs
+    have hsq : Real.sqrt (2 * Real.pi * (c * (2 * Real.pi * u / 3))) =
+        2 * Real.pi * Real.sqrt c * Real.sqrt u / Real.sqrt 3 := by
+      have e1 : 2 * Real.pi * (c * (2 * Real.pi * u / 3)) = (2 * Real.pi) ^ 2 * (c * u) / 3 := by ring
+      have hdiv := Real.sqrt_div (mul_nonneg (sq_nonneg (2 * Real.pi)) (mul_nonneg hcpos.le hu_pos.le)) 3
+      rw [e1, hdiv, Real.sqrt_mul (sq_nonneg _), Real.sqrt_sq (by positivity), Real.sqrt_mul hcpos.le]
+      ring
+    rw [hsq]; simp only [div_eq_mul_inv, mul_inv, inv_inv]; ring
+  have hJ : jAiry c y = 2 * u * c ^ ((1 : ℝ) / 3) / (3 * betaTip) := by
+    have hsq : Real.sqrt (3 * y / c) = u := by
+      have h3y : 3 * y / c = u ^ 2 := by rw [← huy]; field_simp [hcpos.ne']
+      rw [h3y, Real.sqrt_sq hu_pos.le]
+    have hj : jAiry c y = 2 * Real.sqrt (3 * y / c) * c ^ ((1 : ℝ) / 3) / (3 * betaTip) := rfl
+    rw [hj, hsq]
+  have hden_pos : 0 < (2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3)) :=
+    mul_pos (pow_pos (by positivity) _) (besselAs_pos (by positivity))
+  have hV_eq : prob.cardyV (c / 12) y * jAiry c y =
+      (prob.cardyV (c / 12) y / ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3)))) *
+      ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3)) * jAiry c y) := by
+    rw [← mul_assoc, div_mul_cancel₀ _ hden_pos.ne']
+  have hfac_eq : (2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3)) * jAiry c y =
+      2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+        c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3)) := by
+    rw [hbessel, hJ]
+    have hsq : Real.sqrt u * Real.sqrt u = u := Real.mul_self_sqrt hu_pos.le
+    have hu_div : u / Real.sqrt u = Real.sqrt u :=
+      (div_eq_iff (Real.sqrt_pos.mpr hu_pos).ne').mpr hsq.symm
+    calc (2 * u) ^ (prob.w - 1) *
+          (Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3))) *
+          (2 * u * c ^ ((1 : ℝ) / 3) / (3 * betaTip))
+        = (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) * c ^ ((1 : ℝ) / 3)) *
+            ((2 * u) ^ (prob.w - 1) * (u / Real.sqrt u)) * Real.exp (c * (2 * Real.pi * u / 3)) := by ring
+      _ = 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+            c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3)) := by
+          rw [hu_div]
+  have htail_nn : 0 ≤ 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+      c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3)) := by
+    rw [← hfac_eq]; exact (mul_pos hden_pos (jAiry_pos hcpos hy)).le
+  have hbase_nn : 0 ≤ 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+      c ^ ((1 : ℝ) / 3) * Real.exp (c * (2 * Real.pi * u / 3)) := by
+    have := betaTip_pos
+    exact mul_nonneg (mul_nonneg (div_nonneg (by positivity) (by positivity))
+      (Real.rpow_nonneg hcpos.le _)) (Real.exp_pos _).le
+  have hf_def : prob.nullPoly (Real.exp (-4 * Real.pi * u)) * (2 * u) ^ (prob.w - 1) * Real.sqrt u =
+      cardyVPref prob u := rfl
+  rw [hV_eq, hfac_eq]
+  constructor
+  · calc (1 - η) * (1 - η) * (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+            c ^ ((1 : ℝ) / 3) * cardyVPref prob xiStar * Real.exp (c * (2 * Real.pi * u / 3)))
+        = 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+            c ^ ((1 : ℝ) / 3) * Real.exp (c * (2 * Real.pi * u / 3)) * ((1 - η) * ((1 - η) * cardyVPref prob xiStar)) := by ring
+      _ ≤ 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+            c ^ ((1 : ℝ) / 3) * Real.exp (c * (2 * Real.pi * u / 3)) * ((1 - η) * cardyVPref prob u) :=
+          mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hf_bounds.1 (by linarith)) hbase_nn
+      _ = ((1 - η) * prob.nullPoly (Real.exp (-4 * Real.pi * u))) *
+            (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+              c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3))) := by
+          rw [← hf_def]; ring
+      _ ≤ (prob.cardyV (c / 12) y / ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3)))) *
+            (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+              c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3))) :=
+          mul_le_mul_of_nonneg_right hV_rel.1 htail_nn
+  · calc (prob.cardyV (c / 12) y / ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3)))) *
+          (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+            c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3)))
+        ≤ ((1 + η) * prob.nullPoly (Real.exp (-4 * Real.pi * u))) *
+            (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+              c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3))) :=
+          mul_le_mul_of_nonneg_right hV_rel.2 htail_nn
+      _ = 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+            c ^ ((1 : ℝ) / 3) * Real.exp (c * (2 * Real.pi * u / 3)) * ((1 + η) * cardyVPref prob u) := by
+          rw [← hf_def]; ring
+      _ ≤ 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+            c ^ ((1 : ℝ) / 3) * Real.exp (c * (2 * Real.pi * u / 3)) * ((1 + η) * ((1 + η) * cardyVPref prob xiStar)) :=
+          mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hf_bounds.2 (by linarith)) hbase_nn
+      _ = (1 + η) * (1 + η) * (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+            c ^ ((1 : ℝ) / 3) * cardyVPref prob xiStar * Real.exp (c * (2 * Real.pi * u / 3))) := by ring
 
 /-- Uniform Cardy-Jacobian ratio on any bounded `uAiry` window `|uAiry c t| ≤ M`:
 the non-exponential ratio tends uniformly to `1`, and the exponential factor
 `exp(c * (2π / 3) * (√(3t/c) - √(3t₀/c)))` has log bounded by `q_n |t - t₀|` where
 `q_n = π / √(3 * t_min / c) → π / ξ_*`. -/
-theorem cardyV_mul_jAiry_window_ratio (prob : FixedWeightProblem) {M : ℝ} (hM : 0 ≤ M) :
+theorem cardyV_mul_jAiry_window_ratio (prob : FixedWeightProblem) {M : ℝ} (_hM : 0 ≤ M) :
     ∀ ε > 0, ∃ c₀ : ℝ, max 1 (24 * prob.totalShift) ≤ c₀ ∧
       ∀ {c t t₀ : ℝ}, c₀ ≤ c → 0 < t → 0 < t₀ → |uAiry c t| ≤ M → |uAiry c t₀| ≤ M →
         let x := Real.sqrt (3 * t / c)
@@ -60,13 +190,16 @@ theorem cardyV_mul_jAiry_window_ratio (prob : FixedWeightProblem) {M : ℝ} (hM 
   intro ε hε
   obtain ⟨C_V, _, hV_as⟩ := cardyV_asymptotic_real prob (half_pos xiStar_pos)
   obtain ⟨hq0_pos, hq_bds⟩ := nullPoly_exp_bounds prob (half_pos xiStar_pos)
-  let f : ℝ → ℝ := fun y =>
-    prob.nullPoly (Real.exp (-4 * Real.pi * y)) * (2 * y) ^ (prob.w - 1) * Real.sqrt y
-  have hf_pos : 0 < f xiStar := by
-    have hq : hq0_pos ≤ prob.nullPoly (Real.exp (-4 * Real.pi * xiStar)) :=
+  let q₀ := prob.nullPoly (Real.exp (-4 * Real.pi * (xiStar / 2)))
+  change 0 < q₀ at hq0_pos
+  have hf_pos : 0 < cardyVPref prob xiStar := by
+    have hq : q₀ ≤ prob.nullPoly (Real.exp (-4 * Real.pi * xiStar)) :=
       (hq_bds (by linarith [xiStar_pos])).1
     have hxi := xiStar_pos
-    dsimp [f]; positivity
+    have hq_pos : 0 < prob.nullPoly (Real.exp (-4 * Real.pi * xiStar)) := hq0_pos.trans_le hq
+    have hpow : 0 < (2 * xiStar) ^ (prob.w - 1) := pow_pos (by positivity) _
+    have hrt : 0 < Real.sqrt xiStar := Real.sqrt_pos.mpr hxi
+    dsimp [cardyVPref]; exact mul_pos (mul_pos hq_pos hpow) hrt
   -- Choose `δ₁` so that `|a / b - 1| ≤ ε` whenever `|a - 1| ≤ δ₁`, `|b - 1| ≤ δ₁`, and `|u - 1| ≤ δ₁`, `|v - 1| ≤ δ₁`.
   -- Specifically `(a * u) / (b * v) - 1`: if `1 - η ≤ a, u, b, v ≤ 1 + η` with `η < 1/4`,
   -- then `(1 - η)² / (1 + η)² ≤ (a*u)/(b*v) ≤ (1 + η)² / (1 - η)²`.
@@ -86,19 +219,26 @@ theorem cardyV_mul_jAiry_window_ratio (prob : FixedWeightProblem) {M : ℝ} (hM 
     obtain ⟨d₁, hd₁, hd₁p⟩ := h1
     obtain ⟨d₂, hd₂, hd₂p⟩ := h2
     let η := min (1 / 4) (min (d₁ / 2) (d₂ / 2))
-    refine ⟨η, by positivity, min_le_left _ _, ?_, ?_⟩
-    · have hh1 := hd₁p (by rw [Real.dist_eq, sub_zero, abs_of_pos (by positivity)]; exact lt_of_le_of_lt (min_le_right _ _ |>.trans (min_le_left _ _)) (by linarith))
+    have hη_pos : 0 < η := by positivity
+    refine ⟨η, hη_pos, min_le_left _ _, ?_, ?_⟩
+    · have hh1 := hd₁p (show dist η 0 < d₁ by
+        rw [Real.dist_eq, sub_zero, abs_of_pos hη_pos]
+        exact (min_le_right _ _ |>.trans (min_le_left _ _)).trans_lt (by linarith))
       rw [Real.dist_eq] at hh1; simp at hh1; linarith [(abs_lt.mp hh1).2]
-    · have hh2 := hd₂p (by rw [Real.dist_eq, sub_zero, abs_of_pos (by positivity)]; exact lt_of_le_of_lt (min_le_right _ _ |>.trans (min_le_right _ _)) (by linarith))
+    · have hh2 := hd₂p (show dist η 0 < d₂ by
+        rw [Real.dist_eq, sub_zero, abs_of_pos hη_pos]
+        exact (min_le_right _ _ |>.trans (min_le_right _ _)).trans_lt (by linarith))
       rw [Real.dist_eq] at hh2; simp at hh2; linarith [(abs_lt.mp hh2).2]
-  obtain ⟨δ_f, hδf_pos, hδf⟩ := Metric.continuousAt_iff.mp (cardyV_pref_continuousAt prob) (η * f xiStar) (by positivity)
+  obtain ⟨δ_f, hδf_pos, hδf⟩ := Metric.continuousAt_iff.mp (cardyV_pref_continuousAt prob)
+    (η * cardyVPref prob xiStar) (by positivity)
   have hx_tend : Tendsto (fun c : ℝ => M / (betaTip * c ^ ((2 : ℝ) / 3))) atTop (𝓝 0) := by
     simpa using ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 2 / 3)).const_mul (M / betaTip)).congr'
       (by filter_upwards [eventually_gt_atTop (0 : ℝ)] with c hc; rw [Real.rpow_neg hc.le]; ring)
   have h1 : ∀ᶠ c : ℝ in atTop, M / (betaTip * c ^ ((2 : ℝ) / 3)) < min (xiStar / 2) δ_f :=
-    hx_tend.eventually (gt_mem_nhds (by have := xiStar_pos; positivity))
-  have h2 : ∀ᶠ c : ℝ in atTop, C_V / c ≤ hq0_pos * η :=
-    (tendsto_const_nhds.div_atTop tendsto_id).eventually (le_mem_nhds (by positivity))
+    hx_tend.eventually (gt_mem_nhds (lt_min (half_pos xiStar_pos) hδf_pos))
+  have h2 : ∀ᶠ c : ℝ in atTop, C_V / c ≤ q₀ * η :=
+    ((tendsto_const_nhds (x := C_V)).div_atTop tendsto_id).eventually
+      (ge_mem_nhds (mul_pos hq0_pos hη_pos))
   have h3 : ∀ᶠ c : ℝ in atTop,
       Real.pi / (xiStar - M / (betaTip * c ^ ((2 : ℝ) / 3))) - Real.pi / xiStar ≤ ε ∧
       Real.pi / xiStar - Real.pi / (xiStar + M / (betaTip * c ^ ((2 : ℝ) / 3))) ≤ ε := by
@@ -106,15 +246,17 @@ theorem cardyV_mul_jAiry_window_ratio (prob : FixedWeightProblem) {M : ℝ} (hM 
         Real.pi / xiStar) atTop (𝓝 0) := by
       have hd : Tendsto (fun c : ℝ => Real.pi / (xiStar - M / (betaTip * c ^ ((2 : ℝ) / 3))))
           atTop (𝓝 (Real.pi / xiStar)) :=
-        tendsto_const_nhds.div (by simpa using tendsto_const_nhds.sub hx_tend) xiStar_pos.ne'
-      simpa using hd.sub tendsto_const_nhds
+        tendsto_const_nhds.div (by simpa only [sub_zero] using tendsto_const_nhds.sub hx_tend)
+          xiStar_pos.ne'
+      simpa only [sub_self] using hd.sub_const (Real.pi / xiStar)
     have hhi : Tendsto (fun c : ℝ => Real.pi / xiStar -
         Real.pi / (xiStar + M / (betaTip * c ^ ((2 : ℝ) / 3)))) atTop (𝓝 0) := by
       have hd : Tendsto (fun c : ℝ => Real.pi / (xiStar + M / (betaTip * c ^ ((2 : ℝ) / 3))))
           atTop (𝓝 (Real.pi / xiStar)) :=
-        tendsto_const_nhds.div (by simpa using tendsto_const_nhds.add hx_tend) xiStar_pos.ne'
-      simpa using tendsto_const_nhds.sub hd
-    exact (hlo.eventually (le_mem_nhds hε)).and (hhi.eventually (le_mem_nhds hε))
+        tendsto_const_nhds.div (by simpa only [add_zero] using tendsto_const_nhds.add hx_tend)
+          xiStar_pos.ne'
+      simpa only [sub_self] using (tendsto_const_nhds (x := Real.pi / xiStar)).sub hd
+    exact (hlo.eventually (ge_mem_nhds hε)).and (hhi.eventually (ge_mem_nhds hε))
   obtain ⟨c₁, hc₁⟩ := eventually_atTop.mp (h1.and (h2.and h3))
   refine ⟨max c₁ (max 1 (24 * prob.totalShift)), le_max_right _ _,
     fun {c t t₀} hc ht ht₀ hut hut₀ => ?_⟩
@@ -131,9 +273,9 @@ theorem cardyV_mul_jAiry_window_ratio (prob : FixedWeightProblem) {M : ℝ} (hM 
     have heq : Real.sqrt (3 * y / c) - xiStar = -uAiry c y / (betaTip * c ^ ((2 : ℝ) / 3)) := by
       unfold uAiry
       have hp : c ^ ((2 : ℝ) / 3) ≠ 0 := (Real.rpow_pos_of_pos hcpos _).ne'
-      field_simp [betaTip_pos.ne', hp]; ring
+      field_simp [betaTip_pos.ne', hp]
     rw [heq, abs_div, abs_neg, abs_of_pos (mul_pos betaTip_pos (Real.rpow_pos_of_pos hcpos _))]
-    exact div_le_div_of_nonneg_right hy (by positivity)
+    exact div_le_div_of_nonneg_right hy (mul_pos betaTip_pos (Real.rpow_pos_of_pos hcpos _)).le
   have hx_err := hbd_x rfl hut
   have hx₀_err := hbd_x rfl hut₀
   have hx_half : xiStar / 2 ≤ x := by linarith [(abs_le.mp hx_err).1, min_le_left (xiStar / 2) δ_f]
@@ -166,127 +308,23 @@ theorem cardyV_mul_jAiry_window_ratio (prob : FixedWeightProblem) {M : ℝ} (hM 
     have hsum_pos : 0 < x + x₀ := by linarith
     have heq : c * (2 * Real.pi / 3) * (x - x₀) = (2 * Real.pi / (x + x₀)) * (t - t₀) := by
       have := eq_div_of_mul_eq hsum_pos.ne' hmul
-      rw [this]; field_simp [hcpos.ne', hsum_pos.ne']; ring
+      rw [this]; field_simp [hcpos.ne', hsum_pos.ne']
     have h2pi : 2 * Real.pi / (x + x₀) ≤ q := by
       have hm : 2 * min x x₀ ≤ x + x₀ := by linarith [min_le_left x x₀, min_le_right x x₀]
       have hdiv := div_le_div_of_nonneg_left (by positivity : 0 ≤ 2 * Real.pi)
         (by positivity : 0 < 2 * min x x₀) hm
-      rwa [show 2 * Real.pi / (2 * min x x₀) = q by dsimp [q]; field_simp; ring] at hdiv
+      rwa [show 2 * Real.pi / (2 * min x x₀) = q by dsimp [q]; field_simp] at hdiv
     rw [heq, abs_mul, abs_of_pos (by positivity : 0 < 2 * Real.pi / (x + x₀))]
     exact mul_le_mul_of_nonneg_right h2pi (abs_nonneg _)
   -- Prefactor and asymptotic error control
-  have hpt_bd : ∀ {y u : ℝ}, 0 < y → xiStar / 2 ≤ u → |u - xiStar| ≤ M / (betaTip * c ^ ((2 : ℝ) / 3)) →
-      u ^ 2 * c / 3 = y →
-      (1 - η) * (1 - η) * (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-        c ^ ((1 : ℝ) / 3) * f xiStar * Real.exp (c * (2 * Real.pi * u / 3))) ≤
-      prob.cardyV (c / 12) y * jAiry c y ∧
-      prob.cardyV (c / 12) y * jAiry c y ≤
-      (1 + η) * (1 + η) * (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-        c ^ ((1 : ℝ) / 3) * f xiStar * Real.exp (c * (2 * Real.pi * u / 3))) := by
-    intro y u hy hu_half hu_err huy
-    have hu_pos : 0 < u := lt_of_lt_of_le (half_pos xiStar_pos) hu_half
-    have hu_δ : |u - xiStar| < δ_f := hu_err.trans_lt (hMx.trans_le (min_le_right _ _))
-    have hf_close : |f u - f xiStar| < η * f xiStar := by
-      simpa only [Real.dist_eq] using hδf hu_δ
-    have hf_bounds : (1 - η) * f xiStar ≤ f u ∧ f u ≤ (1 + η) * f xiStar := by
-      have h := abs_lt.mp hf_close
-      constructor <;> nlinarith
-    have hV := hV_as hcm hu_half
-    rw [show c * u ^ 2 / 3 = y by linarith] at hV
-    have hq_u : hq0_pos ≤ prob.nullPoly (Real.exp (-4 * Real.pi * u)) := (hq_bds hu_half).1
-    have hQ_u_pos : 0 < prob.nullPoly (Real.exp (-4 * Real.pi * u)) := hq0_pos.trans_le hq_u
-    have hV_rel : (1 - η) * prob.nullPoly (Real.exp (-4 * Real.pi * u)) ≤
-        prob.cardyV (c / 12) y / ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3))) ∧
-        prob.cardyV (c / 12) y / ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3))) ≤
-        (1 + η) * prob.nullPoly (Real.exp (-4 * Real.pi * u)) := by
-      have h := abs_le.mp hV
-      have hCV' : C_V / c ≤ η * prob.nullPoly (Real.exp (-4 * Real.pi * u)) :=
-        hCV.trans (by gcongr)
-      constructor <;> linarith
-    have hbessel : besselAs (c * (2 * Real.pi * u / 3)) =
-        Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3)) := by
-      unfold besselAs
-      have hsq : Real.sqrt (2 * Real.pi * (c * (2 * Real.pi * u / 3))) =
-          2 * Real.pi * Real.sqrt c * Real.sqrt u / Real.sqrt 3 := by
-        have e1 : 2 * Real.pi * (c * (2 * Real.pi * u / 3)) = (2 * Real.pi) ^ 2 * (c * u) / 3 := by ring
-        rw [e1, Real.sqrt_div (by positivity), Real.sqrt_mul (sq_nonneg _),
-          Real.sqrt_sq (by positivity), Real.sqrt_mul hcpos.le]
-        ring
-      rw [hsq]; ring
-    have hJ : jAiry c y = 2 * u * c ^ ((1 : ℝ) / 3) / (3 * betaTip) := by
-      unfold jAiry
-      have : Real.sqrt (3 * y / c) = u := by
-        rw [← huy]; rw [show 3 * (u ^ 2 * c / 3) / c = u ^ 2 by field_simp [hcpos.ne']; ring,
-          Real.sqrt_sq hu_pos.le]
-      rw [this]
-    have hden_pos : 0 < (2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3)) :=
-      mul_pos (pow_pos (by positivity) _) (besselAs_pos (by positivity))
-    have hV_eq : prob.cardyV (c / 12) y * jAiry c y =
-        (prob.cardyV (c / 12) y / ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3)))) *
-        ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3)) * jAiry c y) := by
-      field_simp [hden_pos.ne']
-    have hfac_eq : (2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3)) * jAiry c y =
-        2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-          c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3)) := by
-      rw [hbessel, hJ]
-      have hsq : Real.sqrt u * Real.sqrt u = u := Real.mul_self_sqrt hu_pos.le
-      calc (2 * u) ^ (prob.w - 1) *
-            (Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3))) *
-            (2 * u * c ^ ((1 : ℝ) / 3) / (3 * betaTip))
-          = (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) * c ^ ((1 : ℝ) / 3)) *
-              ((2 * u) ^ (prob.w - 1) * (u / Real.sqrt u)) * Real.exp (c * (2 * Real.pi * u / 3)) := by ring
-        _ = 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-              c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3)) := by
-            have : u / Real.sqrt u = Real.sqrt u := by
-              field_simp [(Real.sqrt_pos.mpr hu_pos).ne']; exact hsq.symm
-            rw [this]
-    have hfac_pos : 0 < (2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3)) * jAiry c y := by
-      have : 0 < jAiry c y := jAiry_pos hcpos hy
-      exact mul_pos hden_pos this
-    have hc_base_pos : 0 < 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-        c ^ ((1 : ℝ) / 3) * Real.exp (c * (2 * Real.pi * u / 3)) := by
-      have := betaTip_pos; positivity
-    have hmul_const : ∀ z : ℝ, z * (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-        c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3))) =
-        2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) * c ^ ((1 : ℝ) / 3) *
-        (z * (2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3)) := by
-      intro z; ring
-    have hf_def : prob.nullPoly (Real.exp (-4 * Real.pi * u)) * (2 * u) ^ (prob.w - 1) * Real.sqrt u = f u := rfl
-    rw [hV_eq, hfac_eq]
-    constructor
-    · calc (1 - η) * (1 - η) * (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-              c ^ ((1 : ℝ) / 3) * f xiStar * Real.exp (c * (2 * Real.pi * u / 3)))
-          = 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-              c ^ ((1 : ℝ) / 3) * ((1 - η) * ((1 - η) * f xiStar)) * Real.exp (c * (2 * Real.pi * u / 3)) := by ring
-        _ ≤ 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-              c ^ ((1 : ℝ) / 3) * ((1 - η) * f u) * Real.exp (c * (2 * Real.pi * u / 3)) := by
-            gcongr; linarith [hη_lt]
-        _ = ((1 - η) * prob.nullPoly (Real.exp (-4 * Real.pi * u))) *
-              (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-                c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3))) := by
-            rw [← hf_def]; ring
-        _ ≤ (prob.cardyV (c / 12) y / ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3)))) *
-              (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-                c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3))) := by
-            gcongr; rw [← hfac_eq]; exact hfac_pos.le
-    · calc (prob.cardyV (c / 12) y / ((2 * u) ^ (prob.w - 1) * besselAs (c * (2 * Real.pi * u / 3)))) *
-            (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-              c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3)))
-          ≤ ((1 + η) * prob.nullPoly (Real.exp (-4 * Real.pi * u))) *
-              (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-                c ^ ((1 : ℝ) / 3) * ((2 * u) ^ (prob.w - 1) * Real.sqrt u) * Real.exp (c * (2 * Real.pi * u / 3))) := by
-            gcongr; rw [← hfac_eq]; exact hfac_pos.le
-        _ = 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-              c ^ ((1 : ℝ) / 3) * ((1 + η) * f u) * Real.exp (c * (2 * Real.pi * u / 3)) := by
-            rw [← hf_def]; ring
-        _ ≤ 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-              c ^ ((1 : ℝ) / 3) * ((1 + η) * ((1 + η) * f xiStar)) * Real.exp (c * (2 * Real.pi * u / 3)) := by
-            gcongr; linarith [hη_pos]
-        _ = (1 + η) * (1 + η) * (2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
-              c ^ ((1 : ℝ) / 3) * f xiStar * Real.exp (c * (2 * Real.pi * u / 3))) := by ring
-  have h1 := hpt_bd ht hx_half hx_err (by rw [Real.sq_sqrt (by positivity)]; field_simp [hcpos.ne']; ring)
-  have h0 := hpt_bd ht₀ hx₀_half hx₀_err (by rw [Real.sq_sqrt (by positivity)]; field_simp [hcpos.ne']; ring)
-  let B := 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) * c ^ ((1 : ℝ) / 3) * f xiStar
+  have h1 := cardyV_mul_jAiry_pt_band prob hcm hcpos hV_as hq_bds hCV hη_pos hη_lt hδf ht hx_half
+    (hx_err.trans_lt (hMx.trans_le (min_le_right _ _)))
+    (by rw [Real.sq_sqrt (by positivity)]; field_simp [hcpos.ne'])
+  have h0 := cardyV_mul_jAiry_pt_band prob hcm hcpos hV_as hq_bds hCV hη_pos hη_lt hδf ht₀ hx₀_half
+    (hx₀_err.trans_lt (hMx.trans_le (min_le_right _ _)))
+    (by rw [Real.sq_sqrt (by positivity)]; field_simp [hcpos.ne'])
+  let B := 2 * Real.sqrt 3 / (2 * Real.pi * Real.sqrt c * 3 * betaTip) *
+    c ^ ((1 : ℝ) / 3) * cardyVPref prob xiStar
   have hB_pos : 0 < B := by have := betaTip_pos; positivity
   have hden_pos : 0 < prob.cardyV (c / 12) t₀ * jAiry c t₀ :=
     mul_pos (prob.cardyV_pos (by linarith [le_max_right (1 : ℝ) (24 * prob.totalShift)]) ht₀) (jAiry_pos hcpos ht₀)
@@ -308,18 +346,14 @@ theorem cardyV_mul_jAiry_window_ratio (prob : FixedWeightProblem) {M : ℝ} (hM 
         rw [← Real.exp_sub, ← Real.exp_add,
           show c * (2 * Real.pi * x / 3) - c * (2 * Real.pi * x₀ / 3) + -(c * (2 * Real.pi / 3) * (x - x₀)) = 0 by ring,
           Real.exp_zero]
-      field_simp [hB_pos.ne', (show 1 + η ≠ 0 by linarith)]
-      linarith [show ((1 - η) ^ 2 * (B * Real.exp (c * (2 * Real.pi * x / 3))) *
-          Real.exp (-(c * (2 * Real.pi / 3) * (x - x₀)))) /
-          (B * Real.exp (c * (2 * Real.pi * x₀ / 3))) = (1 - η) ^ 2 by
-        calc ((1 - η) ^ 2 * (B * Real.exp (c * (2 * Real.pi * x / 3))) *
-              Real.exp (-(c * (2 * Real.pi / 3) * (x - x₀)))) /
-              (B * Real.exp (c * (2 * Real.pi * x₀ / 3)))
-            = (1 - η) ^ 2 * (Real.exp (c * (2 * Real.pi * x / 3)) /
-                Real.exp (c * (2 * Real.pi * x₀ / 3)) *
-                Real.exp (-(c * (2 * Real.pi / 3) * (x - x₀)))) := by
-              field_simp [hB_pos.ne']
-          _ = (1 - η) ^ 2 := by rw [hexp, mul_one]]
+      calc ((1 - η) / (1 + η)) ^ 2
+          = ((1 - η) / (1 + η)) ^ 2 *
+              (Real.exp (c * (2 * Real.pi * x / 3)) / Real.exp (c * (2 * Real.pi * x₀ / 3)) *
+                Real.exp (-(c * (2 * Real.pi / 3) * (x - x₀)))) := by rw [hexp, mul_one]
+        _ = ((1 - η) * (1 - η) * (B * Real.exp (c * (2 * Real.pi * x / 3)))) /
+              ((1 + η) * (1 + η) * (B * Real.exp (c * (2 * Real.pi * x₀ / 3)))) *
+              Real.exp (-(c * (2 * Real.pi / 3) * (x - x₀))) := by
+            field_simp [hB_pos.ne', (show 1 + η ≠ 0 by linarith)]
     rw [he1]
     exact mul_le_mul_of_nonneg_right
       (div_le_div₀ (by positivity) hnum_l hden_pos hden_u) (Real.exp_pos _).le
@@ -338,19 +372,19 @@ theorem cardyV_mul_jAiry_window_ratio (prob : FixedWeightProblem) {M : ℝ} (hM 
         rw [← Real.exp_sub, ← Real.exp_add,
           show c * (2 * Real.pi * x / 3) - c * (2 * Real.pi * x₀ / 3) + -(c * (2 * Real.pi / 3) * (x - x₀)) = 0 by ring,
           Real.exp_zero]
-      field_simp [hB_pos.ne', (show 1 - η ≠ 0 by linarith)]
-      calc ((1 + η) ^ 2 * (B * Real.exp (c * (2 * Real.pi * x / 3))) *
-            Real.exp (-(c * (2 * Real.pi / 3) * (x - x₀)))) /
-            (B * Real.exp (c * (2 * Real.pi * x₀ / 3)))
-          = (1 + η) ^ 2 * (Real.exp (c * (2 * Real.pi * x / 3)) /
-              Real.exp (c * (2 * Real.pi * x₀ / 3)) *
-              Real.exp (-(c * (2 * Real.pi / 3) * (x - x₀)))) := by
-            field_simp [hB_pos.ne']
-        _ = (1 + η) ^ 2 := by rw [hexp, mul_one]
+      calc ((1 + η) / (1 - η)) ^ 2
+          = ((1 + η) / (1 - η)) ^ 2 *
+              (Real.exp (c * (2 * Real.pi * x / 3)) / Real.exp (c * (2 * Real.pi * x₀ / 3)) *
+                Real.exp (-(c * (2 * Real.pi / 3) * (x - x₀)))) := by rw [hexp, mul_one]
+        _ = ((1 + η) * (1 + η) * (B * Real.exp (c * (2 * Real.pi * x / 3)))) /
+              ((1 - η) * (1 - η) * (B * Real.exp (c * (2 * Real.pi * x₀ / 3)))) *
+              Real.exp (-(c * (2 * Real.pi / 3) * (x - x₀))) := by
+            field_simp [hB_pos.ne', (show 1 - η ≠ 0 by linarith)]
     rw [he1]
+    have hden_pos' : 0 < (1 - η) * (1 - η) * (B * Real.exp (c * (2 * Real.pi * x₀ / 3))) :=
+      mul_pos (mul_pos (by linarith) (by linarith)) (mul_pos hB_pos (Real.exp_pos _))
     exact mul_le_mul_of_nonneg_right
-      (div_le_div₀ (by positivity) hnum_u (by have : 0 < 1 - η := by linarith; positivity) hden_l)
-      (Real.exp_pos _).le
+      (div_le_div₀ (by positivity) hnum_u hden_pos' hden_l) (Real.exp_pos _).le
   exact ⟨hx_half, hx₀_half, abs_le.mpr ⟨by linarith, by linarith⟩, hexp_diff, hq_bd⟩
 
 /-! ### 2. Complex zeros & multiplicities of Airy and HB extremals -/
@@ -361,10 +395,9 @@ lemma airyExtremal_eq_zero_iff (z : ℂ) :
   by_cases h1 : z = (airyZero 1 : ℂ)
   · subst h1
     refine ⟨fun _ => ⟨1, le_rfl, rfl⟩, fun _ => ?_⟩
-    rw [HermiteBiehlerData.airy_eq_zero_one]
-  · unfold airyExtremal
-    have hne : z - (airyZero 1 : ℂ) ≠ 0 := sub_ne_zero.mpr h1
-    rw [neg_div, neg_eq_zero, div_eq_zero_iff, sq_eq_zero_iff]
+    exact HermiteBiehlerData.airy.G_eq_zero_on_S _ HermiteBiehlerData.airy.tm_mem
+  · have hne : z - (airyZero 1 : ℂ) ≠ 0 := sub_ne_zero.mpr h1
+    rw [airyExtremal_eq h1, neg_eq_zero, div_eq_zero_iff, sq_eq_zero_iff]
     refine ⟨fun h => ?_, fun ⟨k, hk, hzk⟩ => ?_⟩
     · rcases h with hAi | hsub
       · exact (airyAiC_eq_zero_iff z).mp hAi
@@ -374,34 +407,63 @@ lemma airyExtremal_eq_zero_iff (z : ℂ) :
 lemma airyProfile_eq_zero_iff (z : ℂ) :
     airyProfile z = 0 ↔ ∃ k : ℕ, 1 ≤ k ∧ z = (airyZero k : ℂ) := by
   unfold airyProfile normProfile
-  have hm : ((profileMass airyExtremal : ℝ) : ℂ) ≠ 0 :=
-    Complex.ofReal_ne_zero.mpr (airyExtremalProfile.mass_pos.ne')
-  rw [mul_eq_zero, inv_eq_zero, or_iff_right hm]
+  have hm : (((profileMass airyExtremal)⁻¹ : ℝ) : ℂ) ≠ 0 :=
+    Complex.ofReal_ne_zero.mpr (inv_ne_zero airyExtremalProfile.mass_pos.ne')
+  rw [mul_eq_zero, or_iff_right hm]
   exact airyExtremal_eq_zero_iff z
 
 lemma airyProfile_orderNat_one :
     analyticOrderNatAt airyProfile (airyZero 1 : ℂ) = 1 := by
-  have hm : ((profileMass airyExtremal : ℝ) : ℂ)⁻¹ ≠ 0 :=
-    inv_ne_zero (Complex.ofReal_ne_zero.mpr (airyExtremalProfile.mass_pos.ne'))
-  have heq : airyProfile = fun z => ((profileMass airyExtremal : ℝ) : ℂ)⁻¹ * airyExtremal z := rfl
-  rw [heq]
-  have ha := (analyticAt_const.analyticOrderAt_mul (differentiable_airyExtremal.analyticAt _))
-  have hord := (analyticAt_const (x := (airyZero 1 : ℂ)) (c := ((profileMass airyExtremal : ℝ) : ℂ)⁻¹)).analyticOrderAt_eq_zero.mpr hm
+  have hm : (((profileMass airyExtremal)⁻¹ : ℝ) : ℂ) ≠ 0 :=
+    Complex.ofReal_ne_zero.mpr (inv_ne_zero airyExtremalProfile.mass_pos.ne')
+  have hc : AnalyticAt ℂ (fun _ : ℂ => (((profileMass airyExtremal)⁻¹ : ℝ) : ℂ)) (airyZero 1 : ℂ) :=
+    analyticAt_const
+  have ha := analyticOrderAt_mul hc (differentiable_airyExtremal.analyticAt _)
+  have hord : analyticOrderAt (fun _ : ℂ => (((profileMass airyExtremal)⁻¹ : ℝ) : ℂ))
+      (airyZero 1 : ℂ) = 0 := hc.analyticOrderAt_eq_zero.mpr hm
+  have hext1 : analyticOrderAt airyExtremal (airyZero 1 : ℂ) = 1 :=
+    (differentiable_airyExtremal.analyticAt _).analyticOrderAt_eq_one_of_zero_deriv_ne_zero
+      (HermiteBiehlerData.airy.G_eq_zero_on_S _ HermiteBiehlerData.airy.tm_mem)
+      (HermiteBiehlerData.airy.G_deriv_ne_zero _ HermiteBiehlerData.airy.tm_mem)
   have h1 : analyticOrderAt airyProfile (airyZero 1 : ℂ) = 1 := by
-    change analyticOrderAt (fun z => ((profileMass airyExtremal : ℝ) : ℂ)⁻¹ * airyExtremal z) (airyZero 1 : ℂ) = 1
-    rw [ha, hord, zero_add, analyticOrderAt_airyExtremal_one]
+    have heq : airyProfile = (fun _ : ℂ => (((profileMass airyExtremal)⁻¹ : ℝ) : ℂ)) * airyExtremal := by
+      ext z; unfold airyProfile normProfile; rfl
+    rw [heq, ha, hord, zero_add, hext1]
   simp [analyticOrderNatAt, h1]
 
 lemma airyProfile_orderNat_node {k : ℕ} (hk : 2 ≤ k) :
     analyticOrderNatAt airyProfile (airyZero k : ℂ) = 2 := by
-  have hm : ((profileMass airyExtremal : ℝ) : ℂ)⁻¹ ≠ 0 :=
-    inv_ne_zero (Complex.ofReal_ne_zero.mpr (airyExtremalProfile.mass_pos.ne'))
-  have heq : airyProfile = fun z => ((profileMass airyExtremal : ℝ) : ℂ)⁻¹ * airyExtremal z := rfl
-  have ha := (analyticAt_const.analyticOrderAt_mul (differentiable_airyExtremal.analyticAt _))
-  have hord := (analyticAt_const (x := (airyZero k : ℂ)) (c := ((profileMass airyExtremal : ℝ) : ℂ)⁻¹)).analyticOrderAt_eq_zero.mpr hm
+  have hm : (((profileMass airyExtremal)⁻¹ : ℝ) : ℂ) ≠ 0 :=
+    Complex.ofReal_ne_zero.mpr (inv_ne_zero airyExtremalProfile.mass_pos.ne')
+  have hc : AnalyticAt ℂ (fun _ : ℂ => (((profileMass airyExtremal)⁻¹ : ℝ) : ℂ)) (airyZero k : ℂ) :=
+    analyticAt_const
+  have ha := analyticOrderAt_mul hc (differentiable_airyExtremal.analyticAt _)
+  have hord : analyticOrderAt (fun _ : ℂ => (((profileMass airyExtremal)⁻¹ : ℝ) : ℂ))
+      (airyZero k : ℂ) = 0 := hc.analyticOrderAt_eq_zero.mpr hm
+  have hextk : analyticOrderAt airyExtremal (airyZero k : ℂ) = 2 := by
+    have hne : (airyZero k : ℂ) ≠ (airyZero 1 : ℂ) := fun h => by
+      have := airyZero_lt_of_lt (n := 1) (m := k) le_rfl (by omega)
+      linarith [Complex.ofReal_injective h]
+    have hnhds : airyExtremal =ᶠ[𝓝 (airyZero k : ℂ)]
+        ((fun u : ℂ => -(u - (airyZero 1 : ℂ))⁻¹) * (airyAiC ^ 2)) := by
+      filter_upwards [continuousAt_id.eventually_ne hne] with u hu
+      dsimp only [id_eq] at hu
+      change airyExtremal u = -(u - (airyZero 1 : ℂ))⁻¹ * airyAiC u ^ 2
+      rw [airyExtremal_eq hu]; ring
+    rw [analyticOrderAt_congr hnhds]
+    have han_inv : AnalyticAt ℂ (fun u : ℂ => -(u - (airyZero 1 : ℂ))⁻¹) (airyZero k : ℂ) :=
+      ((analyticAt_id.sub analyticAt_const).inv (sub_ne_zero.mpr hne)).neg
+    have han_Ai : AnalyticAt ℂ airyAiC (airyZero k : ℂ) := differentiable_airyAiC.analyticAt _
+    have hAi1 : analyticOrderAt airyAiC (airyZero k : ℂ) = 1 :=
+      han_Ai.analyticOrderAt_eq_one_of_zero_deriv_ne_zero (airyAiC_airyZero k) (airyZero_deriv_ne_zero k)
+    rw [analyticOrderAt_mul han_inv (han_Ai.pow 2),
+      han_inv.analyticOrderAt_eq_zero.mpr (by simp [sub_ne_zero.mpr hne]), zero_add,
+      analyticOrderAt_pow han_Ai, hAi1]
+    norm_num
   have h2 : analyticOrderAt airyProfile (airyZero k : ℂ) = 2 := by
-    change analyticOrderAt (fun z => ((profileMass airyExtremal : ℝ) : ℂ)⁻¹ * airyExtremal z) (airyZero k : ℂ) = 2
-    rw [heq, ha, hord, zero_add, analyticOrderAt_airyExtremal_node hk]
+    have heq : airyProfile = (fun _ : ℂ => (((profileMass airyExtremal)⁻¹ : ℝ) : ℂ)) * airyExtremal := by
+      ext z; unfold airyProfile normProfile; rfl
+    rw [heq, ha, hord, zero_add, hextk]
   simp [analyticOrderNatAt, h2]
 
 /-- Every complex zero of `hbExtremal hHB hQ` is real and is a zero of `airyPQN P Q`. -/
@@ -435,49 +497,55 @@ lemma hbProfile_orderNat {P Q : ℝ[X]} (hHB : AiryPQHB P Q) (hQ : Q ≠ 0) {x :
   have hsp := hbExtremal_spec hHB hQ
   set G := hbExtremal hHB hQ
   set S := hbTopZeros hHB hQ
-  have hmass_pos : 0 < profileMass G := (hbExtremalProfile (HermiteBiehlerData.hb hHB hQ)).mass_pos
-  have hm : ((profileMass G : ℝ) : ℂ)⁻¹ ≠ 0 :=
-    inv_ne_zero (Complex.ofReal_ne_zero.mpr hmass_pos.ne')
+  have hmass_pos : 0 < profileMass G :=
+    (hbExtremalProfile (HermiteBiehlerData.ofQNeZero hHB hQ)).mass_pos
+  have hm : (((profileMass G)⁻¹ : ℝ) : ℂ) ≠ 0 :=
+    Complex.ofReal_ne_zero.mpr (inv_ne_zero hmass_pos.ne')
+  have hc_inv : AnalyticAt ℂ (fun _ : ℂ => (((profileMass G)⁻¹ : ℝ) : ℂ)) (x : ℂ) :=
+    analyticAt_const
   have hnorm_ord : analyticOrderAt (normProfile G) (x : ℂ) = analyticOrderAt G (x : ℂ) := by
-    have ha := (analyticAt_const (x := (x : ℂ)) (c := ((profileMass G : ℝ) : ℂ)⁻¹)).analyticOrderAt_mul
-      (hsp.1.analyticAt _)
-    have h0 := (analyticAt_const (x := (x : ℂ)) (c := ((profileMass G : ℝ) : ℂ)⁻¹)).analyticOrderAt_eq_zero.mpr hm
-    change analyticOrderAt (fun z => ((profileMass G : ℝ) : ℂ)⁻¹ * G z) (x : ℂ) = analyticOrderAt G (x : ℂ)
-    rw [ha, h0, zero_add]
+    have ha := analyticOrderAt_mul hc_inv (hsp.1.analyticAt _)
+    have h0 := hc_inv.analyticOrderAt_eq_zero.mpr hm
+    have heq : normProfile G = (fun _ : ℂ => (((profileMass G)⁻¹ : ℝ) : ℂ)) * G := by
+      ext z; unfold normProfile; rfl
+    rw [heq, ha, h0, zero_add]
   have hordG : analyticOrderAt G (x : ℂ) = if x ∈ S then (1 : ℕ∞) else 2 := by
     split_ifs with hS
     · have hx0 : G (x : ℂ) = 0 := hsp.2.2.2.2.2.2.1 x hS
-      have hx' : deriv G (x : ℂ) ≠ 0 := (HermiteBiehlerData.hb hHB hQ).G_deriv_ne_zero x hS
-      exact (hsp.1.analyticAt _).analyticOrderAt_eq_one.mpr ⟨hx0, hx'⟩
+      have hx' : deriv G (x : ℂ) ≠ 0 := (HermiteBiehlerData.ofQNeZero hHB hQ).G_deriv_ne_zero x hS
+      exact (hsp.1.analyticAt _).analyticOrderAt_eq_one_of_zero_deriv_ne_zero hx0 hx'
     · have hN_an : AnalyticAt ℂ (airyPQN P Q) (x : ℂ) := (differentiable_airyPQN P Q).analyticAt _
-      have hN' : deriv (airyPQN P Q) (x : ℂ) ≠ 0 :=
-        (airyPQ_zero_weight_pos hHB hQ hx).2
+      have hN' : deriv (airyPQN P Q) (x : ℂ) ≠ 0 := by
+        rw [deriv_airyPQN]; exact (airyPQ_zero_weight_pos hHB hQ hx).2
       have hN_ord1 : analyticOrderAt (airyPQN P Q) (x : ℂ) = 1 :=
-        hN_an.analyticOrderAt_eq_one.mpr ⟨hx, hN'⟩
+        hN_an.analyticOrderAt_eq_one_of_zero_deriv_ne_zero hx hN'
       have hpr_ne : at47_pr S (x : ℂ) ≠ 0 := by
         unfold at47_pr
         rw [Finset.prod_ne_zero_iff]
         intro t ht h0
-        exact hS (by exact_mod_cast (sub_eq_zero.mp h0) ▸ ht)
-      have hprod_fn : (fun z => G z * at47_pr S z) =
-          fun z => (((-1 : ℝ) ^ S.card : ℝ) : ℂ) * airyPQN P Q z ^ 2 := funext hsp.2.1
-      have hL := ((hsp.1.analyticAt _).analyticOrderAt_mul ((at47_pr_differentiable S).analyticAt _))
-      have hR := ((analyticAt_const (x := (x : ℂ)) (c := (((-1 : ℝ) ^ S.card : ℝ) : ℂ))).analyticOrderAt_mul
-        (hN_an.pow 2))
+        have htx : t = x := Complex.ofReal_injective (sub_eq_zero.mp h0).symm
+        exact hS (htx ▸ ht)
+      have hprod_fn : G * at47_pr S =
+          (fun _ : ℂ => (((-1 : ℝ) ^ S.card : ℝ) : ℂ)) * (airyPQN P Q ^ 2) := funext hsp.2.1
+      have hL := analyticOrderAt_mul (hsp.1.analyticAt (x : ℂ))
+        ((at47_pr_differentiable S).analyticAt (x : ℂ))
+      have hc_sign : AnalyticAt ℂ (fun _ : ℂ => (((-1 : ℝ) ^ S.card : ℝ) : ℂ)) (x : ℂ) :=
+        analyticAt_const
+      have hR := analyticOrderAt_mul hc_sign (hN_an.pow 2)
       have hpr_0 : analyticOrderAt (at47_pr S) (x : ℂ) = 0 :=
         ((at47_pr_differentiable S).analyticAt _).analyticOrderAt_eq_zero.mpr hpr_ne
       have he_ne : (((-1 : ℝ) ^ S.card : ℝ) : ℂ) ≠ 0 := by push_cast; exact pow_ne_zero _ (by norm_num)
       have he_0 : analyticOrderAt (fun _ => (((-1 : ℝ) ^ S.card : ℝ) : ℂ)) (x : ℂ) = 0 :=
-        analyticAt_const.analyticOrderAt_eq_zero.mpr he_ne
+        hc_sign.analyticOrderAt_eq_zero.mpr he_ne
       rw [← hprod_fn] at hR
-      have hsq : analyticOrderAt (fun z => airyPQN P Q z ^ 2) (x : ℂ) = 2 := by
+      have hsq : analyticOrderAt (airyPQN P Q ^ 2) (x : ℂ) = 2 := by
         rw [analyticOrderAt_pow hN_an, hN_ord1]; norm_num
       have heq : analyticOrderAt G (x : ℂ) + 0 = 0 + 2 := by
         calc analyticOrderAt G (x : ℂ) + 0
             = analyticOrderAt G (x : ℂ) + analyticOrderAt (at47_pr S) (x : ℂ) := by rw [hpr_0]
-          _ = analyticOrderAt (fun z => G z * at47_pr S z) (x : ℂ) := hL.symm
+          _ = analyticOrderAt (G * at47_pr S) (x : ℂ) := hL.symm
           _ = analyticOrderAt (fun _ => (((-1 : ℝ) ^ S.card : ℝ) : ℂ)) (x : ℂ) +
-                analyticOrderAt (fun z => airyPQN P Q z ^ 2) (x : ℂ) := hR
+                analyticOrderAt (airyPQN P Q ^ 2) (x : ℂ) := hR
           _ = 0 + 2 := by rw [he_0, hsq]
       simpa using heq
   rw [show analyticOrderNatAt (normProfile G) (x : ℂ) = (analyticOrderAt (normProfile G) (x : ℂ)).toNat from rfl,
@@ -584,34 +652,35 @@ lemma exp_sub_one_le_secant {q D y : ℝ} (hD : 0 < D) (hy0 : 0 ≤ y) (hyD : y 
   have ht0 : 0 ≤ t := div_nonneg hy0 hD.le
   have ht1 : t ≤ 1 := (div_le_one hD).mpr hyD
   have h1t : 0 ≤ 1 - t := sub_nonneg.mpr ht1
-  have hconv := Real.convexOn_exp.2 (mem_univ (0 : ℝ)) (mem_univ (q * D)) h1t ht0 (by ring)
-  have harg : (1 - t) • (0 : ℝ) + t • (q * D) = q * y := by
-    dsimp [t]; rw [smul_eq_mul, smul_eq_mul, mul_zero, zero_add]; field_simp [hD.ne']
-  rw [harg, smul_eq_mul, smul_eq_mul, Real.exp_zero, mul_one] at hconv
+  have hconv := convexOn_exp.2 (mem_univ (0 : ℝ)) (mem_univ (q * D)) h1t ht0 (by ring)
+  simp only [smul_eq_mul] at hconv
+  rw [show (1 - t) * 0 + t * (q * D) = q * y by dsimp [t]; field_simp [hD.ne']; ring,
+    Real.exp_zero, mul_one] at hconv
   have hr : ((Real.exp (q * D) - 1) / D) * y = t * (Real.exp (q * D) - 1) := by
     dsimp [t]; ring
   rw [hr]; linarith
 
 /-- Quadratic Taylor bound: for `q ≥ 0`, `0 ≤ y ≤ D` (`D > 0`),
 `exp (q * y) - 1 ≤ q * y + ((exp (q * D) - 1 - q * D) / D ^ 2) * y ^ 2`. -/
-lemma exp_sub_one_le_quadratic {q D y : ℝ} (hq : 0 ≤ q) (hD : 0 < D) (hy0 : 0 ≤ y) (hyD : y ≤ D) :
+lemma exp_sub_one_le_quadratic {q D y : ℝ} (_hq : 0 ≤ q) (hD : 0 < D) (hy0 : 0 ≤ y) (hyD : y ≤ D) :
     Real.exp (q * y) - 1 ≤ q * y + ((Real.exp (q * D) - 1 - q * D) / D ^ 2) * y ^ 2 := by
   have ht0 : 0 ≤ y / D := div_nonneg hy0 hD.le
   have ht1 : y / D ≤ 1 := (div_le_one hD).mpr hyD
-  have hs := (Real.hasSum_exp_eq (q * y)).summable
-  have hsD := (Real.hasSum_exp_eq (q * D)).summable
+  have hs := (NormedSpace.expSeries_div_hasSum_exp (q * y)).summable
+  have hsD := (NormedSpace.expSeries_div_hasSum_exp (q * D)).summable
   have hsub : Real.exp (q * y) - 1 - q * y = ∑' k : ℕ, (q * y) ^ (k + 2) / ((k + 2).factorial : ℝ) := by
-    have h0 := (Real.exp_eq_exp_ℝ ▸ Real.hasSum_exp_eq (q * y)).tsum_eq
+    have h0 : Real.exp (q * y) = ∑' k : ℕ, (q * y) ^ k / (k.factorial : ℝ) := by
+      rw [Real.exp_eq_exp_ℝ]; exact (NormedSpace.expSeries_div_hasSum_exp (q * y)).tsum_eq.symm
     have hs1 := (summable_nat_add_iff 1).2 hs
-    have hs2 := (summable_nat_add_iff 2).2 hs
-    rw [← h0, hs.tsum_eq_zero_add, hs1.tsum_eq_zero_add]
+    rw [h0, hs.tsum_eq_zero_add, hs1.tsum_eq_zero_add]
     simp only [pow_zero, Nat.factorial_zero, Nat.cast_one, div_one, zero_add, pow_one,
       Nat.factorial_one, Nat.cast_one]
     ring
   have hsubD : Real.exp (q * D) - 1 - q * D = ∑' k : ℕ, (q * D) ^ (k + 2) / ((k + 2).factorial : ℝ) := by
-    have h0 := (Real.exp_eq_exp_ℝ ▸ Real.hasSum_exp_eq (q * D)).tsum_eq
+    have h0 : Real.exp (q * D) = ∑' k : ℕ, (q * D) ^ k / (k.factorial : ℝ) := by
+      rw [Real.exp_eq_exp_ℝ]; exact (NormedSpace.expSeries_div_hasSum_exp (q * D)).tsum_eq.symm
     have hs1 := (summable_nat_add_iff 1).2 hsD
-    rw [← h0, hsD.tsum_eq_zero_add, hs1.tsum_eq_zero_add]
+    rw [h0, hsD.tsum_eq_zero_add, hs1.tsum_eq_zero_add]
     simp only [pow_zero, Nat.factorial_zero, Nat.cast_one, div_one, zero_add, pow_one,
       Nat.factorial_one, Nat.cast_one]
     ring
@@ -621,7 +690,7 @@ lemma exp_sub_one_le_quadratic {q D y : ℝ} (hq : 0 ≤ q) (hD : 0 < D) (hy0 : 
     have hpos : 0 ≤ (q * D) ^ (k + 2) / ((k + 2).factorial : ℝ) := by positivity
     calc (q * y) ^ (k + 2) / ((k + 2).factorial : ℝ)
         = (y / D) ^ (k + 2) * ((q * D) ^ (k + 2) / ((k + 2).factorial : ℝ)) := by
-            rw [mul_pow]; field_simp [hD.ne']
+            rw [mul_pow, div_pow, mul_pow]; field_simp [hD.ne']
       _ ≤ (y / D) ^ 2 * ((q * D) ^ (k + 2) / ((k + 2).factorial : ℝ)) :=
             mul_le_mul_of_nonneg_right hpow hpos
   have hs_y : Summable (fun k : ℕ => (q * y) ^ (k + 2) / ((k + 2).factorial : ℝ)) :=
