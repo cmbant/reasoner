@@ -789,7 +789,8 @@ private lemma one_level_d1_exact (prob : FixedWeightProblem) {r γ : ℝ}
             mul_le_mul_of_nonneg_right (by linarith only [hexp_le]) hsw_nn
         _ = 2 * ((ρJ t / ρJ B) * spectralWeight prob (c n) t) + spectralWeight prob (c n) t := by ring
   have hae_supp_W : ∀ᵐ t ∂(meas.ν.restrict W_op), t ∈ W_op ∧ B - η n ≤ t := by
-    have hsub := ae_restrict_of_ae (measure_eq_zero_iff_ae_notMem.1 hν_supp)
+    have hsub : ∀ᵐ t ∂(meas.ν.restrict W_op), t ∉ (Ici (prob.T_V (c n) - η n))ᶜ :=
+      ae_restrict_of_ae (measure_eq_zero_iff_ae_notMem.1 hν_supp)
     filter_upwards [ae_restrict_mem hW_op_m, hsub] with t ht hBt
     exact ⟨ht, not_not.mp hBt⟩
   have hexp_int_le :
@@ -811,10 +812,10 @@ private lemma one_level_d1_exact (prob : FixedWeightProblem) {r γ : ℝ}
       integral_const_mul, integral_const_mul] at h_mono
     exact h_mono
   have hμ_up : (spectralMeasure prob (c n) meas.ν (Ioo (airyZero 1 - r) (airyZero 1 + r))).toReal ≤ w₀ + 1 := by
-    rw [Real.dist_eq] at hμ_n
-    have := (abs_lt.mp hμ_n).2
-    have : ε_m ≤ 1 := (min_le_right _ _).trans (min_le_right _ _)
-    linarith
+    rw [hν_eq, Real.dist_eq] at hμ_n
+    have hμ_sub := (abs_lt.mp hμ_n).2
+    have hεm1 : ε_m ≤ 1 := (min_le_right _ _).trans (min_le_right _ _)
+    linarith only [hμ_sub, hεm1]
   have hμ_nn : 0 ≤ (spectralMeasure prob (c n) meas.ν (Ioo (airyZero 1 - r) (airyZero 1 + r))).toReal :=
     ENNReal.toReal_nonneg
   have hlin_term_lt : (2 * Real.pi / xiStar) * η n *
@@ -826,7 +827,7 @@ private lemma one_level_d1_exact (prob : FixedWeightProblem) {r γ : ℝ}
         = (η n * (2 * Real.pi / xiStar)) *
             (spectralMeasure prob (c n) meas.ν (Ioo (airyZero 1 - r) (airyZero 1 + r))).toReal := by ring
       _ ≤ (η n * (2 * Real.pi / xiStar)) * (w₀ + 1) :=
-          mul_le_mul_of_nonneg_left hμ_up (mul_nonneg hη_n.1 (by positivity))
+          mul_le_mul_of_nonneg_left hμ_up (mul_nonneg hη_n.1 (div_nonneg (by positivity) xiStar_pos.le))
       _ < (ε / (8 * (w₀ + 2))) * (w₀ + 1) := mul_lt_mul_of_pos_right h1 (by positivity)
       _ < (ε / (8 * (w₀ + 2))) * (w₀ + 2) := mul_lt_mul_of_pos_left (by linarith) (by positivity)
       _ = ε / 8 := by field_simp [hw2.ne']
@@ -845,10 +846,11 @@ private lemma one_level_d1_exact (prob : FixedWeightProblem) {r γ : ℝ}
             gcongr; dsimp [C_exp]; linarith
     have hCexp_pos : 0 < C_exp := by have := betaTip_pos; dsimp [C_exp]; positivity
     have hdec' : C_exp * Real.exp (-(γ - γ') * (c n) ^ ((1 : ℝ) / 3)) < ε / 8 := by
+      have h1C : (0 : ℝ) < 1 + C_exp := by linarith only [hCexp_pos]
       calc C_exp * Real.exp (-(γ - γ') * (c n) ^ ((1 : ℝ) / 3))
           < C_exp * (ε / (8 * (1 + C_exp))) := mul_lt_mul_of_pos_left hdec_n hCexp_pos
-        _ = ε / 8 * (C_exp / (1 + C_exp)) := by ring
-        _ < ε / 8 * 1 := mul_lt_mul_of_pos_left ((div_lt_one (by linarith)).mpr (by linarith)) (by positivity)
+        _ = (ε / 8) * (C_exp / (1 + C_exp)) := by field_simp [h1C.ne']
+        _ < (ε / 8) * 1 := mul_lt_mul_of_pos_left ((div_lt_one h1C).mpr (by linarith only)) (by positivity)
         _ = ε / 8 := by ring
     linarith only [hM_mul, hdec']
   have hexp_int_lt : ∫ t in W_op, |Real.exp (y t) - 1| * spectralWeight prob (c n) t ∂meas.ν < ε / 4 := by
@@ -866,7 +868,9 @@ private lemma one_level_d1_exact (prob : FixedWeightProblem) {r γ : ℝ}
         ∫ t in W_op, ‖(ρJ t / ρJ B - 1) * spectralWeight prob (c n) t‖ ∂meas.ν ≤
           ∫ t in W_op, (ε_p * spectralWeight prob (c n) t +
             (ε_p + 1) * (|Real.exp (y t) - 1| * spectralWeight prob (c n) t)) ∂meas.ν := by
-      refine integral_mono_ae ((hratio_int.sub hsw_int).norm)
+      have hdiff_int : IntegrableOn (fun t => (ρJ t / ρJ B - 1) * spectralWeight prob (c n) t) W_op meas.ν :=
+        (hratio_int.sub hsw_int).congr_fun (fun t _ => by dsimp only [Pi.sub_apply]; ring) hW_op_m
+      refine integral_mono_ae hdiff_int.norm
         ((hsw_int.const_mul _).add (hexp_y_int.const_mul _)) ?_
       filter_upwards [ae_restrict_mem hW_op_m] with t ht
       have hsw_nn := (spectralWeight_pos hcn_pos hsh12 ht.1).le
@@ -902,7 +906,7 @@ private lemma one_level_d1_exact (prob : FixedWeightProblem) {r γ : ℝ}
       _ = 3 * ε / 8 := by ring
   have hμ_err : |(spectralMeasure prob (c n) meas.ν (Ioo (airyZero 1 - r) (airyZero 1 + r))).toReal - w₀| <
       ε / 4 := by
-    rw [Real.dist_eq] at hμ_n
+    rw [hν_eq, Real.dist_eq] at hμ_n
     exact lt_of_lt_of_le hμ_n (min_le_left _ _)
   rw [Real.dist_eq]
   have h_tri : |(meas.ν W_op).toReal / ρJ B - w₀| ≤
