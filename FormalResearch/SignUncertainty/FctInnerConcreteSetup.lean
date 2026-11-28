@@ -61,14 +61,18 @@ theorem pbTuple_exist :
             fderiv ℝ (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S)) p0 (1, 0) = S.V (q, S.A q) ∧
             fderiv ℝ (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S)) p0 (0, 1) =
               c⁻¹ * fctThetaD (vAlpha 1 τ₁) (concreteTau0 ε c S p0) /
-                Real.sqrt (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) p0)) := by
+                Real.sqrt (fctAtil (concretePhiTilde K4 ε c) (concreteTau0 ε c S) p0)) ∧
+          (∀ {lam L1 α x : ℝ}, 0 ≤ x → x ≤ 2.4 →
+            τ₁ ^ 3 * (x * ((L1 - ctTheta1 ε / c) / τ₁ ^ 2 - π ^ 2 / 36 * x ^ 2 +
+              T.r τ₁ K4 (((L1 - ctTheta1 ε / c) / τ₁ ^ 2, lam, α), x ^ 2))) =
+              concretePhiLambda K4 ε c lam (τ₁ * x) L1 α) := by
   obtain ⟨M_cfu, cV, C0, ellMin, τ_lim, hM0, hcV, hC0, hellMin, hτ0, hτle, hmain⟩ :=
     concretePhaseBox_exist
   refine ⟨(M_cfu, cV, C0, ellMin, τ_lim), hM0, hcV, hC0, hellMin, hτ0, hτle, ?_⟩
   intro K4 ε c hK4 hε hc τ₁ hτ1 hK4t
-  obtain ⟨T, _, _, _, _, S, hTM, hTmt, hTθt, hSΩ, hSℓ, hSr, hSε, hScV, _, _, _, _, _, hbox, hpb1⟩ :=
+  obtain ⟨T, _, _, _, _, S, hTM, hTmt, hTθt, hSΩ, hSℓ, hSr, hSε, hScV, _, _, _, _, hTid, hbox, hpb1⟩ :=
     hmain hK4 hε hc hτ1 hK4t
-  exact ⟨(T, S), hTM, hTmt, hTθt, hSΩ, hSℓ, hSr, hSε, hScV, hbox, hpb1⟩
+  exact ⟨(T, S), hTM, hTmt, hTθt, hSΩ, hSℓ, hSr, hSε, hScV, hbox, hpb1, hTid⟩
 
 noncomputable abbrev pbTuple : ℝ × ℝ × ℝ × ℝ × ℝ := pbTuple_exist.choose
 
@@ -141,7 +145,27 @@ lemma concreteBox_spec {K4 ε c : ℝ} (h : concreteBoxValid K4 ε c) :
   dsimp only
   unfold concreteBoxT concreteBoxS
   rw [hpair]
-  exact hspec
+  exact ⟨hspec.1, hspec.2.1, hspec.2.2.1, hspec.2.2.2.1, hspec.2.2.2.2.1, hspec.2.2.2.2.2.1,
+    hspec.2.2.2.2.2.2.1, hspec.2.2.2.2.2.2.2.1, hspec.2.2.2.2.2.2.2.2.1, hspec.2.2.2.2.2.2.2.2.2.1⟩
+
+lemma concreteBox_phi_id {K4 ε c : ℝ} (h : concreteBoxValid K4 ε c) :
+    let T := concreteBoxT K4 ε c
+    let τ₁ := c ^ (-(1 / 4 : ℝ))
+    ∀ {lam L1 α x : ℝ}, 0 ≤ x → x ≤ 2.4 →
+      τ₁ ^ 3 * (x * ((L1 - ctTheta1 ε / c) / τ₁ ^ 2 - π ^ 2 / 36 * x ^ 2 +
+        T.r τ₁ K4 (((L1 - ctTheta1 ε / c) / τ₁ ^ 2, lam, α), x ^ 2))) =
+        concretePhiLambda K4 ε c lam (τ₁ * x) L1 α := by
+  classical
+  have hpair : pbBoxPair K4 ε c =
+      (pbTuple_exist.choose_spec.2.2.2.2.2.2 h.1 h.2.1 h.2.2.1 h.2.2.2.1 h.2.2.2.2).choose := by
+    unfold pbBoxPair; simp only [h, ↓reduceDIte]
+  have hspec :=
+    (pbTuple_exist.choose_spec.2.2.2.2.2.2 h.1 h.2.1 h.2.2.1 h.2.2.2.1 h.2.2.2.2).choose_spec
+  dsimp only
+  unfold concreteBoxT
+  rw [hpair]
+  intro lam L1 α x hx0 hx24
+  exact hspec.2.2.2.2.2.2.2.2.2.2 hx0 hx24
 
 /-! ### 2. Concrete `FctInnerFamily` matching `(fct:inner-symbols)` (b3)–(b4) -/
 
