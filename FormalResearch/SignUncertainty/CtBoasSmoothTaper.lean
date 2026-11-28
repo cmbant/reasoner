@@ -733,8 +733,9 @@ theorem ctTaper_hasDerivAt_and_lip : ∃ c₁₀ : ℝ, 0 < c₁₀ ∧
       calc ctTaperV ε c L / R ≤ (2.005 * langerScale c * L) / R :=
             div_le_div_of_nonneg_right h4 hR0.le
         _ ≤ (2.005 * langerKappa * c ^ (2 / 3 : ℝ) * L) / (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) := by
-            rw [hK_eq]
-            exact div_le_div_of_nonneg_left (by positivity) (by positivity) hRlo
+            rw [hK_eq, ← mul_assoc (2.005 : ℝ)]
+            exact div_le_div_of_nonneg_left
+              (show 0 ≤ 2.005 * langerKappa * c ^ (2 / 3 : ℝ) * L by positivity) (by positivity) hRlo
         _ = 2.005 * langerKappa / c₁ ^ 2 * L := by field_simp
         _ ≤ C_rat * L := by
             rw [hCrat]; exact mul_le_mul_of_nonneg_right (div_le_div_of_nonneg_right (by linarith) (sq_nonneg c₁)) hL0.le
