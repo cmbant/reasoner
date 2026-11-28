@@ -173,8 +173,7 @@ lemma r_rs_chart_exist {M_box cR_box C0_box : ℝ}
     have hle : |r_star ^ 2| * C_raw ≤ ε_rs := by
       rw [abs_of_pos (sq_pos_of_pos hr_pos)]
       dsimp only [ε_rs]; nlinarith only [sq_nonneg r_star]
-    have h1 := (hraw_jc.const_smul hUd (r_star ^ 2)).congr fun q _ => by
-      dsimp only [fctRrs]; rw [smul_eq_mul]
+    have h1 := (hraw_jc.const_smul hUd (r_star ^ 2)).congr fun q _ => rfl
     exact h1.mono hle
   -- Apply `cfu_chart_core`
   let L_ℓ : ℝ × ℝ →L[ℝ] ℝ := ContinuousLinearMap.fst ℝ ℝ ℝ
@@ -417,7 +416,11 @@ lemma r_rs_chart_exist {M_box cR_box C0_box : ℝ}
           exact continuousAt_const.mul (hcont.comp_of_eq hmul_c (mul_zero _))
         have hd2 : HasDerivAt (fun w => w * (w * (r_star ^ 4 * deriv concreteMt (r_star ^ 2 * w)))) 0 0 :=
           (hasDerivAt_mul_zero (continuousAt_id.mul hdm_c)).congr_deriv (by simp)
-        have htot := (hd1.add hd2).congr_deriv (by simp)
+        have htot : HasDerivAt (fun w =>
+            w * (2 * r_star ^ 2 * concreteMt (r_star ^ 2 * w)) +
+            w * (w * (r_star ^ 4 * deriv concreteMt (r_star ^ 2 * w))))
+            (2 * r_star ^ 2 * concreteMt 0) 0 :=
+          (hd1.add hd2).congr_deriv (by simp only [mul_zero, add_zero])
         refine htot.congr_of_eventuallyEq (Eventually.of_forall fun w => by ring)
       have h17 := (S_rs.hr.succ_fderiv hO).clm_apply_const hO.uniqueDiffOn ((0 : ℝ × ℝ), (1 : ℝ))
       have hf := ((h17.1.contDiffAt (hO.mem_nhds h000_Ioo)).differentiableAt (by norm_num)).hasFDerivAt
@@ -483,12 +486,10 @@ lemma r_rs_chart_exist {M_box cR_box C0_box : ℝ}
             ((0 : ℝ × ℝ), deriv (fun w => S_rs.Z ((0, 0), w)) 0) 0 :=
           (hasDerivAt_const (0 : ℝ) ((0 : ℝ), (0 : ℝ))).prodMk hZdiff.hasDerivAt
         have hc := hf.comp_hasDerivAt_of_eq 0 hcurve (by simp [hZ00])
-        rw [hZ00] at hc
-        convert hc using 1
-        simp only [ChartSetup.D]
-        have heq : fderiv ℝ (fun q => S_rs.D q - dStar + dStar) ((0, 0), 0) = fderiv ℝ S_rs.D ((0, 0), 0) := by
-          congr 1; ext q; ring
-        rw [heq]
+        have hdf_eq : fderiv ℝ (fun q => Dfun S_rs.B S_rs.d S_rs.R q - dStar + dStar) ((0, 0), 0) =
+            fderiv ℝ S_rs.D ((0, 0), 0) := by congr 1; ext q; simp [ChartSetup.D]
+        rw [hdf_eq] at hc
+        refine (hc.congr_deriv ?_).congr_of_eventuallyEq (Eventually.of_forall fun w => by simp [ChartSetup.D])
         have hsm : ((0 : ℝ × ℝ), deriv (fun w => S_rs.Z ((0, 0), w)) 0) =
             deriv (fun w => S_rs.Z ((0, 0), w)) 0 • ((0 : ℝ × ℝ), (1 : ℝ)) := by simp
         rw [hsm, map_smul, smul_eq_mul, mul_comm]
@@ -498,10 +499,11 @@ lemma r_rs_chart_exist {M_box cR_box C0_box : ℝ}
         exact S_rs.Z_D (show ((0, 0), w) ∈ S_rs.Ω ×ˢ Yint from ⟨hp00, hw⟩)
       have h1 := (hasDerivAt_id (0 : ℝ)).congr_of_eventuallyEq (heq_id.mono fun w hw => hw)
       have hval := h1.unique hprod
-      rw [hZ00, hD00, zero_mul, add_zero] at hval
-      have hd2_ne : dStar ^ 2 ≠ 0 := by unfold dStar; positivity
+      have hval' : (1 : ℝ) = deriv (fun w => S_rs.Z ((0, 0), w)) 0 * dStar ^ 2 := by
+        simpa [hZ00, hD00] using hval
+      have hd2_eq : deriv (fun w => S_rs.Z ((0, 0), w)) 0 * dStar ^ 2 = 1 := hval'.symm
       have hder_val : deriv (fun w => S_rs.Z ((0, 0), w)) 0 = (dStar ^ 2)⁻¹ :=
-        eq_inv_of_mul_eq_one_left (by linarith)
+        eq_inv_of_mul_eq_one_left hd2_eq
       exact hder_val ▸ hZdiff.hasDerivAt
     have hV00 : S_rs.V ((0, 0), 0) = τs := by
       simp only [ChartSetup.V, hZ00, hD00]; exact tauStar_eq_dStar_inv.symm
@@ -514,13 +516,12 @@ lemma r_rs_chart_exist {M_box cR_box C0_box : ℝ}
       have hDZ : HasDerivAt (fun w => S_rs.D ((0, 0), S_rs.Z ((0, 0), w)))
           (S_rs.R ((0, 0), 0) * (dStar ^ 2)⁻¹) 0 := by
         have hc := hf.comp_hasDerivAt_of_eq 0 hcurve (by simp [hZ00])
-        rw [hZ00] at hc
-        have heq : fderiv ℝ (fun q => S_rs.D q - dStar + dStar) ((0, 0), 0) = fderiv ℝ S_rs.D ((0, 0), 0) := by
-          congr 1; ext q; ring
-        rw [heq] at hc
+        have hdf_eq : fderiv ℝ (fun q => Dfun S_rs.B S_rs.d S_rs.R q - dStar + dStar) ((0, 0), 0) =
+            fderiv ℝ S_rs.D ((0, 0), 0) := by congr 1; ext q; simp [ChartSetup.D]
+        rw [hdf_eq] at hc
         have hsm : ((0 : ℝ × ℝ), (dStar ^ 2)⁻¹) = (dStar ^ 2)⁻¹ • ((0 : ℝ × ℝ), (1 : ℝ)) := by simp
         rw [hsm, map_smul, smul_eq_mul, hDz00, mul_comm] at hc
-        exact hc
+        exact hc.congr_of_eventuallyEq (Eventually.of_forall fun w => by simp [ChartSetup.D])
       have hD_ne : S_rs.D ((0, 0), S_rs.Z ((0, 0), 0)) ≠ 0 := by
         rw [hZ00, hD00]; unfold dStar; positivity
       have hinv := hDZ.inv hD_ne
@@ -582,10 +583,11 @@ lemma r_rs_chart_exist {M_box cR_box C0_box : ℝ}
       have harg : HasDerivAt (fun w => w * (r_star ^ 2 * S_rs.V ((0, 0), w) ^ 2)) (r_star ^ 2 * τs ^ 2) 0 := by
         have := hasDerivAt_mul_zero hVcont_w
         rw [hV00] at this; exact this
-      have h0_eq : (0 : ℝ) = 0 * (r_star ^ 2 * S_rs.V ((0, 0), 0) ^ 2) := by ring
-      have hc := ((hasDerivAt_fctH_zero.comp_of_eq 0 harg h0_eq).congr_deriv (by ring)).congr_of_eventuallyEq
-        (Eventually.of_forall fun w => by dsimp; ring)
-      exact hc
+      have h0_eq : (0 : ℝ) = 0 * (r_star ^ 2 * S_rs.V ((0, 0), 0) ^ 2) := (zero_mul _).symm
+      have hc : HasDerivAt (fun w => fctH (w * (r_star ^ 2 * S_rs.V ((0, 0), w) ^ 2)))
+          (-(7 * π ^ 2 / 240) * (r_star ^ 2 * τs ^ 2)) 0 :=
+        (hasDerivAt_fctH_zero.comp_of_eq 0 harg h0_eq).congr_deriv (by ring)
+      exact hc.congr_of_eventuallyEq (Eventually.of_forall fun w => by dsimp; congr 1; ring)
     have htot := (hf1.mul hf2).mul hf3
     have hf1_0 : 1 + 2 * ((0 : ℝ) * fderiv ℝ S_rs.V ((0, 0), 0) (0, 1)) * (S_rs.V ((0, 0), 0))⁻¹ = 1 := by ring
     have hf2_0 : (S_rs.V ((0, 0), 0) * (S_rs.V ((0, 0), 0))⁻¹) ^ (1 / 2 : ℝ) = 1 := by
@@ -901,7 +903,7 @@ lemma Jfun_scale_eq {r_star : ℝ} (hr_pos : 0 < r_star)
     exact ⟨by nlinarith only [hlam_pos, hY.1], by linarith only [h1]⟩
   have hV_eq_Y : S.V (q0, Y) = S_rs.V (p_rs, lam * Y) := (hV_scale Y hY_int hYlam_int).symm
   have hV0_eq : S.V (q0, 0) = S_rs.V (p_rs, 0) := by
-    have hz0 := (hV_scale 0 zero_mem_Yint (by simp [mul_zero]; exact zero_mem_Yint)).symm
+    have hz0 := (hV_scale 0 zero_mem_Yint (by simp only [mul_zero, zero_mem_Yint])).symm
     rw [mul_zero] at hz0; exact hz0
   have hVd_eq : fderiv ℝ S.V (q0, Y) (0, 1) = lam * fderiv ℝ S_rs.V (p_rs, lam * Y) (0, 1) := by
     have hO : IsOpen (S.Ω ×ˢ Yint) := S.hΩ.prod isOpen_Ioo
@@ -1034,6 +1036,358 @@ private lemma fctInner_u_sq_sym {c : ℝ} (hc0 : 0 < c) :
       rw [hzero, abs_zero]
       positivity
 
+private lemma Q_rs_jc_exist {B_Jrs : ℝ} (hBJrs : 0 ≤ B_Jrs) :
+    ∃ B_Q : ℝ, 0 ≤ B_Q ∧
+      ∀ {J_rs : (ℝ × ℝ) × ℝ → ℝ} {p_rs : ℝ × ℝ},
+        p_rs ∈ fctOmegaRs →
+        JC 15 (fctOmegaRs ×ˢ Yint) J_rs B_Jrs →
+        ∃ Q_rs : ℝ → ℝ,
+          JC 8 (Ioo (-(1 / 10 : ℝ)) 1) Q_rs B_Q ∧
+          ∀ w ∈ Ioo (-(1 / 10 : ℝ)) 1,
+            Q_rs w = ∫ σ in Icc (0 : ℝ) 1, (1 - σ) *
+              iteratedDeriv 2 (fun t => J_rs (p_rs, t)) (σ * w) := by
+  let Y_Q : Set ℝ := Ioo (-(1 / 10 : ℝ)) 1
+  let bw_Q : ℝ := 2 ^ 13 * 1 * ((Nat.factorial 13 : ℝ) * 1)
+  let C_comp_Q : ℝ := (Nat.factorial 13 : ℝ) * (max 1 (max 1 bw_Q)) ^ 13
+  let B_Q : ℝ := (Nat.factorial 8 : ℝ) * (2 ^ 13 * 2 * C_comp_Q * B_Jrs)
+  refine ⟨B_Q, by positivity, ?_⟩
+  intro J_rs p_rs hprs_mem hJrs_jc
+  have hO_rs : IsOpen (fctOmegaRs ×ˢ Yint) := isOpen_fctOmegaRs.prod isOpen_Ioo
+  have hUd_rs : UniqueDiffOn ℝ (fctOmegaRs ×ˢ Yint) := hO_rs.uniqueDiffOn
+  have hJrs_d14 : JC 14 (fctOmegaRs ×ˢ Yint) (fun q => fderiv ℝ J_rs q (0, 1)) B_Jrs :=
+    JC.deriv_snd hO_rs hJrs_jc
+  let Jrs_dd : (ℝ × ℝ) × ℝ → ℝ := fun q => fderiv ℝ (fun x => fderiv ℝ J_rs x (0, 1)) q (0, 1)
+  have hJrs_dd_jc : JC 13 (fctOmegaRs ×ˢ Yint) Jrs_dd B_Jrs := JC.deriv_snd hO_rs hJrs_d14
+  have hO_Q : IsOpen (fctOmegaRs ×ˢ Y_Q) := isOpen_fctOmegaRs.prod isOpen_Ioo
+  have hUd_Q : UniqueDiffOn ℝ (fctOmegaRs ×ˢ Y_Q) := hO_Q.uniqueDiffOn
+  have hUd_Q3 : UniqueDiffOn ℝ ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1) :=
+    hUd_Q.prod (uniqueDiffOn_Icc zero_lt_one)
+  have hσ_jc : JC 13 ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1) (fun x : ((ℝ × ℝ) × ℝ) × ℝ => x.2) 1 :=
+    JC.snd hUd_Q3 le_rfl fun x hx => by
+      rw [abs_le]; constructor <;> linarith only [hx.2.1, hx.2.2]
+  have hw0_jc : JC 13 (fctOmegaRs ×ˢ Y_Q) (fun q : (ℝ × ℝ) × ℝ => q.2) 1 :=
+    JC.snd hUd_Q le_rfl fun q hq => by
+      rw [abs_le]; constructor <;> linarith only [hq.2.1, hq.2.2]
+  have hw_jc : JC 13 ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1)
+      (fun x : ((ℝ × ℝ) × ℝ) × ℝ => x.1.2) ((Nat.factorial 13 : ℝ) * 1) :=
+    JC.comp_clm hUd_Q3 hUd_Q (ContinuousLinearMap.fst ℝ ((ℝ × ℝ) × ℝ) ℝ) (norm_fst_le_one _ _)
+      (by norm_num : (0 : ℝ) ≤ 1) hw0_jc fun x hx => hx.1
+  let L_p : (((ℝ × ℝ) × ℝ) × ℝ) →L[ℝ] (ℝ × ℝ) :=
+    (ContinuousLinearMap.fst ℝ (ℝ × ℝ) ℝ).comp (ContinuousLinearMap.fst ℝ ((ℝ × ℝ) × ℝ) ℝ)
+  have hLp_n : ‖L_p‖ ≤ 1 := (ContinuousLinearMap.opNorm_comp_le _ _).trans (by
+    have h1 := norm_fst_le_one (ℝ × ℝ) ℝ
+    have h2 := norm_fst_le_one ((ℝ × ℝ) × ℝ) ℝ
+    nlinarith only [h1, h2, norm_nonneg (ContinuousLinearMap.fst ℝ (ℝ × ℝ) ℝ),
+      norm_nonneg (ContinuousLinearMap.fst ℝ ((ℝ × ℝ) × ℝ) ℝ)])
+  have hmul_σw : JC 13 ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1)
+      (fun x : ((ℝ × ℝ) × ℝ) × ℝ => x.2 * x.1.2) bw_Q := by
+    have h1 := JC.mul hUd_Q3 zero_le_one (by positivity) hσ_jc hw_jc
+    exact h1.mono (le_of_eq (by dsimp only [bw_Q]))
+  have hLp_u : ∀ i, 1 ≤ i → i ≤ 13 → ∀ y ∈ ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1),
+      ‖iteratedFDerivWithin ℝ i (fun x : ((ℝ × ℝ) × ℝ) × ℝ => L_p x)
+        ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1) y‖ ≤ 1 :=
+    fun i hi _ y hy => (norm_iteratedFDerivWithin_clm_le hUd_Q3 L_p hi hy).trans hLp_n
+  have hQ_comp := JC.comp_pair hUd_Q3 hUd_rs (g := Jrs_dd)
+    (u := fun x => L_p x) (w := fun x => x.2 * x.1.2) (b1 := 1) (b2 := bw_Q)
+    hBJrs hJrs_dd_jc L_p.contDiff.contDiffOn hmul_σw.1 hLp_u
+    (fun i _ hi y hy => hmul_σw.2 i hi y hy)
+    (by
+      intro x hx
+      refine ⟨hx.1.1, ?_⟩
+      have hσ := hx.2
+      have hw := hx.1.2
+      have hlo : -(1 / 5 : ℝ) < x.2 * x.1.2 := by nlinarith only [hσ.1, hσ.2, hw.1, hw.2]
+      have hhi : x.2 * x.1.2 < 36 / 10 := by nlinarith only [hσ.1, hσ.2, hw.1, hw.2]
+      exact ⟨hlo, hhi⟩)
+  have h1mσ : JC 13 ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1)
+      (fun x : ((ℝ × ℝ) × ℝ) × ℝ => 1 - x.2) 2 :=
+    ((JC.const hUd_Q3 (1 : ℝ)).sub hUd_Q3 hσ_jc).mono (by norm_num)
+  have hQ_integrand : JC 13 ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1)
+      (fun x : ((ℝ × ℝ) × ℝ) × ℝ => (1 - x.2) * Jrs_dd (x.1.1, x.2 * x.1.2))
+      (2 ^ 13 * 2 * (C_comp_Q * B_Jrs)) := by
+    refine (JC.mul hUd_Q3 (by norm_num : (0 : ℝ) ≤ 2) (by positivity) h1mσ hQ_comp).mono ?_
+    dsimp only [C_comp_Q]
+    exact le_of_eq (by ring)
+  let Q_rs : (ℝ × ℝ) × ℝ → ℝ := fun q => ∫ σ in Icc (0 : ℝ) 1, (1 - σ) * Jrs_dd (q.1, σ * q.2)
+  have hQ_rs_jc : JC 13 (fctOmegaRs ×ˢ Y_Q) Q_rs (2 ^ 13 * 2 * (C_comp_Q * B_Jrs)) :=
+    JC.integral01 hO_Q (f := fun q σ => (1 - σ) * Jrs_dd (q.1, σ * q.2)) hQ_integrand
+  have hUd_YQ : UniqueDiffOn ℝ Y_Q := isOpen_Ioo.uniqueDiffOn
+  have hQ_p_jc : JC 8 Y_Q (fun w => Q_rs (p_rs, w)) B_Q := by
+    have hQ8 : JC 8 (fctOmegaRs ×ˢ Y_Q) Q_rs (2 ^ 13 * 2 * (C_comp_Q * B_Jrs)) :=
+      ⟨hQ_rs_jc.1.of_le (by norm_num), fun i hi y hy => hQ_rs_jc.2 i (by omega) y hy⟩
+    have hcomp8 := JC.comp_pair (k := 8) hUd_YQ hUd_Q (g := Q_rs)
+      (u := fun _ : ℝ => p_rs) (w := fun t : ℝ => t) (b1 := 1) (b2 := 1)
+      (by positivity) hQ8 contDiffOn_const contDiffOn_id
+      (fun j hj1 _ t ht => by
+        simp [iteratedFDerivWithin_eq_iteratedFDeriv hUd_YQ contDiffAt_const ht,
+          iteratedFDeriv_const_of_ne (by omega : j ≠ 0) p_rs])
+      (fun j hj1 _ t ht => by
+        change ‖iteratedFDerivWithin ℝ j (id : ℝ → ℝ) Y_Q t‖ ≤ 1
+        exact norm_iteratedFDerivWithin_id_le hUd_YQ hj1 ht)
+      (fun _ ht => ⟨hprs_mem, ht⟩)
+    refine hcomp8.mono (le_of_eq ?_)
+    have hmax1 : max (1 : ℝ) (max 1 1) = 1 := by norm_num
+    rw [hmax1, one_pow, mul_one]
+    dsimp only [B_Q]
+    ring
+  have hJrs_dd_eq : ∀ y ∈ Yint, iteratedDeriv 2 (fun t => J_rs (p_rs, t)) y = Jrs_dd (p_rs, y) := by
+    intro y hy
+    have hder1 : EqOn (deriv (fun t => J_rs (p_rs, t)))
+        (fun t => fderiv ℝ J_rs (p_rs, t) (0, 1)) Yint := by
+      intro t ht
+      have hqt : (p_rs, t) ∈ fctOmegaRs ×ˢ Yint := ⟨hprs_mem, ht⟩
+      have h1 := ((hJrs_jc.1.contDiffAt (hO_rs.mem_nhds hqt)).differentiableAt (by norm_num)).hasFDerivAt
+      have h2 : HasDerivAt (fun s : ℝ => (p_rs, s)) ((0 : ℝ × ℝ), (1 : ℝ)) t :=
+        (hasDerivAt_const t p_rs).prodMk (hasDerivAt_id t)
+      exact (h1.comp_hasDerivAt t h2).deriv
+    have hhd : HasDerivAt (fun t => fderiv ℝ J_rs (p_rs, t) (0, 1)) (Jrs_dd (p_rs, y)) y := by
+      have hqy : (p_rs, y) ∈ fctOmegaRs ×ˢ Yint := ⟨hprs_mem, hy⟩
+      have h1 := ((hJrs_d14.1.contDiffAt (hO_rs.mem_nhds hqy)).differentiableAt (by norm_num)).hasFDerivAt
+      have h2 : HasDerivAt (fun s : ℝ => (p_rs, s)) ((0 : ℝ × ℝ), (1 : ℝ)) y :=
+        (hasDerivAt_const y p_rs).prodMk (hasDerivAt_id y)
+      exact h1.comp_hasDerivAt y h2
+    have hderiv_eq : HasDerivAt (deriv (fun t => J_rs (p_rs, t))) (Jrs_dd (p_rs, y)) y :=
+      hhd.congr_of_eventuallyEq ((Filter.eventuallyEq_of_mem (isOpen_Ioo.mem_nhds hy) fun t ht => hder1 ht))
+    rw [iteratedDeriv_succ, iteratedDeriv_one, hderiv_eq.deriv]
+  refine ⟨fun w => Q_rs (p_rs, w), hQ_p_jc, fun w hw => ?_⟩
+  refine MeasureTheory.setIntegral_congr_fun measurableSet_Icc fun σ hσ => ?_
+  have hσw_Yint : σ * w ∈ Yint := by
+    have h1 : -(1 / 10 : ℝ) < σ * w := by nlinarith only [hσ.1, hσ.2, hw.1, hw.2]
+    have h2 : σ * w < 1 := by nlinarith only [hσ.1, hσ.2, hw.1, hw.2]
+    exact ⟨by linarith only [h1], by linarith only [h2]⟩
+  rw [hJrs_dd_eq (σ * w) hσw_Yint]
+
+private lemma w_fn_maps_YQ {r_star c lam : ℝ} (hr2_pos : 0 < r_star ^ 2) (hc100 : 100 ≤ c)
+    (hc_neg_half : c ^ (-(1 / 2 : ℝ)) ≤ r_star ^ 2 / 161) (hlam_pos : 0 < lam)
+    (hlam_le : lam ≤ c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) :
+    ∀ u₀ ∈ Icc 0 (fctUc c), ∀ t ∈ Ioo (-1 : ℝ) 1,
+      lam * fctInnerY c (u₀ + (1 + u₀) / 100 * t) ∈ Ioo (-(1 / 10 : ℝ)) 1 := by
+  have hc0 : 0 < c := by linarith only [hc100]
+  let w_fn : ℝ → ℝ := fun u => lam * fctInnerY c u
+  have hw_fn_eq : ∀ u : ℝ, w_fn u = lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * u ^ 2 := fun u => by
+    dsimp only [w_fn, fctInnerY]; ring
+  have hcoef_w_nn : 0 ≤ lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) := by positivity
+  intro u₀ hu₀ t ht
+  have hu_nn : 0 ≤ u₀ := hu₀.1
+  have hu_le : u₀ ≤ 2.96 * c ^ ((1 : ℝ) / 12) := hu₀.2
+  have hc12_1 : 1 ≤ c ^ ((1 : ℝ) / 12) := Real.one_le_rpow (by linarith only [hc100]) (by norm_num)
+  have harg_abs : |u₀ + (1 + u₀) / 100 * t| ≤ 4 * c ^ ((1 : ℝ) / 12) := by
+    have h1 : |t| ≤ 1 := by rw [abs_le]; constructor <;> linarith only [ht.1, ht.2]
+    have h2 : |u₀ + (1 + u₀) / 100 * t| ≤ u₀ + (1 + u₀) / 100 := by
+      calc |u₀ + (1 + u₀) / 100 * t| ≤ |u₀| + |(1 + u₀) / 100 * t| := abs_add_le _ _
+        _ = u₀ + (1 + u₀) / 100 * |t| := by
+            rw [abs_of_nonneg hu_nn, abs_mul, abs_of_nonneg (by positivity)]
+        _ ≤ u₀ + (1 + u₀) / 100 * 1 := by gcongr
+        _ = u₀ + (1 + u₀) / 100 := by ring
+    nlinarith only [h2, hu_le, hc12_1]
+  have hc16 : (c ^ ((1 : ℝ) / 12)) ^ 2 = c ^ ((1 : ℝ) / 6) := by
+    rw [← Real.rpow_natCast (c ^ _), ← Real.rpow_mul hc0.le]; norm_num
+  have hsq : (u₀ + (1 + u₀) / 100 * t) ^ 2 ≤ 16 * c ^ ((1 : ℝ) / 6) := by
+    rw [← sq_abs]
+    calc |u₀ + (1 + u₀) / 100 * t| ^ 2 ≤ (4 * c ^ ((1 : ℝ) / 12)) ^ 2 :=
+          pow_le_pow_left₀ (abs_nonneg _) harg_abs 2
+      _ = 16 * (c ^ ((1 : ℝ) / 12)) ^ 2 := by ring
+      _ = 16 * c ^ ((1 : ℝ) / 6) := by rw [hc16]
+  have hlam_w : w_fn (u₀ + (1 + u₀) / 100 * t) ≤ 1 / 10 := by
+    rw [hw_fn_eq]
+    calc lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * (u₀ + (1 + u₀) / 100 * t) ^ 2
+        ≤ (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) * 1 * c ^ (-(1 / 6 : ℝ)) * (16 * c ^ ((1 : ℝ) / 6)) := by
+          have h243 : (2 : ℝ) ^ (-(4 / 3 : ℝ)) ≤ 1 :=
+            Real.rpow_le_one_of_one_le_of_nonpos (by norm_num) (by norm_num)
+          gcongr
+      _ = 16 * (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) := by
+          have hc160 : c ^ (-(1 / 6 : ℝ)) * c ^ ((1 : ℝ) / 6) = 1 := by
+            rw [← Real.rpow_add hc0]; norm_num
+          calc (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) * 1 * c ^ (-(1 / 6 : ℝ)) * (16 * c ^ ((1 : ℝ) / 6))
+              = 16 * ((c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) * (c ^ (-(1 / 6 : ℝ)) * c ^ ((1 : ℝ) / 6))) := by ring
+            _ = 16 * (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) := by rw [hc160, mul_one]
+      _ ≤ 16 * ((r_star ^ 2 / 161) / r_star ^ 2) := by gcongr
+      _ = 16 / 161 := by
+          calc 16 * ((r_star ^ 2 / 161) / r_star ^ 2) = 16 / 161 * (r_star ^ 2 / r_star ^ 2) := by ring
+            _ = 16 / 161 * 1 := by rw [div_self hr2_pos.ne']
+            _ = 16 / 161 := mul_one _
+      _ ≤ 1 / 10 := by norm_num
+  have hw_nn : 0 ≤ w_fn (u₀ + (1 + u₀) / 100 * t) := by
+    rw [hw_fn_eq]; exact mul_nonneg hcoef_w_nn (sq_nonneg _)
+  exact ⟨by linarith only [hw_nn], by linarith only [hlam_w]⟩
+
+private lemma Q_w_sym_of_jc {r_star B_Q c lam : ℝ} (hr2_pos : 0 < r_star ^ 2)
+    (hBQ0 : 0 ≤ B_Q) (hc100 : 100 ≤ c) (hc_neg_half : c ^ (-(1 / 2 : ℝ)) ≤ r_star ^ 2 / 161)
+    (hlam_pos : 0 < lam) (hlam_le : lam ≤ c ^ (-(1 / 2 : ℝ)) / r_star ^ 2)
+    {Q_p : ℝ → ℝ} (hQ_p_jc : JC 8 (Ioo (-(1 / 10 : ℝ)) 1) Q_p B_Q) :
+    FctSymClsOn (Icc 0 (fctUc c)) 8 0 (100 ^ 8 * ((Nat.factorial 8 : ℝ) * B_Q))
+      (fun u => ((Q_p (lam * fctInnerY c u) : ℝ) : ℂ)) := by
+  have hc0 : 0 < c := by linarith only [hc100]
+  have hUc0 : 0 < fctUc c := fctUc_pos hc0
+  have hDu := uniqueDiffOn_Icc hUc0
+  let Y_Q : Set ℝ := Ioo (-(1 / 10 : ℝ)) 1
+  have hUd_YQ : UniqueDiffOn ℝ Y_Q := isOpen_Ioo.uniqueDiffOn
+  let w_fn : ℝ → ℝ := fun u => lam * fctInnerY c u
+  have hw_fn_eq : ∀ u : ℝ, w_fn u = lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * u ^ 2 := fun u => by
+    dsimp only [w_fn, fctInnerY]; ring
+  have hw_maps_YQ : ∀ u₀ ∈ Icc 0 (fctUc c), ∀ t ∈ Ioo (-1 : ℝ) 1,
+      w_fn (u₀ + (1 + u₀) / 100 * t) ∈ Y_Q :=
+    w_fn_maps_YQ hr2_pos hc100 hc_neg_half hlam_pos hlam_le
+  have hU_big_open : IsOpen (w_fn ⁻¹' Y_Q) := isOpen_Ioo.preimage (by
+    have heq : w_fn = fun u => lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * u ^ 2 := funext hw_fn_eq
+    rw [heq]; fun_prop)
+  have hsub_big : Icc 0 (fctUc c) ⊆ w_fn ⁻¹' Y_Q := fun u hu => by
+    have h0 := hw_maps_YQ u hu 0 ⟨by norm_num, by norm_num⟩
+    simpa using h0
+  have hcd_real : ContDiffOn ℝ 8 (fun u => Q_p (w_fn u)) (Icc 0 (fctUc c)) := by
+    have hw_cd : ContDiffOn ℝ 8 w_fn (Icc 0 (fctUc c)) := by
+      have heq : w_fn = fun u => lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * u ^ 2 := funext hw_fn_eq
+      rw [heq]; fun_prop
+    exact hQ_p_jc.1.comp hw_cd hsub_big
+  refine FctSymClsOn.ofReal_cast hDu hcd_real fun r hr u₀ hu₀ => ?_
+  let r₀ : ℝ := (1 + u₀) / 100
+  have hr₀_pos : 0 < r₀ := by dsimp only [r₀]; linarith only [hu₀.1]
+  let w_aff : ℝ → ℝ := fun t => w_fn (u₀ + r₀ * t)
+  have hw_aff_cd : ContDiffOn ℝ 8 w_aff (Ioo (-1 : ℝ) 1) := by
+    have heq : w_aff = fun t => lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * (u₀ + r₀ * t) ^ 2 := by
+      ext t; exact hw_fn_eq _
+    rw [heq]; fun_prop
+  have hw_aff_jb : ∀ i, 1 ≤ i → i ≤ 8 → ∀ t ∈ Ioo (-1 : ℝ) 1,
+      ‖iteratedFDerivWithin ℝ i w_aff (Ioo (-1 : ℝ) 1) t‖ ≤ 1 := by
+    intro i hi1 hi8 t ht
+    rw [norm_iteratedFDerivWithin_eq_norm_iteratedDerivWithin,
+      iteratedDerivWithin_of_isOpen isOpen_Ioo ht, Real.norm_eq_abs]
+    let k_w : ℝ := lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ))
+    have hkw_eq : w_aff = fun s => k_w * (u₀ + r₀ * s) ^ 2 := by ext s; exact hw_fn_eq _
+    have h1u : 1 + u₀ ≤ 4 * c ^ ((1 : ℝ) / 12) := by
+      have hc12_1 : 1 ≤ c ^ ((1 : ℝ) / 12) := Real.one_le_rpow (by linarith only [hc100]) (by norm_num)
+      have hu_le : u₀ ≤ 2.96 * c ^ ((1 : ℝ) / 12) := hu₀.2
+      linarith only [hu_le, hc12_1]
+    have hkw_c16 : k_w * (1 + u₀) ^ 2 ≤ 16 / 161 := by
+      have hc16 : (c ^ ((1 : ℝ) / 12)) ^ 2 = c ^ ((1 : ℝ) / 6) := by
+        rw [← Real.rpow_natCast (c ^ _), ← Real.rpow_mul hc0.le]; norm_num
+      have h1u2 : (1 + u₀) ^ 2 ≤ 16 * c ^ ((1 : ℝ) / 6) := by
+        calc (1 + u₀) ^ 2 ≤ (4 * c ^ ((1 : ℝ) / 12)) ^ 2 :=
+              pow_le_pow_left₀ (by linarith only [hu₀.1]) h1u 2
+          _ = 16 * c ^ ((1 : ℝ) / 6) := by rw [mul_pow, hc16]; ring
+      have h243 : (2 : ℝ) ^ (-(4 / 3 : ℝ)) ≤ 1 :=
+        Real.rpow_le_one_of_one_le_of_nonpos (by norm_num) (by norm_num)
+      have hc160 : c ^ (-(1 / 6 : ℝ)) * c ^ ((1 : ℝ) / 6) = 1 := by
+        rw [← Real.rpow_add hc0]; norm_num
+      calc k_w * (1 + u₀) ^ 2
+          ≤ (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2 * 1 * c ^ (-(1 / 6 : ℝ))) * (16 * c ^ ((1 : ℝ) / 6)) := by
+            dsimp only [k_w]; gcongr
+        _ = 16 * (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) := by
+            calc (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2 * 1 * c ^ (-(1 / 6 : ℝ))) * (16 * c ^ ((1 : ℝ) / 6))
+                = 16 * ((c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) * (c ^ (-(1 / 6 : ℝ)) * c ^ ((1 : ℝ) / 6))) := by ring
+              _ = 16 * (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) := by rw [hc160, mul_one]
+        _ ≤ 16 * ((r_star ^ 2 / 161) / r_star ^ 2) := by gcongr
+        _ = 16 / 161 := by
+            calc 16 * ((r_star ^ 2 / 161) / r_star ^ 2) = 16 / 161 * (r_star ^ 2 / r_star ^ 2) := by ring
+              _ = 16 / 161 * 1 := by rw [div_self hr2_pos.ne']
+              _ = 16 / 161 := mul_one _
+    rcases eq_or_lt_of_le hi1 with rfl | hi2
+    · rw [iteratedDeriv_one, hkw_eq]
+      have hd : deriv (fun s => k_w * (u₀ + r₀ * s) ^ 2) t = 2 * k_w * r₀ * (u₀ + r₀ * t) := by
+        have harg : HasDerivAt (fun s => u₀ + r₀ * s) r₀ t :=
+          ((hasDerivAt_const t u₀).add (((hasDerivAt_id t).const_mul r₀).congr_deriv (mul_one _))).congr_deriv (zero_add r₀)
+        exact (((harg.pow 2).const_mul k_w).congr_deriv (by ring)).deriv
+      rw [hd]
+      have harg : |u₀ + r₀ * t| ≤ 1.01 * (1 + u₀) := by
+        have ht1 : |t| ≤ 1 := by rw [abs_le]; constructor <;> linarith only [ht.1, ht.2]
+        calc |u₀ + r₀ * t| ≤ |u₀| + |r₀ * t| := abs_add_le _ _
+          _ = u₀ + r₀ * |t| := by rw [abs_of_nonneg hu₀.1, abs_mul, abs_of_pos hr₀_pos]
+          _ ≤ u₀ + r₀ * 1 := by gcongr
+          _ ≤ 1.01 * (1 + u₀) := by dsimp only [r₀]; linarith only [hu₀.1]
+      have hmul : |2 * k_w * r₀ * (u₀ + r₀ * t)| ≤ 2 * k_w * ((1 + u₀) / 100) * (1.01 * (1 + u₀)) := by
+        rw [abs_mul, abs_mul, abs_mul, abs_of_pos (by norm_num : (0 : ℝ) < 2),
+          abs_of_nonneg (by positivity : 0 ≤ k_w), abs_of_pos hr₀_pos]
+        dsimp only [r₀]
+        have : 0 ≤ 2 * k_w * ((1 + u₀) / 100) := by positivity
+        gcongr
+      have halg : 2 * k_w * ((1 + u₀) / 100) * (1.01 * (1 + u₀)) = (2.02 / 100) * (k_w * (1 + u₀) ^ 2) := by
+        ring
+      linarith only [hmul, halg, hkw_c16]
+    · rcases eq_or_lt_of_le (by omega : 2 ≤ i) with rfl | hi3
+      · rw [iteratedDeriv_succ, iteratedDeriv_one, hkw_eq]
+        have hd1 : deriv (fun s => k_w * (u₀ + r₀ * s) ^ 2) = fun s => 2 * k_w * r₀ * (u₀ + r₀ * s) := by
+          ext s
+          have harg : HasDerivAt (fun x => u₀ + r₀ * x) r₀ s :=
+            ((hasDerivAt_const s u₀).add (((hasDerivAt_id s).const_mul r₀).congr_deriv (mul_one _))).congr_deriv (zero_add r₀)
+          exact (((harg.pow 2).const_mul k_w).congr_deriv (by ring)).deriv
+        have hd2 : deriv (fun s => 2 * k_w * r₀ * (u₀ + r₀ * s)) t = 2 * k_w * r₀ ^ 2 := by
+          have harg : HasDerivAt (fun x => u₀ + r₀ * x) r₀ t :=
+            ((hasDerivAt_const t u₀).add (((hasDerivAt_id t).const_mul r₀).congr_deriv (mul_one _))).congr_deriv (zero_add r₀)
+          exact ((harg.const_mul (2 * k_w * r₀)).congr_deriv (by ring)).deriv
+        rw [hd1, hd2, abs_of_nonneg (by positivity)]
+        have halg : 2 * k_w * r₀ ^ 2 = (2 / 10000) * (k_w * (1 + u₀) ^ 2) := by dsimp only [r₀]; ring
+        linarith only [halg, hkw_c16]
+      · have hzero : iteratedDeriv i w_aff t = 0 := by
+          rw [hkw_eq]
+          obtain ⟨m, rfl⟩ : ∃ m, i = m + 3 := ⟨i - 3, by omega⟩
+          have h2 : iteratedDeriv 2 (fun s => k_w * (u₀ + r₀ * s) ^ 2) = fun _ => 2 * k_w * r₀ ^ 2 := by
+            ext y
+            rw [iteratedDeriv_succ, iteratedDeriv_one]
+            have hd1 : deriv (fun s => k_w * (u₀ + r₀ * s) ^ 2) = fun s => 2 * k_w * r₀ * (u₀ + r₀ * s) := by
+              ext s
+              have harg : HasDerivAt (fun x => u₀ + r₀ * x) r₀ s :=
+                ((hasDerivAt_const s u₀).add (((hasDerivAt_id s).const_mul r₀).congr_deriv (mul_one _))).congr_deriv (zero_add r₀)
+              exact (((harg.pow 2).const_mul k_w).congr_deriv (by ring)).deriv
+            rw [hd1]
+            have harg : HasDerivAt (fun x => u₀ + r₀ * x) r₀ y :=
+              ((hasDerivAt_const y u₀).add (((hasDerivAt_id y).const_mul r₀).congr_deriv (mul_one _))).congr_deriv (zero_add r₀)
+            exact ((harg.const_mul (2 * k_w * r₀)).congr_deriv (by ring)).deriv
+          have h3 : ∀ n : ℕ, ∀ x : ℝ, iteratedDeriv (n + 3) (fun s => k_w * (u₀ + r₀ * s) ^ 2) x = 0 := by
+            intro n
+            induction n with
+            | zero => intro x; rw [zero_add, iteratedDeriv_succ, h2]; simp
+            | succ n ih =>
+              intro x
+              rw [show n + 1 + 3 = (n + 3) + 1 by omega, iteratedDeriv_succ]
+              have hfn : iteratedDeriv (n + 3) (fun s => k_w * (u₀ + r₀ * s) ^ 2) = fun _ => (0 : ℝ) := funext ih
+              rw [hfn]; simp
+          exact h3 m t
+        rw [hzero, abs_zero]; exact zero_le_one
+  have hQ_jb := JB.comp (k := 8) isOpen_Ioo.uniqueDiffOn hUd_YQ hQ_p_jc.1 hw_aff_cd
+    (fun t ht => hw_maps_YQ u₀ hu₀ t ht) hBQ0
+    (fun y hy j hj => hQ_p_jc.2 j hj (w_aff y) (hw_maps_YQ u₀ hu₀ y hy)) hw_aff_jb
+  have h0_mem : (0 : ℝ) ∈ Ioo (-1 : ℝ) 1 := ⟨by norm_num, by norm_num⟩
+  have hle := hQ_jb r hr 0 h0_mem
+  rw [norm_iteratedFDerivWithin_eq_norm_iteratedDerivWithin, Real.norm_eq_abs, max_self, one_pow, mul_one,
+    iteratedDerivWithin_of_isOpen isOpen_Ioo h0_mem] at hle
+  change |iteratedDeriv r (fun t => Q_p (w_aff t)) 0| ≤ (Nat.factorial 8 : ℝ) * B_Q at hle
+  have haff_rel : iteratedDeriv r (fun t => Q_p (w_aff t)) 0 =
+      r₀ ^ r * iteratedDerivWithin r (fun u => Q_p (w_fn u)) (Icc 0 (fctUc c)) u₀ := by
+    have hcd_big : ContDiffOn ℝ 8 (fun u => Q_p (w_fn u)) (w_fn ⁻¹' Y_Q) := by
+      have hw_big : ContDiffOn ℝ 8 w_fn (w_fn ⁻¹' Y_Q) := by
+        have heq : w_fn = fun u => lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * u ^ 2 := funext hw_fn_eq
+        rw [heq]; fun_prop
+      exact hQ_p_jc.1.comp hw_big fun u hu => hu
+    have h0_big : u₀ ∈ w_fn ⁻¹' Y_Q := hsub_big hu₀
+    let Pre_U : Set ℝ := (fun s : ℝ => u₀ + r₀ * s) ⁻¹' (w_fn ⁻¹' Y_Q)
+    have hPre_open : IsOpen Pre_U := hU_big_open.preimage (by fun_prop)
+    have h0_pre : (0 : ℝ) ∈ Pre_U := by simpa [Pre_U] using h0_big
+    have hcomp_big := iteratedDerivWithin_comp_affine hU_big_open.uniqueDiffOn hPre_open.uniqueDiffOn
+      hcd_big hr (v := 0) (by simpa using h0_big)
+    change iteratedDerivWithin r (fun t => Q_p (w_aff t)) Pre_U 0 =
+      r₀ ^ r • iteratedDerivWithin r (fun u => Q_p (w_fn u)) (w_fn ⁻¹' Y_Q) (u₀ + r₀ * 0) at hcomp_big
+    rw [iteratedDerivWithin_of_isOpen hPre_open h0_pre, mul_zero, add_zero, smul_eq_mul,
+      iteratedDerivWithin_of_isOpen hU_big_open h0_big] at hcomp_big
+    rw [hcomp_big, iteratedDerivWithin_eq_iteratedDeriv hDu
+      ((hcd_big.contDiffAt (hU_big_open.mem_nhds h0_big)).of_le (by exact_mod_cast hr)) hu₀]
+  rw [haff_rel, abs_mul, abs_pow, abs_of_pos hr₀_pos] at hle
+  have hr0_inv : (r₀ ^ r)⁻¹ = 100 ^ r * (1 + u₀) ^ ((0 : ℝ) - r) := by
+    have h1p : 0 < 1 + u₀ := by linarith only [hu₀.1]
+    dsimp only [r₀]
+    rw [div_pow, inv_div, ← Real.rpow_natCast (1 + u₀) r, Real.rpow_sub h1p, Real.rpow_zero, one_div]
+    ring
+  calc |iteratedDerivWithin r (fun u => Q_p (w_fn u)) (Icc 0 (fctUc c)) u₀|
+      ≤ ((Nat.factorial 8 : ℝ) * B_Q) / r₀ ^ r := (le_div_iff₀ (pow_pos hr₀_pos r)).mpr (by linarith only [hle])
+    _ = ((Nat.factorial 8 : ℝ) * B_Q) * (100 ^ r * (1 + u₀) ^ ((0 : ℝ) - r)) := by
+        rw [div_eq_mul_inv, hr0_inv]
+    _ ≤ 100 ^ 8 * ((Nat.factorial 8 : ℝ) * B_Q) * (1 + u₀) ^ ((0 : ℝ) - r) := by
+        have h100r : (100 : ℝ) ^ r ≤ 100 ^ 8 := pow_le_pow_right₀ (by norm_num) hr
+        have hB_pos : 0 ≤ (Nat.factorial 8 : ℝ) * B_Q := by positivity
+        have hpow_pos : 0 ≤ (1 + u₀) ^ ((0 : ℝ) - r) := Real.rpow_nonneg (by linarith only [hu₀.1]) _
+        calc ((Nat.factorial 8 : ℝ) * B_Q) * (100 ^ r * (1 + u₀) ^ ((0 : ℝ) - r))
+            = 100 ^ r * ((Nat.factorial 8 : ℝ) * B_Q) * (1 + u₀) ^ ((0 : ℝ) - r) := by ring
+          _ ≤ 100 ^ 8 * ((Nat.factorial 8 : ℝ) * B_Q) * (1 + u₀) ^ ((0 : ℝ) - r) := by gcongr
+
 /-- **`(fct:inner-symbols)` (b3), `J₀ - 1` part**:
 under `c ≥ c₀`, `K₄ τ₁² ≤ 1`, `(ell1, 0, α) ∈ S.Ω`, and `S.A (ell1, 1, α) ≤ 4 c^{-1/6}`,
 we have `Jfun S.V fctH (τ₁^2) ((ell1, 0, α), fctInnerY c u) - 1 ∈ 𝒮^{10}(C c^{-4/3})` on `[0, U_c]`. -/
@@ -1059,10 +1413,8 @@ theorem fctInner_J0_sub_one_sym {M_box C0_box : ℝ}
     r_rs_chart_exist hM0 (by norm_num : (0 : ℝ) ≤ 2) hC0_pos
   have hr2_pos : 0 < r_star ^ 2 := sq_pos_of_pos hr_pos
   -- Uniform constants independent of `(T, K4, ε, c, L1, α)`
+  obtain ⟨B_Q, hBQ0, hQ_exist⟩ := Q_rs_jc_exist hBJrs_nn
   let Y_Q : Set ℝ := Ioo (-(1 / 10 : ℝ)) 1
-  let bw_Q : ℝ := 2 ^ 13 * 1 * ((Nat.factorial 13 : ℝ) * 1)
-  let C_comp_Q : ℝ := (Nat.factorial 13 : ℝ) * (max 1 (max 1 bw_Q)) ^ 13
-  let B_Q : ℝ := (Nat.factorial 8 : ℝ) * (2 ^ 13 * C_comp_Q * B_Jrs)
   let C_Q_sym : ℝ := 100 ^ 8 * ((Nat.factorial 8 : ℝ) * B_Q)
   let C_d : ℝ := 8 * B_Jrs / r_star ^ 2
   let C_w : ℝ := 2 / r_star ^ 2
@@ -1276,8 +1628,10 @@ theorem fctInner_J0_sub_one_sym {M_box C0_box : ℝ}
       rw [hτ₁_4_eq, ← one_div, div_div, mul_comm c _]
       have hpos : (0 : ℝ) < r_star ^ 2 * c := by positivity
       rw [div_lt_one hpos]
-      have : 2 ≤ r_star ^ 2 * c := (le_div_iff₀ hr2_pos).mp hc_r2 |>.trans_eq (mul_comm _ _)
-      linarith only [this]
+      have h2 : 2 ≤ r_star ^ 2 * c := by
+        calc (2 : ℝ) = r_star ^ 2 * (2 / r_star ^ 2) := by field_simp [hr2_pos.ne']
+          _ ≤ r_star ^ 2 * c := mul_le_mul_of_nonneg_left hc_r2 hr2_pos.le
+      linarith only [h2]
     exact ⟨⟨by linarith only [hprod1], hprod2⟩, ⟨by linarith only [hp2_pos], hp2_1⟩⟩
   have hR_small : ∀ z ∈ Ioo (-1 : ℝ) 6, |lam⁻¹ * S.R ((ell1, 0, α), z)| < 1 / 50 := by
     intro z hz
@@ -1299,7 +1653,8 @@ theorem fctInner_J0_sub_one_sym {M_box C0_box : ℝ}
     have h2 : |1 / 3 * z * (z - S.B (ell1, 0, α)) * S.R ((ell1, 0, α), z) ^ 2| ≤
         (1 / 3 : ℝ) * 6 * 7 * (1 / 50) ^ 2 := by
       rw [abs_mul, abs_mul, abs_mul, abs_pow, abs_of_pos (by norm_num : (0 : ℝ) < 1 / 3)]
-      have hh := mul_le_mul (mul_le_mul_of_nonneg_left hz6 (by norm_num)) hzB7 (abs_nonneg _) (by positivity)
+      have hh : (1 / 3 : ℝ) * |z| * |z - S.B (ell1, 0, α)| ≤ (1 / 3 : ℝ) * 6 * 7 :=
+        mul_le_mul (mul_le_mul_of_nonneg_left hz6 (by norm_num)) hzB7 (abs_nonneg _) (by positivity)
       exact mul_le_mul hh (pow_le_pow_left₀ (abs_nonneg _) hR50 2) (sq_nonneg _) (by positivity)
     have hcoef_ge : (1 / 2 : ℝ) ≤ coef := by
       have h1' := abs_le.mp h1
@@ -1322,11 +1677,14 @@ theorem fctInner_J0_sub_one_sym {M_box C0_box : ℝ}
         have hqσ := hσ_mem σ hσ
         have hbd := h17.2 1 (by norm_num) _ hqσ
         rw [norm_iteratedFDerivWithin_one _ (hO.uniqueDiffOn _ hqσ), fderivWithin_of_isOpen hO hqσ] at hbd
-        have hfd : ‖fderiv ℝ (fun x => fderiv ℝ S.r x (0, 1)) _ ((0 : ℝ × ℝ × ℝ), (1 : ℝ))‖ ≤ S.ε :=
+        have hbd' : ‖fderiv ℝ (fun x => fderiv ℝ S.r x (0, 1))
+            ((ell1, 0, α), S.B (ell1, 0, α) + σ * (z - S.B (ell1, 0, α)))‖ ≤ S.ε := by
+          simpa [Prod.norm_def] using hbd
+        have hfd : ‖fderiv ℝ (fun x => fderiv ℝ S.r x (0, 1))
+            ((ell1, 0, α), S.B (ell1, 0, α) + σ * (z - S.B (ell1, 0, α))) ((0 : ℝ × ℝ × ℝ), (1 : ℝ))‖ ≤ S.ε :=
           ((fderiv ℝ _ _).le_opNorm _).trans (by
             have hn1 : ‖((0 : ℝ × ℝ × ℝ), (1 : ℝ))‖ = 1 := by simp [Prod.norm_def]
-            rw [hn1, mul_one] at *
-            exact (mul_le_mul_of_nonneg_right hbd zero_le_one).trans_eq (mul_one _))
+            rw [hn1, mul_one]; exact hbd')
         have h1σ : ‖(1 - σ : ℝ)‖ ≤ 1 := by
           rw [Real.norm_eq_abs, abs_of_nonneg (by linarith only [hσ.2])]; linarith only [hσ.1]
         calc ‖(1 - σ) * fderiv ℝ (fun x => fderiv ℝ S.r x (0, 1)) _ (0, 1)‖
@@ -1337,17 +1695,26 @@ theorem fctInner_J0_sub_one_sym {M_box C0_box : ℝ}
         (show volume (Icc (0 : ℝ) 1) < ⊤ by simp) h_int_bd
       simpa [Real.norm_eq_abs, Real.volume_Icc] using hint_le
     have hR_le : |S.R ((ell1, 0, α), z)| ≤ 2 * S.ε := by
-      have heq : S.R ((ell1, 0, α), z) * coef = -hadH S.r S.B ((ell1, 0, α), z) := by
-        dsimp only [coef]; linarith only [hReq.2]
+      have hReq2 : hadH S.r S.B ((ell1, 0, α), z) + S.R ((ell1, 0, α), z) * coef = 0 := hReq.2
+      have heq : S.R ((ell1, 0, α), z) * coef = -hadH S.r S.B ((ell1, 0, α), z) := by linarith only [hReq2]
       have hab : |S.R ((ell1, 0, α), z)| * |coef| = |hadH S.r S.B ((ell1, 0, α), z)| := by
-        rw [← abs_mul, heq, abs_neg]
-      rw [abs_of_pos (by linarith only [hcoef_ge])] at hab
-      nlinarith only [hab, hcoef_ge, hhad_bd, abs_nonneg (S.R ((ell1, 0, α), z))]
+        calc |S.R ((ell1, 0, α), z)| * |coef| = |S.R ((ell1, 0, α), z) * coef| := (abs_mul _ _).symm
+          _ = |-hadH S.r S.B ((ell1, 0, α), z)| := by rw [heq]
+          _ = |hadH S.r S.B ((ell1, 0, α), z)| := abs_neg _
+      have hcoef_pos : 0 < coef := lt_of_lt_of_le (by norm_num) hcoef_ge
+      rw [abs_of_pos hcoef_pos] at hab
+      calc |S.R ((ell1, 0, α), z)|
+          = 2 * (1 / 2 * |S.R ((ell1, 0, α), z)|) := by ring
+        _ ≤ 2 * (|S.R ((ell1, 0, α), z)| * coef) := by
+            have hmul := mul_le_mul_of_nonneg_right hcoef_ge (abs_nonneg (S.R ((ell1, 0, α), z)))
+            linarith only [hmul]
+        _ = 2 * |hadH S.r S.B ((ell1, 0, α), z)| := by rw [hab]
+        _ ≤ 2 * S.ε := mul_le_mul_of_nonneg_left hhad_bd (by norm_num)
     rw [abs_mul, abs_of_pos (inv_pos.mpr hlam_pos)]
     calc lam⁻¹ * |S.R ((ell1, 0, α), z)|
-        ≤ (r_star ^ 2 / τ₁ ^ 2) * (2 * (C0_box * τ₁ ^ 2)) := by
-          rw [← hSε]
-          exact mul_le_mul_of_nonneg_left hR_le (inv_pos.mpr hlam_pos).le
+        ≤ lam⁻¹ * (2 * S.ε) := mul_le_mul_of_nonneg_left hR_le (inv_pos.mpr hlam_pos).le
+      _ = (r_star ^ 2 / τ₁ ^ 2) * (2 * (C0_box * τ₁ ^ 2)) := by
+          dsimp only [lam]; rw [inv_div, hSε]
       _ = 2 * C0_box * r_star ^ 2 := by
           have htne : τ₁ ^ 2 ≠ 0 := (sq_pos_of_pos hτ₁_pos).ne'
           field_simp [htne]
@@ -1424,104 +1791,9 @@ theorem fctInner_J0_sub_one_sym {M_box C0_box : ℝ}
     calc |F_der p_rs| ≤ B_Jrs * (8 / r_star ^ 2 * c ^ (-(2 / 3 : ℝ))) :=
           h1.trans (mul_le_mul_of_nonneg_left hprs_norm hBJrs_nn)
       _ = C_d * c ^ (-(2 / 3 : ℝ)) := by dsimp only [C_d]; ring
-  -- 2. `Q_rs` uniform `JC 8` bound on `Y_Q = (-1/10, 1)`
-  let Jrs_dd : (ℝ × ℝ) × ℝ → ℝ := fun q => fderiv ℝ (fun x => fderiv ℝ J_rs x (0, 1)) q (0, 1)
-  have hJrs_dd_jc : JC 13 (fctOmegaRs ×ˢ Yint) Jrs_dd B_Jrs := JC.deriv_snd hO_rs hJrs_d14
-  have hO_Q : IsOpen (fctOmegaRs ×ˢ Y_Q) := isOpen_fctOmegaRs.prod isOpen_Ioo
-  have hUd_Q : UniqueDiffOn ℝ (fctOmegaRs ×ˢ Y_Q) := hO_Q.uniqueDiffOn
-  have hUd_Q3 : UniqueDiffOn ℝ ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1) :=
-    hUd_Q.prod (uniqueDiffOn_Icc zero_lt_one)
-  have hσ_jc : JC 13 ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1) (fun x : ((ℝ × ℝ) × ℝ) × ℝ => x.2) 1 :=
-    JC.snd hUd_Q3 le_rfl fun x hx => by
-      rw [abs_le]; constructor <;> linarith only [hx.2.1, hx.2.2]
-  have hw0_jc : JC 13 (fctOmegaRs ×ˢ Y_Q) (fun q : (ℝ × ℝ) × ℝ => q.2) 1 :=
-    JC.snd hUd_Q le_rfl fun q hq => by
-      rw [abs_le]; constructor <;> linarith only [hq.2.1, hq.2.2]
-  have hw_jc : JC 13 ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1)
-      (fun x : ((ℝ × ℝ) × ℝ) × ℝ => x.1.2) ((Nat.factorial 13 : ℝ) * 1) :=
-    JC.comp_clm hUd_Q3 hUd_Q (ContinuousLinearMap.fst ℝ ((ℝ × ℝ) × ℝ) ℝ) (norm_fst_le_one _ _)
-      (by norm_num : (0 : ℝ) ≤ 1) hw0_jc fun x hx => hx.1
-  let L_p : (((ℝ × ℝ) × ℝ) × ℝ) →L[ℝ] (ℝ × ℝ) :=
-    (ContinuousLinearMap.fst ℝ (ℝ × ℝ) ℝ).comp (ContinuousLinearMap.fst ℝ ((ℝ × ℝ) × ℝ) ℝ)
-  have hLp_n : ‖L_p‖ ≤ 1 := (ContinuousLinearMap.opNorm_comp_le _ _).trans (by
-    have h1 := norm_fst_le_one (ℝ × ℝ) ℝ
-    have h2 := norm_fst_le_one ((ℝ × ℝ) × ℝ) ℝ
-    nlinarith only [h1, h2, norm_nonneg (ContinuousLinearMap.fst ℝ (ℝ × ℝ) ℝ),
-      norm_nonneg (ContinuousLinearMap.fst ℝ ((ℝ × ℝ) × ℝ) ℝ)])
-  have hmul_σw : JC 13 ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1)
-      (fun x : ((ℝ × ℝ) × ℝ) × ℝ => x.2 * x.1.2) bw_Q := by
-    have h1 := JC.mul hUd_Q3 zero_le_one (by positivity) hσ_jc hw_jc
-    exact h1.mono (le_of_eq (by dsimp only [bw_Q]; ring))
-  have hLp_u : ∀ i, 1 ≤ i → i ≤ 13 → ∀ y ∈ ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1),
-      ‖iteratedFDerivWithin ℝ i (fun x : ((ℝ × ℝ) × ℝ) × ℝ => L_p x)
-        ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1) y‖ ≤ 1 :=
-    fun i hi _ y hy => (norm_iteratedFDerivWithin_clm_le hUd_Q3 L_p hi hy).trans hLp_n
-  have hQ_comp := JC.comp_pair hUd_Q3 hUd_rs (g := Jrs_dd)
-    (u := fun x => L_p x) (w := fun x => x.2 * x.1.2) (b1 := 1) (b2 := bw_Q)
-    hBJrs_nn hJrs_dd_jc L_p.contDiff.contDiffOn hmul_σw.1 hLp_u
-    (fun i _ hi y hy => hmul_σw.2 i hi y hy)
-    (by
-      intro x hx
-      refine ⟨hx.1.1, ?_⟩
-      have hσ := hx.2
-      have hw := hx.1.2
-      have hlo : -(1 / 5 : ℝ) < x.2 * x.1.2 := by nlinarith only [hσ.1, hσ.2, hw.1, hw.2]
-      have hhi : x.2 * x.1.2 < 36 / 10 := by nlinarith only [hσ.1, hσ.2, hw.1, hw.2]
-      exact ⟨hlo, hhi⟩)
-  have h1mσ : JC 13 ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1)
-      (fun x : ((ℝ × ℝ) × ℝ) × ℝ => 1 - x.2) 1 :=
-    ((JC.const hUd_Q3 (1 : ℝ)).sub hUd_Q3 hσ_jc).mono (by norm_num)
-  have hQ_integrand : JC 13 ((fctOmegaRs ×ˢ Y_Q) ×ˢ Icc (0 : ℝ) 1)
-      (fun x : ((ℝ × ℝ) × ℝ) × ℝ => (1 - x.2) * Jrs_dd (x.1.1, x.2 * x.1.2))
-      (2 ^ 13 * 1 * (C_comp_Q * B_Jrs)) := by
-    refine (JC.mul hUd_Q3 zero_le_one (by positivity) h1mσ hQ_comp).mono ?_
-    dsimp only [C_comp_Q]
-    exact le_of_eq (by ring)
-  let Q_rs : (ℝ × ℝ) × ℝ → ℝ := fun q => ∫ σ in Icc (0 : ℝ) 1, (1 - σ) * Jrs_dd (q.1, σ * q.2)
-  have hQ_rs_jc : JC 13 (fctOmegaRs ×ˢ Y_Q) Q_rs (2 ^ 13 * 1 * (C_comp_Q * B_Jrs)) :=
-    JC.integral01 hO_Q (f := fun q σ => (1 - σ) * Jrs_dd (q.1, σ * q.2)) hQ_integrand
+  -- 2. `Q_rs` uniform `JC 8` bound on `Y_Q = (-1/10, 1)` via `Q_rs_jc_exist`
+  obtain ⟨Q_p, hQ_p_jc, hQ_p_int⟩ := hQ_exist hprs_mem hJrs_jc
   have hUd_YQ : UniqueDiffOn ℝ Y_Q := isOpen_Ioo.uniqueDiffOn
-  have hQ_p_jc : JC 8 Y_Q (fun w => Q_rs (p_rs, w)) B_Q := by
-    have hcomp8 := JC.comp_pair (k := 8) hUd_YQ hUd_Q (g := Q_rs)
-      (u := fun _ : ℝ => p_rs) (w := fun t : ℝ => t) (b1 := 1) (b2 := 1)
-      (by positivity) (hQ_rs_jc.mono_n (by norm_num)) contDiffOn_const contDiffOn_id
-      (fun j hj1 _ t ht => by
-        rw [iteratedFDerivWithin_eq_iteratedFDeriv hUd_YQ contDiffAt_const ht,
-          iteratedFDeriv_const_of_ne (by omega) p_rs, norm_zero]
-        exact zero_le_one)
-      (fun j hj1 _ t ht => by
-        rw [iteratedFDerivWithin_eq_iteratedFDeriv hUd_YQ contDiffAt_id ht]
-        rcases eq_or_lt_of_le hj1 with rfl | hj2
-        · simp [norm_one]
-        · have hz := iteratedFDeriv_id (𝕜 := ℝ) (F := ℝ) (n := j) t
-          simp only [show j ≠ 1 by omega, ↓reduceIte] at hz
-          rw [hz, norm_zero]; exact zero_le_one)
-      (fun _ ht => ⟨hprs_mem, ht⟩)
-    refine hcomp8.mono (le_of_eq ?_)
-    have hmax1 : max (1 : ℝ) (max 1 1) = 1 := by norm_num
-    rw [hmax1, one_pow, mul_one]
-    dsimp only [B_Q]
-    ring
-  -- 3. `Jrs_dd (p_rs, y) = iteratedDeriv 2 (J_rs (p_rs, ·)) y` on `Yint`, giving Hadamard identity
-  have hJrs_dd_eq : ∀ y ∈ Yint, iteratedDeriv 2 (fun t => J_rs (p_rs, t)) y = Jrs_dd (p_rs, y) := by
-    intro y hy
-    have hder1 : EqOn (deriv (fun t => J_rs (p_rs, t)))
-        (fun t => fderiv ℝ J_rs (p_rs, t) (0, 1)) Yint := by
-      intro t ht
-      have h1 := ((hJrs_jc.1.contDiffAt (hO_rs.mem_nhds ⟨hprs_mem, ht⟩)).differentiableAt
-        (by norm_num)).hasFDerivAt
-      have h2 : HasDerivAt (fun s : ℝ => (p_rs, s)) (0, 1) t := by
-        simpa using (hasDerivAt_const t p_rs).prodMk (hasDerivAt_id t)
-      exact (h1.comp_hasDerivAt t h2).deriv
-    have hhd : HasDerivAt (fun t => fderiv ℝ J_rs (p_rs, t) (0, 1)) (Jrs_dd (p_rs, y)) y := by
-      have h1 := ((hJrs_d14.1.contDiffAt (hO_rs.mem_nhds ⟨hprs_mem, hy⟩)).differentiableAt
-        (by norm_num)).hasFDerivAt
-      have h2 : HasDerivAt (fun s : ℝ => (p_rs, s)) (0, 1) y := by
-        simpa using (hasDerivAt_const y p_rs).prodMk (hasDerivAt_id y)
-      exact h1.comp_hasDerivAt y h2
-    have hderiv_eq : HasDerivAt (deriv (fun t => J_rs (p_rs, t))) (Jrs_dd (p_rs, y)) y :=
-      hhd.congr_of_eventuallyEq ((Filter.eventuallyEq_of_mem (isOpen_Ioo.mem_nhds hy) fun t ht => hder1 ht))
-    rw [iteratedDeriv_succ, iteratedDeriv_one, hderiv_eq.deriv]
   -- 4. `Q_rs (p_rs, lam * Y(u)) ∈ 𝒮^8_0(C_Q_sym)` on `[0, U_c]`
   let w_fn : ℝ → ℝ := fun u => lam * fctInnerY c u
   have hw_fn_eq : ∀ u : ℝ, w_fn u = lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * u ^ 2 := fun u => by
@@ -1537,213 +1809,10 @@ theorem fctInner_J0_sub_one_sym {M_box C0_box : ℝ}
       _ = 1 / r_star ^ 2 * c ^ (-(2 / 3 : ℝ)) := by rw [← hc_eq]; ring
       _ ≤ 2 / r_star ^ 2 * c ^ (-(2 / 3 : ℝ)) := by gcongr; norm_num
   have hw_maps_YQ : ∀ u₀ ∈ Icc 0 (fctUc c), ∀ t ∈ Ioo (-1 : ℝ) 1,
-      w_fn (u₀ + (1 + u₀) / 100 * t) ∈ Y_Q := by
-    intro u₀ hu₀ t ht
-    have hu_nn : 0 ≤ u₀ := hu₀.1
-    have hu_le : u₀ ≤ 2.96 * c ^ ((1 : ℝ) / 12) := hu₀.2
-    have hc12_1 : 1 ≤ c ^ ((1 : ℝ) / 12) := Real.one_le_rpow (by linarith only [hc100]) (by norm_num)
-    have harg_abs : |u₀ + (1 + u₀) / 100 * t| ≤ 4 * c ^ ((1 : ℝ) / 12) := by
-      have h1 : |t| ≤ 1 := by rw [abs_le]; constructor <;> linarith only [ht.1, ht.2]
-      have h2 : |u₀ + (1 + u₀) / 100 * t| ≤ u₀ + (1 + u₀) / 100 := by
-        calc |u₀ + (1 + u₀) / 100 * t| ≤ |u₀| + |(1 + u₀) / 100 * t| := abs_add_le _ _
-          _ = u₀ + (1 + u₀) / 100 * |t| := by
-              rw [abs_of_nonneg hu_nn, abs_mul, abs_of_nonneg (by positivity)]
-          _ ≤ u₀ + (1 + u₀) / 100 * 1 := by gcongr
-          _ = u₀ + (1 + u₀) / 100 := by ring
-      nlinarith only [h2, hu_le, hc12_1]
-    have hc16 : (c ^ ((1 : ℝ) / 12)) ^ 2 = c ^ ((1 : ℝ) / 6) := by
-      rw [← Real.rpow_natCast (c ^ _), ← Real.rpow_mul hc0.le]; norm_num
-    have hsq : (u₀ + (1 + u₀) / 100 * t) ^ 2 ≤ 16 * c ^ ((1 : ℝ) / 6) := by
-      rw [← sq_abs]
-      calc |u₀ + (1 + u₀) / 100 * t| ^ 2 ≤ (4 * c ^ ((1 : ℝ) / 12)) ^ 2 :=
-            pow_le_pow_left₀ (abs_nonneg _) harg_abs 2
-        _ = 16 * (c ^ ((1 : ℝ) / 12)) ^ 2 := by ring
-        _ = 16 * c ^ ((1 : ℝ) / 6) := by rw [hc16]
-    have hlam_w : w_fn (u₀ + (1 + u₀) / 100 * t) ≤ 1 / 10 := by
-      rw [hw_fn_eq]
-      have hinv : (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) * c ^ (-(1 / 6 : ℝ)) * c ^ ((1 : ℝ) / 6) =
-          c ^ (-(1 / 2 : ℝ)) / r_star ^ 2 := by
-        have hc160 : c ^ (-(1 / 6 : ℝ)) * c ^ ((1 : ℝ) / 6) = 1 := by
-          rw [← Real.rpow_add hc0]; norm_num
-        calc (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) * c ^ (-(1 / 6 : ℝ)) * c ^ ((1 : ℝ) / 6)
-            = c ^ (-(1 / 2 : ℝ)) / r_star ^ 2 * (c ^ (-(1 / 6 : ℝ)) * c ^ ((1 : ℝ) / 6)) := by ring
-          _ = c ^ (-(1 / 2 : ℝ)) / r_star ^ 2 := by rw [hc160, mul_one]
-      calc lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * (u₀ + (1 + u₀) / 100 * t) ^ 2
-          ≤ (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) * 1 * c ^ (-(1 / 6 : ℝ)) * (16 * c ^ ((1 : ℝ) / 6)) := by
-            have h243 : (2 : ℝ) ^ (-(4 / 3 : ℝ)) ≤ 1 :=
-              Real.rpow_le_one_of_one_le_of_nonpos (by norm_num) (by norm_num)
-            have hlam_eq : lam = c ^ (-(1 / 2 : ℝ)) / r_star ^ 2 := by dsimp only [lam]; rw [hτ₁_sq_eq]
-            rw [hlam_eq]
-            gcongr
-        _ = 16 * (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) := by
-            have hc160 : c ^ (-(1 / 6 : ℝ)) * c ^ ((1 : ℝ) / 6) = 1 := by
-              rw [← Real.rpow_add hc0]; norm_num
-            calc (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) * 1 * c ^ (-(1 / 6 : ℝ)) * (16 * c ^ ((1 : ℝ) / 6))
-                = 16 * ((c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) * (c ^ (-(1 / 6 : ℝ)) * c ^ ((1 : ℝ) / 6))) := by ring
-              _ = 16 * (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) := by rw [hc160, mul_one]
-        _ ≤ 16 * ((r_star ^ 2 / 161) / r_star ^ 2) := by gcongr
-        _ = 16 / 161 := by field_simp [hr2_pos.ne']
-        _ ≤ 1 / 10 := by norm_num
-    have hw_nn : 0 ≤ w_fn (u₀ + (1 + u₀) / 100 * t) := by
-      rw [hw_fn_eq]; exact mul_nonneg hcoef_w_nn (sq_nonneg _)
-    exact ⟨by linarith only [hw_nn], by linarith only [hlam_w]⟩
-  have hQ_w_sym : FctSymClsOn (Icc 0 (fctUc c)) 8 0 C_Q_sym (fun u => ((Q_rs (p_rs, w_fn u) : ℝ) : ℂ)) := by
-    have hU_big_open : IsOpen (w_fn ⁻¹' Y_Q) := isOpen_Ioo.preimage (by
-      have heq : w_fn = fun u => lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * u ^ 2 := funext hw_fn_eq
-      rw [heq]; fun_prop)
-    have hsub_big : Icc 0 (fctUc c) ⊆ w_fn ⁻¹' Y_Q := fun u hu => by
-      have h0 := hw_maps_YQ u hu 0 ⟨by norm_num, by norm_num⟩
-      simpa using h0
-    have hcd_real : ContDiffOn ℝ 8 (fun u => Q_rs (p_rs, w_fn u)) (Icc 0 (fctUc c)) := by
-      have hw_cd : ContDiffOn ℝ 8 w_fn (Icc 0 (fctUc c)) := by
-        have heq : w_fn = fun u => lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * u ^ 2 := funext hw_fn_eq
-        rw [heq]; fun_prop
-      exact hQ_p_jc.1.comp hw_cd hsub_big
-    refine FctSymClsOn.ofReal_cast hDu hcd_real fun r hr u₀ hu₀ => ?_
-    let r₀ : ℝ := (1 + u₀) / 100
-    have hr₀_pos : 0 < r₀ := by dsimp only [r₀]; linarith only [hu₀.1]
-    let w_aff : ℝ → ℝ := fun t => w_fn (u₀ + r₀ * t)
-    have hw_aff_cd : ContDiffOn ℝ 8 w_aff (Ioo (-1 : ℝ) 1) := by
-      have heq : w_aff = fun t => lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * (u₀ + r₀ * t) ^ 2 := by
-        ext t; exact hw_fn_eq _
-      rw [heq]; fun_prop
-    have hw_aff_jb : ∀ i, 1 ≤ i → i ≤ 8 → ∀ t ∈ Ioo (-1 : ℝ) 1,
-        ‖iteratedFDerivWithin ℝ i w_aff (Ioo (-1 : ℝ) 1) t‖ ≤ 1 := by
-      intro i hi1 hi8 t ht
-      have hcd_all : ContDiff ℝ 8 w_aff := by
-        have heq : w_aff = fun s => lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * (u₀ + r₀ * s) ^ 2 := by
-          ext s; exact hw_fn_eq _
-        rw [heq]; fun_prop
-      rw [norm_iteratedFDerivWithin_eq_norm_iteratedDerivWithin,
-        iteratedDerivWithin_of_isOpen isOpen_Ioo ht, Real.norm_eq_abs]
-      let k_w : ℝ := lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ))
-      have hkw_eq : w_aff = fun s => k_w * (u₀ + r₀ * s) ^ 2 := by ext s; exact hw_fn_eq _
-      have h1u : 1 + u₀ ≤ 4 * c ^ ((1 : ℝ) / 12) := by
-        have hc12_1 : 1 ≤ c ^ ((1 : ℝ) / 12) := Real.one_le_rpow (by linarith only [hc100]) (by norm_num)
-        linarith only [hu₀.2, hc12_1]
-      have hkw_c16 : k_w * (1 + u₀) ^ 2 ≤ 16 / 161 := by
-        have hc16 : (c ^ ((1 : ℝ) / 12)) ^ 2 = c ^ ((1 : ℝ) / 6) := by
-          rw [← Real.rpow_natCast (c ^ _), ← Real.rpow_mul hc0.le]; norm_num
-        have h1u2 : (1 + u₀) ^ 2 ≤ 16 * c ^ ((1 : ℝ) / 6) := by
-          calc (1 + u₀) ^ 2 ≤ (4 * c ^ ((1 : ℝ) / 12)) ^ 2 :=
-                pow_le_pow_left₀ (by linarith only [hu₀.1]) h1u 2
-            _ = 16 * c ^ ((1 : ℝ) / 6) := by rw [mul_pow, hc16]
-        have h243 : (2 : ℝ) ^ (-(4 / 3 : ℝ)) ≤ 1 :=
-          Real.rpow_le_one_of_one_le_of_nonpos (by norm_num) (by norm_num)
-        have hlam_eq : lam = c ^ (-(1 / 2 : ℝ)) / r_star ^ 2 := by dsimp only [lam]; rw [hτ₁_sq_eq]
-        have hc160 : c ^ (-(1 / 6 : ℝ)) * c ^ ((1 : ℝ) / 6) = 1 := by
-          rw [← Real.rpow_add hc0]; norm_num
-        calc k_w * (1 + u₀) ^ 2
-            ≤ (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2 * 1 * c ^ (-(1 / 6 : ℝ))) * (16 * c ^ ((1 : ℝ) / 6)) := by
-              dsimp only [k_w]; rw [hlam_eq]; gcongr
-          _ = 16 * (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) := by
-              calc (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2 * 1 * c ^ (-(1 / 6 : ℝ))) * (16 * c ^ ((1 : ℝ) / 6))
-                  = 16 * ((c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) * (c ^ (-(1 / 6 : ℝ)) * c ^ ((1 : ℝ) / 6))) := by ring
-                _ = 16 * (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2) := by rw [hc160, mul_one]
-          _ ≤ 16 * ((r_star ^ 2 / 161) / r_star ^ 2) := by gcongr
-          _ = 16 / 161 := by field_simp [hr2_pos.ne']
-      rcases eq_or_lt_of_le hi1 with rfl | hi2
-      · rw [iteratedDeriv_one, hkw_eq]
-        have hd : deriv (fun s => k_w * (u₀ + r₀ * s) ^ 2) t = 2 * k_w * r₀ * (u₀ + r₀ * t) := by
-          have harg : HasDerivAt (fun s => u₀ + r₀ * s) r₀ t := by
-            simpa using (hasDerivAt_const t u₀).add ((hasDerivAt_id t).const_mul r₀)
-          exact (((harg.pow 2).const_mul k_w).congr_deriv (by ring)).deriv
-        rw [hd]
-        have harg : |u₀ + r₀ * t| ≤ 1.01 * (1 + u₀) := by
-          have ht1 : |t| ≤ 1 := by rw [abs_le]; constructor <;> linarith only [ht.1, ht.2]
-          calc |u₀ + r₀ * t| ≤ |u₀| + |r₀ * t| := abs_add_le _ _
-            _ = u₀ + r₀ * |t| := by rw [abs_of_nonneg hu₀.1, abs_mul, abs_of_pos hr₀_pos]
-            _ ≤ u₀ + r₀ * 1 := by gcongr
-            _ ≤ 1.01 * (1 + u₀) := by dsimp only [r₀]; linarith only [hu₀.1]
-        have hmul : |2 * k_w * r₀ * (u₀ + r₀ * t)| ≤ 2 * k_w * ((1 + u₀) / 100) * (1.01 * (1 + u₀)) := by
-          rw [abs_mul, abs_mul, abs_mul, abs_of_pos (by norm_num : (0 : ℝ) < 2),
-            abs_of_nonneg (by positivity : 0 ≤ k_w), abs_of_pos hr₀_pos]
-          dsimp only [r₀]
-          have : 0 ≤ 2 * k_w * ((1 + u₀) / 100) := by positivity
-          gcongr
-        have halg : 2 * k_w * ((1 + u₀) / 100) * (1.01 * (1 + u₀)) = (2.02 / 100) * (k_w * (1 + u₀) ^ 2) := by
-          ring
-        linarith only [hmul, halg, hkw_c16]
-      · rcases eq_or_lt_of_le (by omega : 2 ≤ i) with rfl | hi3
-        · rw [iteratedDeriv_succ, iteratedDeriv_one, hkw_eq]
-          have hd1 : deriv (fun s => k_w * (u₀ + r₀ * s) ^ 2) = fun s => 2 * k_w * r₀ * (u₀ + r₀ * s) := by
-            ext s
-            have harg : HasDerivAt (fun x => u₀ + r₀ * x) r₀ s := by
-              simpa using (hasDerivAt_const s u₀).add ((hasDerivAt_id s).const_mul r₀)
-            exact (((harg.pow 2).const_mul k_w).congr_deriv (by ring)).deriv
-          have hd2 : deriv (fun s => 2 * k_w * r₀ * (u₀ + r₀ * s)) t = 2 * k_w * r₀ ^ 2 := by
-            have harg : HasDerivAt (fun x => u₀ + r₀ * x) r₀ t := by
-              simpa using (hasDerivAt_const t u₀).add ((hasDerivAt_id t).const_mul r₀)
-            exact ((harg.const_mul (2 * k_w * r₀)).congr_deriv (by ring)).deriv
-          rw [hd1, hd2, abs_of_nonneg (by positivity)]
-          have halg : 2 * k_w * r₀ ^ 2 = (2 / 10000) * (k_w * (1 + u₀) ^ 2) := by dsimp only [r₀]; ring
-          linarith only [halg, hkw_c16]
-        · have hzero : iteratedDeriv i w_aff t = 0 := by
-            rw [hkw_eq]
-            let P : Polynomial ℝ := Polynomial.C k_w * (Polynomial.C u₀ + Polynomial.C r₀ * Polynomial.X) ^ 2
-            have heval : (fun s => k_w * (u₀ + r₀ * s) ^ 2) = fun s => P.eval s := by
-              ext s; simp [P]
-            rw [heval]
-            have hdeg : P.natDegree < i := by
-              have hle2 : P.natDegree ≤ 2 := by
-                calc P.natDegree ≤ (Polynomial.C k_w).natDegree +
-                      ((Polynomial.C u₀ + Polynomial.C r₀ * Polynomial.X) ^ 2).natDegree :=
-                        Polynomial.natDegree_mul_le
-                  _ = ((Polynomial.C u₀ + Polynomial.C r₀ * Polynomial.X) ^ 2).natDegree := by simp
-                  _ ≤ 2 * (Polynomial.C u₀ + Polynomial.C r₀ * Polynomial.X).natDegree :=
-                        Polynomial.natDegree_pow_le
-                  _ ≤ 2 * 1 := by
-                        gcongr
-                        exact (Polynomial.natDegree_add_le _ _).trans (by
-                          simp only [Polynomial.natDegree_C, zero_max]
-                          exact (Polynomial.natDegree_mul_le).trans (by simp))
-                  _ = 2 := by ring
-              omega
-            simp [Polynomial.iteratedDeriv_eval_eq_zero_of_natDegree_lt hdeg]
-          rw [hzero, abs_zero]; exact zero_le_one
-    have hQ_jb := JB.comp (k := 8) isOpen_Ioo.uniqueDiffOn hUd_YQ hQ_p_jc.1 hw_aff_cd
-      (fun t ht => hw_maps_YQ u₀ hu₀ t ht) (by positivity)
-      (fun w hw j hj => hQ_p_jc.2 j hj w hw) hw_aff_jb
-    have h0_mem : (0 : ℝ) ∈ Ioo (-1 : ℝ) 1 := ⟨by norm_num, by norm_num⟩
-    have hle := hQ_jb r hr 0 h0_mem
-    rw [norm_iteratedFDerivWithin_eq_norm_iteratedDerivWithin, Real.norm_eq_abs, max_self, one_pow, mul_one,
-      iteratedDerivWithin_of_isOpen isOpen_Ioo h0_mem] at hle
-    have haff_rel : iteratedDeriv r (fun t => Q_rs (p_rs, w_aff t)) 0 =
-        r₀ ^ r * iteratedDerivWithin r (fun u => Q_rs (p_rs, w_fn u)) (Icc 0 (fctUc c)) u₀ := by
-      have hcd_big : ContDiffOn ℝ 8 (fun u => Q_rs (p_rs, w_fn u)) (w_fn ⁻¹' Y_Q) := by
-        have hw_big : ContDiffOn ℝ 8 w_fn (w_fn ⁻¹' Y_Q) := by
-          have heq : w_fn = fun u => lam * 2 ^ (-(4 / 3 : ℝ)) * c ^ (-(1 / 6 : ℝ)) * u ^ 2 := funext hw_fn_eq
-          rw [heq]; fun_prop
-        exact hQ_p_jc.1.comp hw_big fun u hu => hu
-      have h0_big : u₀ ∈ w_fn ⁻¹' Y_Q := hsub_big hu₀
-      let Pre_U : Set ℝ := (fun s : ℝ => u₀ + r₀ * s) ⁻¹' (w_fn ⁻¹' Y_Q)
-      have hPre_open : IsOpen Pre_U := hU_big_open.preimage (by fun_prop)
-      have h0_pre : (0 : ℝ) ∈ Pre_U := by simpa [Pre_U] using h0_big
-      have hcomp_big := iteratedDerivWithin_comp_affine hU_big_open.uniqueDiffOn hPre_open.uniqueDiffOn
-        hcd_big hr (v := 0) (by simpa using h0_big)
-      change iteratedDerivWithin r (fun t => Q_rs (p_rs, w_aff t)) Pre_U 0 =
-        r₀ ^ r • iteratedDerivWithin r (fun u => Q_rs (p_rs, w_fn u)) (w_fn ⁻¹' Y_Q) (u₀ + r₀ * 0) at hcomp_big
-      rw [iteratedDerivWithin_of_isOpen hPre_open h0_pre, mul_zero, add_zero, smul_eq_mul,
-        iteratedDerivWithin_of_isOpen hU_big_open h0_big] at hcomp_big
-      rw [hcomp_big, iteratedDerivWithin_eq_iteratedDeriv hDu
-        ((hcd_big.contDiffAt (hU_big_open.mem_nhds h0_big)).of_le (by exact_mod_cast hr)) hu₀]
-    rw [haff_rel, abs_mul, abs_pow, abs_of_pos hr₀_pos] at hle
-    have hr0_inv : (r₀ ^ r)⁻¹ = 100 ^ r * (1 + u₀) ^ ((0 : ℝ) - r) := by
-      have h1p : 0 < 1 + u₀ := by linarith only [hu₀.1]
-      dsimp only [r₀]
-      rw [div_pow, inv_div, ← Real.rpow_natCast (1 + u₀) r, Real.rpow_sub h1p, Real.rpow_zero, one_div]
-      ring
-    calc |iteratedDerivWithin r (fun u => Q_rs (p_rs, w_fn u)) (Icc 0 (fctUc c)) u₀|
-        ≤ ((Nat.factorial 8 : ℝ) * B_Q) / r₀ ^ r := (le_div_iff₀ (pow_pos hr₀_pos r)).mpr (by linarith only [hle])
-      _ = ((Nat.factorial 8 : ℝ) * B_Q) * (100 ^ r * (1 + u₀) ^ ((0 : ℝ) - r)) := by
-          rw [div_eq_mul_inv, hr0_inv]
-      _ ≤ 100 ^ 8 * ((Nat.factorial 8 : ℝ) * B_Q) * (1 + u₀) ^ ((0 : ℝ) - r) := by
-          have h100r : (100 : ℝ) ^ r ≤ 100 ^ 8 := pow_le_pow_right₀ (by norm_num) hr
-          have hB_pos : 0 ≤ (Nat.factorial 8 : ℝ) * B_Q := by positivity
-          have hpow_pos : 0 ≤ (1 + u₀) ^ ((0 : ℝ) - r) := by positivity
-          calc ((Nat.factorial 8 : ℝ) * B_Q) * (100 ^ r * (1 + u₀) ^ ((0 : ℝ) - r))
-              = 100 ^ r * ((Nat.factorial 8 : ℝ) * B_Q) * (1 + u₀) ^ ((0 : ℝ) - r) := by ring
-            _ ≤ 100 ^ 8 * ((Nat.factorial 8 : ℝ) * B_Q) * (1 + u₀) ^ ((0 : ℝ) - r) := by gcongr
+      w_fn (u₀ + (1 + u₀) / 100 * t) ∈ Y_Q :=
+    w_fn_maps_YQ hr2_pos hc100 hc_neg_half hlam_pos (by dsimp only [lam]; rw [hτ₁_sq_eq])
+  have hQ_w_sym : FctSymClsOn (Icc 0 (fctUc c)) 8 0 C_Q_sym (fun u => ((Q_p (w_fn u) : ℝ) : ℂ)) :=
+    Q_w_sym_of_jc hr2_pos hBQ0 hc100 hc_neg_half hlam_pos (by dsimp only [lam]; rw [hτ₁_sq_eq]) hQ_p_jc
   -- 5. Combine linear + quadratic pieces via `FctSymClsOn`
   have hw_sym : FctSymClsOn (Icc 0 (fctUc c)) 8 2 (C_w * c ^ (-(2 / 3 : ℝ)))
       (fun u => ((w_fn u : ℝ) : ℂ)) := by
@@ -1762,7 +1831,7 @@ theorem fctInner_J0_sub_one_sym {M_box C0_box : ℝ}
         _ ≤ 2 * (c ^ (-(1 / 2 : ℝ)) / r_star ^ 2 * 1 * c ^ (-(1 / 6 : ℝ))) := by rw [hlam_eq]; gcongr
         _ = C_w * c ^ (-(2 / 3 : ℝ)) := by dsimp only [C_w]; rw [← hc_eq]; ring
     refine (hsc.mono_B Icc_subset_Ici_self hle).congr hDu fun u _ => ?_
-    rw [hw_fn_eq]; push_cast; ring
+    dsimp only [k_w]; rw [hw_fn_eq]; push_cast; ring
   have hlin_sym : FctSymClsOn (Icc 0 (fctUc c)) 8 10 (C_lin * c ^ (-(4 / 3 : ℝ)))
       (fun u => ((deriv (fun w => J_rs (p_rs, w)) 0 * w_fn u : ℝ) : ℂ)) := by
     let d_lin : ℝ := deriv (fun w => J_rs (p_rs, w)) 0
@@ -1771,14 +1840,17 @@ theorem fctInner_J0_sub_one_sym {M_box C0_box : ℝ}
       rw [Complex.norm_real, Real.norm_eq_abs]
       have hcexp : c ^ (-(2 / 3 : ℝ)) * c ^ (-(2 / 3 : ℝ)) = c ^ (-(4 / 3 : ℝ)) := by
         rw [← Real.rpow_add hc0]; congr 1; norm_num
+      have hd_bd : |d_lin| ≤ C_d * c ^ (-(2 / 3 : ℝ)) := hder_prs_bd
       calc |d_lin| * (C_w * c ^ (-(2 / 3 : ℝ)))
-          ≤ (C_d * c ^ (-(2 / 3 : ℝ))) * (C_w * c ^ (-(2 / 3 : ℝ))) := by gcongr; exact hder_prs_bd
+          ≤ (C_d * c ^ (-(2 / 3 : ℝ))) * (C_w * c ^ (-(2 / 3 : ℝ))) :=
+            mul_le_mul_of_nonneg_right hd_bd (by positivity)
         _ = C_lin * c ^ (-(4 / 3 : ℝ)) := by dsimp only [C_lin]; rw [← hcexp]; ring
-    refine ((hsc.mono_B Icc_subset_Ici_self hle).mono_p Icc_subset_Ici_self (by positivity)
+    have hC_lin_nn : 0 ≤ C_lin * c ^ (-(4 / 3 : ℝ)) := by positivity
+    refine ((hsc.mono_B Icc_subset_Ici_self hle).mono_p Icc_subset_Ici_self hC_lin_nn
       (by norm_num)).congr hDu fun u _ => ?_
-    push_cast; rfl
+    dsimp only [d_lin]; push_cast; rfl
   have hquad_sym : FctSymClsOn (Icc 0 (fctUc c)) 8 10 (C_quad * c ^ (-(4 / 3 : ℝ)))
-      (fun u => ((w_fn u ^ 2 * Q_rs (p_rs, w_fn u) : ℝ) : ℂ)) := by
+      (fun u => ((w_fn u ^ 2 * Q_p (w_fn u) : ℝ) : ℂ)) := by
     have hw2 := hw_sym.mul Icc_subset_Ici_self hDu hw_sym
     have hcexp : c ^ (-(2 / 3 : ℝ)) * c ^ (-(2 / 3 : ℝ)) = c ^ (-(4 / 3 : ℝ)) := by
       rw [← Real.rpow_add hc0]; congr 1; norm_num
@@ -1790,7 +1862,8 @@ theorem fctInner_J0_sub_one_sym {M_box C0_box : ℝ}
     have hmul_eq : 2 ^ 8 * (2 ^ 8 * C_w * C_w * c ^ (-(4 / 3 : ℝ))) * C_Q_sym =
         C_quad * c ^ (-(4 / 3 : ℝ)) := by
       dsimp only [C_quad]; ring
-    refine ((hmul.mono_B Icc_subset_Ici_self hmul_eq.le).mono_p Icc_subset_Ici_self (by positivity)
+    have hC_quad_nn : 0 ≤ C_quad * c ^ (-(4 / 3 : ℝ)) := by positivity
+    refine ((hmul.mono_B Icc_subset_Ici_self hmul_eq.le).mono_p Icc_subset_Ici_self hC_quad_nn
       (by norm_num)).congr hDu fun u _ => ?_
     push_cast; ring
   have hsum := hlin_sym.add hDu hquad_sym
@@ -1798,26 +1871,33 @@ theorem fctInner_J0_sub_one_sym {M_box C0_box : ℝ}
     dsimp only [C_tot]; ring
   refine (hsum.mono_B Icc_subset_Ici_self hsum_eq.le).congr hDu fun u hu => ?_
   have hY_mem : fctInnerY c u ∈ Icc (0 : ℝ) 3.5 := fctInnerY_mem_35 (by linarith only [hc100]) hu
-  have hscale := Jfun_scale_eq hr_pos hSrs_Ω hSrs_ℓ hSrs_r h15rs hτ₁_pos hTmt rfl
+  have hscale := Jfun_scale_eq (c := c) hr_pos hSrs_Ω hSrs_ℓ hSrs_r h15rs hτ₁_pos hTmt rfl
     hSΩ hSℓ hSr hp0_mem hlam_pos hlam_16 hprs_mem hR_small (fctInnerY c u) hY_mem
   have hw_YQ : w_fn u ∈ Y_Q := by
     have h0 := hw_maps_YQ u hu 0 ⟨by norm_num, by norm_num⟩
     simpa using h0
   have hw_Yint : w_fn u ∈ Yint := ⟨by linarith only [hw_YQ.1], by linarith only [hw_YQ.2]⟩
-  have hhad := hadamard_second_order (hJrs_w_cd.of_le (by norm_num)) (hJrs_0 p_rs hprs_mem) hw_Yint
+  have hhad := hadamard_second_order ((hJrs_w_cd.of_le (by norm_num)).sub contDiffOn_const)
+    (by dsimp only [J_rs]; rw [hJrs_0 p_rs hprs_mem, sub_self]) hw_Yint
+  have hderiv_sub : deriv (fun w => J_rs (p_rs, w) - 1) 0 = deriv (fun w => J_rs (p_rs, w)) 0 :=
+    deriv_sub_const _
+  have h2_sub : ∀ x : ℝ, iteratedDeriv 2 (fun t => J_rs (p_rs, t) - 1) x =
+      iteratedDeriv 2 (fun t => J_rs (p_rs, t)) x := fun x => by
+    have h1 : deriv (fun t => J_rs (p_rs, t) - 1) = deriv (fun t => J_rs (p_rs, t)) := by
+      ext t; exact deriv_sub_const _
+    rw [iteratedDeriv_succ, iteratedDeriv_one, h1]
+    symm
+    rw [iteratedDeriv_succ, iteratedDeriv_one]
+  have hint_sub : ∫ σ in Icc (0 : ℝ) 1, (1 - σ) * iteratedDeriv 2 (fun t => J_rs (p_rs, t) - 1) (σ * w_fn u) =
+      ∫ σ in Icc (0 : ℝ) 1, (1 - σ) * iteratedDeriv 2 (fun t => J_rs (p_rs, t)) (σ * w_fn u) :=
+    MeasureTheory.setIntegral_congr_fun measurableSet_Icc fun σ _ => by rw [h2_sub (σ * w_fn u)]
   have hint_eq : ∫ σ in Icc (0 : ℝ) 1, (1 - σ) * iteratedDeriv 2 (fun t => J_rs (p_rs, t)) (σ * w_fn u) =
-      Q_rs (p_rs, w_fn u) := by
-    refine MeasureTheory.setIntegral_congr_fun measurableSet_Icc fun σ hσ => ?_
-    have hσw_Yint : σ * w_fn u ∈ Yint := by
-      have h1 : -(1 / 10 : ℝ) < σ * w_fn u := by nlinarith only [hσ.1, hσ.2, hw_YQ.1, hw_YQ.2]
-      have h2 : σ * w_fn u < 1 := by nlinarith only [hσ.1, hσ.2, hw_YQ.1, hw_YQ.2]
-      exact ⟨by linarith only [h1], by linarith only [h2]⟩
-    rw [hJrs_dd_eq (σ * w_fn u) hσw_Yint]
+      Q_p (w_fn u) := (hQ_p_int (w_fn u) hw_YQ).symm
   have hval : Jfun S.V fctH (τ₁ ^ 2) ((ell1, 0, α), fctInnerY c u) - 1 =
-      deriv (fun w => J_rs (p_rs, w)) 0 * w_fn u + w_fn u ^ 2 * Q_rs (p_rs, w_fn u) := by
+      deriv (fun w => J_rs (p_rs, w)) 0 * w_fn u + w_fn u ^ 2 * Q_p (w_fn u) := by
     rw [hscale]
-    change J_rs (p_rs, w_fn u) - 1 = _
-    rw [← hint_eq]
+    change (J_rs (p_rs, w_fn u) - 1) = _
+    rw [hderiv_sub, hint_sub, hint_eq] at hhad
     linarith only [hhad]
   rw [hval]
   push_cast
