@@ -717,7 +717,7 @@ theorem hb_clusters (prob : FixedWeightProblem) (H : HermiteBiehlerData)
                   have := min_le_right (r0 - |uStar k n - CD.z k|) (chartUT (c n) (B n) - uStar k n)
                   linarith [(abs_lt.mp hx).2]
                 have hB_le_Δ : B n ≤ virasoroDeltaChart (c n) x := by
-                  rw [← hΔB]
+                  dsimp [B]; rw [← hΔB]
                   exact (virasoroDeltaChart_strictAnti hcpos).antitoneOn
                     (abs_le.mp hx_vac) (abs_le.mp hB_vac) hx_le_B
                 have hre := psiTilde_re_ofReal prob hcpos hwe_n.1 hx_vac
@@ -745,7 +745,7 @@ theorem hb_clusters (prob : FixedWeightProblem) (H : HermiteBiehlerData)
               exact Finset.single_le_sum (fun _ _ => Nat.zero_le _) (hfin.mem_toFinset.mpr ⟨hu_c, hnz.ne'⟩)
             have h2 : analyticOrderNatAt (psiTilde prob (c n) (gs_bad n)) (uStar k n : ℂ) = 2 := by omega
             simpa [hkS] using h2
-        rw [← hu_eq] at hord_good
+        rw [hgs_eq, ← hu_eq] at hord_good
         exact hbad_choose hord_good
       exact hfreq hcontra
     filter_upwards [hzero_all, hord_all] with n hz ho gs hwe k

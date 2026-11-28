@@ -30,7 +30,7 @@ private instance (H : HermiteBiehlerData) : Finite (HbNodes H) :=
   Finite.of_injective (fun i : HbNodes H => (⟨i.1, i.2.1⟩ : H.S))
     (fun _ _ h => Subtype.ext (Subtype.mk.inj h))
 
-private lemma uAiry_antitoneOn {c : ℝ} (hc : 0 < c) :
+lemma uAiry_antitoneOn {c : ℝ} (hc : 0 < c) :
     AntitoneOn (uAiry c) (Ici (0 : ℝ)) := by
   intro t1 ht1 t2 ht2 hle
   unfold uAiry
@@ -38,12 +38,12 @@ private lemma uAiry_antitoneOn {c : ℝ} (hc : 0 < c) :
   have h2 : 3 * t1 / c ≤ 3 * t2 / c := div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left hle (by norm_num)) hc.le
   have hsq : Real.sqrt (3 * t1 / c) ≤ Real.sqrt (3 * t2 / c) := Real.sqrt_le_sqrt h2
   have hc23 : 0 ≤ betaTip * c ^ ((2 : ℝ) / 3) := mul_nonneg betaTip_pos.le (Real.rpow_nonneg hc.le _)
-  exact mul_le_mul_of_nonneg_left (by linarith) hc23
+  nlinarith
 
-private lemma uAiry_sub_shift_tendsto {c B η : ℕ → ℝ} {tm : ℝ}
+lemma uAiry_sub_shift_tendsto {c B η : ℕ → ℝ} {tm : ℝ}
     (hc : Tendsto c atTop atTop)
     (hB : Tendsto (fun n => uAiry (c n) (B n)) atTop (𝓝 tm))
-    (hη_nn : ∀ᶠ n in atTop, 0 ≤ η n)
+    (_hη_nn : ∀ᶠ n in atTop, 0 ≤ η n)
     (hη_o : Tendsto (fun n => η n / (c n) ^ ((1 : ℝ) / 3)) atTop (𝓝 0)) :
     Tendsto (fun n => uAiry (c n) (B n - η n)) atTop (𝓝 tm) ∧
       ∀ᶠ n in atTop, 0 < B n - η n := by
@@ -75,9 +75,8 @@ private lemma uAiry_sub_shift_tendsto {c B η : ℕ → ℝ} {tm : ℝ}
       have hmul : (c n) ^ ((1 : ℝ) / 3) * (c n) ^ ((2 : ℝ) / 3) = c n := by
         rw [← Real.rpow_add hcn]; norm_num
       field_simp [hcn.ne', hp13, hp23]
-      calc (3 * B n - 3 * η n) * ((c n) ^ ((1 : ℝ) / 3) * (c n) ^ ((2 : ℝ) / 3))
-          = (3 * B n - 3 * η n) * c n := by rw [hmul]
-        _ = 3 * B n * c n - 3 * η n * c n := by ring
+      simp only [mul_assoc, hmul]
+      ring
     have h0 : Tendsto (fun n => 3 * B n / c n - 3 * (η n / (c n) ^ ((1 : ℝ) / 3)) * (c n) ^ (-(2 / 3 : ℝ)))
         atTop (𝓝 (xiStar ^ 2)) := by
       have h23 : Tendsto (fun n => (c n) ^ (-(2 / 3 : ℝ))) atTop (𝓝 0) :=
@@ -86,11 +85,13 @@ private lemma uAiry_sub_shift_tendsto {c B η : ℕ → ℝ} {tm : ℝ}
     exact h0.congr' (heq.mono fun _ h => h.symm)
   have hBη_pos : ∀ᶠ n in atTop, 0 < B n - η n := by
     have hxi2 : 0 < xiStar ^ 2 := pow_pos xiStar_pos 2
-    filter_upwards [hc.eventually_gt_atTop 0, hshift_tend.eventually (gt_mem_nhds' (by positivity : xiStar ^ 2 / 2 < xiStar ^ 2))]
+    filter_upwards [hc.eventually_gt_atTop 0, hshift_tend.eventually (lt_mem_nhds (by linarith [hxi2] : xiStar ^ 2 / 2 < xiStar ^ 2))]
       with n hcn hgt
     have hpos_div : 0 < 3 * (B n - η n) / c n := lt_trans (half_pos hxi2) hgt
-    exact pos_of_mul_pos_right ((mul_pos_iff_of_pos_right hcn).mp (by
-      simpa [div_mul_cancel₀ _ hcn.ne'] using mul_pos hpos_div hcn)) (by norm_num : (0 : ℝ) ≤ 3)
+    have hmul_pos : 0 < 3 * (B n - η n) := by
+      have := mul_pos hpos_div hcn
+      rwa [div_mul_cancel₀ _ hcn.ne'] at this
+    linarith
   let y : ℕ → ℝ := fun n => Real.sqrt (3 * (B n - η n) / c n)
   have hy_tend : Tendsto y atTop (𝓝 xiStar) := by
     simpa [Real.sqrt_sq xiStar_pos.le] using hshift_tend.sqrt
@@ -98,8 +99,8 @@ private lemma uAiry_sub_shift_tendsto {c B η : ℕ → ℝ} {tm : ℝ}
     have heq : ∀ᶠ n in atTop, uAiry (c n) (B n - η n) - uAiry (c n) (B n) =
         3 * betaTip * (η n / (c n) ^ ((1 : ℝ) / 3)) / (xB n + y n) := by
       filter_upwards [hc.eventually_gt_atTop 0, hB_pos, hBη_pos,
-        hxB_tend.eventually (gt_mem_nhds' (half_pos xiStar_pos)),
-        hy_tend.eventually (gt_mem_nhds' (half_pos xiStar_pos))]
+        hxB_tend.eventually (lt_mem_nhds (by linarith [xiStar_pos] : xiStar / 2 < xiStar)),
+        hy_tend.eventually (lt_mem_nhds (by linarith [xiStar_pos] : xiStar / 2 < xiStar))]
         with n hcn hBn hBη hxgt hygt
       have hxy_pos : 0 < xB n + y n := add_pos (lt_trans (half_pos xiStar_pos) hxgt)
         (lt_trans (half_pos xiStar_pos) hygt)
@@ -114,16 +115,22 @@ private lemma uAiry_sub_shift_tendsto {c B η : ℕ → ℝ} {tm : ℝ}
         rw [← Real.rpow_add hcn]; norm_num
       have hp13 : (c n) ^ ((1 : ℝ) / 3) ≠ 0 := (Real.rpow_pos_of_pos hcn _).ne'
       unfold uAiry
-      have e1 : betaTip * c n ^ ((2 : ℝ) / 3) * (xiStar - y n) -
-          betaTip * c n ^ ((2 : ℝ) / 3) * (xiStar - xB n) =
+      have e1 : -betaTip * (y n - xiStar) * c n ^ ((2 : ℝ) / 3) -
+          -betaTip * (xB n - xiStar) * c n ^ ((2 : ℝ) / 3) =
           betaTip * c n ^ ((2 : ℝ) / 3) * (xB n - y n) := by ring
+      dsimp [xB, y] at e1
       rw [e1, hsub_eq]
       field_simp [hcn.ne', hp13, hxy_pos.ne']
-      rw [mul_assoc, hpow]; ring
+      calc betaTip * c n ^ ((2 : ℝ) / 3) * η n * c n ^ ((1 : ℝ) / 3)
+          = betaTip * η n * (c n ^ ((2 : ℝ) / 3) * c n ^ ((1 : ℝ) / 3)) := by ring
+        _ = betaTip * η n * c n := by rw [hpow]
     have h0 : Tendsto (fun n => 3 * betaTip * (η n / (c n) ^ ((1 : ℝ) / 3)) / (xB n + y n))
         atTop (𝓝 0) := by
       have hden : Tendsto (fun n => xB n + y n) atTop (𝓝 (xiStar + xiStar)) := hxB_tend.add hy_tend
-      simpa using ((hη_o.const_mul (3 * betaTip)).div hden (by linarith [xiStar_pos]))
+      have hdiv : Tendsto (fun n => 3 * betaTip * (η n / (c n) ^ ((1 : ℝ) / 3)) / (xB n + y n))
+          atTop (𝓝 (3 * betaTip * 0 / (xiStar + xiStar))) :=
+        (hη_o.const_mul (3 * betaTip)).div hden (by linarith [xiStar_pos])
+      simpa using hdiv
     exact h0.congr' (heq.mono fun _ h => h.symm)
   exact ⟨by simpa using hB.add hdiff_tend, hBη_pos⟩
 
@@ -197,8 +204,8 @@ theorem hb_clusters_prescribed_raw (prob : FixedWeightProblem) (H : HermiteBiehl
       rw [eventually_all]
       intro k
       by_cases hzk : CD.z k = i.1
-      · filter_upwards [hi_all i k hzk] with n hn meas hν _; exact hn meas hν
-      · exact Eventually.of_forall fun _ _ _ hbad => absurd hbad hzk
+      · filter_upwards [hi_all i k hzk] with n hn _ meas hν; exact hn meas hν
+      · exact Eventually.of_forall fun _ hbad => absurd hbad hzk
     filter_upwards [hall_i] with n hn meas hν i k hzk
     exact hn i k hzk meas hν
   intro i k hzk
@@ -218,6 +225,7 @@ theorem hb_clusters_prescribed_raw (prob : FixedWeightProblem) (H : HermiteBiehl
         rintro ⟨h1, h2⟩
         have : |CD.z j - CD.z k| < r0 / 2 := abs_lt.mpr ⟨by linarith, by linarith⟩
         linarith
+      dsimp [φ]
       rw [hbump_zero () (CD.z j) hj_not, mul_zero]
     · intro hk; exact absurd (Finset.mem_univ k) hk
   have h_int_eq : ∀ᶠ n in atTop,
@@ -337,7 +345,7 @@ theorem hb_clusters_prescribed_raw (prob : FixedWeightProblem) (H : HermiteBiehl
     rw [heq, abs_div, abs_of_pos hω_pos, div_le_iff₀ hω_pos]
     exact h5 meas hsub_τ
   have hq_err : |q - 1| ≤ min (ε / 2) 1 := by
-    simpa [q, R, bi, amp, Metric.mem_ball, Real.dist_eq] using hcq.le
+    simpa [q, R, bi, amp, mul_assoc, Metric.mem_ball, Real.dist_eq] using hcq.le
   have hq_abs : |q| ≤ 2 := by
     have := abs_le.mp (hq_err.trans (min_le_right _ _))
     exact abs_le.mpr ⟨by linarith, by linarith⟩
@@ -350,7 +358,8 @@ theorem hb_clusters_prescribed_raw (prob : FixedWeightProblem) (H : HermiteBiehl
       _ = (spectralWeight prob (c n) (s i n) * (meas.ν {s i n}).toReal / CD.ω k) *
             ((2 * Real.pi * prob.cardyV (c n / 12) (s i n) * jAiry (c n) (s i n)) /
               (amp * R)) := by ring
-  dsimp [bi, amp] at hrat_eq ⊢
+  dsimp [bi, amp, R] at hrat_eq ⊢
+  simp only [← mul_assoc] at hrat_eq ⊢
   rw [hrat_eq]
   have htri : |p * q - 1| ≤ |p - 1| * |q| + |q - 1| := by
     have e : p * q - 1 = (p - 1) * q + (q - 1) := by ring
