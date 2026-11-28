@@ -11,7 +11,7 @@ public import FormalResearch.SignUncertainty.FctWarpWinInner
 
 Leaf helper module for `FctWarpWinRSq.lean`:
 * `win_fctS_û_lipschitz`: for `p ≤ 20`, `û ↦ fctS û κ` is `C B`-Lipschitz on `[-M, M]`;
-* `win_mu_diag_sub_one`: `winMuMix K4 ε c L1 L1 α - 1 ∈ 𝒮^8_{10}(C c^{-7/6})` on `[0, fctUc c]`.
+* `win_mu_diag_sub_one`: `winMuMix K4 ε c L1 L1 α - 1 ∈ 𝒮^8_{10}(C c^{-4/3})` on `[0, fctUc c]` when `|α| ≤ Cα c^{-2/3}`.
 
 Class: proved.
 -/
@@ -356,13 +356,13 @@ lemma win_fctS_û_lipschitz {M : ℝ} {p : ℕ} (hM : 0 < M) (hp : p ≤ 20) :
   · rw [norm_sub_rev, abs_sub_comm]
     exact win_fctS_û_lipschitz_le hM hp C_u hCu hû₂ hû₁ hle hB hκ
 
-/-! ### 2. `winMuMix L1 - 1` symbol class bound `O(c^{-7/6})` -/
+/-! ### 2. `winMuMix L1 - 1` symbol class bound `O(c^{-4/3})` -/
 
-lemma win_mu_diag_sub_one {K4 : ℝ} (hK4 : 1 ≤ K4) :
+lemma win_mu_diag_sub_one {K4 : ℝ} (hK4 : 1 ≤ K4) {Cα : ℝ} (hCα : 0 ≤ Cα) :
     ∃ (C_1 c₀ : ℝ), 0 ≤ C_1 ∧ 10000 ≤ c₀ ∧ ∀ {ε c L1 α : ℝ},
       (ε = 1 ∨ ε = -1) → c₀ ≤ c →
-      (concreteInnerFamily K4 ε).adm c L1 α → |α| ≤ c ^ (-(1 / 2 : ℝ)) →
-      FctSymClsOn (Icc 0 (fctUc c)) 8 10 (C_1 * c ^ (-(7 / 6 : ℝ)))
+      (concreteInnerFamily K4 ε).adm c L1 α → |α| ≤ Cα * c ^ (-(2 / 3 : ℝ)) →
+      FctSymClsOn (Icc 0 (fctUc c)) 8 10 (C_1 * c ^ (-(4 / 3 : ℝ)))
         (fun u => winMuMix K4 ε c L1 L1 α u - 1) := by
   let B3_p := concreteInnerB3 (K4 := K4) (ε := 1) hK4
   let B3_m := concreteInnerB3 (K4 := K4) (ε := -1) hK4
@@ -370,17 +370,15 @@ lemma win_mu_diag_sub_one {K4 : ℝ} (hK4 : 1 ≤ K4) :
   let c3 : ℝ := max B3_p.choose_spec.choose B3_m.choose_spec.choose
   let cbase : ℝ := max 10000 ((30 * pbC0 + 1) ^ 2)
   have hc_ev : ∀ᶠ c : ℝ in atTop,
-      cbase ≤ c ∧ c3 ≤ c ∧ pbcV * pbC0 * c ^ (-(1 / 2 : ℝ)) ≤ 0.5 ∧ c ^ (-(1 / 6 : ℝ)) ≤ 1 := by
-    refine Eventually.and (eventually_ge_atTop cbase) (Eventually.and (eventually_ge_atTop c3)
-      (Eventually.and ?_ ?_))
-    · have ht : Tendsto (fun c : ℝ => pbcV * pbC0 * c ^ (-(1 / 2 : ℝ))) atTop (𝓝 0) := by
-        simpa [mul_zero] using (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 2)).const_mul _
-      exact ht.eventually (Iic_mem_nhds (by norm_num : (0 : ℝ) < 0.5))
-    · exact (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 6)).eventually (Iic_mem_nhds zero_lt_one)
+      cbase ≤ c ∧ c3 ≤ c ∧ pbcV * pbC0 * c ^ (-(1 / 2 : ℝ)) ≤ 0.5 := by
+    refine Eventually.and (eventually_ge_atTop cbase) (Eventually.and (eventually_ge_atTop c3) ?_)
+    have ht : Tendsto (fun c : ℝ => pbcV * pbC0 * c ^ (-(1 / 2 : ℝ))) atTop (𝓝 0) := by
+      simpa [mul_zero] using (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 2)).const_mul _
+    exact ht.eventually (Iic_mem_nhds (by norm_num : (0 : ℝ) < 0.5))
   obtain ⟨c₀, hc₀⟩ := eventually_atTop.mp hc_ev
-  let C_1 : ℝ := C3 + 9 * 2 ^ 10
+  let C_1 : ℝ := C3 + 9 * 2 ^ 10 * Cα
   refine ⟨C_1, max 10000 c₀, by positivity, le_max_left _ _, fun {ε c L1 α} hε hc hadm hα => ?_⟩
-  obtain ⟨hcbase, hcc3, hV0_sm, hc16_le1⟩ := hc₀ c ((le_max_right _ _).trans hc)
+  obtain ⟨hcbase, hcc3, hV0_sm⟩ := hc₀ c ((le_max_right _ _).trans hc)
   have hfacts' : max 100 ((30 * pbC0 + 1) ^ 2) ≤ c :=
     le_trans (max_le_max (by norm_num) le_rfl) hcbase
   have hfc := concrete_adm_facts hfacts' hadm
@@ -416,13 +414,16 @@ lemma win_mu_diag_sub_one {K4 : ℝ} (hK4 : 1 ≤ K4) :
     rw [hV0_eq, abs_mul, abs_of_pos (by positivity), abs_sq, ← sq_abs]
     calc (2 : ℝ) ^ (-(4 / 3 : ℝ)) * |concreteInnerV K4 ε c L1 α 0| ^ 2 ≤ 1 * 3 ^ 2 := by gcongr
       _ = 9 := by norm_num
-  have hc2_fac : |c ^ (-(2 / 3 : ℝ)) * α * (concreteInnerFamily K4 ε).c2 c L1 α| ≤ 9 * c ^ (-(7 / 6 : ℝ)) := by
-    have hc76 : c ^ (-(2 / 3 : ℝ)) * c ^ (-(1 / 2 : ℝ)) = c ^ (-(7 / 6 : ℝ)) := by
+  have hc2_fac : |c ^ (-(2 / 3 : ℝ)) * α * (concreteInnerFamily K4 ε).c2 c L1 α| ≤
+      9 * Cα * c ^ (-(4 / 3 : ℝ)) := by
+    have hc43 : c ^ (-(2 / 3 : ℝ)) * c ^ (-(2 / 3 : ℝ)) = c ^ (-(4 / 3 : ℝ)) := by
       rw [← Real.rpow_add hc0]; congr 1; norm_num
     rw [abs_mul, abs_mul, abs_of_pos (Real.rpow_pos_of_pos hc0 _)]
     calc c ^ (-(2 / 3 : ℝ)) * |α| * |(concreteInnerFamily K4 ε).c2 c L1 α|
-        ≤ c ^ (-(2 / 3 : ℝ)) * c ^ (-(1 / 2 : ℝ)) * 9 := by gcongr
-      _ = 9 * c ^ (-(7 / 6 : ℝ)) := by rw [hc76]; ring
+        ≤ c ^ (-(2 / 3 : ℝ)) * (Cα * c ^ (-(2 / 3 : ℝ))) * 9 := by gcongr
+      _ = 9 * Cα * c ^ (-(4 / 3 : ℝ)) := by
+          rw [show c ^ (-(2 / 3 : ℝ)) * (Cα * c ^ (-(2 / 3 : ℝ))) * 9 =
+            9 * Cα * (c ^ (-(2 / 3 : ℝ)) * c ^ (-(2 / 3 : ℝ))) by ring, hc43]
   have hu2_on : FctSymClsOn (Icc 0 (fctUc c)) 8 10 (2 ^ 10) (fun u : ℝ => ((u ^ 2 : ℝ) : ℂ)) := by
     have hsq := (win_id_symCls.mul Set.Subset.rfl (uniqueDiffOn_Ici 0) win_id_symCls).mono_set
       Icc_subset_Ici_self hDu (uniqueDiffOn_Ici 0)
@@ -431,7 +432,7 @@ lemma win_mu_diag_sub_one {K4 : ℝ} (hK4 : 1 ≤ K4) :
         Icc_subset_Ici_self (by norm_num)
     exact FctSymClsOn.congr hDu hsq' fun u _ => by push_cast; ring
   let c2f : ℝ := c ^ (-(2 / 3 : ℝ)) * α * (concreteInnerFamily K4 ε).c2 c L1 α
-  have hlin_on : FctSymClsOn (Icc 0 (fctUc c)) 8 10 (9 * 2 ^ 10 * c ^ (-(7 / 6 : ℝ)))
+  have hlin_on : FctSymClsOn (Icc 0 (fctUc c)) 8 10 (9 * 2 ^ 10 * Cα * c ^ (-(4 / 3 : ℝ)))
       (fun u : ℝ => ((c2f * u ^ 2 : ℝ) : ℂ)) := by
     have hc : FctSymClsOn (Icc 0 (fctUc c)) 8 10 (‖(c2f : ℂ)‖ * 2 ^ 10)
         (fun u : ℝ => ((c2f * u ^ 2 : ℝ) : ℂ)) :=
@@ -439,16 +440,10 @@ lemma win_mu_diag_sub_one {K4 : ℝ} (hK4 : 1 ≤ K4) :
         fun u _ => by push_cast; ring
     refine hc.mono_B Icc_subset_Ici_self ?_
     rw [Complex.norm_real, Real.norm_eq_abs]
-    calc |c2f| * 2 ^ 10 ≤ (9 * c ^ (-(7 / 6 : ℝ))) * 2 ^ 10 := by gcongr
-      _ = 9 * 2 ^ 10 * c ^ (-(7 / 6 : ℝ)) := by ring
-  have hc43_76 : C3 * c ^ (-(4 / 3 : ℝ)) ≤ C3 * c ^ (-(7 / 6 : ℝ)) := by
-    have h1 : c ^ (-(4 / 3 : ℝ)) = c ^ (-(1 / 6 : ℝ)) * c ^ (-(7 / 6 : ℝ)) := by
-      rw [← Real.rpow_add hc0]; congr 1; norm_num
-    rw [h1, ← mul_assoc]
-    calc C3 * c ^ (-(1 / 6 : ℝ)) * c ^ (-(7 / 6 : ℝ)) ≤ C3 * 1 * c ^ (-(7 / 6 : ℝ)) := by gcongr
-      _ = C3 * c ^ (-(7 / 6 : ℝ)) := by ring
-  have hadd := (hb3.mono_B Icc_subset_Ici_self hc43_76).add hDu hlin_on
-  have hfinal : FctSymClsOn (Icc 0 (fctUc c)) 8 10 ((C3 + 9 * 2 ^ 10) * c ^ (-(7 / 6 : ℝ)))
+    calc |c2f| * 2 ^ 10 ≤ (9 * Cα * c ^ (-(4 / 3 : ℝ))) * 2 ^ 10 := by gcongr
+      _ = 9 * 2 ^ 10 * Cα * c ^ (-(4 / 3 : ℝ)) := by ring
+  have hadd := hb3.add hDu hlin_on
+  have hfinal : FctSymClsOn (Icc 0 (fctUc c)) 8 10 ((C3 + 9 * 2 ^ 10 * Cα) * c ^ (-(4 / 3 : ℝ)))
       (fun u => winMuMix K4 ε c L1 L1 α u - 1) := by
     refine (FctSymClsOn.congr hDu hadd fun u _ => ?_).mono_B Icc_subset_Ici_self
       (le_of_eq (by ring))
