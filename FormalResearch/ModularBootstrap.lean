@@ -65,6 +65,7 @@ public import FormalResearch.ModularBootstrap.FiveTerm.UpperAssembly
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperTipMatch
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperDetuning
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerPhaseChart
+public import FormalResearch.ModularBootstrap.FiveTerm.LowerPhaseSharp
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerCorL
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerSign
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerBoasResidue

@@ -1,7 +1,6 @@
 module
 
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerMain
-public import FormalResearch.ModularBootstrap.FiveTerm.LowerGoodMain
 public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaQScaleBridge
 
 /-!
@@ -9,12 +8,11 @@ public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaQScaleBridge
 
 * `lowerPrelim_virasoro`: `LowerPrelim virasoroProblem` from `corL_virasoro` (`rem:corL`), `lemmaQ_part1`, `lemmaQ_part3`
   and `psiTilde_virasoroProblem`;
-* `lowerPhase_virasoro`: `LowerMainInputs virasoroProblem c0Star gamma0` gives `LowerPhaseStatement virasoroProblem c0Star gamma0 C`
-  (uses `c0Star_neg`);
-* `spinless_lower_of_inputs`: **the lower half of `thm:spinless-expansion`**,
-  `Δ_best(c) ≥ c/Λ_V + A_opt c^{1/3} + c_0^* + c_1^Langer c^{-1/3} + d_2^* c^{-2/3} - C_- c^{-1} log c`,
-  modulo the named structure `LowerMainInputs` (the open lemmas `cts:cauchy-dual`, `cts:rosc-uncond`, `ctl:pass2`,
-  `cts:boas` and the Langer identification), via the unconditional chart conversion `spinless_lower_of_phase`.
+* `lowerPhase_virasoro`: `LowerMainInputs virasoroProblem c0Star gamma0` gives
+  `LowerPhaseStatementSharp virasoroProblem c0Star gamma0 C` (uses `c0Star_neg`);
+* `spinless_lower_of_inputs`: **the lower half of `cts:lower-main` (Theorem C9, first display)**,
+  `Δ_best(c) ≥ c/Λ_V + A_opt c^{1/3} + c_0^* + c_1^Langer c^{-1/3} + d_2^* c^{-2/3} - C_- c^{-1}`,
+  modulo the named structure `LowerMainInputs`, via the unconditional chart conversion `spinless_lower_of_phase_sharp`.
 -/
 
 @[expose] public section
@@ -77,24 +75,20 @@ theorem lowerPrelim_virasoro : LowerPrelim virasoroProblem := by
     rw [hpsi]
     exact hslope θ hθ0 hθ1
 
-/-- `LowerPhaseStatement` at Virasoro from the open lemmas, with `LowerFirstGood` discharged
-unconditionally from `h.chart` via `lowerFirstGood_of_chart_on_band`. -/
+/-- `LowerPhaseStatementSharp` at Virasoro from the open lemmas. -/
 theorem lowerPhase_virasoro (h : LowerMainInputs virasoroProblem c0Star gamma0) :
-    ∃ C : ℝ, 0 ≤ C ∧ LowerPhaseStatement virasoroProblem c0Star gamma0 C := by
-  obtain ⟨cc, C, hfg⟩ := lowerFirstGood_of_chart_on_band c0Star gamma0 h.c1 h.phi h.uhat
-    h.c1_pos h.c1_small h.chart
-  exact lowerPhase_of_inputs c0Star_neg lowerPrelim_virasoro h
-    ⟨cc, C, fun c hc T g hg _ hT_hi => hfg c hc T g hg hT_hi⟩
+    ∃ C : ℝ, 0 ≤ C ∧ LowerPhaseStatementSharp virasoroProblem c0Star gamma0 C :=
+  lowerPhase_of_inputs c0Star_neg lowerPrelim_virasoro h
 
-/-- **Lower half of `thm:spinless-expansion`, modulo `LowerMainInputs`** (`cts:lower-main`, Theorem C9):
-`Δ_best(c) ≥ c/Λ_V + A_opt c^{1/3} + c_0^* + c_1^Langer c^{-1/3} + d_2^* c^{-2/3} - C_- c^{-1} log c`. -/
+/-- **Lower half of `cts:lower-main` (Theorem C9, first display), modulo `LowerMainInputs`**:
+`Δ_best(c) ≥ c/Λ_V + A_opt c^{1/3} + c_0^* + c_1^Langer c^{-1/3} + d_2^* c^{-2/3} - C_- c^{-1}`. -/
 theorem spinless_lower_of_inputs (h : LowerMainInputs virasoroProblem c0Star gamma0) :
     ∃ Cm c₁ : ℝ, ∀ c : ℝ, c₁ ≤ c →
       c / lambdaV + Aopt * c ^ (1 / 3 : ℝ) + c0Star + c1Langer * c ^ (-(1 / 3) : ℝ) +
-        d2Star * c ^ (-(2 / 3) : ℝ) - Cm * c ^ (-1 : ℝ) * Real.log c ≤
+        d2Star * c ^ (-(2 / 3) : ℝ) - Cm * c ^ (-1 : ℝ) ≤
       virasoroProblem.Delta_best c := by
   obtain ⟨C, hC, hL⟩ := lowerPhase_virasoro h
-  exact spinless_lower_of_phase c0Star gamma0 C hC hL
+  exact spinless_lower_of_phase_sharp c0Star gamma0 C hC hL
 
 end FormalResearch.ModularBootstrap.FiveTerm
 
