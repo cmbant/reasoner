@@ -6,8 +6,8 @@ public import FormalResearch.ModularBootstrap.Duality.ReserveSeparation
 /-!
 # Primal attainment and discreteness (Theorem E', `ds:primal`, `dual_spectrum.tex`)
 
-For a compact `F ⊂ (0, ∞)` and `X_τ = F ∪ [τ, ∞)`, at a charge where `FixedChargeStrip` holds
-(every `c̃ ≥ c₀(w, Q)`, `fixedChargeStrip_of_large`):
+For a compact `F ⊂ (0, ∞)` and `X_τ = F ∪ [τ, ∞)`, at **every** fixed charge `c̃ > 0` with
+`12 S ≤ c̃` (unconditionally via `dsl:strip-fixed`(a)):
 
 * `primal_extremal_of_sequence`: every normalised strictly feasible minimising sequence has a
   subsequence converging locally uniformly and in `M` to a weak extremal `g_*` (`M[g_*] = 1`,
@@ -30,8 +30,8 @@ open Crossing WeightAxioms FormalResearch.ModularBootstrap.Duality
 variable {prob : FixedWeightProblem} {cTilde : ℝ}
 
 /-- **Weak extremal from a normalised minimising sequence** (`ds:primal`(a)). -/
-theorem primal_extremal_of_sequence (S : FixedChargeStrip prob cTilde) {F : Set ℝ}
-    (hFc : IsCompact F) (hF : F ⊆ Ioi 0) {τ : ℕ → ℝ} {g : ℕ → ℝ → ℝ}
+theorem primal_extremal_of_sequence (hc_pos : 0 < cTilde) (hc : 12 * prob.totalShift ≤ cTilde)
+    {F : Set ℝ} (hFc : IsCompact F) (hF : F ⊆ Ioi 0) {τ : ℕ → ℝ} {g : ℕ → ℝ → ℝ}
     (hfeas : ∀ k, prob.IsFeasibleOn (cTilde / 12) (F ∪ Ici (τ k)) (g k))
     (hτ : Tendsto τ atTop (𝓝 (constrainedThreshold prob cTilde F)))
     (hM : ∀ k, prob.cardyNorm (cTilde / 12) (g k) = 1) :
@@ -47,12 +47,12 @@ theorem primal_extremal_of_sequence (S : FixedChargeStrip prob cTilde) {F : Set 
   classical
   set a : ℝ := cTilde / 12 with ha_def
   set TF : ℝ := constrainedThreshold prob cTilde F with hTF
-  have hTV := T_V_pos_of_strip S
+  have hTV := T_V_pos hc_pos hc
   obtain ⟨⟨hle, hne⟩, ⟨⟨hTFpos, meas, hν⟩, -⟩, -, -⟩ :=
-    theorem_E_b_compact prob S.hc_pos S.hc hFc hF hTV
+    theorem_E_b_compact prob hc_pos hc hFc hF hTV
   have hTF0 : 0 < TF := lt_of_lt_of_le hTV hle
-  have hsh : prob.totalShift ≤ a := by linarith [S.hc]
-  have ha0 : 0 < a := by linarith [S.hc_pos]
+  have hsh : prob.totalShift ≤ a := by linarith
+  have ha0 : 0 < a := by linarith
   -- discard finitely many terms
   obtain ⟨N, hN⟩ := eventually_atTop.1 (hτ.eventually (gt_mem_nhds (show TF < TF + 1 by linarith)))
   set g' : ℕ → ℝ → ℝ := fun k => g (k + N) with hg'
@@ -65,7 +65,7 @@ theorem primal_extremal_of_sequence (S : FixedChargeStrip prob cTilde) {F : Set 
     have : prob.gVac a (g' k) = -2 * π * ∫ t in Ioi (0 : ℝ), g' k t * prob.cardyV a t := rfl
     nlinarith [Real.pi_pos]
   obtain ⟨φ, gs, hφ, htc, hnn, hunif, hMle, hvac0, hne0, hzero, hG, himp⟩ :=
-    exists_primal_limit S (fun k => (hg'f k).1) (fun k => hM (k + N)) hv (R₀ := TF + 1)
+    exists_primal_limit hc_pos hc (fun k => (hg'f k).1) (fun k => hM (k + N)) hv (R₀ := TF + 1)
       (by linarith) hneg
   have hgs_cont : ContinuousOn gs (Ici 0) := htc.cont
   have hpt : ∀ t : ℝ, 0 ≤ t → Tendsto (fun k => g' (φ k) t) atTop (𝓝 (gs t)) := fun t ht =>
@@ -118,7 +118,7 @@ lemma cardyNorm_smul_of_nonneg {a c : ℝ} (hc : 0 ≤ c) (g : ℝ → ℝ) :
   simp only [abs_mul, abs_of_nonneg hc]; ring
 
 /-- A normalised strictly feasible minimising sequence exists. -/
-theorem exists_normalised_sequence (S : FixedChargeStrip prob cTilde) {F : Set ℝ}
+theorem exists_normalised_sequence (hc : 12 * prob.totalShift ≤ cTilde) {F : Set ℝ}
     (hne : (constrainedGaps prob cTilde F).Nonempty) :
     ∃ (τ : ℕ → ℝ) (g : ℕ → ℝ → ℝ),
       (∀ k, prob.IsFeasibleOn (cTilde / 12) (F ∪ Ici (τ k)) (g k)) ∧
@@ -129,10 +129,10 @@ theorem exists_normalised_sequence (S : FixedChargeStrip prob cTilde) {F : Set �
   refine ⟨u, fun k => fun t => (prob.cardyNorm (cTilde / 12) (g0 k))⁻¹ * g0 k t, fun k => ?_, hu,
     fun k => ?_⟩
   · obtain ⟨htc, hvac, hnn⟩ := hg0 k
-    have hM := cardyNorm_pos_of_vac_pos S.hc htc hvac
+    have hM := cardyNorm_pos_of_vac_pos hc htc hvac
     refine ⟨htc.smul _, ?_, fun t ht => mul_nonneg (inv_nonneg.2 hM.le) (hnn t ht)⟩
     rw [prob.gVac_smul _ htc]; exact mul_pos (inv_pos.2 hM) hvac
-  · have hM := cardyNorm_pos_of_vac_pos S.hc (hg0 k).1 (hg0 k).2.1
+  · have hM := cardyNorm_pos_of_vac_pos hc (hg0 k).1 (hg0 k).2.1
     rw [cardyNorm_smul_of_nonneg (inv_nonneg.2 hM.le), inv_mul_cancel₀ hM.ne']
 
 /-- A crossing measure carried by a set on which `g_* ≥ 0` is carried by the zero set of `g_*`. -/
@@ -154,15 +154,15 @@ lemma crossing_ae_zero {gs : ℝ → ℝ} (htc : TestClass prob (cTilde / 12) gs
   have hz := (integral_eq_zero_iff_of_nonneg_ae hae hint).1 h0
   filter_upwards [hmem, hz] with t h1 h2 using ⟨h1, h2⟩
 
-/-- **Theorem E'** (`ds:primal`) at a charge with `FixedChargeStrip`, for compact `F ⊂ (0, ∞)`:
-`0 < T_V ≤ T_F < ∞`, and there is a weak extremal `g_*` such that (a) `g_* ∈ Ā_w`, `M[g_*] = 1`,
-`g_{*,vac} = 0`, `g_* ≥ 0` on `X_{T_F}`, `g_*` is the restriction of a function holomorphic in the
-strip coordinate and has locally finite zero set; (b) every crossing measure on `X_{T_F}` is carried
-by `{g_* = 0}`; (c) it is carried by a locally finite set and `ν({T_F}) > 0`; (d) if `g_* > 0` on a
-compact `E ⊂ (0, ∞)` then `T_{F ∪ E} = T_F` and every crossing measure on `F ∪ E ∪ [T_F, ∞)` gives
-`E` zero mass. -/
-theorem theorem_primal (S : FixedChargeStrip prob cTilde) {F : Set ℝ} (hFc : IsCompact F)
-    (hF : F ⊆ Ioi 0) :
+/-- **Theorem E'** (`ds:primal`) at every fixed charge `c̃ > 0` with `12 S ≤ c̃`, for compact
+`F ⊂ (0, ∞)`: `0 < T_V ≤ T_F < ∞`, and there is a weak extremal `g_*` such that (a) `g_* ∈ Ā_w`,
+`M[g_*] = 1`, `g_{*,vac} = 0`, `g_* ≥ 0` on `X_{T_F}`, `g_*` is the restriction of a function
+holomorphic in the strip coordinate and has locally finite zero set; (b) every crossing measure on
+`X_{T_F}` is carried by `{g_* = 0}`; (c) it is carried by a locally finite set and `ν({T_F}) > 0`;
+(d) if `g_* > 0` on a compact `E ⊂ (0, ∞)` then `T_{F ∪ E} = T_F` and every crossing measure on
+`F ∪ E ∪ [T_F, ∞)` gives `E` zero mass. -/
+theorem theorem_primal (hc_pos : 0 < cTilde) (hc : 12 * prob.totalShift ≤ cTilde)
+    {F : Set ℝ} (hFc : IsCompact F) (hF : F ⊆ Ioi 0) :
     (0 < prob.T_V cTilde ∧ prob.T_V cTilde ≤ constrainedThreshold prob cTilde F ∧
       (constrainedGaps prob cTilde F).Nonempty) ∧
     ∃ gs : ℝ → ℝ,
@@ -186,15 +186,15 @@ theorem theorem_primal (S : FixedChargeStrip prob cTilde) {F : Set ℝ} (hFc : I
   classical
   set a : ℝ := cTilde / 12 with ha_def
   set TF : ℝ := constrainedThreshold prob cTilde F with hTF
-  have hTV := T_V_pos_of_strip S
-  have hE := theorem_E_b_compact prob S.hc_pos S.hc hFc hF hTV
+  have hTV := T_V_pos hc_pos hc
+  have hE := theorem_E_b_compact prob hc_pos hc hFc hF hTV
   obtain ⟨⟨hle, hne⟩, -, -, -⟩ := hE
   have hTF0 : 0 < TF := lt_of_lt_of_le hTV hle
-  have hsh : prob.totalShift ≤ a := by linarith [S.hc]
-  have ha0 : 0 < a := by linarith [S.hc_pos]
-  obtain ⟨τ, g, hfeas, hτ, hM⟩ := exists_normalised_sequence S hne
+  have hsh : prob.totalShift ≤ a := by linarith
+  have ha0 : 0 < a := by linarith
+  obtain ⟨τ, g, hfeas, hτ, hM⟩ := exists_normalised_sequence hc hne
   obtain ⟨φ, gs, -, htc, hM1, hvac, hnn, -, -, hzero, hne0, hG⟩ :=
-    primal_extremal_of_sequence S hFc hF hfeas hτ hM
+    primal_extremal_of_sequence hc_pos hc hFc hF hfeas hτ hM
   refine ⟨⟨hTV, hle, hne⟩, gs, ⟨htc, hM1, hvac, hnn, hzero, hne0, hG⟩, ?_, ?_, ?_⟩
   · intro meas hν
     exact crossing_ae_zero htc hvac hsh ha0 (T := TF) (fun t ht => hnn t (Or.inr ht)) meas hν hnn
@@ -241,13 +241,13 @@ theorem theorem_primal (S : FixedChargeStrip prob cTilde) {F : Set ℝ} (hFc : I
           · exact absurd (mem_Ici.1 hh) (not_le.2 h)
         · exact Or.inl (Or.inr h)
         · exact Or.inr ⟨h, hlt⟩
-      have := le_constrainedThreshold_of_crossingMeasure prob S.hc_pos S.hc hne meas hν2
+      have := le_constrainedThreshold_of_crossingMeasure prob hc_pos hc hne meas hν2
       linarith
   · intro E hEc hE hEpos
     have hFEc : IsCompact (F ∪ E) := hFc.union hEc
     have hFE : F ∪ E ⊆ Ioi 0 := union_subset hF hE
     obtain ⟨⟨hle2, hne2⟩, ⟨⟨hT'pos, meas', hν'⟩, -⟩, -, -⟩ :=
-      theorem_E_b_compact prob S.hc_pos S.hc hFEc hFE hTV
+      theorem_E_b_compact prob hc_pos hc hFEc hFE hTV
     set T' : ℝ := constrainedThreshold prob cTilde (F ∪ E) with hT'
     have hgap_sub : constrainedGaps prob cTilde (F ∪ E) ⊆ constrainedGaps prob cTilde F :=
       fun τ hτ => ⟨hτ.1, by
@@ -292,7 +292,7 @@ theorem theorem_primal (S : FixedChargeStrip prob cTilde) {F : Set ℝ} (hFc : I
         · exact Or.inl hh
         · exact absurd hh hE'
         · exact Or.inr hh
-    exact le_constrainedThreshold_of_crossingMeasure prob S.hc_pos S.hc hne meas' hν''
+    exact le_constrainedThreshold_of_crossingMeasure prob hc_pos hc hne meas' hν''
 
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeight.theorem_primal' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

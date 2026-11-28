@@ -31,6 +31,7 @@ open FormalResearch.ModularBootstrap.Crossing
 open FormalResearch.ModularBootstrap.Duality
 open FormalResearch.ModularBootstrap.FixedWeight
 open FormalResearch.ModularBootstrap.LP
+open FormalResearch.ModularBootstrap.WeightAxioms
 
 /-! ### Weak-threshold positivity and comparison for `CommonSource` -/
 
@@ -96,9 +97,9 @@ lemma T_weak_le_T_V_of_common (C : CommonSource) {cTilde : ℝ} (hc : 12 * C.a�
   intro τ ⟨hτ, g', hg'⟩
   exact ⟨hτ, g', isWeaklyFeasible_of_isFeasible hg'⟩
 
-/-- **Strict positivity of the weak threshold** (`0 < T_weak(c̃)`) for `CommonSource` at large charge. -/
-theorem T_weak_pos_of_common (C : CommonSource) {cTilde : ℝ} (hc : 12 * C.a₀ ≤ cTilde)
-    (S : FixedChargeStripS C.src cTilde) :
+/-- **Strict positivity of the weak threshold** (`0 < T_weak(c̃)`) for `CommonSource` at every
+`12 C.a₀ ≤ c̃`. -/
+theorem T_weak_pos_of_common (C : CommonSource) {cTilde : ℝ} (hc : 12 * C.a₀ ≤ cTilde) :
     0 < C.src.T_weak cTilde := by
   have hAt : C.F.At (cTilde / 12) := C.at_ (by linarith)
   obtain ⟨β₀, S₀⟩ := SourceDualSetupCore.exists_of_common C hc one_pos
@@ -137,7 +138,7 @@ theorem T_weak_pos_of_common (C : CommonSource) {cTilde : ℝ} (hc : 12 * C.a₀
       linarith [hτlt n]
     exact mul_nonneg (inv_nonneg.2 hMp.le) ((hg0 n).2.2.2 t hle1)
   obtain ⟨φ, gs, hφ, hgstc, -, hunif, -, hgs_vac, ⟨t₀, ht₀, hgt₀⟩, -, -, -⟩ :=
-    exists_primal_limit_src C hc S htc hM1 hv zero_le_one hneg1
+    exists_primal_limit_src C hc htc hM1 hv zero_le_one hneg1
   have hgs_nn : ∀ t : ℝ, 0 < t → 0 ≤ gs t := fun t ht => by
     obtain ⟨N, hN⟩ := exists_nat_one_div_lt ht
     have hpt : Tendsto (fun k => g (φ k) t) atTop (𝓝 (gs t)) :=
@@ -203,7 +204,14 @@ at charge `c̃`: combines `dsl:strip-fixed`, `ds:M`, `0 < T_weak ≤ T_V < ∞`,
 `ds:primal` (a)–(d), and `ds:LP` (i)–(iii). -/
 structure DualityBundleS (C : CommonSource) (cTilde : ℝ) where
   at_ : C.F.At (cTilde / 12)
-  strip : FixedChargeStripS C.src cTilde
+  strip_bound : ∃ K : ℝ, 0 < K ∧ ∀ {g : ℝ → ℝ}, TestClass C.src (cTilde / 12) g →
+    (∫ t in Ioi (0 : ℝ), |g t| * kernelK C.src.w (cTilde / 12) t ≤
+      K * C.src.cardyNorm (cTilde / 12) g) ∧
+    ContinuousOn (hankelContinuationW C.src.w cTilde g) {b : ℂ | |b.im| ≤ 1 / 2} ∧
+    DifferentiableOn ℂ (hankelContinuationW C.src.w cTilde g) {b : ℂ | |b.im| < 1 / 2} ∧
+    (∀ {b : ℂ}, |b.im| ≤ 1 / 2 →
+      ‖hankelContinuationW C.src.w cTilde g b‖ ≤ 2 * π * K * C.src.cardyNorm (cTilde / 12) g)
+  tail : ∀ ε > 0, ∃ R : ℝ, ∀ t ≥ R, t ^ (C.src.w - 1) ≤ ε * C.src.cardyV (cTilde / 12) t
   core : ∃ β₀ : ℝ, SourceDualSetupCore C.src cTilde β₀ 1
   T_weak_pos : 0 < C.src.T_weak cTilde
   T_weak_le_T_V : C.src.T_weak cTilde ≤ C.src.T_V cTilde
@@ -236,25 +244,21 @@ structure DualityBundleS (C : CommonSource) (cTilde : ℝ) where
     IsGreatest {τ : ℝ | 0 < τ ∧ ∃ meas : SourceCrossingMeasure C.src (cTilde / 12),
       meas.ν (Ici τ)ᶜ = 0} (C.src.T_V cTilde)
 
-/-- **Proposition PM.8 (`pmix:duality`) for any `CommonSource`**: at sufficiently large charge
-`c̃ ≥ c₀`, every `CommonSource` enjoys `dsl:strip-fixed`, `ds:M`, `0 < T_weak ≤ T_V < ∞`,
+/-- **Proposition PM.8 (`pmix:duality`) for any `CommonSource`**: unconditionally for every
+`12 C.a₀ ≤ c̃`, every `CommonSource` enjoys `dsl:strip-fixed`, `ds:M`, `0 < T_weak ≤ T_V < ∞`,
 and all conclusions of `ds:E`, `ds:primal`, and `ds:LP`. -/
-theorem pmix_duality_common (C : CommonSource) :
-    ∃ c₀ : ℝ, 12 * C.a₀ ≤ c₀ ∧ ∀ {cTilde : ℝ}, c₀ ≤ cTilde →
-      Nonempty (DualityBundleS C cTilde) := by
-  obtain ⟨c₀, hc₀, hstrip⟩ := fixedChargeStripS_of_common C
-  refine ⟨c₀, hc₀, fun {cTilde} hc => ?_⟩
-  have ha0 : 12 * C.a₀ ≤ cTilde := hc₀.trans hc
+theorem pmix_duality_common (C : CommonSource) {cTilde : ℝ} (hc : 12 * C.a₀ ≤ cTilde) :
+    Nonempty (DualityBundleS C cTilde) := by
   have hAt : C.F.At (cTilde / 12) := C.at_ (by linarith)
-  have hS := hstrip hc
-  have hTV := T_V_pos_of_common C ha0 hS
-  have hTw := T_weak_pos_of_common C ha0 hS
-  have hle := T_weak_le_T_V_of_common C ha0
-  obtain ⟨β₀, S₀⟩ := SourceDualSetupCore.exists_of_common C ha0 one_pos
+  have hTV := T_V_pos_of_common C hc
+  have hTw := T_weak_pos_of_common C hc
+  have hle := T_weak_le_T_V_of_common C hc
+  obtain ⟨β₀, S₀⟩ := SourceDualSetupCore.exists_of_common C hc one_pos
   obtain ⟨-, T, hT, ⟨g, hg⟩, -⟩ := T_V_lt_top_of_core S₀
   exact ⟨{
     at_ := hAt
-    strip := hS
+    strip_bound := (dsl_strip_fixed_a_of_floorAt C.F).2 hAt
+    tail := tail_of_floorAt hAt
     core := ⟨β₀, S₀⟩
     T_weak_pos := hTw
     T_weak_le_T_V := hle
@@ -309,9 +313,8 @@ rebased charges `c̃ - 12 r_min ≥ c₀`:
    and constrained crossing attainment & LP limit equivalence via `M.rebase_T_V` /
    `crossingMeasure_of_rebase`. -/
 theorem pmix_duality_mixture (M : MixtureData) :
-    ∃ (i₀ : Fin M.s) (hi₀ : M.rebase.r i₀ = 0) (c₀ : ℝ),
-      12 * (M.rebase.commonSource hi₀).a₀ ≤ c₀ ∧
-      ∀ {cTilde : ℝ}, c₀ ≤ cTilde - 12 * M.rmin →
+    ∃ (i₀ : Fin M.s) (hi₀ : M.rebase.r i₀ = 0),
+      ∀ {cTilde : ℝ}, 12 * (M.rebase.commonSource hi₀).a₀ ≤ cTilde - 12 * M.rmin →
         Nonempty (DualityBundleS (M.rebase.commonSource hi₀) (cTilde - 12 * M.rmin)) ∧
         0 < M.toSource.T_weak cTilde ∧
         M.toSource.T_weak cTilde ≤ M.toSource.T_V cTilde ∧
@@ -320,9 +323,8 @@ theorem pmix_duality_mixture (M : MixtureData) :
           meas.ν (Ici τ)ᶜ = 0} (M.toSource.T_V cTilde) := by
   obtain ⟨i₀, hi₀⟩ := M.rebase_exists_zero
   let C := M.rebase.commonSource hi₀
-  obtain ⟨c₀, hc₀, hdu⟩ := pmix_duality_common C
-  refine ⟨i₀, hi₀, c₀, hc₀, fun {cTilde} hc => ?_⟩
-  obtain ⟨B⟩ := hdu hc
+  refine ⟨i₀, hi₀, fun {cTilde} hc => ?_⟩
+  obtain ⟨B⟩ := pmix_duality_common C hc
   have hTw : M.rebase.toSource.T_weak (cTilde - 12 * M.rmin) = M.toSource.T_weak cTilde :=
     M.rebase_T_weak cTilde
   have hTV : M.rebase.toSource.T_V (cTilde - 12 * M.rmin) = M.toSource.T_V cTilde :=

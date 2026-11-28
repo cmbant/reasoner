@@ -19,9 +19,9 @@ compact set `F ⊂ (0, ∞)` (possibly empty):
   (`IsGreatest`), `0 < T_ℤ ≤ T_F < ∞`, `0 < T_V`, and
   `Δ_best^ℤ = Δ_best^ℝ` iff some attaining real crossing measure is integer-weighted
   (equivalently, `Δ_best^ℤ < Δ_best^ℝ` iff no attaining real crossing measure is integer-weighted).
-* `int_obstr_a_primal` (given `FixedChargeStrip`) and `int_obstr_a_large` (for `c̃ ≥ c₀(w, Q)`):
-  by `theorem_primal` (`ds:primal`), every attaining real crossing measure is locally finite atomic,
-  so `Δ_best^ℤ < Δ_best^ℝ` iff every attaining real crossing measure has an atom of non-integer
+* `int_obstr_a_primal`: by `theorem_primal` (`ds:primal`), at every fixed charge `c̃ > 0` with
+  `12 S ≤ c̃`, every attaining real crossing measure is locally finite atomic, so
+  `Δ_best^ℤ < Δ_best^ℝ` iff every attaining real crossing measure has an atom of non-integer
   weight.
 
 Statements are in the paper's class **proved** (for `(H_w)`; the mixture/source cases wait for
@@ -336,12 +336,12 @@ theorem int_obstr_a (prob : FixedWeightProblem) {cTilde : ℝ} (hc_pos : 0 < cTi
   exact ⟨⟨hTZ_pos, hTZ_le_TF, hTV_pos⟩, hGreatest, hiff_eq, hiff_lt⟩
 
 /-- **Theorem INT-4(a), primal-atomicity form** (`integrality.tex`, `int:obstr`(a)):
-under `FixedChargeStrip prob cTilde` (in particular for all `c̃ ≥ c₀(w, Q)`, see
-`int_obstr_a_large`), every attaining real crossing measure on `F ∪ [T_F, ∞)` is locally finite
-atomic, and `Δ_best^ℤ < Δ_best^ℝ` strictly iff every attaining real crossing measure has at least
-one support point (atom) of non-integer weight. -/
+at every fixed charge `c̃ > 0` with `12 S ≤ c̃`, every attaining real crossing measure on
+`F ∪ [T_F, ∞)` is locally finite atomic, and `Δ_best^ℤ < Δ_best^ℝ` strictly iff every attaining
+real crossing measure has at least one support point (atom) of non-integer weight. -/
 theorem int_obstr_a_primal {prob : FixedWeightProblem} {cTilde : ℝ}
-    (S : FixedChargeStrip prob cTilde) {F : Set ℝ} (hFc : IsCompact F) (hF : F ⊆ Ioi 0)
+    (hc_pos : 0 < cTilde) (hc : 12 * prob.totalShift ≤ cTilde)
+    {F : Set ℝ} (hFc : IsCompact F) (hF : F ⊆ Ioi 0)
     (hneZ : (constrainedIntGaps prob cTilde F).Nonempty) :
     (∀ meas : AdmissibleCrossingMeasure prob (cTilde / 12),
       meas.ν (F ∪ Ici (constrainedThreshold prob cTilde F))ᶜ = 0 →
@@ -350,8 +350,8 @@ theorem int_obstr_a_primal {prob : FixedWeightProblem} {cTilde : ℝ}
       ∀ meas : AdmissibleCrossingMeasure prob (cTilde / 12),
         meas.ν (F ∪ Ici (constrainedThreshold prob cTilde F))ᶜ = 0 →
         ∃ x ∈ meas.ν.support, ∀ n : ℕ, meas.ν {x} ≠ n) := by
-  obtain ⟨-, -, -, hiff_lt⟩ := int_obstr_a prob S.hc_pos S.hc hFc hF hneZ
-  obtain ⟨-, gs, -, -, hprim_loc, -⟩ := theorem_primal S hFc hF
+  obtain ⟨-, -, -, hiff_lt⟩ := int_obstr_a prob hc_pos hc hFc hF hneZ
+  obtain ⟨-, gs, -, -, hprim_loc, -⟩ := theorem_primal hc_pos hc hFc hF
   refine ⟨fun meas hν => (hprim_loc meas hν).1, ?_⟩
   rw [hiff_lt]
   refine forall₂_congr fun meas hν => ?_
@@ -365,21 +365,6 @@ theorem int_obstr_a_primal {prob : FixedWeightProblem} {cTilde : ℝ}
     obtain ⟨n, hn⟩ := isIntegerCounting_singletons_of_isIntegerCounting hint x
     exact hxne n hn
 
-/-- **Theorem INT-4(a) at large charge** (`c̃ ≥ c₀(w, Q)`), discharging `FixedChargeStrip` via
-`fixedChargeStrip_of_large`. -/
-theorem int_obstr_a_large (prob : FixedWeightProblem) :
-    ∃ c₀ : ℝ, ∀ {cTilde : ℝ}, c₀ ≤ cTilde → ∀ {F : Set ℝ}, IsCompact F → F ⊆ Ioi 0 →
-      (constrainedIntGaps prob cTilde F).Nonempty →
-      (∀ meas : AdmissibleCrossingMeasure prob (cTilde / 12),
-        meas.ν (F ∪ Ici (constrainedThreshold prob cTilde F))ᶜ = 0 →
-        ∃ Z : Set ℝ, (∀ R : ℝ, (Z ∩ Icc 0 R).Finite) ∧ meas.ν Zᶜ = 0) ∧
-      ((constrainedDeltaBestInt prob cTilde F < constrainedDeltaBest prob cTilde F) ↔
-        ∀ meas : AdmissibleCrossingMeasure prob (cTilde / 12),
-          meas.ν (F ∪ Ici (constrainedThreshold prob cTilde F))ᶜ = 0 →
-          ∃ x ∈ meas.ν.support, ∀ n : ℕ, meas.ν {x} ≠ n) := by
-  obtain ⟨c₀, hc₀⟩ := fixedChargeStrip_of_large prob
-  exact ⟨c₀, fun {cTilde} hc {F} hFc hF hneZ => int_obstr_a_primal (hc₀ hc) hFc hF hneZ⟩
-
 end Proofs
 
 /-! ### Axiom checks -/
@@ -391,9 +376,5 @@ end Proofs
 /-- info: 'FormalResearch.ModularBootstrap.Integrality.int_obstr_a_primal' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.ModularBootstrap.Integrality.int_obstr_a_primal
-
-/-- info: 'FormalResearch.ModularBootstrap.Integrality.int_obstr_a_large' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.ModularBootstrap.Integrality.int_obstr_a_large
 
 end FormalResearch.ModularBootstrap.Integrality

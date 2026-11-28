@@ -55,7 +55,6 @@ lemma hb_canonical_primal (prob : FixedWeightProblem) (H : HermiteBiehlerData)
   classical
   let B : ℕ → ℝ := fun n => constrainedThreshold prob (c n) (hbPrescribedSet s n)
   let F : ℕ → Set ℝ := hbPrescribedSet s
-  obtain ⟨c_str, hc_str⟩ := fixedChargeStrip_of_large prob
   have hF_Ioi := hbPrescribedSet_subset_Ioi hs_pos
   have hex : ∀ᶠ n in atTop, ∃ gs : ℝ → ℝ, ∃ meas0 : AdmissibleCrossingMeasure prob (c n / 12),
       IsWeakExtremal prob (c n) (F n) (B n) gs ∧
@@ -65,12 +64,13 @@ lemma hb_canonical_primal (prob : FixedWeightProblem) (H : HermiteBiehlerData)
         m.ν (F n ∪ Ici (B n))ᶜ = 0 →
           (∃ Z : Set ℝ, (∀ R : ℝ, (Z ∩ Icc 0 R).Finite) ∧ m.ν Zᶜ = 0) ∧
           0 < m.ν {B n} ∧ ∀ᵐ t ∂m.ν, t ∈ F n ∪ Ici (B n) ∧ gs t = 0 := by
-    filter_upwards [hc.eventually_ge_atTop c_str, hF_Ioi] with n h1 hFn
-    have hS := hc_str h1
+    filter_upwards [hc.eventually_ge_atTop (max 1 (12 * prob.totalShift)), hF_Ioi] with n h1 hFn
+    have h1_pos : 0 < c n := lt_of_lt_of_le zero_lt_one ((le_max_left _ _).trans h1)
+    have h1_sh : 12 * prob.totalShift ≤ c n := (le_max_right _ _).trans h1
     obtain ⟨⟨hTV, -, -⟩, gs, ⟨htc, hM, hvac, hnn, hfin, _, _⟩, h_ae, hmeas, -⟩ :=
-      theorem_primal hS (isCompact_hbPrescribedSet s n) hFn
+      theorem_primal h1_pos h1_sh (isCompact_hbPrescribedSet s n) hFn
     obtain ⟨-, meas0, hν0⟩ :=
-      (theorem_E_b_compact prob hS.hc_pos hS.hc (isCompact_hbPrescribedSet s n) hFn hTV).2.1.1
+      (theorem_E_b_compact prob h1_pos h1_sh (isCompact_hbPrescribedSet s n) hFn hTV).2.1.1
     refine ⟨gs, meas0, ⟨htc, hM, hvac, hnn⟩, hfin, hν0, fun m hm => ?_⟩
     obtain ⟨hZ, hBpos⟩ := hmeas m hm
     exact ⟨hZ, hBpos, h_ae m hm⟩

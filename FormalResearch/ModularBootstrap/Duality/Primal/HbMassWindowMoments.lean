@@ -456,8 +456,10 @@ theorem hb_mass_first_moment (prob : FixedWeightProblem) (H : HermiteBiehlerData
     have hunion : W n = (W n ∩ Ici (B n)) ∪ (W n ∩ (Ici (B n))ᶜ) := (Set.inter_union_compl (W n) (Ici (B n))).symm
     have hdisj : Disjoint (W n ∩ Ici (B n)) (W n ∩ (Ici (B n))ᶜ) :=
       disjoint_compl_right.mono Set.inter_subset_right Set.inter_subset_right
-    have hint1 := hint_W.mono_set Set.inter_subset_left
-    have hint2 := hint_W.mono_set Set.inter_subset_left
+    have hint1 : IntegrableOn (fun t => max (t - B n) 0 * spectralWeight prob (c n) t)
+        (W n ∩ Ici (B n)) meas.ν := hint_W.mono_set Set.inter_subset_left
+    have hint2 : IntegrableOn (fun t => max (t - B n) 0 * spectralWeight prob (c n) t)
+        (W n ∩ (Ici (B n))ᶜ) meas.ν := hint_W.mono_set Set.inter_subset_left
     have hzero : ∫ t in W n ∩ (Ici (B n))ᶜ, max (t - B n) 0 * spectralWeight prob (c n) t ∂meas.ν = 0 := by
       refine setIntegral_eq_zero_of_forall_eq_zero fun t ht => ?_
       have hlt : t < B n := not_le.mp ht.2

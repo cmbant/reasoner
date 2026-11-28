@@ -420,7 +420,6 @@ theorem hb_clusters_inactive (prob : FixedWeightProblem) (H : HermiteBiehlerData
     isCompact_Icc.uniformContinuousOn_of_continuous hf_cont.continuousOn
   rw [Metric.uniformContinuousOn_iff] at huc
   obtain ⟨η_uc, hη_pos, hη_uc⟩ := huc (δ / 3) (by positivity)
-  obtain ⟨c_str, hc_str⟩ := fixedChargeStrip_of_large prob
   have hF_Ioi := hbPrescribedSet_subset_Ioi hs_pos
   let P := fun (n : ℕ) (gs : ℝ → ℝ) =>
     IsWeakExtremal prob (c n) (F n) (B n) gs ∧
@@ -429,10 +428,11 @@ theorem hb_clusters_inactive (prob : FixedWeightProblem) (H : HermiteBiehlerData
       ∀ meas : AdmissibleCrossingMeasure prob (c n / 12),
         meas.ν ((F n ∪ E') ∪ Ici (B n))ᶜ = 0 → meas.ν E' = 0
   have hex_gs : ∀ᶠ n in atTop, ∃ gs, P n gs := by
-    filter_upwards [hc.eventually_ge_atTop c_str, hF_Ioi] with n h1 hFn
-    have hS := hc_str h1
+    filter_upwards [hc.eventually_ge_atTop (max 1 (12 * prob.totalShift)), hF_Ioi] with n h1 hFn
+    have h1_pos : 0 < c n := lt_of_lt_of_le zero_lt_one ((le_max_left _ _).trans h1)
+    have h1_sh : 12 * prob.totalShift ≤ c n := (le_max_right _ _).trans h1
     obtain ⟨-, gs, ⟨htc, hM, hvac, hnn, -⟩, -, -, h_inact⟩ :=
-      theorem_primal hS (isCompact_hbPrescribedSet s n) hFn
+      theorem_primal h1_pos h1_sh (isCompact_hbPrescribedSet s n) hFn
     exact ⟨gs, ⟨htc, hM, hvac, hnn⟩, h_inact⟩
   let gs : ℕ → ℝ → ℝ := fun n => if h : ∃ g, P n g then h.choose else fun _ => 0
   have hgs_spec : ∀ᶠ n in atTop, P n (gs n) := by

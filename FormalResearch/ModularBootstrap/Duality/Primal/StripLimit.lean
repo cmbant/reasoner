@@ -10,7 +10,8 @@ public import FormalResearch.Complex.Montel
 
 For a normalised sequence `g_j ∈ Ā_w` (`M[g_j] = 1`, `∫ g_j V ≤ 0`, `g_j ≥ 0` on `[R₀, ∞)`), the
 Hankel continuations `G_j(b) = g_j(c̃ b² / 3)` are uniformly bounded on the strip `|Im b| ≤ 1/2`
-(`FixedChargeStrip`), so Montel gives a locally uniformly convergent subsequence on `|Im b| < 1/2`.
+at every fixed charge `c̃ > 0`, `12 S ≤ c̃` (`dsl:strip-fixed`(a)), so Montel gives a locally
+uniformly convergent subsequence on `|Im b| < 1/2`.
 The limit `g_*(t) = G(√(3t/c̃))` is continuous with locally finite zero set (identity theorem), and
 `dsl:compact-mass` gives `g_* ≠ 0`, `M[g_*] ≤ 1`, `g_{*,vac} ≥ 0`; the tail estimate
 `t^{w-1} ≤ ε V` gives convergence in `L¹(t^{w-1} dt)`, hence `g_* ∈ Ā_w`.
@@ -57,17 +58,18 @@ lemma hankel_ofReal_testClass (hc : 0 < cTilde) {g : ℝ → ℝ} (hg : TestClas
 
 /-- **Montel step**: for a normalised sequence there is a subsequence whose Hankel continuations
 converge locally uniformly on the open strip to a holomorphic `G`. -/
-theorem exists_montel_limit (S : FixedChargeStrip prob cTilde) {g : ℕ → ℝ → ℝ}
-    (hg : ∀ j, TestClass prob (cTilde / 12) (g j))
+theorem exists_montel_limit (hc_pos : 0 < cTilde) (hc : 12 * prob.totalShift ≤ cTilde)
+    {g : ℕ → ℝ → ℝ} (hg : ∀ j, TestClass prob (cTilde / 12) (g j))
     (hM : ∀ j, prob.cardyNorm (cTilde / 12) (g j) = 1) :
     ∃ φ : ℕ → ℕ, StrictMono φ ∧ ∃ G : ℂ → ℂ, DifferentiableOn ℂ G openStrip ∧
       TendstoLocallyUniformlyOn (fun k => hankelContinuationW prob.w cTilde (g (φ k))) G atTop
         openStrip := by
-  obtain ⟨C, hC⟩ := S.bound
-  refine FormalResearch.Montel.montel isOpen_openStrip (fun j => S.diff _ (hg j)) ?_
+  obtain ⟨C, _, hC⟩ := hankelContinuationW_strip_bound_fixed prob hc_pos hc
+  refine FormalResearch.Montel.montel isOpen_openStrip
+    (fun j => differentiableOn_hankelContinuationW_fixed prob hc_pos hc (hg j)) ?_
   intro K hK _
-  refine ⟨C, fun j z hz => ?_⟩
-  have := hC (g j) (hg j) z (le_of_lt (hK hz))
+  refine ⟨2 * π * C, fun j z hz => ?_⟩
+  have := hC (hg j) (le_of_lt (hK hz))
   rwa [hM j, mul_one] at this
 
 /-- The limit function `g_*(t) = Re G(√(3t/c̃))`. -/
@@ -416,8 +418,8 @@ variable {prob : FixedWeightProblem} {cTilde : ℝ}
 locally uniformly on `[0, ∞)` to a `g_* ∈ Ā_w` with `g_* ≥ 0` on `[R₀, ∞)`, `g_* ≠ 0`, `M[g_*] ≤ 1`,
 `g_{*,vac} ≥ 0` and locally finite zero set; if moreover `g_{*,vac} ≤ 0` then `M[g_*] = 1` and
 `g_{φ(k)} → g_*` in `M`. -/
-theorem exists_primal_limit (S : FixedChargeStrip prob cTilde) {g : ℕ → ℝ → ℝ}
-    (hg : ∀ j, TestClass prob (cTilde / 12) (g j))
+theorem exists_primal_limit (hc_pos : 0 < cTilde) (hc : 12 * prob.totalShift ≤ cTilde)
+    {g : ℕ → ℝ → ℝ} (hg : ∀ j, TestClass prob (cTilde / 12) (g j))
     (hM : ∀ j, prob.cardyNorm (cTilde / 12) (g j) = 1)
     (hv : ∀ j, ∫ t in Ioi (0 : ℝ), g j t * prob.cardyV (cTilde / 12) t ≤ 0) {R₀ : ℝ}
     (hR₀ : 0 ≤ R₀) (hneg : ∀ j, ∀ t ≥ R₀, 0 ≤ g j t) :
@@ -431,7 +433,7 @@ theorem exists_primal_limit (S : FixedChargeStrip prob cTilde) {g : ℕ → ℝ 
       (prob.gVac (cTilde / 12) gs ≤ 0 → prob.cardyNorm (cTilde / 12) gs = 1 ∧
         Tendsto (fun k => ∫ t in Ioi (0 : ℝ), |g (φ k) t - gs t| * prob.cardyV (cTilde / 12) t)
           atTop (𝓝 0)) := by
-  have ha : prob.totalShift ≤ cTilde / 12 := by linarith [S.hc]
+  have ha : prob.totalShift ≤ cTilde / 12 := by linarith
   set a : ℝ := cTilde / 12 with ha_def
   -- the weight, extended by its value at `0` to negative `t`
   set Vt : ℝ → ℝ := fun t => prob.cardyV a (max t 0) with hVt
@@ -445,12 +447,12 @@ theorem exists_primal_limit (S : FixedChargeStrip prob cTilde) {g : ℕ → ℝ 
       IntegrableOn (fun t => F t * prob.cardyV a t) (Ioi 0) := fun F =>
     integrableOn_congr_fun (fun t ht => by rw [hVt_eq t (le_of_lt ht)]) measurableSet_Ioi
   have hVt_tail : ∀ ε > 0, ∃ R : ℝ, ∀ t ≥ R, t ^ (prob.w - 1) ≤ ε * Vt t := fun ε hε => by
-    obtain ⟨R, hR⟩ := S.tail ε hε
+    obtain ⟨R, hR⟩ := tail_of_fixed prob hc_pos hc ε hε
     refine ⟨max R 0, fun t ht => ?_⟩
     rw [hVt_eq t ((le_max_right _ _).trans ht)]
     exact hR t ((le_max_left _ _).trans ht)
-  obtain ⟨φ, hφ, G, hGd, hTLU⟩ := exists_montel_limit S hg hM
-  obtain ⟨hunifR, hreal⟩ := limit_converges S.hc_pos hg hTLU
+  obtain ⟨φ, hφ, G, hGd, hTLU⟩ := exists_montel_limit hc_pos hc hg hM
+  obtain ⟨hunifR, hreal⟩ := limit_converges hc_pos hg hTLU
   set gs : ℝ → ℝ := limitFn cTilde G with hgs
   have hgs_cont : Continuous gs := continuous_limitFn hGd cTilde
   have hgint : ∀ k, IntegrableOn (fun t => |g (φ k) t| * Vt t) (Ioi 0) := fun k =>
@@ -479,7 +481,7 @@ theorem exists_primal_limit (S : FixedChargeStrip prob cTilde) {g : ℕ → ℝ 
   refine ⟨φ, gs, hφ, htc, fun t ht => ge_of_tendsto (hpt t (hR₀.trans ht)) (Eventually.of_forall fun k => hneg (φ k) t ht), hunifR, ?_, ?_, ⟨t₀, ht₀, hgt₀⟩, ?_, ⟨G, hGd, hreal⟩, ?_⟩
   · rw [hMgs, ← hcongr]; exact hsM
   · rw [hgvac, ← hcongr]; nlinarith [Real.pi_pos]
-  · exact limitFn_zeros_finite S.hc_pos hGd hreal ⟨t₀, ht₀, hgt₀⟩
+  · exact limitFn_zeros_finite hc_pos hGd hreal ⟨t₀, ht₀, hgt₀⟩
   · intro hle
     have h0 : 0 ≤ ∫ t in Ioi (0 : ℝ), gs t * Vt t := by
       rw [hcongr]; rw [hgvac] at hle; nlinarith [Real.pi_pos]
