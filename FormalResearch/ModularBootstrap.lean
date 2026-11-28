@@ -170,6 +170,8 @@ public import FormalResearch.ModularBootstrap.Mixtures.RampedSource
 public import FormalResearch.ModularBootstrap.Mixtures.RampedUpper
 public import FormalResearch.ModularBootstrap.Mixtures.O1Lower
 public import FormalResearch.ModularBootstrap.Mixtures.O1
+public import FormalResearch.ModularBootstrap.Mixtures.O1Liminf
+public import FormalResearch.ModularBootstrap.Mixtures.SourceTwoLevel
 public import FormalResearch.ModularBootstrap.Mixtures.SourceBandBound
 public import FormalResearch.ModularBootstrap.Mixtures.SourceLemmaQBase
 public import FormalResearch.ModularBootstrap.Mixtures.SourceLemmaQGap
@@ -208,6 +210,7 @@ public import FormalResearch.ModularBootstrap.Stability.TerminalStability
 public import FormalResearch.ModularBootstrap.Stability.ClarkStability
 public import FormalResearch.ModularBootstrap.Stability.ClarkStabilityLimit
 public import FormalResearch.ModularBootstrap.Stability.HbStability
+public import FormalResearch.ModularBootstrap.Stability.HbBoundaryCoord
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.SpectrumCorollary
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.ClusterBarycentre
 public import FormalResearch.ModularBootstrap.Crossing.Setup

@@ -21,7 +21,7 @@ public import FormalResearch.ModularBootstrap.Mixtures.Duality
 * `pmix_liminf_of_component_c0`: `pmix:liminf` from single-component weak asymptotic lower bounds
   `(M.Q i).T_weak n ≥ T_*(n) + c₀*(i) - o(1)` (discharged from `ctu:c0` + `int:strict-weak`).
 
-All results are proved unconditionally.
+Each result is proved; `pmix_liminf_of_component_c0` is conditional on the component lower bounds `hcomp` (the identification `c0 i = c₀*(w, Q_i)`, via `ctu:c0` and `int:strict-weak`, is not formalised).
 -/
 
 @[expose] public section
@@ -87,7 +87,7 @@ theorem pmix_o1_component_comparison_unconditional (M : MixtureData) {c : ℝ}
   obtain ⟨hw, hs⟩ := pmix_o1_component_comparison M hc
   exact ⟨hw hfw, hle, hs hfs⟩
 
-/-! ### 2. Strict component inequality (`pmix:o1`, final paragraph) -/
+/-! ### 2. Strict component inequality (Lean addition; not a clause of `pmix:o1`) -/
 
 /-- **`pmix:o1` strict comparison**: for `M : MixtureData` with `12 * M.Smax ≤ c` and
 `∀ i, 12 * M.r i < c`, if some component satisfies

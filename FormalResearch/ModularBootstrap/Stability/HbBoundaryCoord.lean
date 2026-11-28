@@ -2157,8 +2157,9 @@ theorem hb_boundary_diff (C : HbBoundaryChart hHB₀ hQ₀)
   dsimp [d_i] at h_coeff0
   exact eq_div_of_mul_eq hbm_pos.ne' (by linarith)
 
-/-- **Theorem `se:terminal-stability` (complete multilevel & local boundary statement):**
-Combines the asymptotic expansion \eqref{se:multilevel-slope} (`hbMultiI_expansion`), global
+/-- **Theorem `se:terminal-stability`** (all clauses, for the fixed strict Hermite–Biehler data):
+the expansion \eqref{se:multilevel-slope} (`hbMultiI_expansion`) with `b_m > 0`; positivity of
+`I_N(δ)` for `δ > 0` and the terminal slope \eqref{se:terminal-slope} (`hb_stability`); global
 uniqueness up to scaling (`hb_interpolant_unique_up_to_scale`), existence of the real-analytic
 local Hermite–Biehler boundary chart `Z_m(y)`, local boundary sign characterization, and the
 boundary differential formula \eqref{se:hb-boundary-diff} (`∂Z_m/∂y_i = -b_i / b_m`). -/
@@ -2167,6 +2168,11 @@ theorem se_terminal_stability_boundary :
       hbMultiI hHB₀ hQ₀ h - ∑ t : ↥(hbTopZeros hHB₀ hQ₀), hbNodeCoeff hHB₀ hQ₀ t.1 * h t)
         =o[𝓝 0] id ∧
       0 < hbNodeCoeff hHB₀ hQ₀ (hbMinZero hHB₀ hQ₀) ∧
+      ((∀ δ : ℝ, 0 < δ → 0 < hbI hHB₀ hQ₀ δ) ∧
+        Tendsto (fun δ : ℝ => hbI hHB₀ hQ₀ δ / δ) (𝓝[>] 0)
+          (𝓝 (airyPQDr P₀ Q₀ (hbMinZero hHB₀ hQ₀) /
+            (profileMass (hbExtremal hHB₀ hQ₀) *
+              ∏ t ∈ (hbTopZeros hHB₀ hQ₀).erase (hbMinZero hHB₀ hQ₀), (t - hbMinZero hHB₀ hQ₀))))) ∧
       ∃ C : HbBoundaryChart hHB₀ hQ₀,
         (∀ᶠ y in 𝓝 (fun i => i.1),
           hbPrescribedI hHB₀ hQ₀ y (C.zm y) = 0 ∧
@@ -2175,7 +2181,7 @@ theorem se_terminal_stability_boundary :
         (∀ i : ↥((hbTopZeros hHB₀ hQ₀).erase (hbMinZero hHB₀ hQ₀)),
           fderiv ℝ C.zm (fun j => j.1) (Pi.single i 1) =
             -(hbNodeCoeff hHB₀ hQ₀ i.1) / hbNodeCoeff hHB₀ hQ₀ (hbMinZero hHB₀ hQ₀)) :=
-  ⟨(hbMultiI_expansion hHB₀ hQ₀).1, (hbMultiI_expansion hHB₀ hQ₀).2.1,
+  ⟨(hbMultiI_expansion hHB₀ hQ₀).1, (hbMultiI_expansion hHB₀ hQ₀).2.1, hb_stability hHB₀ hQ₀,
     hbBoundaryChart hHB₀ hQ₀, hb_local_boundary_signs hHB₀ hQ₀ _,
     fun i => hb_boundary_diff hHB₀ hQ₀ _ i⟩
 

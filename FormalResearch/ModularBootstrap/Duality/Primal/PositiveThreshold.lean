@@ -22,7 +22,7 @@ open Crossing WeightAxioms
 
 variable {prob : FixedWeightProblem} {cTilde : ℝ}
 
-/-- `‖g‖_∞ ≤ C M[g]` on `[0, ∞)` with `C` independent of `c̃` (`dsl:strip-fixed`(a)). -/
+/-- `‖g‖_∞ ≤ C M[g]` on `[0, ∞)` at each fixed charge `c̃` (`dsl:strip-fixed`(a); the uniform-in-`c̃` constant is in `dsl_strip_fixed_a`). -/
 lemma testClass_sup_le (hc : 12 * prob.totalShift ≤ cTilde) : ∃ C : ℝ, 0 ≤ C ∧
     ∀ g : ℝ → ℝ, TestClass prob (cTilde / 12) g → ∀ t : ℝ, 0 ≤ t →
       |g t| ≤ C * prob.cardyNorm (cTilde / 12) g := by
@@ -143,7 +143,7 @@ theorem feasible_gap_lower_bound (hc : 12 * prob.totalShift ≤ cTilde) :
     nlinarith [mul_pos hMpos hB'pos, mul_nonneg hC0 hMpos.le, mul_pos hMpos hT]
   linarith
 
-/-- **`0 < T_V`** (`dsl:strip-fixed`(b)) at every fixed charge `c̃ > 0` with `12 S ≤ c̃`. -/
+/-- **`0 < T_V`** (`dsl:strip-fixed`(b), positivity clause only) at every fixed charge `c̃ > 0` with `12 S ≤ c̃`. -/
 theorem T_V_pos (_hc_pos : 0 < cTilde) (hc : 12 * prob.totalShift ≤ cTilde) :
     0 < prob.T_V cTilde := by
   obtain ⟨T₀, hT₀, hlow⟩ := feasible_gap_lower_bound hc
