@@ -7,10 +7,9 @@ public import FormalResearch.SignUncertainty.HankelBootAssembly
 public import FormalResearch.SignUncertainty.CtCfuData
 
 /-!
-# `chart_gap`: the Langer chart inversion at the first Airy node (F1, `thm:ct-lower`)
+# `chart_gap`: Langer chart five-term expansion at the first Airy node (F1, `thm:ct-lower`)
 
-`constant_terms_lower.tex`: `ct:langer-inv`, `ct:phic-exp`, `ct:five-term-node` and the first step of "Proof of the lower
-bound in `thm:ct-lower`(i)".  **Proved** (given `c₀^ε < 0`, see `ctChartGap`):
+`constant_terms_lower.tex`: `ct:langer-inv`, `ct:phic-exp`, `ct:five-term-node`:
 
 * `ctPsi_taylor`: near `0⁻`, `ctPsi ε` is the smooth `ψ_ε` of `cfu_psi_langer` (unique positive root `τ₀`), with
   `ψ_ε(a) = ψ₀ + γ₀ a + O(a²)`;
@@ -18,12 +17,8 @@ bound in `thm:ct-lower`(i)".  **Proved** (given `c₀^ε < 0`, see `ctChartGap`)
   `φ = a₁ - 2^{-2/3}ψ₀ c^{-1/3} - γ₀ a₁ c⁻¹ + O(c^{-4/3})`;
 * `lam_psi0`: `2^{-2/3}ψ₀ = β₁c₀^ε`; `five_term_poly`, `five_term_bound`: the exact algebra behind
   `c ξ(φ_c(a₁)) = Δ₅^ε(c) + O(c⁻¹)` (`ctNode_expansion`, with the model `ctChartX` of `cξ` of `hankelXi_expansion`);
-* `ctChartGap_eps`, **`ctChartGap`**: for feasible `f` with `M[f] = 1` and `T ≤ Δ₅^ε(c) - K c⁻¹ log c`,
-  `ũ(T/c) - φ_c(a₁) ≥ (Kβ₁/2) c^{-4/3} log c` (large `c`).  The point `ũ₁` is produced by
-  `hankel_quantC1_of_feasible` (which needs `T < cξ(a₁)`, i.e. `c₀^ε < 0` here) and `hankelBoot_uT_range`.
-
-The hypothesis `c₀^ε < 0` (`ctKappa ε < 0`, TeX `ct:theta1` numerics: `I₀ ≈ 0.243 < 3 log 2`) is the only input not
-proved here.
+* `gap_from_chain`, `ctChartX_sub`: algebra for the log-free Langer chart inversion `ctChartGap_sharp`
+  in `CtLowerLogFreeSkeleton`.
 -/
 
 @[expose] public section
@@ -473,164 +468,6 @@ lemma ctChartX_sub {c u φ : ℝ} (hc : 0 < c) :
   rw [ctChartX_eq_k hc, ctChartX_eq_k hc]
   field_simp
   ring
-
-/-- **`chart_gap` for one sign, given `c₀^ε < 0`** (`ct:langer-inv` with `ct:five-term-node` and `thm:hankel-one-two`; the
-inversion step of the proof of `thm:ct-lower`): if `T ≤ Δ₅^ε(c) - K c⁻¹ log c` for a feasible `f` with `M[f] = 1` then
-`ũ(T/c) - φ_c(a₁) ≥ (Kβ₁/2) c^{-4/3} log c`. -/
-theorem ctChartGap_eps {ε : ℝ} (hε : ε = 1 ∨ ε = -1) (hκ : ctKappa ε < 0) {K : ℝ} (hK : 0 < K) :
-    ∃ c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
-      T ≤ ctDelta5 ε c - K * (c⁻¹ * Real.log c) →
-      T < c * hankelXi c (airyZero 1) ∧
-        K * hankelBeta1 / 2 * (c ^ (-(4 / 3) : ℝ) * Real.log c) ≤ ctGap ε c T := by
-  obtain ⟨Cx, hCx⟩ := hankelXi_expansion
-  have hCx' : ∀ c : ℝ, 3e6 ≤ c → ∀ x : ℝ, |x| ≤ 3 → |c * hankelXi c x - ctChartX c x| ≤ Cx * c⁻¹ :=
-    fun c hc x hx => hCx c hc x hx
-  obtain ⟨C5, c5, hc5, hnode⟩ := ctNode_expansion hε
-  obtain ⟨c6, hc6, hq⟩ := hankel_quantC1_of_feasible
-  have hβ0 : 0 < hankelBeta1 := hankelBeta1_pos
-  set β := hankelBeta1 with hβ
-  set a₁ := airyZero 1 with ha₁
-  set q' : ℝ := 9 * π ^ 2 / (25 * β ^ 2) with hq'
-  have hq'0 : 0 ≤ q' := by positivity
-  set d₂ : ℝ := (-a₁ / β) * (CtOuter.ctTheta1 ε + 12 / π ^ 2 * CtOuter.ctTheta3 ε) with hd₂
-  set κ : ℝ := ctKappa ε with hκd
-  set k₀ : ℝ := max (max 1 (12 * β * q')) (2 * (|d₂| + |Cx|) / (-κ)) with hk₀
-  set C' : ℝ := C5 + Cx with hC'
-  refine ⟨max (max (max c5 c6) 3e6) (max (k₀ ^ 3) (Real.exp (4 * |C'| / K))), ?_⟩
-  intro c hc T f hf hM hT
-  have hc5' : c5 ≤ c := (((le_max_left _ _).trans (le_max_left _ _)).trans (le_max_left _ _)).trans hc
-  have hc6' : c6 ≤ c := (((le_max_right _ _).trans (le_max_left _ _)).trans (le_max_left _ _)).trans hc
-  have hc3 : 3e6 ≤ c := ((le_max_right _ _).trans (le_max_left _ _)).trans hc
-  have hck : k₀ ^ 3 ≤ c := ((le_max_left _ _).trans (le_max_right _ _)).trans hc
-  have hce : Real.exp (4 * |C'| / K) ≤ c := ((le_max_right _ _).trans (le_max_right _ _)).trans hc
-  have hc0 : 0 < c := by linarith
-  obtain ⟨h3, hsk, hs2, hs4⟩ := rpow_third_facts hc0
-  set k : ℝ := c ^ (1 / 3 : ℝ) with hk
-  have hk0 : 0 < k := Real.rpow_pos_of_pos hc0 _
-  have hk1 : 1 ≤ k := by
-    rw [hk]; exact Real.one_le_rpow (by linarith) (by norm_num)
-  have hkk₀ : k₀ ≤ k := by
-    by_contra hlt
-    rw [not_le] at hlt
-    have hk₀0 : 0 ≤ k₀ := by
-      have : (1 : ℝ) ≤ k₀ := (le_max_left _ _).trans (le_max_left _ _)
-      linarith
-    have := pow_lt_pow_left₀ hlt hk0.le (by norm_num : (3 : ℕ) ≠ 0)
-    rw [h3] at this
-    linarith
-  have hk_a : 12 * β * q' ≤ k := ((le_max_right _ _).trans (le_max_left _ _)).trans hkk₀
-  have hk_b : 2 * (|d₂| + |Cx|) / (-κ) ≤ k := (le_max_right _ _).trans hkk₀
-  have hlogc : 4 * |C'| / K ≤ Real.log c := by
-    rw [Real.le_log_iff_exp_le hc0]; exact hce
-  have hlog0 : 0 ≤ Real.log c := by
-    have : 0 ≤ 4 * |C'| / K := by positivity
-    linarith
-  have hcinv : c⁻¹ = (k⁻¹) ^ 3 := by rw [inv_pow, h3]
-  have hc43 : c ^ (-(4 / 3) : ℝ) = c⁻¹ * k⁻¹ := by
-    rw [hs4, hcinv]; ring
-  have hki0 : 0 < k⁻¹ := inv_pos.mpr hk0
-  -- the node
-  obtain ⟨⟨φ₁, hφ₁, hφ₁e⟩, hφall⟩ := hnode c hc5'
-  have hφex : ∃ φ ∈ Icc (-3 : ℝ) (-2), ctUhat ε c φ = a₁ := ⟨φ₁, hφ₁, hφ₁e⟩
-  have hφspec := Function.invFunOn_pos hφex
-  set φ := Function.invFunOn (ctUhat ε c) (Icc (-3 : ℝ) (-2)) a₁ with hφdef
-  have hX5 := hφall φ hφspec.1 hφspec.2
-  have hφ3 : -3 ≤ φ ∧ φ ≤ -2 := hφspec.1
-  have ha₁b := airyZero_one
-  -- `T < c ξ(a₁)`
-  have hxa := hCx' c hc3 a₁ (by rw [abs_le]; constructor <;> linarith [ha₁b.1, ha₁b.2])
-  have hΔ : ctDelta5 ε c - ctChartX c a₁ = κ + d₂ * (k⁻¹) ^ 2 := by
-    rw [ctDelta5_eq_k hc0, ctChartX_eq_k hc0]
-    simp only [hκd, hd₂, ctKappa]
-    ring
-  have hkinv_le : (|d₂| + |Cx|) * k⁻¹ ≤ -κ / 2 := by
-    have h1 : (|d₂| + |Cx|) ≤ (-κ) * k / 2 := by
-      have := hk_b
-      rw [div_le_iff₀ (by linarith)] at this
-      linarith
-    calc (|d₂| + |Cx|) * k⁻¹ ≤ (-κ * k / 2) * k⁻¹ := mul_le_mul_of_nonneg_right h1 hki0.le
-      _ = -κ / 2 := by field_simp
-  have hki1 : k⁻¹ ≤ 1 := inv_le_one_of_one_le₀ hk1
-  have hki2 : (k⁻¹) ^ 2 ≤ k⁻¹ := by
-    calc (k⁻¹) ^ 2 = k⁻¹ * k⁻¹ := by ring
-      _ ≤ 1 * k⁻¹ := mul_le_mul_of_nonneg_right hki1 hki0.le
-      _ = k⁻¹ := one_mul _
-  have hki3 : (k⁻¹) ^ 3 ≤ k⁻¹ := by
-    calc (k⁻¹) ^ 3 = (k⁻¹) ^ 2 * k⁻¹ := by ring
-      _ ≤ 1 * k⁻¹ := mul_le_mul_of_nonneg_right ((hki2.trans hki1)) hki0.le
-      _ = k⁻¹ := one_mul _
-  have hlt1 : κ + d₂ * (k⁻¹) ^ 2 + Cx * c⁻¹ < 0 := by
-    rw [hcinv]
-    have a1 : d₂ * (k⁻¹) ^ 2 ≤ |d₂| * k⁻¹ := by
-      calc d₂ * (k⁻¹) ^ 2 ≤ |d₂| * (k⁻¹) ^ 2 := mul_le_mul_of_nonneg_right (le_abs_self _) (by positivity)
-        _ ≤ |d₂| * k⁻¹ := mul_le_mul_of_nonneg_left hki2 (abs_nonneg _)
-    have a2 : Cx * (k⁻¹) ^ 3 ≤ |Cx| * k⁻¹ := by
-      calc Cx * (k⁻¹) ^ 3 ≤ |Cx| * (k⁻¹) ^ 3 := mul_le_mul_of_nonneg_right (le_abs_self _) (by positivity)
-        _ ≤ |Cx| * k⁻¹ := mul_le_mul_of_nonneg_left hki3 (abs_nonneg _)
-    have h7 : (|d₂| + |Cx|) * k⁻¹ = |d₂| * k⁻¹ + |Cx| * k⁻¹ := by ring
-    linarith only [hkinv_le, a1, a2, h7, hκ]
-  have hKlog : 0 ≤ K * (c⁻¹ * Real.log c) := by positivity
-  have hTlt : T < c * hankelXi c a₁ := by
-    have h1 := (abs_le.1 hxa).1
-    linarith
-  obtain ⟨u_T, ha1, hle, hcT, hB2⟩ := hq c ε T f hc6' hf hε hM hTlt
-  obtain ⟨hu0, hu3⟩ := hankelBoot_uT_range ha1 hB2
-  have hxiT : hankelXi c u_T = T / c := by rw [eq_div_iff hc0.ne']; linarith [hcT]
-  have hexT : ∃ x ∈ Icc (-3 : ℝ) 0, hankelXi c x = T / c := ⟨u_T, ⟨hu3, hu0⟩, hxiT⟩
-  have hu₁spec : ctUtilde c T ∈ Icc (-3 : ℝ) 0 ∧ hankelXi c (ctUtilde c T) = T / c := by
-    unfold ctUtilde; exact Function.invFunOn_pos hexT
-  set u₁ := ctUtilde c T with hu₁d
-  have hu₁1 : -3 ≤ u₁ ∧ u₁ ≤ 0 := hu₁spec.1
-  have hTe : c * hankelXi c u₁ = T := by rw [hu₁spec.2]; field_simp
-  have hxu := hCx' c hc3 u₁ (by rw [abs_le]; constructor <;> linarith [hu₁1.1, hu₁1.2])
-  rw [hTe] at hxu
-  have hC'le : C' ≤ K * Real.log c / 4 := by
-    have h1 : 4 * |C'| / K ≤ Real.log c := hlogc
-    rw [div_le_iff₀ hK] at h1
-    have := le_abs_self C'
-    linarith
-  have hcpos : 0 < c⁻¹ := inv_pos.mpr hc0
-  have hchain : ctChartX c u₁ - ctChartX c φ ≤ C' * c⁻¹ - K * (c⁻¹ * Real.log c) := by
-    have h1 := (abs_le.1 hxu).1
-    have h2 := (abs_le.1 hX5).1
-    have h4 : ctDelta5 ε c ≤ ctChartX c φ + C5 * c⁻¹ := by linarith
-    have h5 : C' * c⁻¹ = C5 * c⁻¹ + Cx * c⁻¹ := by rw [hC']; ring
-    linarith
-  have hchain2 : ctChartX c u₁ - ctChartX c φ ≤ -(3 / 4 * K * (c⁻¹ * Real.log c)) := by
-    have : C' * c⁻¹ ≤ K * Real.log c / 4 * c⁻¹ := mul_le_mul_of_nonneg_right hC'le hcpos.le
-    have h6 : K * Real.log c / 4 * c⁻¹ = K * (c⁻¹ * Real.log c) / 4 := by ring
-    linarith
-  rw [ctChartX_sub hc0] at hchain2
-  have hgap := gap_from_chain (k := k) (β := β) (q' := q') (K := K) (L := Real.log c) (u₁ := u₁) (φ := φ)
-    hk1 hβ0 hq'0 hk_a hK hlog0 hu₁1 hφ3 (by rw [← hcinv]; exact hchain2)
-  refine ⟨hTlt, ?_⟩
-  have hgapd : ctGap ε c T = u₁ - φ := rfl
-  rw [hgapd, hc43]
-  have e5 : K * β / 2 * (c⁻¹ * k⁻¹ * Real.log c) = K * β / 2 * ((k⁻¹) ^ 3 * k⁻¹ * Real.log c) := by
-    rw [hcinv]
-  rw [e5]
-  exact hgap
-
-/-- **`chart_gap`** (`ct:langer-inv`, `ct:five-term-node`, `thm:hankel-one-two`): given `c₀^ε < 0` for `ε = ±1`, for every
-`K > 0` and all large `c`, every feasible `f` with `M[f] = 1` and `T ≤ Δ₅^ε(c) - K c⁻¹ log c` has
-`ũ(T/c) - φ_c(a₁) ≥ (Kβ₁/2) c^{-4/3} log c`. -/
-theorem ctChartGap (hκ : ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ctKappa ε < 0) :
-    ∀ K : ℝ, 0 < K → ∃ c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
-      ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
-        T ≤ ctDelta5 ε c - K * (c⁻¹ * Real.log c) →
-        T < c * hankelXi c (airyZero 1) ∧
-        K * hankelBeta1 / 2 * (c ^ (-(4 / 3) : ℝ) * Real.log c) ≤ ctGap ε c T := by
-  intro K hK
-  obtain ⟨c₁, h1⟩ := ctChartGap_eps (Or.inl rfl) (hκ 1 (Or.inl rfl)) hK
-  obtain ⟨c₂, h2⟩ := ctChartGap_eps (Or.inr rfl) (hκ (-1) (Or.inr rfl)) hK
-  refine ⟨max c₁ c₂, fun c hc ε hε T f hf hM hT => ?_⟩
-  rcases hε with rfl | rfl
-  · exact h1 c ((le_max_left _ _).trans hc) T f hf hM hT
-  · exact h2 c ((le_max_right _ _).trans hc) T f hf hM hT
-
-/-- info: 'FormalResearch.SignUncertainty.ctChartGap' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms ctChartGap
 
 /-- info: 'FormalResearch.SignUncertainty.ctNode_expansion' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

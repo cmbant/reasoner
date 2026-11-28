@@ -9,31 +9,16 @@ public import FormalResearch.SignUncertainty.CtDualLim
 public import FormalResearch.SignUncertainty.CtChartPsiAnalytic
 
 /-!
-# `ct:dyadic` (4), `(ct:combined)`: the assembly from the five steps of its proof
+# `ct:dyadic` (4), `(ct:combined)`: concrete integrals and exact kernel splitting
 
-`constant_terms_lower.tex`, `ct:dyadic` (4) (proof of `(ct:combined)`).  The proof there has the following steps, each an estimate of
-a concrete integral up to `O(c⁻¹η_R + c^{-4/3} log c)` at a good radius `R ∈ [c₁²c^{2/3}, 4c₁²c^{2/3}]`.  Notation (all concrete): `h = hankelHL`
+`constant_terms_lower.tex`, `ct:dyadic` (4) (objects of `(ct:combined)`). Notation (all concrete): `h = hankelHL`
 (`dm = h dL`, `ξ = e^L/π²`), `w̃ = ctTaper`, `Λ = ctTaperLam = L(ξ(-R'))`, `X = boasX`, `K = dualK` (`K_ε(ξ;c)`),
 `s₁ = ∫_0^R f_c(-v) sin(4/3 v^{3/2}) dv` (`ctOscS1`), `s₂ = ∫_0^R w_R(v) f_c(-v) sin(4/3 v^{3/2}) dv` (`ctOscS2`),
 `M_all = ∫ w̃ h` (`ctMall`), `M_tr = ∫_{L ≥ L(ξ(-v₀))} w̃ h`, `S_tr = ∫_{L ≥ L(ξ(-v₀))} w̃ h sin X`, `K_in = ∫_{L ≤ Λ} K h`, `K_out = ∫_{L > Λ} K h`,
 `S_out = ∫_{L > Λ} h sin X`.
 
-* `rosc`: `P_R(H) + g_vac/2π + M_all + 2(s₁ - s₂) = O(c⁻¹η_R)`: `(ct:rosc)` (Part (3), the half-disc form of
-  `ap:thmD` with `h₊² = (Ai + iBi)²`), the mass identity `∫_{-R}^R f_c = -g_vac/2π - ∫_{ξ>ξ(-R')} dm` (`gt:7.7p` (c), `gt:7.7c` (c)), the lobe piece
-  and the transport `|f_c(-v) dv - dm| ≤ C r_∞ dv'` (`gt:7.7p` (b)): the displayed identity before "Now add twice `ct:dual-id`".
-* `trunc`: `|M_all - M_tr| = O(c^{-29/21})` (`∫_{ξ(0)}^{ξ(-v₀)} w̃ |dm|`, from the first moment; the proved `boas_trunc_lo` with `𝔰_far = 0`).
-* `window`: `K_in + s₁ = O(c⁻¹η_R + c^{-4/3} log c)`: the sub-chart bullet (radial compactness, `|K| ≤ K_b`) and the Airy-window bullet (`ct:cfu` (1) substituted,
-  `(ct:H2-orth)`, the half moment `(ct:half)` for the CFU remainder, `|s₁| ≤ η_R`).
-* `outer`: `K_out + S_out = O(c^{-4/3})` (`ct:cfu` (2) with `B₂(R') = O(c^{-1/3})`).
-* `trans`: `S_tr - s₂ - S_out = O(c^{-4/3})` (`w̃ = 1` beyond `Λ`; the transition band: `(ct:theta-cfu-match)` and the first moment); proved in `CtTransBand` (`ct_combined_trans`) (the chart identification `ct_langer_edge` of `CtLangerEdgeChart` is proved).
-
-`s₁` is the paper's integral `∫_0^R f_c(-v) sin(4/3 v^{3/2}) dv`, with `f_c = Ψ̃(φ_c)φ_c'` for the complex chart on `v ∈ (0, R)` (`ctOscS1`; this includes the edge
-strip `0 < v < -û(0⁻) = O(c^{-1/3})`, `ũ ∈ (0, ũ₀)`, which carries mass `Θ(c^{-5/6})` of `s₁`: an earlier Lean form of `s₁` integrated over the Langer variable
-`x ∈ (-R', 0)` only and omitted it, which made `rosc` false).  `s₂` is kept in the Langer variable `x ∈ (-R', 0)` (`ctOscS2`, `v = -û(x)`,
-`f_c(-v)dv = Ψ̃(x)dx`): there the weight `w_R(v) ≤ 2(v/R)^{12}` makes the edge strip `O(R^{-12})`.
-
-Together with the proved exact duality `K_in + K_out = 0` (`ct:dual-id` (2), `ct_dual_id_part2`) they assemble `(ct:combined)`
-(`ct_dyadicCombined_of_bounds`, used unconditionally in `CtLowerFinal.ct_combined`).
+Provides the log-variable change of variables `integral_logvar`/`integrable_logvar`, exact Cauchy duality `ctKin_add_ctKout`,
+taper bundle `taperBand_pm`, and kernel split `ctKernel_split`, consumed by `CtLowerLogFreeSkeleton` (`ct_dyadicCombined_sharp_of_bounds`).
 -/
 
 @[expose] public section
@@ -150,15 +135,6 @@ lemma integrable_logvar (c : ℝ) (f F : ℝ → ℝ) :
   simp only [smul_eq_mul, hψ, abs_of_pos hp, hankelHL, hankelDmDens]
   ring
 
-/-- `|Q(R, ε, c, f)| ≤ C (c⁻¹ η_R + c^{-4/3} log c)` at every good radius of the window, under the hypotheses of `ct:dyadic`
-(feasible `f`, `M[f] = 1`, violator `T < cξ(a₁)`, `ũ₁ > φ_c(a₁)`), uniformly in `c ≥ c₀`, `ε = ±1`, `f`. -/
-def CtDyadicBound (c₁ : ℝ) (Q : ℝ → ℝ → ℝ → (ℝ → ℝ) → ℝ) : Prop :=
-  ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
-    ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
-      T < c * hankelXi c (FormalResearch.Special.airyZero 1) → 0 < ctGap ε c T →
-      ∀ R : ℝ, R ∈ Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) → ctGoodRadius R →
-        |Q R ε c f| ≤ C * (c⁻¹ * ctEta c₁ ε c f R + c ^ (-(4 / 3) : ℝ) * Real.log c)
-
 /-- `K_ε(ξ(L)) h(L) ∈ L¹(dL)` (`ct:dual-id` (2): `|K_ε| ≤ K_b` and `h ∈ L¹`; measurability of `K_ε` comes from `ct_dual_id_part2`). -/
 lemma integrable_dualK_hankelHL {c ε : ℝ} (hc : 2 ≤ c) (hε : ε = 1 ∨ ε = -1) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f) :
     Integrable (fun L => CtDual.dualK ε c (Real.exp L / π ^ 2) * hankelHL c f L) := by
@@ -225,61 +201,8 @@ lemma ctKernel_split {ε c R : ℝ} {f : ℝ → ℝ} (hc : 0 < c) (hB : TaperBa
   refine setIntegral_congr_fun measurableSet_Ici fun L _ => ?_
   simp only [boasKernel]; ring
 
-/-- **`ct:dyadic` (4), `(ct:combined)`, from its five bounds** (`rosc`, `trunc`, `window`, `outer`, `trans`) and `ct_dual_id_part2`:
-for `c₁` small, the five bounds give `CtDyadicCombinedStatement c₁`. -/
-theorem ct_dyadicCombined_of_bounds :
-    ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ →
-      CtDyadicBound c₁ (fun R ε c f => ctBudget R ε c f + ctMall R ε c f + 2 * (ctOscS1 R ε c f - ctOscS2 R ε c f)) →
-      CtDyadicBound c₁ (fun R ε c f => ctMall R ε c f - ctMtr R ε c f) →
-      CtDyadicBound c₁ (fun R ε c f => ctKin R ε c f + ctOscS1 R ε c f) →
-      CtDyadicBound c₁ (fun R ε c f => ctKout R ε c f + ctSout R ε c f) →
-      CtDyadicBound c₁ (fun R ε c f => ctStr R ε c f - ctOscS2 R ε c f - ctSout R ε c f) →
-      CtDyadicCombinedStatement c₁ := by
-  obtain ⟨γ, hγ, hB⟩ := taperBand_pm
-  refine ⟨γ, hγ, fun c₁ hc₁ hc₁γ hrosc htrunc hwin houter htrans => ?_⟩
-  obtain ⟨cB, hcB3, hBand⟩ := hB c₁ hc₁ hc₁γ
-  obtain ⟨C1, d1, H1⟩ := hrosc
-  obtain ⟨C2, d2, H2⟩ := htrunc
-  obtain ⟨C3, d3, H3⟩ := hwin
-  obtain ⟨C4, d4, H4⟩ := houter
-  obtain ⟨C5, d5, H5⟩ := htrans
-  refine ⟨|C1| + |C2| + 2 * |C3| + 2 * |C4| + 2 * |C5|,
-    max cB (max d1 (max d2 (max d3 (max d4 d5)))), ?_⟩
-  intro c hc ε hε T f hf hm hT hg R hR hgood
-  simp only [max_le_iff] at hc
-  obtain ⟨hcB, hc1, hc2, hc3, hc4, hc5⟩ := hc
-  have hcpos : 0 < c := by linarith
-  have hR0 : 0 ≤ R := le_trans (mul_nonneg (sq_nonneg _) (Real.rpow_nonneg hcpos.le _)) hR.1
-  have hBR : TaperBand ε c R := hBand c hcB ε hε R hR.1 hR.2
-  rw [ctKernel_split hcpos hBR hf.toIsHankelEigenfn]
-  have hdual : ctKin R ε c f + ctKout R ε c f = 0 :=
-    ctKin_add_ctKout (by linarith) hε hf.toIsHankelEigenfn _
-  have e1 := H1 c hc1 ε hε T f hf hm hT hg R hR hgood
-  have e2 := H2 c hc2 ε hε T f hf hm hT hg R hR hgood
-  have e3 := H3 c hc3 ε hε T f hf hm hT hg R hR hgood
-  have e4 := H4 c hc4 ε hε T f hf hm hT hg R hR hgood
-  have e5 := H5 c hc5 ε hε T f hf hm hT hg R hR hgood
-  set E : ℝ := c⁻¹ * ctEta c₁ ε c f R + c ^ (-(4 / 3) : ℝ) * Real.log c with hE
-  have hlog : 0 ≤ Real.log c := Real.log_nonneg (by linarith)
-  have hE0 : 0 ≤ E :=
-    add_nonneg (mul_nonneg (inv_nonneg.2 hcpos.le) (ctEta_nonneg c₁ ε c f hR0))
-      (mul_nonneg (Real.rpow_nonneg hcpos.le _) hlog)
-  have mk : ∀ {C : ℝ} {Q : ℝ}, |Q| ≤ C * E → |Q| ≤ |C| * E := fun h =>
-    h.trans (mul_le_mul_of_nonneg_right (le_abs_self _) hE0)
-  have a1 := abs_le.1 (mk e1)
-  have a2 := abs_le.1 (mk e2)
-  have a3 := abs_le.1 (mk e3)
-  have a4 := abs_le.1 (mk e4)
-  have a5 := abs_le.1 (mk e5)
-  rw [abs_le]
-  constructor <;> linarith only [a1.1, a1.2, a2.1, a2.2, a3.1, a3.2, a4.1, a4.2, a5.1, a5.2, hdual]
-
 /-- info: 'FormalResearch.SignUncertainty.ctKin_add_ctKout' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ctKin_add_ctKout
-
-/-- info: 'FormalResearch.SignUncertainty.ct_dyadicCombined_of_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms ct_dyadicCombined_of_bounds
 
 end FormalResearch.SignUncertainty

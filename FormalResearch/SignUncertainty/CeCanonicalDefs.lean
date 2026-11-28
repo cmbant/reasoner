@@ -31,8 +31,9 @@ Concrete objects (no free data):
   field of `CeCanonicalInputs`; `lem:airy-node-square`, `lem:ce-terminal-deflation`, and `thm:airy-node-sign` are
   proved in `AiryNodeSquare.lean`, `CeTerminalDeflation.lean`, and `AiryNodeSign.lean`, and are also no longer fields).
 
-`CeCanonicalInputs D t` is the input structure of the headline `thm_ce_canonical_iff` (in `Headlines.lean`); every
-field is an open result of the paper and names its label.
+`CeCanonicalInputs D t` is the input structure of the headline `thm_ce_canonical_iff` (in `Headlines.lean`); its
+remaining open field is `shell_reduction : ShellReduction D` (`thm:ce-shell-reduction`, M8; `shifted_lift` and
+`ce_hb_lift` are proved in `CeShiftedLift.lean` and `CeHbLift.lean` and are no longer fields).
 -/
 
 @[expose] public section
@@ -274,14 +275,5 @@ structure CeCanonicalInputs (D : ShellHBData) (_t : ℕ → ℝ) : Prop where
   /-- `thm:ce-shell-reduction` (open for `m ≥ 2`, M8; it follows from the lower half of `u1cl:multilevel`,
   `thm:intro-hb`): bounded offsets give `R²/2 ≥ d/(2π²) - (t_m/β₁)(d/2)^{1/3} - O(1)`. -/
   shell_reduction : ShellReduction D
-  /-- `thm:ce-hb-lift` (with `thm:ce-hb-lift-tangency`), weak Laplace positivity (M6, M8). -/
-  ce_hb_lift : CeHbLift D
-  /-- `thm:ce-shifted-lift` (`ce_shifted_witnesses.tex`; open, M6 Mellin-Hankel lift): every rational-Airy lift
-  seed `IsAiryLiftSeed S u_* H₀` on a compact `S` lifts to Cohn-Elkies Hankel pairs strictly negative beyond
-  `c/π² - (u_*/β₁) c^{1/3} + K₀` and near the sites (`CeShiftedLiftDefs.lean`). Together with the proved
-  `thm:al-rational-density` it gives `thm:ce-airy-transfer` (1), upper bound, as
-  `CeCanonicalInputs.ce_airy_transfer_upper` (`ce_airy_transfer_upper_of_shifted_lift`, `AiryRationalDensity.lean`).
-  It does not depend on `D`. -/
-  shifted_lift : CeShiftedLift
 
 end FormalResearch.SignUncertainty

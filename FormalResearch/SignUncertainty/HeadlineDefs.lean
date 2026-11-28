@@ -23,6 +23,14 @@ def HbThresholdsLower : Prop :=
   ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ∀ (T : ℝ) (f : ℝ → ℝ),
     IsHankelFeasible c ε T f → c / π ^ 2 + airyOrderCoeff * c ^ (1 / 3 : ℝ) - C ≤ T
 
+/-- `thm:hb-thresholds` at `(P, Q) = (1, 0)`, upper half (`u1co:O9p`, Theorem O.9', the one-level
+construction): for large `c` and either eigenvalue there is a feasible `f` at a threshold at most
+`c/π² + A c^{1/3} + C`. -/
+def HbThresholdsUpper : Prop :=
+  ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
+    ∃ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f ∧
+      T ≤ c / π ^ 2 + airyOrderCoeff * c ^ (1 / 3 : ℝ) + C
+
 /-- `thm:ce-shell-reduction` (Theorem HB--CE.L) for `D`, bounded offsets: every admissible radius
 satisfies `R²/2 ≥ d/(2π²) - (t_m/β₁)(d/2)^{1/3} - O(1)`, uniformly over the allowed offsets. -/
 def ShellReduction (D : ShellHBData) : Prop :=

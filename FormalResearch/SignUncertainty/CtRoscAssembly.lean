@@ -13,10 +13,12 @@ public import FormalResearch.SignUncertainty.CtDyadicPsiWindow
 /-!
 # `ct:dyadic` (4), `(ct:rosc)`: the Airy-side half-disc estimate at a good radius
 
-Core estimate for `CtCombinedPieces.rosc`: with `W₆(u) = (1-(u/R)^{12})²` and `F = f_c = ctFcC ctChartC1 ε c f` (holomorphic and conjugation-symmetric on a
-disc of radius `> R_max`, `ctFcC_holo`), the half-disc defect formula `airy_halfdisc_rosc` and the pure-Airy comparison `AiryRplusComparison`
-bound `ctRoscAiry` (the Airy-side quantity `Σ_{n≤N} H(a_n)/Ai'(a_n)² - ∫_{-R}^R H + 2∫_0^R Re H(-v) sin(4/3 v^{3/2}) dv`, `H = W₆ F`) by `K η(R)`.
-All proved (`AiryRplusComparison` is `airyRplusComparison`, `CtRoscAiry`).
+Core estimate (`ctRoscAiry_le` and `CtRoscBook`) for `CtLowerLogFreeSkeleton.ct_combined_rosc_sharp`:
+with `W₆(u) = (1-(u/R)^{12})²` and `F = f_c = ctFcC ctChartC1 ε c f` (holomorphic and
+conjugation-symmetric on a disc of radius `> R_max`, `ctFcC_holo`), the half-disc defect
+formula `airy_halfdisc_rosc` and the pure-Airy comparison `AiryRplusComparison` bound `ctRoscAiry`
+(the Airy-side quantity `Σ_{n≤N} H(a_n)/Ai'(a_n)² - ∫_{-R}^R H + 2∫_0^R Re H(-v) sin(4/3 v^{3/2}) dv`,
+`H = W₆ F`) by `K η(R)`. All proved (`airyRplusComparison`, `ct_rosc_book`).
 -/
 
 @[expose] public section
@@ -165,108 +167,6 @@ lemma ctGoodRadius_ne_zero {R : ℝ} (hR : 0 < R) (hg : ctGoodRadius R) (u : ℂ
     have h1 : 0 < (1 + R) ^ (-(1 / 2) : ℝ) := Real.rpow_pos_of_pos (by linarith) _
     positivity
   exact absurd this (not_le.2 hp)
-
-lemma rosc_arith {q d a Cb B x cn lg : ℝ} (hq : |q| ≤ d + a) (hd : d ≤ Cb * cn) (ha : a ≤ B * x) (hcn : 0 ≤ cn)
-    (hlg : 1 ≤ lg) (hB : 0 ≤ B) (hx : 0 ≤ x) : |q| ≤ (|Cb| + B) * (x + cn * lg) := by
-  have h1 : Cb * cn ≤ |Cb| * (cn * lg) := by
-    calc Cb * cn ≤ |Cb| * cn := mul_le_mul_of_nonneg_right (le_abs_self Cb) hcn
-      _ ≤ |Cb| * (cn * lg) := mul_le_mul_of_nonneg_left (by nlinarith) (abs_nonneg Cb)
-  have h2 : B * x ≤ B * (x + cn * lg) := mul_le_mul_of_nonneg_left (by nlinarith [mul_nonneg hcn (by linarith : (0:ℝ) ≤ lg)]) hB
-  nlinarith [abs_nonneg Cb]
-
-/-- **`CtCombinedPieces.rosc`** (`(ct:rosc)`, `ct:dyadic` (4)), from the Airy comparison `airyRplusComparison` (`CtRoscAiry`, proved) and `CtRoscBook`
-(Hankel bookkeeping, proved: `ct_rosc_book`): for small `c₁`, `|budget + M_all + 2(s₁ - s₂)| ≤ C(c⁻¹ η_R + c^{-4/3} log c)` at good radii.  The Airy part is the half-disc
-defect formula `airy_halfdisc_rosc` with `W₆ f_c`, `K = C R^{-3/2} ≤ C c₁^{-3} c⁻¹`.  Proved given the hypothesis `CtRoscBook c₁` (itself proved, `ct_rosc_book`). -/
-theorem ct_combined_rosc :
-    ∃ γ : ℝ, 0 < γ ∧ ∀ c₁ : ℝ, 0 < c₁ → c₁ ≤ γ → CtRoscBook c₁ →
-      CtDyadicBound c₁ fun R ε c f => ctBudget R ε c f + ctMall R ε c f + 2 * (ctOscS1 R ε c f - ctOscS2 R ε c f) := by
-  obtain ⟨ρ₁, M₁, hρ₁, hM₁, hw₁⟩ := ctPsi_window (ε := 1) (Or.inl rfl)
-  obtain ⟨ρ₂, M₂, hρ₂, hM₂, hw₂⟩ := ctPsi_window (ε := -1) (Or.inr rfl)
-  obtain ⟨Ccmp, R₀, hCcmp, hcmp⟩ := airyRplusComparison
-  refine ⟨min ctChartC1 (min (ρ₁ / 16) (ρ₂ / 16)), lt_min ctChartC1_pos (lt_min (by positivity) (by positivity)), ?_⟩
-  intro c₁ hc₁ hγ hBook
-  have hle : c₁ ≤ ctChartC1 := hγ.trans (min_le_left _ _)
-  have hρ1 : c₁ ≤ ρ₁ / 16 := hγ.trans ((min_le_right _ _).trans (min_le_left _ _))
-  have hρ2 : c₁ ≤ ρ₂ / 16 := hγ.trans ((min_le_right _ _).trans (min_le_right _ _))
-  have hc₁1 : c₁ ≤ 1 := hle.trans (ctChartC1_le.trans (by norm_num))
-  have hc₁2 : c₁ ^ 2 ≤ c₁ := by nlinarith
-  obtain ⟨C₁, c₀₁, hC₁, H₁⟩ := ctChartComplex_of_le hc₁ hle
-  obtain ⟨C₂, c₀₂, hC₂, H₂⟩ := ctChartComplex_ctChartC1
-  obtain ⟨Cb, c₀b, Hb⟩ := hBook
-  set t : ℝ := max R₀ 1 / c₁ ^ 2 with ht
-  have hc12 : 0 < c₁ ^ 2 := by positivity
-  have ht0 : 0 ≤ t := by positivity
-  set X : ℝ := max (max (max c₀₁ c₀₂) (max c₀b 3e6)) (max (max (t ^ (3 / 2 : ℝ)) ((M₁ + M₂ + 1) / c₁ ^ 2))
-    ((|C₂| + 1) ^ 3)) with hX
-  refine ⟨|Cb| + Ccmp * (c₁ ^ 3)⁻¹, X, ?_⟩
-  intro c hcX ε hε T f hfeas hmass hT hgap R hR hgood
-  have hc3 : 3e6 ≤ c := ((le_max_right _ _).trans ((le_max_right _ _).trans (le_max_left _ _))).trans hcX
-  have hc0 : 0 < c := by linarith
-  have hc01 : c₀₁ ≤ c := (((le_max_left _ _).trans (le_max_left _ _)).trans (le_max_left _ _)).trans hcX
-  have hc02 : c₀₂ ≤ c := (((le_max_right _ _).trans (le_max_left _ _)).trans (le_max_left _ _)).trans hcX
-  have hc0b : c₀b ≤ c := (((le_max_left _ _).trans (le_max_right _ _)).trans (le_max_left _ _)).trans hcX
-  have hct : t ^ (3 / 2 : ℝ) ≤ c := (((le_max_left _ _).trans (le_max_left _ _)).trans (le_max_right _ _)).trans hcX
-  have hcM : (M₁ + M₂ + 1) / c₁ ^ 2 ≤ c := (((le_max_right _ _).trans (le_max_left _ _)).trans (le_max_right _ _)).trans hcX
-  have hcC : (|C₂| + 1) ^ 3 ≤ c := ((le_max_right _ _).trans (le_max_right _ _)).trans hcX
-  have hRt := le_rpow_two_thirds ht0 hct
-  have hmax : max R₀ 1 ≤ c₁ ^ 2 * c ^ (2 / 3 : ℝ) := by
-    have := mul_le_mul_of_nonneg_left hRt hc12.le
-    rwa [ht, mul_div_cancel₀ _ hc12.ne'] at this
-  have hR0' : R₀ ≤ c₁ ^ 2 * c ^ (2 / 3 : ℝ) := (le_max_left _ _).trans hmax
-  have hRpos : 0 < c₁ ^ 2 * c ^ (2 / 3 : ℝ) := lt_of_lt_of_le one_pos ((le_max_right _ _).trans hmax)
-  have hRlo : c₁ ^ 2 * c ^ (2 / 3 : ℝ) ≤ R := hR.1
-  have hRhi : R ≤ 4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ) := hR.2
-  have hR0 : 0 < R := lt_of_lt_of_le hRpos hRlo
-  obtain ⟨N, hN, hD⟩ := airy_circleData hR0 (ctGoodRadius_ne_zero hR0 hgood)
-  have hMc : M₁ < 2 * c₁ ^ 2 * c ∧ M₂ < 2 * c₁ ^ 2 * c := by
-    have h1 : M₁ + M₂ + 1 ≤ c₁ ^ 2 * c := by
-      rw [div_le_iff₀ hc12] at hcM; linarith
-    constructor <;> nlinarith [mul_pos hc12 hc0]
-  have hcC' : C₂ * c ^ (-(1 / 3 : ℝ)) < 1 := by
-    have h1 : |C₂| + 1 ≤ c ^ (1 / 3 : ℝ) := by
-      have := Real.rpow_le_rpow (by positivity) hcC (by norm_num : (0 : ℝ) ≤ 1 / 3)
-      rwa [← Real.rpow_natCast, ← Real.rpow_mul (by positivity),
-        show ((3 : ℕ) : ℝ) * (1 / 3) = 1 by norm_num, Real.rpow_one] at this
-    have h2 : 0 < c ^ (1 / 3 : ℝ) := Real.rpow_pos_of_pos hc0 _
-    rw [Real.rpow_neg hc0.le, ← div_eq_mul_inv, div_lt_one h2]
-    linarith [le_abs_self C₂]
-  have hKnn : 0 ≤ Ccmp * R ^ (-(3 / 2) : ℝ) := mul_nonneg hCcmp (Real.rpow_nonneg hR0.le _)
-  have hair : ‖ctRoscAiry R ε c f N‖ ≤ Ccmp * R ^ (-(3 / 2) : ℝ) * ctEta c₁ ε c f R := by
-    have hcmpR : ∀ θ ∈ Icc (0 : ℝ) π, ‖ctW6 R (circleMap 0 R θ)‖ *
-        ‖airyRplus (circleMap 0 R θ) - 2 * airyUpE (circleMap 0 R θ)‖ ≤
-          Ccmp * R ^ (-(3 / 2) : ℝ) * ‖airyUpE (circleMap 0 R θ)‖ := fun θ hθ =>
-      hcmp R (hR0'.trans hRlo) hgood θ hθ
-    rcases hε with rfl | rfl
-    · exact ctRoscAiry_le hc₁ hle (H₁ 1 (Or.inl rfl) c hc01) (H₂ 1 (Or.inl rfl) c hc02) ⟨hρ₁, hM₁, hw₁⟩
-        (by linarith) hMc.1 hc3 hcC' hfeas.toIsHankelEigenfn hR0 hRhi hD hcmpR
-    · exact ctRoscAiry_le hc₁ hle (H₁ (-1) (Or.inr rfl) c hc01) (H₂ (-1) (Or.inr rfl) c hc02) ⟨hρ₂, hM₂, hw₂⟩
-        (by linarith) hMc.2 hc3 hcC' hfeas.toIsHankelEigenfn hR0 hRhi hD hcmpR
-  have hbk := Hb c hc0b ε hε T f hfeas hmass hT hgap R hR hgood N hN
-  have hKle : R ^ (-(3 / 2) : ℝ) ≤ (c₁ ^ 3)⁻¹ * c⁻¹ := by
-    rw [← rpow_neg_three_halves hc₁ hc0]
-    exact Real.rpow_le_rpow_of_nonpos hRpos hRlo (by norm_num)
-  have hη := ctEta_nonneg c₁ ε c f hR0.le
-  have hcneg : 0 ≤ c ^ (-(4 / 3) : ℝ) := Real.rpow_nonneg hc0.le _
-  have hlog : 1 ≤ Real.log c := by
-    rw [Real.le_log_iff_exp_le hc0]
-    have := Real.exp_one_lt_d9
-    linarith
-  set Q : ℝ := ctBudget R ε c f + ctMall R ε c f + 2 * (ctOscS1 R ε c f - ctOscS2 R ε c f) with hQ
-  have h1 : |Q| ≤ ‖(Q : ℂ) - ctRoscAiry R ε c f N‖ + ‖ctRoscAiry R ε c f N‖ := by
-    rw [← Real.norm_eq_abs, ← Complex.norm_real]
-    calc ‖(Q : ℂ)‖ = ‖((Q : ℂ) - ctRoscAiry R ε c f N) + ctRoscAiry R ε c f N‖ := by rw [sub_add_cancel]
-      _ ≤ _ := norm_add_le _ _
-  have h2 : Ccmp * R ^ (-(3 / 2) : ℝ) * ctEta c₁ ε c f R ≤ Ccmp * (c₁ ^ 3)⁻¹ * (c⁻¹ * ctEta c₁ ε c f R) := by
-    have := mul_le_mul_of_nonneg_left hKle hCcmp
-    calc _ ≤ Ccmp * ((c₁ ^ 3)⁻¹ * c⁻¹) * ctEta c₁ ε c f R := mul_le_mul_of_nonneg_right this hη
-      _ = _ := by ring
-  have hpos1 : 0 ≤ Ccmp * (c₁ ^ 3)⁻¹ := mul_nonneg hCcmp (by positivity)
-  have hcη : 0 ≤ c⁻¹ * ctEta c₁ ε c f R := mul_nonneg (inv_nonneg.2 hc0.le) hη
-  exact rosc_arith h1 hbk (hair.trans h2) hcneg hlog hpos1 hcη
-
-/-- info: 'FormalResearch.SignUncertainty.ct_combined_rosc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms ct_combined_rosc
 
 /-- info: 'FormalResearch.SignUncertainty.ctRoscAiry_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
